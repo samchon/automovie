@@ -17,14 +17,14 @@ The frozen file is the source, because a URL, a model name or a seed does not id
 
 ## What the use needs
 
-Every asset is [normalized](#normalization), [cleaned](#cleanup) and [reduced](#reduction). Its use adds:
+Every asset is normalized, cleaned and reduced. Its use adds:
 
 | Further work | For an asset that |
 | --- | --- |
 | [Modularization](modularization.md) | Moves as rigid parts on pivots, such as a door or a robot |
 | [Rigging](rigging.md) | Deforms, such as a creature or a clothed figure |
 | [Connections](modularization.md#frames-and-connections) | Carries crafted parts, such as a held prop |
-| [Variation](#variation) | Varies by a parameter |
+| Variation | Varies by a parameter |
 
 Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close; do them when that use or the user asks. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
 
@@ -53,7 +53,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the rend
 
 ### Reduction
 
-Reduce to the triangle count the asset's closest required view needs, at one of the places [Cleanup](#cleanup) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices. Reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
+Reduce to the triangle count the asset's closest required view needs, at one of the places Cleanup lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices. Reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 

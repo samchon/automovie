@@ -11,7 +11,7 @@ Answer for what the declaration implements, wherever its file lives:
 | Pure rule or table | Legality, outcome classification or variation bounds |
 | Consequence | The effect of an actual outcome |
 
-A law names the study it follows in its [studied laws](#studied-laws) answer, as `docs/research/<discipline>/<topic>.md` with the section and values it uses.
+A law names the study it follows in its studied laws answer, as `docs/research/<discipline>/<topic>.md` with the section and values it uses.
 
 Statements: [statements/behaviors.md](statements/behaviors.md).
 

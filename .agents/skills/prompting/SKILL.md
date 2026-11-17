@@ -9,12 +9,6 @@ A prompt is any instruction an agent reads: `AGENTS.md`, `CLAUDE.md`, a skill or
 
 Before editing a prompt, fetch and read in full the current prompting guide for the model that will read it, rather than recalling it, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
 
-- [Content](#content)
-- [Skills and contracts](#skills-and-contracts)
-- [Layout](#layout)
-- [Shared skills](#shared-skills)
-- [Verification](#verification)
-
 ## Content
 
 ### What to state

@@ -5,11 +5,6 @@ description: Defines the automovie product contract, package boundaries and comm
 
 # Project
 
-- [Product contract](#product-contract)
-- [Out of scope](#out-of-scope)
-- [Packages](#packages)
-- [Commands](#commands)
-
 ## Product contract
 
 AutoMovie produces film-generation diffusion hints from an LLM-authored screenplay: readable geometry, staging, motion and timing, reproducible frame to frame. A change that buys visual richness with determinism, authorability or review cost delivers the wrong thing.

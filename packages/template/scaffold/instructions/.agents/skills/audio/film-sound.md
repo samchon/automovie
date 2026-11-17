@@ -1,6 +1,6 @@
 # Film sound
 
-Each take of a generated film brings its own sound, so once the takes are finished, film sound finishes the film's sound across them, under the user's listening. Its [loudness](#loudness) target serves any film with sound. Beds, effects and score come through [acquisition](acquisition.md) and this skill's sound effects page.
+Each take of a generated film brings its own sound, so once the takes are finished, film sound finishes the film's sound across them, under the user's listening. Its loudness target serves any film with sound. Beds, effects and score come through [acquisition](acquisition.md) and this skill's sound effects page.
 
 ## Separation
 
@@ -24,4 +24,4 @@ Every delivered film with sound has a loudness target in the [delivery profile](
 
 Measure on the decoded mix, by [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) with dialogue gating where the target asks for it, that loudness and true peak meet the target and that every spoken line rises over the bed.
 
-Keep dialogue, music and effects on separate tracks through the whole mix, so the stems and any music-and-effects mix the profile asks for can be exported; a generated take's speech reaches its own track only through [separation](#separation).
+Keep dialogue, music and effects on separate tracks through the whole mix, so the stems and any music-and-effects mix the profile asks for can be exported; a generated take's speech reaches its own track only through separation.

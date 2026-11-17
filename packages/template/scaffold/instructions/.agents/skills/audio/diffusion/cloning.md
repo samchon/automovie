@@ -1,6 +1,6 @@
 # Voice cloning
 
-Voice cloning uses reference audio to condition a speaker's identity. For new words, use reference-conditioned text-to-speech; for an existing delivery, use [performance conversion](#performance-conversion). Voice design from description belongs to [prompts](prompts.md#voice-design).
+Voice cloning uses reference audio to condition a speaker's identity. For new words, use reference-conditioned text-to-speech; for an existing delivery, use performance conversion. Voice design from description belongs to [prompts](prompts.md#voice-design).
 
 ## Reference and transcript
 

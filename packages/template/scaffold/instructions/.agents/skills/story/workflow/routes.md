@@ -27,7 +27,7 @@ A fixed screenplay is never edited, reviewed or rewritten. An exchange, outcome 
 
 ## One chain
 
-Commissioned video follows one traceable chain: settings or a short's brief, the screenplay, the entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../../motion/catalog-cases.md), the scene composition, then the film. When [no narrative pass runs](#who-writes-the-screenplay), the instructions stand in for settings or the brief.
+Commissioned video follows one traceable chain: settings or a short's brief, the screenplay, the entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../../motion/catalog-cases.md), the scene composition, then the film. When no narrative pass runs, the instructions stand in for settings or the brief.
 
 Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized.
 

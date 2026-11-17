@@ -8,7 +8,7 @@ When an endpoint accepts a render as an ordinary reference image, label its role
 
 For stronger structural guidance, choose a checkpoint and endpoint with compatible pose, depth, edge or normal controls, and match the adapter to the base model. Render the controls from the scene rather than estimate them from the hint's RGB image, in the adapter's convention under [channel alignment](../../motion/control-channels.md#channel-alignment). Use its recommended strengths, with masks where supported and a coarse shape's strength under [dense channels](../../motion/control-channels.md#dense-channels), and align every channel to the output size.
 
-To restyle the render itself, combine image-to-image strength with structural controls where supported. Neither controls nor a fixed seed guarantee identical pixels; compare the output's pose, silhouette and camera against the render under [shot frames](#shot-frames).
+To restyle the render itself, combine image-to-image strength with structural controls where supported. Neither controls nor a fixed seed guarantee identical pixels; compare the output's pose, silhouette and camera against the render under shot frames.
 
 ## Shot frames
 
