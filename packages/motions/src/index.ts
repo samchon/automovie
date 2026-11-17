@@ -295,6 +295,7 @@ export * from "./lexicon/HumanMountReach";
 export * from "./lexicon/HumanMountRider";
 export * from "./lexicon/HumanBlade";
 export * from "./lexicon/composeHumanBladeExchange";
+export * from "./lexicon/readHumanBladeExchangeCues";
 export * from "./audit/HumanVariation";
 export * from "./lexicon/HumanCarried";
 export * from "./lexicon/HumanCarriedCoupling";

@@ -48,6 +48,7 @@ export function test_human_motion_blade_exchange_composition(): void {
     cue: "first",
     openingProp: "foam-a",
     respondingProp: "foam-b",
+    blockLeadSeconds: 0.75,
     openingMark: { kind: "prop", subject: "set", point: "mark-a" },
     replyMark: { kind: "prop", subject: "set", point: "mark-b" },
   };
@@ -55,6 +56,7 @@ export function test_human_motion_blade_exchange_composition(): void {
     cue: "second",
     openingProp: "foam-b",
     respondingProp: "foam-a",
+    blockLeadSeconds: 0.75,
     openingMark: { kind: "prop", subject: "set", point: "mark-c" },
   };
   const full: IAutoMovieChain = composeHumanBladeExchange(castA, castB, first);
@@ -78,24 +80,7 @@ export function test_human_motion_blade_exchange_composition(): void {
   };
   const film: IAutoMovieSchedule = resolveAutoMovieSchedule(
     AutoMovieComposition.sequence(full, short),
-    {
-      timing,
-      align: (
-        intent: IAutoMovieIntent,
-        instant: string,
-        target: number,
-      ): number => {
-        const action: IAutoMovieIntentTiming = timing(intent);
-        const share: number | undefined = action.events?.find(
-          (
-            event: NonNullable<IAutoMovieIntentTiming["events"]>[number],
-          ): boolean => event.name === instant,
-        )?.share;
-        if (share === undefined)
-          throw new Error(`Unknown stage cue ${instant}`);
-        return target - share * action.duration;
-      },
-    },
+    { timing },
   );
   const placed = (anchor: string): IAutoMovieScheduleEntry => {
     const action: IAutoMovieScheduleEntry | undefined = film.entries.find(
@@ -188,6 +173,9 @@ export function test_human_motion_blade_exchange_composition(): void {
   });
   TestValidator.error("the stage props must have ids", (): void => {
     composeHumanBladeExchange(castA, castB, { ...first, openingProp: "" });
+  });
+  TestValidator.error("the block lead must be nonnegative", (): void => {
+    composeHumanBladeExchange(castA, castB, { ...first, blockLeadSeconds: -1 });
   });
   TestValidator.error("the stage cue must have a name", (): void => {
     composeHumanBladeExchange(castA, castB, { ...first, cue: " " });
