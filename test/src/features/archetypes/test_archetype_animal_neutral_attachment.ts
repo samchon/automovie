@@ -351,9 +351,14 @@ function tack(
             : [];
   const actual: string = model.affordances
     .map((contact: (typeof model.affordances)[number]): string => contact.id)
-    .sort()
+    .sort((left: string, right: string): number => left.localeCompare(right))
     .join("|");
-  if (actual !== [...expected].sort().join("|"))
+  if (
+    actual !==
+    [...expected]
+      .sort((left: string, right: string): number => left.localeCompare(right))
+      .join("|")
+  )
     findings.push(
       `${label}: requested real tack contact identities were not assembled`,
     );

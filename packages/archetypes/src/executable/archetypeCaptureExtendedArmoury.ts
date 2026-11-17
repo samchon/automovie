@@ -78,7 +78,7 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
     kind: "fieldGun",
   }).articulate({ elevation: 5 });
   const shot: ReturnType<typeof createProjectile> = createProjectile({
-    kind: "shot",
+    kind: "roundShot",
     model: "sixPounder",
   });
   const launch: createCannon.ILaunch = createCannon.launch(gun);

@@ -22,7 +22,7 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * the cleaned skull; using them for a coarse capsule does not recover soft
  * tissue. The producer owns antlers and any authored tack separately.
  *
- * @param withersHeight Admitted instance height in metres, defaulting to its selected reference.
+ * @param withersHeight Admitted instance height in metres; only undefined defaults to its selected reference, while null is invalid.
  * @param cohort Whole adult sex/age reference, male by default; no juvenile transfer is supported.
  * @returns Fresh coarse controls, with unknown segment mass fractions and foot material absent.
  * @throws {RangeError} For a nonpositive or nonfinite instance height.
@@ -69,7 +69,7 @@ export function DeerBody(
       c.distalLength * m.withers,
     ],
     construction: c,
-    withersHeight: withersHeight ?? m.withers,
+    withersHeight: withersHeight === undefined ? m.withers : withersHeight,
     colors: { coat: "#96613e", tail: "#dad2bb" },
   });
 }

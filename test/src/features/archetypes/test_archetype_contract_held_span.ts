@@ -224,10 +224,16 @@ export function test_archetype_contract_held_span(): void {
     ),
   ])
     refused("invalid or incomplete held line", (): unknown => fixture(options));
-  for (const invalid of [null, "0.2"])
+  for (const invalid of [null, "0.2"]) {
     refused("untyped extension is not coerced", (): unknown =>
       fixture({ overhang: invalid as unknown as number }),
     );
+
+    // A hook has no occupied rein-run check to mask a coerced zero extension.
+    refused("untyped hook extension is not coerced", (): unknown =>
+      fixture({ hook: true, overhang: invalid as unknown as number }),
+    );
+  }
   refused("missing actual anchor", (): unknown =>
     builder().anchor("missing", { x: 0, y: 0, z: 0 }),
   );

@@ -88,8 +88,15 @@ export function equidAttachmentMatrix(
         JSON.stringify(
           animal.affordances
             .map((contact: IAutoMovieAffordance): string => contact.id)
-            .sort(),
-        ) === JSON.stringify([...contactIds[tack]].sort()),
+            .sort((left: string, right: string): number =>
+              left.localeCompare(right),
+            ),
+        ) ===
+          JSON.stringify(
+            [...contactIds[tack]].sort((left: string, right: string): number =>
+              left.localeCompare(right),
+            ),
+          ),
       );
       const by: number = Math.sqrt(animal.dimensions.withersHeight! / 1.38);
       for (const gait of gaits)

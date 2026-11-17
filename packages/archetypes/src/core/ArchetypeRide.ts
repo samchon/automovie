@@ -396,14 +396,16 @@ export namespace ArchetypeRide {
     ): ISample<Id, Dimension> => {
       const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
+      const theta: number = state[0]!;
+      const phi: number = front === null ? theta : state[1]!;
       const point: IAutoMovieVector3 = hitchAt(seconds);
       const posed: Archetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
         point,
         groundAt(seconds),
-        state[0]!,
-        state[1] ?? state[0]!,
+        theta,
+        phi,
       );
       const placement: IAutoMovieTransform = solved.placement;
       const steered: Archetype<Id, Dimension> =

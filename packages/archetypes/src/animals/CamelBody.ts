@@ -25,7 +25,7 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * reference, uniformly scaled to the selected height as provisional construction.
  * They are not new measurements of that morphotype's limbs.
  *
- * @param withersHeight Admitted instance height in metres, defaulting to the selected reference.
+ * @param withersHeight Admitted instance height in metres; only undefined defaults to the selected reference, while null is invalid.
  * @param cohort Whole pooled or classified adult-female reference; pooled by default.
  * @returns Fresh coarse body controls; the actual producer owns the separate hump and tack.
  * @throws {RangeError} For nonpositive or nonfinite instance height.
@@ -72,7 +72,7 @@ export function CamelBody(
       limb.hind[3] * scale,
     ],
     construction: c,
-    withersHeight: withersHeight ?? m.withers,
+    withersHeight: withersHeight === undefined ? m.withers : withersHeight,
     colors: { coat: "#aa7951", tail: "#664830" },
   });
 }

@@ -1,3 +1,5 @@
+import type { IAutoMovieAffordance } from "@automovie/interface";
+
 import type { Archetype } from "../core";
 import { createCar } from "../vehicles";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
@@ -31,8 +33,10 @@ export function archetypeCaptureCarOpenings(): Readonly<
   for (const kind of createCar.KINDS) {
     const car: ReturnType<typeof createCar> = createCar({ kind }, 17);
     const movements: Partial<Record<createCar.Affordance, number>> = {};
-    for (const contact of car.affordances) {
-      if (!selected.has(contact.id)) continue;
+    for (const id of selected) {
+      if (!car.affordances.some((contact: IAutoMovieAffordance): boolean => contact.id === id))
+        continue;
+      const contact: IAutoMovieAffordance = car.affordance(id);
       if (
         !(
           typeof contact.travel === "number" &&
@@ -43,7 +47,7 @@ export function archetypeCaptureCarOpenings(): Readonly<
         throw new RangeError(
           `Car inspection requires the actual ${kind}/${contact.id} travel`,
         );
-      movements[contact.id] = contact.travel;
+      movements[id] = contact.travel;
     }
     members[`${kind}-closed`] = car;
     members[`${kind}-open`] = car.articulate(movements);

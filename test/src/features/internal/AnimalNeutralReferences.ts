@@ -19,11 +19,13 @@ export namespace AnimalNeutralReferences {
     height: number | null;
     /** Source chest circumference in metres, independent of primitive output. */
     girth: number;
-    /** Four control lengths per limb, including explicitly provisional controls. */
+    /** Four fore control lengths, including explicitly provisional controls. */
     fore: Four;
+    /** Four hind control lengths, including explicitly provisional controls. */
     hind: Four;
-    /** Source normalization precision, separately propagated per control. */
+    /** Fore source normalization precision, separately propagated per control. */
     foreTolerance: Four;
+    /** Hind source normalization precision, separately propagated per control. */
     hindTolerance: Four;
   }
 

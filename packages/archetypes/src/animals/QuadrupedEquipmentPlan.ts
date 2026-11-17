@@ -11,6 +11,7 @@ import {
 } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedEquipment } from "./QuadrupedEquipment";
+import { QuadrupedEquipmentSolids } from "./QuadrupedEquipmentSolids";
 
 /** One admitted real primitive, kept outside the animal builder until the whole assembly fits. */
 type Part =
@@ -33,8 +34,11 @@ type Part =
 /**
  * Call-local geometry and contact plan for the two authored animal assemblies.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the preflight lifetime, primitive/contact ownership and explicit append boundary shared by yoke and pack construction.
- * @evidence contracts/development/design.md#principled-representation Rod and box records carry actual SI geometry; typed contacts refer to the same bearing bars. Planning is separate from mutating the real animal builder.
+ * Additional body spheres are copied once; each recorded solid must retain
+ * its requested nonnegative clearance from those actual producer solids.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines neutral-model metres, copied additional spheres, preflight lifetime, primitive/contact ownership and the explicit append boundary.
+ * @evidence contracts/development/design.md#principled-representation Rod and box records carry actual SI geometry; typed contacts refer to the same bearing bars. The shared solid owner holds independent body-sphere copies and admits actual cylinder/box separation before recording.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only QuadrupedEquipment uses this internal plan. It owns shared length admission, primitive recording, three-bar U hooks and final append, while assembly fit and public inputs remain with QuadrupedEquipment.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species dimensions, mass shares, material coefficients, maker defaults or contact-only substitutes enter this plan; a failed preflight has no builder to mutate.
  */
@@ -50,9 +54,56 @@ export class QuadrupedEquipmentPlan {
   /** Actual caller identity retained by every admission failure. */
   readonly #archetype: string;
 
-  /** Begin one bounded preflight without retaining or changing the animal builder. */
-  public constructor(archetype: string) {
+  /** Actual additional body solids shared by support planning and primitive admission. */
+  readonly #solids: QuadrupedEquipmentSolids;
+
+  /**
+   * Begin a preflight without retaining or changing an animal builder.
+   *
+   * @param archetype Actual producer identity used by equipment refusals.
+   * @param spheres Actual emitted additional body spheres in neutral model metres; defaults to an empty list and is copied by the solid owner.
+   * @throws {RangeError} If an additional sphere radius is not finite positive or its centre is nonfinite.
+   */
+  public constructor(
+    archetype: string,
+    spheres: readonly QuadrupedEquipment.ISphere[] = [],
+  ) {
     this.#archetype = archetype;
+    this.#solids = new QuadrupedEquipmentSolids(archetype, spheres);
+  }
+
+  /**
+   * Find a connected pack bridge's upper support plane from actual body solids.
+   *
+   * @param minimum Positive finite lower height from the ordinary trunk envelope, metres.
+   * @param halfSpan Positive finite bridge half-length along X, metres.
+   * @param z Finite fore-aft bridge plane in the neutral model, metres.
+   * @param radius Positive finite bridge cylinder radius, metres.
+   * @param clearance Finite nonnegative separation from actual additional spheres, metres.
+   * @returns The admitted lower height or a conservative upper sphere support height, metres.
+   * @throws {ArchetypeRefusal} For invalid inputs or nonfinite derived support height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted trunk height, real X span/Z plane, bar radius and authored minimum clearance in metres.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegate the additional-sphere upper envelope and outward rounding to the same solid owner that admits every final primitive.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate finite inputs and positive sizes before one shared support call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species offset, fixture exception, hidden tolerance or unconnected elevated marker changes physical fit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) for S actual additional body spheres, with constant auxiliary storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both actual bridge planes use the same body solid records and support routine.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no bridge request, builder or external handle.
+   */
+  public bridgeHeight(
+    minimum: number,
+    halfSpan: number,
+    z: number,
+    radius: number,
+    clearance: number,
+  ): number {
+    this.positive("pack.bridge.height", minimum);
+    this.positive("pack.bridge.halfSpan", halfSpan);
+    this.positive("pack.bridge.radius", radius);
+    this.nonnegative("pack.clearance", clearance);
+    this.point("pack.bridge.plane", { x: 0, y: minimum, z });
+    return this.#solids.above(minimum, halfSpan, z, radius, clearance);
   }
 
   /**
@@ -64,7 +115,7 @@ export class QuadrupedEquipmentPlan {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No append occurs during admission and no duplicate id is renamed or swallowed; duplicate producer defects keep the builder's ordinary error behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed assembly sizes bound plan storage; emitting each fixed primitive includes the builder's existing O(P) id scan over P previously built parts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses recorded geometry and copied contact frames instead of recomputing or fitting another assembly; the same admitted plan may emit independent models.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each builder owns independent emitted records. The caller may retain the bounded plan until its final emission, while the plan retains no builder or external handle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each builder owns independent emitted records. The caller may retain fixed equipment records and O(S) copied body spheres until the plan's final emission; the plan retains no builder or external handle.
    */
   public emit(
     builder: ArchetypeBuilder<
@@ -85,11 +136,19 @@ export class QuadrupedEquipmentPlan {
   /**
    * Record a real nonzero cylindrical bar between finite metre endpoints.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names radius, endpoints, optical color and the nonzero finite bar requirement before recording.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit radius and both endpoints, compute the actual Euclidean span and only then record the cylinder inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Scalar admission, point admission, span admission, then one local append.
+   * @param id Actual emitted bar identity, also used by refusal facts.
+   * @param radius Positive finite cylinder radius, metres.
+   * @param from First finite endpoint in the neutral model frame, metres.
+   * @param to Second finite endpoint, distinct from the first, metres.
+   * @param color Optical display color without material-physics implications.
+   * @param clearance Finite nonnegative separation from each additional body sphere, metres; defaults to zero, allowing exact contact.
+   * @throws {ArchetypeRefusal} For invalid geometry/clearance or insufficient actual sphere separation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names actual cylinder geometry, display color, the zero default clearance and physical additional-sphere refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Admit radius, endpoints, positive span and clearance, then check the actual flat-capped cylinder against every additional sphere before recording it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Scalar, point and span admission precede one shared solid check and one local append.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No zero-length bar, nonfinite endpoint, guessed radius or builder mutation stands in for geometry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant coordinate work and one bounded plan entry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) arithmetic for S additional spheres, constant auxiliary storage and one fixed equipment entry.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both assemblies and every U bar use this single primitive recorder and the engine vector owner.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the emitted bar inputs remain in this call-local plan, with no process or foreign handle.
    */
@@ -99,22 +158,32 @@ export class QuadrupedEquipmentPlan {
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     color: string,
+    clearance: number = 0,
   ): void {
     this.positive(`${id}.radius`, radius);
     this.point(`${id}.from`, from);
     this.point(`${id}.to`, to);
     this.positive(`${id}.length`, Vector3.length(Vector3.subtract(to, from)));
+    this.nonnegative(`${id}.clearance`, clearance);
+    this.#solids.rod(id, radius, from, to, clearance);
     this.#parts.push({ kind: "rod", id, radius, from, to, color });
   }
 
   /**
    * Record one side pad after its authored positive dimensions passed assembly admission.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines a full-size metre box, its centre and the caller's prior positive-dimension admission.
-   * @evidence contracts/development/implementation.md#principled-implementation Check finite derived size and placement, then retain the exact admitted side-pad box for ordinary builder emission.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two point admissions precede one local primitive record.
+   * @param id Actual emitted pad identity, also used by refusal facts.
+   * @param size Full axis-aligned box lengths in metres; assembly admission supplies positive lengths.
+   * @param at Finite box centre in the neutral model frame, metres.
+   * @param color Optical display color without material-physics implications.
+   * @param clearance Finite nonnegative additional-sphere separation, metres; defaults to zero, allowing exact contact.
+   * @throws {ArchetypeRefusal} For nonfinite geometry, invalid clearance or insufficient actual sphere separation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines full-size metre geometry, prior positive-size admission, the zero clearance default and actual-solid refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Admit finite size/placement and nonnegative clearance, then delegate actual sphere-to-box separation before recording the unchanged pad.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two point admissions and clearance admission precede the shared solid check and local record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No replacement shape, implicit dimension or builder mutation is introduced; assembly admission still owns positive authored width, thickness and length.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant six-coordinate inspection and one plan entry per side.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) arithmetic for S additional spheres, constant auxiliary storage and one pad entry per side.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the common finite-point admission and the same emitted box record rather than rebuilding its coordinates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only this pad's scalar geometry and optical color until the call-local plan is released.
    */
@@ -123,20 +192,31 @@ export class QuadrupedEquipmentPlan {
     size: IAutoMovieVector3,
     at: IAutoMovieVector3,
     color: string,
+    clearance: number = 0,
   ): void {
     this.point(`${id}.position`, at);
     this.point(`${id}.size`, size);
+    this.nonnegative(`${id}.clearance`, clearance);
+    this.#solids.box(id, size, at, clearance);
     this.#parts.push({ kind: "box", id, size, at, color });
   }
 
   /**
    * Plan the three real U bars and their +Y inner bearing contact from admitted dimensions.
    *
+   * @param name Prefix of the actual three emitted bar identities.
+   * @param id The real bearing contact identity.
+   * @param base Lower bar axis midpoint in the neutral model frame, metres.
+   * @param hook Already admitted positive finite bar radius, opening and depth, metres.
+   * @param color Optical display color for all three bars.
+   * @param clearance Finite nonnegative additional-sphere separation for every bar, metres; defaults to zero.
+   * @throws {ArchetypeRefusal} For invalid derived bar geometry or insufficient actual sphere separation; no builder has been mutated.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation States the lower bar midpoint, clear fore-aft opening, clear vertical depth, bar radius and the outward bearing normal.
    * @evidence contracts/development/implementation.md#principled-implementation Offset upright axes by opening/2 plus radius, raise each upright by radius plus clear depth and put the contact exactly one radius above the actual lower bar axis.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lower bar, two upright bars, then one finite bearing frame on the same geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hook is three admitted physical cylinders and its actual bearing site, never a floating contact or an inferred rated commercial fitting.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Exactly three bar plans and one contact record per hook, with constant coordinate work.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Exactly three bar plans require O(S) additional-sphere checks in total; one contact record and constant auxiliary storage complete the hook.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Hitch and both side loads use one U construction and the shared rod recorder; the bearing point is computed once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bar and contact records remain bounded in the call-local plan and retain no animal builder or external resource.
    */
@@ -146,6 +226,7 @@ export class QuadrupedEquipmentPlan {
     base: IAutoMovieVector3,
     hook: QuadrupedEquipment.IHook,
     color: string,
+    clearance: number = 0,
   ): void {
     const half: number = hook.opening / 2 + hook.radius;
     this.rod(
@@ -154,6 +235,7 @@ export class QuadrupedEquipmentPlan {
       { ...base, z: base.z - half },
       { ...base, z: base.z + half },
       color,
+      clearance,
     );
     for (const end of [-1, 1] as const)
       this.rod(
@@ -166,6 +248,7 @@ export class QuadrupedEquipmentPlan {
           z: base.z + end * half,
         },
         color,
+        clearance,
       );
     const bearing: IAutoMovieVector3 = { ...base, y: base.y + hook.radius };
     this.point(`${name}.bearing`, bearing);
