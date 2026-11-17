@@ -122,7 +122,10 @@ export namespace HumanDigitFit {
           ? {}
           : { normal: Vector3.scale(Vector3.normalize(world.normal), -1) }),
         ...(name === "Thumb" ? {} : { coupling: COUPLING }),
-        rate: RATE,
+        // A goal in free space is eased short near the digit's full reach,
+        // where a joint's rate per millimetre has no bound; a goal on a bone
+        // is a contact, which is met or it is no contact, so it is not eased.
+        ...(goal.on === undefined ? { rate: RATE } : {}),
         jointAxes: HUMANOID_JOINT_AXES,
         restFrames: HUMANOID_REST_FRAME,
       });
@@ -214,7 +217,7 @@ export namespace HumanDigitFit {
  */
 const COUPLING: number = 2 / 3;
 
-/** The radial extension rate soft IK is derived for, degrees per metre: 5 degrees per millimetre, #3444's third acceptance line (`fitDigitToTarget`'s `rate`). The target is eased only near full extension, with the distance traded away left in the residual. */
+/** The radial extension rate soft IK is derived for, degrees per metre: 5 degrees per millimetre, #3444's third acceptance line (`fitDigitToTarget`'s `rate`). The target is eased only near full extension, with the distance traded away left in the residual; a goal on a bone, a contact, is not eased. */
 const RATE: number = 5000;
 /** A hand's digits as the rig names them, thumb first. */
 const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
