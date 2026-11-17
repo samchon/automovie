@@ -26,7 +26,7 @@ export interface IAutoMovieInspectionHandle {
   selected: string[];
 
   /**
-   * Bring the shade and the marks to the scene's current time and pose. Call it after every seek and before drawing.
+   * Bring the shade and the marks to the current pose of the objects inspected at application. Call it after moving those same objects and before drawing. If placement replaces scene objects, restore this handle before placement and apply a fresh inspection to the new graph instead.
    *
    * Given `marks`, the supplied marks are replaced by them first, as a subject whose marks change with time hands over those of the drawn second; the request's patterns select among them as they did at apply, and a kind that matches no pattern is not drawn. The `outline` shells and the `pose` segments move with the scene, and so does every mark.
    *
