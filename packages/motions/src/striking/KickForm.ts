@@ -50,6 +50,24 @@ export namespace KickForm {
   /** The push kick's backward tip of the body at contact, degrees (provisional reading of coaching photographs of the teep). */
   export const PUSH_PITCH: number = 8;
 
+  /**
+   * How far the push kick's pelvis drives along the line from the chamber
+   * to the contact, as a share of the stance length: the teep is coached as
+   * a thrust of the hips into the target behind the foot, the trunk leaning
+   * back only to balance it. Provisional: no measured teep gives the
+   * pelvis's travel; three tenths of the stance length carries the root
+   * from over the support ankle to over the support foot's ball.
+   */
+  export const PUSH_DRIVE_SHARE: number = 0.3;
+
+  /**
+   * The most the push kick's thigh rises above the level at its chamber,
+   * degrees: the knee is lifted to the target's height, as far as the hip
+   * flexes with a folded knee (120 degrees from the standing leg, the
+   * clinical range of hip flexion, AAOS).
+   */
+  export const PUSH_RAISE_MOST: number = 30;
+
   /** Share of the way the root travels from its entry to over the support ankle at contact (provisional: the centre of mass stays inside the support foot's length). */
   export const CENTRE_SHARE: number = 0.8;
 

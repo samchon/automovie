@@ -16,6 +16,7 @@ import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
+import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
 /**
@@ -31,6 +32,14 @@ import { StrikingStroke } from "./StrikingStroke";
  * while the body turns back under a recoiling leg or a redirect blends two
  * carriages. A world-straight path between the same two ankles is not: it
  * leaves the leg's reach as soon as the hip moves.
+ *
+ * A push kick goes on a thrust instead ({@link KickThrust}): its chamber
+ * lifts the knee to the target's height with the foot folded under it, and
+ * the ankle travels straight from there to the fitted contact on the same
+ * unit, in the same pelvis frame, while the carriage drives the pelvis along
+ * the line behind it (`KickCarriage.IProps.drive`). The hinge's arc from a
+ * chamber that only folds the contact leg's knee is a front snap: it swings
+ * the foot up from below the target, through an opponent's lead thigh.
  *
  * The knee opens on one minimum-jerk unit that begins before the chamber key
  * is reached, so the ankle rounds the chamber instead of resting on it (Flash
@@ -72,7 +81,15 @@ export namespace KickSwing {
     /** The chambered leg under that posture. */
     key: KickChamber.IKey;
 
-    /** The fitted contact leg under that posture; the chamber itself for a feint. */
+    /**
+     * How the leg goes from its chamber to its contact: on the knee's
+     * `hinge` under a still thigh (the round kick's snap), or on a `thrust`,
+     * the ankle straight from a chamber with the knee lifted to the target's
+     * height (the push kick).
+     */
+    path: "hinge" | "thrust";
+
+    /** The fitted contact leg under that posture; the chamber itself for a hinge's feint. */
     contact: KickChamber.IKey;
 
     /** The knee's flexion at the chamber and at the contact, and the least it may open to, degrees. */
@@ -155,9 +172,31 @@ export namespace KickSwing {
           );
     const begin: number = chamber - KickForm.VIA_OVERLAP * (chamber - prep);
     const span: number = Math.max(1e-3, impact - begin) / unit(share);
-    const angle = (clock: number): number =>
-      ((hinge.degrees * minimumJerk.share((clock - begin) / span)) / share) *
+    const extended = (clock: number): number =>
+      (minimumJerk.share((clock - begin) / span) / share) *
       (1 - minimumJerk.share((clock - impact) / Math.max(1e-3, folding)));
+    const angle = (clock: number): number => hinge.degrees * extended(clock);
+
+    // A thrust's two ends in the contact pelvis's frame: the fitted contact
+    // leg and the chamber drawn from it. A feint holds the chamber.
+    const reached: KickThrust.ILeg = {
+      thigh: local(Vector3.subtract(contact.knee, hip)),
+      shank: local(Vector3.subtract(contact.ankle, contact.knee)),
+    };
+    const thrust: ((share: number) => KickThrust.ILeg) | undefined =
+      props.path === "thrust"
+        ? KickThrust.thrusting(
+            KickThrust.drawn(reached, lengths, props.flexion.chamber, local({ x: 0, y: 1, z: 0 })),
+            reached,
+            lengths,
+            props.flexion.least,
+          )
+        : undefined;
+    const held: boolean = props.flexion.contact >= props.flexion.chamber;
+    const struck: IAutoMovieQuaternion = Quaternion.multiply(
+      inverse,
+      contact.rotation,
+    );
     const rising = (clock: number): number =>
       minimumJerk.share((clock - prep) / Math.max(1e-3, chamber - prep));
     const lowering = (clock: number): number =>
@@ -179,15 +218,29 @@ export namespace KickSwing {
       const up: number = rising(clock);
       const down: number = lowering(clock);
 
-      // The carried leg from the hip: the chambered thigh, and the shank
-      // opened about the knee's hinge.
-      const chambered: ILeg = {
-        thigh: Quaternion.rotateVector(heading, knee),
-        shank: Quaternion.rotateVector(
-          heading,
-          Quaternion.rotateVector(opened, shank),
-        ),
+      // The carried leg from the hip: the chambered thigh and the shank
+      // opened about the knee's hinge, or the thrust's leg at its share. The
+      // foot is carried by the shank: turned on the hinge from the chamber,
+      // or from the contact by the turn that brings the contact's shank
+      // onto the thrust's.
+      const carried: KickThrust.ILeg =
+        thrust === undefined
+          ? { thigh: knee, shank: Quaternion.rotateVector(opened, shank) }
+          : thrust(held ? 0 : extended(clock));
+      const chambered: KickThrust.ILeg = {
+        thigh: Quaternion.rotateVector(heading, carried.thigh),
+        shank: Quaternion.rotateVector(heading, carried.shank),
       };
+      const foot: IAutoMovieQuaternion =
+        thrust === undefined
+          ? Quaternion.multiply(opened, folded)
+          : Quaternion.multiply(
+              rotationBetween(
+                Vector3.normalize(reached.shank),
+                Vector3.normalize(carried.shank),
+              ),
+              struck,
+            );
 
       // Between the plant and the chamber each segment turns on its share;
       // the planted leg is the one the current hip holds on the plant.
@@ -202,10 +255,10 @@ export namespace KickSwing {
         clock - impact - folding,
         recoil - folding,
       );
-      const posed: ILeg =
+      const posed: KickThrust.ILeg =
         lowered > 0
           ? between(
-              planted(
+              KickThrust.planted(
                 currentHip,
                 Vector3.add(plant.ankle, props.step),
                 Vector3.add(plant.knee, props.step),
@@ -217,7 +270,7 @@ export namespace KickSwing {
             )
           : lifted < 1
             ? between(
-                planted(
+                KickThrust.planted(
                   currentHip,
                   Vector3.add(plant.ankle, shift),
                   Vector3.add(plant.knee, shift),
@@ -235,12 +288,7 @@ export namespace KickSwing {
         rotation: Quaternion.slerp(
           Quaternion.slerp(
             plant.rotation,
-            Quaternion.normalize(
-              Quaternion.multiply(
-                heading,
-                Quaternion.multiply(opened, folded),
-              ),
-            ),
+            Quaternion.normalize(Quaternion.multiply(heading, foot)),
             up,
           ),
           plant.rotation,
@@ -248,56 +296,6 @@ export namespace KickSwing {
         ),
       };
     };
-  }
-
-  /** A leg from its hip: the thigh to the knee and the shank to the ankle, world metres. */
-  interface ILeg {
-    /** From the hip joint to the knee joint. */
-    thigh: IAutoMovieVector3;
-
-    /** From the knee joint to the ankle joint. */
-    shank: IAutoMovieVector3;
-  }
-
-  /**
-   * The leg a hip holds on a planted ankle: the two-segment triangle, its
-   * knee on the side of the knee the plant was read with (ahead of the body
-   * when that knee lies on the hip-to-ankle line). A hip farther from the
-   * ankle than the leg is long gives the straight leg toward it, and the
-   * shank carries what is missing, so the ankle is still the planted one.
-   */
-  function planted(
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    knee: IAutoMovieVector3,
-    lengths: readonly [number, number],
-    forward: IAutoMovieVector3,
-  ): ILeg {
-    const [upper, lower]: readonly [number, number] = lengths;
-    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const distance: number = Vector3.length(reach);
-    const axis: IAutoMovieVector3 =
-      distance > 1e-9
-        ? Vector3.scale(reach, 1 / distance)
-        : { x: 0, y: -1, z: 0 };
-    const span: number = Math.min(
-      upper + lower,
-      Math.max(Math.abs(upper - lower), distance, 1e-9),
-    );
-    const along: number = (upper * upper - lower * lower + span * span) / (2 * span);
-    const out: number = Math.sqrt(Math.max(0, upper * upper - along * along));
-    const side = (toward: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.subtract(toward, Vector3.scale(axis, Vector3.dot(toward, axis)));
-    const read: IAutoMovieVector3 = side(Vector3.subtract(knee, hip));
-    const bend: IAutoMovieVector3 =
-      Vector3.length(read) > 1e-6 ? read : side(forward);
-    const thigh: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(axis, along),
-      Vector3.length(bend) > 1e-9
-        ? Vector3.scale(bend, out / Vector3.length(bend))
-        : { x: 0, y: 0, z: 0 },
-    );
-    return { thigh, shank: Vector3.subtract(reach, thigh) };
   }
 
   /** A clock's linear share of a span, held in [0, 1]. */
@@ -317,7 +315,7 @@ export namespace KickSwing {
    * toe was stopped on the partner's lead foot at its launch (measured: the
    * knee 12.8 degrees at the chamber and the foot 147 mm high at impact).
    */
-  function between(from: ILeg, to: ILeg, share: number): ILeg {
+  function between(from: KickThrust.ILeg, to: KickThrust.ILeg, share: number): KickThrust.ILeg {
     const hip: number = minimumJerk.share(share);
     const knee: number = minimumJerk.share(
       Math.min(1, share / KickForm.KNEE_LEAD),

@@ -152,7 +152,10 @@ export namespace KickLaunch {
     // or for the round kick the comfortable share of the lower shin's
     // horizontal reach at the target's height from the hip's standing height.
     const stance: StrikingTarget.IStance = StrikingTarget.stance(context.entry);
-    const ahead: number = Vector3.dot(
+    const drive: number = round
+      ? 0
+      : KickForm.PUSH_DRIVE_SHARE * StrikingStance.length(body);
+    const ahead: number = drive + Vector3.dot(
       Vector3.subtract(
         Vector3.lerp(
           { ...entry.root, y: 0 },
@@ -254,13 +257,14 @@ export namespace KickLaunch {
     const props: KickCarriage.IProps = {
       body,
       entry,
-      joints: { ...entry.joints, ...StrikingStance.joints() },
+      joints: { ...entry.joints, ...StrikingStance.joints(entry.joints) },
       feet,
       side,
       line,
       timing,
       amplitude,
       rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
+      drive,
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;
     const knee: IAutoMovieVector3 = poseBones(
@@ -305,9 +309,11 @@ export namespace KickLaunch {
           timing,
           base: found.base,
           key,
-          contact: feint
-            ? key
-            : { knee: fit.knee, ankle: fit.ankle, rotation: fit.rotation },
+          path: round ? "hinge" : "thrust",
+          contact:
+            feint && round
+              ? key
+              : { knee: fit.knee, ankle: fit.ankle, rotation: fit.rotation },
           flexion: {
             chamber: folded,
             contact: feint ? folded : fit.flexion,

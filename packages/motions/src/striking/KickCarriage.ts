@@ -77,6 +77,13 @@ export namespace KickCarriage {
      * was read at.
      */
     rise: number;
+
+    /**
+     * How far the pelvis drives along the line from the chamber key to the
+     * contact, metres: the push kick's thrust of the hips behind the foot
+     * (`KickForm.PUSH_DRIVE_SHARE`), zero for a round kick.
+     */
+    drive: number;
   }
 
   /**
@@ -119,14 +126,29 @@ export namespace KickCarriage {
         (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       );
 
-    // The root travels toward the support ankle and rides the step.
+    // A push kick's pelvis is held back through the chamber and driven along
+    // the line into the contact, then drawn back with the recoil.
+    const driven: number =
+      props.drive === 0
+        ? 0
+        : props.drive *
+          (minimumJerk.share(
+            (turning - timing.chamber) /
+              Math.max(1e-3, timing.impact - timing.chamber),
+          ) -
+            minimumJerk.share(
+              (turning - timing.impact) / (timing.duration - timing.impact),
+            ));
+
+    // The root travels toward the support ankle and rides the step and the
+    // drive.
     const centre: IAutoMovieVector3 = Vector3.add(
       Vector3.lerp(
         { ...entry.root, y: 0 },
         { x: feet[support].ankle.x, y: 0, z: feet[support].ankle.z },
         KickForm.CENTRE_SHARE * w,
       ),
-      Vector3.scale(line, stepped),
+      Vector3.scale(line, stepped + driven),
     );
 
     // The support foot turns with the pelvis (at most the pivot's own
@@ -149,7 +171,7 @@ export namespace KickCarriage {
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
       joints: StrikingStance.facing(
-        props.joints ?? { ...entry.joints, ...StrikingStance.joints() },
+        props.joints ?? { ...entry.joints, ...StrikingStance.joints(entry.joints) },
         carriage.turn * w,
       ),
       limbs: {},
