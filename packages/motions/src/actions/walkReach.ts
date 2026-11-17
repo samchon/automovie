@@ -269,7 +269,7 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#principled-implementation Solves the smooth maximum's fixed point by a bracketed root with every taking foot's whole claim, once for each set of fading feet kept or left out, and runs between those lowerings by the feet's weights (multilinear), so the lowering is continuous in a weight: a weight inside the fixed point is ill-posed where a stance trades heel rise for lowering at a slope of one. Only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the claim of a whole stance, the bracket expansion, the root tolerance and the foot ranges; a weight of one or none gives the single lowering it gave before, and inactive stances only skip trials whose residual cannot read them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One root solve when no foot is fading, two with one fading foot and four with both; each root trial fits at most the bearing unnamed stances with a share in it; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One root solve when no foot is fading, two with one fading foot and four with both; each root trial fits at most the bearing unnamed stances with a share in it; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain. A bearing stance read at a drop already asked (drop 0 under each fading mask) is taken, not read again.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root solves and their trials share them and the prepared stance readers without sharing across input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
@@ -317,6 +317,7 @@ export namespace walkReach {
     const placed: IGround["feet"] = {} as IGround["feet"];
     const contacts: IGround["contacts"] = {} as IGround["contacts"];
     const readers: Partial<Record<"left" | "right", ReturnType<typeof walkReachStance.prepare>>> = {};
+    const read: Record<"left" | "right", Map<number, { end: walkFoot.IEnd; contact: IAutoMovieVector3 }>> = { left: new Map(), right: new Map() };
     const place: (drop: number, inactive?: boolean, requested?: "left" | "right") => void = (drop: number, inactive: boolean = false, requested?: "left" | "right"): void => {
       for (const side of SIDES) {
         if (requested !== undefined && side !== requested) continue;
@@ -325,15 +326,11 @@ export namespace walkReach {
         // root, where the caller may need the returned endpoint.
         if (bearing[side] === inactive) continue;
         if (!inactive && !(share[side] > 0)) continue;
-        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
-          (readers[side] ??= walkReachStance.prepare(
-            body,
-            side,
-            feet[side],
-            yaw,
-            pivots[side],
-            rocker,
-          ))(hip(side, drop));
+        // A bearing stance's reading is its hip's alone, so a lowering asked again (drop 0 under each fading mask) takes it.
+        const known: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } | undefined = inactive ? undefined : read[side].get(drop);
+        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } = known ??
+          (readers[side] ??= walkReachStance.prepare(body, side, feet[side], yaw, pivots[side], rocker))(hip(side, drop));
+        if (!inactive && known === undefined) read[side].set(drop, out);
         placed[side] = out.end;
         contacts[side] = out.contact;
       }
