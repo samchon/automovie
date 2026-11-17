@@ -6,8 +6,8 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
-import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
 import { AirborneTakeoffLinear } from "./AirborneTakeoffLinear";
+import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
@@ -57,9 +57,9 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method with integrated sensitivity and analytic Euler-angle derivatives, actual-residual step-halving and continuation. The three momentum directions are an orthogonal unit basis with one physical unit. Sensitivity has a local matrix-error estimate, not a global Jacobian certificate; chart singularity, inaccurate derivatives or the finite iteration budget can still miss a feasible request.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A residual over one integration, a linearized start, then a fixed loop of Jacobian, solve and backtrack.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A request the flight cannot meet is reported as a miss with its residual; the caller refuses it.
- * @evidence contracts/development/implementation.md#efficient-algorithms The adaptive linear seed starts with five history samples and refines only its estimated angular error; fixed mode retains the integration grid. Each uncached momentum evaluation integrates one flight with nine sensitivity states, at most ITERATIONS Newton steps and HALVINGS backtracks per stage. Continuation adds stages until the request is reached or its increment falls below the angular tolerance; different adaptive trial meshes can still require new shape evaluations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The adaptive linear seed starts with five history samples and refines only its estimated angular error; fixed mode retains the integration grid. Initial Newton points integrate nine sensitivity states. Backtracking first integrates only orientation, promotes improving nonterminal candidates to the tangent solve, and rechecks their actual residual decrease. This avoids tangents on rejected trials but can add one integration for an accepted candidate; end-to-end gain is unmeasured. Factory histories share error-checked exact time partitions across trials; their finest retained mesh can increase later stage counts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed flight and history make endpoint angles and Jacobian independent of the turn target. Reuses the current or last rejected evaluation only when every projected momentum component is Object.is equal, subtracting the new target from the original unwrapped endpoint rather than reconstructing it from an old residual. Different points still integrate independently. Each Newton point's unchanged residual norm serves all of its backtracking comparisons. Each unwrapping pass shares its unchanged reference-frame inverse through the same angle owner as the public single-angle reader.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reuse checks only the call-local current or starting point and one last rejected trial; continuation also owns its accepted and last solved stage until replacement. There is no point map or cross-call cache. The returned flight escapes for playback; other evaluations lose their references on return. The caller owns the history's lifetime; HumanPerformanceFlight clears its exact-time statistics after solving and preparing playback.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reuse checks only the call-local current or starting point and one last rejected trial; continuation also owns its accepted and last solved stage until replacement. A factory history additionally gives this solve one numeric time partition, cleared in finally on success or failure. There is no point map or cross-call cache. Playback retains the actual accepted numeric flight, never the partition or history. The caller separately clears the history after solving and preparing playback.
  */
 export function solveAirborneTakeoff(
   props: solveAirborneTakeoff.IProps,
@@ -75,103 +75,9 @@ export function solveAirborneTakeoff(
   );
   const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
 
-  /** A shooting residual and integrated sensitivity on the evaluated flight. */
-  interface IEvaluation {
-    end: solveAirborneTakeoff.IAngles;
-    r: number[];
-    jacobian: number[][];
-    flight: integrateAirborneRotation.IFlight;
-  }
-
-  /** An evaluation at its projected momentum in the fixed take-off frame. */
-  type IPoint = IEvaluation & { local: number[] };
-  const directions: IAutoMovieVector3[] = [0, 1, 2].map(
-    (i: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(frame, {
-        x: i === 0 ? 1 : 0,
-        y: i === 1 ? 1 : 0,
-        z: i === 2 ? 1 : 0,
-      }),
-  );
-
-  const retarget: (
-    value: Omit<IEvaluation, "r">,
-    target: readonly number[],
-  ) => IEvaluation = (
-    value: Omit<IEvaluation, "r">,
-    target: readonly number[],
-  ): IEvaluation => ({
-    end: value.end,
-    r: [
-      value.end.somersault - target[0]!,
-      value.end.tilt - target[1]!,
-      value.end.twist - target[2]!,
-    ],
-    jacobian: value.jacobian,
-    flight: value.flight,
-  });
-
-  // Target-independent flight data is reusable only at the same projected point.
-  const residual: (
-    local: readonly number[],
-    target: readonly number[],
-    current?: IPoint,
-    rejected?: IPoint,
-  ) => IEvaluation = (
-    local: readonly number[],
-    target: readonly number[],
-    current?: IPoint,
-    rejected?: IPoint,
-  ): IEvaluation => {
-    const known: IPoint | undefined = [current, rejected].find(
-      (value: IPoint | undefined): boolean =>
-        value !== undefined &&
-        value.local.length === local.length &&
-        local.every((v: number, i: number): boolean =>
-          Object.is(v, value.local[i]),
-        ),
-    );
-    if (known !== undefined) return retarget(known, target);
-    const turned: integrateAirborneRotation.IFlight = integrateAirborneRotation(
-      {
-        history: props.history,
-        t0: props.t0,
-        t1: props.t1,
-        q0: props.q0,
-        momentum: Quaternion.rotateVector(frame, {
-          x: local[0]!,
-          y: local[1]!,
-          z: local[2]!,
-        }),
-        h: props.h,
-        tolerance: props.integration,
-        momentumTolerance: props.momentumTolerance,
-        errorScope: props.errorScope,
-        variations: directions,
-      },
-    );
-    // The body seen in the frame's axes, `q F`, so the take-off reads zero.
-    const end: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.unwrapped(
-      {
-        ...turned,
-        orientation: (t: number): IAutoMovieQuaternion =>
-          Quaternion.multiply(turned.orientation(t), axes),
-      },
-      frame,
-    );
-    return retarget(
-      {
-        end,
-        jacobian: AirborneTakeoffJacobian(
-          end,
-          axes,
-          turned.variations(props.t1),
-        ),
-        flight: turned,
-      },
-      target,
-    );
-  };
+  /** The actual physical point, optionally promoted to integrated sensitivities. */
+  type IPoint = AirborneTakeoffTrial.IPoint;
+  const operation: AirborneTakeoffTrial.IOperation = AirborneTakeoffTrial(props, axes, frame);
   const norm: (r: readonly number[]) => number = (
     r: readonly number[],
   ): number => Math.hypot(...r);
@@ -197,7 +103,7 @@ export function solveAirborneTakeoff(
     known?: IPoint,
   ): IPoint => {
     let local: number[] = projected(start);
-    let evaluated: IEvaluation = residual(local, target, known);
+    let evaluated: IPoint = operation.evaluate(local, target, true, known);
     let error: number = norm(evaluated.r);
     let rejected: IPoint | undefined;
     for (
@@ -206,7 +112,7 @@ export function solveAirborneTakeoff(
       k++
     ) {
       const delta: number[] | null = AirborneTakeoffLinear.solve(
-        evaluated.jacobian,
+        evaluated.jacobian!,
         evaluated.r,
       );
       if (delta === null) break;
@@ -214,103 +120,108 @@ export function solveAirborneTakeoff(
       // Backtrack: halve the step until it lowers the residual.
       let scale: number = 1;
       let next: number[] = local;
-      let after: IEvaluation = evaluated;
+      let after: IPoint = evaluated;
       for (let h: number = 0; h <= solveAirborneTakeoff.HALVINGS; h++) {
         const trial: number[] = projected(
           local.map((v: number, i: number): number => v - scale * delta[i]!),
         );
-        const tr: IEvaluation = residual(
-          trial,
-          target,
-          { local, ...evaluated },
-          rejected,
-        );
-        const trialError: number = norm(tr.r);
+        let tr: IPoint = operation.evaluate(trial, target, false, evaluated, rejected);
+        let trialError: number = norm(tr.r);
+        if (trialError < error && trialError > tolerance && tr.jacobian === undefined) {
+          // A promising physical trial earns its Jacobian. Its actual promoted
+          // flight must still improve, because tangent control can refine its mesh.
+          tr = operation.evaluate(trial, target, true, tr, evaluated);
+          trialError = norm(tr.r);
+        }
         if (trialError < error) {
           next = trial;
           after = tr;
           error = trialError;
           break;
         }
-        rejected = { local: trial, ...tr };
+        rejected = tr;
         scale /= 2;
       }
       if (next === local) break;
       local = next;
       evaluated = after;
     }
-    return { local, ...evaluated };
+    return evaluated;
   };
 
-  const { turning, lagging } = AirborneTakeoffLinear(
-    props,
-    Quaternion.inverse(axes),
-    props.integration === undefined ? undefined : tolerance,
-  );
-
-  // Continue the whole request, since even a plain somersault can couple to tilt.
-  const linearized: (share: number) => number[] = (share: number): number[] => {
-    const start: number[] | null = AirborneTakeoffLinear.solve(turning, [
-      2 * Math.PI * props.somersault * share + lagging[0]!,
-      2 * Math.PI * props.twist * share + lagging[1]!,
-      lagging[2]!,
-    ]);
-    if (start === null)
-      throw new Error(
-        "The take-off's shape history gives no finite inertia over the flight",
-      );
-    return start;
-  };
-  const request: (share: number) => number[] = (share: number): number[] => [
-    2 * Math.PI * props.somersault * share,
-    0,
-    2 * Math.PI * props.twist * share,
-  ];
-  const smallest: number = tolerance / Math.max(tolerance, norm(request(1)));
-  let reached: number = 0;
-  let accepted: IPoint | null = null;
-  let stage: number = 1;
-  let solved: IPoint = newton(linearized(stage), request(stage));
-  for (;;) {
-    if (norm(solved.r) <= tolerance) {
-      accepted = solved;
-      reached += stage;
-      const left: number = 1 - reached;
-      if (Math.abs(left) <= 0) break;
-      stage = Math.sign(left) * Math.min(Math.abs(left), 2 * Math.abs(stage));
-    } else {
-      stage /= 2;
-      if (Math.abs(stage) < smallest) {
-        solved = accepted ?? solved;
-        break;
-      }
-    }
-    solved = newton(
-      accepted === null ? linearized(reached + stage) : accepted.local,
-      request(reached + stage),
-      accepted ?? solved,
+  try {
+    const { turning, lagging } = AirborneTakeoffLinear(
+      props,
+      Quaternion.inverse(axes),
+      props.integration === undefined ? undefined : tolerance,
     );
+  
+    // Continue the whole request, since even a plain somersault can couple to tilt.
+    const linearized: (share: number) => number[] = (share: number): number[] => {
+      const start: number[] | null = AirborneTakeoffLinear.solve(turning, [
+        2 * Math.PI * props.somersault * share + lagging[0]!,
+        2 * Math.PI * props.twist * share + lagging[1]!,
+        lagging[2]!,
+      ]);
+      if (start === null)
+        throw new Error(
+          "The take-off's shape history gives no finite inertia over the flight",
+        );
+      return start;
+    };
+    const request: (share: number) => number[] = (share: number): number[] => [
+      2 * Math.PI * props.somersault * share,
+      0,
+      2 * Math.PI * props.twist * share,
+    ];
+    const smallest: number = tolerance / Math.max(tolerance, norm(request(1)));
+    let reached: number = 0;
+    let accepted: IPoint | null = null;
+    let stage: number = 1;
+    let solved: IPoint = newton(linearized(stage), request(stage));
+    for (;;) {
+      if (norm(solved.r) <= tolerance) {
+        accepted = solved;
+        reached += stage;
+        const left: number = 1 - reached;
+        if (Math.abs(left) <= 0) break;
+        stage = Math.sign(left) * Math.min(Math.abs(left), 2 * Math.abs(stage));
+      } else {
+        stage /= 2;
+        if (Math.abs(stage) < smallest) {
+          solved = accepted ?? solved;
+          break;
+        }
+      }
+      solved = newton(
+        accepted === null ? linearized(reached + stage) : accepted.local,
+        request(reached + stage),
+        accepted ?? solved,
+      );
+    }
+    const { local } = solved;
+    const { r } = operation.retarget(solved, request(1));
+    const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+      x: local[0]!,
+      y: local[1]!,
+      z: local[2]!,
+    });
+    const magnitude: number = Vector3.length(momentum);
+    return {
+      momentum,
+      residual: {
+        somersault: r[0]! / (2 * Math.PI),
+        tilt: r[1]! / (2 * Math.PI),
+        twist: r[2]! / (2 * Math.PI),
+      },
+      met:
+        norm(r) <= tolerance &&
+        magnitude <= (props.maximum ?? Number.POSITIVE_INFINITY),
+      flight: solved.flight,
+    };
+    } finally {
+    operation.clear();
   }
-  const { local } = solved;
-  const { r } = retarget(solved, request(1));
-  const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
-    x: local[0]!,
-    y: local[1]!,
-    z: local[2]!,
-  });
-  const magnitude: number = Vector3.length(momentum);
-  return {
-    momentum,
-    residual: {
-      somersault: r[0]! / (2 * Math.PI),
-      tilt: r[1]! / (2 * Math.PI),
-      twist: r[2]! / (2 * Math.PI),
-    },
-    met:
-      norm(r) <= tolerance &&
-      magnitude <= (props.maximum ?? Number.POSITIVE_INFINITY),
-    flight: solved.flight,
-  };
 }
 
 /**
@@ -462,32 +373,6 @@ export namespace solveAirborneTakeoff {
     flight: integrateAirborneRotation.IFlight,
     frame: IAutoMovieQuaternion,
   ): IAngles {
-    const into: IAutoMovieQuaternion = Quaternion.inverse(frame);
-    let somersault: number = 0;
-    let twist: number = 0;
-    let tilt: number = 0;
-    const step: number = integrateMotionTrajectory.STEP;
-    const instants: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
-    for (let k: number = 0; k < instants; k++) {
-      const t: number = k === instants - 1 ? flight.t1 : flight.t0 + k * step;
-      const a: IAngles = AirborneTakeoffAngles(into, flight.orientation(t));
-      somersault = near(a.somersault, somersault);
-      twist = near(a.twist, twist);
-      tilt = a.tilt;
-    }
-    return { somersault, tilt, twist };
-  }
-
-  /**
-   * The branch of an angle nearest a reference, radians.
-   *
-   * @param angle The angle.
-   * @param reference The previous unwrapped angle.
-   * @returns `angle` plus the whole turns that bring it nearest `reference`.
-   */
-  function near(angle: number, reference: number): number {
-    return (
-      angle + 2 * Math.PI * Math.round((reference - angle) / (2 * Math.PI))
-    );
+    return AirborneTakeoffAngles.unwrapped(flight, frame);
   }
 }

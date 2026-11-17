@@ -5,6 +5,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
+import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
 
@@ -280,6 +281,9 @@ export namespace integrateMotionTrajectory {
 
     /** Optional caller-owned unique symbol correlating this operation's failures. Admitted before the first RHS and copied only to this integration's MotionTrajectoryFailure; it affects no numerical decision and is not passed to f or rotationDefect. */
     errorScope?: symbol;
+
+    /** Optional operation-owned adaptive time mesh. Every trial still computes and admits its own states, RMS and dense physical defect; only exact interval boundaries are shared. The caller releases the mesh after its whole operation. Ignored in fixed-step mode. */
+    partition?: MotionTrajectoryPartition.IPartition;
   }
 
   /**

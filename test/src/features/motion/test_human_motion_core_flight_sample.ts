@@ -351,7 +351,7 @@ export function test_human_motion_core_flight_sample(): void {
   const diagnosticCpuUs: NodeJS.CpuUsage = process.cpuUsage(diagnosticCpuStart);
   const diagnosticMemory: ReturnType<typeof memorySince> = memorySince(body, repeatedMemory.snapshot);
   complaints.push(...diagnostic.problems);
-  const rankedQueries: number[] = queries.toSorted(
+  const rankedQueries: number[] = queries.slice().sort(
     (left: number, right: number): number => left - right,
   );
   console.log(
@@ -408,5 +408,8 @@ function memorySince(body: IHumanBody, before: HumanLimbFitFrame.IStatistics): {
   delta: HumanLimbFitFrame.IStatistics;
 } {
   const snapshot: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
-  return { snapshot, delta: { hits: snapshot.hits - before.hits, misses: snapshot.misses - before.misses } };
+  const delta: HumanLimbFitFrame.IStatistics = { ...snapshot };
+  for (const key of Object.keys(snapshot) as (keyof HumanLimbFitFrame.IStatistics)[])
+    delta[key] -= before[key];
+  return { snapshot, delta };
 }

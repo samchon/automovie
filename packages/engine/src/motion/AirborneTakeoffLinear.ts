@@ -7,6 +7,8 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "./AirborneTakeoffQuadrature";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
@@ -37,7 +39,7 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One physical integrand serves fixed weighting or adaptive quadrature; one unpacker and the existing three-variable solve measure the current seed's estimated angle error.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every node uses actual history, sharing only an exactly equal preceding fixed endpoint or an adaptive parent's actual samples. No guessed mean inertia, time quantization, per-component relative floor, fixed-rate adaptive seed or weakened physical integration budget is introduced; unsampled structure can still fool the estimator, and final nonlinear shooting remains authoritative.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed mode retains all 3K original weighted contributions over K intervals; Object.is-equal adjacent endpoints avoid duplicate history/tensor reads, giving 2K+1 reads on a resolved exactly shared grid and retaining actual reads at floating-point mismatches. Adaptive mode starts with five reads and adds four per bisection, independent of the physical integrator's initial h; largest-error aggregation is quadratic in leaf count but history reads are linear. The two endpoint seed norms are computed once per refinement, not per panel score.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the momentum tensor product and physical tensor rotation. Fixed mode holds only the preceding endpoint's numeric sample and matches its seconds with Object.is within this call's unchanged pure history and into frame; different numeric times are read separately. Adaptive children reuse actual parent samples and half rules; the same history remains shared with subsequent shooting integrations.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unobserved factory tensors share their SPD factor: three takeoff-basis solves form the inverse columns directly and one relative-momentum solve forms the lag, without eigensolves or inverse-matrix materialization. The into-frame basis is prepared once on first use. Public principals retain the original rotated-tensor path. Fixed mode reuses only an exactly equal preceding endpoint; adaptive children reuse actual parent samples and half rules.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The adaptive call owns numeric samples and estimates plus one current-integral/seed-norm pair; fixed mode holds at most one endpoint time and its inverse tensor/relative rate. All are released on return or throw. Only the two numeric result arrays escape, with no cross-call cache or handle.
  */
 export function AirborneTakeoffLinear(
@@ -67,9 +69,26 @@ export function AirborneTakeoffLinear(
   /** The two completed linear integrals. */
   type Relation = { turning: number[][]; lagging: number[] };
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  let intoBasis: IAutoMovieVector3[] | undefined;
   const sample: (t: number) => ISample = (t: number): ISample => {
-    const { inertia, relative }: ReturnType<typeof props.history> =
-      props.history(t);
+    const instant: ReturnType<typeof props.history> = props.history(t);
+    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+    if (factor !== undefined) {
+      if (intoBasis === undefined) {
+        const back: IAutoMovieQuaternion = Quaternion.inverse(into);
+        intoBasis = [0, 1, 2].map((axis: number): IAutoMovieVector3 =>
+          Quaternion.rotateVector(back, { x: axis === 0 ? 1 : 0, y: axis === 1 ? 1 : 0, z: axis === 2 ? 1 : 0 }));
+      }
+      const columns: IAutoMovieVector3[] = intoBasis.map((basis: IAutoMovieVector3): IAutoMovieVector3 =>
+        Quaternion.rotateVector(into, factor.solve(basis)));
+      return {
+        inverse: [[columns[0]!.x, columns[1]!.x, columns[2]!.x],
+          [columns[0]!.y, columns[1]!.y, columns[2]!.y],
+          [columns[0]!.z, columns[1]!.z, columns[2]!.z]],
+        lag: Quaternion.rotateVector(into, factor.solve(instant.relative)),
+      };
+    }
+    const { inertia, relative }: typeof instant = instant;
     const { x, y, z }: IAutoMovieVector3 = inertia.moments;
     const inverse: number[][] = physicalInertiaTensor(
       [

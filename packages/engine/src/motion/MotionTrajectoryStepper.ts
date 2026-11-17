@@ -150,8 +150,13 @@ export namespace MotionTrajectoryStepper {
     let rejection: MotionTrajectoryFailure["rejection"];
     const exponent: number = 0.2 - CONTROL.beta * 0.75;
     while (t < t1) {
-      const last: boolean = t + CONTROL.stretch * h - t1 > 0;
+      let last: boolean = t + CONTROL.stretch * h - t1 > 0;
       if (last) h = t1 - t;
+      if (props.partition !== undefined) {
+        const end: number = props.partition.end(t, last ? t1 : t + h);
+        h = end - t;
+        last = end === t1;
+      }
       if (0.1 * Math.abs(h) <= Math.abs(t) * Number.EPSILON || !(t + h > t))
         throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
       // The stages, the orientation's in the algebra from the step's start.
@@ -204,7 +209,7 @@ export namespace MotionTrajectoryStepper {
             h *
             E.reduce(
               (s: number, w: number, j: number): number =>
-                s + w * ks[j]!.dx[c]!,
+                s + w * (ks[j]!.dx[c]! - ks[0]!.dx[c]!),
               0,
             );
           squares += ratio(
@@ -223,7 +228,7 @@ export namespace MotionTrajectoryStepper {
               h *
               E.reduce(
                 (s: number, w: number, j: number): number =>
-                  s + w * ks[j]!.dx[c]!,
+                  s + w * (ks[j]!.dx[c]! - ks[0]!.dx[c]!),
                 0,
               );
             error = Math.hypot(error, e);
@@ -237,7 +242,9 @@ export namespace MotionTrajectoryStepper {
       }
       let rotationSquares: number = 0;
       if (oriented) {
-        const e: IAutoMovieVector3 = sum(E, us!, h)!;
+        // The embedded weights sum to zero mathematically. Differencing
+        // their shared first stage avoids a spurious defect for constant rates.
+        const e: IAutoMovieVector3 = sum(E, us!, h, undefined, us![0])!;
         const scale: number = absolute + relative * Vector3.length(r!);
         rotationSquares =
           ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
@@ -281,6 +288,8 @@ export namespace MotionTrajectoryStepper {
             q: { x: endpointQ!.x, y: endpointQ!.y, z: endpointQ!.z, w: endpointQ!.w },
             w: { x: ks[6]!.w!.x, y: ks[6]!.w!.y, z: ks[6]!.w!.z },
           } : undefined };
+        if (props.partition !== undefined && !props.partition.split(t))
+          throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
         h /= Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
         rejected = true;
         continue;
@@ -326,6 +335,7 @@ export namespace MotionTrajectoryStepper {
     us: readonly (IAutoMovieVector3 | undefined)[],
     h: number,
     out?: IAutoMovieVector3,
+    origin?: IAutoMovieVector3,
   ): IAutoMovieVector3 | undefined {
     if (us[0] === undefined) return undefined;
     let x: number = 0;
@@ -333,9 +343,9 @@ export namespace MotionTrajectoryStepper {
     let z: number = 0;
     weights.forEach((w: number, j: number): void => {
       if (w === 0) return;
-      x += w * us[j]!.x;
-      y += w * us[j]!.y;
-      z += w * us[j]!.z;
+      x += w * (us[j]!.x - (origin?.x ?? 0));
+      y += w * (us[j]!.y - (origin?.y ?? 0));
+      z += w * (us[j]!.z - (origin?.z ?? 0));
     });
     if (out === undefined) return { x: h * x, y: h * y, z: h * z };
     out.x = h * x;

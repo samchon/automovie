@@ -10,10 +10,12 @@ import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovi
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneMomentumDefect } from "./AirborneMomentumDefect";
 import { AirborneRotationFlight } from "./AirborneRotationFlight";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
+import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
@@ -60,11 +62,11 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @throws {Error} For an invalid failure scope or error budget, a refused trajectory interval or step, or a shape/history reduction failure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, unchanged millisecond central differences/boundary correction, exact I/h and operation-owned numeric mass nodes with O(N*S) retention, and separate raw/prepared-model lifetime; clear releases all transient numeric preparation.
- * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. An explicitly requested dense momentum defect reconstructs R(I omega+h), retaining actual inertia anisotropy and cancellation instead of inferring a physical budget from the local orientation error.
+ * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia. Unobserved factory tensors use diagonally equilibrated SPD Cholesky solves; public or foreign principals retain their original inverse application. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. Explicit dense control reconstructs R(I omega+h) from the same tensor, retaining anisotropy and cancellation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give. Only this operation's matching symbol scope permits enriching a numeric failure; foreign history errors retain their identity, message and metadata, even when they have the same error class.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new right-hand sides per step; adaptive cost follows the owning stepper's trial-stage and dense-probe populations. Each right-hand side reads one history instant and does linear work in requested variation directions, without a separately integrated derivative. Explicit dense physical control adds one history read and fixed-size momentum reconstruction per controller probe. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's shape-only inertia and relative momentum across stages and shooting trials. Engine-created histories additionally share the principal inverse with dense reconstruction under private owner registration and copied Object.is quaternion checks. General histories retain one solve-local previous-value inverse. All tangent columns use the physical rate's same principal inverse, and changed times or actual coordinates still compute their own prerequisites.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's shape-only inertia and relative momentum across stages and shooting trials. Factory-issued unobserved tensors share one factor across physical rate, all tangent columns and dense reconstruction without principal materialization. Observed/changed/foreign instants retain the original principal path and copied Object.is inverse checks. An optional operation partition shares exact time boundaries only; every trial recomputes its current state and error checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the RHS scope from numeric trajectory/tangent count only; accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse until return/throw. An engine history with N exact queries and S parts owns O(N) I/h/inverses and at most 3N+6 numeric mass nodes, O(N*S), until clear. Raw bones/full poses are released after posing and never enter those maps.
  */
 export function integrateAirborneRotation(
@@ -143,14 +145,16 @@ export function integrateAirborneRotation(
           momentum,
         );
 
-        // The physical rate and every tangent use this same principal frame.
-        const principalBack: IAutoMovieQuaternion = AirborneShapeHistory.inverse(instant)
-          ?? principalInverse(instant.inertia.rotation);
-        const w: IAutoMovieVector3 = inverse(
-          instant.inertia,
-          Vector3.subtract(carried, instant.relative),
-          principalBack,
-        );
+        // Owned unobserved tensors need no principal axes. A public or foreign
+        // instant keeps its original mutable-principal semantics.
+        const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+        const principalBack: IAutoMovieQuaternion | undefined = factor === undefined
+          ? AirborneShapeHistory.inverse(instant) ?? principalInverse(instant.inertia.rotation)
+          : undefined;
+        const rootMomentum: IAutoMovieVector3 = Vector3.subtract(carried, instant.relative);
+        const w: IAutoMovieVector3 = factor === undefined
+          ? inverse(instant.inertia, rootMomentum, principalBack)
+          : factor.solve(rootMomentum);
 
         // Forward sensitivity, q(L + dL) = q(L) exp(eta / 2): differentiating
         // q' = q w / 2 gives eta' = -w x eta + I^-1((R^T L) x eta + R^T dL).
@@ -165,15 +169,14 @@ export function integrateAirborneRotation(
             back,
             variations[i]!,
           );
-          const changed: IAutoMovieVector3 = inverse(
-            instant.inertia,
-            {
+          const tangentMomentum: IAutoMovieVector3 = {
               x: (carried.y * etaZ - carried.z * etaY) + forcing.x,
               y: (carried.z * etaX - carried.x * etaZ) + forcing.y,
               z: (carried.x * etaY - carried.y * etaX) + forcing.z,
-            },
-            principalBack,
-          );
+          };
+          const changed: IAutoMovieVector3 = factor === undefined
+            ? inverse(instant.inertia, tangentMomentum, principalBack)
+            : factor.solve(tangentMomentum);
           dx.push(
             changed.x - (w.y * etaZ - w.z * etaY),
             changed.y - (w.z * etaX - w.x * etaZ),
@@ -189,6 +192,7 @@ export function integrateAirborneRotation(
       h: props.h,
       tolerance,
       errorScope,
+      partition: props.partition,
       rotationDefect: props.momentumTolerance === undefined
         ? undefined
         : AirborneMomentumDefect(history, momentum, props.momentumTolerance),
@@ -261,6 +265,9 @@ export namespace integrateAirborneRotation {
 
     /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
     variations?: readonly IAutoMovieVector3[];
+
+    /** Optional time partition shared by one owned-history shooting operation. Each momentum still receives its original error checks; playback retains no partition. */
+    partition?: MotionTrajectoryPartition.IPartition;
   }
 
   /**
@@ -351,7 +358,7 @@ export namespace integrateAirborneRotation {
    * Every first demanded exact mass node reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
    * A new query uses at most four distinct numeric nodes and O(S) mass work. Each exact node performs shape/IK/FK only on its first demand, even when other queries separate repeated endpoint reads; actual current orbital terms, tensor sums and physical checks remain unchanged.
    * Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts across this operation. Fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing, and no shooting target or IK answer enters node storage.
-   * For N distinct I/h queries and S fixed model parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two boundary moments. Private moment vectors share 3S numeric fields after exact checks, leaving 8S+3 per node; map keys/object/array overhead depend on runtime. clear releases every node/shared vector/map/inverse registration; no raw bone map/full pose is retained. The caller separately releases its borrowed O(S) model.
+   * For N distinct I/h queries and S fixed model parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two boundary moments. Private moments share 3S numeric fields after exact checks, leaving at most 8S+3 per node; exact unchanged principal quaternions can additionally share their four fields. O(S) last-value references and map keys/object/array overhead depend on runtime. clear releases every node/shared-vector list/map/inverse registration; no raw bone map/full pose is retained. The caller separately releases its borrowed O(S) model.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -377,10 +384,9 @@ export namespace integrateAirborneRotation {
     instant: IInstant,
     momentum: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return inverse(
-      instant.inertia,
-      Vector3.subtract(momentum, instant.relative),
-    );
+    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+    const carried: IAutoMovieVector3 = Vector3.subtract(momentum, instant.relative);
+    return factor === undefined ? inverse(instant.inertia, carried) : factor.solve(carried);
   }
 }
 

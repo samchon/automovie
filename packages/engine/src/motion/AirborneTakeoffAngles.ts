@@ -4,6 +4,8 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import type { integrateAirborneRotation } from "./integrateAirborneRotation";
+import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /** The lateral unit axis, read without mutation by quaternion operations. */
@@ -56,4 +58,50 @@ export function AirborneTakeoffAngles(
     LATERAL,
   );
   return { somersault, tilt, twist: Math.atan2(-lateral.z, lateral.x) };
+}
+
+/**
+ * The shared angle chart's continuous branch reader.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The reader accumulates somersault and twist radians at the original default-step observation times.
+ * @evidence contracts/development/design.md#principled-representation A numeric completed flight and a unit reference frame use the same chart as single-orientation readings.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Public takeoff unwrapping and physical shooting trials share this one branch calculation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No endpoint quaternion is mistaken for whole-turn winding; the existing half-turn-per-observation premise remains explicit.
+ */
+export namespace AirborneTakeoffAngles {
+  /**
+   * Accumulate whole turns on the same nearest-angle branches as the public
+   * takeoff reader. A turn between observations must remain below pi radians.
+   *
+   * @param flight The actual solved numeric flight.
+   * @param frame Unit reference orientation, inverted once for this pass.
+   * @returns Unwrapped endpoint angles, radians.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States observations, units, reference ownership and winding premise.
+   * @evidence contracts/development/implementation.md#principled-implementation The nearest principal branch follows continuity under the stated pi bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Invert once, read the existing chart, accumulate the two cyclic angles.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original default-step observer without a new angle tolerance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear reads in flight duration over the original observation step.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both public and shooting paths share this unchanged branch calculation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only current numeric angles survive each read; no history is retained.
+   */
+  export function unwrapped(
+    flight: integrateAirborneRotation.IFlight,
+    frame: IAutoMovieQuaternion,
+  ): solveAirborneTakeoff.IAngles {
+    const into: IAutoMovieQuaternion = Quaternion.inverse(frame);
+    let somersault: number = 0;
+    let twist: number = 0;
+    let tilt: number = 0;
+    const step: number = integrateMotionTrajectory.STEP;
+    const count: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
+    for (let k: number = 0; k < count; k++) {
+      const seconds: number = k === count - 1 ? flight.t1 : flight.t0 + k * step;
+      const angles: solveAirborneTakeoff.IAngles = AirborneTakeoffAngles(into, flight.orientation(seconds));
+      somersault = angles.somersault + 2 * Math.PI * Math.round((somersault - angles.somersault) / (2 * Math.PI));
+      twist = angles.twist + 2 * Math.PI * Math.round((twist - angles.twist) / (2 * Math.PI));
+      tilt = angles.tilt;
+    }
+    return { somersault, tilt, twist };
+  }
 }

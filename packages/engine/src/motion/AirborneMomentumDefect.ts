@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
@@ -28,11 +29,11 @@ type MomentumTolerance = Pick<integrateMotionTrajectory.ITolerance, "relative" |
  * @throws {Error} For invalid budgets, nonfinite physical inputs, nonpositive principal moments or unrepresentable reconstructed momentum.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the conserved quantity, root/world frames, SI rate and momentum units, explicit physical budget, zero-scale rule and finite-arithmetic refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Evaluates R (Q diag(I) Q^T omega + h) through the supplied principal frame and compares it with L in world coordinates. Unit quaternion frames and a pure history are caller premises; finite components and positive finite principal moments are admitted. Direct momentum conditioning includes the actual tensor and relative-motion cancellation rather than assuming a unit amplification factor.
+ * @evidence contracts/development/implementation.md#principled-implementation Evaluates R(I omega+h) and compares it with L in world coordinates. Unobserved factory tensors supply their admitted SPD operator directly; foreign or publicly observed principals retain Q diag(I) Q^T. Unit frames and a pure history are premises; finite components and positive principal moments are admitted on the public path. The metric retains actual tensor conditioning and relative-motion cancellation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and snapshot the integration's fixed target and physical budget, then reconstruct one queried momentum and return its scaled Euclidean error.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate, inertia or momentum is clamped or repaired. A zero physical scale requires exact agreement and has no invented absolute floor. A sampled dense defect does not certify every intermediate time or the separate finite-difference observation stencil.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each measurement makes one history query, whose shape/reduction cost belongs to that supplied history, plus fixed-size principal and world rotations. Reconstruction reuses the provided principal frame without another tensor assembly, eigensolve or perturbed integration; no sampled pose is retained here.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration's unchanged target components and absolute-plus-relative scale are copied once. Every time reads its actual history instant. An engine-created history shares its exact principal inverse with the ODE under copied quaternion keys; a general history retains its original inverse computation, and mutable physical inputs require a new integration.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each measurement makes one history query plus a fixed-size tensor product and world rotation. A valid factory operator avoids principal materialization and its two rotations; the public path retains them. No perturbed integration or sampled pose is retained here; no wall-time improvement is yet measured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration copies target components and admits its relative/absolute budget once; those same captured scalars drive the component-scaled norm without rereading the caller's budget. Each time reads its actual history instant. Engine histories share exact principal inverses under copied quaternion keys; general histories retain their original inverse path, and changed physical inputs require a new integration.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned integration-scoped callback holds its history, copied target and one scalar budget until the integrator releases it. Each query's vectors are temporary and no query population, body identity cache or external resource is owned here.
  */
 export function AirborneMomentumDefect(
@@ -64,7 +65,7 @@ export function AirborneMomentumDefect(
   };
   if (!finiteVector(target))
     throw new Error("Airborne momentum needs finite world components");
-  const scale: number = physicalScale(target, tolerance);
+  const scale: number = physicalScale(target, relative, absolute);
   if (!Number.isFinite(scale))
     throw new Error("Airborne momentum error budget exceeds finite arithmetic");
 
@@ -74,30 +75,31 @@ export function AirborneMomentumDefect(
     angularVelocity: IAutoMovieVector3,
   ): number => {
     const instant: integrateAirborneRotation.IInstant = history(seconds);
-    const { moments, rotation }: typeof instant.inertia = instant.inertia;
+    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
     if (
       !(
-        finiteVector(moments) &&
-        moments.x > 0 &&
-        moments.y > 0 &&
-        moments.z > 0 &&
         finiteVector(instant.relative) &&
         finiteVector(angularVelocity) &&
-        finiteQuaternion(rotation) &&
         finiteQuaternion(orientation)
       )
     )
       throw new Error(
         "Airborne momentum defect needs finite physical data and positive principal moments",
       );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      AirborneShapeHistory.inverse(instant) ?? Quaternion.inverse(rotation),
-      angularVelocity,
-    );
-    local.x *= moments.x;
-    local.y *= moments.y;
-    local.z *= moments.z;
-    const body: IAutoMovieVector3 = Quaternion.rotateVector(rotation, local);
+    let body: IAutoMovieVector3;
+    if (factor !== undefined) body = factor.apply(angularVelocity);
+    else {
+      const { moments, rotation }: typeof instant.inertia = instant.inertia;
+      if (!(finiteVector(moments) && moments.x > 0 && moments.y > 0 && moments.z > 0 && finiteQuaternion(rotation)))
+        throw new Error("Airborne momentum defect needs finite physical data and positive principal moments");
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        AirborneShapeHistory.inverse(instant) ?? Quaternion.inverse(rotation), angularVelocity,
+      );
+      local.x *= moments.x;
+      local.y *= moments.y;
+      local.z *= moments.z;
+      body = Quaternion.rotateVector(rotation, local);
+    }
     body.x += instant.relative.x;
     body.y += instant.relative.y;
     body.z += instant.relative.z;
@@ -216,10 +218,13 @@ export namespace AirborneMomentumDefect {
     const probe: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"] = error.rejection?.probe;
     const trialEnd: number | null = error.rejection === undefined
       ? null : error.time + error.rejection.step;
+    const target: IAutoMovieVector3 = { x: momentum.x, y: momentum.y, z: momentum.z };
+    const budget: MomentumTolerance | undefined = tolerance === undefined ? undefined
+      : { relative: tolerance.relative, absolute: tolerance.absolute };
     const context: IFailureContext = {
-      targetMomentum: [momentum.x, momentum.y, momentum.z],
-      momentumBudget: tolerance === undefined ? null : [tolerance.relative, tolerance.absolute],
-      momentumScale: tolerance === undefined ? null : physicalScale(momentum, tolerance),
+      targetMomentum: [target.x, target.y, target.z],
+      momentumBudget: budget === undefined ? null : [budget.relative, budget.absolute],
+      momentumScale: budget === undefined ? null : physicalScale(target, budget.relative, budget.absolute),
       startPrincipalMoments: null,
       startPrincipalRotation: null,
       startRelativeMomentum: null,
@@ -278,11 +283,11 @@ export namespace AirborneMomentumDefect {
 }
 
 /** Scale vector components before the norm so a small share can keep a large finite target representable. */
-function physicalScale(momentum: IAutoMovieVector3, tolerance: MomentumTolerance): number {
-  return tolerance.absolute + Math.hypot(
-    tolerance.relative * momentum.x,
-    tolerance.relative * momentum.y,
-    tolerance.relative * momentum.z,
+function physicalScale(momentum: IAutoMovieVector3, relative: number, absolute: number): number {
+  return absolute + Math.hypot(
+    relative * momentum.x,
+    relative * momentum.y,
+    relative * momentum.z,
   );
 }
 
