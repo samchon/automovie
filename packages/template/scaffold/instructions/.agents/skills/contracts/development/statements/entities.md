@@ -29,7 +29,7 @@ Contract: [entities.md](../entities.md).
 2. A deformation a scene needs is present, and rig complexity no scene uses is not required.
 3. Every version of the subject the scenes use is a parameter or the seed of this module, and no copy of the module with edited constants exists.
 4. The coarse form is the default, and each commissioned detail builds from the same definition.
-5. A subject an installed package already provides is taken from it and not rebuilt.
+5. A subject an installed package already provides follows the [production principles](../../../../../AGENTS.md#principles). Its actual producer output reaches the drawing and interaction, including its connection frames; an unused import or a parallel handcrafted model does not establish reuse.
 6. The entity rebuilds from a fixed source with its usage rights.
 7. An adopted or converted asset states which channels and deformation the conversion and the runtime retain.
 8. An object a person holds, uses, sits on, rides or fights with declares the affordances the scenes' actions attach to, under [objects people use](../../../development/entities.md#objects).

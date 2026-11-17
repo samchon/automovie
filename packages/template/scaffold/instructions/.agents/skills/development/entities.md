@@ -1,6 +1,8 @@
 # Entity work
 
-Build the subjects the commission's scenes need, each in the entity folder [source layout](source-layout.md#source) gives, under the [entities contract](../contracts/development/entities.md). Read [project context](../production/project-context.md) first, and before building a subject search the installed packages for one that already provides it, under [installed packages](reuse.md#installed-packages). A standalone asset defines its views and controls without a screenplay.
+Prepare scene subjects under the [production principles](../../../AGENTS.md#principles). Read [project context](../production/project-context.md) and the relevant [installed package](reuse.md#reading-a-package) before preparing a body, model or attachment.
+
+[Source layout](source-layout.md#source) places each entity, and the [entities contract](../contracts/development/entities.md) holds it to its facts. A standalone asset defines its views and controls without a screenplay.
 
 ## Coarse first
 
@@ -8,11 +10,11 @@ Keep geometry coarse so motion, staging, timing and camera stay readable. Choose
 
 ### People
 
-A person is the polygon man. The installed human package prepares a canonical body from parameters taken from the cast record's body facts, the installed renderer draws that body, and the installed motion vocabulary plans on it, so the figure on screen is the body the motion was solved on. A crowd is a group of polygon men the installed motion vocabulary performs as one group, its bodies drawn from the crowd record. [Installed packages](reuse.md#installed-packages) names these packages, and their READMEs give the calls.
+Prepare the canonical body from the cast record's body facts and pass that same prepared body to drawing and motion. A crowd takes its bodies from the crowd record and performs through the vocabulary's group capability. [Installed packages](reuse.md#installed-packages) names the owners, and their READMEs give the calls.
 
 ### Objects
 
-What a person holds, uses, sits on, rides or fights with comes from the installed archetypes, such as a cup, a chair, a door, a horse and the cart it draws, a bow and its arrows, or a sword. Each is already a coarse form, built from the record's facts as parameters and a seed, and the installed packages move it.
+Instantiate the relevant archetype with the record's facts and seed. Keep its model, dimensions and connection frames together through drawing, equipment and interaction, so a hand does not act on a different object from the one shown.
 
 An archetype declares its affordances, the places where a person meets it, such as a grip, a seat, a surface or a hinge. The installed motion vocabulary attaches an action to an affordance, so one action fits every size the object takes.
 
