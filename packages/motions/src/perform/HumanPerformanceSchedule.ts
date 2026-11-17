@@ -3,6 +3,7 @@ import {
   type IAutoMovieIntent,
   type IAutoMovieSchedule,
   Vector3,
+  bracketedRoot,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
@@ -163,6 +164,17 @@ export namespace HumanPerformanceSchedule {
           where,
           true,
         );
+
+      // The meetings this planning recorded go with its kept plan, for the
+      // placement that takes it (`IHumanPerformanceTrial`).
+      if (self.trial !== undefined)
+        self.trial.meetings = [...self.meetings].filter(
+          ([key, value]: [string, { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }]): boolean =>
+            !meetings.some(
+              ([before, kept]: [string, { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }]): boolean =>
+                before === key && kept === value,
+            ),
+        );
       self.meetings.clear();
       for (const [key, value] of meetings) self.meetings.set(key, value);
       const share: number | undefined =
@@ -290,7 +302,20 @@ export namespace HumanPerformanceSchedule {
     );
   }
 
-  /** The share of the latest segment's active span at which a proximity cut happens. */
+  /**
+   * The bracket width at which a proximity cut's second is taken, seconds:
+   * the width the search it replaces reached, twenty halvings of a 24 Hz
+   * frame (`1 / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more
+   * coarsely than before.
+   */
+  export const CUT: number = 1 / 24 / 2 ** 20;
+
+  /**
+   * The share of the latest segment's active span at which a proximity cut
+   * happens: the 24 Hz grid is scanned for the first frame within the
+   * distance, and the crossing is found between it and the frame before by
+   * the Illinois false-position search (`bracketedRoot`) to `CUT` seconds.
+   */
   export function proximity(
     self: HumanPerformanceState,
     intent: IAutoMovieIntent,
@@ -328,24 +353,37 @@ export namespace HumanPerformanceSchedule {
     const step: number = 1 / 24;
     const end: number = placed.start + placed.duration;
     let previous: number = placed.start;
-    if (gap(previous) <= 0) return 0;
+    let clear: number = gap(previous);
+    if (clear <= 0) return 0;
     // The grid's last sample is the span's own end, so a gap that closes
     // inside the final partial step is still found.
     for (let k: number = 1; previous < end; k++) {
       const t: number = Math.min(end, placed.start + k * step);
-      if (gap(t) <= 0) {
-        let lo: number = previous;
-        let hi: number = t;
-        for (let i: number = 0; i < 20; i++) {
-          const mid: number = (lo + hi) / 2;
-          if (gap(mid) <= 0) hi = mid;
-          else lo = mid;
-        }
+      const reached: number = gap(t);
+      if (reached <= 0) {
+        // The cut is the latest second measured within the distance, the
+        // bracket's near end, so the action is never cut while still short
+        // of it. The two ends are the scan's own readings.
+        const ends: readonly [number, number, number, number] = [previous, clear, t, reached];
+        let within: number = t;
+        bracketedRoot(
+          (seconds: number): number => {
+            if (seconds === ends[0]) return ends[1];
+            if (seconds === ends[2]) return ends[3];
+            const at: number = gap(seconds);
+            if (at <= 0) within = seconds;
+            return at;
+          },
+          ends[0],
+          ends[2],
+          HumanPerformanceSchedule.CUT,
+        );
         return placed.duration === 0
           ? 0
-          : (hi - placed.start) / placed.duration;
+          : (within - placed.start) / placed.duration;
       }
       previous = t;
+      clear = reached;
     }
     return undefined;
   }

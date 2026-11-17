@@ -32,6 +32,7 @@ import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import type { IHumanPerformanceTrial } from "./IHumanPerformanceTrial";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanProp } from "./IHumanProp";
@@ -49,7 +50,9 @@ import type { IHumanProp } from "./IHumanProp";
 export namespace HumanPerformancePlace {
   /**
    * The schedule's timing law: plan the intent from the state its person is
-   * in. A trial plans and returns the timing without placing anything.
+   * in. A trial plans and returns the timing without placing anything, and
+   * its planning is kept for the placement of the same intent at the same
+   * start with nothing placed in between (`IHumanPerformanceTrial`).
    * Participant registry/body/entry metadata is fixed for this action context,
    * so its private per-subject reader templates share closures until context
    * release. Every performer lookup still checks existence and returns a fresh
@@ -171,7 +174,19 @@ export namespace HumanPerformancePlace {
     // The inertialization the cut into this action decays over, the
     // tolerance its entry state is read to; none for an overlay.
     const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
-    const entry: ReturnType<typeof HumanSegment.entry> = HumanSegment.entry(person, previous, start, blend);
+
+    // The alignment's last trial planned this intent at this start with the
+    // same placed state: its planning is the one this placement would make
+    // (`IHumanPerformanceTrial`). A placement reads or drops the kept trial.
+    const last: IHumanPerformanceTrial | undefined = trial ? undefined : self.trial;
+    const kept: IHumanPerformanceTrial | undefined =
+      last !== undefined && last.intent === intent && last.start === start &&
+      last.placements === self.placements && last.entries === entries.length
+        ? last
+        : undefined;
+    if (!trial) self.trial = undefined;
+    const entry: ReturnType<typeof HumanSegment.entry> =
+      kept === undefined ? HumanSegment.entry(person, previous, start, blend) : kept.context.entry;
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
@@ -180,7 +195,7 @@ export namespace HumanPerformancePlace {
       (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
         poseBones(body, entry.pose, undefined, requested);
     let performers: Map<string, IHumanActionContext.IPerformer> | undefined;
-    const context: IHumanActionContext<never> = {
+    const drafted: IHumanActionContext<never> = {
       subject: intent.subject,
       body,
       params: params as never,
@@ -364,7 +379,8 @@ export namespace HumanPerformancePlace {
     // What the performer's next action on a prop demands of a grip this one
     // chooses (`HumanPerformanceAhead`); an overlay leaves the body's grips
     // to its carrier.
-    if (!over)
+    const context: IHumanActionContext<never> = kept?.context ?? drafted;
+    if (!over && kept === undefined)
       context.demands = HumanPerformanceAhead.reader(
         self,
         context,
@@ -372,13 +388,18 @@ export namespace HumanPerformancePlace {
       );
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
-    let plan = HumanSegment.planning(self.people.values(), () => HumanPerformanceTempo.plan(law, context));
+    let plan: IHumanActionPlan =
+      kept?.plan ?? HumanSegment.planning(self.people.values(), () => HumanPerformanceTempo.plan(law, context));
     const share: number =
-      row === undefined ? 0 : HumanSegment.share(row.entry, plan);
-    if (share > 0) {
+      kept?.share ?? (row === undefined ? 0 : HumanSegment.share(row.entry, plan));
+    if (kept === undefined && share > 0) {
       context.start = start - share * plan.duration;
       plan = HumanSegment.planning(self.people.values(), () => HumanPerformanceTempo.plan(law, context));
     }
+
+    // A trial withdraws the meetings its planning recorded; the placement
+    // that takes the trial's plan records them again.
+    for (const [key, value] of kept?.meetings ?? []) self.meetings.set(key, value);
 
     // The timing the schedule reads: the part of the plan left after the
     // share it enters at, its contact and events on that part. A trial
@@ -398,7 +419,20 @@ export namespace HumanPerformancePlace {
           }),
         ),
     };
-    if (trial) return timing;
+    if (trial) {
+      self.trial = {
+        intent,
+        start,
+        placements: self.placements,
+        entries: entries.length,
+        context,
+        plan,
+        share,
+        meetings: [],
+      };
+      return timing;
+    }
+    self.placements++;
 
     // An action aligned into its performer's previous one ends that one
     // where it starts, as the cut the cancel table just allowed.

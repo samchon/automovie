@@ -36,6 +36,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
+import type { IHumanPerformanceTrial } from "./IHumanPerformanceTrial";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -127,6 +128,12 @@ export class HumanPerformanceState {
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
+
+  /** How many actions and overlays have been placed so far: two instants with the same count have the same placed state. */
+  public placements: number = 0;
+
+  /** The plan the last alignment trial made (`HumanPerformancePlace.place` with `trial`), kept until the next placement reads or drops it; none otherwise. */
+  public trial: IHumanPerformanceTrial | undefined;
 
   /**
    * Resolve a performance.
