@@ -60,7 +60,7 @@ import { humanPostureHeading } from "./humanPostureHeading";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States canonical defaults, root/ROM/limb/digit order, observational-frame limits, actual cold preparation, constructor-owned demand transport, ordinary composition fitting and fixed-base candidate ownership; companion docs give each coordinate, seed, attachment and fallback convention.
  * @evidence contracts/development/implementation.md#principled-implementation Ordinary resolution clamps direct joints before the original range-clamped pole-hint IK. Prepared translation is equivariant only for the actual constructor-owned complete demand graph with current native-loan/live rig proof; arbitrary raw composition retains original fitting. A fixed-base operation projects fixed direct inputs once while every varying complete limb/digit request still solves normally.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Assembly owns fresh direct records/root and admission; internal refit applies owned chain edits and digit fitting retains its original owner. Only an absent base and absent incoming reader select private-reader COW transfer. Explicit base/refit/incoming-reader sources retain independent issuing, and no-goal refit keeps its borrowed-pose contract.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Assembly owns fresh direct records/root and admission; internal refit applies owned chain edits and digit fitting retains its original owner. An absent base with an absent or native (factory/engine) reader selects COW transfer, since assembly creates every result record and a native reader lends only exact FK. Explicit base/refit/foreign-reader sources retain independent issuing, and no-goal refit keeps its borrowed-pose contract.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public resolved flag, achieved-target substitution, relaxed ROM/acceptance or prior-time result is accepted. Original raw goals remain auditable; unsupported/changed dependencies, base and near context retain their original solve. Weak issued provenance and independently mutable result copies prevent forged or changed public outputs from certifying another request.
  * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work scales with rig/joints and actual selected search sizes. Explicit observations omit only proven irrelevant fits; checked source transport replaces a duplicate eligible solve with linear scalar checking/copying, and fixed-base search removes repeated assembly/projection while preserving live memory reads. Every retained target/search remains actual and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-operation FK readers share exact scalar prerequisites. Whole-source reuse requires actual constructor-owned graph plus current rig/table/native-loan proof; fixed-base preparation requires unchanged fixed coordinates/body and actual complete varying goals. Arbitrary raw getters are never sampled to certify partial-leg output. Existing mirror/root-frame/grid memory policy remains unchanged, and copies or mismatches fall back normally.
@@ -131,7 +131,12 @@ export namespace resolveHumanPosture {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): ISeeded {
     const cold: boolean = base === undefined && Object.keys(near).length === 0;
-    const owned: boolean = base === undefined && resolution === undefined;
+
+    // The owned route assembles fresh records from the raw demands and fits
+    // them in place; a reader lends only exact FK, so a native one (this
+    // owner's factory or the engine's) can alias no record of the result.
+    const owned: boolean = base === undefined &&
+      (resolution === undefined || prepareHumanPoseResolution.isNativeSource(resolution));
     if (cold) {
       const prepared: ISeeded | undefined = HumanPosturePreparation.read(body, posture);
       if (prepared !== undefined && prepareHumanPoseResolution.isNativeSource(resolution)) return prepared;

@@ -8,6 +8,7 @@ import {
 import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -207,17 +208,21 @@ export namespace HumanSegmentPose {
     let pose: IAutoMoviePose = now.pose;
 
     // One more fit of the evaluation, continued where `near` holds its name.
+    // The fitted pose is this evaluation's own intermediate, so the fit's
+    // result is used as solved, without the public entry's complete clone.
     function fit(
       name: string,
       at: IAutoMoviePose,
       limb: IHumanPosture.Limb,
       goal: IHumanPosture.IGoal,
     ): IAutoMoviePose {
-      const fitted: IAutoMovieSeededChainFit = resolveHumanPosture.limbSeeded(
+      const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(
         body,
         at,
         limb,
         goal,
+        ["left", "right"],
+        undefined,
         nearby(near, name),
         prepared.resolution,
       );

@@ -19,6 +19,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
@@ -187,15 +188,18 @@ export namespace HumanSegmentOverlay {
           prepared,
         )) {
           const name: string = `carry:${tag}:${limb}`;
-          const carry: IAutoMovieSeededChainFit =
-            resolveHumanPosture.limbSeeded(
-              body,
-              leaf,
-              limb,
-              goal,
-              HumanSegmentPose.nearby(near, name),
-              resolution,
-            );
+          // The leaf is this evaluation's own pose, so the fit's result is
+          // used as solved, without the public entry's complete clone.
+          const carry: IAutoMovieSeededChainFit = HumanLimbFit.fit(
+            body,
+            leaf,
+            limb,
+            goal,
+            ["left", "right"],
+            undefined,
+            HumanSegmentPose.nearby(near, name),
+            resolution,
+          );
           seeds.set(name, carry.seed);
           leaf = carry.pose;
         }
@@ -319,11 +323,14 @@ export namespace HumanSegmentOverlay {
       return { pose, contacts };
     }
     const built: ReturnType<typeof build> = build(0, posture, [], "", false);
-    const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+
+    // Every pose `build` returns is assembled or fitted in this evaluation,
+    // so the private refit may share its untouched records.
+    const fitted: resolveHumanPosture.ISeeded = refitHumanPosture(
       body,
       built.pose,
       built.contacts,
-      continuations(built.contacts, near),
+      continuations(built.contacts, near) ?? {},
       resolution,
     );
     for (const [limb, seed] of Object.entries(fitted.seeds))

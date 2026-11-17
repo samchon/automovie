@@ -46,8 +46,10 @@ export function resolveHumanPostureSource(
 export namespace resolveHumanPostureSource {
   /**
    * Transfer fresh assembled and fitted records within their owning operation.
-   * The caller supplies no borrowed base and either owns the complete reader
-   * or has cloned the raw source and admitted a genuine native reader.
+   * The caller supplies no borrowed base, and its reader is absent or native
+   * (`prepareHumanPoseResolution.isNativeSource`): assembly creates every
+   * result record from the raw demands, which it only reads, and a native
+   * reader lends exact FK alone, so no result record aliases the caller's.
    *
    * Defines actual private-source and reader premises and the fresh-result transfer.
    * The assembler creates every direct joint/root, owned refit transfers only its proven fresh writes or newly issued cache packets, and digits operate on that owned pose.

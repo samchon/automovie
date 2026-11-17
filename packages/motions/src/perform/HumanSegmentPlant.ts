@@ -4,6 +4,7 @@ import type { IAutoMoviePose } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
@@ -32,7 +33,7 @@ export namespace HumanSegmentPlant {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered goal filter returns immediately for an empty cold request; nonempty or continued requests keep the original attachment-order check, nearby-name projection and ordinary refit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied goal's planted property is still inspected before an empty return; no selected plant, field, clamp, ordering check, near seed or actual solve is skipped. Empty goals have no attachment edge or fit and retain the original pose identity and fresh empty seed/value records.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans L entries once. An empty cold selection omits the goal dictionary, two four-node order traversals and unused native refit setup; nonempty selection retains the full existing fit cost. Continued queries preserve all four candidate-name reads, including empty selections. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the physical solve to resolveHumanPosture.refit and continuation interpretation to HumanSegmentPose.nearby. Different poses, goals, cold queries and nearby histories still resolve independently, with no fitted-pose memo.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the physical solve to the private refitHumanPosture, the same ordered kernel and limb memory as resolveHumanPosture.refit with its native issuer: the input is the displayed evaluation's own clamped intermediate, so untouched records are shared rather than cloned twice per limb and once more for the result. Continuation interpretation stays with HumanSegmentPose.nearby; different poses, goals, cold queries and nearby histories still resolve independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The filtered goal dictionary, order and optional nearby projection belong to this synchronous call and release on return or failure. Goal payloads remain borrowed; the resolver preserves its no-plant pose identity or fitted-result ownership. No callback, reader, cache or process is retained here.
    */
   export function fit(
@@ -48,12 +49,15 @@ export namespace HumanSegmentPlant {
     if (selected.length === 0 && near === undefined) return { pose, seeds: {}, values: {} };
     const plants: IHumanPosture["limbs"] = Object.fromEntries(selected);
     const ordered: IHumanPosture.Limb[] = resolveHumanPosture.order(plants);
-    return resolveHumanPosture.refit(
+
+    // The pose is this evaluation's own clamped intermediate, so the private
+    // refit may share its untouched records instead of issuing clones.
+    return refitHumanPosture(
       body,
       pose,
       plants,
       near === undefined
-        ? undefined
+        ? {}
         : Object.fromEntries(
             ordered.flatMap(
               (
