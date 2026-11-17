@@ -266,7 +266,12 @@ export namespace handToFace {
           context.carrier === undefined
             ? bones
             : (): ReturnType<typeof poseBones> =>
-                poseBones(body, resolveHumanPosture(body, posture)),
+                // Limbs are fitted after the trunk and move no bone of the
+                // midline, so a region on a midline bone is read with no
+                // limb fitted; a bone of a side keeps the whole solve.
+                poseBones(body, resolveHumanPosture(body,
+                  /^(left|right)/.test(body.surfaces.regions[name].bone)
+                    ? posture : { ...posture, limbs: {} })),
         );
         // A row that stands its effector upright reads the region's normal
         // level, so its tangent `up` is the world's up.
