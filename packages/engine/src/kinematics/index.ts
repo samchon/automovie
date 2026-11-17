@@ -64,3 +64,6 @@ export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
 export * from "./markAutoMovieBalance";
 export * from "./markAutoMovieRomOvershoot";
+export * from "./distalEndSwivelArcs";
+export * from "./immobileAxisSwivels";
+export * from "./swivelJointReadings";
