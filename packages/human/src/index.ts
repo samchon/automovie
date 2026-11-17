@@ -52,6 +52,7 @@ export * from "./generation/conic/AutoMovieHumanMaterialCourse";
 export * from "./generation/f1/AutoMovieHumanF1NativeCourse";
 export * from "./generation/f1/AutoMovieHumanF1Armscye";
 export * from "./generation/f1/AutoMovieHumanF1Divide";
+export * from "./generation/f1/AutoMovieHumanF1ThumbRoot";
 export * from "./generation/nail/AutoMovieHumanNail";
 export * from "./generation/nail/AutoMovieHumanNailLoop";
 export * from "./generation/f1/AutoMovieHumanF1Nails";

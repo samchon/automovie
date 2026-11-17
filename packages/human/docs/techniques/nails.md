@@ -1132,7 +1132,7 @@ On the lesser toes the plate runs nearly to the pole, which the body note explai
 
 ### B. The nails, in `constructionFrom`
 
-1. First statement, before any digit is read (the fans' seams, the thumb's capsule and the splits' children all read the digits), on digits that already carry A: `const nails = assembled.digits.map((digit) => AutoMovieHumanF1Nails.create(digit.family, assembled.frames));`
+1. First statement, before any digit is read (the fans' seams, the thumb's capsule and the splits' children all read the digits), on digits that already carry A: `const nails = AutoMovieHumanF1Nails.all(assembled.digits.map((digit) => digit.family), assembled.frames);` Each nail is made once, from its own digit and the frames; its roll is weighed against the declared prior `TURN` inside `AutoMovieHumanF1Nails`.
 2. The assembly every later line reads, with the parameter renamed `assembled`: `const placed = { ...assembled, digits: assembled.digits.map((digit, i) => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]) })) };` This is the figure's level, the bed alone. `bedded` also sets the cap's rings from the bed's rows, so the family it returns is the one to loft; nothing sets `ITip.rings` after it.
 3. Nothing at the tree's end: no join, no plate source, `attach` is not called.
 
@@ -1142,7 +1142,7 @@ The digit's layers inside the bed's station window are cut to the bed's rows by 
 
 **The owner region.** A vertex of a digit's face is the nail's when `AutoMovieHumanNail.owns(nails[i].nail, point)` holds for its position in millimetres; on a twin's face, for its position reflected in the median plane. The plate's outline is `nails[i].nail.plan`.
 
-**Cost at the figure's level.** 8,802 vertices on ten digits over the digits without nails, about 17,600 on the figure. The law takes 1.4 to 2.1 s a digit today, about 17 s an assembly; the frame fit's defect below is most of it.
+**Cost at the figure's level.** About 8,400 vertices on ten digits over the digits without nails (57,106 against 48,712), about 17,000 on the figure. The law takes under a second a digit, about 8 s an assembly.
 
 ### C. The made-figure check, when the tree stands
 

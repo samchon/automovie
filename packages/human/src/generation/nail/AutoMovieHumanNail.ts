@@ -295,6 +295,14 @@ export namespace AutoMovieHumanNail {
   /** The golden section's share, `(sqrt(5) - 1) / 2`. */
   const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
+  /** The vector a 3 by 3 matrix takes to a given one, by determinants; `null` where the matrix has none. */
+  function solved(matrix: readonly number[][], vector: readonly number[]): number[] | null {
+    const det = (m: readonly number[][]): number => m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) - m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) + m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
+    const whole: number = det(matrix);
+    if (whole === 0 || !Number.isFinite(whole)) return null;
+    return [0, 1, 2].map((k: number): number => det(matrix.map((row: number[], a: number): number[] => row.map((x: number, b: number): number => (b === k ? vector[a]! : x)))) / whole);
+  }
+
   /**
    * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
    * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
@@ -483,12 +491,22 @@ export namespace AutoMovieHumanNail {
       }
       return best;
     };
-    // The stations are cut square to the long axis, so once its direction is fixed the rings are fixed: a roll or a shift of the
-    // frame only turns the coordinates the same rings are read in. For a fixed direction the roll is therefore one unknown in one
-    // equation, "the mean levelling turn is zero", solved on rings already read; only the axis's slope moves the cuts, at second
-    // order, and asks for another pass. Found instead by adding each pass's levelling turn and reading the skin anew, the roll crept
-    // by the back's roundness (0.51 to 0.79 a pass on f1's fingers), swung with the shift on the toes, and two toes had not settled
-    // at the cap (law-only run 15-53-57).
+    // The stations are cut square to the long axis, so at a fixed axis the rings are fixed, and a roll or a shift of the frame only
+    // turns the coordinates the same rings are read in: on them the roll is settled alone, by its objective below, with no skin
+    // read. But every pass cuts the rings anew at the axis the pass before fitted, and the re-cut rings feed the shift, the slope
+    // and the roll back into each other at first order: stepped by what each pass asked, the three fell by 0.3 to 0.6 a pass and
+    // two of f1's toes ended at the cap (run 16-41-29). So the three are solved together, by a secant step: the matrix that tells
+    // how the last step changed what was asked, started as the identity (the plain step) and corrected each pass by Broyden's
+    // rank-one rule, is solved for the step that would leave nothing asked. The fixed point is the plain iteration's whatever the
+    // matrix is. A step over eight times what was asked would mean a contraction slower than seven eighths a pass, beyond any
+    // read on f1 (0.3 to 0.8), and starts the matrix again. The shift is counted in bed lengths, so the three are of one scale.
+    const bedLength: number = tip0 - fold0;
+    let secant: number[][] = [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ];
+    let taken: { wanted: number[]; move: number[] } | null = null;
     for (let i: number = 0, last: number = Infinity; i < 24 && Math.abs(last) > 1e-7; ++i) {
       passes = i + 1;
       const cut: IReader = reader(skin, frame);
@@ -538,15 +556,35 @@ export namespace AutoMovieHumanNail {
       misfit = levelled(angle).turn;
       objective = fewest;
       const { slope, shift }: { slope: number; shift: number } = levelled(angle);
-      roll += angle;
       residuals.push([angle, slope, shift]);
       last = Math.abs(angle) + Math.abs(slope) + Math.abs(shift);
-      const levelDorsal: V3 = unit(mix(frame.dorsal, Math.cos(angle), cut.lateral, Math.sin(angle)));
+      // What this pass asks, and the secant's correction from what the last step did to what was asked then.
+      const wanted: number[] = [angle, slope, shift / bedLength];
+      const earlier: { wanted: number[]; move: number[] } | null = taken;
+      if (earlier !== null) {
+        const square: number = earlier.move.reduce((sum: number, x: number): number => sum + x * x, 0);
+        if (square > 0)
+          secant = secant.map((row: number[], a: number): number[] => {
+            const miss: number = earlier.wanted[a]! - wanted[a]! - row.reduce((sum: number, x: number, b: number): number => sum + x * earlier.move[b]!, 0);
+            return row.map((x: number, b: number): number => x + (miss * earlier.move[b]!) / square);
+          });
+      }
+      let move: number[] | null = solved(secant, wanted);
+      if (move === null || !(Math.hypot(move[0]!, move[1]!, move[2]!) <= 8 * Math.hypot(wanted[0]!, wanted[1]!, wanted[2]!))) {
+        secant = [
+          [1, 0, 0],
+          [0, 1, 0],
+          [0, 0, 1],
+        ];
+        move = wanted;
+      }
+      taken = { wanted, move };
+      roll += move[0]!;
+      const levelDorsal: V3 = unit(mix(frame.dorsal, Math.cos(move[0]!), cut.lateral, Math.sin(move[0]!)));
       const sideways: V3 = cross(frame.distal, levelDorsal);
-      frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * shift) as V3, distal: unit(mix(frame.distal, 1, sideways, slope)), dorsal: levelDorsal };
-      // Each pass cuts the rings anew at the axis the pass before fitted, and the re-cut rings still feed the shift and the roll
-      // back at first order: what a pass leaves falls by a measured 0.3 to 0.6 of the pass before's (run 16-00-55). Where the cap
-      // ends the fit first, what was still asked stays in `residuals`.
+      frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * move[2]! * bedLength) as V3, distal: unit(mix(frame.distal, 1, sideways, move[1]!)), dorsal: levelDorsal };
+      // The cap bounds the work, not the answer: where it ends the fit first, what was still asked at the last pass stays in
+      // `residuals` and is the frame's remaining uncertainty.
     }
     // Pitch: a plate is straight along its length and lies on the digit from the fold on, so its line is the taut line over the dorsal
     // skin from the fold's point: the steepest rise of the skin's median profile seen from that point, read every quarter millimetre

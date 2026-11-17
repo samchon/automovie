@@ -18,10 +18,14 @@ import { AutoMovieHumanNail } from "@automovie/human";
  *    the prior takes; its conditioning is `1 - (2 / 3.5)^2 = 0.673` within 0.03.
  * 2. A nearly round bar, 3.5 by 3.43 mm, conditioning 0.04: the roll is the closed form's least within 0.003 rad and within 0.02 rad
  *    of the given frame, where the level roll is 0.2 rad away.
+ * 3. The control, each bar made again with the prior removed (a spread of a million radians): the roll is then the bare level roll,
+ *    -0.2 rad within 0.003, and it misses the objective's expectation by more than twice that tolerance (0.02 rad on the first bar,
+ *    0.19 on the second, which so leaves its frame). The assertions of 1 and 2 would fail on it: the test tells the objective from
+ *    the level roll alone.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` on each made bar and reads the roll and the conditioning it reports. It catches a roll taken from a crossing of the levelling turn alone, a prior left out or weighed by another formula, and a round back turned to a far crossing.
- * @evidence contracts/development/testing.md#independent-expectations The levelling turn of an ellipse is derived above from its quadratic form; the objective is written out on that closed form in the test and its least found by the test's own scan; the breadth is the ellipse's support along the given lateral. None is the law's reading of rings.
- * @evidence contracts/development/testing.md#distinguishing-cases A well held back, where the roll stays near the level roll, and a weakly held one, where it stays near the frame; the two differ only in the height of the section. A back with two level rolls within a quarter turn and a twisting digit are not covered.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` on each made bar, with the prior and without, and reads the roll and the conditioning it reports. It catches a roll taken from a crossing of the levelling turn alone, a prior left out or weighed by another formula, and a round back turned to a far crossing.
+ * @evidence contracts/development/testing.md#independent-expectations The levelling turn of an ellipse is derived above from its quadratic form; the objective is written out on that closed form in the test and its least found by the test's own scan; the breadth is the ellipse's support along the given lateral; the control's roll is the given turn undone. None is the law's reading of rings.
+ * @evidence contracts/development/testing.md#distinguishing-cases A well held back, where the roll stays near the level roll, and a weakly held one, where it stays near the frame; the two differ only in the height of the section. Each has its negative, the same bar with the prior removed, which must be told from it. A back with two level rolls within a quarter turn and a twisting digit are not covered.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on two made skins, reached by `--include human_nail_roll`, with no reference body or figure.
  * @evidence contracts/development/common.md#meaningful-documentation States the made bars, the closed form with its derivation's terms, the objective and each scenario's numbers.
  */
@@ -51,11 +55,19 @@ export function test_human_nail_roll(): void {
       const cost: number = (g / error) ** 2 + (n / 10000 / spread) ** 2;
       if (cost < least) [least, expected] = [cost, n / 10000];
     }
+
+    // 1 and 2. With the prior.
     const nail: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin, proportions, 0.69, spread);
     if (!(Math.abs(nail.readings.roll - expected) <= 3e-3)) failures.push(what + "'s roll: " + nail.readings.roll + " against " + expected);
     if (!(Math.abs(nail.readings.conditioning - (1 - (high / across) ** 2)) <= 3e-2)) failures.push(what + "'s conditioning: " + nail.readings.conditioning + " against " + (1 - (high / across) ** 2));
     if (near && !(Math.abs(nail.readings.roll) <= 0.02)) failures.push(what + " left its frame by " + nail.readings.roll + " rad");
     if (!near && !(Math.abs(nail.readings.roll + turned) <= 0.05)) failures.push(what + " stands " + (nail.readings.roll + turned) + " rad from its level roll");
+
+    // 3. The control: the prior removed.
+    const bare: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.bare", "nailbed.bare", segment, skin, proportions, 0.69, 1e6);
+    if (!(Math.abs(bare.readings.roll + turned) <= 3e-3)) failures.push(what + " without its prior: roll " + bare.readings.roll + " against the level roll " + -turned);
+    if (!(Math.abs(bare.readings.roll - expected) > 6e-3)) failures.push(what + " without its prior is not told from the objective: " + bare.readings.roll + " against " + expected);
+    if (near && !(Math.abs(bare.readings.roll) > 0.02)) failures.push(what + " without its prior stayed in its frame: " + bare.readings.roll);
   }
   if (failures.length > 0) throw new Error("nail roll:\n" + failures.join("\n"));
 }
