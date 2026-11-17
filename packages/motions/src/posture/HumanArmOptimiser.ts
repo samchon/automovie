@@ -1,4 +1,5 @@
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -36,7 +37,8 @@ export namespace HumanArmOptimiser {
    * @param context The problem's context.
    * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
    * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
-   * @returns The last iterate, its evaluation and the penalty it was reached at.
+   * @param fine The context at the frame grid's instants over the same span. When it holds more instants than `context`, the waypoints are knots: every evaluation and linearisation is the grid's, on the knots' interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`); absent, or for a still configuration, the waypoints are read themselves.
+   * @returns The last iterate at the waypoints, its evaluation (the grid's where a grid was read) and the penalty it was reached at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem is solved to the interior method's accuracy or, failing that, to OSQP's.
@@ -50,16 +52,29 @@ export namespace HumanArmOptimiser {
     context: M.IContext,
     start: readonly (readonly (readonly number[])[])[],
     from?: number,
+    fine?: M.IContext,
   ): { x: number[][][]; evaluation: M.IEvaluation; penalty: number } {
     // The multipliers of the last step taken, which the OSQP fallback's
     // next subproblem starts from.
     let duals: Map<string, number> | undefined;
 
+    // With a frame grid finer than the waypoints, the waypoints are knots:
+    // the model is read and linearised at every grid instant on their
+    // interpolant, and each subproblem is carried onto the knots' steps
+    // (`HumanArmTrajectoryKnots`).
+    const grid: M.IContext | undefined =
+      fine !== undefined && !context.still && fine.n > context.n ? fine : undefined;
+    const read: M.IContext = grid ?? context;
+    const weights: number[][] | undefined =
+      grid === undefined ? undefined : Knots.weights(context.times, grid.times);
+    const spread = (x: number[][][]): number[][][] =>
+      grid === undefined ? x : Knots.read(context.times, grid.times, x);
+
     // The objective's exact quadratic terms, the same at every iterate.
     const smooth: HumanArmTrajectorySmooth.ISmooth =
-      HumanArmTrajectorySmooth.of(context);
+      HumanArmTrajectorySmooth.of(read);
     const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
-      evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(context, x),
+      evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(read, spread(x)),
       feasible: (evaluation: M.IEvaluation): boolean =>
         evaluation.worst.value <= M.TOLERANCE,
       convexify: (
@@ -71,15 +86,16 @@ export namespace HumanArmOptimiser {
       ): SCO.IModel<number[][][]> => {
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
+        const built: QP.IProblem = HumanArmTrajectoryConvex.convexify(
+          read,
+          spread(x),
+          evaluation,
+          mu,
+          SCHEDULE.expand * radius,
+          smooth,
+        );
         const model: SCO.IModel<number[][][]> = shell(
-          HumanArmTrajectoryConvex.convexify(
-            context,
-            x,
-            evaluation,
-            mu,
-            SCHEDULE.expand * radius,
-            smooth,
-          ),
+          grid === undefined ? built : Knots.reduce(context, weights!, built),
           x,
         );
         return objective ? model : model.feasibility!();

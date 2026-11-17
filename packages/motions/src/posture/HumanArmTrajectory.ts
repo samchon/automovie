@@ -10,6 +10,7 @@ import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -33,7 +34,7 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * where that reading fails. Two arms that move over one span are one
  * problem, their probes kept clear of each other as they both move:
  * planning one after the other is incomplete where their paths are coupled
- * (Erdmann and Lozano-Pérez 1987, Algorithmica 2:477). A problem whose first
+ * (Erdmann and Lozano-P챕rez 1987, Algorithmica 2:477). A problem whose first
  * arm is the left is solved as its mirror image
  * (`HumanArmTrajectoryMirror`), so mirrored scenes give mirrored paths. A
  * problem still infeasible at the last penalty is refused.
@@ -197,9 +198,9 @@ export namespace HumanArmTrajectory {
    * @evidence contracts/development/common.md#meaningful-documentation States the seeds, the three refinements, the admission, ordered action seconds, the mirror solve and the refusal; playback borrows the final setup/time/coordinate data through a separate factory.
    * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them (Schulman et al. 2013, sections V and VI), the reading here the model's own evaluation of the played interpolant on the frame grid, so nothing the film samples rests on the knots alone; a second initialisation only when the first ends unadmitted (their multiple initialisations).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; a module-private factory creates each returned reader outside the builder's lexical environment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when both its knots' evaluation and its frame-grid reading are within the model's tolerance; no bound is scaled to stand in for the reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables are the knots', a few per transport, instead of the frame grid's; each pass adds one evaluation over the grid. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A course's reading lends its context builder and its grid context, the same body, arms, bases and sites by identity, so the grid's frames and waypoint records are built once for the course and the solve; continued contexts keep the waypoint records of the knots they share; a refined solve continues from the last solution and its penalty.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading, the optimiser's own last evaluation of the knots' interpolant, is within the model's tolerance; no bound is scaled to stand in for the reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables are the knots', a few per transport, instead of the frame grid's, while every evaluation and linearisation is the grid's (`HumanArmTrajectoryKnots`); a solve is one optimisation, with no refinement after it. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A course's reading lends its context builder and its grid context, the same body, arms, bases and sites by identity, so the grid's frames and waypoint records are built once for the course and the solve; continued contexts keep the waypoint records of the knots they share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setup list, final times, coordinate arrays and their arm index; the problem/read callbacks, contexts and readings are released on return or throw.
    */
   export function solve(
@@ -278,49 +279,23 @@ export namespace HumanArmTrajectory {
         split = HumanArmRefine.unbounded(context, fine)
       )
         seed = refine(seed, split);
-      let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
-        HumanArmOptimiser.optimise(context, seed, penalty);
-      let played: Admission.IReading = Admission.read(context, fine, solved.x);
-      for (;;) {
-        const split: Set<number> = new Set(Admission.unbounded(knots, played));
-        if (solved.evaluation.worst.value > M.TOLERANCE)
-          for (const k of [
-            solved.evaluation.worst.at - 1,
-            solved.evaluation.worst.at,
-          ])
-            if (k >= 0 && k + 1 < knots.length && knots[k + 1]! - knots[k]! >= 2)
-              split.add(k);
-        if (split.size === 0) break;
-
-        // A stretch the reading refuses is refined to the frame grid at
-        // once, not a halving a solve: each halving would cost a whole
-        // optimisation and a whole reading, and a stretch that needs the
-        // grid's own knots would pay as many of both as it has halvings.
-        const stretches: [number, number][] = [...split].map(
-          (k: number): [number, number] => [knots[k]!, knots[k + 1]!],
-        );
-        let carried: number[][][] = solved.x;
-        for (
-          let within: number[] = [...split].sort((p: number, q: number): number => p - q);
-          within.length > 0;
-          within = knots.flatMap((g: number, k: number): number[] =>
-            k + 1 < knots.length &&
-            knots[k + 1]! - g >= 2 &&
-            stretches.some(
-              ([from, to]: [number, number]): boolean => g >= from && knots[k + 1]! <= to,
-            )
-              ? [k]
-              : [],
-          )
-        )
-          carried = refine(carried, within);
-        solved = HumanArmOptimiser.optimise(context, carried, solved.penalty);
-        played = Admission.read(context, fine, solved.x);
-      }
+      // The waypoints are knots of the frame grid: the optimiser reads and
+      // linearises every grid instant on their interpolant and steps the
+      // knots (`HumanArmTrajectoryKnots`), so its last evaluation is the
+      // played trajectory's own reading and nothing is refined or solved
+      // again. Where the knots are the grid itself, the reading is theirs.
+      const solved: ReturnType<typeof HumanArmOptimiser.optimise> =
+        HumanArmOptimiser.optimise(context, seed, penalty, fine);
+      const played: Admission.IReading =
+        !context.still && fine.n > context.n
+          ? {
+              x: Knots.read(context.times, fine.times, solved.x),
+              evaluation: solved.evaluation,
+            }
+          : Admission.read(context, fine, solved.x);
       return { ...solved, played };
     };
     const met = (solved: Solved): boolean =>
-      solved.evaluation.worst.value <= M.TOLERANCE &&
       solved.played.evaluation.worst.value <= M.TOLERANCE;
 
     // A laid course seeds the optimiser in place of the sampling planner;
