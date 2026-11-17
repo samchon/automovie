@@ -137,8 +137,7 @@ export namespace AutoMovieMotionHumanArmCourse {
     const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
     const course: Map<number, HumanArmClearance.IArm[]> = new Map();
-    const fit: (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear)
-      => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } = solver(props);
+    const fit: ReturnType<typeof solver> = solver(props);
 
     const first: number | undefined = times.find(holding);
     const last: number | undefined = [...times].reverse().find(holding);
