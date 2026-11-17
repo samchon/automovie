@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 
+import { changePlaygroundPerformer } from "../../playground/changePlaygroundPerformer";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundVocabulary } from "../../playground/structures/IPlaygroundVocabulary";
 import { SCENES } from "../../scenes/SCENES";
@@ -56,17 +57,14 @@ export function PlaygroundEditor(props: {
   const { composition, vocabulary } = props;
   const first: string = vocabulary.actions[0]?.name ?? "stand";
 
-  const setPerformer = (
+  const setPerformer: (
+    index: number,
+    patch: Partial<IPlaygroundComposition.IPerformer>,
+  ) => void = (
     index: number,
     patch: Partial<IPlaygroundComposition.IPerformer>,
   ): void =>
-    props.onChange({
-      ...composition,
-      performers: composition.performers.map(
-        (p, i): IPlaygroundComposition.IPerformer =>
-          i === index ? { ...p, ...patch } : p,
-      ),
-    });
+    props.onChange(changePlaygroundPerformer(composition, index, patch));
 
   const addPerformer = (): void => {
     // The next free letter names the new person.
@@ -280,12 +278,9 @@ export function PlaygroundEditor(props: {
               <button
                 type="button"
                 onClick={(): void =>
-                  props.onChange({
-                    ...composition,
-                    performers: composition.performers.filter(
-                      (_, i): boolean => i !== index,
-                    ),
-                  })
+                  props.onChange(
+                    changePlaygroundPerformer(composition, index, null),
+                  )
                 }
               >
                 Remove performer {performer.subject}

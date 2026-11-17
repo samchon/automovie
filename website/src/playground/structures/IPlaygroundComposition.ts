@@ -1,18 +1,20 @@
+import type { HumanForce } from "@automovie/motions";
+
 /**
  * A composition as the playground holds it: plain data that the editor
  * changes, the address carries and the adapter turns into a chain of
  * `@automovie/motions`.
  *
- * It names actions and parameters only. Bodies are named by the id of a body
+ * It names actions, parameters and authored impulses. Bodies are named by the id of a body
  * the adapter offers, so an address stays short and never carries a
  * skeleton.
  */
 export interface IPlaygroundComposition {
   /**
-   * The format's version: 1 has people only, 2 adds `objects`.
-   * `PlaygroundAddress` reads both and refuses any other.
+   * The format's version: 1 has people only, 2 adds `objects`, and 3 adds
+   * authored impulses. `PlaygroundAddress` reads all three.
    */
-  version: 1 | 2;
+  version: 1 | 2 | 3;
 
   /** The seed every draw of the performance starts from. */
   seed: string;
@@ -25,6 +27,9 @@ export interface IPlaygroundComposition {
 
   /** The archetypes placed in the scene, which actions name as props; none when absent. */
   objects?: IPlaygroundComposition.IObject[];
+
+  /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
+  forces?: HumanForce.IImpulse[];
 }
 export namespace IPlaygroundComposition {
   /** One archetype placed on the floor. */

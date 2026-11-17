@@ -75,11 +75,11 @@ export namespace MotionUsage {
    * What a "Try it" link opens. The name is tried alone, one person
    * performing it with the parameters of its first use, only when that use
    * is a performer's action, its parameters name no one and nothing of its
-   * scene, and they hold every parameter the schema requires; a name no
+   * scene, its scene carries no authored forces, and they hold every parameter the schema requires; a name no
    * scene uses is tried alone with no parameters when its schema requires
    * none. Otherwise the first scene using it that plays on the installed
    * packages is opened, since a mutual action needs its partners, a named
-   * person or object needs them, and a missing required parameter would be
+   * person, object or authored impulse needs its scene context, and a missing required parameter would be
    * refused; a refused scene is never opened, and with no scene that plays
    * there is no trial.
    *
@@ -99,6 +99,7 @@ export namespace MotionUsage {
     );
     if (
       params !== null &&
+      (scene?.composition?.forces?.length ?? 0) === 0 &&
       (scene === undefined ||
         scene.composition === null ||
         !names(scene.composition, params)) &&

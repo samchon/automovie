@@ -68,6 +68,9 @@ export namespace PlaygroundPerformance {
         },
       ),
       composition: built.composition,
+      ...(composition.forces === undefined
+        ? {}
+        : { forces: composition.forces }),
     };
 
     // Props exist only where the composition places objects; lexicon rows are
