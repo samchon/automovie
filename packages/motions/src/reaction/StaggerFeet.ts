@@ -78,6 +78,39 @@ export class StaggerFeet {
   /** The trunk's lean and the root carrying it, at a second (`staggerLean`). */
   private readonly lean: ReturnType<typeof staggerLean>;
 
+  /** The plan's level shift of the root at a second (`shifted`); none until the plan gives one. */
+  private shift: ((seconds: number) => IAutoMovieVector3) | undefined;
+
+  /**
+   * Take the plan's level shift of the root, under which every step's ends
+   * are settled from here on, and forget the ends, swings and bows settled
+   * under the one before.
+   *
+   * A swing runs between its foot's stance at the step's start and at its
+   * landing, and those two stances are the ones the pose shows at those
+   * seconds only when they are settled under the same pelvis. The pose
+   * settles the pelvis on the shifted root; the ends were settled on the
+   * unshifted one, so a foot touched down on a stance some millimetres from
+   * the swing's last pose: measured, a body pushed forward showed its
+   * stepping leg's knee jump 12.8 mm at the landing, 0.52 s.
+   *
+   * @param shift The shift at a second since the push, world metres, level; the same reader the plan's leg row passes to `solve`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the shift governs, why the ends must share it, the measured defect and the argument's meaning.
+   * @evidence contracts/development/implementation.md#principled-implementation A swing's two ends are the stances of its two instants, so they are settled by the one settlement the pose uses there, shift included.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kept reader and three cleared maps.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing settled under an earlier shift is kept: ends, swing curves and bows all go.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each change of the shift costs two settlements and one swing curve a declared step, lazily.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ends, swings and bows stay kept per step while one shift stands; equivalence is the same step under the same shift reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the reader for the plan's life; the cleared maps refill to at most two ends and one swing and bow a step.
+   */
+  public shifted(shift: (seconds: number) => IAutoMovieVector3): void {
+    this.shift = shift;
+    this.ends.clear();
+    this.swings.clear();
+    this.bows.clear();
+  }
+
   /**
    * Keep one plan's body, entry posture and recovery, and prepare each
    * side's body-only swing reach; endpoint, swing and bow work remains lazy
@@ -274,14 +307,21 @@ export class StaggerFeet {
   }
 
   /**
-   * Settle a declared step endpoint once. Only immutable step start/landing
-   * seconds form these side/second keys.
+   * Settle a declared step endpoint once under the plan's shift, as the pose
+   * settles it. Only immutable step start/landing seconds form these
+   * side/second keys, and `shifted` clears them.
    */
   private end(side: "left" | "right", seconds: number): walkFoot.IEnd {
     const key: string = `${side}:${seconds}`;
     let out: walkFoot.IEnd | undefined = this.ends.get(key);
     if (out === undefined) {
-      out = this.settle(seconds, this.standing(seconds)).feet[side];
+      out = this.settle(
+        seconds,
+        this.standing(seconds),
+        undefined,
+        undefined,
+        this.shift?.(seconds),
+      ).feet[side];
       this.ends.set(key, out);
     }
     return out;

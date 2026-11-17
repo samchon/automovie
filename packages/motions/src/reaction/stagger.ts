@@ -264,6 +264,17 @@ export namespace stagger {
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
     const entryLegs: IHumanPosture["limbs"] = entry.limbs;
+
+    // The plan's level shift of the root at a second: `balanced`'s samples,
+    // interpolated. The feet settle their steps' ends under the same reader
+    // (`StaggerFeet.shifted`), given again whenever the samples change.
+    const shiftAt = (seconds: number): IAutoMovieVector3 => {
+      const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
+      const k: number = Math.floor(at);
+      const a: IAutoMovieVector3 | undefined = balanced[k];
+      const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
+      return a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+    };
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -278,12 +289,7 @@ export namespace stagger {
         // mass from the pendulum's course (`balanced`), interpolated, and the
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
-        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
-        const k: number = Math.floor(at);
-        const a: IAutoMovieVector3 | undefined = balanced[k];
-        const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
-        const shift: IAutoMovieVector3 =
-          a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+        const shift: IAutoMovieVector3 = shiftAt(seconds);
         const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> =
           lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
@@ -480,8 +486,10 @@ export namespace stagger {
       });
     const first: IAutoMovieVector3[] = residuals();
     balanced = first;
+    feet.shifted(shiftAt);
     const second: IAutoMovieVector3[] = residuals();
     balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
+    feet.shifted(shiftAt);
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
