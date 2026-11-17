@@ -302,7 +302,7 @@ export function test_archetype_ride_dog(): void {
   }
   const species: createQuadruped.ISpecies = createQuadruped.species(dressed);
   const refusals: readonly (() => unknown)[] = [
-    (): unknown => QuadrupedGait.of(species, "trot"),
+    (): unknown => QuadrupedGait.of(species, "canter"),
     (): unknown => QuadrupedGait.timing(species, "walk", 1),
   ];
   for (const refuse of refusals) {

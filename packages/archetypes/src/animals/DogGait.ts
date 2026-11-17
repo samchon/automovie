@@ -3,7 +3,7 @@ import { HorseGait } from "./HorseGait";
 import type { QuadrupedGait } from "./QuadrupedGait";
 
 /**
- * A provisional dog walk with canine pooled timing and explicit shape gaps.
+ * Provisional canine timing with measured walk data and faster point prototypes.
  *
  * Light et al. 2010, AJVR 71:997, doi:10.2460/ajvr.71.9.997, measured 56
  * healthy Labradors walking at 0.6–0.9 m/s: stride 1.11 ± 0.13 s and left-fore
@@ -21,21 +21,35 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  *
  * The existing horse walk's fold, clearance, body oscillation and top-joint
  * follow remain explicitly borrowed construction kinematics, not measured
- * canine motion. The neck is unanimated: the current shared reposed
- * model cannot rotate a collar/lead affordance with the neck's parts, so no
- * unsupported nod is added that would separate contact and physical rope.
- * Trot, canter and gallop are deliberately unavailable.
- * This initial table is not completion of the species-specific gait contract.
+ * canine motion. The neck remains unanimated because this table supplies no
+ * measured canine nod; zero declares no animation, not measured zero motion.
+ * Choi et al. 2021, Sensors 21:6366, Table 1 (doi:10.3390/s21196366),
+ * observed one American Akita by high-speed video: trot at 2.69 m/s has mean
+ * fore support/swing 0.23/0.34 s and hind support 0.21 s; gallop at 4.34 m/s has
+ * fore support/swing 0.14/0.31 s and hind support 0.16 s. Their sums 0.57/0.45 s
+ * are representative common fore cycles, not directly reported stride means
+ * or measured stride SDs. Hind support+swing separately sums 0.55/0.48 s.
+ * Faster rows therefore declare zero authored variation, not a zero measured
+ * standard deviation. A singleton speed is not expanded to an unobserved band.
+ * The experiment is provisional for all three Husky morphometric cohorts.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Separates the pooled canine timing from every provisional borrowed motion quantity.
- * @evidence contracts/development/design.md#principled-representation Existing gait rows and the absolute-scaling option express exactly the experimental speed interval and pooled seconds.
+ * Trot uses synchronized diagonals, also observed in six retrievers by
+ * Catavitello et al. 2015, PLOS ONE 10:e0133936. The gallop's complete phase
+ * construction is Choi's desired transverse robot reference, not measured
+ * canine phases: swap its right-lead sides and rebase the new left fore to 0.
+ * The inclusive authored switching speeds 2.69/4.34 are the faster tables' first available points,
+ * not measured preferred transitions. Canter remains unavailable. Borrowed
+ * horse fold/clearance/bob remain explicit construction proxies for every gait.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates measured walk and faster point observations, derived representative cycles, unknown stride spread, authored transitions and provisional phase/shape construction.
+ * @evidence contracts/development/design.md#principled-representation Existing rows represent the measured walk interval and exact faster experimental speeds; absolute scaling avoids inventing an experimental reference height. Species-specific phases remain declared data.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The actual dog species reads this table through the shared ride, including the separately declared hind stance without a species branch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No unsupported faster gait or unmeasured reference-height scaling is fabricated.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No faster speed band, stride SD, measured gallop phase or preferred transition is invented from single-animal observations and desired robot references; anatomical and transfer limits stay explicit.
  */
 export namespace DogGait {
-  /** Only the source's walking experiment is represented. */
+  /** Canine walking interval and two provisional faster experimental points. */
   export const TABLE: QuadrupedGait.ITable = {
-    order: ["walk"],
+    order: ["walk", "trot", "gallop"],
     gaits: {
       walk: {
         ...HorseGait.TABLE.gaits.walk!,
@@ -60,6 +74,36 @@ export namespace DogGait {
             deviation: 0.13,
             stance: 0.62,
             hindStance: 0.56,
+          },
+        ],
+      },
+      trot: {
+        ...HorseGait.TABLE.gaits.trot!,
+        change: { kind: "speed", speed: 2.69 },
+        nod: { range: 0, timing: "bob" },
+        phases: { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 },
+        rows: [
+          {
+            speed: 2.69,
+            stride: 0.57,
+            deviation: 0,
+            stance: 0.23,
+            hindStance: 0.21,
+          },
+        ],
+      },
+      gallop: {
+        ...HorseGait.TABLE.gaits.gallop!,
+        change: { kind: "speed", speed: 4.34 },
+        nod: { range: 0, timing: "lead" },
+        phases: { leftFore: 0, rightFore: 0.8, leftHind: 0.6, rightHind: 0.3 },
+        rows: [
+          {
+            speed: 4.34,
+            stride: 0.45,
+            deviation: 0,
+            stance: 0.14,
+            hindStance: 0.16,
           },
         ],
       },

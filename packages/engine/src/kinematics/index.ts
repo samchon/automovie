@@ -31,6 +31,8 @@ export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";
 export * from "./jointToQuaternionOnBasis";
+export * from "./prepareArticulatedRig";
+export * from "./IArticulatedRigReader";
 export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
 export * from "./poseJointCodec";
