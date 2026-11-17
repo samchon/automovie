@@ -280,8 +280,9 @@ export namespace IAutoMovieResolveContactEvents {
      * The body's speed bound on one search's grid (`Speed`), prepared once a
      * search under that search's stops and read with a weapon's own
      * (`IWeapon.speed`), over the same doubling window from a grid second
-     * the scan read, so a body that holds still only for a while is still
-     * bound there; absent, every
+     * the scan read and before the weapon's, so a body that holds still
+     * only for a while is still bound there and one that cannot be bound
+     * costs the weapon no read; absent, every
      * grid step is read against this body.
      *
      * @param grid The search's grid.
