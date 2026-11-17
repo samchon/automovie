@@ -329,7 +329,7 @@ export namespace defend {
       const entry: IHumanPosture = context.entry.posture;
       const posture: IHumanPosture = {
         ...entry,
-        joints: { ...entry.joints, ...StrikingStance.joints() },
+        joints: { ...entry.joints, ...StrikingStance.joints(entry.joints) },
         limbs: legs(),
       };
       return {

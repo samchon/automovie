@@ -177,7 +177,7 @@ export namespace punchFootwork {
     const body = context.body;
     const t0: number = context.start;
     const entry: IHumanPosture = context.entry.posture;
-    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const dragFrom: number = 0.5 * shown;
     const dragTo: number = shown + 0.5 * recoil;
     const dragged = (t: number): number => drag(timing, t);

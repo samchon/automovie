@@ -125,7 +125,7 @@ export namespace defendGeometry {
     const body = context.body;
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
-    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =

@@ -136,7 +136,7 @@ export namespace guard {
   ): IGeometry {
     const body = context.body;
     const entry: IHumanPosture = context.entry.posture;
-    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
@@ -180,6 +180,20 @@ export namespace guard {
     const to: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
+
+    // The body turns from the line by the stance turn and the face does
+    // not: "tuck your chin down and look forward" (IABA, A Beginner's
+    // Guide). The neck and the head each turn back by half the body's turn
+    // from the line (`StrikingStance.facing`'s shares and bound), reached as
+    // the stance is taken from whatever turn the entry holds. Without it the
+    // head rode the stance turn, the fighter looked thirty degrees past the
+    // opponent, and the gloves, placed from the face, stood off the line.
+    const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
+    const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
+    const faced: number = -Math.max(
+      -StrikingStance.FACING,
+      Math.min(StrikingStance.FACING, 0.5 * angle(heading - line)),
+    );
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
     const rootAt: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
@@ -276,7 +290,11 @@ export namespace guard {
           yaw: entry.yaw + angle(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
-          joints: { ...joints },
+          joints: {
+            ...joints,
+            neck: [neck[0], neck[1], neck[2] + (faced - neck[2]) * s],
+            head: [head[0], head[1], head[2] + (faced - head[2]) * s],
+          },
           limbs: {},
         };
         const feet: Record<"left" | "right", HumanFoot.IPlacement> = {

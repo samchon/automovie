@@ -27,8 +27,13 @@ import { StrikingReach } from "./StrikingReach";
  * - 30 degree body turn with lead shoulder forward, lead toe 15 degrees
  *   toward that heading and rear toe 45 degrees out (IBA p.34 readings);
  * - a sunk root flexes both knees 32 degrees, within the 25 to 45 degree band;
- * - rear knuckles beside the jaw, lead knuckles one forearm ahead of the
- *   cheek at chin height and elbows beside the ribs (IBA guard).
+ * - both gloves by the fighter's own face: rear knuckles beside the jaw, lead
+ *   knuckles before the lead cheek at chin height, elbows down before the
+ *   ribs, chin tucked and eyes on the opponent (IBA guard; IABA, A
+ *   Beginner's Guide: "raise them both so that your hands are by the side of
+ *   your face ... tuck your elbows into your sides ... tuck your chin down
+ *   and look forward"; coaching guides put the lead glove four to six
+ *   inches from the lead cheek).
  *
  * Orthodox leads left and southpaw right; distances read the body's measure.
  *
@@ -222,15 +227,11 @@ export namespace StrikingStance {
   }
 
   /**
-   * The guard's glove goals for a posture: the rear fist beside the rear jaw,
-   * the lead fist one forearm length ahead of the lead cheek at chin height,
-   * both vertical fists (knuckles up and forward, palms in), elbows bending
-   * down toward the ribs. Placed on the posture's own head, so the guard
-   * follows every root, turn and lean. When the trunk turns under the head
-   * and draws the lead shoulder back (the rear hand's cross), the lead fist
-   * comes back to the face by as much as its shoulder went, no nearer than
-   * the rear fist stands: the coached "lead hand back to the chin" of a rear
-   * hand punch, which also keeps the fist in front of its own shoulder.
+   * The guard's glove goals for a posture: the rear fist beside the rear jaw
+   * and the lead fist before the lead cheek at chin height, each the arm's
+   * nearest held distance ahead of the head, both vertical fists (knuckles up
+   * and forward, palms in), elbows bending down toward the ribs. Placed on
+   * the posture's own head, so the guard follows every root, turn and lean.
    *
    * @param body The body.
    * @param posture The posture whose trunk carries the head.
@@ -383,23 +384,27 @@ export namespace StrikingStance {
   /**
    * The stance's trunk and hand angles that no effector goal expresses: the
    * chin tucked 12 degrees (cervical flexion, the lower third of its range)
-   * and both fists closed.
+   * and both fists closed. The tuck is the neck's flexion alone: its turn
+   * toward the opponent (`facing`) and any side bend the entry holds are
+   * kept, so an action entered from a guard keeps the eyes where the guard
+   * had them.
    *
+   * @param entry The clinical angles the action is entered with; a neck with no turn when absent.
    * @returns Clinical angles by bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis and the closed fists.
-   * @evidence contracts/development/implementation.md#principled-implementation Fixed clinical angles inside their ranges, with the fist curl of both hands.
+   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis, what of the entry's neck is kept and the closed fists.
+   * @evidence contracts/development/implementation.md#principled-implementation The neck's flexion set inside its range with the entry's own side bend and turn, and the fist curl of both hands.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant table built per call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function joints(): Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  > {
+  export function joints(
+    entry?: IHumanPosture["joints"],
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     return {
-      neck: [12, 0, 0],
+      neck: [12, entry?.neck?.[1] ?? 0, entry?.neck?.[2] ?? 0],
       ...StrikingBody.curl("left"),
       ...StrikingBody.curl("right"),
     };

@@ -9,9 +9,11 @@ import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
 
 /**
- * Place the fighting guard's two glove goals on the current trunk.
- * The lead glove withdraws with its shoulder and the rear glove stays beside
- * its jaw, under the existing coached distances StrikingStance documents.
+ * Place the fighting guard's two glove goals on the current trunk: both by
+ * the fighter's own face, the rear glove beside its jaw and the lead glove
+ * before the lead cheek at chin height, each the same short distance ahead
+ * of the head, with the elbows bending down before the ribs
+ * (`StrikingStance` gives the sources).
  *
  * @param body The unchanged canonical body.
  * @param posture The current base carrying the guard.
@@ -22,7 +24,7 @@ import { StrikingStance } from "./StrikingStance";
  * @returns The two actual world-metre glove goals.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States current-body ownership, lead/rear placement, metre units and exact borrowed-frame/reader premises.
- * @evidence contracts/development/implementation.md#principled-implementation Retains the original chin/jaw/face and shoulder geometry, horizontal normal convention, shoulder-withdrawal relation and wrist offset of StrikingStance.glove.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads the chin, the jaws and the face's forward on the current trunk, puts each fist the arm's nearest held distance ahead of its jaw (the lead at chin height and half a radius inward, the rear a radius outward) and bends each elbow toward a point below and ahead of its shoulder; StrikingStance.glove turns each into a wrist goal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded trunk read feeds both sides' goals; the stance facade keeps the public entry while this owner holds guard placement and its exact FK prerequisites.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coached coefficient and vector operation is unchanged. Demand selects the actual region-carrying bones plus both shoulders, while authored joint/clamp admission and output freshness remain with their owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Without supplied frames, FK admits all joints but returns only four region owners and two shoulders plus their ancestry. One supplied operation reader shares equal scalar prerequisites with lowering/other reads; two side computations remain constant work. The chin requests point only, face normal only, and jaw point/normal; unused direction/position rotations and wrappers are omitted by their canonical owner, with speedup unmeasured.
@@ -55,14 +57,19 @@ export function StrikingGuard(
     const outward: IAutoMovieVector3 = horizontal(jaw.normal);
     const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
 
-    // The head stays on the opponent while a turning trunk draws one shoulder back.
-    const withdrawn: number = Math.max(0, 0.5 * Vector3.dot(
-      Vector3.subtract(bones.get(`${side === "left" ? "right" : "left"}UpperArm`)!.worldPosition, shoulder), forward,
-    ));
+    // Both gloves are held by the fighter's own face ("raise them both so
+    // that your hands are by the side of your face", IABA, A Beginner's
+    // Guide; coaching guides put the lead glove four to six inches from the
+    // lead cheek and the rear glove on the cheekbone): each stands `near`
+    // ahead of its jaw, the nearest the arm holds with its elbow down, which
+    // is six inches on the average man. The lead glove is the one ahead
+    // because its shoulder leads, not because its arm reaches out: carried a
+    // forearm's length forward it stood in the lane of the opponent's lead
+    // hand, 17 mm from the axis of a jab's forearm at the staged range.
     const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
     const fistAt: IAutoMovieVector3 = lead
       ? Vector3.add(Vector3.add({ ...jaw.point, y: chin.y },
-        Vector3.scale(forward, Math.max(near, m.forearm - withdrawn))),
+        Vector3.scale(forward, near)),
       Vector3.scale(outward, -0.5 * m.forearmRadius))
       : Vector3.add(Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
         Vector3.scale(forward, near));
