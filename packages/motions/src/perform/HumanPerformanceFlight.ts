@@ -26,6 +26,7 @@ import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation
 import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPoseKnots } from "./HumanPoseKnots";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
@@ -269,7 +270,11 @@ export namespace HumanPerformanceFlight {
     };
     const history: ReturnType<typeof integrateAirborneRotation.history> =
       bare ? integrateAirborneRotation.rated(prepared, shape, analytic, { from: t0, to: t1 }, observation)
-        : integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
+        // A composed shape is read off the film's grid (`tracked`), which
+        // holds nothing finer than its knots: its inertia and relative
+        // momentum are tabulated once at that spacing for every stage and
+        // shooting trial, in place of up to three shape reads a stage.
+        : integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step: 1 / HumanPoseKnots.RATE }, observation);
     const releaseRates: (() => void) | undefined = bare ? HumanFreeCurveRates.request(evaluation) : undefined;
     const errorScope: symbol = Symbol("human flight");
     try {

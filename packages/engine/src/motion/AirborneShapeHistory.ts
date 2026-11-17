@@ -8,9 +8,10 @@ import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMom
 import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
 import { Vector3 } from "../math/Vector3";
 import { Quaternion } from "../math/Quaternion";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
+import { AirborneShapeReduction } from "./AirborneShapeReduction";
+import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
@@ -120,42 +121,16 @@ export function AirborneShapeHistory(
     lower: limits.from + delta,
     upper: limits.to - delta,
   };
-  const prepared: prepareAutoMovieMassModel.IPrepared | undefined =
-    "segments" in model ? undefined : model;
-  if (prepared !== undefined) prepareAutoMovieMassModel.bones(prepared);
+  // The mass snapshot and its reductions are selected together
+  // (`AirborneShapeReduction`), which also refuses a released token here;
+  // its admission keeps the original zero/NaN refusal before rate or
+  // stencil callbacks.
+  const { pose, between: interval, tensor, admit }: AirborneShapeReduction.IReduction =
+    AirborneShapeReduction(model);
   const required: ReadonlySet<AutoMovieHumanoidBone> | undefined = analytic === undefined
     ? undefined : "segments" in model
       ? new Set(model.segments.map((segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone))
       : prepareAutoMovieMassModel.bones(model);
-
-  // The mass snapshot and its interval reduction are selected together;
-  // an unrelated raw model cannot be paired with a prepared token.
-  const pose: (
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ) => resolveAutoMovieMomentum.IPosed = "segments" in model
-    ? (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): resolveAutoMovieMomentum.IPosed =>
-        resolveAutoMovieMomentum.pose(model, bones)
-    : (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): resolveAutoMovieMomentum.IPosed =>
-        prepareAutoMovieMassModel.pose(model, bones);
-  const interval: (
-    before: resolveAutoMovieMomentum.IPosed,
-    after: resolveAutoMovieMomentum.IPosed,
-    seconds: number,
-  ) => resolveAutoMovieMomentum.IMomentum = "segments" in model
-    ? (before: resolveAutoMovieMomentum.IPosed, after: resolveAutoMovieMomentum.IPosed, seconds: number): resolveAutoMovieMomentum.IMomentum =>
-        resolveAutoMovieMomentum.between(model, before, after, seconds)
-    : (before: resolveAutoMovieMomentum.IPosed, after: resolveAutoMovieMomentum.IPosed, seconds: number): resolveAutoMovieMomentum.IMomentum =>
-        prepareAutoMovieMassModel.between(model, before, after, seconds);
-  const tensor: (posed: resolveAutoMovieMomentum.IPosed) => number[][] = "segments" in model
-    ? (posed: resolveAutoMovieMomentum.IPosed): number[][] => physicalInertiaTensor(posed.parts, posed.centre)
-    : (posed: resolveAutoMovieMomentum.IPosed): number[][] => prepareAutoMovieMassModel.inertia(model, posed);
-  // Preserve original zero/NaN admission before rate or stencil callbacks.
-  const admit: (matrix: number[][]) => void = (matrix: number[][]): void => {
-    let scale: number = Number.NEGATIVE_INFINITY;
-    for (const row of matrix)
-      for (const value of row) scale = Math.max(scale, Math.abs(value));
-    if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
-  };
 
   // Only the two boundary stencils recur at different query times.
   // Their numeric moments are sufficient; their bones need not survive.
@@ -324,7 +299,8 @@ export namespace AirborneShapeHistory {
    *
    */
   export function owned(history: IHistory): boolean {
-    return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history);
+    return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history) ||
+      AirborneTabulatedShapeHistory.owned(history);
   }
 
   /** Constructor-owned fixed tensor with zero relative momentum over the whole requested live span; ordinary sampled histories return undefined. */
