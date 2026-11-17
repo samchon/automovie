@@ -10,13 +10,12 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
 /**
  * An elbow search continued along a sequence of requests, each from the
  * seed of the one before (`AutoMovieMotionHumanBendSearch.continued`): the
- * continuation a time-ordered sequence of elbow requests takes, shared by a
- * plan's knot track (`AutoMovieMotionHumanBendTrack`) and a planner's goal
- * reads in time order (`AutoMovieMotionHumanBendScope`).
+ * continuation a plan's knot track takes along its knots
+ * (`AutoMovieMotionHumanBendTrack`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is continued, from what, and who reads it.
  * @evidence contracts/development/design.md#principled-representation A solve and the seed it continues; a solved candidate with its own seed.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two steps, `walk` and `next`, read by the track and the scope.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two steps, `walk` and `next`, read by the track.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate is kept: each step solves its own request.
  */
 export namespace AutoMovieMotionHumanBendWalk {

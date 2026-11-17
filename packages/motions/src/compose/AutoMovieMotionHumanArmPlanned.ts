@@ -169,7 +169,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       return found;
     };
     const aimed: (a: number, t: number) => IAutoMovieHumanLimbGoal =
-      AutoMovieMotionHumanArmAimed(body, carries, at, resolution, projection);
+      AutoMovieMotionHumanArmAimed(carries, at, resolution, projection);
     const fits: Map<number, IAutoMovieMotionHumanArmAngles.IAngles>[] =
       carries.map((): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map());
 
