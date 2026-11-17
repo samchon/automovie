@@ -1,6 +1,7 @@
 import {
   type IAutoMoviePoseRig,
   type IAutoMovieSeededChainFit,
+  clampJointSettled,
   inertializePose,
   poseJointCodec,
   samplePoseVelocity,
@@ -8,6 +9,7 @@ import {
 import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
@@ -309,8 +311,23 @@ export namespace HumanSegmentPose {
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
     const fitted: IAutoMoviePose = pose;
-    pose = clamp(pose);
-
+    // A record the range clamp itself issued on a joint whose clamp gives it
+    // back (`clampJointSettled`: a box, or a cone anchored at zero) is
+    // clamped again to its own values, so it is kept; every other record is
+    // clamped as the projection clamps it.
+    const joint: ReturnType<typeof prepareHumanPostureProjection.joints> =
+      prepareHumanPostureProjection.joints(body, clamp);
+    pose =
+      joint === undefined
+        ? clamp(pose)
+        : {
+            skeleton: pose.skeleton,
+            root: pose.root,
+            joints: pose.joints.map(
+              (record: IAutoMoviePose["joints"][number]): IAutoMoviePose["joints"][number] =>
+                clampJointSettled(record) ? record : joint(record),
+            ),
+          };
     // In the plain case (the leaf resolve of this very posture, with no
     // overlay, hold, stop, offset, digit goal or whole-body rotation after
     // it) the leaf fitted these same goal objects and only the clamp stands
