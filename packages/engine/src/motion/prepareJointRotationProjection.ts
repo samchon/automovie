@@ -80,16 +80,24 @@ function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
  * angle ranges, clamping, FK and goals still belong to its curve consumer.
  *
  * Coupled swing/swing-twist gates, three mobile axes and unrepresentable alias
- * arithmetic retain the previous four-sweep, forty-step coordinate refinement.
+ * arithmetic are refined one clinical coordinate at a time, at most four
+ * sweeps and none after a sweep that moves nothing. Along one coordinate the
+ * composed rotation's signed dot with the target is a sinusoid of half that
+ * coordinate's rig angle, so where the clamp returns the line's candidates as
+ * asked (a box's own coordinates) the line's least error is read at the
+ * sinusoid's stationary value inside the span or at the span's ends, with no
+ * search. Where the clamp moves a candidate off the line (a coupled gate or a
+ * foreign callback), nothing states what it composes there, and that line
+ * keeps its forty-step bracketed search.
  * That fallback is a bounded local search, not a global-optimum guarantee.
  * The analytic comparison identifies dots only within their summation error;
  * it does not declare an unreachable rotation reached or change a ROM limit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines local target frame, normalized-basis and matching-clamp premises, closure lifetime, reference, analytic eligibility, actual-composition scoring and the retained fallback's limitation.
- * @evidence contracts/development/implementation.md#principled-implementation Quaternion products are linear in each mobile factor's cosine and sine. A box optimum is a feasible top singular pair or boundary sinusoid optimum (Eberly, Constrained Quaternions, sections 2.3 and 3); four actual factor coefficients include clinical placement and fixed axes. The ordinary clamp's specified immobile output is numeric clinical0, mapped through its frame. A caller's explicitly null fixed output instead contributes rig0. The actual reference's fixed null flags select the corresponding bounded rig-only coefficient mode; numeric zero-width coordinates always map their stated minimum. Only intervals overlapping the largest measured four-term dot use squared mobile clinical distance to the initial reading; null rest has clinical(rig0) as its coordinate and comparison never chains approximate ties.
+ * @evidence contracts/development/implementation.md#principled-implementation Quaternion products are linear in each mobile factor's cosine and sine. A box optimum is a feasible top singular pair or boundary sinusoid optimum (Eberly, Constrained Quaternions, sections 2.3 and 3); four actual factor coefficients include clinical placement and fixed axes. The ordinary clamp's specified immobile output is numeric clinical0, mapped through its frame. A caller's explicitly null fixed output instead contributes rig0. The actual reference's fixed null flags select the corresponding bounded rig-only coefficient mode; numeric zero-width coordinates always map their stated minimum. Only intervals overlapping the largest measured four-term dot use squared mobile clinical distance to the initial reading; null rest has clinical(rig0) as its coordinate and comparison never chains approximate ties. In the general refinement one coordinate's factor is the only one that turns along its line, so the signed dot is A cos(r/2) + B sin(r/2) in its rig angle, read from the compositions at 0 and at half a turn; its size peaks where r/2 = atan2(B, A), half a turn of r/2 apart, so over a span the least error is at a stationary value inside it or at an end.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The coefficient companion owns rig algebra and math completes flat enumeration before candidate clamps. OnBasis composition feeds shared normalization. prepareJointProjectionClamp owns genuine scratch and stable foreign outputs. prepareJointProjectionScores owns analytic actual-candidate scores, duplicate rows, unchanged tie selection and reentrant-safe empty storage. Domain selection and generic bounds/search stay here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixture, synthetic motion axis, grid, ROM relaxation or fitted result replaces the objective. Numeric immobile outputs retain clinical0/frame conversion; explicit null outputs retain rig0, and only those source-fixed representation flags select a coefficient mode. No queried angle, target or result builds a mode. The generic unchanged gate and analytic clinical distance read null as clinical(rig0), keeping nonnull arithmetic, mobile summation order and the existing 1e-9 gate unchanged. Top-SVD/boundary candidates are never rank-excluded. Indexed scores retain duplicate-first, maximum, interval overlap and strict distance/tie order; -1 changes only absent row-link metadata. General refinement still clips spans to principal angles and has no global guarantee.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed rig factors retain bounded exact-match sharing. Flat enumeration removes up to eighteen pair tuples, and at most nineteen actual analytic compositions omit outer quaternion records. Ordinary analytic queries reuse two empty arrays and a row map under an exclusive lease; recursive calls allocate isolated storage. Genuine clamps reuse one input scratch; foreign callbacks retain fresh inputs. Paired output copies selected raw cells once. General retains four sweeps/three axes/forty probes and at most 528 errors. All candidate/clamp/tie work remains; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed rig factors retain bounded exact-match sharing. Flat enumeration removes up to eighteen pair tuples, and at most nineteen actual analytic compositions omit outer quaternion records. Ordinary analytic queries reuse two empty arrays and a row map under an exclusive lease; recursive calls allocate isolated storage. Genuine clamps reuse one input scratch; foreign callbacks retain fresh inputs. Paired output copies selected raw cells once. General reads a line the clamp leaves as asked in two compositions and at most five scored candidates (its sinusoid's stationary values and the span's ends) and stops after a sweep that moves nothing; a line the clamp moves keeps forty probes, so at most four sweeps/three axes/528 errors remain only there. All candidate/clamp/tie work remains; speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares basis, intervals, dot roundoff, box metadata, axis/affine scalars and coefficients derived only from declared fixed numeric/null rig factors. Actual reference null flags choose among at most four rig modes without retaining a reference/target. Its stateless inverse shares three successful clinical frame readings while every quaternion retains finite admission/extraction/principal conversion. Fixed-angle declarations collect original endpoint/numeric factors and source-null rig0. Exact resolved-number matches alone borrow factors; two private declared operands alone share a fixed inner product. Dynamic factors/inner slots and original F/A/T lookups/finite checks stay query-owned. Composition/candidate/rest maps admit actual-used nonnull frames at first use; absent frames need no mapper there. Prepared inverse readers admit no numerical frame until actual conversion. Readers share only unchanged neutral/sign and re-admit replaced axis frames. Outer outputs stay fresh. Exact admitted duplicates share score/distance only here; strict first-distance ties keep their first occurrence. General search preserves incumbent/final rows; raw winners serve world composition. No target/reference/candidate or target-dependent factor crosses queries.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rig coefficients stay projector-owned. Regular/scalar factories each own at most three axis/affine readers, six fixed factors/four fixed inner products. Queries own dynamic factors, scratch, arguments and visitors. Analytic queries retain at most 36 flat pair cells, nineteen admitted joints, 152 score/raw cells and a row map. finally clears all workspace references; only empty primary capacity stays with the projector. Nested storage releases with its call. General keeps two rows. Only selected independent outputs escape; no target history or handle survives.
  */
@@ -251,8 +259,66 @@ export function prepareJointRotationProjection(props: {
         ? null
         : [Math.max(low, -180), Math.min(high, 180)];
     };
+    const signed: (x: number, y: number, z: number, w: number) => number = (
+      x: number, y: number, z: number, w: number,
+    ): number => x * local.x + y * local.y + z * local.z + w * local.w;
+
+    // Along one clinical coordinate, the others held, the composition is a
+    // product of axis rotations of which one turns, so its signed dot with
+    // the target is `A cos(r / 2) + B sin(r / 2)` in that coordinate's rig
+    // angle `r`: `A` is the dot at a rig angle of 0 and `B` at half a turn.
+    // Its size is greatest where `r / 2 = atan2(B, A)`, half a turn of `r / 2`
+    // apart, and the error has no other minimum between the span's ends. So
+    // where the clamp leaves the line's candidates as asked (a box's own
+    // coordinates), the line's least error is at a stationary value inside
+    // the span or at one of its ends: read there, with no search. A clamp
+    // that moves a candidate off the line (a coupled gate, a foreign
+    // callback) composes something else there, and the line keeps its
+    // bracketed search.
+    const lined: (
+      axis: ClinicalAxis, lo: number, hi: number,
+      at: (value: number) => IAutoMovieJointPose,
+    ) => IAutoMovieJointPose | null = (
+      axis: ClinicalAxis, lo: number, hi: number,
+      at: (value: number) => IAutoMovieJointPose,
+    ): IAutoMovieJointPose | null => {
+      const zero: number = clinical(axis, 0);
+      const half: number = clinical(axis, 180);
+      const a: number = readNormalizedQuaternion(
+        compose({ ...effector, [axis]: zero }), signed, undefined);
+      const b: number = readNormalizedQuaternion(
+        compose({ ...effector, [axis]: half }), signed, undefined);
+      const values: number[] = [];
+      if (a !== 0 || b !== 0) {
+        // The clinical reading of the stationary rig angle, and its aliases
+        // a full turn apart inside the span, the nearest the held value first.
+        const peak: number = clinical(axis, (2 * Math.atan2(b, a) * 180) / Math.PI);
+        const held: number = effector[axis] ?? zero;
+        const nearest: number = peak + 360 * Math.round((held - peak) / 360);
+        for (const value of [nearest, nearest - 360, nearest + 360])
+          if (value >= lo && value <= hi) values.push(value);
+      }
+      values.push(lo, hi);
+      let best: IAutoMovieJointPose | null = null;
+      let least: number = Infinity;
+      for (const value of values) {
+        const joint: IAutoMovieJointPose = at(value);
+        for (const other of AXES)
+          if (!Object.is(joint[other], other === axis ? value : effector[other]))
+            return null;
+        const reached: number = error(joint);
+        if (reached < least) {
+          least = reached;
+          best = joint;
+        }
+      }
+      return best;
+    };
     const ratio: number = (Math.sqrt(5) - 1) / 2;
-    for (let sweep: number = 0; sweep < 4; sweep++)
+    for (let sweep: number = 0; sweep < 4; sweep++) {
+      // A sweep that moves nothing leaves every later sweep the same lines
+      // to read, with the same answers.
+      let moved: boolean = false;
       for (const axis of AXES) {
         const range: [number, number] | null = span(axis);
         if (range === null) continue;
@@ -260,33 +326,39 @@ export function prepareJointRotationProjection(props: {
           value: number,
         ): IAutoMovieJointPose => clamp(props.clamp, { ...effector, [axis]: value });
         let [lo, hi]: [number, number] = range;
-        let c: number = hi - ratio * (hi - lo);
-        let d: number = lo + ratio * (hi - lo);
-        let fc: number = error(at(c));
-        let fd: number = error(at(d));
-        for (let i: number = 0; i < 40; i++) {
-          if (fc <= fd) {
-            hi = d;
-            d = c;
-            fd = fc;
-            c = hi - ratio * (hi - lo);
-            fc = error(at(c));
-          } else {
-            lo = c;
-            c = d;
-            fc = fd;
-            d = lo + ratio * (hi - lo);
-            fd = error(at(d));
+        let candidate: IAutoMovieJointPose | null = lined(axis, lo, hi, at);
+        if (candidate === null) {
+          let c: number = hi - ratio * (hi - lo);
+          let d: number = lo + ratio * (hi - lo);
+          let fc: number = error(at(c));
+          let fd: number = error(at(d));
+          for (let i: number = 0; i < 40; i++) {
+            if (fc <= fd) {
+              hi = d;
+              d = c;
+              fd = fc;
+              c = hi - ratio * (hi - lo);
+              fc = error(at(c));
+            } else {
+              lo = c;
+              c = d;
+              fc = fd;
+              d = lo + ratio * (hi - lo);
+              fd = error(at(d));
+            }
           }
+          candidate = at((lo + hi) / 2);
         }
-        const candidate: IAutoMovieJointPose = at((lo + hi) / 2);
         const candidateError: number = error(candidate);
         const candidateReading: IComposed = last!;
         if (candidateError < error(effector)) {
           effector = candidate;
           incumbent = candidateReading;
+          moved = true;
         }
       }
+      if (!moved) break;
+    }
     return finish(effector, requested, incumbent?.quaternion);
   };
 

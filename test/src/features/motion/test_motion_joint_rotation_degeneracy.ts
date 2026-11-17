@@ -27,6 +27,8 @@ import { nclose } from "../internal/nclose";
  * 4. Three-axis and coupled fallbacks retain reachable fixed points and
  *    legal outputs. The outside-box comparison is only a known feasible
  *    lower bound; neither it nor the swing cap/twist checks claim globality.
+ *    A turn about one clinical axis alone, past a three-axis box, is clipped
+ *    on that axis with the two others at rest, in both orders and both ways.
  *
  * Quaternion signs are interchangeable. A nonunique optimum is judged by
  * score and feasibility; the reference is required only when its optimality
@@ -192,6 +194,33 @@ export function test_motion_joint_rotation_degeneracy(): void {
       "fallback is no worse than the explicitly feasible principal-box point",
       observed >= lower || nclose(observed, lower, O.SCORE_PRECISION),
     );
+    // A turn of 75 degrees about one clinical axis alone, on a box of 20
+    // degrees either way on all three: with half-angles `h` of the two other
+    // coordinates, the dot is `cos(h1) cos(h2) X + sin(h1) sin(h2) Y` with
+    // `X = cos((75 - own) / 2)` and `|Y| <= sin(47.5 degrees) < X`, at most
+    // `X cos(h1 - h2)`, so the nearest articulation is the turn clipped on
+    // its own axis with the two others at rest.
+    for (const placement of ["proximal", "distal"] as const) {
+      const ordered: O.IRig = O.rig(
+        {
+          flexion: { min: -20, max: 20 },
+          abduction: { min: -20, max: 20 },
+          twist: { min: -20, max: 20 },
+        },
+        normalizeJointAxes(
+          { ...canonical, twistPlacement: placement },
+          "three-axis order",
+        ),
+      );
+      for (const axis of ["flexion", "abduction", "twist"] as const)
+        for (const turn of [75, -75])
+          checks.run(
+            `three-axis ${placement} ${axis} turn of ${turn} clips on its own axis`,
+            ordered,
+            Quaternion.fromAxisAngle(canonical[axis], turn),
+            Quaternion.fromAxisAngle(canonical[axis], Math.sign(turn) * 20),
+          );
+    }
     const coupled: O.IRig = O.rig({
       flexion: { min: -50, max: 50 },
       abduction: { min: -50, max: 50 },
