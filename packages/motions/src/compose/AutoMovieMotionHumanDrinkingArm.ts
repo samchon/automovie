@@ -192,6 +192,19 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
     ]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    // The posture's limbs are fitted legs first and this arm last when the
+    // other arm has no goal and no other limb's goal rides this arm; the
+    // rest of the body is then the same for every goal tried on one
+    // posture, so a search lends it posed once (`base`) and only the arm is
+    // fitted on it, as the posture solve fits it. The referred fit's
+    // reference is the same posture's solve of the unreferred goal, so it
+    // is that one arm fit on the same base too.
+    const only: ((fitted: IHumanPosture.IGoal) => IAutoMoviePose) | undefined =
+      base !== undefined && alone(posture.limbs, side)
+        ? (fitted: IHumanPosture.IGoal): IAutoMoviePose =>
+            HumanLimbFit.fit(body, base(posture), limb, fitted, ["left", "right"],
+              undefined, undefined, resolution).pose
+        : undefined;
     const attached: IHumanPosture.IGoal = referred
       ? {
           ...goal,
@@ -202,18 +215,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             goal,
             resolution,
             projection,
+            only,
           ),
         }
       : goal;
-
-    // The posture's limbs are fitted legs first and this arm last when the
-    // other arm has no goal and no other limb's goal rides this arm; the
-    // rest of the body is then the same for every goal tried on one
-    // posture, so a search lends it posed once (`base`) and only the arm is
-    // fitted on it, as the posture solve fits it.
-    const pose: IAutoMoviePose = base !== undefined && alone(posture.limbs, side)
-      ? HumanLimbFit.fit(body, base(posture), limb, attached, ["left", "right"],
-          undefined, undefined, resolution).pose
+    const pose: IAutoMoviePose = only !== undefined
+      ? only(attached)
       : resolveHumanPosture.seeded(body, {
           ...posture,
           limbs: { ...posture.limbs, [limb]: attached },

@@ -182,14 +182,17 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param posture The posture the goal is solved on.
    * @param side The arm.
    * @param goal The arm's goal.
+   * @param source Optional same-body FK metadata borrowed by the posture solve.
+   * @param projection Optional genuine same-body ROM metadata borrowed by the posture solve.
+   * @param fitted Optional: the pose of this posture with a goal of this arm fitted, from a caller that holds the posture's pose without the arm and fits the arm alone on it where that equals the posture's own solve (`AutoMovieMotionHumanDrinkingArm.read`); absent, the posture is solved here.
    * @returns The reference.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the margin and who reads it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the margin, who reads it and what a lent fit replaces.
    * @evidence contracts/development/implementation.md#principled-implementation Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, one read and one clamp.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forearm whose range is narrower than twice the margin keeps the solved twist.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and reference reading; a synchronous parent may lend same-body FK/genuine ROM metadata to this actual complete fit, without retaining or substituting its solution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per call, or the caller's one arm fit on the pose it already holds.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function reference(
@@ -199,13 +202,16 @@ export namespace AutoMovieMotionHumanTouchLaid {
     goal: IHumanPosture.IGoal,
     source?: Parameters<typeof resolveHumanPosture.seeded>[4],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    fitted?: (goal: IHumanPosture.IGoal) => Parameters<typeof resolveHumanPosture.reference>[0],
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
-      resolveHumanPosture.seeded(body, {
-        ...posture,
-        limbs: { ...posture.limbs, [limb]: goal },
-      }, undefined, undefined, source, undefined, projection).pose,
+      fitted !== undefined
+        ? fitted(goal)
+        : resolveHumanPosture.seeded(body, {
+            ...posture,
+            limbs: { ...posture.limbs, [limb]: goal },
+          }, undefined, undefined, source, undefined, projection).pose,
       limb,
     );
 
