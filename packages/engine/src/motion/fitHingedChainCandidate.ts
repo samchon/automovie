@@ -22,6 +22,7 @@ import { basisOf } from "./basisOf";
 import { fitHingedRotationError } from "./fitHingedRotationError";
 import { hingedChainSide } from "./hingedChainSide";
 import { hingedRotationStart } from "./hingedRotationStart";
+import { hingedTwistStart } from "./hingedTwistStart";
 import { posedHingeSwing } from "./posedHingeSwing";
 import { readHingeRange } from "./readHingeRange";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -350,11 +351,16 @@ export function fitHingedChainCandidate(
                   hingedChainSide.peak(offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side),
                 ...(props.referencePose === undefined && props.obstruction === undefined ? { direct: true } : {}),
               }
-          : lowerBasis.twistPlacement === "distal" || rotation === undefined
+          : rotation === undefined
             ? {}
             : {
+                // A mid segment that twists distally (a forearm) turns about
+                // its own axis for free, so its start leaves the end joint
+                // the least swing (`hingedTwistStart`).
                 pole: (posed: ReturnType<typeof hingedArmSwivel.pose>): number | null =>
-                  hingedRotationStart(prepared, posed, rotation!),
+                  lowerBasis.twistPlacement === "distal"
+                    ? hingedTwistStart(prepared, posed, rotation!)
+                    : hingedRotationStart(prepared, posed, rotation!),
                 met: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): boolean =>
                   turn!(upper, lower) <= ROM_TOLERANCE,
               }),
