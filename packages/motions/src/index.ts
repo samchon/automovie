@@ -364,6 +364,7 @@ export * from "./exercise/WorkoutFeet";
 export * from "./exercise/WorkoutLoad";
 export * from "./exercise/WorkoutSupport";
 export * from "./sport/SwimStroke";
+export * from "./sport/swimImmersed";
 export * from "./exercise/WorkoutEquipment";
 export * from "./exercise/WorkoutPlace";
 export * from "./sport/GymnasticsFlight";
