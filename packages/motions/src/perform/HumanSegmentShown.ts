@@ -31,14 +31,14 @@ export namespace HumanSegmentShown {
    *
    * @param person The person.
    * @param seconds Film seconds.
-   * @param requested Optional observational bones; only their frames are guaranteed and such a pose is not kept.
+   * @param requested Optional observational bones. Where the person keeps poses the whole pose is read and kept, so every later reader of the second takes it; elsewhere only their frames are guaranteed and such a pose is not kept.
    * @param prepared Same-body preparation borrowed for the evaluation.
-   * @returns The pose, and its record when the person keeps it: absent for a pose evaluated under a bone demand, and while the schedule is resolved outside any action's planning.
+   * @returns The pose, and its record when the person keeps it: absent while the schedule is resolved outside any action's planning, where a bone demand is also evaluated alone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the pose, when a record accompanies it and when none does.
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion of the new record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts While the schedule is being resolved a pose is shared only within one action's planning (`HumanSegment.planning`), never across a placement. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts While the schedule is being resolved a pose is shared only within one action's planning (`HumanSegment.planning`), never across a placement. Observational requests read and keep the whole pose where poses are kept, so a second is resolved once for all its readers, and never store partial results; public whole-pose queries remain complete at exact seconds.
    * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; a second where the pose holds still back to an earlier one (`HumanSegmentStill.representative`, two selections) takes that second's pose, evaluated once for the whole stretch; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 records per person.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A still stretch shares one evaluation, which `HumanSegmentStill.within` proves equal at every second of it (no term of the shown pose changes there). Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
@@ -54,6 +54,14 @@ export namespace HumanSegmentShown {
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
 
+    // Where the person keeps poses, a bone demand reads the whole pose and
+    // keeps it, so every later reader of this second, whatever bones it asks,
+    // takes the pose already produced; no second is resolved twice. Only
+    // outside any planning while the schedule is resolved is the demand
+    // evaluated alone, since nothing is kept there.
+    const demand: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      person.resolving && person.planning === undefined ? requested : undefined;
+
     // Where the pose holds still back to an earlier second
     // (`HumanSegmentStill.representative`), it is that second's pose: read
     // there, once for the whole stretch, and kept for this second too. A bone
@@ -64,25 +72,25 @@ export namespace HumanSegmentShown {
       const known: HumanSegment.IShown | undefined = person.resolving
         ? person.planning?.get(still)
         : person.cache.get(still);
-      if (known !== undefined || requested === undefined) {
+      if (known !== undefined || demand === undefined) {
         const at: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } =
           known === undefined ? of(person, still, undefined, prepared) : { pose: known.pose, kept: known };
-        if (at.kept !== undefined && requested === undefined) keep(person, seconds, at.kept);
+        if (at.kept !== undefined && demand === undefined) keep(person, seconds, at.kept);
         return at;
       }
     }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose = active === undefined
-      ? HumanSegmentPose.initial(person, requested, prepared)
+      ? HumanSegmentPose.initial(person, demand, prepared)
       : active.incumbents === undefined
-        ? HumanSegmentPose.of(person, active, seconds, prepared, requested)
+        ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
         // The action's last leaf seeds start every swept fit of this
         // evaluation (leaf, carry, stop and plant fits) from a held seed
         // (`HumanLimbIncumbent`), which cannot change their answers.
         : HumanLimbIncumbent.within({ body: person.performer.body, seeds: active.incumbents },
-          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, requested));
-    if (requested !== undefined) return { pose };
+          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, demand));
+    if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
   }
