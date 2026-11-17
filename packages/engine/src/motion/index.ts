@@ -70,6 +70,7 @@ export * from "./pinStanceTargets";
 export * from "./plantStanceFeet";
 export * from "./prepareChainPlant";
 export * from "./prepareChainConstants";
+export * from "./prepareChainRigConstants";
 export * from "./placeChainPlant";
 export * from "./prepareJointRotationProjection";
 export * from "./preserveRetargetContacts";

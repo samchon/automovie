@@ -4,6 +4,7 @@ import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJoin
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import type { Quaternion } from "../math/Quaternion";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
+import type { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**
  * Pose-invariant chain frames and effective clinical domains prepared for one unchanged source pose.
@@ -48,4 +49,7 @@ export interface IPreparedChainPlant {
 
   /** Mid-to-effector frame rotation with the effector's own articulation removed; unchanged intermediate bones retain the input pose. */
   effectorBaseRotation: ReturnType<typeof Quaternion.identity>;
+
+  /** The rig-only fit readers of the constants this chain was placed from (`placeChainPlant`), built for the rig and clinical tables its fits pass; absent for a chain read by forward kinematics, whose fit builds its own. */
+  rig?: prepareChainRigConstants.IRig;
 }

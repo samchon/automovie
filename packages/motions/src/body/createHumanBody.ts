@@ -2,6 +2,7 @@ import {
   indexSkeletonTopology,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  clampPose,
   prepareChainConstants,
   prepareSkeletonPoseResolution,
   measureAutoMovieHumanoidBody,
@@ -72,6 +73,10 @@ export function createHumanBody(
           effector: `${side}${effector}`,
         },
         jointAxes: poseResolution.jointAxes,
+
+        // The tables every limb fit of this body passes
+        // (`prepareHumanLimbFit`), which the record's fit readers are for.
+        restFrames: HUMANOID_REST_FRAME,
       });
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
@@ -84,6 +89,10 @@ export function createHumanBody(
     topology,
     poseResolution,
     chains,
+
+    // The rig's ROM projection is a constant of the body like its FK
+    // prerequisites: one pose clamp on this rig, read by every consumer.
+    projection: clampPose.prepare(skeleton),
     get massModel(): IHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;

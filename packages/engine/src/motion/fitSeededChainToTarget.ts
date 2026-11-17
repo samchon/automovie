@@ -156,6 +156,9 @@ export namespace fitSeededChainToTarget {
    * A supplied poseResolution must snapshot this exact source rig, topology
    * and clinical tables; it enables requested-ancestor FK with fresh outputs.
    * Omission preserves the raw full-FK admission path.
+   * An optional plant places the chain from its rig constants
+   * (`placeChainPlant`); such a chain carries its rig-only readers, built
+   * for these same clinical tables, and the workspace reads through them.
    *
    * States fixed dependencies, synchronous ownership and target-independent cold/near policy.
    * Shares exactly the prepared rigid frames, domains, bases, clamps, fixed projector coefficients, source/reference FK and angle maps whose inputs remain fixed, then invokes the same bend search and final orientation for each target.

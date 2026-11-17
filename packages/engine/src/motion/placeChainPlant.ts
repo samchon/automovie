@@ -13,7 +13,8 @@ import type { prepareChainConstants } from "./prepareChainConstants";
  * (`prepareChainConstants`) and the world frame of the chain root's parent
  * in that pose: what `prepareChainPlant` reads by forward kinematics of the
  * whole pose with the chain's two joints left out, composed here from the
- * one frame that depends on the pose.
+ * one frame that depends on the pose. The placed chain carries the
+ * constants' rig-only fit readers (`IPreparedChainPlant.rig`).
  *
  * @param constants The chain's rig constants.
  * @param parent The world frame of the chain root's parent in the pose (the pose's root transform for a chain hung from the root), model metres.
@@ -72,5 +73,6 @@ export function placeChainPlant(
     lowerRotation: constants.lowerRotation,
     effectorOffset: constants.effectorOffset,
     effectorBaseRotation: constants.effectorBaseRotation,
+    rig: constants.rig,
   };
 }

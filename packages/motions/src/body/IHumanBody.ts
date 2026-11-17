@@ -1,5 +1,6 @@
 import type {
   IAutoMovieSkeletonTopology,
+  clampPose,
   prepareChainConstants,
   prepareSkeletonPoseResolution,
   resolveAutoMovieCenterOfMass,
@@ -51,8 +52,11 @@ export interface IHumanBody {
   /** Immutable canonical FK prerequisites, prepared once with this body's rig. */
   poseResolution: prepareSkeletonPoseResolution.IRig;
 
-  /** Each limb's two-bone chain as the rig alone fixes it (`prepareChainConstants`), read once: a fit places the chain under a pose from these and the frame of the chain root's parent. A limb whose chain is not parent to child twice has none. */
+  /** Each limb's two-bone chain as the rig alone fixes it (`prepareChainConstants`), read once: a fit places the chain under a pose from these and the frame of the chain root's parent, and reads the rig through the record's fit readers (`rig`), built for this body's merged axes and the humanoid rest frames. A limb whose chain is not parent to child twice has none. */
   chains: Readonly<Partial<Record<"leftArm" | "rightArm" | "leftLeg" | "rightLeg", prepareChainConstants.IConstants>>>;
+
+  /** The rig's range-of-motion projection of a whole pose (`clampPose.prepare`), built once on this body's rig: every joint of the given pose clamped in order into a new pose. Every consumer of the body's ordinary ROM reads this one; like the FK prerequisites it describes the rig the body was made from. */
+  projection: ReturnType<typeof clampPose.prepare>;
 
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: resolveAutoMovieCenterOfMass.IModel;

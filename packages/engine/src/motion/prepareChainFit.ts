@@ -48,6 +48,9 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * The rig factory proves its original own data-method; foreign, copied,
  * proxied or replaced readers retain the full authored path. Completion belongs
  * only to this unchanged source, and failure publishes no completion state.
+ * A plant that places the chain from its rig constants (`placeChainPlant`)
+ * hands over the constants' rig-only readers with it, which the caller built
+ * for these same clinical tables; any other chain gets readers of its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the borrowed inputs, caller-owned lifetime and laziness that preserves degenerate-target admission order.
  * @evidence contracts/development/implementation.md#principled-implementation Separates target-independent FK/domains and last-record joint maps from target-specific analytic solving, using the same skeleton axis precedence and resolveBoneMap as the one-shot fit.

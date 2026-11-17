@@ -1,29 +1,18 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
-import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
-import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { getConstraint } from "../rom/getConstraint";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
-import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
-import { solveDistalTwist } from "./solveDistalTwist";
+import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**
  * Own lazy rig preparation for every target of one unchanged source chain.
@@ -33,14 +22,17 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * A supplied fixed rig belongs to the same immutable source without goal
  * fields; only source methods are borrowed, while reference and weight get
  * a new binding-local owner with their original first-use admission.
+ * The members the rig alone fixes are `prepareChainRigConstants`'s: the
+ * ones a chain placed from its rig constants carries
+ * (`IPreparedChainPlant.rig`), or built here for this source.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States merged-axis and matching-geometry premises, lazy admission, source-only reuse and the owning workspace lifetime.
+ * @evidence contracts/development/common.md#meaningful-documentation States merged-axis and matching-geometry premises, lazy admission, source-only reuse, the lent rig-only record and the owning workspace lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation Fixed rig and source data determine effective ROM, normalized bases, clamps, projector coefficients, fixed-rest inverse and reference/hinge readings independently of target; getters preserve original defaults, lookup conventions and diagnostic paths.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds only rig/source preparation; prepareChainFit owns FK/continuity and target consumers own analytic solving, projection queries and candidate ranking.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target score, user callback result, projected joint or continuation seed is cached. Hinged references retain first-record lookup and held source effectors retain last-record lookup; changed dependencies require another workspace.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each used chain bone's metadata/domain/basis/clamp and exact overshoot scorer is prepared once, at most three names. Swing-twist clamps share one lazy canonical-family axes merge; legality scorers separately preserve the original canonical scoring frame. Held/reference scans are O(J) once; fixed effector/projector data and hinge span/source inverse are lazy constant-size preparations. Every target query still runs; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets and goal bindings. A supplied fixed source rig shares every source-only method, but each binding creates fresh first-record reference and weight readers using that same admitted joint basis. basis keeps nullish defaults and jointBasis undefined-only defaults; clamps use skeleton-resolved canonical axes while scorers retain the humanoid-only gate. Hinge span, held products, inverses and domains keep their original grouping/lazy sites; changing goals own every query.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's workspace owns maps for used chain identities, fixed coefficients and source/reference values until release. Inputs are borrowed, loader callbacks and target results are not retained, and no global collection, handle or task owns this context.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainRigConstants owns the rig-only members; this owner adds the source pose's held effector, posed swing and hinge geometry and the goal's reference and weight. prepareChainFit owns FK/continuity and target consumers own analytic solving, projection queries and candidate ranking.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target score, user callback result, projected joint or continuation seed is cached. Hinged references retain first-record lookup and held source effectors retain last-record lookup; changed dependencies require another workspace. A chain's carried readers are its constants' own, built with them for the tables its fits pass; that premise is the owner's who places the chain.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Held/reference scans are O(J) once; the hinge source inverse is a lazy constant-size preparation. The rig-only members cost what prepareChainRigConstants states, once per workspace or, carried by the chain's constants, once per those constants. Every target query still runs; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets and goal bindings. A supplied fixed source rig shares every source-only method, but each binding creates fresh first-record reference and weight readers using that same admitted joint basis. A chain's carried rig-only record shares pure functions of the rig and of the constants the chain was placed from; held products, inverses and hinge geometry keep their original grouping and lazy sites, and changing goals own every query.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's workspace owns source/reference values and, when the chain carries none, the rig-only record until release. Inputs are borrowed, loader callbacks and target results are not retained, and no global collection, handle or task owns this context.
  */
 export function prepareChainFitRig(
   props: Omit<IFitChainToTargetProps, "target">,
@@ -54,140 +46,27 @@ export function prepareChainFitRig(
       reference.rotation(bone, fixed),
     referenceWeight: reference.weight,
   };
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone | undefined> =
-    new Map();
-  const domains: Map<AutoMovieHumanoidBone, IAutoMovieJointRotationDomain> =
-    new Map();
-  const bases: Map<IAutoMovieJointAxes, IAutoMovieJointAxes> = new Map();
-  const clamps: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
-  > = new Map();
-  const scores: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => number
-  > = new Map();
-  let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
-  let restInverse: IAutoMovieQuaternion | undefined;
+
+  // The rig-only members: those the chain's constants carry when it was
+  // placed from them, else this source's own.
+  const constant: prepareChainRigConstants.IRig =
+    prepared?.rig ?? prepareChainRigConstants(props, prepared);
   let held: IAutoMovieJointPose | undefined;
   let heldRotation: IAutoMovieQuaternion | undefined;
   let heldInverse: IAutoMovieQuaternion | undefined;
-  let distal: ReturnType<typeof solveDistalTwist.prepare> | undefined;
-  let range: { min: number; max: number } | null | undefined;
   let swing: IAutoMovieVector3 | undefined;
   let hingeGeometry: hingedArmSwivel.IPrepared | undefined;
-  let clampAxes:
-    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-    | undefined;
-
-  /** Cache only successful admission of the actual selected axes; strict and lenient defaults select their own records. */
-  const readBasis: (axes: IAutoMovieJointAxes, path: string) => IAutoMovieJointAxes = (
-    axes: IAutoMovieJointAxes,
-    path: string,
-  ): IAutoMovieJointAxes => {
-    let basis: IAutoMovieJointAxes | undefined = bases.get(axes);
-    if (basis === undefined) {
-      basis = normalizeJointAxes(axes, path);
-      bases.set(axes, basis);
-    }
-    return basis;
-  };
   const rig: prepareChainFit.IRig = {
-    bone: (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined => {
-      if (!bones.has(bone))
-        bones.set(
-          bone,
-          props.skeleton.bones.find(
-            (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
-          ),
-        );
-      return bones.get(bone);
-    },
-    domain: (bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain => {
-      let domain: IAutoMovieJointRotationDomain | undefined = domains.get(bone);
-      if (domain === undefined) {
-        domain =
-          prepared !== null && bone === props.chain.upper
-            ? prepared.upperDomain
-            : prepared !== null && bone === props.chain.lower
-              ? prepared.lowerDomain
-              : {
-                  bone,
-                  constraint: getConstraint(
-                    bone,
-                    rig.bone(bone)?.constraint ?? null,
-                  ),
-                };
-        domains.set(bone, domain);
-      }
-      return domain;
-    },
-    basis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
-      return readBasis(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
-    },
-    jointBasis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
-      const axes: IAutoMovieJointAxes | undefined = props.jointAxes?.[bone];
-      return readBasis(axes === undefined ? DEFAULT_JOINT_AXES : axes, path);
-    },
-    clamp: (
-      bone: AutoMovieHumanoidBone,
-    ): ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) => {
-      let clamp:
-        | ((joint: IAutoMovieJointPose) => IAutoMovieJointPose)
-        | undefined = clamps.get(bone);
-      if (clamp === undefined) {
-        clamp = clampJointToSkeleton.resolved(
-          bone,
-          rig.bone(bone),
-          (): swingTwistRange.IJoint | undefined => {
-            const constraint: IAutoMovieJointRotationDomain["constraint"] =
-              rig.domain(bone).constraint;
-            if (
-              constraint === null ||
-              constraint.swingTwist === undefined ||
-              constraint.swingTwist === null
-            )
-              return undefined;
-            clampAxes ??= skeletonJointAxes(props.skeleton, HUMANOID_JOINT_AXES);
-            return swingTwistRange.fromAxes(bone, clampAxes[bone]);
-          },
-        );
-        clamps.set(bone, clamp);
-      }
-      return clamp;
-    },
-    overshoot: (
-      bone: AutoMovieHumanoidBone,
-    ): ((joint: IAutoMovieJointPose) => number) => {
-      let score: ((joint: IAutoMovieJointPose) => number) | undefined =
-        scores.get(bone);
-      if (score === undefined) {
-        score = jointRomOvershoot.prepare(bone, rig.domain(bone).constraint);
-        scores.set(bone, score);
-      }
-      return score;
-    },
-    effectorProjection: (): ReturnType<
-      typeof prepareJointRotationProjection
-    > => {
-      if (project === undefined)
-        project = prepareJointRotationProjection({
-          domain: rig.domain(props.chain.effector),
-          basis: rig.basis(props.chain.effector, "jointToQuaternion axes"),
-          frame: props.restFrames?.[props.chain.effector],
-          clamp: rig.clamp(props.chain.effector),
-        });
-      return project;
-    },
-    effectorRestInverse: (): IAutoMovieQuaternion => {
-      if (restInverse === undefined)
-        restInverse = Quaternion.inverse(
-          prepared?.effectorBaseRotation ??
-            rig.bone(props.chain.effector)?.rest.rotation ??
-            Quaternion.identity(),
-        );
-      return restInverse;
-    },
+    bone: constant.bone,
+    domain: constant.domain,
+    basis: constant.basis,
+    jointBasis: constant.jointBasis,
+    clamp: constant.clamp,
+    overshoot: constant.overshoot,
+    effectorProjection: constant.effectorProjection,
+    effectorRestInverse: constant.effectorRestInverse,
+    distalTwist: constant.distalTwist,
+    hingeRange: constant.hingeRange,
     held: (): IAutoMovieJointPose => {
       if (held === undefined) {
         for (const joint of props.pose.joints)
@@ -219,26 +98,9 @@ export function prepareChainFitRig(
       heldInverse ??= Quaternion.inverse(rig.heldRotation());
       return heldInverse;
     },
-    distalTwist: (): ReturnType<typeof solveDistalTwist.prepare> => {
-      distal ??= solveDistalTwist.prepare({
-        effectorRest:
-          prepared?.effectorBaseRotation ??
-          rig.bone(props.chain.effector)?.rest.rotation ??
-          Quaternion.identity(),
-        effectorBasis: rig.basis(props.chain.effector, "jointToQuaternion axes"),
-        effectorFrame: props.restFrames?.[props.chain.effector],
-      });
-      return distal;
-    },
     reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
       reference.rotation(bone, rig),
     referenceWeight: reference.weight,
-    hingeRange: (
-      read: () => { min: number; max: number } | null,
-    ): { min: number; max: number } | null => {
-      if (range === undefined) range = read();
-      return range;
-    },
     posedSwing: (read: () => IAutoMovieVector3): IAutoMovieVector3 => {
       if (swing === undefined) swing = read();
       return swing;
@@ -251,7 +113,7 @@ export function prepareChainFitRig(
         midRest: prepared.lowerRotation,
         endOffset: prepared.effectorOffset,
         hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES).flexion,
-      });
+      }, constant.span);
       return hingeGeometry;
     },
   };

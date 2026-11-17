@@ -24,7 +24,9 @@ import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
  * A prepared-base operation may explicitly lend an exactly matching immutable
  * source to share geometry across distinct complete goals; each goal keeps
  * its own reference, strain, obstruction and cold/near binding. Other calls
- * retain the ordinary one-goal preparation.
+ * retain the ordinary one-goal preparation, placed by the caller's plant,
+ * whose chain carries the body's rig-only readers of the limb when it was
+ * placed from the body's chain constants (`placeChainPlant`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States operation scope, fixed inputs, reference/strain admission and caller-owned lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation The existing engine chain fit prepares the actual body rig once; a clinical reference still contains only the two chain joints and zero reference weight still omits it, while an uncontinued arm's strain comes from AutoMovieMotionHumanBend.strainOf.

@@ -5,6 +5,7 @@ import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { aimRotation } from "./aimRotation";
+import { hingedArmSpan } from "./hingedArmSpan";
 
 /**
  * The geometry of a two-bone chain whose mid joint bends only about its own
@@ -263,6 +264,12 @@ export namespace hingedArmSwivel {
    * The caller releases each target after its search and the source after all
    * fits; changed frames, offsets or hinge require a new preparation.
    *
+   * An optional span holder (`hingedArmSpan.ISpan`) lends the segment-length gate and the
+   * span coefficients, which depend on the offsets, the mid rest and the
+   * hinge alone and not on the root's frame, to every source that has those
+   * same four records: the first branch query of any of them fills it and
+   * the others read it. The root-frame inverse stays each source's own.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed immutable source scope, lazy original-use geometry, independent target/range scope and caller release.
    * @evidence contracts/development/implementation.md#principled-implementation The hinge-span sinusoid depends only on source offsets/rest/axis, and the lowered goal depends only on source root and target; their unchanged completed arithmetic can serve both bend branches and all target swivel probes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepared entries share branchStops, geometry, aimed and poseBranch, keeping the exact hinge law with one owner and leaving all search/ROM policy to callers.
@@ -273,8 +280,9 @@ export namespace hingedArmSwivel {
    */
   export function prepare(
     source: Omit<IChain, "target" | "range">,
+    shared?: hingedArmSpan.ISpan,
   ): IPrepared {
-    const state: IPreparation = {};
+    const state: IPreparation = { span: shared ?? {} };
     return {
       target: (point: IAutoMovieVector3, range?: IChain["range"]): IPreparedTarget => {
         const chain: IChain = { ...source, target: point, ...(range === undefined ? {} : { range }) };
@@ -368,7 +376,7 @@ export namespace hingedArmSwivel {
     aim: IAutoMovieQuaternion;
   } {
     const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      source?.geometry?.hinge ?? Vector3.normalize(chain.hinge),
+      source?.span.geometry?.hinge ?? Vector3.normalize(chain.hinge),
       theta * RAD2DEG,
     );
     const mid: IAutoMovieVector3 = Vector3.add(
@@ -396,28 +404,13 @@ export namespace hingedArmSwivel {
     };
   }
 
-  /** Source-only hinge span coefficients, independent of target and range. */
-  interface IGeometry {
-    /** Actual normalized hinge, shared with branch posing after admission. */
-    hinge: IAutoMovieVector3;
-    /** Constant term of the squared root-to-effector span. */
-    k: number;
-    /** Cosine coefficient of that span. */
-    alpha: number;
-    /** Sine coefficient of that span. */
-    beta: number;
-    /** Magnitude of the two harmonic coefficients. */
-    span: number;
-    /** Phase of that sinusoid, radians. */
-    phase: number;
-  }
+  /** Source-only hinge span coefficients (`hingedArmSpan.IGeometry`). */
+  type IGeometry = hingedArmSpan.IGeometry;
 
   /** Lazy source quantities, retained only by explicit unchanged preparation. */
   interface IPreparation {
-    /** Segment-length admission, before the target gate. */
-    valid?: boolean;
-    /** Hinge/span admission, after a nondegenerate target. */
-    geometry?: IGeometry | null;
+    /** Segment-length and hinge/span admission, this source's own or lent by its owner. */
+    span: hingedArmSpan.ISpan;
     /** Root-frame inverse, first read during branch posing. */
     inverse?: IAutoMovieQuaternion;
   }
@@ -428,49 +421,22 @@ export namespace hingedArmSwivel {
     goal?: IAutoMovieVector3;
   }
 
-  /** Read the hinge-only sinusoid after the existing length/target gates. */
-  function geometry(chain: IChain): IGeometry | null {
-    if (Vector3.length(chain.hinge) < 1e-6) return null;
-    const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
-    const along: number = Vector3.dot(hinge, chain.endOffset);
-    const swung: IAutoMovieVector3 = Vector3.subtract(
-      chain.endOffset, Vector3.scale(hinge, along),
-    );
-    const radius: number = Vector3.length(swung);
-    const k: number = Vector3.dot(chain.midOffset, chain.midOffset) +
-      Vector3.dot(chain.endOffset, chain.endOffset) +
-      2 * along * Vector3.dot(chain.midOffset,
-        Quaternion.rotateVector(chain.midRest, hinge));
-    let alpha: number = 0;
-    let beta: number = 0;
-    if (radius >= SPAN_EPSILON) {
-      const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
-      alpha = 2 * radius * Vector3.dot(chain.midOffset,
-        Quaternion.rotateVector(chain.midRest, unit));
-      beta = 2 * radius * Vector3.dot(chain.midOffset,
-        Quaternion.rotateVector(chain.midRest, Vector3.cross(hinge, unit)));
-    }
-    const span: number = Math.hypot(alpha, beta);
-    return span < SPAN_EPSILON ? null
-      : { hinge, k, alpha, beta, span, phase: Math.atan2(beta, alpha) };
-  }
-
   /** Preserve root/length/target/hinge admission, root order and range stops. */
   function branchStops(chain: IChain, source?: IPreparation): IStop[] | null {
     const root: IAutoMovieVector3 = chain.upper.worldPosition;
-    let valid: boolean | undefined = source?.valid;
+    let valid: boolean | undefined = source?.span.valid;
     if (valid === undefined) {
       valid = !(Vector3.length(chain.midOffset) < 1e-6 ||
         Vector3.length(chain.endOffset) < 1e-6);
-      if (source !== undefined) source.valid = valid;
+      if (source !== undefined) source.span.valid = valid;
     }
     if (!valid) return null;
     const distance: number = Vector3.length(Vector3.subtract(chain.target, root));
     if (distance < 1e-6) return null;
-    let fixed: IGeometry | null | undefined = source?.geometry;
+    let fixed: IGeometry | null | undefined = source?.span.geometry;
     if (fixed === undefined) {
-      fixed = geometry(chain);
-      if (source !== undefined) source.geometry = fixed;
+      fixed = hingedArmSpan.of(chain);
+      if (source !== undefined) source.span.geometry = fixed;
     }
     if (fixed === null) return null;
     const { k, alpha, beta, span, phase }: IGeometry = fixed;
@@ -490,9 +456,6 @@ export namespace hingedArmSwivel {
       return { theta: legal, shortfall: legal === wrapped && !outside ? 0 : short(legal) };
     });
   }
-
-  /** Below this the mid joint cannot change the chain's span at all. */
-  const SPAN_EPSILON: number = 1e-9;
 
   /** Degrees per radian. */
   const RAD2DEG: number = 180 / Math.PI;
