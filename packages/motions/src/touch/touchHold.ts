@@ -1,9 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -34,6 +29,7 @@ import { HumanPerception } from "../law/HumanPerception";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { touchHoldRests } from "./touchHoldRests";
 import { touchRegion } from "./touchRegion";
 
 /**
@@ -182,7 +178,10 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over the context, the target and the clock.
    */
   export function others(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start" | "body">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "performer" | "start" | "body"
+    >,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: IAutoMovieMotionClock,
   ): (
@@ -195,33 +194,11 @@ export namespace touchHold {
     const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
-    const bone: AutoMovieHumanoidBone | undefined =
-      partner.body.surfaces.regions[target.region]?.bone;
-    // The hand lies on its region's segment and on the segments jointed to
-    // it, which a hand laid on a part meets where the part meets them (a
-    // palm on the side of the neck under the jaw, a grip on a forearm by the
-    // wrist).
-    const lying: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>(
-        bone === undefined
-          ? []
-          : partner.body.skeleton.bones
-              .filter(
-                (b: (typeof partner.body.skeleton.bones)[number]): boolean =>
-                  b.bone === bone ||
-                  b.parent === bone ||
-                  partner.body.skeleton.bones.some(
-                    (
-                      o: (typeof partner.body.skeleton.bones)[number],
-                    ): boolean => o.bone === bone && o.parent === b.bone,
-                  ),
-              )
-              .map(
-                (
-                  b: (typeof partner.body.skeleton.bones)[number],
-                ): AutoMovieHumanoidBone => b.bone,
-              ),
-      );
+    const resting: ReturnType<typeof touchHoldRests> = touchHoldRests(
+      partner.body,
+      target.region,
+      context.body.measure.hand,
+    );
     const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(
       partner.body,
     );
@@ -244,35 +221,14 @@ export namespace touchHold {
       );
       const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
         HumanColliders.placed(partner.body, bones);
-      // A jointed segment is the hand's only where the hand can reach it
-      // from the region: some shape of it within a hand's length of the
-      // region's point; farther, it is only in the arm's way.
-      const carrier: IAutoMovieResolvedBone | undefined =
-        bone === undefined ? undefined : bones.get(bone);
-      const at: IAutoMovieVector3 | undefined =
-        carrier === undefined
-          ? undefined
-          : Vector3.add(
-              carrier.worldPosition,
-              Quaternion.rotateVector(
-                carrier.worldRotation,
-                partner.body.surfaces.regions[target.region]!.point,
-              ),
-            );
-      const reached: (segment: IAutoMovieMotionHumanColliders.IPlaced) => boolean = (
+      const rests: (
         segment: IAutoMovieMotionHumanColliders.IPlaced,
-      ): boolean =>
-        segment.bone === bone ||
-        (at !== undefined &&
-          segment.shapes.some(
-            (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]): boolean =>
-              physicalShapeSegmentDistance(segment.pose, shape, at, at) <= context.body.measure.hand,
-          ));
+      ) => boolean = resting(bones);
       const clear: IAutoMovieMotionHumanColliders.IPlaced[] = [];
-      const rests: IAutoMovieMotionHumanColliders.IPlaced[] = [];
+      const lying: IAutoMovieMotionHumanColliders.IPlaced[] = [];
       for (const segment of placed)
-        (lying.has(segment.bone) && reached(segment) ? rests : clear).push(segment);
-      return { clear, rests };
+        (rests(segment) ? lying : clear).push(segment);
+      return { clear, rests: lying };
     };
   }
 
@@ -298,7 +254,10 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the two readers.
    */
   export function perceived(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start" | "body">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "performer" | "start" | "body"
+    >,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: IAutoMovieMotionClock,
     perceived: IAutoMovieMotionHumanTouch.ITouch["region"],
