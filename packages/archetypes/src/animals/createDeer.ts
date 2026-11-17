@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   type Archetype,
   type ArchetypeBuilder,
@@ -5,6 +7,7 @@ import {
 } from "../core";
 import { DeerBody } from "./DeerBody";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
@@ -13,17 +16,20 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * Body and antler means come from the 1995 study's October 1992/1993
  * sample, with different trait counts. DeerBody separately declares the
  * older animals in the 1997 skull/limb study; these are not paired specimens.
+ * The actual main-beam base disk is seated inside the actual head capsule.
+ * Source tip width remains the coarse beam-axis tip spacing; the finite tube
+ * ends do not reconstruct the measured antler's outer tip surfaces.
  *
  * @param params Optional fixed adult cohort, authored mass, antler presence, timing coordinate and lead.
  * @param seed Without a fixed cohort, draws whole adult references uniformly; seedless construction retains the male reference. An explicit antler request admits only the sourced male reference.
  * @returns The actual model; bare selected male/female references use their respective 60.4/39.5 kg means.
  * @throws {ArchetypeRefusal} For unsupported cohorts, female antlers, invalid mass/lead, or a lead without explicitly authored whole-model mass.
  * @evidence contracts/development/common.md#meaningful-documentation Separates sex/age-specific 1995 body/antler observations from older same-sex 1997 skeletal samples, authored catalogue frequencies and coarse branching; equipment requires explicit total mass.
- * @evidence contracts/development/implementation.md#principled-implementation DeerBody owns the cited Boso means and real bone lengths. Antler beam controls preserve the published curve length and total tip width by an independent right triangle; named constructed tines remain distinct from the measured main-beam dimensions.
+ * @evidence contracts/development/implementation.md#principled-implementation DeerBody owns the cited Boso means and real bone lengths. Seat the complete beam base disk inside the actual head through the common capsule erosion, then preserve the source curve-length control and existing axis-tip spacing by a right triangle. Branch origins follow that same beam and retain their authored lengths; no source head measure changes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit equipment mass ownership, let the shared factory pick one whole adult reference and add sourced male antlers only when its cohort and request admit them.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different trait counts and separate skeletal specimens are not asserted paired. Straight beam controls and two tines are construction proxies, not recovered antler surfaces, and no measured body mass silently includes newly authored equipment.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed-size profile/rig/addition plans establish seed-independent admission, then only one actual body and its optional fixed-size antlers are emitted without mesh fitting.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared body/reference/lead owners build the actual model; both antlers use the same source and construction definition.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared body/reference/lead owners build the actual model. The shared head attachment owner supplies one seated positive-side root mirrored for both antlers; the same beam vector locates all branch origins.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar model records without retained callbacks, global registry, process or renderer.
  */
 export function createDeer(
@@ -85,10 +91,23 @@ export function createDeer(
       }
       if (params.antlers === false) return;
       const a: typeof createDeer.ANTLERS = createDeer.ANTLERS;
-      const root: number = rig.headRadius;
+      const radius: number = (a.baseLong + a.baseShort) / 4;
+      const base: IAutoMovieVector3 = QuadrupedHeadAttachment(
+        rig,
+        {
+          x: rig.poll.x + rig.headRadius,
+          y: rig.poll.y + rig.headRadius,
+          z: rig.poll.z,
+        },
+        radius,
+      );
+      const root: number = base.x - rig.poll.x;
       const lateral: number = a.tipWidth / 2 - root;
       const rise: number = Math.sqrt(a.curve * a.curve - lateral * lateral);
-      const radius: number = (a.baseLong + a.baseShort) / 4;
+      if (!(Number.isFinite(rise) && rise > 0))
+        throw new RangeError(
+          "The seated antler must preserve a positive beam rise at its declared length and tip spacing",
+        );
       return (
         builder: ArchetypeBuilder<
           createCohortQuadruped.Affordance,
@@ -99,27 +118,30 @@ export function createDeer(
           ["left", 1],
           ["right", -1],
         ] as const) {
-          const y: number = rig.poll.y + rig.headRadius;
           builder.rod(
             `${side}Antler`,
             radius,
-            { x: sign * root, y, z: rig.poll.z },
-            { x: (sign * a.tipWidth) / 2, y: y + rise, z: rig.poll.z },
+            { x: rig.poll.x + sign * root, y: base.y, z: base.z },
+            {
+              x: rig.poll.x + (sign * a.tipWidth) / 2,
+              y: base.y + rise,
+              z: base.z,
+            },
             { color: "#b2a184" },
           );
           for (let i: number = 1; i <= createDeer.CONSTRUCTION.tines; i++) {
             const share: number = i / (createDeer.CONSTRUCTION.tines + 1);
-            const startX: number = sign * (root + lateral * share);
-            const startY: number = y + rise * share;
+            const startX: number = rig.poll.x + sign * (root + lateral * share);
+            const startY: number = base.y + rise * share;
             const length: number = a.curve * createDeer.CONSTRUCTION.tineLength;
             builder.rod(
               `${side}AntlerTine${i}`,
               radius * createDeer.CONSTRUCTION.tineRadius,
-              { x: startX, y: startY, z: rig.poll.z },
+              { x: startX, y: startY, z: base.z },
               {
                 x: startX,
                 y: startY + length * Math.SQRT1_2,
-                z: rig.poll.z + length * Math.SQRT1_2,
+                z: base.z + length * Math.SQRT1_2,
               },
               { color: "#b2a184" },
             );

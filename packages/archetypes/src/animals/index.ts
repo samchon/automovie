@@ -12,6 +12,7 @@ export * from "./OxBody";
 export * from "./OxGait";
 export * from "./QuadrupedAnimal";
 export * from "./QuadrupedAttachments";
+export * from "./QuadrupedHeadAttachment";
 export * from "./QuadrupedBody";
 export * from "./QuadrupedBodyProfile";
 export * from "./QuadrupedEquipment";

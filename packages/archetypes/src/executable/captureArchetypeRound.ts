@@ -2,6 +2,7 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
+  IAutoMovieCaptureSubject,
 } from "@automovie/render";
 import { AutoMovieCaptureHost, readAutoMovieRevision } from "automovie";
 import * as fs from "node:fs/promises";
@@ -62,9 +63,9 @@ interface Result {
  * @evidence contracts/development/implementation.md#principled-implementation Native AutoMovieCaptureHost supplies the real subjects page, renderer, browser and capture records. Every request is parsed and its complete native cell plan materialized before drawing; the same pinned source and original native request then drive capture. No surrogate render, fixture result or pixel verdict is introduced.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the finite data manifest, pin source, open one host, prepare every request, write the complete plan ledger, draw valid groups in order, record their results and close in finally.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Planning/cell failures remain recorded failures and never trigger fallback, backend substitution, source mutation or retry. Native failed-cell records remain authoritative; completion of this tool establishes capture availability, not visual correctness.
- * @evidence contracts/development/implementation.md#efficient-algorithms One page build/browser launch serves J requests and C cells. Planning is O(C) storage; one session/page is active at a time and the native capture core bounds live image storage. Preparation and drawing each open the subject because the capture host owns its complete request lifecycle.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All groups share the exact built page and browser. Full cell plans are reused as written evidence; actual capture remains with its native owner and independently checks its request against the same source.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function owns one host until finally; every preparation session closes in its own finally, and native capture closes its pages. Plain O(C+J) plans/results live for this invocation and evidence files remain caller-owned. No background worker or compiler is created.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One page build/browser launch serves J requests and C cells. Successful preparation opens U pages for U distinct subjects, rather than J pages; drawing still opens J fresh pages. A failed open/close is not cached, so preparation can attempt up to J pages. Planning and ledger serialization are linear in C plus the subject descriptions serialized with each plan. Requests run sequentially and the native capture core bounds live image storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every request shares the exact built page, browser, pinned clean revision and null props. This fixed archetype module describes each named subject deterministically, so its plain RPC metadata is reused by exact subject identity within this invocation; the planner does not mutate it. Every request still gets its full native plan, and actual capture independently describes and draws a fresh session. No metadata survives into another invocation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function owns one host until its finally attempts close. Every preparation session has a finally close attempt and its metadata is cached only after close succeeds; native capture also owns its page's close attempt. A failed close is recorded and may leave that page until the final host close attempt. At most U distinct plain subject descriptions, O(C+J) plans/results and the temporary serialized ledger live for this invocation; evidence files remain caller-owned. Cached descriptions retain no page, renderer or process. No background worker or compiler is created.
  */
 export async function captureArchetypeRound(manifest: string): Promise<void> {
   const root: string = process.cwd();
@@ -72,6 +73,7 @@ export async function captureArchetypeRound(manifest: string): Promise<void> {
   const output: string = path.resolve(root, round.out);
   const results: Result[] = [];
   const prepared: Prepared[] = [];
+  const subjects: Map<string | null, IAutoMovieCaptureSubject> = new Map();
   pin();
   await fs.mkdir(output, { recursive: true });
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
@@ -110,21 +112,24 @@ export async function captureArchetypeRound(manifest: string): Promise<void> {
           host.render.parseAutoMovieCapturePlanRequest(
             new URLSearchParams(Object.entries(job.request)),
           );
-        const session: Awaited<ReturnType<AutoMovieCaptureHost["session"]>> =
-          await host.session({ subject: request.subject, props: null });
-        try {
-          prepared.push({
-            job,
-            request,
-            plan: host.render.planAutoMovieCapture({
-              request,
-              subject: session.subject,
-              cuts: [],
-            }),
-          });
-        } finally {
-          await session.close();
+        let subject: IAutoMovieCaptureSubject | undefined = subjects.get(
+          request.subject,
+        );
+        if (subject === undefined) {
+          const session: Awaited<ReturnType<AutoMovieCaptureHost["session"]>> =
+            await host.session({ subject: request.subject, props: null });
+          try {
+            subject = session.subject;
+          } finally {
+            await session.close();
+          }
+          subjects.set(request.subject, subject);
         }
+        prepared.push({
+          job,
+          request,
+          plan: host.render.planAutoMovieCapture({ request, subject, cuts: [] }),
+        });
       } catch (error) {
         results.push({
           id: job.id,

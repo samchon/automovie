@@ -1,7 +1,10 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { Archetype, ArchetypeBuilder } from "../core";
 import { OxBody } from "./OxBody";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedEquipment } from "./QuadrupedEquipment";
+import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
@@ -12,7 +15,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * @returns The actual shared quadruped model; mass/foot coefficients are not inferred.
  * @throws {ArchetypeRefusal} For invalid mass, tempo or equipment dimensions.
  * @evidence contracts/development/common.md#meaningful-documentation Names the whole Kathani reference, separate provisional limb cohort, measured horn/ear lengths and authored geometry/equipment limits.
- * @evidence contracts/development/implementation.md#principled-implementation OxBody owns the cited whole-cohort means and explicitly transferred limb controls. Actual horn/ear rods use the published lengths, with named constructed splay/radii; the shared cohort and equipment owners build the same physical model and its contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation OxBody owns the cited whole-cohort means and explicitly transferred limb controls. Actual horn/ear rods use the published lengths and authored directions/radii. The common head-capsule owner seats their complete root disks, preserving already seated horn positions and translating ear roots without changing length; no source head measure changes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply the ox reference/body to one shared builder and add its two horns/ears and any explicitly dimensioned equipment.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No horse mass law, invented working-ox weight, population allometry, measured horn curvature or maker yoke dimension is claimed. This fixed mean prototype does not complete population variation or animal dynamics.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size body and four identifying rods plus the explicitly requested equipment; no mesh search or fitting loop.
@@ -53,25 +56,37 @@ export function createOx(
         ] as const) {
           const x: number = (sign * rig.headRadius) / 2;
           const y: number = rig.poll.y + rig.headRadius / 2;
+          const hornRadius: number = m.horn * createOx.CONSTRUCTION.hornRadius;
+          const horn: IAutoMovieVector3 = QuadrupedHeadAttachment(
+            rig,
+            { x, y, z: rig.poll.z },
+            hornRadius,
+          );
           builder.rod(
             `${side}Horn`,
-            m.horn * createOx.CONSTRUCTION.hornRadius,
-            { x, y, z: rig.poll.z },
+            hornRadius,
+            horn,
             {
-              x: x + sign * m.horn * Math.SQRT1_2,
-              y: y + m.horn * Math.SQRT1_2,
-              z: rig.poll.z,
+              x: horn.x + sign * m.horn * Math.SQRT1_2,
+              y: horn.y + m.horn * Math.SQRT1_2,
+              z: horn.z,
             },
             { color: "#c0ac7a" },
           );
+          const earRadius: number = m.ear * createOx.CONSTRUCTION.earRadius;
+          const ear: IAutoMovieVector3 = QuadrupedHeadAttachment(
+            rig,
+            { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
+            earRadius,
+          );
           builder.rod(
             `${side}Ear`,
-            m.ear * createOx.CONSTRUCTION.earRadius,
-            { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
+            earRadius,
+            ear,
             {
-              x: sign * (rig.headRadius + m.ear),
-              y: rig.poll.y,
-              z: rig.poll.z,
+              x: ear.x + sign * m.ear,
+              y: ear.y,
+              z: ear.z,
             },
             { color: "#8a6a46" },
           );

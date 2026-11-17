@@ -16,15 +16,17 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
  * The straight tandem limbers are an authored kinematic demonstration, not a
  * historical train or ground-contact simulation; actual axle support lets its
  * rigid body pitch to the unchanged hook heights. The straight path makes both
- * actual wheel travel distances equal.
+ * actual wheel travel distances equal. The leader's wheels do not carry its
+ * pintle, so towing reads its unchanged rest model along the actual course;
+ * each displayed leader receives its wheel pose only at the requested second.
  *
  * @returns Named calm/sea rides and three supported towing branches: tandem limbers, a reverse field gun and a four-wheel wagon with its actual drawbar hinge.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names rowing/oar cycles, seeded sea motion, public towing, authored course values and the unchanged model/ground-contact limitation.
- * @evidence contracts/development/implementation.md#principled-implementation Public rowBoat owns strokes and sea response; ArchetypeRide.towed owns coupling and trailing heading. Wheel angles use actual circumference and signed course distance, normalized by the engine's positiveModulo to equivalent degrees in [0,360) without changing reverse rotation. An assembly preserves relative coordinates in the capture layout.
+ * @evidence contracts/development/implementation.md#principled-implementation Public rowBoat owns strokes and sea response; ArchetypeRide.towed owns coupling and trailing heading. The leader's fixed pintle is independent of wheel articulation, so its actual unposed public along ride supplies towing while display members apply the identical wheel pose. Actual circumference, signed course distance and positiveModulo retain equivalent degrees in [0,360), including reverse rotation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the public boat/limbers and their rides, then add actual field-gun and wagon followers using that same leader and return spatially coherent subjects without changing catalog or renderer code.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No performer, Motion/Human import, invented hitch, geometry override, capture-only wave law or approximate towing algorithm replaces the public consumers.
- * @evidence contracts/development/implementation.md#efficient-algorithms Model/course preparation occurs once; each seek samples the two existing rides and assembles their actual parts, linear in their model size. The public towing owner retains its one prepared trajectory.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each 12-second follower takes 720 default RK4 steps, or 2,881 rate evaluations with three hitch reads each plus one initial leader read. Sharing an unposed leader removes all 25,932 unnecessary leader articulations from preparation of the three followers per catalog. Each displayed member applies its leader wheel pose once, then assembles actual parts in linear model-size work; public towing still owns its prepared trajectories.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Calm/sea rides share the same boat/course, and every towing sample reuses its prepared rides and source geometry. All leader, limber, reverse-gun and wagon wheel branches reuse the engine's positiveModulo owner for the same cyclic angle representation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned subjects retain five source models and their prepared rides for the catalog lifetime; samples are not cached and no process or external handle is acquired.
  */
@@ -64,16 +66,7 @@ export function archetypeCaptureSupportProps(): Readonly<
   const leader: ArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.along(
-    leading,
-    road,
-    (
-      state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<createCart.Affordance, createCart.Dimension> => ({
-      archetype: rolling(leading, state.progress),
-      placement: state.placement,
-    }),
-  );
+  > = ArchetypeRide.along(leading, road);
   const trailer: ArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
@@ -116,7 +109,7 @@ export function archetypeCaptureSupportProps(): Readonly<
                 "Authored tandem limber tow",
                 {
                   leader: {
-                    archetype: front.archetype,
+                    archetype: rolling(front.archetype, front.course.progress),
                     placement: front.placement,
                   },
                   trailer: {
@@ -170,7 +163,10 @@ function limberedGun(
         const front: ArchetypeRide.ISample<createCart.Affordance, createCart.Dimension> = leader.at(seconds);
         const rear: ArchetypeRide.ISample<createCannon.Affordance, createCannon.Dimension> = follower.at(seconds);
         return { archetype: ArchetypeAssembly.of("capture-limbered-gun", "Actual field gun on its limber", {
-          limber: { archetype: front.archetype, placement: front.placement },
+          limber: {
+            archetype: rolling(front.archetype, front.course.progress),
+            placement: front.placement,
+          },
           cannon: { archetype: rear.archetype, placement: rear.placement },
         }) };
       },
@@ -212,7 +208,10 @@ function limberedWagon(
         const front: ArchetypeRide.ISample<createCart.Affordance, createCart.Dimension> = leader.at(seconds);
         const rear: ArchetypeRide.ISample<createCart.Affordance, createCart.Dimension> = follower.at(seconds);
         return { archetype: ArchetypeAssembly.of("capture-limbered-wagon", "Actual wagon drawbar on a limber", {
-          limber: { archetype: front.archetype, placement: front.placement },
+          limber: {
+            archetype: rolling(front.archetype, front.course.progress),
+            placement: front.placement,
+          },
           wagon: { archetype: rear.archetype, placement: rear.placement },
         }) };
       },
