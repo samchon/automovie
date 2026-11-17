@@ -75,7 +75,7 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * finds none, the full sweep decides, so a chain that cannot reach legally
  * still returns its least overshoot.
  *
- * A cold fit with `closed` candidates and no `tie` or `minimum` scores them
+ * A fit, cold or continued, with `closed` candidates and no `tie` or `minimum` scores them
  * alone and returns the best when it is legal and `met` accepts it: where a
  * requested term is met only at isolated swivels, those are the whole
  * admissible set and no search can add to it.
@@ -216,7 +216,7 @@ export const hingedArmArticulation: (props: {
   /**
    * Given a branch's poser, every swivel on it, degrees, at which a requested
    * term that only isolated swivels can meet is met (`immobileAxisSwivels`),
-   * in closed form; null or none when the analysis does not apply. A cold fit
+   * in closed form; null or none when the analysis does not apply. A fit, cold or continued,
    * with no `tie` or `minimum` scores those candidates alone and returns the
    * best when it is legal and `met` accepts it; otherwise the pole start and
    * the sweep decide as without it.
@@ -449,6 +449,26 @@ export const hingedArmArticulation: (props: {
     ...(props.tie === undefined ? {} : { second: hingedSwivelAhead.second(chosen) }),
   });
 
+  // The closed-form candidates (`closed`): where a requested term is met only
+  // at isolated swivels, those swivels are the whole admissible set, so the
+  // best of them, legal and met, is the answer with no search (the analytic
+  // swivel of Tolani, Goswami and Badler 2000), for a continued fit as for a
+  // cold one: the analytic answer does not depend on where the search
+  // starts, so it needs no seed. Anything less falls through.
+  if (props.closed !== undefined && props.tie === undefined && props.minimum === undefined) {
+    let best: IScored | null = null;
+    for (const stop of stops) {
+      if (stop.shortfall !== shortfall) continue;
+      const branch: ISweep = record(stop);
+      for (const angle of props.closed(branch.posed) ?? []) {
+        const candidate: IScored = branch.probe(angle);
+        if (best === null || better(candidate, best)) best = candidate;
+      }
+    }
+    if (best !== null && best.overshoot === 0 &&
+      (props.met === undefined || props.met(best.upper, best.lower))) return answer(best);
+  }
+
   // A continued fit refines its seed on the seed's branch alone.
   if (props.near !== undefined) {
     const near: IAutoMovieSwivelNear = props.near;
@@ -463,24 +483,6 @@ export const hingedArmArticulation: (props: {
     const seeded: IScored = refineHingedSwivel(prober(stop, pose(stop.theta)), better, near.swivel,
       Math.max(0, Math.ceil(contraction / Math.log(GOLDEN))));
     return answer(seeded, seeded.shortfall);
-  }
-
-  // The closed-form candidates (`closed`): where a requested term is met only
-  // at isolated swivels, those swivels are the whole admissible set, so the
-  // best of them, legal and met, is the answer with no search (the analytic
-  // swivel of Tolani, Goswami and Badler 2000). Anything less falls through.
-  if (props.closed !== undefined && props.tie === undefined && props.minimum === undefined) {
-    let best: IScored | null = null;
-    for (const stop of stops) {
-      if (stop.shortfall !== shortfall) continue;
-      const branch: ISweep = record(stop);
-      for (const angle of props.closed(branch.posed) ?? []) {
-        const candidate: IScored = branch.probe(angle);
-        if (best === null || better(candidate, best)) best = candidate;
-      }
-    }
-    if (best !== null && best.overshoot === 0 &&
-      (props.met === undefined || props.met(best.upper, best.lower))) return answer(best);
   }
 
   // The pole start (`hingedSwivelPole`): a legal result is the answer; an

@@ -12,7 +12,9 @@ import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
+import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
+import { swivelArcs } from "../kinematics/swivelArcs";
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
@@ -63,7 +65,10 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * search: such a joint takes the rotation only where the rotation demanded
  * of it reads that axis neutral, at most two swivels a bend branch in closed
  * form (`immobileAxisSwivels`), and the best of them under the same score
- * is the fit when it is legal and the rotation is met.
+ * is the fit when it is legal and the rotation is met. A limb whose mid
+ * segment twists distally (an arm) offers one candidate the same way: the
+ * swivel inside its end joint's box (`distalEndSwivelArcs`) nearest the
+ * hint's pole.
  * One degree of joint turn from the reference counts as much as
  * one degree of effector error (times the request's `referenceWeight`, 1
  * when omitted), so the reference's side is kept unless a
@@ -93,7 +98,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. An end joint with one immobile axis has two degrees of freedom, so the swivel supplies the third of a requested rotation and the admissible swivels are the roots of that axis's sinusoid, the analytic joint-limit swivels of the same paper. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the wrist's admitted swivel nearest the pole) is legal and met, unmeasured as yet; the same candidates answer a continued fit before its refinement. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -398,7 +403,49 @@ export function fitHingedChainCandidate(
                 // the demand in the mid segment instead, so it keeps the
                 // search.
                 ...(lowerBasis.twistPlacement === "distal"
-                  ? {}
+                  ? {
+                      // A distal twist carries the hand's turn about the
+                      // forearm, so the wrist's two angles are read off
+                      // where the forearm points and each bound of its box
+                      // is an arc of swivels (`distalEndSwivelArcs`): the
+                      // candidate is the swivel inside the box nearest the
+                      // hint's pole, or the least-swing start without a hint.
+                      closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
+                        const length: number = Vector3.length(prepared.effectorOffset);
+                        if (!(length > 1e-12)) return null;
+                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
+                        const along: IAutoMovieVector3 = Vector3.scale(prepared.effectorOffset, 1 / length);
+                        const back: IAutoMovieQuaternion = Quaternion.inverse(Quaternion.normalize(rotation!));
+                        const arcs: ReturnType<typeof distalEndSwivelArcs> = distalEndSwivelArcs({
+                          basis: end.basis,
+                          frame: end.frame,
+                          constraint: end.constraint,
+                          axis: Quaternion.rotateVector(end.restInverse, along),
+                          margin: -INSIDE,
+                          direction: (swivel: number): IAutoMovieVector3 => {
+                            const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
+                            return Quaternion.rotateVector(back, Quaternion.rotateVector(
+                              Quaternion.multiply(
+                                Quaternion.multiply(
+                                  Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+                                  prepared.lowerRotation,
+                                ),
+                                at.lower,
+                              ),
+                              along,
+                            ));
+                          },
+                        });
+                        if (arcs === null) return null;
+                        const desired: number | null =
+                          (side === null ? null : hingedChainSide.peak(
+                            offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side)) ??
+                          hingedTwistStart(prepared, posed, rotation!);
+                        if (desired === null) return null;
+                        const nearest: number | null = swivelArcs.nearest(arcs, desired);
+                        return nearest === null ? null : [nearest];
+                      },
+                    }
                   : {
                       closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
                         const end: IEnd = (ended ??= endOf(props, prepared, rig));
@@ -543,6 +590,9 @@ function endOf(
     restInverse: rig?.effectorRestInverse() ?? Quaternion.inverse(prepared.effectorBaseRotation),
   };
 }
+
+/** How far inside a bound, in sine or projected units, a closed-form candidate stands: past the rounding of the fit and of the decomposition, far under the joints' tolerance. */
+const INSIDE: number = 1e-7;
 
 /** The hint side's full-weight distance (`hingedChainSide.SIDED`), metres. */
 const SIDED: number = hingedChainSide.SIDED;
