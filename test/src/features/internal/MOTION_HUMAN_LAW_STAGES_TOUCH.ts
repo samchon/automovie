@@ -12,7 +12,8 @@ const S: typeof motionHumanLawSweep = motionHumanLawSweep;
  * to be touched, 0.45 m ahead to be kissed and 0.7 m ahead for a high five,
  * each facing the performer. A touch lands on the partner's shoulder on the
  * acting hand's side of the scene (their left shoulder for a right hand), so
- * a left row is the mirrored scene. A row that sets the tangent strokes,
+ * a left row is the mirrored scene, and a kiss lands on the cheek mirrored
+ * with the head's turn for the same reason. A row that sets the tangent strokes,
  * since only a travelling kind has one.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family, every distance and the two companion choices.
@@ -62,7 +63,13 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     S.duo(a, b, 0.45, [
       S.chain().act("kiss", {
         partner: "b",
-        region: pick("region") ?? "cheekLeft",
+        // A head turned left kisses the mirrored cheek, as a left hand
+        // touches the mirrored shoulder: staged at one cheek for both turns,
+        // the left row was not the right row's mirror, and the two heads
+        // stood the cheeks' distance apart (measured 0.1231 m).
+        region:
+          pick("region") ??
+          (pick("side") === "left" ? "cheekRight" : "cheekLeft"),
         ...S.set(pick, "side"),
       }),
       S.chain("b").act("stand", { seconds: 6, sway: 0 }),
