@@ -10,9 +10,11 @@ import type {
   IAutoMovieSkeleton,
   IAutoMovieSkeletonPoseResolution,
   IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
+import { composePoseFrames } from "./composePoseFrames";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
@@ -292,11 +294,38 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           reader: preparePoseResolutionState.IReader,
         ): preparePoseReading.IReading => reader.read(pose),
       );
+      // The frame reads take a row of the reading's own frames, which never
+      // change once composed.
+      const row: (index: number) => number = (index: number): number => {
+        if (!(Number.isInteger(index) && index >= 0 && index < read.names.length))
+          throw new RangeError(`A reading has no bone row ${index}`);
+        return index;
+      };
       const reading: prepareSkeletonPoseResolution.IReading = {
         map: (
           requested?: ReadonlySet<AutoMovieHumanoidBone>,
         ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           read(requested),
+        index: (bone: AutoMovieHumanoidBone): number => read.indices.get(bone) ?? -1,
+        position: (index: number, into: IAutoMovieVector3): IAutoMovieVector3 => {
+          const at: number = 3 * row(index);
+          const position: Float64Array = read.frames().position;
+          into.x = position[at]!;
+          into.y = position[at + 1]!;
+          into.z = position[at + 2]!;
+          return into;
+        },
+        rotation: (index: number, into: IAutoMovieQuaternion): IAutoMovieQuaternion => {
+          const at: number = 4 * row(index);
+          const rotation: Float64Array = read.frames().rotation;
+          into.x = rotation[at]!;
+          into.y = rotation[at + 1]!;
+          into.z = rotation[at + 2]!;
+          into.w = rotation[at + 3]!;
+          return into;
+        },
+        bone: (index: number): IAutoMovieResolvedBone =>
+          composePoseFrames.bone(read.names, read.frames(), row(index)),
       };
       READINGS.set(reading, { rig, read });
       return reading;

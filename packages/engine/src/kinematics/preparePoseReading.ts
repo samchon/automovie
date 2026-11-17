@@ -38,27 +38,35 @@ export function preparePoseReading(
   indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
   admitted: preparePoseReading.IAdmitted,
 ): preparePoseReading.IReading {
-  let frames: composePoseFrames.IFrames | undefined;
-  return (
+  let composed: composePoseFrames.IFrames | undefined;
+  const frames: () => composePoseFrames.IFrames = (): composePoseFrames.IFrames => {
+    if (composed === undefined) {
+      composed = composePoseFrames.frames(tables.count);
+      composePoseFrames(tables, admitted.articulations, admitted.rootRotation, admitted.rootTranslation, composed);
+    }
+    return composed;
+  };
+  const read: (
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    demand?: readonly number[],
+  ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     demand?: readonly number[],
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    if (frames === undefined) {
-      frames = composePoseFrames.frames(tables.count);
-      composePoseFrames(tables, admitted.articulations, admitted.rootRotation, admitted.rootTranslation, frames);
-    }
+    const rows: composePoseFrames.IFrames = frames();
     const demanded: readonly number[] | undefined = demand ?? (requested === undefined
       ? undefined : preparePoseBoneDemand(indices, tables.count, requested));
     const count: number = demanded?.length ?? tables.count;
     const result: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
     for (let ordinal: number = 0; ordinal < count; ++ordinal) {
       const frame: IAutoMovieResolvedBone = composePoseFrames.bone(
-        tables.names, frames, demanded === undefined ? ordinal : demanded[ordinal]!,
+        tables.names, rows, demanded === undefined ? ordinal : demanded[ordinal]!,
       );
       result.set(frame.bone, frame);
     }
     return result;
   };
+  return Object.assign(read, { frames, names: tables.names, indices });
 }
 
 /**
@@ -89,8 +97,19 @@ export namespace preparePoseReading {
    * parent-first order, all reachable bones when neither argument is given;
    * `demand`, the rig's own bound indices, replaces `requested`.
    */
-  export type IReading = (
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    demand?: readonly number[],
-  ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  export interface IReading {
+    (
+      requested?: ReadonlySet<AutoMovieHumanoidBone>,
+      demand?: readonly number[],
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** The reading's own frames, composed at the first read and never again. */
+    frames(): composePoseFrames.IFrames;
+
+    /** The rig's rooted bone names by row. */
+    names: readonly AutoMovieHumanoidBone[];
+
+    /** The rig's rows by name. */
+    indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
+  }
 }

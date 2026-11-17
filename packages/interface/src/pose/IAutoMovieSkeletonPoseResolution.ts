@@ -1,4 +1,5 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
@@ -20,7 +21,7 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * @evidence contracts/development/common.md#meaningful-documentation Each member states what it admits, what it returns fresh and what it may share under a lent operation, in model metres, clinical degrees and canonical bone names.
  * @evidence contracts/development/design.md#principled-representation A fixed rig (IRig) with its fixed-demand snapshot (IBoneDemand), one admitted pose's reading (IReading), a fixed-source overlay (IOverlayReader) and a staged tuple reader (ITupleReader, ITupleRead over IJoints) are the five shapes the engine's prepared forward kinematics hands out.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The engine's shot staging, attachment, foot planting and digit fits, and the motions body, borrow these readers; no member serves a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No numeric index, state row, admission flag or cached answer is exposed; provenance stays the engine's runtime check, not a field of these shapes.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No state row, admission flag or cached answer is exposed: a reading's bone rows are its own immutable frames, read into caller storage; provenance stays the engine's runtime check, not a field of these shapes.
  */
 export namespace IAutoMovieSkeletonPoseResolution {
   /**
@@ -132,6 +133,58 @@ export namespace IAutoMovieSkeletonPoseResolution {
     map(
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /**
+     * A bone's row in the reading (the rig's rooted parent-first order), or -1 for a bone the rig does not reach: the index the frame reads take.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the row is and the unreached case.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the rig's order.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
+     */
+    index(bone: AutoMovieHumanoidBone): number;
+
+    /**
+     * The world position of the bone at a row, model metres, written into the caller's vector: the record `map` returns for it would hold the same numbers.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the row, the unit, the written target and the equivalence to the map's record.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's target.
+     */
+    position(index: number, into: IAutoMovieVector3): IAutoMovieVector3;
+
+    /**
+     * The world rotation of the bone at a row, written into the caller's quaternion.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the row, the written target and the equivalence to the map's record.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's target.
+     */
+    rotation(index: number, into: IAutoMovieQuaternion): IAutoMovieQuaternion;
+
+    /**
+     * The bone at a row as a fresh record, for a caller that keeps it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the row and the fresh record.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the record.
+     */
+    bone(index: number): IAutoMovieResolvedBone;
   }
 
   /**
