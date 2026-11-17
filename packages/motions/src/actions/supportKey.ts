@@ -48,8 +48,8 @@ export namespace supportKey {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms and bearing hull, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key; its foot-contact forms share one lazily measured fixed quiet-stance datum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing, and a swing whose top would cost a contact is dropped from the key rather than traded against it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key, a second fit only where a swing cost a contact; its foot-contact forms share one lazily measured fixed quiet-stance datum.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepareForm operation shares unchanged body geometry across all contacts, and HumanBodyFit.fit remains the actual complete multi-contact solve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -66,14 +66,18 @@ export namespace supportKey {
     const form: ReturnType<typeof supportContact.prepareForm> =
       supportContact.prepareForm(body);
     const forms: supportContact.IForm[] = contacts.map(
-      (c: IAutoMovieMotionHumanSupport.IContact): supportContact.IForm => form(c, at(c)),
+      (c: IAutoMovieMotionHumanSupport.IContact): supportContact.IForm =>
+        form(c, at(c)),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
         f.bearing === undefined ? [] : [f.bearing],
     );
     const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
-      ...forms.map((f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget => f.target),
+      ...forms.map(
+        (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
+          f.target,
+      ),
       ...swings,
     ];
     // Select the less violated of the previous solution and the geometrically
@@ -101,14 +105,42 @@ export namespace supportKey {
     );
     const start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
-    const result: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
-      body,
-      posture: preferred,
-      start,
-      targets,
-      bearing,
-      balance: { parts: bearing },
-    });
+    const fitted: (
+      on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+    ) => IAutoMovieMotionHumanBodyFitTypes.IResult = (
+      on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+    ): IAutoMovieMotionHumanBodyFitTypes.IResult =>
+      HumanBodyFit.fit({
+        body,
+        posture: preferred,
+        start,
+        targets: on,
+        bearing,
+        balance: { parts: bearing },
+      });
+    const misses: (r: IAutoMovieMotionHumanBodyFitTypes.IResult) => boolean = (
+      r: IAutoMovieMotionHumanBodyFitTypes.IResult,
+    ): boolean =>
+      r.residuals.some(
+        (residual: { point: number; turn: number }, k: number): boolean =>
+          k < contacts.length &&
+          at(contacts[k]!) !== null &&
+          residual.point > miss,
+      );
+    // A stepping part's swing is an aim of the step, never one of what
+    // bears: where its top cannot be reached with every contact kept (a
+    // large body's leg brought forward from the hands and knees), the key
+    // is the supports' posture without it, and a contact that misses there
+    // is refused.
+    let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
+    if (swings.length > 0 && misses(result))
+      result = fitted(
+        forms.map(
+          (
+            f: supportContact.IForm,
+          ): IAutoMovieMotionHumanBodyFitTypes.ITarget => f.target,
+        ),
+      );
     result.residuals.forEach(
       (r: { point: number; turn: number }, k: number): void => {
         if (k < contacts.length && at(contacts[k]!) !== null && r.point > miss)
@@ -151,19 +183,25 @@ export namespace supportKey {
     base: IAutoMovieMotionHumanPosture,
     stance: IAutoMovieMotionHumanSupport.IStance,
     from: IAutoMovieMotionHumanPosture,
-    place: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null = (): null =>
-      null,
+    place: (
+      c: IAutoMovieMotionHumanSupport.IContact,
+    ) => IAutoMovieVector3 | null = (): null => null,
   ): IAutoMovieMotionHumanPosture {
     if (stance.prefer === undefined) return base;
-    const anchors: { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3; }[] =
-      stance.contacts.flatMap(
-        (
-          c: IAutoMovieMotionHumanSupport.IContact,
-        ): { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3; }[] => {
-          const at: IAutoMovieVector3 | null = place(c);
-          return at === null ? [] : [{ contact: c, at }];
-        },
-      );
+    const anchors: {
+      contact: IAutoMovieMotionHumanSupport.IContact;
+      at: IAutoMovieVector3;
+    }[] = stance.contacts.flatMap(
+      (
+        c: IAutoMovieMotionHumanSupport.IContact,
+      ): {
+        contact: IAutoMovieMotionHumanSupport.IContact;
+        at: IAutoMovieVector3;
+      }[] => {
+        const at: IAutoMovieVector3 | null = place(c);
+        return at === null ? [] : [{ contact: c, at }];
+      },
+    );
     const turned: IAutoMovieMotionHumanPosture = {
       root: from.root,
       yaw: base.yaw + (stance.turn ?? 0),
