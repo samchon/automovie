@@ -176,10 +176,22 @@ export namespace knee {
     // them away from the target, and the thigh cannot point across the pelvis
     // within the hip's range), so the heading is found from the entry hip and
     // the knee solved again from the hip each solved carriage leaves.
+    //
+    // The key follows the launch's one reading of the target and nothing
+    // the committed stop changes (the stop is read by `stop` below), so it
+    // is solved once for the plan: a settle only has it read its target
+    // again (`KneeGeometry.solve`'s `before`), and a stop leaves it alone.
+    // `shown` is the record the weapon's posed ends are kept on, renewed
+    // whenever what the leg shows may have changed.
     let built: KneeGeometry.IGeometry | undefined;
+    let settled: boolean = false;
+    let shown: object = {};
     let partner: IHumanActionContext.IPerformer | undefined;
     const geometry = (): KneeGeometry.IGeometry => {
-      if (built === undefined) built = KneeGeometry.solve(context, side, feet, carriage);
+      if (built === undefined || !settled) {
+        built = KneeGeometry.solve(context, side, feet, carriage, built);
+        settled = true;
+      }
       return built;
     };
     const events: IAutoMovieMotionEvent[] = [
@@ -310,7 +322,7 @@ export namespace knee {
           side,
           seconds,
         ),
-      on: (): object => geometry(),
+      on: (): object => shown,
     };
 
     // The contact the performance committed, and the stopped leg's ride on
@@ -340,7 +352,8 @@ export namespace knee {
       contacts,
       contact: impact,
       settle: (): void => {
-        built = undefined;
+        settled = false;
+        shown = {};
         ride = undefined;
       },
       ...(p.at.kind === "person"
@@ -351,9 +364,9 @@ export namespace knee {
               fixed = met === null ? null : met.seconds;
               ride = undefined;
 
-              // The geometry is built on the stop it was given: a stop
-              // committed now makes it another, whoever settles after.
-              built = undefined;
+              // A committed stop changes what the leg shows from then on,
+              // not the key it was launched with.
+              shown = {};
             },
           }
         : {}),

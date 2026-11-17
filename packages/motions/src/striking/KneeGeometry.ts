@@ -80,6 +80,7 @@ export namespace KneeGeometry {
    * @param side The kicking side already selected by the law.
    * @param feet The actual entry foot placements.
    * @param carriage The law's original lowered/pivoted carriage producer.
+   * @param before The key this plan built before, when it has one: returned as it is when the launch reads the same target point, so a plan solves its key once and again only when a settle shows the target elsewhere at the launch's reading.
    * @returns The same measured reach/key used by the free and displayed courses.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines canonical planning inputs, exact original look-back target read, actual carriage callback and world-frame key fields.
@@ -95,22 +96,34 @@ export namespace KneeGeometry {
     side: "left" | "right",
     feet: Record<"left" | "right", HumanFoot.IPlacement>,
     carriage: (thrust: IAutoMovieVector3, turn: number, whole: number, drive: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture,
+    before?: IGeometry,
   ): IGeometry {
     const body: IHumanBody = context.body;
     const m: IHumanBody["measure"] = body.measure;
     const entry: IHumanPosture = context.entry.posture;
     const p: knee.IParams = context.params;
     const t0: number = context.start;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
-      (projector ??= prepareHumanPostureProjection(body));
     const target: IAutoMovieVector3 = StrikingTarget.aim(
       context,
       p.at,
       t0 - StrikingTarget.LOOK,
       (): number => 0.8 * m.thigh,
     );
+
+    // The key follows the one reading the launch makes of its target, on a
+    // body, an entry and feet that are the plan's own: a key made before on
+    // the same point is this one, and its carriage rounds are not run again.
+    if (
+      before !== undefined &&
+      before.target.x === target.x &&
+      before.target.y === target.y &&
+      before.target.z === target.z
+    )
+      return before;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      (projector ??= prepareHumanPostureProjection(body));
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,
