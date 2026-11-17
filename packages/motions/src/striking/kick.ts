@@ -15,6 +15,7 @@ import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";
 import { KickRedirect } from "./KickRedirect";
+import { KickClear } from "./KickClear";
 import { KickLaunch } from "./KickLaunch";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRecord } from "./StrikingRecord";
@@ -234,10 +235,15 @@ export namespace kick {
         );
       building = true;
       try {
-        launched =
+        const made: KickLaunch.ILaunch =
           source === undefined
             ? KickLaunch.of(context, timing, t0, undefined, launched)
             : KickRedirect.launch(context, source, launched);
+
+        // A new launch's way to its contact is cleared of the person
+        // kicked at once (`KickClear`); the launch kept is the cleared one.
+        launched =
+          made === launched ? made : KickClear.of(context, timing, t0, made);
         built =
           source === undefined
             ? KickGeometry.build(context, timing, t0, fixed, launched)
