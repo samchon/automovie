@@ -20,6 +20,7 @@ import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStop } from "./HumanSegmentStop";
+import { HumanSegmentTrack } from "./HumanSegmentTrack";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
@@ -42,12 +43,12 @@ export namespace HumanSegmentPose {
    * @param requested Optional observational bones; only their frames are guaranteed and a partial result never enters the full-pose cache.
    * @returns The pose.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States displayed pose, film seconds and the person's placement-dependent cache.
-   * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass cache reads/writes. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 pose references per person.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
+   * @evidence contracts/development/common.md#meaningful-documentation States displayed pose, film seconds, the person's placement-dependent cache and, once the performance is resolved, the compiled track that shows the active action.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then shows it through HumanSegmentTrack (its bounded quadratic, clamp and planted correction) where the track covers the second, else through the exact displayed evaluator, or the initial standing pose before any action.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one reverse last-match selection on a miss, one track read with the exact evaluator as its knot source and fallback, and bounded insertion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons and every display read while a knot is evaluated bypass cache reads/writes and the track, so contacts, flights and knots see exact poses. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; a tracked miss costs the interval search, the quadratic, two clamps and, with plants, one chain FK, plus at most three exact evaluations the first time its node is settled; an untracked miss pays the exact evaluator's fitting cost. At most 4096 pose references are retained per person.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; tracked seconds share their action's knots and leaves. HumanSegment.forget clears both when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
   export function displayed(
@@ -56,15 +57,18 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    const cached: IAutoMoviePose | undefined = person.resolving
-      ? undefined
-      : person.cache.get(seconds);
+    // While a track's knot is evaluated every display is exact and uncached,
+    // so a knot never reads an interpolated or cached interpolated pose.
+    const kept: boolean = !person.resolving && !HumanSegmentTrack.building();
+    const cached: IAutoMoviePose | undefined = kept ? person.cache.get(seconds) : undefined;
     if (cached !== undefined) return cached;
     const active: HumanSegment.ISegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
-    const pose: IAutoMoviePose =
-      active === undefined ? initial(person, requested, prepared) : of(person, active, seconds, prepared, requested);
-    if (person.resolving || requested !== undefined) return pose;
+    const pose: IAutoMoviePose = active === undefined ? initial(person, requested, prepared)
+      : (kept ? HumanSegmentTrack.pose(person, active, seconds,
+          (t: number, ready: prepareHumanSegmentPose.IPrepared): ISeeded => seeded(person, active, t, undefined, ready))
+        : undefined) ?? of(person, active, seconds, prepared, requested);
+    if (!kept || requested !== undefined) return pose;
     if (person.cache.size >= 4096)
       person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, pose);
@@ -113,9 +117,9 @@ export namespace HumanSegmentPose {
    * @param near The fits of a nearby second to continue, if any.
    * @param prepared Same-body preparation borrowed only within this synchronous evaluation, or acquired here and released on return or throw.
    * @param requested Optional bone observation; near fits, holds, stops, active transitions and contact/plant-dependent overlays retain complete evaluation.
-   * @returns The pose and the seeds of its fits.
+   * @returns The pose, the seeds of its fits and the complete goals its final planted refit read.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits and explains how only the matching nearby seed continues each one.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits, explains how only the matching nearby seed continues each one, and states the returned final goals.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stopped weapons, transition offset, range clamps and final planted refits in their original order; rate samples continue the cut's own seeds rather than unrelated evaluation history. The performer's rig stays unchanged during this synchronous evaluation, so its repeated clamps may share prepared metadata.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit. The actual original single raw read and final planted pose pair an optional native derivative source in the same workspace; the flight consumer invokes no second posture callback.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
@@ -329,7 +333,7 @@ export namespace HumanSegmentPose {
       seeds.set(`planted:${limb}`, seed ?? null);
     if (now.localSeconds > 0 && now.localSeconds < segment.plan.duration)
       HumanFreeCurveRates.capture(prepared, now.raw, planted.pose, now.reader, now.localSeconds);
-    return { pose: planted.pose, seeds };
+    return { pose: planted.pose, seeds, limbs: posture.limbs };
   }
 
   /**

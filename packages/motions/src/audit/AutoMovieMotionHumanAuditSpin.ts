@@ -38,6 +38,18 @@ export namespace AutoMovieMotionHumanAuditSpin {
   export const LEVELS: number = 10;
 
   /**
+   * The smallest snap {@link measure} resolves by default, degrees: an
+   * interval's turn must exceed its neighbours' mean by more than this before
+   * it is halved, and `HumanVerdicts` bounds the resolved `turn` by it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit and both readers of the one limit.
+   * @evidence contracts/development/design.md#principled-representation One angle compared with a departure and a resolved turn.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read as measure's default limit and by the compiled segment track, which derives its orientation bound from it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The audit's existing default, named once instead of restated by its readers.
+   */
+  export const SNAP: number = 5;
+
+  /**
    * The two readings of {@link measure}.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what its second and bone mean.
@@ -75,7 +87,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
     rate: number = 24,
-    limit: number = 5,
+    limit: number = SNAP,
   ): IResult {
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,

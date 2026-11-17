@@ -36,6 +36,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentTrack } from "./HumanSegmentTrack";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -359,6 +360,11 @@ export class HumanPerformanceState {
     // Every action ends where it is placed, so the props' drives are known.
     HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
+
+    // Placement, contacts, flights and ends are final: from here a person's
+    // actions are shown through their compiled tracks, whose knots are the
+    // exact displayed poses of this final state.
+    for (const person of this.people.values()) HumanSegmentTrack.enable(person);
   }
 }
 /**
