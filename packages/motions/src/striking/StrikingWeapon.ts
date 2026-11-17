@@ -233,26 +233,46 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#principled-implementation Adjacent actual chain ends define each sphere-swept or tapered capsule with its authored radius and live interval.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered map constructs weapons and records their chain/index correspondence.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Radius-count mismatch throws; existing individual path/tail callbacks and physical dimensions remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) setup and weak metadata for W capsules; actual course work is deferred to requested samples.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Weak metadata proves which endpoints belong to one chain and permits explicit same-operation grouped reads.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak weapon key keeps only its chain/index while that weapon remains live; no sampled vectors, time history or handles are retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) setup and weak metadata for W capsules; the course is posed once for each distinct second any of the plan's weapons is read at, so a contact scan of S seconds costs S posed chains whatever the number of capsules and passes that read them. Measured: test_human_motion_hit_punch 5.9 s to 4.0 s.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain's ends are its action's free course posed at a second, a pure function of the exact second for the plan's life (a stop freezes what is shown, not the free course), so the ends posed at a second serve every later read of that second by these weapons; equivalence is the exact second on this one chain. Weak metadata proves which endpoints belong to one chain and permits grouped reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak weapon key keeps only its chain/index while that weapon remains live. The posed ends are kept by the returned weapons' closures, one array of axis ends per distinct second read (the seconds the contact scans visit, a few hundred a strike), and are released with the plan's weapons; there is no bound short of that.
    */
   export function capsules(chain: IChain): IHumanActionPlan.IWeapon[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
-    return chain.ids.map(
+
+    // The chain's ends are its action's free course posed at a second: a
+    // pure function of the second for the plan's life, whatever stops are
+    // installed (a stop freezes what is shown, not the free course). The
+    // contact scans of a limb's capsules, the provisional hit track and the
+    // settled resolution all read the same seconds, so each second is posed
+    // once for this plan's weapons and released with them.
+    const posed: Map<number, readonly IAutoMovieVector3[]> = new Map();
+    const free: IChain["ends"] = chain.ends;
+    const shared: IChain = {
+      ...chain,
+      ends: (seconds: number): readonly IAutoMovieVector3[] => {
+        let ends: readonly IAutoMovieVector3[] | undefined = posed.get(seconds);
+        if (ends === undefined) {
+          ends = free(seconds);
+          posed.set(seconds, ends);
+        }
+        return ends;
+      },
+    };
+    return shared.ids.map(
       (id: string, i: number): IHumanActionPlan.IWeapon => {
         const weapon: IHumanActionPlan.IWeapon = {
           id,
           limb: chain.limb,
-          ...radius(chain.radii[i]!),
-          from: chain.from,
-          to: chain.to,
-          path: (seconds: number): IAutoMovieVector3 => chain.ends(seconds)[i]!,
+          ...radius(shared.radii[i]!),
+          from: shared.from,
+          to: shared.to,
+          path: (seconds: number): IAutoMovieVector3 => shared.ends(seconds)[i]!,
           tail: (seconds: number): IAutoMovieVector3 =>
-            chain.ends(seconds)[i + 1]!,
+            shared.ends(seconds)[i + 1]!,
         };
-        StrikingWeaponSample.bind(weapon, chain, i);
+        StrikingWeaponSample.bind(weapon, shared, i);
         return weapon;
       },
     );
