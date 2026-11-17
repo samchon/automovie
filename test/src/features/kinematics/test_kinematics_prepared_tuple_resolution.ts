@@ -13,7 +13,8 @@ import { vclose } from "../internal/vclose";
  * 1. A two-bone kernel has root rest(2,3,4), child offset(1,0,0), and root
  *    flexion about+Y. StagedF90 places the child at(2,3,3), even after the
  *    input tuple, own map and inherited entries change. A new stage seesF0.
- * 2. One operation switches recordF0→tupleF90→recordF-90→empty tuple,
+ * 2. One operation switches recordF0→tupleF90→recordF-90 (a new record:
+ *    admitted records are values)→empty tuple,
  *    giving literal child positions(3,3,4),(2,3,3),(2,3,5),(3,3,4).
  *    Outputs are fresh and caller edits cannot poison the same staged read.
  * 3. A late tuple getter's owned exception precedes an earlier NaN's native
@@ -67,7 +68,8 @@ export function test_kinematics_prepared_tuple_resolution(): void {
     vclose(rig.resolve(neutral, operation)[1]!.worldPosition, { x: 3, y: 3, z: 4 }, 1e-12));
   TestValidator.predicate("tuple representation invalidates that actual ancestor on the same operation",
     vclose(fixed(carrier, operation).get("spine")!.worldPosition, { x: 2, y: 3, z: 3 }, 1e-12));
-  neutral.joints[0]!.flexion = -90;
+  // An admitted record is a value: the changed ancestor is a new record.
+  neutral.joints[0] = { bone: "hips", flexion: -90, abduction: 0, twist: 0 };
   TestValidator.predicate("ordinary representation observes the next changed ancestor",
     vclose(rig.resolve(neutral, operation)[1]!.worldPosition, { x: 2, y: 3, z: 5 }, 1e-12));
   TestValidator.predicate("empty tuple representation removes the old ancestor articulation",
@@ -117,7 +119,7 @@ function mapped(rig: prepareSkeletonPoseResolution.IRig, carrier: Omit<IAutoMovi
   TestValidator.equals("ordinary Map demand observes current set membership", Array.from(live.keys()), ["hips"]);
   TestValidator.predicate("live parent Map retains its original translated rest point",
     vclose(live.get("hips")!.worldPosition, { x: 2, y: 3, z: 4 }, 1e-12));
-  pose.joints[0]!.flexion = -90;
+  pose.joints[0] = { bone: "hips", flexion: -90, abduction: 0, twist: 0 };
   rig.resolveMap(pose, operation, names);
   first.get("spine")!.worldPosition.x = 777;
   first.get("spine")!.worldRotation.x = 888;

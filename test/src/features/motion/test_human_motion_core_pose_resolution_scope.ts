@@ -41,7 +41,8 @@ import { vclose } from "../internal/vclose";
  *
  * Scenarios:
  * 1. One reader follows A-to-B-to-A edits of joint, root, ancestor, rest,
- *    axes and clinical frames. Prepared resolvePose and poseBones match
+ *    axes and clinical frames; a joint or ancestor edit is a new record,
+ *    since an admitted record is a value. Prepared resolvePose and poseBones match
  *    ordered no-topology, unprepared FK on their respective actual frames.
  *    A body's rig is a value read when the body is made
  *    (`IHumanBody.poseResolution`): an edit of the skeleton's own records, a
@@ -67,7 +68,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Documents real copied fixtures, scalar dependency edits, unchanged topology, canonical/custom frame distinction, admission/recovery, output ownership and the limits of cold equivalence and performance claims.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public preparePoseResolution, optional sixth resolvePose argument and optional third poseBones argument, compares all ordered output records, then observes actual mutation, error recovery and ownership through later public calls.
  * @evidence contracts/development/testing.md#independent-expectations Unprepared no-topology FK supplies exact current-value records for equivalence without prepared metadata. An independent Cartesian quarter-turn plus translation checks physical root behavior; invalid ordered records must match cold error class/message. No prepared-reader bookkeeping or stored output snapshots supply the expectation.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts changed and restored values on the same records, valid-to-zero axes and recovery, earlier invalid duplicates, missing identities, finite stray admission, custom/canonical frames, poisoned public nested records/Map and another canonical stature before returning to the original rig.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts changed records and the restored originals, valid-to-zero axes and recovery, earlier invalid duplicates, missing identities, finite stray admission, custom/canonical frames, poisoned public nested records/Map and another canonical stature before returning to the original rig.
  * @evidence contracts/development/testing.md#execution-ownership The portable synchronous test_human_motion_core_pose_resolution_scope entry owns every case and its collected failures, uses real canonical bodies without altering shared fixtures, starts no host and replaces no foreign method or global.
  */
 export function test_human_motion_core_pose_resolution_scope(): void {
@@ -278,23 +279,25 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     compare(`${label} restored A`, read(`${label} restored`), before);
   }
 
-  scenario("joint and ancestor current values", (): void => {
+  // An admitted record is a value: a changed joint is a new record in the
+  // pose, and restoring it puts the original record back.
+  scenario("joint and ancestor new records", (): void => {
     roundtrip(
       "joint",
       (): void => {
-        joint.flexion = 31;
+        pose.joints = [ancestor, { ...joint, flexion: 31 }];
       },
       (): void => {
-        joint.flexion = 13;
+        pose.joints = [ancestor, joint];
       },
     );
     roundtrip(
       "ancestor",
       (): void => {
-        ancestor.flexion = 19;
+        pose.joints = [{ ...ancestor, flexion: 19 }, joint];
       },
       (): void => {
-        ancestor.flexion = 8;
+        pose.joints = [ancestor, joint];
       },
     );
   });
@@ -497,9 +500,10 @@ export function test_human_motion_core_pose_resolution_scope(): void {
         (bone: IAutoMovieResolvedBone): boolean => bone.bone === absent,
       ),
     );
-    stray.flexion = Number.NaN;
-    rejected("stray is still admitted", finite, "flexion");
-    stray.flexion = 23;
+    rejected("stray is still admitted", {
+      ...pose,
+      joints: [ancestor, joint, { ...stray, flexion: Number.NaN }],
+    }, "flexion");
     read("recovered finite stray", finite);
   });
   scenario("public ownership and another actual body", (): void => {

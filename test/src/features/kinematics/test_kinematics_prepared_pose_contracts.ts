@@ -52,7 +52,9 @@ import { vclose } from "../internal/vclose";
  *    coordinate, and failed admission leaves null-axis recovery valid.
  * 8. A public prepared joint read uses the same immutable clinical convention
  *    before/after pose reads, but returns fresh quaternions and reads every
- *    current angle. It never certifies a later pose's other authored records.
+ *    new record's angles; admitted records are values, so a changed angle is
+ *    a new record and a record read again gives the rotation it was admitted
+ *    as. It never certifies a later pose's other authored records.
  * 9. Typed inherited axis and non-enumerable affine mappings retain direct
  *    lookup semantics and snapshot isolation. An own undefined shadow and
  *    an unrelated bone override preserve the original default/spread rules.
@@ -303,28 +305,29 @@ export function test_kinematics_prepared_pose_contracts(): void {
     qclose(local, quarter, 1e-12),
   );
   local.y = 123;
-  currentJoint.twist = 0;
-  const restJoint: IAutoMovieQuaternion = prepared.joint(currentJoint, operation);
-  TestValidator.predicate("current joint coordinates and output ownership remain independent",
+  // An admitted record is a value: each changed chest is a new record.
+  const restingJoint: IAutoMovieJointPose = joint("chest", { twist: 0 });
+  const restJoint: IAutoMovieQuaternion = prepared.joint(restingJoint, operation);
+  TestValidator.predicate("a new record's coordinates and output ownership remain independent",
     qclose(restJoint, { x: 0, y: 0, z: 0, w: 1 }, 1e-12) && restJoint !== local && local.y === 123,
   );
   check("joint admission cannot leave an old world transform behind", prepared.resolve(
-    makePose([currentJoint]), operation, new Set(["leftHand"]),
+    makePose([restingJoint]), operation, new Set(["leftHand"]),
   ), "leftHand", { x: 0.75, y: 1.4, z: 0 });
-  currentJoint.twist = 90;
   prepared.resolve(makePose([currentJoint]), operation, new Set(["leftHand"]));
   TestValidator.predicate("pose followed by a joint read retains the actual local rotation",
     qclose(prepared.joint(currentJoint, operation), quarter, 1e-12),
   );
-  currentJoint.twist = NaN;
-  TestValidator.predicate("individual prepared joint reads still admit each current coordinate",
-    throwsError((): IAutoMovieQuaternion => prepared.joint(currentJoint, operation), "finite"),
+  TestValidator.predicate("individual prepared joint reads still admit each new record's coordinates",
+    throwsError((): IAutoMovieQuaternion => prepared.joint(joint("chest", { twist: NaN }), operation), "finite"),
   );
-  currentJoint.twist = 0;
-  prepared.joint(currentJoint, operation);
+  TestValidator.predicate("a record read again is the value it was admitted as",
+    qclose(prepared.joint(currentJoint, operation), quarter, 1e-12) &&
+    qclose(prepared.joint(restingJoint, operation), { x: 0, y: 0, z: 0, w: 1 }, 1e-12),
+  );
   TestValidator.predicate("an admitted individual row never certifies a later full authored scan",
     throwsError((): IAutoMovieResolvedBone[] => prepared.resolve(makePose([
-      joint("chest", { twist: NaN }), currentJoint,
+      joint("chest", { twist: NaN }), restingJoint,
     ]), operation, new Set()), "finite"),
   );
 

@@ -26,6 +26,9 @@ interface IReading {
   abduction: number | null;
   twist: number | null;
 
+  /** The record those coordinates were admitted from, a value from then on; absent for staged scalars. */
+  record: IAutoMovieJointPose | undefined;
+
   /** The last successful conversion's quaternion components. */
   x: number;
   y: number;
@@ -49,6 +52,7 @@ interface IReading {
     flexion: number | null;
     abduction: number | null;
     twist: number | null;
+    record: IAutoMovieJointPose | undefined;
     x: number;
     y: number;
     z: number;
@@ -94,9 +98,12 @@ function store(x: number, y: number, z: number, w: number, sink: ISink): void {
  * once a pose instead of once a read. A conversion is the convention's
  * scalar composer (`jointToQuaternionOnBasis.prepareScalarQueries`), the
  * same expressions as the record composer, writing its four components
- * into the reading, so a conversion makes no quaternion record. begin starts
- * current membership; admit always validates the actual next record before
- * sharing completed math; rotation copies the last admitted quaternion into
+ * into the reading, so a conversion makes no quaternion record. An admitted
+ * record is a value (`prepareSkeletonPoseResolution`: no one edits a record
+ * after its admission), so the record a row was admitted from, last or
+ * before, stands for its coordinates when it is read again and is not read
+ * a second time. begin starts current membership; admit validates every
+ * other record before sharing completed math; rotation copies the last admitted quaternion into
  * a fresh record for a reader that asks for one. snapshot is used only after
  * the producer's complete source scan and writes the last current
  * quaternion of every rooted node into a fixed baseline's rows.
@@ -104,8 +111,8 @@ function store(x: number, y: number, z: number, w: number, sink: ISink): void {
  * @evidence contracts/development/common.md#meaningful-documentation Defines record and staged-scalar degree/null admission, static/operation ownership, original name/coordinate lookup sites, first-use frame admission, membership and baseline snapshots, and the components-only conversion.
  * @evidence contracts/development/implementation.md#principled-implementation Records retain original basis/name/coordinate reads; staged tuples supply their actual earlier-copied primitives. Both use one F/A/T finite/frame owner and one successful composition/commit path, the scalar composer's expressions being the record composer's. Exact tuples share only completed components. Immutable conventions share fixed basis/affine metadata and actual positive-zero rest factors without admitting unused frames. snapshot filters actual current membership.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns numerical checks and one composition/finish path for actual records or staged scalars. validateValues performs those same normalized-basis/clinicalValue checks without selecting an unnecessary articulation. Static name readers preserve original lookup timing; numerical rule owners and hierarchy/change owners remain separate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All duplicate, stray and undemanded records remain admitted in original order. No boolean, pose identity, tolerance, editable whitelist or target answer substitutes for validation. Null never admits an unused frame, failed conversion never replaces a successful row and raw APIs remain separate.
- * @evidence contracts/development/implementation.md#efficient-algorithms J records retain constant-size exact checks. Unchanged selected tuples reuse their components, and so does the tuple before the last, at three more exact comparisons (measured before it on test_human_motion_stagger_recovery_m_average: 1.2 s of 28.5 s profiled inside this commit path, of 3.0 s in the pose reads; unmeasured after); a conversion writes four numbers with no quaternion or tuple record; fixed-demand exclusions validate without creating a joint row, factors or components. Immutable basis/affine work remains lazy, and three actual positive-zero factors/one inner may share across composers. Fixed-source snapshot costs O(B); runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All duplicate, stray and undemanded records remain admitted in original order. A record's identity stands for its coordinates only after that record itself passed admission, under the value contract that admitted records are not edited; no boolean, pose identity, tolerance, editable whitelist or target answer substitutes for a record's first validation. Null never admits an unused frame, failed conversion never replaces a successful row and raw APIs remain separate.
+ * @evidence contracts/development/implementation.md#efficient-algorithms J records retain constant-size exact checks; a record already admitted costs its name lookup and one identity comparison (a reduced or merged pose shares its source's records). Unchanged selected tuples reuse their components, and so does the tuple before the last, at three more exact comparisons (measured before it on test_human_motion_stagger_recovery_m_average: 1.2 s of 28.5 s profiled inside this commit path, of 3.0 s in the pose reads; unmeasured after); a conversion writes four numbers with no quaternion or tuple record; fixed-demand exclusions validate without creating a joint row, factors or components. Immutable basis/affine work remains lazy, and three actual positive-zero factors/one inner may share across composers. Fixed-source snapshot costs O(B); runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static axes/frames are owned immutable snapshots. prepareScalarQueries shares fixed scalar/affine prerequisites and lazy exact positive-zero rig-rest factors; negative zero and other values use ordinary factor paths. Every current finite check and first-use per-axis precheck retains original order, while dynamic factors/inner storage and fresh outputs remain operation-owned.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns O(U+B) successful rows, each with its last tuple and components and the ones before them, and rooted references until release, without raw joint/pose/result history. Each static convention owns one basis/factory, at most three precheck/axis/affine readers, three actual zero factors and one fixed inner until rig release. Snapshots write into the caller's rows and retain no operation reader or source records.
  */
@@ -132,6 +139,23 @@ export function preparePoseJointResolution(
     },
     admit: (joint: IAutoMovieJointPose): void => {
       const known: IReading | undefined = joints.get(joint.bone);
+
+      // An admitted record is a value: no one edits it afterwards, so the
+      // record last admitted, or the one before it, is read again as the
+      // conversion it was admitted as, without reading its coordinates.
+      if (known !== undefined) {
+        if (known.record === joint) {
+          known.epoch = epoch;
+          last = known;
+          changes.write(known.index, known.x, known.y, known.z, known.w);
+          return;
+        }
+        const before: IReading["before"] = known.before;
+        if (before !== undefined && before.record === joint) {
+          exchange(known, before, before.flexion, before.abduction, before.twist, joint);
+          return;
+        }
+      }
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(joint.bone) ?? fallback;
       const basis: IAutoMovieJointAxes = convention.basis ??=
@@ -139,7 +163,7 @@ export function preparePoseJointResolution(
       const flexion: number | null = clinical(joint, "flexion", convention.frame?.flexion, known?.flexion, convention);
       const abduction: number | null = clinical(joint, "abduction", convention.frame?.abduction, known?.abduction, convention);
       const twist: number | null = clinical(joint, "twist", convention.frame?.twist, known?.twist, convention);
-      finish(joint, boneOf, known, convention, basis, flexion, abduction, twist);
+      finish(joint, boneOf, known, convention, basis, flexion, abduction, twist, joint);
     },
     rotation: (): IAutoMovieQuaternion => ({ x: last!.x, y: last!.y, z: last!.z, w: last!.w }),
     admitValues: (bone: AutoMovieHumanoidBone, f: number | null, a: number | null,
@@ -152,7 +176,7 @@ export function preparePoseJointResolution(
       const flexion: number | null = clinicalValue(f, "flexion", convention.frame?.flexion, known?.flexion, convention);
       const abduction: number | null = clinicalValue(a, "abduction", convention.frame?.abduction, known?.abduction, convention);
       const twist: number | null = clinicalValue(t, "twist", convention.frame?.twist, known?.twist, convention);
-      finish(bone, stagedBone, known, convention, basis, flexion, abduction, twist);
+      finish(bone, stagedBone, known, convention, basis, flexion, abduction, twist, undefined);
     },
     validateValues: (bone: AutoMovieHumanoidBone, f: number | null, a: number | null,
       t: number | null): void => {
@@ -177,13 +201,43 @@ export function preparePoseJointResolution(
     },
   };
 
+  /** The conversion before the last becomes the last, admitted from `record`, and the last the one before. */
+  function exchange(known: IReading, before: NonNullable<IReading["before"]>,
+    flexion: number | null, abduction: number | null, twist: number | null,
+    record: IAutoMovieJointPose | undefined): void {
+    const x: number = before.x;
+    const y: number = before.y;
+    const z: number = before.z;
+    const w: number = before.w;
+    before.flexion = known.flexion;
+    before.abduction = known.abduction;
+    before.twist = known.twist;
+    before.record = known.record;
+    before.x = known.x;
+    before.y = known.y;
+    before.z = known.z;
+    before.w = known.w;
+    known.flexion = flexion;
+    known.abduction = abduction;
+    known.twist = twist;
+    known.record = record;
+    known.x = x;
+    known.y = y;
+    known.z = z;
+    known.w = w;
+    known.epoch = epoch;
+    last = known;
+    changes.write(known.index, x, y, z, w);
+  }
+
   /** Commit one actually admitted reading; name getters stay at their original miss-only sites. */
   function finish<T>(source: T, nameOf: (source: T) => AutoMovieHumanoidBone,
     known: IReading | undefined, convention: preparePoseJointResolution.IConvention,
     basis: IAutoMovieJointAxes, flexion: number | null, abduction: number | null,
-    twist: number | null): void {
+    twist: number | null, record: IAutoMovieJointPose | undefined): void {
     if (known !== undefined && Object.is(known.flexion, flexion) &&
       Object.is(known.abduction, abduction) && Object.is(known.twist, twist)) {
+      known.record = record;
       known.epoch = epoch;
       last = known;
       changes.write(known.index, known.x, known.y, known.z, known.w);
@@ -196,27 +250,7 @@ export function preparePoseJointResolution(
     const before: IReading["before"] = known?.before;
     if (known !== undefined && before !== undefined && Object.is(before.flexion, flexion) &&
       Object.is(before.abduction, abduction) && Object.is(before.twist, twist)) {
-      const x: number = before.x;
-      const y: number = before.y;
-      const z: number = before.z;
-      const w: number = before.w;
-      before.flexion = known.flexion;
-      before.abduction = known.abduction;
-      before.twist = known.twist;
-      before.x = known.x;
-      before.y = known.y;
-      before.z = known.z;
-      before.w = known.w;
-      known.flexion = flexion;
-      known.abduction = abduction;
-      known.twist = twist;
-      known.x = x;
-      known.y = y;
-      known.z = z;
-      known.w = w;
-      known.epoch = epoch;
-      last = known;
-      changes.write(known.index, x, y, z, w);
+      exchange(known, before, flexion, abduction, twist, record);
       return;
     }
     const compose: IComposer = known?.compose ??
@@ -229,7 +263,7 @@ export function preparePoseJointResolution(
     compose(tuple, store, sink);
     if (known === undefined) {
       const reading: IReading = { convention, index: indices.get(nameOf(source)),
-        flexion, abduction, twist, x: sink.x, y: sink.y, z: sink.z, w: sink.w, compose, epoch };
+        flexion, abduction, twist, record, x: sink.x, y: sink.y, z: sink.z, w: sink.w, compose, epoch };
       joints.set(nameOf(source), reading);
       if (reading.index !== undefined) byNode[reading.index] = reading;
       last = reading;
@@ -238,11 +272,12 @@ export function preparePoseJointResolution(
     }
     if (before === undefined)
       known.before = { flexion: known.flexion, abduction: known.abduction,
-        twist: known.twist, x: known.x, y: known.y, z: known.z, w: known.w };
+        twist: known.twist, record: known.record, x: known.x, y: known.y, z: known.z, w: known.w };
     else {
       before.flexion = known.flexion;
       before.abduction = known.abduction;
       before.twist = known.twist;
+      before.record = known.record;
       before.x = known.x;
       before.y = known.y;
       before.z = known.z;
@@ -251,6 +286,7 @@ export function preparePoseJointResolution(
     known.flexion = flexion;
     known.abduction = abduction;
     known.twist = twist;
+    known.record = record;
     known.x = sink.x;
     known.y = sink.y;
     known.z = sink.z;
@@ -293,7 +329,7 @@ export namespace preparePoseJointResolution {
     /** Start current membership without pretending any record already passed admission. */
     begin(): void;
 
-    /** Admit one actual record and write its articulation into the operation's selection. */
+    /** Admit one actual record and write its articulation into the operation's selection; a record admitted before is the value it was admitted as. */
     admit(joint: IAutoMovieJointPose): void;
 
     /** The last admitted articulation, as a fresh quaternion. */

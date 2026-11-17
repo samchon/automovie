@@ -34,8 +34,8 @@ import { vclose } from "../internal/vclose";
  *    both original point and normal are jointly feasible inside the ROM. Raw and
  *    prepared paths retain both absent rate and actual rate5000 behavior;
  *    the folded targets are over0.1m short of the three-link full reach.
- * 2. Changing the non-digit hand articulation between fits requires a new
- *    baseline. Current target contact, normal, every actual joint bound and
+ * 2. Changing the non-digit hand articulation between fits (a new hand
+ *    record: admitted records are values) requires a new baseline. Current target contact, normal, every actual joint bound and
  *    original-target residual must still hold through prepared and raw paths.
  * 3. Earlier caller-result mutation cannot alter replay. An overwritten
  *    nonfinite unrelated authored joint refuses in the prepared path instead
@@ -77,7 +77,8 @@ export function test_engine_digit_prepared_baseline(): void {
   for (const [hand, angles] of [
     [15, [20, 30, 10]], [15, [35, 25, 15]], [15, [20, 30, 10]], [-10, [20, 30, 10]],
   ] as const) {
-    pose.joints[0]!.flexion = hand;
+    // An admitted record is a value: a changed hand is a new record.
+    pose.joints[0] = joint("leftHand", { flexion: hand });
     const wanted: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = target(hand, angles);
     const feasible: IAutoMoviePose = { ...pose, joints: [pose.joints[0]!, ...names.map(
       (name: AutoMovieHumanoidBone, index: number): IAutoMovieJointPose => joint(name, { flexion: angles[index]! }),

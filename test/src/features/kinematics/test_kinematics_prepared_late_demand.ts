@@ -12,7 +12,8 @@ import { vclose } from "../internal/vclose";
  * observed late, or its ancestor changed during another branch's query.
  *
  * Scenarios:
- * 1. Empty-demand queries change chest twist90 then-90. The first later left
+ * 1. Empty-demand queries change chest twist90 then-90 (a new chest record,
+ *    admitted records being values). The first later left
  *    hand observes the current Y-90, mapping its0.75m horizontal reach to+Z.
  * 2. After observing an ordinary left hand, a right-forearm query changes the
  *    left upper arm to Y90. A later left query needs the changed arm despite
@@ -37,7 +38,8 @@ export function test_kinematics_prepared_late_demand(): void {
   const right: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["rightLowerArm"]);
   const pose: IAutoMoviePose = makePose([joint("chest", { twist: 90 })]);
   TestValidator.equals("first empty demand publishes no frame", rig.resolve(pose, operation, empty).length, 0);
-  pose.joints[0]!.twist = -90;
+  // An admitted record is a value: the changed chest is a new record.
+  pose.joints[0] = joint("chest", { twist: -90 });
   TestValidator.equals("a changed but unobserved ancestor still has empty output", rig.resolve(pose, operation, empty).length, 0);
   point(rig.resolve(pose, operation, left), "leftHand", { x: 0, y: 1.4, z: 0.75 });
 
