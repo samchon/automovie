@@ -11,6 +11,7 @@ import type {
 
 import type { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeBody } from "./ArchetypeBody";
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
@@ -43,7 +44,7 @@ import { reposeArchetype } from "./reposeArchetype";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accessors are those the motion grammar's prop axis reads (#3358): contacts, sites, articulation, mass properties and colliders. The type parameters carry each producer's closed ids, the agent surface #3368 asks for.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry and no string-keyed parameter: an archetype is made only by its typed producer, and an unknown id is a refusal, never undefined.
  */
 export class Archetype<
@@ -59,7 +60,7 @@ export class Archetype<
   /** Always generated: the geometry is fully described by `parts`. */
   public readonly origin: "generated" = "generated" as const;
 
-  /** The primitive parts at the current articulation state. */
+  /** The actual primitive or convex-cell parts at the current articulation state. */
   public readonly parts: IAutoMovieModelPart[];
 
   /** Always null: an archetype is a rigid or articulated object, never a humanoid rig. */
@@ -133,6 +134,11 @@ export class Archetype<
   /** Mass, centre of mass and inertia about it, at rest. */
   public get properties(): ArchetypeMass.IProperties {
     return this.#rest.properties;
+  }
+
+  /** Producer-owned actual convex wall cells, shared with placed assemblies. */
+  public get convexCells(): ArchetypeConvexCell.Table {
+    return this.#rest.cells ?? new Map();
   }
 
   /** The physical reference material declared by the producer; null for a mixed assembly, independently of optical colours or per-part friction surfaces. */
@@ -402,15 +408,15 @@ export class Archetype<
    * @returns One solid per part, as {@link ArchetypeShapes} maps them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the state and the space.
-   * @evidence contracts/development/implementation.md#principled-implementation The parts' own solids, so the contact matches the picture.
+   * @evidence contracts/development/implementation.md#principled-implementation The parts' own primitive or explicitly declared convex-cell solids, under current part transforms; the shared owner states primitive approximation bounds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts; computed on request because most archetypes are never grasped.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Not cached; a caller that needs them repeatedly keeps the result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus declared cell corners; computed on request because most archetypes are never grasped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public shapes(): IAutoMoviePhysicalProfile.IShape[] {
-    return ArchetypeShapes.of(this.parts);
+    return ArchetypeShapes.of(this.parts, this.#rest.cells);
   }
 
   /**
