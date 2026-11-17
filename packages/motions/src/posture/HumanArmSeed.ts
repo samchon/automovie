@@ -176,6 +176,39 @@ export namespace HumanArmSeed {
   }
 
   /**
+   * Refuse a problem whose hold no configuration meets, before any
+   * trajectory is optimised: the arms at the hold's first waypoint are
+   * solved as the still problem of that waypoint (`instant`), started from a
+   * given configuration first. A trajectory's hold waypoint is itself such a
+   * configuration, so a hold with none has no trajectory, and the still
+   * problem of three waypoints says so at a small fraction of what the
+   * whole trajectory's penalty ladder costs to fail.
+   *
+   * @param problem The problem.
+   * @param context Its context.
+   * @param from Each arm's coordinates at each waypoint of a course, whose hold arm is the first start.
+   * @throws {HumanRefusal} When no start gives the hold a feasible configuration, as `seed` refuses it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, why its failure refuses the whole problem and what it starts from.
+   * @evidence contracts/development/implementation.md#principled-implementation Feasibility of the trajectory implies feasibility of its hold waypoint alone, so the necessary condition is tested first, by the same still problem, starts and refusal the sampling seed uses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hold's first waypoint, then the seed's own instant solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed and no start is dropped: the given configuration is tried before the seed's own starts, and the refusal is the seed's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One still problem of three waypoints, feasible from its first start for a course whose hold is fitted on its sites.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `instant` with `seed`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function held(
+    problem: IProblem,
+    context: M.IContext,
+    from: readonly (readonly (readonly number[])[])[],
+  ): void {
+    for (let k: number = 1; k < context.n; ++k)
+      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined) {
+        instant(problem, context, k, from.map((arm: readonly (readonly number[])[]): number[] => [...arm[k]!]));
+        return;
+      }
+  }
+  /**
    * The arms' configuration at one waypoint of the hold with every hand on
    * its site and every arm clear: the first feasible from the starts in
    * order, a given one, the goal's own arm, the rest arm, then the seeded

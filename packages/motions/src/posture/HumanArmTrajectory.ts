@@ -226,10 +226,15 @@ export namespace HumanArmTrajectory {
     // planner's seed on the first waypoints, TrajOpt's multiple
     // initialisations (Schulman et al. 2014).
     const initial: IProblem = problem;
+    const laid: number[][][] | undefined =
+      course === undefined ? undefined : coursed(context, course);
+
+    // A hold no configuration meets has no trajectory: it is refused by its
+    // own still problem before the whole trajectory's penalties are spent
+    // on it (`HumanArmSeed.held`).
+    if (laid !== undefined) HumanArmSeed.held(problem, context, laid);
     let solved: Solved = optimised(
-      course === undefined
-        ? HumanArmSeed.seed(problem, context)
-        : coursed(context, course),
+      laid ?? HumanArmSeed.seed(problem, context),
     );
     if (course !== undefined && solved.evaluation.worst.value > M.TOLERANCE) {
       problem = initial;
