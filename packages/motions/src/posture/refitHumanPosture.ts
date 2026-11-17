@@ -1,5 +1,9 @@
 import { type IAutoMovieSeededChainFit } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
@@ -62,7 +66,7 @@ export namespace refitHumanPosture {
    */
   export function constructed(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"],
     near: resolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): resolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.constructed, HumanLimbPair.constructed);
+    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.constructed, HumanLimbPair.constructed, true);
   }
 
   /**
@@ -78,7 +82,7 @@ export namespace refitHumanPosture {
    */
   export function continued(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"],
     near: resolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): resolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.continued, HumanLimbPair.constructed);
+    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.continued, HumanLimbPair.constructed, true);
   }
 
   /** Same physical loop for public explicit-pose refits, with the public pair entry and no-goal borrowing. */
@@ -88,10 +92,19 @@ export namespace refitHumanPosture {
   }
 }
 
-/** Keep the original limb-order loop once; only the entry's limb fit and pair owner differ. */
+/** Whether each of a record's three angles is finite or null, which is all forward kinematics asks of a named bone's record. */
+function wellFormed(joint: IAutoMovieJointPose): boolean {
+  return (
+    (joint.flexion === null || Number.isFinite(joint.flexion)) &&
+    (joint.abduction === null || Number.isFinite(joint.abduction)) &&
+    (joint.twist === null || Number.isFinite(joint.twist))
+  );
+}
+
+/** Keep the original limb-order loop once; only the entry's limb fit and pair owner differ. An `assembled` pose is the base-free assembly's own, one clamped record a rig bone. */
 function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"], near: resolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0], fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>,
-  pairFit: typeof HumanLimbPair.fitted): resolveHumanPosture.ISeeded {
+  pairFit: typeof HumanLimbPair.fitted, assembled: boolean = false): resolveHumanPosture.ISeeded {
   if (limbs.leftLeg === undefined && limbs.rightLeg === undefined &&
     limbs.leftArm === undefined && limbs.rightArm === undefined) return { pose, seeds: {}, values: {} };
   let readResolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
@@ -99,7 +112,16 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
   // The limbs are fitted in turn on one pose, each fit's pose the last
   // one's with that limb's solved records, so the whole pose is admitted
   // once, by the first fit that reads it.
-  const admission: HumanLimbView.IAdmission = { admitted: false };
+  //
+  // A pose the assembly just made holds one record a bone, each with the
+  // bone's own name and three angles. Forward kinematics refuses such a
+  // record only for an angle that is neither finite nor null, so when every
+  // angle is one of the two the whole pose's admission has nothing to
+  // refuse and is not run; otherwise it runs and throws as before. The root
+  // is read by every fit's own reduced pose.
+  const admission: HumanLimbView.IAdmission = {
+    admitted: assembled && pose.joints.every(wellFormed),
+  };
   const seeds: resolveHumanPosture.ISeeded["seeds"] = {};
   const values: resolveHumanPosture.ISeeded["values"] = {};
   const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
