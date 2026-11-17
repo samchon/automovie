@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -191,10 +196,15 @@ export namespace KickSwing {
         y: 0,
         z: 1,
       });
+      // The lowering is the lift from the replant, run backwards.
+      const lifted: number = shared(clock - prep, chamber - prep);
+      const lowered: number = shared(
+        clock - impact - folding,
+        recoil - folding,
+      );
       const posed: ILeg =
-        down > 0
+        lowered > 0
           ? between(
-              chambered,
               planted(
                 currentHip,
                 Vector3.add(plant.ankle, props.step),
@@ -202,9 +212,10 @@ export namespace KickSwing {
                 lengths,
                 forward,
               ),
-              down,
+              chambered,
+              1 - lowered,
             )
-          : up < 1
+          : lifted < 1
             ? between(
                 planted(
                   currentHip,
@@ -214,7 +225,7 @@ export namespace KickSwing {
                   forward,
                 ),
                 chambered,
-                up,
+                lifted,
               )
             : chambered;
       const hint: IAutoMovieVector3 = Vector3.add(currentHip, posed.thigh);
@@ -289,11 +300,46 @@ export namespace KickSwing {
     return { thigh, shank: Vector3.subtract(reach, thigh) };
   }
 
-  /** A leg between two, each segment turned and lengthened by a share. */
+  /** A clock's linear share of a span, held in [0, 1]. */
+  function shared(elapsed: number, span: number): number {
+    return Math.min(1, Math.max(0, elapsed / Math.max(1e-3, span)));
+  }
+
+  /**
+   * A leg between a planted one and a chambered one at a linear share of
+   * the lift: the thigh turns at the hip on the share's minimum-jerk
+   * profile, and the shank folds at the knee, in the thigh's own frame, on
+   * the profile of the share over `KickForm.KNEE_LEAD`, so the knee has
+   * folded when the hip is part of its way. The foot then leaves the floor
+   * upward and back, as a heel rises before its thigh swings; with both
+   * joints on one share the ankle slid forward along the floor first (the
+   * thigh's turn carrying an unfolded shank), and a push kick thrown toe to
+   * toe was stopped on the partner's lead foot at its launch (measured: the
+   * knee 12.8 degrees at the chamber and the foot 147 mm high at impact).
+   */
   function between(from: ILeg, to: ILeg, share: number): ILeg {
+    const hip: number = minimumJerk.share(share);
+    const knee: number = minimumJerk.share(
+      Math.min(1, share / KickForm.KNEE_LEAD),
+    );
+    const thigh: IAutoMovieVector3 = turned(from.thigh, to.thigh, hip);
+    const stood: IAutoMovieVector3 = Vector3.normalize(from.thigh);
+    const folded: IAutoMovieVector3 = turned(
+      from.shank,
+      Quaternion.rotateVector(
+        Quaternion.inverse(
+          rotationBetween(stood, Vector3.normalize(to.thigh)),
+        ),
+        to.shank,
+      ),
+      knee,
+    );
     return {
-      thigh: turned(from.thigh, to.thigh, share),
-      shank: turned(from.shank, to.shank, share),
+      thigh,
+      shank: Quaternion.rotateVector(
+        rotationBetween(stood, Vector3.normalize(thigh)),
+        folded,
+      ),
     };
   }
 

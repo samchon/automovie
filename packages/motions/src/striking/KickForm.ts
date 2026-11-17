@@ -74,6 +74,18 @@ export namespace KickForm {
   /** Share of the chamber phase by which the extension's unit overlaps the chamber's, so the ankle rounds the chamber point instead of resting on it (Flash and Hogan 1985 fit via-point movements by such overlapping units; the share is provisional). */
   export const VIA_OVERLAP: number = 0.4;
 
+  /**
+   * The share of the lift by which the knee has folded to its chamber, the
+   * hip taking the whole lift: one half. A leg leaving the floor folds its
+   * knee before its thigh swings: in walking the knee is flexed 40 degrees
+   * at toe-off and at its 60 degree peak by the end of initial swing, while
+   * the hip has flexed 15 of the 25 degrees it reaches in mid-swing (Perry
+   * and Burnfield, Gait Analysis, 2nd ed., the swing phases). The half is a
+   * provisional reading of that order for a kick's chamber; no study of the
+   * lift's joint timing was read.
+   */
+  export const KNEE_LEAD: number = 0.5;
+
   /** The most the fitted leg may miss its solved ankle, and the support ball its plant, for a kick to count as reached, metres (the limb fit's own convergence scale). */
   export const TOLERANCE: number = 1e-3;
 
