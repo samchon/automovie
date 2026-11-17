@@ -13,6 +13,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbView } from "./HumanLimbView";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
@@ -48,9 +49,9 @@ export namespace HumanLimbAt {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Mirrors a left limb, carries an attached goal into the world and evaluates fitHingedChainAt on the fit's own request.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Mirror, carry, one engine call, mirror back.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search; the given swivel is kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one chain preparation and one pose.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce to the records read (`HumanLimbView.of`), mirror, carry, one engine call, merge the posed records back.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search; the given swivel is kept. The whole pose is still admitted in order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation and one pose on the reduced records, plus the whole pose's admission and two walks of its joints.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call evaluates its own request.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -62,12 +63,22 @@ export namespace HumanLimbAt {
     swivel: number,
     branch: number,
   ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
-    if (limb.startsWith("left")) {
-      const image: (IAutoMovieSeededChainFit & { shortfall: number }) | null = at(body,
-        HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb), HumanLimbMirror.goal(goal), swivel, branch);
-      return image === null ? null : { ...image, pose: HumanLimbMirror.pose(image.pose) };
-    }
-    return fitHingedChainAt(request(body, pose, limb, HumanLimbFit.world(body, pose, limb, goal)), swivel, branch);
+    // The chain is posed on the records it reads (`HumanLimbView`), a left
+    // limb's in their mirror image, and the posed records are merged back.
+    const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, goal, []);
+    const left: boolean = limb.startsWith("left");
+    const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
+    const chain: IHumanPosture.Limb = left ? HumanLimbMirror.limb(limb) : limb;
+    const carried: IHumanPosture.IGoal = HumanLimbFit.world(
+      body, image, chain, left ? HumanLimbMirror.goal(goal) : goal);
+    HumanLimbView.admitted(body, pose);
+    const posed: (IAutoMovieSeededChainFit & { shortfall: number }) | null =
+      fitHingedChainAt(request(body, image, chain, carried), swivel, branch);
+    return posed === null ? null : {
+      ...posed,
+      pose: HumanLimbView.merged(pose, view, image.joints, posed.pose.joints, null,
+        left ? HumanLimbMirror.joint : (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint),
+    };
   }
 
   /**
@@ -80,7 +91,7 @@ export namespace HumanLimbAt {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and the null cases.
    * @evidence contracts/development/implementation.md#principled-implementation Mirrors a left limb and reads readHingedChainSeed on the fit's request, its target the end joint's place in the pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Mirror, one end-joint FK, one engine reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the pose, reduce to the chain's records and their ancestors', mirror, one end-joint FK, one engine reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unlisted joint reads as clinical zero, the rest pose's own value.
    * @evidence contracts/development/implementation.md#efficient-algorithms One requested FK and one engine reading.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads its own pose.
@@ -91,23 +102,35 @@ export namespace HumanLimbAt {
     pose: IAutoMoviePose,
     limb: IHumanPosture.Limb,
   ): IAutoMovieSwivelSeed | null {
-    if (limb.startsWith("left")) return seed(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb));
-    const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
+    // Read on the records the chain's frames depend on (`HumanLimbView`), a
+    // left limb's in their mirror image; the whole pose is admitted first.
+    HumanLimbView.admitted(body, pose);
+    const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, NOWHERE, []);
+    const left: boolean = limb.startsWith("left");
+    const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
+    const side: IHumanPosture.Limb = left ? HumanLimbMirror.limb(limb) : limb;
+    const chain: HumanLimbFit.IChain = HumanLimbFit.chain(side);
     const end: IAutoMovieResolvedBone | undefined =
-      poseBones(body, pose, undefined, new Set([chain.effector])).get(chain.effector);
+      poseBones(body, image, undefined, new Set([chain.effector])).get(chain.effector);
     if (end === undefined) return null;
     const joint = (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
       let found: IAutoMovieJointPose = { bone, flexion: 0, abduction: 0, twist: 0 };
-      for (const j of pose.joints) if (j.bone === bone) found = j;
+      for (const j of image.joints) if (j.bone === bone) found = j;
       return found;
     };
     return readHingedChainSeed(
-      request(body, pose, limb, { point: end.worldPosition, bend: end.worldPosition }),
+      request(body, image, side, { point: end.worldPosition, bend: end.worldPosition }),
       joint(chain.upper),
       joint(chain.lower),
     );
   }
 }
+
+/** A goal that rides no bone, for a reading that has none: only its absent attachment is read. */
+const NOWHERE: IHumanPosture.IGoal = {
+  point: { x: 0, y: 0, z: 0 },
+  bend: { x: 0, y: 0, z: 0 },
+};
 
 /** The fit's own request for a limb toward a world goal. */
 function request(
