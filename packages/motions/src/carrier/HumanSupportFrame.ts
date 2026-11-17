@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
@@ -109,12 +110,13 @@ export namespace HumanSupportFrame {
   }
   /**
    * The floor actually touched by the planted entry feet, read from their
-   * displayed sole sockets. With no planted foot the ground is the default.
+   * displayed sole sockets. A foot on a footrest of the seat sat on is not
+   * on a floor; with no foot on one the ground is the default.
    *
    * @param body The body.
    * @param entry The displayed entry.
    * @returns World metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured datum and absent-contact case.
+   * @evidence contracts/development/common.md#meaningful-documentation States the measured datum, the footrest case and the absent-contact case.
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics places each planted foot's actual sole sockets, including articulated toes; the lowest socket defines its bearing plane.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose and the minimum of the bearing sockets.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A raised heel's ankle height is never substituted for its contact height.
@@ -123,8 +125,17 @@ export namespace HumanSupportFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function floor(body: IHumanBody, entry: IHumanEntryState): number {
+    // A foot on a footrest of the seat sat on stands on the seat, not on a
+    // floor: a bar stool's rail or a scooter's deck is part of what is sat
+    // on, and the seat's height is still measured from the floor under it.
+    // Read as a floor, the rail made a bar stool a seat of chair height, and
+    // getting up from it stood the body on the rail (measured: the hips
+    // 0.34 m above the quiet stance's after getting off).
+    const rests: HumanBase.ISeat["footrests"] =
+      entry.base.kind === "seated" ? entry.base.seat?.footrests : undefined;
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
+      (side: "left" | "right"): boolean =>
+        entry.feet[side].planted && rests?.[side] === undefined,
     );
     if (planted.length === 0) return 0;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
