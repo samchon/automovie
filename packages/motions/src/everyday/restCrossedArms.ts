@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -17,6 +16,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Both crossed-arms goals on upper arms set before the goals: each hangs
@@ -57,9 +57,7 @@ export function restCrossedArms(
   // The shared selector keeps full fitting when any dependency is uncertain.
   const parents: ReadonlySet<AutoMovieHumanoidBone> = new Set(
     [...requested].map((bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone =>
-      body.skeleton.bones.find(
-        (record: IAutoMovieBone): boolean => record.bone === bone,
-      )?.parent ?? bone,
+      readHumanBone(body, bone)?.parent ?? bone,
     ),
   );
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();

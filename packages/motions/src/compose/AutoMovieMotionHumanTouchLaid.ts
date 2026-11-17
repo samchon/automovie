@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,6 +16,7 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
@@ -214,9 +214,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     const range: IAutoMovieAngleRange | null =
       getConstraint(
         `${side}LowerArm`,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
-        )?.constraint ?? null,
+        readHumanBone(body, `${side}LowerArm`)?.constraint ?? null,
       )?.twist ?? null;
     if (range === null || range.max - range.min <= 2 * MARGIN) return solved;
     return {

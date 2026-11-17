@@ -20,6 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 
 /** One bone's canonical axes and lazy admitted conversion/chart frames. */
 interface IFrame {
@@ -59,9 +60,7 @@ const COLD: ILookup = {
   ): IAutoMovieJointConstraint | null =>
     getConstraint(
       bone,
-      body.skeleton.bones.find(
-        (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
-      )?.constraint ?? null,
+      readHumanBone(body, bone)?.constraint ?? null,
     ),
   frame: (body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame =>
     frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),

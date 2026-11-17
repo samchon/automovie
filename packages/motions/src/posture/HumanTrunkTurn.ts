@@ -1,11 +1,11 @@
 import { getConstraint } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "./IHumanPosture";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * A trunk turned toward one side by a share of its own range, with the head
@@ -90,7 +90,7 @@ function range(
 ): ReturnType<typeof getConstraint> {
   return getConstraint(
     bone,
-    body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
+    readHumanBone(body, bone)
       ?.constraint ?? null,
   );
 }

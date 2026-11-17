@@ -28,6 +28,7 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * A hand held at a world attitude on the arm as it stands: what a carried or
@@ -238,9 +239,7 @@ function wrist(
     rotation: IAutoMovieQuaternion,
   ): [number, number, number] => {
     if (inverse === undefined) {
-      found = body.skeleton.bones.find(
-        (bone: IAutoMovieBone): boolean => bone.bone === hand,
-      );
+      found = readHumanBone(body, hand);
       inverse = Quaternion.inverse(
         found?.rest.rotation ?? Quaternion.identity(),
       );

@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
@@ -18,6 +17,7 @@ import { poseBones } from "../posture/poseBones";
 import type { touch } from "./touch";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Which hand a touch uses when its author names none.
@@ -160,9 +160,7 @@ export namespace touchSide {
     const range = (bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null =>
       getConstraint(
         bone,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === bone,
-        )?.constraint ?? null,
+        readHumanBone(body, bone)?.constraint ?? null,
       );
     const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
     const halves: number[] = [

@@ -1,6 +1,5 @@
 import { Vector3, getConstraint } from "@automovie/engine";
 import type {
-  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,6 +18,7 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Whether a stagger's legs hold its recovery at the given instants
@@ -80,9 +80,7 @@ export function staggerAdmission(
   const knee: (side: "left" | "right") => number = (side: "left" | "right"): number =>
     getConstraint(
       `${side}LowerLeg`,
-      body.skeleton.bones.find(
-        (b: IAutoMovieBone): boolean => b.bone === `${side}LowerLeg`,
-      )?.constraint ?? null,
+      readHumanBone(body, `${side}LowerLeg`)?.constraint ?? null,
     )?.flexion?.max ?? 180;
 
   // Crossed legs clear in closed form: each leg a two-bone chain whose knee

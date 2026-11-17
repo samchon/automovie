@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * A seated reach with the trunk below the arm in task priority: the hand's
@@ -89,9 +89,7 @@ export namespace HumanSeatedReach {
     const range = (bone: AutoMovieHumanoidBone): number | null =>
       getConstraint(
         bone,
-        role.body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === bone,
-        )?.constraint ?? null,
+        readHumanBone(role.body, bone)?.constraint ?? null,
       )?.flexion?.max ?? null;
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       role.bones.get(bone)!.worldPosition;

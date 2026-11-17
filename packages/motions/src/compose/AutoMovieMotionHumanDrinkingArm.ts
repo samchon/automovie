@@ -8,7 +8,6 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -27,6 +26,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The arm a held vessel is brought to the lips with, read as a person
@@ -236,9 +236,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     const range: IAutoMovieAngleRange | null =
       getConstraint(
         `${side}LowerArm`,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
-        )?.constraint ?? null,
+        readHumanBone(body, `${side}LowerArm`)?.constraint ?? null,
       )?.twist ?? null;
     return {
       tilt:

@@ -27,6 +27,7 @@ import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 import { prepareHumanArmChain } from "./prepareHumanArmChain";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -477,7 +478,5 @@ export namespace HumanArmGeometry {
 
 /** A bone of the body's skeleton. */
 function find(body: IHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {
-  return body.skeleton.bones.find(
-    (b: IAutoMovieBone): boolean => b.bone === bone,
-  )!;
+  return readHumanBone(body, bone)!;
 }

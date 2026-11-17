@@ -7,7 +7,6 @@ import {
   swingTwist,
 } from "@automovie/engine";
 import type {
-  IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
@@ -18,6 +17,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The strain of an elbow place that `AutoMovieMotionHumanBendSearch` ranks
@@ -76,9 +76,7 @@ export namespace AutoMovieMotionHumanBendStrain {
     );
     const hand: IAutoMovieJointConstraint | null = getConstraint(
       `${side}Hand`,
-      body.skeleton.bones.find(
-        (b: IAutoMovieBone): boolean => b.bone === `${side}Hand`,
-      )?.constraint ?? null,
+      readHumanBone(body, `${side}Hand`)?.constraint ?? null,
     );
     const wrist: number | null = half(hand?.flexion ?? null);
     const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];

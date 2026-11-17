@@ -6,7 +6,6 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
@@ -21,6 +20,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The relaxed arm's least shoulder abduction that leaves its digits clear
@@ -181,9 +181,7 @@ export function standRelaxed(
   };
   const range: IAutoMovieAngleRange | null | undefined = getConstraint(
     "leftUpperArm",
-    body.skeleton.bones.find(
-      (b: IAutoMovieBone): boolean => b.bone === "leftUpperArm",
-    )?.constraint ?? null,
+    readHumanBone(body, "leftUpperArm")?.constraint ?? null,
   )?.abduction;
   if (range === null || range === undefined)
     throw new Error("The shoulder has no abduction range to hang the arm in");

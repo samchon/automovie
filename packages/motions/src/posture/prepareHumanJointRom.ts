@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Read actual joint ROM overshoot during one synchronous evaluation whose
@@ -38,7 +39,7 @@ export function prepareHumanJointRom(
     if (records === undefined) records = new Map();
     let record: IAutoMovieBone | null | undefined = records.get(bone);
     if (record === undefined) {
-      record = body.skeleton.bones.find((candidate: IAutoMovieBone): boolean => candidate.bone === bone) ?? null;
+      record = readHumanBone(body, bone) ?? null;
       records.set(bone, record);
     }
     return jointRomOvershoot(joint, getConstraint(bone, record?.constraint ?? null));

@@ -1,7 +1,7 @@
 import { getConstraint } from "@automovie/engine";
-import type { IAutoMovieBone } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * How far a torque through the arm bends a trunk that resists it (#3439):
@@ -61,9 +61,7 @@ export namespace HumanForceTrunk {
     for (const bone of ["spine", "chest"] as const) {
       const limits: ReturnType<typeof getConstraint> = getConstraint(
         bone,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === bone,
-        )?.constraint ?? null,
+        readHumanBone(body, bone)?.constraint ?? null,
       );
       const abduction: NonNullable<
         ReturnType<typeof getConstraint>

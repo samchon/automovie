@@ -9,7 +9,6 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,6 +23,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The key pose of a coupled carry placed on its bearer (#3437): the
@@ -120,9 +120,7 @@ export namespace HumanCarriedCouplingFit {
       ): IAutoMovieAngleRange =>
         getConstraint(
           bone,
-          borne.skeleton.bones.find(
-            (b: IAutoMovieBone): boolean => b.bone === bone,
-          )?.constraint ?? null,
+          readHumanBone(borne, bone)?.constraint ?? null,
         )?.[axis] ?? { min: row.legs[k]!, max: row.legs[k]! },
     );
     const spans: number[] = [
