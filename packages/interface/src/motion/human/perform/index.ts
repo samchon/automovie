@@ -12,6 +12,7 @@ export type { IAutoMovieMotionHumanPerformanceAim } from "./IAutoMovieMotionHuma
 export type { IAutoMovieMotionHumanPerformanceHold } from "./IAutoMovieMotionHumanPerformanceHold";
 export type { IAutoMovieMotionHumanPerformanceSoft } from "./IAutoMovieMotionHumanPerformanceSoft";
 export type { IAutoMovieMotionHumanPerformanceState } from "./IAutoMovieMotionHumanPerformanceState";
+export type { IAutoMovieMotionHumanPerformanceTrial } from "./IAutoMovieMotionHumanPerformanceTrial";
 export type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 export type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 export type { IAutoMovieMotionHumanPropDynamics } from "./IAutoMovieMotionHumanPropDynamics";

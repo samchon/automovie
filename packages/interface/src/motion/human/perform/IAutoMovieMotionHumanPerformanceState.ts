@@ -11,6 +11,7 @@ import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPerformance";
+import type { IAutoMovieMotionHumanPerformanceTrial } from "./IAutoMovieMotionHumanPerformanceTrial";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
@@ -104,6 +105,17 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   resolving: boolean;
+
+  /** The performance's resolved flight policy (`IAutoMovieMotionHumanPerformance.IInput.flight`), captured once for this input. */
+  readonly flight: NonNullable<
+    IAutoMovieMotionHumanPerformance.IInput["flight"]
+  >;
+
+  /** How many actions have been placed so far, the count an alignment trial is checked against. */
+  placements: number;
+
+  /** The plan the last alignment trial made, kept until the next placement reads or drops it; none otherwise. */
+  trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
 }
 
 /**
