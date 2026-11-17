@@ -18,6 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -64,7 +65,7 @@ import { typeTextPresses } from "./typeTextPresses";
  * @evidence contracts/development/implementation.md#principled-implementation Fingertip goals on key centres solved by the arm's inverse kinematics; timing from typing studies.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Lays out the keys, times the presses, then evaluates each posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown keys and unfit desks are refused; provisional values are named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys and their per-hand chronology costs O(N); each posture locates the active key in O(log N) per hand and constructs its two fingertip goals. Actual arm fitting belongs to the later posture resolver.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys and their per-hand chronology costs O(N); each posture locates the active key in O(log N) per hand, constructs its two fingertip goals and fits them continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key ordering, timing, keyboard frame, hand shapes, palm rotations and genuine local fingertip-surface geometry are prepared once per plan. Each posture evaluates actual transport/press/lift and the original Bend.hang on its borrowed current entry posture at each target's bend field; rotations, contacts, hints and written joint triples remain fresh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its borrowed instance/entry inputs, O(N) key/press records, fixed shape/rotation data and two bounded genuine local-surface readers until release. Every actual output is fresh, and no current posture, elbow answer, target or sampled-time history is retained.
  */
@@ -206,7 +207,10 @@ export namespace typeText {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const { text } = context.params;
-    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(context, context.params.keyboard);
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(
+      context,
+      context.params.keyboard,
+    );
     if (text.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -217,7 +221,10 @@ export namespace typeText {
       });
     const keys = [...text].map(typeText.key);
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame = { origin: keyboard.at, yaw: keyboard.yaw };
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: keyboard.at,
+      yaw: keyboard.yaw,
+    };
 
     // Fit: the home row near elbow height and within the forearm's reach of the shoulders.
     const elbow: number = hold.root.y + m.shoulderHeight - m.upperArm;
@@ -288,20 +295,37 @@ export namespace typeText {
     );
     const hands: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: HumanHand.rotation("left", {
-        fingers, palm: { x: 0, y: -1, z: 0 },
+        fingers,
+        palm: { x: 0, y: -1, z: 0 },
       }),
       right: HumanHand.rotation("right", {
-        fingers, palm: { x: 0, y: -1, z: 0 },
+        fingers,
+        palm: { x: 0, y: -1, z: 0 },
       }),
     };
-    const shaped: readonly [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries({
-        ...HumanHand.shape("left", "point"),
-        ...HumanHand.shape("right", "point"),
-      }) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
-    const goalAt: Record<AutoMovieHumanSide, ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>> = {
-      left: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, "left", "indexTip", "point"),
-      right: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, "right", "indexTip", "point"),
+    const shaped: readonly [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][] = Object.entries({
+      ...HumanHand.shape("left", "point"),
+      ...HumanHand.shape("right", "point"),
+    }) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    const goalAt: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>
+    > = {
+      left: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(
+        body,
+        "left",
+        "indexTip",
+        "point",
+      ),
+      right: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(
+        body,
+        "right",
+        "indexTip",
+        "point",
+      ),
     };
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
@@ -320,6 +344,39 @@ export namespace typeText {
         support: { kind: "ground" },
       },
     ];
+    // Each fingertip's goal at a second is fitted along the typing's course,
+    // each second continuing the swivel the course chose before it, so an
+    // elbow does not change its side between two key presses.
+    const typing: (seconds: number) => IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanArmChain.continued(
+        body,
+        duration,
+        (seconds: number): IAutoMovieMotionHumanPosture => {
+          const t: number = Math.min(duration, Math.max(0, seconds));
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...hold.joints,
+          };
+          for (const [bone, angles] of shaped)
+            joints[bone] = [angles[0], angles[1], angles[2]];
+          return {
+            ...hold,
+            joints,
+            limbs: {
+              ...hold.limbs,
+              leftArm: goalAt.left({
+                point: tipAt("left", t),
+                rotation: { ...hands.left },
+                bend: AutoMovieMotionHumanBend.hang(body, hold, "left", 0.1),
+              }),
+              rightArm: goalAt.right({
+                point: tipAt("right", t),
+                rotation: { ...hands.right },
+                bend: AutoMovieMotionHumanBend.hang(body, hold, "right", 0.1),
+              }),
+            },
+          };
+        },
+      );
     return {
       duration,
       events: times.map((t: number, i: number) => ({
@@ -327,27 +384,8 @@ export namespace typeText {
         share: t / duration,
       })),
       contacts,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...hold.joints };
-        for (const [bone, angles] of shaped)
-          joints[bone] = [angles[0], angles[1], angles[2]];
-        return {
-          ...hold,
-          joints,
-          limbs: {
-            ...hold.limbs,
-            leftArm: goalAt.left({
-              point: tipAt("left", t), rotation: { ...hands.left },
-              bend: AutoMovieMotionHumanBend.hang(body, hold, "left", 0.1),
-            }),
-            rightArm: goalAt.right({
-              point: tipAt("right", t), rotation: { ...hands.right },
-              bend: AutoMovieMotionHumanBend.hang(body, hold, "right", 0.1),
-            }),
-          },
-        };
-      },
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        typing(seconds),
     };
   }
 }
