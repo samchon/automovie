@@ -22,6 +22,7 @@ import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanLimbFit } from "./HumanLimbFit";
+import type { HumanLimbView } from "./HumanLimbView";
 import type { IHumanPosture } from "./IHumanPosture";
 import { compareHumanLimbPair } from "./compareHumanLimbPair";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
@@ -216,6 +217,8 @@ function solved(
       goals[limb === "leftArm" ? "left" : "right"],
       readAuthored,
     );
+  // Both arms are fitted on this one pose, so it is admitted once for both.
+  const admission: HumanLimbView.IAdmission = { admitted: false };
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
     left: fit(
       body,
@@ -226,6 +229,7 @@ function solved(
       world("rightArm").point,
       near.left,
       resolution,
+      admission,
     ),
     right: fit(
       body,
@@ -236,6 +240,7 @@ function solved(
       world("leftArm").point,
       near.right,
       resolution,
+      admission,
     ),
   };
   const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {

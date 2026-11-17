@@ -4,6 +4,7 @@ import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
+import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
@@ -24,7 +25,7 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/implementation.md#principled-implementation Retains the existing placed-arm order, world attachment transforms and independent-or-coupled arm law. Exact scalar FK dependencies permit unchanged articulation/ancestor math to be reused while changed limbs and descendant frames are recomputed normally. Member facts: continued: The free-curve producer owns deterministic phase continuation and checks all current physical constraints; this entry chooses the engine's current hinged correction for its legs. constructed: The ordinary direct solve.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared kernel owns original limb order/coupling; each entry passes its limb fit and pair owner. Member facts: continued: The same kernel with the continuous policy and constructed pair owner. constructed: The same kernel with the constructed limb/pair entries.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal, rival, near seed, actual fit and ordering rule remains unchanged; no key, stored answer or approximation is added. Member facts: continued: No changed goal, branch answer, readiness flag or relaxed bound. constructed: No changed goal, skipped admission or altered constraint.
- * @evidence contracts/development/implementation.md#efficient-algorithms No-goal inputs return before graph/placed-arm construction/copying. At most four goals each pay their actual solve, with no key, lookup or result clone; speedup is unmeasured. Member facts: continued: Avoids generic pole/source ranking before an accepted current hinged correction. constructed: The same solves.
+ * @evidence contracts/development/implementation.md#efficient-algorithms No-goal inputs return before graph/placed-arm construction/copying. At most four goals each pay their actual solve on the records it reads, with no key, lookup or result clone, and the whole pose's ordered admission runs once for the singly fitted limbs (`HumanLimbView.IAdmission`); speedup is unmeasured. Member facts: continued: Avoids generic pole/source ranking before an accepted current hinged correction. constructed: The same solves.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only same-valued FK prerequisites are shared. A standalone refit owns its lazy reader; an explicit parent can lend one across leaf calls in the same synchronous person evaluation; each fit is solved afresh. Member facts: continued: The same actual source reader, with no prior pose replay. constructed: The same.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Results are the solved records, sharing untouched records with the input pose; no-goal input keeps its borrowing contract. Readers end with the operation and never enter output. Member facts: continued: Source, readers and policy remain synchronous. constructed: Current source/output and FK loan remain within the caller's synchronous operation.
  */
@@ -94,6 +95,11 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
   if (limbs.leftLeg === undefined && limbs.rightLeg === undefined &&
     limbs.leftArm === undefined && limbs.rightArm === undefined) return { pose, seeds: {}, values: {} };
   let readResolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
+
+  // The limbs are fitted in turn on one pose, each fit's pose the last
+  // one's with that limb's solved records, so the whole pose is admitted
+  // once, by the first fit that reads it.
+  const admission: HumanLimbView.IAdmission = { admitted: false };
   const seeds: resolveHumanPosture.ISeeded["seeds"] = {};
   const values: resolveHumanPosture.ISeeded["values"] = {};
   const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
@@ -172,6 +178,7 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
       rival,
       near[limb],
       read,
+      admission,
     );
     pose = fitted.pose;
     seeds[limb] = fitted.seed;

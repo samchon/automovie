@@ -2,6 +2,7 @@ import type { IAutoMovieSeededChainFit, IAutoMovieSwivelNear } from "@automovie/
 import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { HumanLimbView } from "./HumanLimbView";
 import type { IHumanPosture } from "./IHumanPosture";
 import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
@@ -10,9 +11,11 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
  * The limb fit an ordered refit applies (`refitHumanPosture`), solved
  * directly by `solveHumanLimbFit` with no memory of earlier fits. The result
  * shares the records the fit leaves unchanged with the input pose, which
- * every refit owns or treats as immutable.
+ * every refit owns or treats as immutable. A refit passes the admission its
+ * limbs share (`HumanLimbView.IAdmission`), so the whole pose is admitted
+ * once for them.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the direct solve and the shared-record result. Member facts: continued: Names current-target correction for the owned continuous curve. constructed: Names the base-free assembly's refit.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the direct solve, the shared admission and the shared-record result. Member facts: continued: Names current-target correction for the owned continuous curve. constructed: Names the base-free assembly's refit.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to the one direct solver, which mirrors left limbs and solves in the root-position frame. Member facts: continued: Selects the continuous policy (current hinged correction), whose curve owner admits the physical result. constructed: The ordinary policy, the same as this entry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation per refit route; the routes differ only in their solver policy. Member facts: continued: One delegation with the continuous policy. constructed: One delegation with the ordinary policy.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every request is solved from its own inputs; no stored answer, key or caller ownership flag. Member facts: continued: No changed goal or tolerance. constructed: No changed goal or tolerance.
@@ -22,8 +25,9 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
  */
 export function applyHumanLimbFit(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
-  near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
-  return solveHumanLimbFit(body, pose, limb, goal, placed, rival, near, resolution);
+  near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  admission?: HumanLimbView.IAdmission): IAutoMovieSeededChainFit {
+  return solveHumanLimbFit(body, pose, limb, goal, placed, rival, near, resolution, "ordinary", admission);
 }
 
 /**
@@ -37,11 +41,11 @@ export function applyHumanLimbFit(body: IHumanBody, pose: IAutoMoviePose, limb: 
 export namespace applyHumanLimbFit {
   /** The base-free assembly's fit: the ordinary direct solve. */
   export function constructed(...args: Parameters<typeof applyHumanLimbFit>): ReturnType<typeof applyHumanLimbFit> {
-    return solveHumanLimbFit(...args);
+    return applyHumanLimbFit(...args);
   }
 
   /** The owned continuous curve's fit: the direct solve under the current hinged correction. */
   export function continued(...args: Parameters<typeof applyHumanLimbFit>): ReturnType<typeof applyHumanLimbFit> {
-    return solveHumanLimbFit(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], "continuous");
+    return solveHumanLimbFit(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], "continuous", args[8]);
   }
 }

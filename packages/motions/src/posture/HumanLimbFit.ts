@@ -15,7 +15,6 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
-import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanLimbAt } from "./HumanLimbAt";
@@ -25,10 +24,10 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import type { HumanLimbView } from "./HumanLimbView";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
-import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -222,17 +221,10 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
-  export function fit(
-    body: IHumanBody,
-    pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    attached: IHumanPosture.IGoal,
-    placed: readonly ("left" | "right")[],
-    rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IAutoMovieSeededChainFit {
-    return fitted(body, pose, limb, attached, placed, rival, near, resolution, ordinary);
+  export function fit(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
+    return solveHumanLimbFit.world(body, pose, limb, attached, placed, rival, near, resolution, "ordinary");
   }
 
   /**
@@ -247,35 +239,48 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Point-policy closures and workspaces remain synchronous, and independent output/cache ownership stays with the existing fitting owner.
    */
   export function continued(...args: Parameters<typeof fit>): IAutoMovieSeededChainFit {
-    return fitted(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], correcting);
+    return solveHumanLimbFit.world(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], "continuous");
   }
 
-  /** One source, attachment and contact implementation for the two explicit solve policies. */
-  function fitted(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+  /**
+   * The fit of a limb's own chain in the pose and frame given, with no
+   * mirror image and no reduction of the pose: what `solveHumanLimbFit`
+   * runs on the reduced pose of a right limb, or of a left limb's mirror
+   * image, after moving it into the frame it solves in.
+   *
+   * @param body The performer's body.
+   * @param pose The pose the chain is solved in, holding at least the records the fit reads (`HumanLimbView.of`).
+   * @param limb The limb whose own chain is solved.
+   * @param attached Its goal, attached or not.
+   * @param placed The arms already placed.
+   * @param rival Where the other arm's wrist will be, while it is still to be fitted.
+   * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this synchronous evaluation.
+   * @param policy The ordinary fit, or the owned continuous curve's current hinged correction.
+   * @param admit Run before the fit's first forward-kinematics read, where the whole pose was admitted when the fit read every joint.
+   * @returns The given pose with the limb fitted, and the seed that continues it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, what the pose must hold, the two policies and when `admit` runs.
+   * @evidence contracts/development/implementation.md#principled-implementation The world goal, the arm's obstruction, the engine's prepared two-bone fit placed from the body's chain constants, and the contact re-aim, as `fit` documents them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kernel serves both policies; the mirror image, the root-position frame and the reduction belong to `solveHumanLimbFit`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal, tolerance or admission is changed; `admit` runs at the first read's own place, after an attachment's refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search over the records given; every scan is linear in those records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve every target of the contact re-aim; the body lends the limb's rig-only readers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its source reading and workspace until return or throw; only the pose, seed and value escape.
+   */
+  export function direct(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
     placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary): IAutoMovieSeededChainFit {
-    // A left limb is fitted as the right limb in the mirror image of its
-    // world, so the two sides are mirror images to the bit.
-    if (limb.startsWith("left")) {
-      const image: IAutoMovieSeededChainFit = fitted(
-        body,
-        HumanLimbMirror.pose(pose),
-        HumanLimbMirror.limb(limb),
-        HumanLimbMirror.goal(attached),
-        placed.map(HumanLimbMirror.side),
-        rival === undefined ? undefined : HumanArmMirror.flip(rival),
-        near,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], policy: "ordinary" | "continuous",
+    admit?: () => void): IAutoMovieSeededChainFit {
+    return solved(body, pose, limb, attached, placed, rival, near, resolution,
+      policy === "ordinary" ? ordinary : correcting, admit);
+  }
 
-        // The image is read through the operation reader's companion, as
-        // `solveHumanLimbFit` reads it (`prepareHumanLimbSource.mirror`).
-        resolution === undefined
-          ? undefined
-          : (): ReturnType<ReturnType<typeof prepareHumanPoseResolution>> =>
-              prepareHumanLimbSource.mirror(prepareHumanPoseResolution.read(resolution)),
-        read,
-      );
-      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
-    }
+  /** The chain's own solve in the pose given: the world goal, the obstruction, the prepared fit and the contact re-aim. */
+  function solved(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary,
+    admit?: () => void): IAutoMovieSeededChainFit {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -301,6 +306,7 @@ export namespace HumanLimbFit {
         requested.add(chain(limb).effector);
         if (attached.on !== undefined) requested.add(attached.on);
         if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
+        admit?.();
         authoredBones = poseBones(body, pose, readResolution(), requested);
       }
       return authoredBones;
@@ -375,36 +381,22 @@ export namespace HumanLimbFit {
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
    * @param resolution Optional parent FK reader or lazy supplier, borrowed by the solve.
+   * @param admission The admission the fits of one pose share (`HumanLimbView.IAdmission`); absent, this fit admits the whole pose itself.
    * @returns The pose with the limb fitted, and the seed that continues it; untouched records are shared with the input pose, which callers treat as immutable.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the direct solve, its frames and the shared-record result.
+   * @evidence contracts/development/common.md#meaningful-documentation States the direct solve, its frames, the shared admission and the shared-record result.
    * @evidence contracts/development/implementation.md#principled-implementation Delegates to solveHumanLimbFit, the memory's former miss path: mirror reflection and the rigid root frame leave the fit equivariant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call forwards every argument.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, lookup or stored answer; every request is solved from its own inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search plus O(B) frame and mirror copies; no serialization or result clone.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search on the records it reads, as solveHumanLimbFit states; no serialization or result clone.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is solved afresh.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function remembered(
-    body: IHumanBody,
-    pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
-    placed: readonly ("left" | "right")[],
-    rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear,
+  export function remembered(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IAutoMovieSeededChainFit {
-    return solveHumanLimbFit(
-      body,
-      pose,
-      limb,
-      goal,
-      placed,
-      rival,
-      near,
-      resolution,
-    );
+    admission?: HumanLimbView.IAdmission): IAutoMovieSeededChainFit {
+    return solveHumanLimbFit(body, pose, limb, goal, placed, rival, near, resolution, "ordinary", admission);
   }
 
   /**
