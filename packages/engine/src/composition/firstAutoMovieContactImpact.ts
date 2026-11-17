@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEvents";
+import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**
  * Find one weapon's first new contact, retaining the resolver's scan grid,
@@ -15,10 +14,10 @@ import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEve
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the live window, original grid and bisection count, conservative initial reporting, pair-local certificate meaning and unchanged time ordering.
  * @evidence contracts/development/implementation.md#principled-implementation The signed-gap scan brackets the first admitted crossing and bisects it twenty-four times. Physical departure information establishes when a previously resolved pair can next enter; a clearance witness is checked against the actual pair gap before it is used.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pair-distance reader serves scan and witness validation; one minimum over eligible bodies serves the original crossing search. Event ordering remains in resolveAutoMovieContactEvents.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pair-distance reader serves scan and witness validation; sampleAutoMovieContactWeapon supplies actual combined or legacy endpoints to every path. One minimum over eligible bodies serves the original crossing search. Event ordering remains in resolveAutoMovieContactEvents.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown departure preserves initial penetration/touch reporting. A clearance witness must be finite, strictly later, inside the live search and strictly outside the actual body. No epsilon, shifted query clock, permanent collider exclusion or bounce cap is introduced.
  * @evidence contracts/development/implementation.md#efficient-algorithms Original work is proportional to bodies times the scan steps plus twenty-four bisections. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. Each exact sample produces endpoints once for all bodies at that sample; witnesses also read actual endpoints through the shared primitive. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search, with no retained pose/time cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body. Returned ids/times retain no callback, body, certificate object or map.
  */
 export function firstAutoMovieContactImpact(
@@ -38,23 +37,24 @@ export function firstAutoMovieContactImpact(
   const distance: (
     body: resolveAutoMovieContactEvents.IBody,
     t: number,
-    p: IAutoMovieVector3,
-    q: IAutoMovieVector3 | undefined,
+    frame: resolveAutoMovieContactEvents.IWeaponFrame,
   ) => number = (
     body: resolveAutoMovieContactEvents.IBody,
     t: number,
-    p: IAutoMovieVector3,
-    q: IAutoMovieVector3 | undefined,
+    frame: resolveAutoMovieContactEvents.IWeaponFrame,
   ): number => {
-    if (q !== undefined && body.axis === undefined)
+    if (frame.tail !== undefined && body.axis === undefined)
       throw new Error(
         `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
       );
-    return q === undefined
-      ? body.distance(p, t, stops) - weapon.radius
+    return frame.tail === undefined
+      ? body.distance(frame.position, t, stops) - weapon.radius
       : weapon.tailRadius === undefined
-        ? body.axis!(p, q, t, stops) - weapon.radius
-        : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
+        ? body.axis!(frame.position, frame.tail, t, stops) - weapon.radius
+        : body.axis!(frame.position, frame.tail, t, stops, [
+            weapon.radius,
+            weapon.tailRadius,
+          ]);
   };
   const gap: (
     t: number,
@@ -65,8 +65,8 @@ export function firstAutoMovieContactImpact(
   ): { distance: number; against: string } => {
     if (t < live || t > (weapon.to ?? Infinity))
       return { distance: Infinity, against: "" };
-    const p: IAutoMovieVector3 = weapon.position(t, stops);
-    const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
+    const frame: resolveAutoMovieContactEvents.IWeaponFrame =
+      sampleAutoMovieContactWeapon(weapon, t, stops);
     let best: { distance: number; against: string } = {
       distance: Infinity,
       against: "",
@@ -75,7 +75,7 @@ export function firstAutoMovieContactImpact(
       if (body.id === weapon.owner) continue;
       const release: number | null | undefined = departures?.get(body);
       if (release === null || (release !== undefined && t < release)) continue;
-      const d: number = distance(body, t, p, q);
+      const d: number = distance(body, t, frame);
       if (initial && d <= 0 && body.departure !== undefined) {
         const proof: resolveAutoMovieContactEvents.Departure | undefined =
           body.departure({
@@ -88,8 +88,7 @@ export function firstAutoMovieContactImpact(
               distance(
                 body,
                 seconds,
-                weapon.position(seconds, stops),
-                weapon.tail?.(seconds, stops),
+                sampleAutoMovieContactWeapon(weapon, seconds, stops),
               ),
           });
         if (proof !== undefined) {
@@ -112,8 +111,7 @@ export function firstAutoMovieContactImpact(
           const clearance: number = distance(
             body,
             proof.seconds,
-            weapon.position(proof.seconds, stops),
-            weapon.tail?.(proof.seconds, stops),
+            sampleAutoMovieContactWeapon(weapon, proof.seconds, stops),
           );
           if (!(Number.isFinite(clearance) && clearance > 0))
             throw new RangeError("Contact departure has no positive clearance");

@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
+import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**
  * The contacts of several moving weapons with several bodies that may each
@@ -41,6 +42,12 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
  *
+ * A weapon may produce both endpoints together through `sample`; this
+ * replaces its separate endpoint calls for that exact query. The declared
+ * presence of `tail` still fixes its sphere or capsule kind. Samples are
+ * recomputed at every query and after each committed stop, including when
+ * two events share the same second.
+ *
  * Initial penetration or touch is a contact. A body may explicitly certify
  * that this initial episode was resolved and is departing: either no new
  * entry occurs in this search, or a finite positive-gap witness precedes any
@@ -64,14 +71,14 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a sample changes its declared sphere/capsule kind, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact search, pair distances and departure admission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact search, pair distances and departure admission. sampleAutoMovieContactWeapon owns optional combined endpoint production for the scan and mutual-contact queries.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws. Initial overlap remains a contact unless explicit physical departure is certified; a witness must have finite positive actual clearance. No clock nudge or permanent collider exclusion is used.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over samples inside its own live span and no later than the earliest impact already found. Each initially contacting pair may additionally invoke its physical departure model once and validate one witness. Sequential strikes avoid scanning every weapon over the whole performance after every event.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes. Combined endpoints share only one actual producer invocation within a query, with no time or stop-state cache. Legacy mutual-contact tail demand remains conditional on a carried query.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieContactEvents(
@@ -148,7 +155,14 @@ export function resolveAutoMovieContactEvents(
       (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
         w.id === best!.weapon,
     )!;
-    const p: IAutoMovieVector3 = striker.position(best.seconds, stopped);
+    const frame: resolveAutoMovieContactEvents.IWeaponFrame | undefined =
+      striker.sample === undefined
+        ? undefined
+        : sampleAutoMovieContactWeapon(striker, best.seconds, stopped);
+    const p: IAutoMovieVector3 =
+      frame === undefined
+        ? striker.position(best.seconds, stopped)
+        : frame.position;
     const own: string | undefined = input.bodies
       .find(
         (b: resolveAutoMovieContactEvents.IBody): boolean =>
@@ -156,7 +170,9 @@ export function resolveAutoMovieContactEvents(
       )
       ?.carried?.(
         p,
-        striker.tail?.(best.seconds, stopped) ?? p,
+        frame === undefined
+          ? (striker.tail?.(best.seconds, stopped) ?? p)
+          : (frame.tail ?? p),
         best.seconds,
         stopped,
         striker.owner,
@@ -181,13 +197,22 @@ export function resolveAutoMovieContactEvents(
  * Companion types of {@link resolveAutoMovieContactEvents}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What callers provide and read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+ * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far. A combined frame carries actual world-metre endpoints from one exact query; the endpoint reader validates agreement with the declared sphere/capsule kind.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Resolver-owned inputs, events and actual weapon frames serve the first-impact scan, departure witnesses, mutual-contact query and Motion's combined endpoint producers. The optional sampler replaces existing endpoint computations without exposing cache metadata.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector. The optional frame tail expresses the existing sphere/capsule alternatives, and a runtime kind check prevents a sampler from changing that declaration.
  */
 export namespace resolveAutoMovieContactEvents {
   /** The stops so far: each stopped weapon's id with its contact second. */
   export type IStops = ReadonlyMap<string, number>;
+
+  /** Actual geometry for one exact second and current stop context; never a retained time-cache entry. */
+  export interface IWeaponFrame {
+    /** Sphere centre or capsule axis's first end, world metres. */
+    position: IAutoMovieVector3;
+
+    /** Capsule axis's other end, world metres; absent exactly when the declared weapon has no tail. */
+    tail?: IAutoMovieVector3;
+  }
 
   /** Actual initial pair state, with an ungated reader of its signed gap. */
   export interface IInitialContact {
@@ -268,6 +293,14 @@ export namespace resolveAutoMovieContactEvents {
      * @returns The axis's other end.
      */
     tail?(seconds: number, stops: IStops): IAutoMovieVector3;
+
+    /**
+     * Produce the actual endpoints together for this exact second and current
+     * stops. When present, replaces position and tail calls for a geometry
+     * query; tail presence must agree with the weapon's declared kind. The
+     * resolver retains no sample across queries or changes to stops.
+     */
+    sample?(seconds: number, stops: IStops): IWeaponFrame;
   }
 
   /** One body the weapons may meet. */

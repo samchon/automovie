@@ -29,8 +29,13 @@ export function sampleAutoMovieContactWeapon(
       position: weapon.position(seconds, stops),
       tail: weapon.tail?.(seconds, stops),
     };
-  const frame: resolveAutoMovieContactEvents.IWeaponFrame = weapon.sample(seconds, stops);
+  const frame: resolveAutoMovieContactEvents.IWeaponFrame = weapon.sample(
+    seconds,
+    stops,
+  );
   if ((frame.tail === undefined) !== (weapon.tail === undefined))
-    throw new Error(`Contact weapon ${weapon.id} sampled a different sphere or capsule kind`);
+    throw new Error(
+      `Contact weapon ${weapon.id} sampled a different sphere or capsule kind`,
+    );
   return frame;
 }
