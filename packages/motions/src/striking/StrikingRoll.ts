@@ -268,7 +268,20 @@ export namespace StrikingRoll {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A posture object is read after each actual frame callback and is never assumed immutable by identity; every current raw field is re-admitted cold, and all candidates retain original limb/digit/rival fits and limits.
    */
   export interface IChoice {
-    /** The hand frame the freedoms' values give. */
+    /**
+     * Build the actual hand frame for the law's freedom values, in their
+     * declared order and units. The point is in world metres and the rotation
+     * is the hand bone's world quaternion. Calls may observe or change current
+     * authoring; neither captures nor returned frames are presumed immutable.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States value order/units, world grip-frame meaning and the callback's observable current-authoring effects.
+     * @evidence contracts/development/implementation.md#principled-implementation The law parameterizes candidate geometry, while chosen measures the resulting actual hand/tool pose through the complete arm fit; frame construction alone certifies no physical reachability.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns geometric parameterization only; chosen owns candidate/refinement ordering and miss owns physical fitting and read-back.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arbitrary producers receive their actual candidate values and execute before each current-posture read; no purity, fixed capture, cached pose or success assertion is inferred from this callable's identity.
+     * @evidence contracts/development/implementation.md#efficient-algorithms C callback evaluations cost C times the concrete producer's work; the contract imposes no constant bound on arbitrary producers. Search and physical-fit costs remain with chosen rather than being hidden by this callback.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work chosen invokes the actual producer for each judged candidate and again for the selected values, without reusing a frame by equal values or callback identity; a producer's own reusable prerequisites remain its responsibility.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous chooser borrows this callable until return or throw; the IChoice owner controls its capture lifetime and the caller owns the chosen frame. This callback contract imposes no bound on resources a supplied producer owns.
+     */
     frame: (values: readonly number[]) => StrikingHeld.IHandFrame;
 
     /** The values to fit first, in the law's order of preference, nearest the asked pose first. */

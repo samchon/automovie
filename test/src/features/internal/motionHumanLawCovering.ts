@@ -19,16 +19,16 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  * its partner, and then by every k-th cell of that body's, so each part
  * takes a share of every law and the slow laws spread over all the parts.
  *
+ * Whole and partitioned runs share deterministic law/cell enumeration and
+ * pair or triple coverage. Invalid part selections are refused; each valid
+ * part prepares its selected body and partner. Scene construction, execution
+ * and cell checks stay with motionHumanLawSweep; a left-row film survives
+ * only until its right-row mirror comparison finishes.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the design, how a part is cut and why.
  * @evidence contracts/development/design.md#principled-representation Ledger parameter strings, canonical body names and seed identities define covering factors; stages supply actual public scenes and each finding retains law/row/body/seed attribution.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns factor extraction, full/partitioned enumeration, cell counts and positional mirrors. Scene construction and physical detector execution stay with motionHumanLawSweep and motionHumanLawSweepCell.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses actual scene/film/body contracts and the one covering owner. Gesture face regions are coupled to touchFace because other gesture kinds do not consume them, rather than supplying a fixture-specific branch.
- * @evidence contracts/development/implementation.md#principled-implementation Every pair (or triple) of factor values meets in some cell of the covering array; a part is a fixed selection of those cells, so the parts together are exactly the whole array.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over laws and cells with a selection, read by both the whole sweep and a part.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A part out of range or a count that does not divide by the bodies throws, so no cell is left out unnoticed.
- * @evidence contracts/development/implementation.md#efficient-algorithms A part prepares two bodies, not four.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Cells are read by `motionHumanLawSweep.cell`; scenes and films by its `staged` and `perform`.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A left row's film is kept only until its right row has been compared.
  */
 export namespace motionHumanLawCovering {
   /**
