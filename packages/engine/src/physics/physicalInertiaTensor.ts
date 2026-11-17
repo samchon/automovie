@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { combinePhysicalMassProperties } from "./combinePhysicalMassProperties";
 
 /**
  * The inertia tensor of rigid parts about one point, in their common frame:

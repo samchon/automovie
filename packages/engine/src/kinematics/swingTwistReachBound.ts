@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import type { swingTwistBasis } from "./swingTwistBasis";
 
 /**
  * A certified upper bound of the farthest swing along one great circle that

@@ -4,7 +4,6 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -13,7 +12,6 @@ import { bracketedMinimum } from "../math/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { physicalHullNearest } from "./physicalHullNearest";
 import { physicalHullSegment } from "./physicalHullSegment";
-import type { physicalShapeNearest } from "./physicalShapeNearest";
 
 /** A shape-local proximity reading before its point and normal return to world space. */
 interface ILocal {

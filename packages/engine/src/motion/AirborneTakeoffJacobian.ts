@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /**
  * The endpoint angle Jacobian of a flight's integrated momentum tangents.

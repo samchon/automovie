@@ -11,7 +11,6 @@ import type {
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
-import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";

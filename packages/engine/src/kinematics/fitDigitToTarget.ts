@@ -19,7 +19,6 @@ import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
 import { descendDigitTasks } from "./descendDigitTasks";
-import { fitDigitDescent } from "./fitDigitDescent";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";

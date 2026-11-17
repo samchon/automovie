@@ -9,8 +9,6 @@ import { Quaternion } from "../math/Quaternion";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /** Relative angular-momentum share and absolute kg m²/s budget. */
 type MomentumTolerance = Pick<IAutoMovieIntegrateMotionTrajectory.ITolerance, "relative" | "absolute">;

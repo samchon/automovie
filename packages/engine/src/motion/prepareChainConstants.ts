@@ -8,7 +8,6 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
   IAutoMovieSkeleton,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";

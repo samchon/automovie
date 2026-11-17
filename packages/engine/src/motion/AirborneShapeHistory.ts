@@ -10,7 +10,6 @@ import type {
 
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
-import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";
@@ -48,7 +47,7 @@ interface INode extends resolveAutoMovieMomentum.IPosed {
 const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> = new WeakMap();
 
 /** Only native readers issued by this pure-history owner may opt into stage reuse. */
-const HISTORIES: WeakSet<IAutoMovieIntegrateAirborneRotation.IHistory> = new WeakSet();
+const HISTORIES: WeakSet<IHistory> = new WeakSet();
 
 /** One shape epoch can share an unchanged adjacent principal rotation. */
 interface IPrincipalOwner {
@@ -246,7 +245,7 @@ export function AirborneShapeHistory(
       statistics,
     );
   };
-  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (seconds: number): IInstant => {
+  const query: IHistory = (seconds: number): IInstant => {
     if (statistics !== undefined) statistics.queries++;
     const known: IInstant | undefined = instants.get(seconds);
     if (known !== undefined) {
@@ -305,13 +304,13 @@ export namespace AirborneShapeHistory {
    * stage sharing. It proves construction, not smoothness or constant shape.
    *
    */
-  export function owned(history: IAutoMovieIntegrateAirborneRotation.IHistory): boolean {
+  export function owned(history: IHistory): boolean {
     return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history) ||
       AirborneTabulatedShapeHistory.owned(history);
   }
 
   /** Constructor-owned fixed tensor with zero relative momentum over the whole requested live span; ordinary sampled histories return undefined. */
-  export function constant(history: IAutoMovieIntegrateAirborneRotation.IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
+  export function constant(history: IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
     return AirborneConstantShapeHistory.constant(history, from, to);
   }
 

@@ -1,6 +1,5 @@
 import type {
   IAutoMovieCombinePhysicalMassProperties,
-  IAutoMovieHumanReferenceOutlineTypes,
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
@@ -8,11 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import type { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
@@ -30,7 +27,7 @@ type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 const WIDTH: number = 9;
 
 /** Only readers issued by this producer are recognised as native. */
-const HISTORIES: WeakSet<IAutoMovieIntegrateAirborneRotation.IHistory> = new WeakSet();
+const HISTORIES: WeakSet<IHistory> = new WeakSet();
 
 /**
  * A shape history tabulated once on uniform knots and interpolated: the
@@ -121,9 +118,9 @@ export function AirborneTabulatedShapeHistory(
   if (!(turn > 0))
     throw new Error("A tabulated shape history needs a positive turn bound");
   const instants: Map<number, IInstant> = new Map();
-  let table: IAutoMovieHumanReferenceOutlineTypes.ITable | undefined;
+  let table: ITable | undefined;
 
-  const build = (): IAutoMovieHumanReferenceOutlineTypes.ITable => {
+  const build = (): ITable => {
     // The uniform knots, then each interval across which some part turns
     // more than the bound divided into the fewest equal parts that keep
     // every part's turn within it (one more shape read a part). A part's
@@ -238,7 +235,7 @@ export function AirborneTabulatedShapeHistory(
   };
 
   const evaluate = (seconds: number): IInstant => {
-    const built: IAutoMovieHumanReferenceOutlineTypes.ITable = (table ??= build());
+    const built: ITable = (table ??= build());
     const held: number = Math.min(to, Math.max(from, seconds));
 
     // The uniform interval, then its equal part: constant work.
@@ -277,7 +274,7 @@ export function AirborneTabulatedShapeHistory(
       statistics,
     );
   };
-  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (seconds: number): IInstant => {
+  const query: IHistory = (seconds: number): IInstant => {
     if (statistics !== undefined) statistics.queries++;
     const known: IInstant | undefined = instants.get(seconds);
     if (known !== undefined) {
@@ -453,7 +450,7 @@ function meanMomentum(
  */
 export namespace AirborneTabulatedShapeHistory {
   /** Whether a reader was issued by this producer: a pure function of time whose instants may be shared between an operation's stages. It proves construction, not a constant shape. */
-  export function owned(history: IAutoMovieIntegrateAirborneRotation.IHistory): boolean {
+  export function owned(history: IHistory): boolean {
     return HISTORIES.has(history);
   }
 }

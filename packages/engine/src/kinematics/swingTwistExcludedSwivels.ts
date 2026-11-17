@@ -15,9 +15,7 @@ import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { toRigAngle } from "../rom/toRigAngle";
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
-import { normalizeJointAxes } from "./normalizeJointAxes";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
-import { swingTwistRange } from "./swingTwistRange";
 import { swingTwistRegion } from "./swingTwistRegion";
 import { swivelArcs } from "./swivelArcs";
 

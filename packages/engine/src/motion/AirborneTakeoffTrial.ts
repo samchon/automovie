@@ -11,7 +11,6 @@ import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
 import { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
-import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /**
  * Evaluate shooting points with optional momentum sensitivities. Rejected

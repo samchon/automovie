@@ -2,7 +2,6 @@ import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
-import type { fitDigitDescent } from "./fitDigitDescent";
 
 /**
  * Execute the digit task-priority descent and retain the actual primary

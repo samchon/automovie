@@ -11,13 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Vector3 } from "../math/Vector3";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";
-import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";

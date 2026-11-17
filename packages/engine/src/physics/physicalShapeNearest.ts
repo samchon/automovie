@@ -5,9 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
-import { physicalHullNearest } from "./physicalHullNearest";
-import { physicalHullSegment } from "./physicalHullSegment";
 import { physicalShapeQuery } from "./physicalShapeQuery";
 
 /**

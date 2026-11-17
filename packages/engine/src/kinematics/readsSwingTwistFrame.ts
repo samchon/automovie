@@ -8,7 +8,6 @@ import type {
 
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { normalizeJointAxes } from "./normalizeJointAxes";
-import type { swingTwistRange } from "./swingTwistRange";
 
 /**
  * Whether a caller's basis and rest frame are a swing-twist range's own, so

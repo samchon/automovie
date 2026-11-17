@@ -7,10 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
-import type { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import type { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
 /**

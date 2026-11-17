@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 

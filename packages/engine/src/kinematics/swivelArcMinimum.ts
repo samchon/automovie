@@ -1,7 +1,6 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
 import { hingedArmSwivel } from "./hingedArmSwivel";
-import type { swivelArcs } from "./swivelArcs";
 
 /** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
 const STEP: number = hingedArmSwivel.STEP;

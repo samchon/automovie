@@ -9,7 +9,6 @@ import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneMomentumDefect } from "./AirborneMomentumDefect";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**

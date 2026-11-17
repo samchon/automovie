@@ -6,9 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
-import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /** The lateral unit axis, read without mutation by quaternion operations. */
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

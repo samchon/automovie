@@ -10,7 +10,6 @@ import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /** DOPRI5's original continuous-extension weights, from Hairer/Wanner CDOPRI. */
 const D: readonly number[] = [-12715105075 / 11282082432, 0,

@@ -10,7 +10,6 @@ import { Vector3 } from "../math/Vector3";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffLinear } from "./AirborneTakeoffLinear";
 import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
-import { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /**
  * The take-off angular momentum that turns a body in flight through the

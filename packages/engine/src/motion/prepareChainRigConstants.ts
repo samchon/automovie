@@ -24,7 +24,6 @@ import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { scanJointRom } from "../rom/scanJointRom";
-import type { prepareChainFit } from "./prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
 

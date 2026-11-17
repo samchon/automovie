@@ -6,7 +6,6 @@ import type {
 
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
-import type { swingTwistRange } from "./swingTwistRange";
 
 /** The private reader carried only by frames this module explicitly prepares. */
 const READ_BASIS: unique symbol = Symbol("prepared swing-twist basis");

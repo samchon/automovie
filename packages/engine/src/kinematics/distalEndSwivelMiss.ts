@@ -4,7 +4,6 @@ import { Quaternion } from "../math/Quaternion";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "./distalEndSwivelReadings";
 import { sphericalBoxMiss } from "./sphericalBoxMiss";
-import type { swivelArcs } from "./swivelArcs";
 
 /**
  * A certified lower bound, over an interval of swivels, of how far the end

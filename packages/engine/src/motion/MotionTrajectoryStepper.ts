@@ -10,7 +10,6 @@ import { MotionTrajectoryDense } from "./MotionTrajectoryDense";
 import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * The adaptive Dormand-Prince 5(4) builder of integrateMotionTrajectory.

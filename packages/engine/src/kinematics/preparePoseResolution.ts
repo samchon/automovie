@@ -1,11 +1,9 @@
 import type {
-  IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePoseResolution,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";

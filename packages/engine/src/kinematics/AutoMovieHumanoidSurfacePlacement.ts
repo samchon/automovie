@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
 /** Existing bone-local surface data; geometry and direction admission belongs to its producer. */
 type IFrame = IAutoMovieHumanoidSurfaces.IFrame;

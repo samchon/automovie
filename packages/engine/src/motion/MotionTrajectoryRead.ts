@@ -1,16 +1,13 @@
 import type {
-  IAutoMovieHumanTrunkSolver,
   IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieMotionTrajectoryInterval,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { step } from "@automovie/motions";
 
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import { MotionTrajectoryQuaternion } from "./MotionTrajectoryQuaternion";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * Numeric trajectory readers constructed outside the integration callback's scope.
@@ -94,8 +91,8 @@ export namespace MotionTrajectoryRead {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares completed knot arrays, one previous full state and one common quaternion projection only when Object.is matches each reader's raw requested time. Vector components share each Hermite slope weight times the interval span with its original association. One previous oriented interval shares its relative rotation vector and exact endpoint differential. Full and projected reads use the same quaternion curve.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains numeric knots and bounded last-state/quaternion/interval metadata, without a model callback or history. State outputs and all four interval arrays are fresh. Quaternion-only playback skips vector work but retains numeric knot records.
    */
-  export function fixed(props: IAutoMovieHumanTrunkSolver.IFixed): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
-    const { t0, t1, h, times, xs, ks }: IAutoMovieHumanTrunkSolver.IFixed = props;
+  export function fixed(props: IFixed): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+    const { t0, t1, h, times, xs, ks }: IFixed = props;
     const steps: number = times.length - 1;
     const quaternion: (time: number) => IAutoMovieQuaternion | null = MotionTrajectoryQuaternion.fixed(props);
     return {

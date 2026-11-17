@@ -5,8 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * Expose a completed numeric trajectory as an airborne flight, outside the

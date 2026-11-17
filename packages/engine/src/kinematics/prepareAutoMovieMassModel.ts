@@ -9,7 +9,6 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";

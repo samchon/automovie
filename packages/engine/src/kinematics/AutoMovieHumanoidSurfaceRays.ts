@@ -21,7 +21,6 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { physicalShapeNormal } from "../physics/physicalShapeNormal";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import type { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 import { resolvePose } from "./resolvePose";
 
 /**

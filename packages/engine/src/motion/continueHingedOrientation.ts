@@ -1,7 +1,6 @@
 import type {
   IAutoMovieFitChainToTargetProps,
   IAutoMovieHingedArmSwivel,
-  IAutoMovieHumanLegCrotchRoot,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -213,7 +212,7 @@ export namespace continueHingedOrientation {
   }
 
   /** Return copied facts only for this actual result with unchanged pose and seed. */
-  export function root(result: IAutoMovieSeededChainFit): IAutoMovieHumanLegCrotchRoot.IRoot | undefined {
+  export function root(result: IAutoMovieSeededChainFit): IRoot | undefined {
     const stored: ReturnType<typeof ROOT_RETURNS.get> = ROOT_RETURNS.get(result);
     if (stored === undefined) return undefined;
     try {

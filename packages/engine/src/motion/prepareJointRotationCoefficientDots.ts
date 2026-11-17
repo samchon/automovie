@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieHumanTrunkSolver,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePrepareJointRotationCoefficientDots,
@@ -80,8 +79,8 @@ interface IVariant {
 export function prepareJointRotationCoefficientDots(
   props: IProps,
 ): prepareJointRotationCoefficientDots.IReader {
-  const fixed: Partial<Record<ClinicalAxis, IAutoMovieHumanTrunkSolver.IFixed>> = {};
-  const nullable: IAutoMovieHumanTrunkSolver.IFixed[] = [];
+  const fixed: Partial<Record<ClinicalAxis, IFixed>> = {};
+  const nullable: IFixed[] = [];
   for (const axis of props.order)
     if (!props.mobile.includes(axis)) {
       const direction: IAutoMovieJointAxes[ClinicalAxis] = props.basis[axis];
@@ -89,7 +88,7 @@ export function prepareJointRotationCoefficientDots(
       const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(direction, angle);
       const mayRest: boolean = props.immobile.includes(axis);
       const bit: number = mayRest && !Object.is(angle, 0) ? 1 << nullable.length : 0;
-      const row: IAutoMovieHumanTrunkSolver.IFixed = { axis, factor, bit };
+      const row: IFixed = { axis, factor, bit };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
       if (Number.isFinite(angle))
@@ -106,7 +105,7 @@ export function prepareJointRotationCoefficientDots(
         let product: IAutoMovieQuaternion = Quaternion.identity();
         for (const axis of props.order) {
           const index: number = props.mobile.indexOf(axis);
-          const row: IAutoMovieHumanTrunkSolver.IFixed | undefined = fixed[axis];
+          const row: IFixed | undefined = fixed[axis];
           const factor: IAutoMovieQuaternion = index < 0
             ? (mode & row!.bit) === 0 ? row!.factor
               : (row!.rest ??= Quaternion.fromAxisAngle(props.basis[axis], 0))

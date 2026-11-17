@@ -4,11 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /** Only this owner can issue an unobserved numeric tensor capability. */
 const OWNERS: WeakMap<IAutoMovieIntegrateAirborneRotation.IInstant, IState> = new WeakMap();
