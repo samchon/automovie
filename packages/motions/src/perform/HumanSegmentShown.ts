@@ -10,6 +10,7 @@ import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
+import { HumanSegmentStill } from "./HumanSegmentStill";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -37,8 +38,8 @@ export namespace HumanSegmentShown {
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion of the new record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts While the schedule is being resolved a pose is shared only within one action's planning (`HumanSegment.planning`), never across a placement. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 records per person.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; a second where the pose holds still back to an earlier one (`HumanSegmentStill.representative`, two selections) takes that second's pose, evaluated once for the whole stretch; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 records per person.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A still stretch shares one evaluation, which `HumanSegmentStill.within` proves equal at every second of it (no term of the shown pose changes there). Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
   export function of(
@@ -51,6 +52,24 @@ export namespace HumanSegmentShown {
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
+
+    // Where the pose holds still back to an earlier second
+    // (`HumanSegmentStill.representative`), it is that second's pose: read
+    // there, once for the whole stretch, and kept for this second too. A bone
+    // demand takes that pose only where it is already kept, since a whole
+    // pose costs more than the demand's own.
+    const still: number | undefined = HumanSegmentStill.representative(person, seconds);
+    if (still !== undefined) {
+      const known: HumanSegment.IShown | undefined = person.resolving
+        ? person.planning?.get(still)
+        : person.cache.get(still);
+      if (known !== undefined || requested === undefined) {
+        const at: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } =
+          known === undefined ? of(person, still, undefined, prepared) : { pose: known.pose, kept: known };
+        if (at.kept !== undefined && requested === undefined) keep(person, seconds, at.kept);
+        return at;
+      }
+    }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose = active === undefined
@@ -58,17 +77,20 @@ export namespace HumanSegmentShown {
       : HumanSegmentPose.of(person, active, seconds, prepared, requested);
     if (requested !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
+    return keep(person, seconds, kept) ? { pose, kept } : { pose };
+  }
+
+  /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
+  function keep(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number, kept: HumanSegment.IShown): boolean {
     if (person.resolving) {
-      // Within one action's planning the placed state is fixed
-      // (`HumanSegment.planning`).
-      if (person.planning === undefined) return { pose };
+      if (person.planning === undefined) return false;
       person.planning.set(seconds, kept);
-      return { pose, kept };
+      return true;
     }
     if (person.cache.size >= 4096)
       person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, kept);
-    return { pose, kept };
+    return true;
   }
 
   /**

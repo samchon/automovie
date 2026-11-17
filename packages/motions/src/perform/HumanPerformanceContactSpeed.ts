@@ -1,11 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanSegment,
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
  * The speed bounds a performance states to the engine's contact scan
@@ -18,12 +15,12 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
  * their interval, which by the triangle inequality bounds every pair of grid
  * seconds and, the radii being fixed, every point of its sphere or capsule.
  * A person's bound is 0 where the display pipeline proves the shown pose
- * constant (`still`), and none elsewhere: a limb fit states no rate bound,
+ * constant (`HumanSegmentStill.within`), and none elsewhere: a limb fit states no rate bound,
  * so a moving pose has no certified one.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both bounds, why each holds on the grid and where none is stated.
  * @evidence contracts/development/design.md#principled-representation Bounds on the search's own grid, the only seconds the scan reads where it advances.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The weapon's grid bound and the person's still certificate the contact resolution states.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The weapon's grid bound the contact resolution states; the person's certificate is `HumanSegmentStill`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is estimated: the weapon's is measured on the grid from its own path, the person's is 0 only where the pose provably does not change.
  */
 export namespace HumanPerformanceContactSpeed {
@@ -110,53 +107,5 @@ export namespace HumanPerformanceContactSpeed {
       for (let j: number = k - first; j < end - first; ++j) bound = Math.max(bound, rates[j]!);
       return bound;
     };
-  }
-
-  /**
-   * Whether a person's shown pose is one and the same over an interval.
-   *
-   * @param person The person, with the stops of the search installed.
-   * @param from The interval's start, film seconds.
-   * @param to Its end, film seconds.
-   * @returns Whether the pose is constant there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is certified and over what.
-   * @evidence contracts/development/implementation.md#principled-implementation The shown pose (`HumanSegmentPose.seeded`) is a function of the second only through the active action's posture at its clamped local second, the layers, the overlays, the held props, the stopped weapons and a live transition offset; with no layer, overlay, hold or stop, one action active over the interval (`HumanSegmentSelection.last` is the same at both ends, so at every second between) and its offset decayed, the pose is constant where that clamped second is, or where the plan declares its posture still.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One gate per term of the shown pose, then the plan's clamped interval.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Any term that may change refuses the certificate; nothing is estimated.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two selections and constant checks.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the person's current state.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function still(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    from: number,
-    to: number,
-  ): boolean {
-    if (
-      person.layers.length !== 0 ||
-      person.overlays.length !== 0 ||
-      person.holds.length !== 0 ||
-      person.stops.size !== 0
-    )
-      return false;
-    const active: IAutoMovieMotionHumanSegment | undefined =
-      HumanSegmentSelection.last(person.segments, from);
-    if (HumanSegmentSelection.last(person.segments, to) !== active)
-      return false;
-    if (active === undefined) return true;
-    const transition: IAutoMovieMotionHumanSegment["transition"] = active.transition;
-    if (
-      transition !== undefined &&
-      transition.kind !== "redirect" &&
-      from - transition.cut < transition.blend
-    )
-      return false;
-    const duration: number = active.plan.duration;
-    const lo: number = Math.min(duration, Math.max(0, from - active.start));
-    const hi: number = Math.min(duration, Math.max(0, to - active.start));
-    if (lo === hi) return true;
-    const window: readonly [number, number] | undefined = active.plan.still;
-    return window !== undefined && lo >= window[0] && hi <= window[1];
   }
 }

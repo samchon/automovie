@@ -19,6 +19,7 @@ import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentStill } from "./HumanSegmentStill";
 
 /**
  * What the placed performance does to itself: the holds a grip starts and
@@ -123,7 +124,7 @@ export namespace HumanPerformanceContacts {
    * hit of their own, as a striking law keeps only its chain's first contact.
    * Each weapon states its bound on a search's grid from its own path and
    * each person 0 where its shown pose provably holds still
-   * (`HumanPerformanceContactSpeed`), so the scan reads no grid second a
+   * (`HumanPerformanceContactSpeed`, `HumanSegmentStill`), so the scan reads no grid second a
    * clear gap rules out.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States clipped live spans, stop application, plan settling, mutual-contact selection, that one limb's capsules stop as one part and the grid bounds each side states.
@@ -432,7 +433,7 @@ export namespace HumanPerformanceContacts {
           ): IAutoMovieResolveContactEvents.Speed => {
             apply(stops);
             return (a: number, b: number): number | undefined =>
-              HumanPerformanceContactSpeed.still(person, a, b) ? 0 : undefined;
+              HumanSegmentStill.within(person, a, b) ? 0 : undefined;
           },
           distance: (
             point: IAutoMovieVector3,
