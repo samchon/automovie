@@ -1,19 +1,25 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanApertureSpan,
+  IAutoMovieHumanBodyApertures,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
+import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
 import { AutoMovieHumanApertureSeam } from "./AutoMovieHumanApertureSeam";
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
-import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
-import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceLoft } from "./AutoMovieHumanBodySurfaceLoft";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 const { chain, interval } = AutoMovieHumanBodySurfaceRead;
-type IPoint = AutoMovieHumanApertureSpan.IPoint;
+type IPoint = IAutoMovieHumanApertureSpan.IPoint;
 
 /**
  * An opening closed from its trim (`AutoMovieHumanApertureSpan`): the rim's
@@ -38,10 +44,10 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * @param events The calibration's events, which name the rings chains share.
    */
   export function open(
-    context: IContext,
-    prepared: AutoMovieHumanBodyApertures.IPrepared,
-    span: AutoMovieHumanApertureSpan.ISpan,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    context: IAutoMovieHumanSurfaceContext,
+    prepared: IAutoMovieHumanBodyApertures.IPrepared,
+    span: IAutoMovieHumanApertureSpan.ISpan,
+    events: readonly IAutoMovieHumanBranchEvent[],
   ): IAutoMovieHumanConstructionPath[] {
     // A slit's rim is drawn on its chains as the line it closes on.
     const seam = prepared.aperture.seam;
@@ -52,45 +58,83 @@ export namespace AutoMovieHumanBodySurfaceOpening {
             span.points,
             seam,
             (name: string): IAutoMovieLoftChain => chain(context, name),
-            (name: string, end: "bottom" | "top", t: number): IAutoMovieLoftChain | null => beyond(context, events, name, end, t),
+            (
+              name: string,
+              end: "bottom" | "top",
+              t: number,
+            ): IAutoMovieLoftChain | null =>
+              beyond(context, events, name, end, t),
           );
     const single: boolean =
-      span.chains.length === 1 && points.every((p: IPoint): boolean => p.chain === span.chains[0]);
+      span.chains.length === 1 &&
+      points.every((p: IPoint): boolean => p.chain === span.chains[0]);
     const base: IAutoMovieLoftChain = chain(context, span.chains[0]!);
-    const own: IPoint[] = points.filter((p: IPoint): boolean => p.chain === base.name);
-    const middle: number = own.reduce((a: number, p: IPoint): number => a + p.s, 0) / Math.max(1, own.length);
+    const own: IPoint[] = points.filter(
+      (p: IPoint): boolean => p.chain === base.name,
+    );
+    const middle: number =
+      own.reduce((a: number, p: IPoint): number => a + p.s, 0) /
+      Math.max(1, own.length);
     AutoMovieHumanLoftMesh.group(context.mesh, interval(base, middle, middle));
 
     // The rim's vertices, each the surface at its own chain's chart point.
     const rim: [number, number, number][] = points.map(
-      (p: IPoint): [number, number, number] => AutoMovieLoftChain.point(chain(context, p.chain), p.s, p.t),
+      (p: IPoint): [number, number, number] =>
+        AutoMovieLoftChain.point(chain(context, p.chain), p.s, p.t),
     );
     context.rims.set(prepared.aperture.name, rim);
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);
     for (const p of points)
-      context.coordinates.push(context.indices.get(p.chain)!, p.s, ((p.t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
-    const reference = AutoMovieHumanBodyRoots.outward(base, points[0]!.s, points[0]!.t);
+      context.coordinates.push(
+        context.indices.get(p.chain)!,
+        p.s,
+        ((p.t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
+      );
+    const reference = AutoMovieHumanBodyRoots.outward(
+      base,
+      points[0]!.s,
+      points[0]!.t,
+    );
 
     // The zipper from the hole to the rim, in one chart.
     if (single) {
       const trim: [number, number][] = span.loops.get(base.name)!;
-      const [edge, charts] = AutoMovieHumanBodySurfaceLoft.holeEdge(context, base.name, trim);
-      const loop: [number, number][] = points.map((p: IPoint): [number, number] => [p.s, p.t]);
+      const [edge, charts] = AutoMovieHumanBodySurfaceLoft.holeEdge(
+        context,
+        base.name,
+        trim,
+      );
+      const loop: [number, number][] = points.map(
+        (p: IPoint): [number, number] => [p.s, p.t],
+      );
       AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void =>
         AutoMovieHumanBodyRoots.zip(context.mesh, ring, loop, edge, charts),
       );
     } else {
       const flat = (p: readonly number[]): [number, number] => [
-        p[0]! * prepared.outline.lateral[0] + p[1]! * prepared.outline.lateral[1] + p[2]! * prepared.outline.lateral[2],
-        p[0]! * prepared.outline.up[0] + p[1]! * prepared.outline.up[1] + p[2]! * prepared.outline.up[2],
+        p[0]! * prepared.outline.lateral[0] +
+          p[1]! * prepared.outline.lateral[1] +
+          p[2]! * prepared.outline.lateral[2],
+        p[0]! * prepared.outline.up[0] +
+          p[1]! * prepared.outline.up[1] +
+          p[2]! * prepared.outline.up[2],
       ];
       // The hole is the span's own when the trim spans two chains, else its
       // chain's, which a slit's drawn rim left for the neighbour beyond.
       const key: string =
-        span.chains.length > 1 ? AutoMovieHumanApertureSpan.key(prepared.aperture.name) : base.name;
+        span.chains.length > 1
+          ? AutoMovieHumanApertureSpan.key(prepared.aperture.name)
+          : base.name;
       const [edge, charts] = spanEdge(context, key, rim.map(flat), flat);
       AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void =>
-        AutoMovieHumanBodyRoots.zip(context.mesh, ring, rim.map(flat), edge, charts, Infinity),
+        AutoMovieHumanBodyRoots.zip(
+          context.mesh,
+          ring,
+          rim.map(flat),
+          edge,
+          charts,
+          Infinity,
+        ),
       );
     }
     const lid = prepared.lid;
@@ -101,17 +145,23 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     // nearest neighbours the chain has a chart point for.
     const senses: Map<string, number> = new Map();
     for (const [name, loop] of span.loops) {
-      const area: number = loop.reduce((a: number, p: [number, number], i: number): number => {
-        const q: [number, number] = loop[(i + 1) % loop.length]!;
-        return a + p[1] * q[0] - q[1] * p[0];
-      }, 0);
+      const area: number = loop.reduce(
+        (a: number, p: [number, number], i: number): number => {
+          const q: [number, number] = loop[(i + 1) % loop.length]!;
+          return a + p[1] * q[0] - q[1] * p[0];
+        },
+        0,
+      );
       senses.set(name, area >= 0 ? 1 : -1);
     }
     const n: number = points.length;
     const slopes = points.map((p: IPoint, i: number) => {
       const near = (direction: number): [number, number] => {
         for (let k: number = 1; k < n; k++) {
-          const c: [number, number] | null = chartOn(points[(i + direction * k + n * k) % n]!, p.chain);
+          const c: [number, number] | null = chartOn(
+            points[(i + direction * k + n * k) % n]!,
+            p.chain,
+          );
           if (c !== null) return c;
         }
         return [p.s, p.t];
@@ -119,7 +169,13 @@ export namespace AutoMovieHumanBodySurfaceOpening {
       const a: [number, number] = near(-1);
       const b: [number, number] = near(1);
       const sense: number = senses.get(p.chain) ?? senses.get(base.name) ?? 1;
-      return AutoMovieHumanBodyRoots.across(chain(context, p.chain), p.s, p.t, sense * (b[0] - a[0]), -sense * (b[1] - a[1]))[0];
+      return AutoMovieHumanBodyRoots.across(
+        chain(context, p.chain),
+        p.s,
+        p.t,
+        sense * (b[0] - a[0]),
+        -sense * (b[1] - a[1]),
+      )[0];
     });
     let construction: IAutoMovieHumanConstructionPath[] = [];
     const emit = (_: string, ...corners: number[]): void => {
@@ -128,12 +184,26 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void => {
       construction =
         lid !== null
-          ? AutoMovieHumanEyelidSurface.loop(context.mesh, lid, ring, slopes, emit)
-          : AutoMovieHumanAperturePocket.loop(context.mesh, prepared.aperture, ring, rim, slopes, emit);
+          ? AutoMovieHumanEyelidSurface.loop(
+              context.mesh,
+              lid,
+              ring,
+              slopes,
+              emit,
+            )
+          : AutoMovieHumanAperturePocket.loop(
+              context.mesh,
+              prepared.aperture,
+              ring,
+              rim,
+              slopes,
+              emit,
+            );
     });
 
     // Vertices the closure added carry no loft coordinates.
-    while (context.coordinates.length < context.mesh.positions.length) context.coordinates.push(NaN);
+    while (context.coordinates.length < context.mesh.positions.length)
+      context.coordinates.push(NaN);
     return construction;
   }
 
@@ -143,8 +213,8 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * past a child's inherited end the parent.
    */
   function beyond(
-    context: IContext,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    context: IAutoMovieHumanSurfaceContext,
+    events: readonly IAutoMovieHumanBranchEvent[],
     name: string,
     end: "bottom" | "top",
     t: number,
@@ -152,17 +222,27 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     const two: number = 2 * Math.PI;
     const phase: number = ((t % two) + two) % two;
     const holds = (arc: [number, number]): boolean =>
-      arc[0] <= arc[1] ? arc[0] <= phase && phase <= arc[1] : phase >= arc[0] || phase <= arc[1];
+      arc[0] <= arc[1]
+        ? arc[0] <= phase && phase <= arc[1]
+        : phase >= arc[0] || phase <= arc[1];
     for (const e of events) {
-      const contact: "bottom" | "top" = e.direction === "down" ? "bottom" : "top";
+      const contact: "bottom" | "top" =
+        e.direction === "down" ? "bottom" : "top";
       if (e.parent === name && end === contact) {
         const child: string | undefined = e.splits.find(
-          (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean => context.chains.has(sp.child) && sp.arcs.some(holds),
+          (sp: IAutoMovieHumanBranchSplit): boolean =>
+            context.chains.has(sp.child) && sp.arcs.some(holds),
         )?.child;
         return child === undefined ? null : chain(context, child);
       }
-      const childEnd: "bottom" | "top" = contact === "bottom" ? "top" : "bottom";
-      if (end === childEnd && e.splits.some((sp: IAutoMovieHumanBodyCalibration.ISplit): boolean => sp.child === name))
+      const childEnd: "bottom" | "top" =
+        contact === "bottom" ? "top" : "bottom";
+      if (
+        end === childEnd &&
+        e.splits.some(
+          (sp: IAutoMovieHumanBranchSplit): boolean => sp.child === name,
+        )
+      )
         return chain(context, e.parent);
     }
     return null;
@@ -182,7 +262,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * own chain and chart point.
    */
   function spanEdge(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     key: string,
     rim: readonly [number, number][],
     flat: (p: readonly number[]) => [number, number],
@@ -191,21 +271,38 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     if (hole === undefined) throw new Error(`Hole ${key} was not left`);
     const place = (v: number): [number, number] => {
       const [s, t] = hole.charts.get(v)!;
-      return flat(AutoMovieLoftChain.point(chain(context, hole.owners.get(v)!), s, t));
+      return flat(
+        AutoMovieLoftChain.point(chain(context, hole.owners.get(v)!), s, t),
+      );
     };
     const centre: [number, number] = rim.reduce(
-      (a: [number, number], p: [number, number]): [number, number] => [a[0] + p[0] / rim.length, a[1] + p[1] / rim.length],
+      (a: [number, number], p: [number, number]): [number, number] => [
+        a[0] + p[0] / rim.length,
+        a[1] + p[1] / rim.length,
+      ],
       [0, 0],
     );
-    const loops: [number[], [number, number][]][] = AutoMovieHumanBodySurfaceLoft.boundaryLoops(hole.cells).map(
-      (loop: number[]): [number[], [number, number][]] => [loop, loop.map(place)],
-    );
+    const loops: [number[], [number, number][]][] =
+      AutoMovieHumanBodySurfaceLoft.boundaryLoops(hole.cells).map(
+        (loop: number[]): [number[], [number, number][]] => [
+          loop,
+          loop.map(place),
+        ],
+      );
     const distance = (charts: [number, number][]): number =>
-      charts.reduce((a: number, p: [number, number]): number => a + Math.hypot(p[0] - centre[0], p[1] - centre[1]), 0) / charts.length;
+      charts.reduce(
+        (a: number, p: [number, number]): number =>
+          a + Math.hypot(p[0] - centre[0], p[1] - centre[1]),
+        0,
+      ) / charts.length;
     const edge: [number[], [number, number][]] | undefined = loops.sort(
-      (a: [number[], [number, number][]], b: [number[], [number, number][]]): number => distance(a[1]) - distance(b[1]),
+      (
+        a: [number[], [number, number][]],
+        b: [number[], [number, number][]],
+      ): number => distance(a[1]) - distance(b[1]),
     )[0];
-    if (edge === undefined) throw new Error(`Hole ${key} has no edge near its rim`);
+    if (edge === undefined)
+      throw new Error(`Hole ${key} has no edge near its rim`);
     return edge;
   }
 }

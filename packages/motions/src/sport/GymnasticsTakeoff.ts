@@ -1,13 +1,15 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { jump } from "../actions/jump";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 
 /**
@@ -30,21 +32,6 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-off is the jump's, never restated.
  */
 export namespace GymnasticsTakeoff {
-  /** A planned take-off. */
-  export interface ITakeoff {
-    /** The jump's plan; its postures up to `seconds` are the push-off. */
-    plan: IHumanActionPlan;
-
-    /** The take-off, seconds of the plan. */
-    seconds: number;
-
-    /** The centre of mass at the take-off, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** Its launch velocity, m/s. */
-    velocity: IAutoMovieVector3;
-  }
-
   /** How many times the landing place is corrected. */
   const PASSES: number = 3;
 
@@ -65,10 +52,12 @@ export namespace GymnasticsTakeoff {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the last jump plan only, in the result.
    */
   export function of(
-    context: IHumanActionContext<object>,
+    context: IAutoMovieMotionHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
-  ): ITakeoff {
-    const model: GymnasticsFlight.Model = GymnasticsFlight.model(context.body);
+  ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
+      context.body,
+    );
     const root: IAutoMovieVector3 = context.entry.posture.root;
 
     // The first aim reads a centre over the root at the share of the stature
@@ -97,13 +86,13 @@ export namespace GymnasticsTakeoff {
       y: 0,
       z: root.z + first.z * guess,
     };
-    const at = (plan: IHumanActionPlan, event: string): number =>
+    const at = (plan: IAutoMovieMotionHumanActionPlan, event: string): number =>
       (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
         ?.share ?? 0) * plan.duration;
 
-    let taken: ITakeoff | undefined;
+    let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
     for (let pass: number = 0; pass <= PASSES; pass++) {
-      const plan: IHumanActionPlan = jump.plan({
+      const plan: IAutoMovieMotionHumanActionPlan = jump.plan({
         ...context,
         params: { to, apex },
       });

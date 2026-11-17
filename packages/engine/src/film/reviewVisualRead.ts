@@ -2,8 +2,9 @@ import {
   IAutoMovieCamera,
   IAutoMovieInteractionEvent,
   IAutoMovieMotion,
+  type IAutoMovieResolvedCamera,
   IAutoMovieReviewNote,
-  IAutoMovieScene,
+  type IAutoMovieReviewVisualRead,
   IAutoMovieSceneNode,
   IAutoMovieShot,
   IAutoMovieShotPerformance,
@@ -14,8 +15,6 @@ import { Vector3 } from "../math/Vector3";
 import { roundToThousandths } from "../math/roundToThousandths";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { foldRoot } from "./foldRoot";
 import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNotes";
 import { projectToNdc } from "./projectToNdc";
@@ -55,34 +54,9 @@ const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares camera placements and performer roots on the fixed clock between frame and silhouette metrics, so pair comparisons do not resample roots. Contact checks sample the target at each event's own time independently; an event can coincide with the fixed clock, but that repeated sample is not reused here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
-export function reviewVisualRead(props: {
-  /** Beat id the notes are filed against. */
-  beat: string;
-
-  /** Staged scene whose nodes and cameras the shot plays over. */
-  scene: IAutoMovieScene;
-
-  /** The compiled shot: camera, its motion, performances, events, duration. */
-  shot: IAutoMovieShot;
-
-  /** Motions the shot's performances reference. */
-  motions: readonly IAutoMovieMotion[];
-
-  /** Samples per second. Defaults to 12. */
-  sampleRate?: number;
-
-  /** Render aspect (width / height). Defaults to 16 / 9. */
-  aspect?: number;
-
-  /** Body radius in metres a contact point must land within. Defaults to 1. */
-  contactRadius?: number;
-
-  /** Silhouette half-width in metres for the merge check. Defaults to 0.35. */
-  silhouetteRadius?: number;
-
-  /** Film-grammar findings for this shot or its incoming cut, filed before visual-read notes. */
-  grammarDiagnostics?: readonly IAutoMovieGrammarDiagnostic[];
-}): IAutoMovieReviewNote[] {
+export function reviewVisualRead(
+  props: IAutoMovieReviewVisualRead.IProps,
+): IAutoMovieReviewNote[] {
   const motionById: Map<string, IAutoMovieMotion> = new Map(
     props.motions.map(
       (motion: IAutoMovieMotion): [string, IAutoMovieMotion] => [

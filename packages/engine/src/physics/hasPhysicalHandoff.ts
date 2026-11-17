@@ -1,4 +1,4 @@
-import type { IAutoMoviePhysicalHandoff } from "./IAutoMoviePhysicalHandoff";
+import type { IAutoMoviePhysicalHandoff } from "@automovie/interface";
 
 /**
  * Inspect run-owned transitions without allocating a key array on each native tick.

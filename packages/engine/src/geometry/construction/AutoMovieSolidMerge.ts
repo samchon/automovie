@@ -1,3 +1,5 @@
+import type { IAutoMovieSolidJoin } from "@automovie/interface";
+
 import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 
 /**
@@ -42,8 +44,8 @@ export namespace AutoMovieSolidMerge {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned join result and its owned/borrowed dependency graph escape; the wrapper itself retains nothing.
    */
   export function create(
-    input: AutoMovieSolidJoin.IInput,
-  ): AutoMovieSolidJoin.IResult {
+    input: IAutoMovieSolidJoin.IInput,
+  ): IAutoMovieSolidJoin.IResult {
     return AutoMovieSolidJoin.create(input, "outside");
   }
 }

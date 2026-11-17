@@ -1,8 +1,5 @@
 import {
   HUMANOID_JOINT_AXES,
-  IAutoMovieActionSynthesizer,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
   Quaternion,
   Vector3,
   performShot,
@@ -13,9 +10,11 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
   IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
@@ -23,6 +22,7 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieStage,
   IAutoMovieStageCamera,
+  type IAutoMovieStagedSet,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

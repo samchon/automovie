@@ -1,22 +1,24 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import type { HumanGrasp } from "./HumanGrasp";
 
 /**
  * A grip judged by what the performer's next action on the prop will do
@@ -58,14 +60,17 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over the grasp record.
    */
   export function grip(
-    context: Pick<IHumanActionContext, "body" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "prop" | "start"
+    >,
     prop: string,
-    side: HumanHand.Side,
-    shown: HumanHand.IWrist,
-    posture: IHumanPosture,
-  ): IHumanActionLaw.IGrip {
-    const held: IHumanActionContext.IProp = context.prop(prop);
-    const grasped: AutoMovieMotionHumanHeld.IHeld =
+    side: AutoMovieHumanSide,
+    shown: IAutoMovieMotionHumanHand.IWrist,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanActionLaw.IGrip {
+    const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
+    const grasped: IAutoMovieMotionHumanHeld.IHeld =
       AutoMovieMotionHumanHeld.grasped(
         context.body,
         side,
@@ -77,7 +82,9 @@ export namespace HumanGraspDemand {
     return {
       prop,
       side,
-      tool: (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
+      tool: (
+        points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+      ): IAutoMovieMotionHumanStrikingHeld.ITool =>
         StrikingHeld.read(grasped, points),
       posture,
     };
@@ -107,16 +114,16 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The judge closes over the demand.
    */
   export function key(
-    body: IHumanBody,
-    demand: IHumanActionLaw.IDemand,
-  ): HumanGrasp.IKey {
-    const side: HumanHand.Side = demand.tool.side;
+    body: IAutoMovieMotionHumanBody,
+    demand: IAutoMovieMotionHumanActionLaw.IDemand,
+  ): IAutoMovieMotionHumanGrasp.IKey {
+    const side: AutoMovieHumanSide = demand.tool.side;
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
       side,
       "grip",
     ).point;
-    const wrist: HumanHand.IWrist = {
+    const wrist: IAutoMovieMotionHumanHand.IWrist = {
       point: Vector3.subtract(
         demand.frame.point,
         Quaternion.rotateVector(demand.frame.rotation, socket),

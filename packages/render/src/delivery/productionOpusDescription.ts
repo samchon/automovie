@@ -1,4 +1,7 @@
-import type { IAutoMovieProductionOpusDescription } from "@automovie/interface";
+import type {
+  IAutoMovieProductionOpusDescription,
+  IAutoMovieProductionOpusDescriptionProps,
+} from "@automovie/interface";
 
 /**
  * Parse and structurally validate the one Opus `dOps` box of an MP4 audio
@@ -35,20 +38,11 @@ import type { IAutoMovieProductionOpusDescription } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call parses one track's sample entry for one probe and coordinates no phases or requests whose result could be shared.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function keeps no reference to the parsed boxes after returning, its result copies the mapping into a new array its caller owns, and it opens no handle or task.
  */
-export const productionOpusDescription: (props: {
-  boxes: readonly unknown[] | undefined;
-  codec: string;
-  trackChannels: number;
-}) => IAutoMovieProductionOpusDescription = (props: {
-  /** Parsed sample-entry children; absence is treated as no dOps box. */
-  boxes: readonly unknown[] | undefined;
-
-  /** Sample-entry codec spelling; the Opus family is matched case-insensitively. */
-  codec: string;
-
-  /** Channel count read from the enclosing audio sample entry. */
-  trackChannels: number;
-}): IAutoMovieProductionOpusDescription => {
+export const productionOpusDescription: (
+  props: IAutoMovieProductionOpusDescriptionProps,
+) => IAutoMovieProductionOpusDescription = (
+  props: IAutoMovieProductionOpusDescriptionProps,
+): IAutoMovieProductionOpusDescription => {
   if (/^opus(?:\.|$)/i.test(props.codec) === false)
     throw new Error(
       `unsupported-audio-profile.sampleEntry: expected Opus, observed "${props.codec}".`,

@@ -1,14 +1,14 @@
-import { IAutoMovieAttachAction } from "./IAutoMovieAttachAction";
-import { IAutoMovieCameraAction } from "./IAutoMovieCameraAction";
-import { IAutoMovieEmoteAction } from "./IAutoMovieEmoteAction";
-import { IAutoMovieEnactAction } from "./IAutoMovieEnactAction";
-import { IAutoMovieGestureAction } from "./IAutoMovieGestureAction";
-import { IAutoMovieHoldAction } from "./IAutoMovieHoldAction";
-import { IAutoMovieLaunchAction } from "./IAutoMovieLaunchAction";
-import { IAutoMovieLocomoteAction } from "./IAutoMovieLocomoteAction";
-import { IAutoMovieLookAtAction } from "./IAutoMovieLookAtAction";
-import { IAutoMovieReachAction } from "./IAutoMovieReachAction";
-import { IAutoMovieReactAction } from "./IAutoMovieReactAction";
+import type { IAutoMovieAttachAction } from "./IAutoMovieAttachAction";
+import type { IAutoMovieCameraAction } from "./IAutoMovieCameraAction";
+import type { IAutoMovieEmoteAction } from "./IAutoMovieEmoteAction";
+import type { IAutoMovieEnactAction } from "./IAutoMovieEnactAction";
+import type { IAutoMovieGestureAction } from "./IAutoMovieGestureAction";
+import type { IAutoMovieHoldAction } from "./IAutoMovieHoldAction";
+import type { IAutoMovieLaunchAction } from "./IAutoMovieLaunchAction";
+import type { IAutoMovieLocomoteAction } from "./IAutoMovieLocomoteAction";
+import type { IAutoMovieLookAtAction } from "./IAutoMovieLookAtAction";
+import type { IAutoMovieReachAction } from "./IAutoMovieReachAction";
+import type { IAutoMovieReactAction } from "./IAutoMovieReactAction";
 
 /**
  * A single action verb an actor performs: the thin unit the model emits and the

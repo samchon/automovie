@@ -1,10 +1,10 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCompiledFormationHero } from "./IAutoMovieCompiledFormationHero";
-import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
-import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
-import { IAutoMovieFormationChunk } from "./IAutoMovieFormationChunk";
-import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCompiledFormationHero } from "./IAutoMovieCompiledFormationHero";
+import type { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
+import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
+import type { IAutoMovieFormationChunk } from "./IAutoMovieFormationChunk";
+import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
+import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compact generated formation runtime without a persisted row for every anonymous slot. Bounds and centroid describe placement points; projectionRadius is a separate supplied or fallback estimate used for view tests, not a guaranteed model enclosure.

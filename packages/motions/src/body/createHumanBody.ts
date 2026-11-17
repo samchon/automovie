@@ -6,13 +6,13 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanBody } from "./IHumanBody";
 
 /**
  * Derive a performer's body from a canonical rig and profile.
@@ -32,7 +32,7 @@ import type { IHumanBody } from "./IHumanBody";
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
-): IHumanBody {
+): IAutoMovieMotionHumanBody {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(bone.bone, {
@@ -46,7 +46,7 @@ export function createHumanBody(
         (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
         bone.rest.translation.z,
     });
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     skeleton,
     profile,
     measure: measureAutoMovieHumanoidBody(skeleton, profile),

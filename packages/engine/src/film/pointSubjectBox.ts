@@ -1,4 +1,8 @@
-import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMoviePointSubjectBox,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The box one staged point occupies, given the vertical extent of what stands there.
@@ -19,7 +23,7 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  */
 export function pointSubjectBox(
   point: IAutoMovieVector3,
-  extent: { min: number; max: number },
+  extent: IAutoMoviePointSubjectBox.IExtent,
 ): IAutoMovieSubjectBox {
   return {
     min: { x: point.x, y: point.y + extent.min, z: point.z },

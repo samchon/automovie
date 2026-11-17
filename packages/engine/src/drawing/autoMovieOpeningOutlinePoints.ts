@@ -1,9 +1,9 @@
 import {
+  type IAutoMovieOpeningArc,
   IAutoMovieOpeningProfile,
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";
 
-import { IAutoMovieOpeningArc } from "./IAutoMovieOpeningArc";
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { AUTOMOVIE_DRAWING_ARC_STEP } from "./constants/AUTOMOVIE_DRAWING_ARC_STEP";
 

@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { regrasp } from "../handling/regrasp";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -13,13 +18,19 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanRegrasp {
   /** A key or a cap turned about its own axis by the wrist, the grip held. */
-  export const twist = HumanActionRow.of("twist", regrasp, { kind: "twist" });
+  export const twist: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["regrasp"]["twist"]
+  > = HumanActionRow.of("twist", regrasp, { kind: "twist" });
 
   /** The object shifted in the still hand to another of its grips. */
-  export const regrip = HumanActionRow.of("regrip", regrasp, {
+  export const regrip: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["regrasp"]["regrip"]
+  > = HumanActionRow.of("regrip", regrasp, {
     kind: "regrip",
   });
 
   /** A small round object rolled across the fingers. */
-  export const roll = HumanActionRow.of("roll", regrasp, { kind: "roll" });
+  export const roll: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["regrasp"]["roll"]
+  > = HumanActionRow.of("roll", regrasp, { kind: "roll" });
 }

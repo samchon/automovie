@@ -1,52 +1,21 @@
-import type { IRecoveryOpenSlabGraph } from "./IRecoveryOpenSlabGraph";
+import type {
+  IAutoMovieRecoveryOpenArcIncidence,
+  IAutoMovieRecoveryOpenSlabGraph,
+  IAutoMovieRecoverySlabConnectivityGroup,
+  IAutoMovieRecoverySlabGraph,
+} from "@automovie/interface";
+
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
 /**
  * Observe ordinary open-arc transport without exporting source addresses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Records private support premises, unsupported topology and source orientation qualification separately.
- * @evidence contracts/development/design.md#principled-representation Represents Observe ordinary open-arc transport without exporting source addresses: companion namespace of 5 members (`Arc`, `Result`, `Source`, `Query`, `prepare`); units and frames named in its text: local, degrees, degree. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryOpenSlabGraph` in packages/recovery/src/internal/RecoveryOpenSlabGraph.ts; its surface is the 5 members listed and the text shows 3 other files naming it, mostly packages/recovery (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Original source incidence, exact scalar heights and two saved open-arc populations define one ordinary continuation query.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared runtime owner reuses source-link and boundary incidence; interface owns Source, Query, Arc and Result records.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Source topology and material orientation remain independent; hidden components, critical-event defects and ambiguous endpoint transport cannot authorize a bridge.
  */
 export namespace RecoveryOpenSlabGraph {
-  /**
-   * Saved open-arc endpoint ordinals and private observation support.
-   *
-   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   */
-  export type Arc = IRecoveryOpenSlabGraph.Arc;
-  /**
-   * Source-free pair transport, unresolved groups and orientation diagnostics.
-   *
-   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   */
-  export type Result = IRecoveryOpenSlabGraph.Result;
-  /**
-   * Immutable private source incidence and precomputed scalar heights.
-   *
-   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   */
-  export type Source = IRecoveryOpenSlabGraph.Source;
-  /**
-   * One critical-free slab query with complete candidate support.
-   *
-   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   */
-  export type Query = IRecoveryOpenSlabGraph.Query;
-
   /**
    * Prepare boundary incidence once and observe critical-free ordinary open pairs.
    * Binary64 zero-area checks and combinatorial paths do not certify embedding.
@@ -62,7 +31,11 @@ export namespace RecoveryOpenSlabGraph {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The extraction-scoped closure reuses source admission, boundary incidence, invalid-face observations and prepared sheet connectivity across slabs; changing source requires a new preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source and O(V+T) incidence live until the extraction discards the closure. Boundary union-find, probes and maps expire per query; only local ordinals and diagnostics escape.
    */
-  export function prepare(source: Source): (input: Query) => Result {
+  export function prepare(
+    source: IAutoMovieRecoveryOpenSlabGraph.Source,
+  ): (
+    input: IAutoMovieRecoveryOpenSlabGraph.Query,
+  ) => IAutoMovieRecoveryOpenSlabGraph.Result {
     const size: number = source.vertices.length;
     if (source.canon.length !== size || source.heights.length !== size)
       throw new Error("Open slab source arrays must align");
@@ -93,7 +66,8 @@ export namespace RecoveryOpenSlabGraph {
           "Open slab aliases must have identical positions and scalar heights",
         );
     }
-    const sheet: ReturnType<typeof G.prepare> = G.prepare(source);
+    const sheet: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> =
+      G.prepare(source);
     const invalid: Set<number> = new Set();
     const invalidVertices: Set<number> = new Set();
     const invalidEdges: Set<string> = new Set();
@@ -195,7 +169,9 @@ export namespace RecoveryOpenSlabGraph {
         byFace.get(face)!.push(boundary.length);
         boundary.push({ a: edge.a, b: edge.b, face, key });
       }
-    return (input: Query): Result => {
+    return (
+      input: IAutoMovieRecoveryOpenSlabGraph.Query,
+    ): IAutoMovieRecoveryOpenSlabGraph.Result => {
       if (
         !Number.isFinite(input.beforeMm) ||
         !Number.isFinite(input.afterMm) ||
@@ -354,10 +330,10 @@ export namespace RecoveryOpenSlabGraph {
           ).length === 2,
       );
       const endpoint: (
-        end: Arc["ends"][number],
+        end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
         side: "before" | "after",
       ) => number | undefined = (
-        end: Arc["ends"][number],
+        end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
         side: "before" | "after",
       ): number | undefined => {
         if (
@@ -380,11 +356,17 @@ export namespace RecoveryOpenSlabGraph {
         );
         return found.size === 1 ? found.values().next().value : undefined;
       };
-      const groups: G.Group[] = sheet({
+      const groups: IAutoMovieRecoverySlabConnectivityGroup[] = sheet({
         beforeMm: input.beforeMm,
         afterMm: input.afterMm,
-        before: input.before.map((arc: Arc): ReadonlySet<number> => arc.faces),
-        after: input.after.map((arc: Arc): ReadonlySet<number> => arc.faces),
+        before: input.before.map(
+          (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
+            arc.faces,
+        ),
+        after: input.after.map(
+          (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
+            arc.faces,
+        ),
         defects: [...input.defects, localInvalid],
         candidates: input.candidates,
         probes: components.map(
@@ -392,7 +374,7 @@ export namespace RecoveryOpenSlabGraph {
             component.faces,
         ),
       });
-      const result: Result = {
+      const result: IAutoMovieRecoveryOpenSlabGraph.Result = {
         pairs: [],
         unresolved: [],
         diagnostics: orientationWarnings
@@ -420,8 +402,10 @@ export namespace RecoveryOpenSlabGraph {
           reason =
             "Ordinary open transport requires exactly two simple boundary paths across the slab";
         if (reason === null) {
-          const before: Arc = input.before[group.before[0]!]!,
-            after: Arc = input.after[group.after[0]!]!;
+          const before: IAutoMovieRecoveryOpenArcIncidence =
+              input.before[group.before[0]!]!,
+            after: IAutoMovieRecoveryOpenArcIncidence =
+              input.after[group.after[0]!]!;
           const a: number | undefined = endpoint(before.ends[0], "before"),
             b: number | undefined = endpoint(before.ends[1], "before");
           const c: number | undefined = endpoint(after.ends[0], "after"),
@@ -462,8 +446,10 @@ export namespace RecoveryOpenSlabGraph {
           });
       }
       result.pairs.sort(
-        (a: Result["pairs"][number], b: Result["pairs"][number]): number =>
-          a.before - b.before || a.after - b.after,
+        (
+          a: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number],
+          b: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number],
+        ): number => a.before - b.before || a.after - b.after,
       );
       return result;
     };

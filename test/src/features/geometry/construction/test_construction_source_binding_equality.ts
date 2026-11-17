@@ -3,9 +3,13 @@ import {
   AutoMovieLoftSectionSource,
   AutoMovieViewAxis,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionBindingDense } from "../../internal/construction/ConstructionBindingDense";
@@ -123,7 +127,7 @@ function made(order: number): Chain {
       { site: "b", station: 1, value },
     ],
   });
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     name: "binding.ellipse",
     axis: AutoMovieViewAxis.horizontal(),
     stations: [0, 1],
@@ -335,7 +339,7 @@ function accesses(base: Chain): void {
 /** Nested native endpoint snapshots preserve value-copy and optional-field equality. */
 function endpoints(base: Chain): void {
   const layer: Chain["layers"][number] = copied(base).layers[0]!;
-  const field: AutoMovieLoftSectionSource.IEndpoint["field"] = {
+  const field: IAutoMovieLoftSectionSource.IEndpoint["field"] = {
     kind: "native",
     inputs: {
       extents: [

@@ -1,12 +1,15 @@
 import { createObstacle } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,11 +36,11 @@ export function test_archetype_obstacle_step_over(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const cross = (
       model: Parameters<typeof HumanObject.prop>[1],
       depth: number,
-    ): HumanPerformance =>
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "step-over",
         laws: [],
@@ -68,7 +71,7 @@ export function test_archetype_obstacle_step_over(): void {
       const height: number = obstacle.dimensions.height!;
       const depth: number = obstacle.dimensions.width!;
       const label: string = `${name} over the ${kind}`;
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = cross(obstacle, depth);
       } catch (error) {

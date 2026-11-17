@@ -5,6 +5,10 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,10 +17,7 @@ import {
   HumanFirearm,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanWeaponFirearm,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,10 +62,10 @@ export function test_human_motion_firearm_long_gun(): void {
   });
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const target: IAutoMovieVector3 = { x: -1, y: 0.8 * stature, z: 20 };
-    const film: HumanPerformance = new HumanPerformance({
+    const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "carbine",
       laws: [...Object.values(HumanFirearm), HumanWeaponFirearm.draw],
       performers: [
@@ -93,15 +94,17 @@ export function test_human_motion_firearm_long_gun(): void {
           seconds: 0.6,
         }).node,
     });
-    const aim: HumanSegment.ISegment = film
+    const aim: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "takeAim")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "takeAim",
+      )!;
     const set: number =
       aim.start +
       (aim.plan.events.find((e): boolean => e.name === "stroke")?.share ??
         Number.NaN) *
         aim.plan.duration;
-    const on = (frame: IHumanProp.IFrame, local: IAutoMovieVector3) =>
+    const on = (frame: IAutoMovieRigidTransform, local: IAutoMovieVector3) =>
       Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, local),
@@ -109,8 +112,8 @@ export function test_human_motion_firearm_long_gun(): void {
 
     // The left hand's grip centre in the carbine's own frame.
     const hand = (seconds: number): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = film.prop("carbine", seconds);
-      const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+      const frame: IAutoMovieRigidTransform = film.prop("carbine", seconds);
+      const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
         body.surfaces.sockets.gripLeft;
       return Quaternion.rotateVector(
         Quaternion.inverse(frame.rotation),
@@ -124,7 +127,7 @@ export function test_human_motion_firearm_long_gun(): void {
       );
     };
     for (const seconds of [set, aim.end]) {
-      const frame: IHumanProp.IFrame = film.prop("carbine", seconds);
+      const frame: IAutoMovieRigidTransform = film.prop("carbine", seconds);
       const off: number =
         (Math.acos(
           Math.max(

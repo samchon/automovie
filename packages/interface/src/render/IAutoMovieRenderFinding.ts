@@ -1,6 +1,6 @@
-import { AutoMovieRenderFindingStatus } from "./AutoMovieRenderFindingStatus";
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
-import { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
+import type { AutoMovieRenderFindingStatus } from "./AutoMovieRenderFindingStatus";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
 
 /**
  * One render metric's preflight measurement, declared limit, bounded editable owners and corrective action.

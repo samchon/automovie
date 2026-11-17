@@ -1,9 +1,12 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieModel,
+  IAutoMovieVector3,
+  type IAutoMovieWorldBlock,
+} from "@automovie/interface";
 
-import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
+import { Transform } from "./math/Transform";
 import { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
-import { Transform } from "./math/Transform";
 
 /**
  * Build a box model group, placed node and bounds from a grounded base and size.
@@ -16,19 +19,11 @@ import { Transform } from "./math/Transform";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The same supplied dimensions feed the part, translation and bounds within the call; no cheap scalar result cache or separately tunable extent is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh model/node/bounds records; no builder registry, renderer or background task is acquired.
  */
-export const worldBlock: (input: {
-  id: string;
-  kind: "wall" | "building";
-  base: IAutoMovieVector3;
-  size: IAutoMovieVector3;
-  color: string;
-}) => IAutoMovieWorldBlock = (input: {
-  id: string;
-  kind: IAutoMovieWorldBlock["kind"];
-  base: IAutoMovieVector3;
-  size: IAutoMovieVector3;
-  color: string;
-}): IAutoMovieWorldBlock => {
+export const worldBlock: (
+  input: IAutoMovieWorldBlock.IInput,
+) => IAutoMovieWorldBlock = (
+  input: IAutoMovieWorldBlock.IInput,
+): IAutoMovieWorldBlock => {
   assertText(input.id, "World block id");
   for (const [name, value] of Object.entries(input.size))
     if (Number.isFinite(value) === false || value <= 0)
@@ -83,11 +78,14 @@ export const worldBlock: (input: {
     node: {
       id: input.id,
       model: model.id,
-      transform: Transform.of({
+      transform: Transform.of(
+        {
           x: input.base.x,
           y: input.base.y + input.size.y / 2,
           z: input.base.z,
-        }, { x: 0, y: 0, z: 0, w: 1 }),
+        },
+        { x: 0, y: 0, z: 0, w: 1 },
+      ),
       motion: null,
       pose: null,
     },

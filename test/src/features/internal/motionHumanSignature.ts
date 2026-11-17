@@ -1,10 +1,12 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSignature, type IHumanBody } from "@automovie/motions";
+import { HumanSignature } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionCoveringArray } from "./motionCoveringArray";
@@ -50,7 +52,7 @@ export namespace motionHumanSignature {
     film: motionHumanLaw.IFilm;
 
     /** The body of `a`. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** `a`'s heading, degrees. */
     yaw: number;
@@ -122,7 +124,9 @@ export namespace motionHumanSignature {
   }
 
   /** `a` of a staged row as the package's signature reader. */
-  export function reader(staged: IStaged): HumanSignature.IReader {
+  export function reader(
+    staged: IStaged,
+  ): IAutoMovieMotionHumanSignature.IReader {
     return HumanSignature.of(staged.film, "a", staged.body, staged.yaw);
   }
 
@@ -259,7 +263,7 @@ export namespace motionHumanSignature {
   export const times: typeof HumanSignature.times = HumanSignature.times;
 
   /** The gait of a window: the duty factor of each foot and the cadence. */
-  export type IGait = HumanSignature.IGait;
+  export type IGait = IAutoMovieMotionHumanSignature.IGait;
 
   /** The gait of `a` over a window of steady travel (`HumanSignature.gait`). */
   export function gait(
@@ -285,7 +289,7 @@ export namespace motionHumanSignature {
   export function region(
     staged: IStaged,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     name: string,
     seconds: number,
   ): IAutoMovieVector3 {
@@ -300,7 +304,7 @@ export namespace motionHumanSignature {
   export function apart(
     staged: IStaged,
     seconds: number,
-    partner: IHumanBody,
+    partner: IAutoMovieMotionHumanBody,
   ): number {
     return HumanSignature.apart(
       reader(staged),

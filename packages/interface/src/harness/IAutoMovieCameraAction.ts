@@ -1,5 +1,5 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
-import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
  * The camera is an actor; this is how it moves. A list of camera actions

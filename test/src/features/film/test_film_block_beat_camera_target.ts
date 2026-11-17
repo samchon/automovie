@@ -1,14 +1,11 @@
+import { blockBeat, stageScene } from "@automovie/engine";
 import {
-  IAutoMovieBlockedBeat,
-  IAutoMovieStagedSet,
-  blockBeat,
-  stageScene,
-} from "@automovie/engine";
-import {
+  type IAutoMovieBlockedBeat,
   IAutoMovieBlockingCamera,
   IAutoMovieBlockingCoverage,
   IAutoMovieConstraintViolation,
   IAutoMovieScript,
+  type IAutoMovieStagedSet,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

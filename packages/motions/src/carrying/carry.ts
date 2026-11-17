@@ -1,23 +1,28 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarry,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { walk } from "../actions/walk";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one:
@@ -62,10 +67,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace carry {
   /** The action's name. */
-  export const name: HumanActionName = "carry";
+  export const name: AutoMovieMotionHumanActionName = "carry";
 
   /** Cancel table: a carry ends into standing, putting down or handing over at its last footfall. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
         window: ["lastFootfall", 1],
@@ -92,44 +97,14 @@ export namespace carry {
     ],
   };
 
-  /** How the load is held. */
-  export type How = "oneHand" | "twoHands" | "hip" | "push";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The walk's destination, pace and manner, the way of carrying, the side and the load's mass share.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`; the manner's type is the walk's.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The floor point walked to, world metres. */
-    to: IAutoMovieVector3;
-
-    /** How the load is held. */
-    how: How;
-
-    /** The loaded side for `oneHand` and `hip`; `right` when absent. */
-    side?: HumanHand.Side;
-
-    /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. */
-    load?: number & tags.Minimum<0> & tags.Maximum<0.25> & HumanUnit<"">;
-
-    /** The walk's pace; `normal` when absent. */
-    pace?: "slow" | "normal" | "fast";
-
-    /** How the walk is performed (`walk.IParams.manner`); neutral when absent. */
-    manner?: walk.IParams["manner"];
-  }
-
   /** Trunk lean per unit of the load's mass share by way of carrying, degrees (provisional). */
-  export const LEAN: Readonly<Record<How, number>> = {
-    oneHand: 30,
-    twoHands: 25,
-    hip: 30,
-    push: 40,
-  };
+  export const LEAN: Readonly<Record<IAutoMovieMotionHumanCarry.How, number>> =
+    {
+      oneHand: 30,
+      twoHands: 25,
+      hip: 30,
+      push: 40,
+    };
 
   /** Seconds over which the hold and the lean grow in (provisional). */
   export const RAMP: number = 0.4;
@@ -145,16 +120,16 @@ export namespace carry {
    * @returns The point and the outward normal of the place, world, or undefined for a free hand.
    */
   export function place(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    how: How,
-    side: HumanHand.Side,
-    loaded: HumanHand.Side,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined {
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    how: IAutoMovieMotionHumanCarry.How,
+    side: AutoMovieHumanSide,
+    loaded: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanCarry.IPlaceResult {
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const out: number = side === "left" ? 1 : -1;
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };
@@ -203,15 +178,15 @@ export namespace carry {
    * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const p: IParams = context.params;
-    const how: How = p.how;
-    const loaded: HumanHand.Side = p.side ?? "right";
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarry.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const p: IAutoMovieMotionHumanCarry.IParams = context.params;
+    const how: IAutoMovieMotionHumanCarry.How = p.how;
+    const loaded: AutoMovieHumanSide = p.side ?? "right";
     const load: number = p.load ?? 0.1;
     HumanBound.within("load", load, 0, 0.25, "of the body's mass");
-    const base: IHumanActionPlan = walk.plan({
+    const base: IAutoMovieMotionHumanActionPlan = walk.plan({
       ...context,
       params: {
         to: p.to,
@@ -220,7 +195,7 @@ export namespace carry {
       },
     });
     const duration: number = base.duration;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       base.events.map((e) => ({ name: e.name, seconds: e.share * duration })),
     );
@@ -242,7 +217,10 @@ export namespace carry {
       channels: ["trunk"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const add = lean(ramp(seconds));
         const sum = (
           held: readonly [number, number, number] | undefined,
@@ -272,7 +250,10 @@ export namespace carry {
           channels: [`${side}Arm`, `${side}Hand`],
           from: 0,
           to: duration,
-          write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture => {
             const s: number = ramp(seconds);
             return {
               ...posture,
@@ -298,7 +279,9 @@ export namespace carry {
           to: duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: ramp,
-          goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
+          goal: (
+            posture: IAutoMovieMotionHumanPosture,
+          ): IAutoMovieHumanLimbGoal => {
             const at = place(body, posture, how, side, loaded)!;
             return AutoMovieMotionHumanArm.goal(
               body,
@@ -315,7 +298,7 @@ export namespace carry {
     }
     // The head and an arm no load holds are the walk's to yield, as a
     // walk's own are: a one-hand or hip load leaves the other arm free.
-    const free: readonly HumanHand.Side[] =
+    const free: readonly AutoMovieHumanSide[] =
       how === "oneHand" || how === "hip"
         ? [loaded === "left" ? "right" : "left"]
         : [];
@@ -328,7 +311,7 @@ export namespace carry {
       yields: [
         "head",
         ...free.flatMap(
-          (side: HumanHand.Side): AutoMovieMotionHumanChannel.Claim[] => [
+          (side: AutoMovieHumanSide): AutoMovieMotionHumanChannelClaim[] => [
             `${side}Arm`,
             `${side}Hand`,
           ],

@@ -1,4 +1,4 @@
-import { AutoMovieChannelValueType } from "./AutoMovieChannelValueType";
+import type { AutoMovieChannelValueType } from "./AutoMovieChannelValueType";
 
 /**
  * A channel addressing an arbitrary property by RFC-6901 JSON pointer, keyed as ptr:<pointer> so it never aliases a node channel.

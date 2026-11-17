@@ -4,7 +4,10 @@ import {
   resolveHydrodynamicForce,
 } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieResolveHydrodynamicForce,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -45,7 +48,7 @@ export function test_engine_hydrodynamic_force(): void {
     y: number,
     velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
     density?: number,
-  ): resolveHydrodynamicForce.IForce =>
+  ): IAutoMovieResolveHydrodynamicForce.IForce =>
     resolveHydrodynamicForce({
       volume: V,
       centre: { x: 0, y, z: 0 },
@@ -75,7 +78,7 @@ export function test_engine_hydrodynamic_force(): void {
   if (Vector3.length(at(-2 * r).drag) !== 0)
     findings.push("a still segment feels drag");
   const v: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0.8 };
-  const full: resolveHydrodynamicForce.IForce = at(-2 * r, v);
+  const full: IAutoMovieResolveHydrodynamicForce.IForce = at(-2 * r, v);
   const expected: number =
     0.5 * rho * resolveHydrodynamicForce.DRAG * Math.PI * r * r;
   if (
@@ -90,7 +93,7 @@ export function test_engine_hydrodynamic_force(): void {
     findings.push(
       `doubling the speed scales drag by ${faster / Vector3.length(full.drag)}`,
     );
-  const half: resolveHydrodynamicForce.IForce = at(0, v);
+  const half: IAutoMovieResolveHydrodynamicForce.IForce = at(0, v);
   if (!close(Vector3.length(half.drag), expected / 2))
     findings.push(
       `half under: drag ${Vector3.length(half.drag)}, expected ${expected / 2}`,
@@ -108,13 +111,13 @@ export function test_engine_hydrodynamic_force(): void {
     findings.push("sea water does not lift in its density's ratio");
 
   // 4. Volumes.
-  const transform: IAutoMoviePhysicalProfile.ITransform = {
+  const transform: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const segment = (
-    shapes: IAutoMoviePhysicalProfile.IShape[],
-  ): IAutoMoviePhysicalProfile.ISegment => ({
+    shapes: IAutoMoviePhysicalShape[],
+  ): IAutoMoviePhysicalSegment => ({
     bone: "hips",
     neutral: transform,
     mass: 1,
@@ -123,14 +126,14 @@ export function test_engine_hydrodynamic_force(): void {
     inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
     shapes,
   });
-  const sphere: IAutoMoviePhysicalProfile.IShape = {
+  const sphere: IAutoMoviePhysicalShape = {
     id: "s",
     material: "m",
     transform,
     kind: "sphere",
     radius: 0.1,
   };
-  const capsule: IAutoMoviePhysicalProfile.IShape = {
+  const capsule: IAutoMoviePhysicalShape = {
     id: "c",
     material: "m",
     transform,
@@ -138,7 +141,7 @@ export function test_engine_hydrodynamic_force(): void {
     radius: 0.05,
     halfLength: 0.2,
   };
-  const box: IAutoMoviePhysicalProfile.IShape = {
+  const box: IAutoMoviePhysicalShape = {
     id: "b",
     material: "m",
     transform,

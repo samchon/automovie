@@ -1,7 +1,9 @@
-import { IAutoMovieSubjectBox } from "@automovie/interface";
+import {
+  type IAutoMovieFramedBox,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { midpoint } from "../math/midpoint";
-import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
 
 /**
  * Restate a world box as the base, height and radius the framing grammar solves from.

@@ -1,10 +1,13 @@
-import {
-  type IAutoMovieCurve64 as C,
-  tessellateAutoMovieCurveGrid64,
-} from "@automovie/engine";
+import { tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieReconstructRecovery,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenReconstructionOperation,
+  IAutoMovieRecoveryOpenRunDescriptionOperation,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
 import { reconstructRecovery } from "./reconstructRecovery";
 
@@ -22,30 +25,9 @@ import { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph maps and converted course records are call-local. Returned model and actual construction own generated buffers; no source mesh, cross-call cache or external handle exists.
  */
 export function reconstructRecoveryOpen(
-  bundle: IAutoMovieRecoveryMeshSections,
-  graph: IAutoMovieRecoveryOpenContinuation,
-): Omit<ReturnType<typeof reconstructRecovery>, "construction"> & {
-  construction: { id: string; closed: boolean; points: C.Vector[] }[];
-  openReports: {
-    runs: {
-      id: string;
-      firstSection: number;
-      lastSection: number;
-      curves: string[];
-      generated: boolean;
-      reason: string | null;
-      vertices: number;
-      triangles: number;
-      omittedZeroAreaTriangles: number;
-      unresolvedVertexNormals: number;
-      isolatedVertices: number;
-      nonfiniteNormalSums: number;
-    }[];
-    pairs: number;
-    unsupportedGroups: number;
-    generatedRuns: number;
-  };
-} {
+  bundle: Parameters<IAutoMovieRecoveryOpenReconstructionOperation.Operation>[0],
+  graph: Parameters<IAutoMovieRecoveryOpenReconstructionOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation> {
   if (
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
@@ -137,23 +119,25 @@ export function reconstructRecoveryOpen(
     )
   )
     throw new Error("Orientation witnesses must align with saved arcs");
-  const base: ReturnType<typeof reconstructRecovery> =
+  const base: ReturnType<IAutoMovieReconstructRecovery.Operation> =
     reconstructRecovery(bundle);
-  const construction: ReturnType<
-    typeof reconstructRecoveryOpen
-  >["construction"] = [...base.construction];
+  const construction: ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation>["construction"] =
+    [...base.construction];
   const diagnostics: string[] = [
     ...base.diagnostics,
     ...graph.diagnostics,
     "Closed-only unresolved records are preserved independently; open continuation can supply additional surfaces for those previously unrepresented observations.",
     "Open surfaces use one normalized phase chart and station PCHIP per maximal run; neither source injectivity nor global course C1/G1 or surface error is certified.",
   ];
-  const openReports: ReturnType<typeof reconstructRecoveryOpen>["openReports"] =
+  const openReports: ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation>["openReports"] =
     { runs: [], pairs, unsupportedGroups, generatedRuns: 0 };
-  const normalized: (curve: C.Cubic, reverse: boolean) => C.Cubic = (
-    curve: C.Cubic,
+  const normalized: (
+    curve: IAutoMovieCubicBezierCurve64,
     reverse: boolean,
-  ): C.Cubic => {
+  ) => IAutoMovieCubicBezierCurve64 = (
+    curve: IAutoMovieCubicBezierCurve64,
+    reverse: boolean,
+  ): IAutoMovieCubicBezierCurve64 => {
     if (
       curve.closed ||
       curve.unit !== "mm" ||
@@ -182,10 +166,19 @@ export function reconstructRecoveryOpen(
         return value;
       },
     );
-    const spans: C.Span[] = reverse
+    const spans: AutoMovieCubicBezierControls3[] = reverse
       ? [...curve.spans]
           .reverse()
-          .map((span: C.Span): C.Span => [span[3], span[2], span[1], span[0]])
+          .map(
+            (
+              span: AutoMovieCubicBezierControls3,
+            ): AutoMovieCubicBezierControls3 => [
+              span[3],
+              span[2],
+              span[1],
+              span[0],
+            ],
+          )
       : [...curve.spans];
     return {
       ...curve,
@@ -209,7 +202,7 @@ export function reconstructRecoveryOpen(
       current = outgoing.get(key(current.after));
     }
     const id: string = `recovery.open.${key(nodes[0]!)}`;
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
+    const metadata: ReturnType<IAutoMovieRecoveryOpenRunDescriptionOperation.Operation> =
       describeRecoveryOpenRun(bundle, nodes);
     diagnostics.push(
       ...metadata.diagnostics.map(
@@ -231,8 +224,8 @@ export function reconstructRecoveryOpen(
       nonfiniteNormalSums: 0,
     };
     try {
-      const courses: C.Cubic[] = nodes.map(
-        (n: Node, i: number): C.Cubic =>
+      const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
+        (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
           normalized(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,

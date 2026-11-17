@@ -1,12 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { walkLegClearance } from "./walkLegClearance";
 import { walkReach } from "./walkReach";
 import { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceGeometry } from "./walkStanceGeometry";
 import { walkStanceRows } from "./walkStanceRows";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * A stance course's problem over its knots (`walkStanceCourse`), its first
@@ -32,9 +36,9 @@ export namespace walkStanceModel {
    * @returns The problem.
    */
   export function of(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
-    start: walkStanceCourse.ICourse | undefined,
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined,
     hold: number,
   ) {
     const geometry = walkStanceGeometry.of(body, knots);
@@ -59,27 +63,31 @@ export namespace walkStanceModel {
     const x: Float64Array = new Float64Array(size);
     for (let k: number = 0; k < n; k++) {
       const o: number = walkStanceTerms.WIDTH * k;
-      const knot: walkStanceCourse.IKnot = knots[k]!;
+      const knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot = knots[k]!;
       x[o + 3] = knot.trunk?.pitch ?? 0;
       x[o + 4] = knot.trunk?.roll ?? 0;
-      const pelvis: walkStanceCourse.IPelvis = knot.pelvis({
-        pitch: x[o + 3]!,
-        roll: x[o + 4]!,
-      });
+      const pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis = knot.pelvis(
+        {
+          pitch: x[o + 3]!,
+          roll: x[o + 4]!,
+        },
+      );
       let drop: number = 0;
-      knot.stances.forEach((s: walkStanceCourse.IStance, j: number): void => {
-        x[o + pitchOf(s.side)] = scheduled[k]![j]!;
-        const hip: IAutoMovieVector3 = pelvis.hips[s.side];
-        const dh: number = Math.hypot(
-          hip.x - s.placement.ankle.x,
-          hip.z - s.placement.ankle.z,
-        );
-        if (dh < limit)
-          drop = Math.max(
-            drop,
-            hip.y - s.placement.ankle.y - Math.sqrt(limit * limit - dh * dh),
+      knot.stances.forEach(
+        (s: IAutoMovieMotionHumanWalkStanceCourse.IStance, j: number): void => {
+          x[o + pitchOf(s.side)] = scheduled[k]![j]!;
+          const hip: IAutoMovieVector3 = pelvis.hips[s.side];
+          const dh: number = Math.hypot(
+            hip.x - s.placement.ankle.x,
+            hip.z - s.placement.ankle.z,
           );
-      });
+          if (dh < limit)
+            drop = Math.max(
+              drop,
+              hip.y - s.placement.ankle.y - Math.sqrt(limit * limit - dh * dh),
+            );
+        },
+      );
       x[o] = knot.drop ?? drop;
       // A held knot is its start's.
       if (start !== undefined && k < hold) {
@@ -110,7 +118,8 @@ export namespace walkStanceModel {
         }
         for (const side of ["left", "right"] as const) {
           const j: number = knot.stances.findIndex(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+              s.side === side,
           );
           const pitch: number = start.pitch[side][k]!;
           if (
@@ -141,12 +150,13 @@ export namespace walkStanceModel {
     ): void => {
       for (let k: number = 0; k < n; k++) {
         const o: number = walkStanceTerms.WIDTH * k;
-        const knot: walkStanceCourse.IKnot = knots[k]!;
+        const knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot = knots[k]!;
         // A held knot is read only through the second differences it joins.
         if (k < hold) {
           if (k > 0 && k < n - 1 && k + 1 >= hold)
             for (let s: number = 0; s < walkStanceTerms.WIDTH; s++) {
-              const scale: number = step * step * walkStanceTerms.ACCELERATIONS[s]!;
+              const scale: number =
+                step * step * walkStanceTerms.ACCELERATIONS[s]!;
               const a: number = o - walkStanceTerms.WIDTH + s;
               const b: number = o + s;
               const c: number = o + walkStanceTerms.WIDTH + s;
@@ -159,116 +169,165 @@ export namespace walkStanceModel {
           continue;
         }
         // The body stands as tall and as upright as it can.
-        residual(x[o]! / walkStanceCourse.UPRIGHT, [o], [1 / walkStanceCourse.UPRIGHT]);
+        residual(
+          x[o]! / walkStanceCourse.UPRIGHT,
+          [o],
+          [1 / walkStanceCourse.UPRIGHT],
+        );
         if (knot.trunk === undefined) {
-          residual(x[o + 3]! / walkStanceCourse.TRUNK, [o + 3], [1 / walkStanceCourse.TRUNK]);
-          residual(x[o + 4]! / walkStanceCourse.TRUNK, [o + 4], [1 / walkStanceCourse.TRUNK]);
-        }
-        knot.stances.forEach((s: walkStanceCourse.IStance, j: number): void => {
-          const p: number = o + pitchOf(s.side);
-          const t: number = o + turnOf(s.side);
-          const d: number = o + slideOf(s.side);
-          const idx: number[] = [o, p, o + 3, o + 4, t, d, d + 1];
-          const at = read(x, k, j);
-          // Each variable moved once, every quantity read from that move.
-          const moved: ReturnType<typeof read>[] = linear
-            ? idx.map((i: number) => {
-                const kept: number = x[i]!;
-                x[i] = kept + walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!;
-                const r = read(x, k, j);
-                x[i] = kept;
-                return r;
-              })
-            : [];
-          const grad = (
-            pick: (r: ReturnType<typeof read>) => number,
-          ): number[] =>
-            moved.map(
-              (r: ReturnType<typeof read>, a: number): number =>
-                (pick(r) - pick(at)) / walkStanceTerms.STEPS[idx[a]! % walkStanceTerms.WIDTH]!,
-            );
-          // The ankle's dorsiflexion past heel-off, on a smooth hinge.
-          const z: number = (at.dorsi - walkStanceCourse.HEEL_OFF) / walkStanceCourse.SPREAD;
-          const slope: number = 1 / (1 + Math.exp(-z)) / walkStanceCourse.SPREAD;
-          const dorsi: number[] = grad((r): number => r.dorsi);
           residual(
-            walkStanceTerms.softplus(z),
-            idx,
-            dorsi.map((g: number): number => slope * g),
+            x[o + 3]! / walkStanceCourse.TRUNK,
+            [o + 3],
+            [1 / walkStanceCourse.TRUNK],
           );
-          // Turning about the ball past the schedule's pitch, and a landing
-          // foot's turn on the floor.
-          residual((x[p]! - scheduled[k]![j]!) / walkStanceCourse.BALL, [p], [1 / walkStanceCourse.BALL]);
-          if (s.turning === true) {
-            residual(x[t]! / walkStanceCourse.TURN, [t], [1 / walkStanceCourse.TURN]);
-            // The hip turns the foot no further than it rotates.
-            constraint(at.twist - walkReach.TWIST, [t], (): number[] => [1]);
-            constraint(-at.twist - walkReach.TWIST, [t], (): number[] => [-1]);
-          }
-          // A landing slides toward its goal, inside its region.
-          const landing = s.landing;
-          if (landing !== undefined) {
-            const ankle = (dx: number, dz: number): IAutoMovieVector3 => ({
-              x: s.placement.ankle.x + dx,
-              y: s.placement.ankle.y,
-              z: s.placement.ankle.z + dz,
-            });
-            const here: IAutoMovieVector3 = ankle(x[d]!, x[d + 1]!);
-            residual((here.x - landing.goal.x) / walkStanceTerms.PLACE, [d], [1 / walkStanceTerms.PLACE]);
-            residual((here.z - landing.goal.z) / walkStanceTerms.PLACE, [d + 1], [1 / walkStanceTerms.PLACE]);
-            const excess: number[] = landing.region(here);
-            excess.forEach((value: number, b: number): void => {
-              constraint(value * lengthwise, [d, d + 1], (): number[] => {
-                const h: number = walkStanceTerms.STEPS[slideOf(s.side) % walkStanceTerms.WIDTH]!;
-                return [
-                  (landing.region(ankle(x[d]! + h, x[d + 1]!))[b]! - value) /
-                    h *
-                    lengthwise,
-                  (landing.region(ankle(x[d]!, x[d + 1]! + h))[b]! - value) /
-                    h *
-                    lengthwise,
-                ];
+          residual(
+            x[o + 4]! / walkStanceCourse.TRUNK,
+            [o + 4],
+            [1 / walkStanceCourse.TRUNK],
+          );
+        }
+        knot.stances.forEach(
+          (
+            s: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+            j: number,
+          ): void => {
+            const p: number = o + pitchOf(s.side);
+            const t: number = o + turnOf(s.side);
+            const d: number = o + slideOf(s.side);
+            const idx: number[] = [o, p, o + 3, o + 4, t, d, d + 1];
+            const at = read(x, k, j);
+            // Each variable moved once, every quantity read from that move.
+            const moved: ReturnType<typeof read>[] = linear
+              ? idx.map((i: number) => {
+                  const kept: number = x[i]!;
+                  x[i] =
+                    kept + walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!;
+                  const r = read(x, k, j);
+                  x[i] = kept;
+                  return r;
+                })
+              : [];
+            const grad = (
+              pick: (r: ReturnType<typeof read>) => number,
+            ): number[] =>
+              moved.map(
+                (r: ReturnType<typeof read>, a: number): number =>
+                  (pick(r) - pick(at)) /
+                  walkStanceTerms.STEPS[idx[a]! % walkStanceTerms.WIDTH]!,
+              );
+            // The ankle's dorsiflexion past heel-off, on a smooth hinge.
+            const z: number =
+              (at.dorsi - walkStanceCourse.HEEL_OFF) / walkStanceCourse.SPREAD;
+            const slope: number =
+              1 / (1 + Math.exp(-z)) / walkStanceCourse.SPREAD;
+            const dorsi: number[] = grad((r): number => r.dorsi);
+            residual(
+              walkStanceTerms.softplus(z),
+              idx,
+              dorsi.map((g: number): number => slope * g),
+            );
+            // Turning about the ball past the schedule's pitch, and a landing
+            // foot's turn on the floor.
+            residual(
+              (x[p]! - scheduled[k]![j]!) / walkStanceCourse.BALL,
+              [p],
+              [1 / walkStanceCourse.BALL],
+            );
+            if (s.turning === true) {
+              residual(
+                x[t]! / walkStanceCourse.TURN,
+                [t],
+                [1 / walkStanceCourse.TURN],
+              );
+              // The hip turns the foot no further than it rotates.
+              constraint(at.twist - walkReach.TWIST, [t], (): number[] => [1]);
+              constraint(-at.twist - walkReach.TWIST, [t], (): number[] => [
+                -1,
+              ]);
+            }
+            // A landing slides toward its goal, inside its region.
+            const landing = s.landing;
+            if (landing !== undefined) {
+              const ankle = (dx: number, dz: number): IAutoMovieVector3 => ({
+                x: s.placement.ankle.x + dx,
+                y: s.placement.ankle.y,
+                z: s.placement.ankle.z + dz,
               });
-            });
-          }
-          // The leg reaches its ankle, the ankle stays in its range, and the
-          // thigh trails no further than the hip extends.
-          constraint((at.reach - limit) * lengthwise, idx, (): number[] =>
-            grad((r): number => r.reach).map(
-              (g: number): number => g * lengthwise,
-            ),
-          );
-          // An ankle reaches as far as its foot is loaded: the loaded range
-          // under the whole weight, the unloaded one under none, in
-          // proportion between, the foot's share of the weight read from
-          // where the take's centre of pressure lies between the feet
-          // (`load`), so a foot that is about to leave the floor, or has just
-          // met it, keeps the range of the weight it bears.
-          constraint(
-            at.dorsi -
-              (unloadedDorsal + (dorsal - unloadedDorsal) * load(k, j)),
-            idx,
-            (): number[] => dorsi,
-          );
-          constraint(at.trail - walkReach.EXTENSION, idx, (): number[] =>
-            grad((r): number => r.trail),
-          );
-        });
+              const here: IAutoMovieVector3 = ankle(x[d]!, x[d + 1]!);
+              residual(
+                (here.x - landing.goal.x) / walkStanceTerms.PLACE,
+                [d],
+                [1 / walkStanceTerms.PLACE],
+              );
+              residual(
+                (here.z - landing.goal.z) / walkStanceTerms.PLACE,
+                [d + 1],
+                [1 / walkStanceTerms.PLACE],
+              );
+              const excess: number[] = landing.region(here);
+              excess.forEach((value: number, b: number): void => {
+                constraint(value * lengthwise, [d, d + 1], (): number[] => {
+                  const h: number =
+                    walkStanceTerms.STEPS[
+                      slideOf(s.side) % walkStanceTerms.WIDTH
+                    ]!;
+                  return [
+                    ((landing.region(ankle(x[d]! + h, x[d + 1]!))[b]! - value) /
+                      h) *
+                      lengthwise,
+                    ((landing.region(ankle(x[d]!, x[d + 1]! + h))[b]! - value) /
+                      h) *
+                      lengthwise,
+                  ];
+                });
+              });
+            }
+            // The leg reaches its ankle, the ankle stays in its range, and the
+            // thigh trails no further than the hip extends.
+            constraint((at.reach - limit) * lengthwise, idx, (): number[] =>
+              grad((r): number => r.reach).map(
+                (g: number): number => g * lengthwise,
+              ),
+            );
+            // An ankle reaches as far as its foot is loaded: the loaded range
+            // under the whole weight, the unloaded one under none, in
+            // proportion between, the foot's share of the weight read from
+            // where the take's centre of pressure lies between the feet
+            // (`load`), so a foot that is about to leave the floor, or has just
+            // met it, keeps the range of the weight it bears.
+            constraint(
+              at.dorsi -
+                (unloadedDorsal + (dorsal - unloadedDorsal) * load(k, j)),
+              idx,
+              (): number[] => dorsi,
+            );
+            constraint(at.trail - walkReach.EXTENSION, idx, (): number[] =>
+              grad((r): number => r.trail),
+            );
+          },
+        );
         // The feet bear the points the take asks them to: a raised heel
         // leaves each no shallower inside the base than the feet as
         // scheduled hold it, nor outside where they hold it.
         const borne: readonly IAutoMovieVector3[] = knot.borne ?? [];
         if (knot.stances.length > 0 && borne.length > 0) {
-          const idx: number[] = knot.stances.flatMap((s: walkStanceCourse.IStance): number[] => [
-            o + pitchOf(s.side),
-            o + turnOf(s.side),
-            o + slideOf(s.side),
-            o + slideOf(s.side) + 1,
-          ]);
+          const idx: number[] = knot.stances.flatMap(
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): number[] => [
+              o + pitchOf(s.side),
+              o + turnOf(s.side),
+              o + slideOf(s.side),
+              o + slideOf(s.side) + 1,
+            ],
+          );
           const kept: number[] = idx.map((i: number): number => x[i]!);
-          knot.stances.forEach((s: walkStanceCourse.IStance, j: number): void => {
-            x[o + pitchOf(s.side)] = scheduled[k]![j]!;
-          });
+          knot.stances.forEach(
+            (
+              s: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+              j: number,
+            ): void => {
+              x[o + pitchOf(s.side)] = scheduled[k]![j]!;
+            },
+          );
           const flatBase: IAutoMovieVector3[] = support(x, k);
           idx.forEach((i: number, r: number): void => {
             x[i] = kept[r]!;
@@ -286,13 +345,16 @@ export namespace walkStanceModel {
               return out;
             }));
           for (const point of borne) {
-            const held: number = Math.min(0, walkStanceGeometry.depth(flatBase, point));
+            const held: number = Math.min(
+              0,
+              walkStanceGeometry.depth(flatBase, point),
+            );
             const deep: number = walkStanceGeometry.depth(base, point);
             constraint((held - deep) * lengthwise, idx, (): number[] =>
               bases().map(
                 (hull: IAutoMovieVector3[], a: number): number =>
-                  -(walkStanceGeometry.depth(hull, point) - deep) /
-                  walkStanceTerms.STEPS[idx[a]! % walkStanceTerms.WIDTH]! *
+                  (-(walkStanceGeometry.depth(hull, point) - deep) /
+                    walkStanceTerms.STEPS[idx[a]! % walkStanceTerms.WIDTH]!) *
                   lengthwise,
               ),
             );
@@ -305,27 +367,33 @@ export namespace walkStanceModel {
         // behind it, its leg clear of the other leg.
         if (
           knot.stances.length === 2 &&
-          knot.stances.every((s: walkStanceCourse.IStance): boolean => s.swivel !== undefined)
+          knot.stances.every(
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+              s.swivel !== undefined,
+          )
         ) {
           const idx: number[] = [
             o,
             o + 3,
             o + 4,
-            ...knot.stances.flatMap((s: walkStanceCourse.IStance): number[] => [
-              o + pitchOf(s.side),
-              o + turnOf(s.side),
-              o + slideOf(s.side),
-              o + slideOf(s.side) + 1,
-            ]),
+            ...knot.stances.flatMap(
+              (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): number[] => [
+                o + pitchOf(s.side),
+                o + turnOf(s.side),
+                o + slideOf(s.side),
+                o + slideOf(s.side) + 1,
+              ],
+            ),
           ];
           // The excess is the greatest of linear pieces, each a probe's depth
           // below a face plane: its gradient is its binding piece's, read
           // with each variable moved.
-          const clear: walkLegClearance.IReading = walkLegClearance.reading(
-            body,
-            read(x, k, 0).leg!,
-            read(x, k, 1).leg!,
-          );
+          const clear: IAutoMovieMotionHumanWalkLegClearance.IReading =
+            walkLegClearance.reading(
+              body,
+              read(x, k, 0).leg!,
+              read(x, k, 1).leg!,
+            );
           constraint(
             (clear.excess - walkLegClearance.BOUND) * lengthwise,
             idx,
@@ -338,14 +406,19 @@ export namespace walkStanceModel {
                   read(x, k, 1).leg!,
                 );
                 x[i] = kept;
-                return (moved - clear.excess) / walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]! * lengthwise;
+                return (
+                  ((moved - clear.excess) /
+                    walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!) *
+                  lengthwise
+                );
               }),
           );
         }
         // The course's acceleration, each series over three knots.
         if (k > 0 && k < n - 1)
           for (let s: number = 0; s < walkStanceTerms.WIDTH; s++) {
-            const scale: number = step * step * walkStanceTerms.ACCELERATIONS[s]!;
+            const scale: number =
+              step * step * walkStanceTerms.ACCELERATIONS[s]!;
             const a: number = o - walkStanceTerms.WIDTH + s;
             const b: number = o + s;
             const c: number = o + walkStanceTerms.WIDTH + s;

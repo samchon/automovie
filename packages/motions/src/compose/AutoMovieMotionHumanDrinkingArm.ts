@@ -1,27 +1,30 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   getConstraint,
   rotationBetween,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanTouch,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
@@ -48,28 +51,6 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
   /** The most the shoulder is abducted while the vessel is at the face, degrees: the healthy drinkers' greatest abduction in the drinking phase, 39.3 ± 13.0 (Alt Murphy et al. 2006, Table 2), plus two standard deviations, the range about 95 % of a normal population lies within. */
   export const ABDUCTION: number = 39.3 + 2 * 13.0;
-
-  /**
-   * What a fitted arm reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The readings the admission and the facing's choice compare.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members: the admission reads three, the choice the tilt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Each is read off the fitted pose, never off the goal.
-   */
-  export interface IArm {
-    /** How far the reached hand carries the vessel's axis off the asked one, degrees. */
-    tilt: number;
-
-    /** The shoulder's flexion, degrees, as the source measures it (`measured`). */
-    flexion: number;
-
-    /** The shoulder's abduction, degrees, as the source measures it (`measured`). */
-    abduction: number;
-
-    /** How far the forearm's twist lies inside its range, degrees; negative outside. */
-    room: number;
-  }
 
   /**
    * The shoulder's flexion and abduction as Alt Murphy et al. 2006 measure
@@ -105,9 +86,9 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition">
     >,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
-  ): { flexion: number; abduction: number } {
+  ): IAutoMovieMotionHumanDrinkingArm.IMeasuredResult {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -168,13 +149,13 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    goal: IHumanPosture.IGoal,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieHumanLimbGoal,
     referred: boolean,
     axis?: IAutoMovieVector3,
-  ): IArm {
+  ): IAutoMovieMotionHumanDrinkingArm.IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const pose: IAutoMoviePose = resolveHumanPosture(body, {
       ...posture,
@@ -274,12 +255,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    */
   export function carried(
     touch: Pick<
-      AutoMovieMotionHumanTouch.ITouch,
+      IAutoMovieMotionHumanTouch.ITouch,
       "body" | "side" | "rest" | "effector" | "held"
     >,
     tipped: (weight: number) => number,
   ): (
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     hand: IAutoMovieQuaternion,
     start: IAutoMovieQuaternion,
@@ -297,7 +278,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             z: 0,
           });
     return (
-      _posture: IHumanPosture,
+      _posture: IAutoMovieMotionHumanPosture,
       _seconds: number,
       hand: IAutoMovieQuaternion,
       start: IAutoMovieQuaternion,
@@ -348,29 +329,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function drinks(arm: IArm): boolean {
+  export function drinks(arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean {
     return (
       arm.flexion <= FLEXION &&
       arm.abduction <= ABDUCTION &&
       arm.room >= AutoMovieMotionHumanTouchLaid.MARGIN
     );
-  }
-
-  /**
-   * The arm a search tried that lies least past the drinking range, for its
-   * refusal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The readings and where they were tried, what a refusal reports.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `refused`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readings are a fitted arm's, never a goal's.
-   */
-  export interface INearest {
-    /** Its fitted arm. */
-    arm: IArm;
-
-    /** Where it was tried, in words. */
-    at: string;
   }
 
   /**
@@ -392,11 +356,11 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function nearer(
-    nearest: INearest | undefined,
-    arm: IArm,
+    nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined,
+    arm: IAutoMovieMotionHumanDrinkingArm.IArm,
     at: string,
-  ): INearest {
-    const past = (of: IArm): number =>
+  ): IAutoMovieMotionHumanDrinkingArm.INearest {
+    const past = (of: IAutoMovieMotionHumanDrinkingArm.IArm): number =>
       Math.max(of.flexion - FLEXION, of.abduction - ABDUCTION);
     return nearest === undefined || past(arm) < past(nearest.arm)
       ? { arm, at }
@@ -420,10 +384,10 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function refused(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     sought: string,
-    closest: INearest,
-  ): HumanRefusal {
+    closest: IAutoMovieMotionHumanDrinkingArm.INearest,
+  ): IAutoMovieMotionHumanRefusal {
     return new HumanRefusal({
       kind: "reach",
       axis: "facing",
@@ -437,7 +401,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 /** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */
 function angle(
   reached: IAutoMovieQuaternion,
-  goal: IHumanPosture.IGoal,
+  goal: IAutoMovieHumanLimbGoal,
 ): number {
   const asked: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(Quaternion.normalize(goal.rotation!)),

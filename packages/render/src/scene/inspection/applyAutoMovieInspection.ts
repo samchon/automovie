@@ -1,4 +1,13 @@
-import type { IAutoMovieMark, IAutoMovieMeshDefect } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionColorAssignment,
+  IAutoMovieInspectionFocus,
+  IAutoMovieInspectionKind,
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieInspectionRequest,
+  IAutoMovieMark,
+  IAutoMovieMeshDefect,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
@@ -9,15 +18,10 @@ import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMov
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
 import type { IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionKind } from "./IAutoMovieInspectionKind.js";
-import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
 import { applyAutoMovieInspectionSection } from "./applyAutoMovieInspectionSection.js";
 import { applyAutoMovieInspectionShade } from "./applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
@@ -156,7 +160,7 @@ export function applyAutoMovieInspection(
       ),
   );
   const uncoloured: string[] = request.color
-    .map((entry: IAutoMovieInspectionRequest.IColor): string => entry.pattern)
+    .map((entry: IAutoMovieInspectionColorAssignment): string => entry.pattern)
     .filter(
       (pattern: string): boolean =>
         ![...known, ...available].some((name: string): boolean =>
@@ -457,7 +461,7 @@ export function applyAutoMovieInspection(
         overlay.resize(width, height);
       },
       bounds: (
-        focus?: IAutoMovieInspectionView.IFocus | null,
+        focus?: IAutoMovieInspectionFocus | null,
       ): IAutoMovieViewerSubjectBounds | null =>
         focus === undefined || focus === null
           ? measureAutoMovieInspectionBounds(scene)

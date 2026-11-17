@@ -1,3 +1,9 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieSplitContourLeaf64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
@@ -20,23 +26,26 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned child nets and the shared endpoint belong to the caller; source coefficients remain immutable and no global cache or external resource is retained.
  */
 export function splitAutoMovieContourLeaf64(
-  source: C.Leaf,
+  source: IAutoMovieContourLoftCurves64.Leaf,
   phase: number,
   toleranceMm: number,
-): { point: M.V; before: C.Leaf[]; after: C.Leaf[] } {
+): IAutoMovieSplitContourLeaf64.IResult {
   if (!(phase > source.start && phase < source.end))
     throw new Error("A source slit needs a strict interior generating phase");
   const parameter: number =
     (phase - source.start) / (source.end - source.start);
   if (!(parameter > 0 && parameter < 1))
     throw new Error("Interior source slit parameter is not representable");
-  const halves: [M.V[], M.V[]] = S.split(C.controls(source), parameter);
+  const halves: [AutoMovieVector3Tuple[], AutoMovieVector3Tuple[]] = S.split(
+    C.controls(source),
+    parameter,
+  );
   const depth: number = source.depth + 1;
-  const before: C.Leaf[] = C.partition(
+  const before: IAutoMovieContourLoftCurves64.Leaf[] = C.partition(
     { net: halves[0], start: source.start, end: phase, depth },
     toleranceMm,
   );
-  const after: C.Leaf[] = C.partition(
+  const after: IAutoMovieContourLoftCurves64.Leaf[] = C.partition(
     { net: halves[1], start: phase, end: source.end, depth },
     toleranceMm,
   );

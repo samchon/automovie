@@ -5,16 +5,16 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStrikingRecord,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { IHumanContactWindow } from "../../law/IHumanContactWindow";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
-import type { IHumanPosture } from "../../posture/IHumanPosture";
-import type { StrikingRecord } from "../../striking/StrikingRecord";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
 
@@ -52,25 +52,25 @@ export namespace StrikingVerdicts {
   /** One displayed strike under audit. */
   export interface IStrike {
     /** The performance it was shown in. */
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
 
     /** The striker's subject id. */
     id: string;
 
     /** The striker's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The other person, when there is one. */
-    other: { id: string; body: IHumanBody } | undefined;
+    other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
 
     /** The strike's segment. */
-    segment: HumanSegment.ISegment;
+    segment: IAutoMovieMotionHumanSegment;
 
     /** The end joint that carries it. */
     limb: StrikingLimb.End;
 
     /** What the strike decided; undefined when its plan records nothing. */
-    record: StrikingRecord.IRecord | undefined;
+    record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined;
 
     /** The film second the limb stopped on a surface, if it did. */
     stop: number | undefined;
@@ -99,11 +99,11 @@ export namespace StrikingVerdicts {
    * @returns The second, or undefined when the plan has no such event.
    */
   export function at(
-    segment: HumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number | undefined {
     const share: number | undefined = segment.plan.events.find(
-      (e: HumanSegment.ISegment["plan"]["events"][number]): boolean =>
+      (e: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
         e.name === event,
     )?.share;
     return share === undefined
@@ -118,7 +118,7 @@ export namespace StrikingVerdicts {
    * @param segment The strike's segment.
    * @returns The second.
    */
-  export function peak(segment: HumanSegment.ISegment): number {
+  export function peak(segment: IAutoMovieMotionHumanSegment): number {
     return Math.min(
       segment.end,
       segment.plan.contact !== undefined
@@ -165,7 +165,7 @@ export namespace StrikingVerdicts {
    * @returns The contact verdict, or the extension verdict when there is no other body.
    */
   export function contact(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     const name: string = `${strike.id} ${g.id} contact`;
     const params: { feint?: number | boolean; accuracy?: unknown } = g.params;
     if (g.plan.contact !== undefined && g.end < g.start + g.plan.contact - 1e-9)
@@ -207,7 +207,8 @@ export namespace StrikingVerdicts {
             detail: `a ${declared}, ${measured}; bound no stop and above 0 mm`,
           };
     }
-    const record: StrikingRecord.IRecord | undefined = strike.record;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+      strike.record;
     if (strike.stop === undefined && record?.status === "short") {
       const length: number = StrikingLimb.length(
         strike.body,
@@ -255,9 +256,10 @@ export namespace StrikingVerdicts {
    * @returns The extension verdict.
    */
   export function extension(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     const name: string = `${strike.id} ${g.id} extension`;
-    const record: StrikingRecord.IRecord | undefined = strike.record;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+      strike.record;
     if (record === undefined)
       return { name, passed: false, detail: "the plan records no aim" };
     const second: number = peak(g);
@@ -297,7 +299,7 @@ export namespace StrikingVerdicts {
    * @returns The penetration verdict.
    */
   export function penetration(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     let deepest: StrikingLimb.IGap & { at: number } = {
       distance: Infinity,
       bone: undefined,
@@ -324,10 +326,10 @@ export namespace StrikingVerdicts {
    * @returns The support slip verdict.
    */
   export function slip(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     let worst: number = 0;
     let where: string = "no plant or pivot window";
-    const windows: IHumanContactWindow[] = g.plan.contacts;
+    const windows: IAutoMovieMotionHumanContactWindow[] = g.plan.contacts;
     for (const c of windows) {
       if (
         (c.part !== "leftFoot" && c.part !== "rightFoot") ||
@@ -340,7 +342,7 @@ export namespace StrikingVerdicts {
       );
       const to: number = Math.min(g.end, g.start + c.to * g.plan.duration);
       if (!(to > from)) continue;
-      const frame: IHumanBody["surfaces"]["sockets"]["ballLeft"] =
+      const frame: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["ballLeft"] =
         strike.body.surfaces.sockets[
           c.part === "leftFoot" ? "ballLeft" : "ballRight"
         ];
@@ -374,7 +376,7 @@ export namespace StrikingVerdicts {
    * @returns The range of motion verdict.
    */
   export function rangeOfMotion(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     let over: number = 0;
     let where: string = "";
     for (let t: number = g.entryTime; t <= g.end + 1e-9; t += 1 / 48) {
@@ -411,7 +413,7 @@ export namespace StrikingVerdicts {
    * @returns The leg goal verdict.
    */
   export function goal(strike: IStrike): IMotionCaptureCase.IVerdict {
-    const g: HumanSegment.ISegment = strike.segment;
+    const g: IAutoMovieMotionHumanSegment = strike.segment;
     const side: "left" | "right" = StrikingLimb.side(strike.limb);
     const from: number = Math.max(g.entryTime, at(g, "launch") ?? g.entryTime);
     const to: number = Math.min(g.end, strike.stop ?? peak(g));
@@ -419,8 +421,9 @@ export namespace StrikingVerdicts {
     let when: number = from;
     let samples: number = 0;
     for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-      const asked: IHumanPosture.IGoal | undefined = g.plan.posture(t - g.start)
-        .limbs[`${side}Leg`];
+      const asked: IAutoMovieHumanLimbGoal | undefined = g.plan.posture(
+        t - g.start,
+      ).limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
       const d: number = Vector3.length(

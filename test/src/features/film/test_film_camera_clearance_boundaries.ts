@@ -11,6 +11,7 @@ import {
   IAutoMovieConstraintViolation,
   IAutoMovieSubjectBox,
   IAutoMovieTransform,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,7 +50,7 @@ export function test_film_camera_clearance_boundaries(): void {
     throw new Error("clearance boundary fixture must stage");
   const hero: IAutoMovieCamera = staged.scene.cameras[0]!;
   const compile = (
-    out: ViolationCollector,
+    out: IAutoMovieViolationCollector,
     coverage: Parameters<
       typeof compileCameraClearanceReports
     >[0]["coverage"] = [],
@@ -69,7 +70,7 @@ export function test_film_camera_clearance_boundaries(): void {
       out,
     });
 
-  const foreign: ViolationCollector = new ViolationCollector();
+  const foreign: IAutoMovieViolationCollector = new ViolationCollector();
   foreign.push("type", "$input.elsewhere", "an earlier stage's refusal", null);
   const reports: IAutoMovieCameraClearanceReport[] | undefined =
     compile(foreign);
@@ -84,7 +85,7 @@ export function test_film_camera_clearance_boundaries(): void {
     [["clear"], 1],
   );
 
-  const ghost: ViolationCollector = new ViolationCollector();
+  const ghost: IAutoMovieViolationCollector = new ViolationCollector();
   let thrown: boolean = false;
   try {
     compile(ghost, [

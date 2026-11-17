@@ -1,4 +1,5 @@
-import type { HumanSegment } from "../../perform/HumanSegment";
+import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
+
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
@@ -24,7 +25,7 @@ export namespace StrikingEventVerdicts {
    */
   export function defence(
     id: string,
-    segment: HumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
   ): IMotionCaptureCase.IVerdict {
     const name: string = `${id} ${segment.id} defence`;
     const read: number | undefined = StrikingVerdicts.at(segment, "read");

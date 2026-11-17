@@ -1,6 +1,6 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMoviePlantingExtent } from "./IAutoMoviePlantingExtent";
-import { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRange";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePlantingExtent } from "./IAutoMoviePlantingExtent";
+import type { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRange";
 
 /**
  * A deterministic arrangement of one planting recipe: a planter group, a green wall, a bed of reeds, a row of potted ferns.

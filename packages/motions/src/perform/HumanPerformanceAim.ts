@@ -1,24 +1,24 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A target's world point and outward normal at a film second: a person's
@@ -40,10 +40,10 @@ export namespace HumanPerformanceAim {
    * @returns The aim.
    */
   export function aim(
-    self: HumanPerformanceState,
-    target: AutoMovieMotionTarget,
+    self: IAutoMovieMotionHumanPerformanceState,
+    target: IAutoMovieMotionTarget,
     seconds: number,
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = {
@@ -66,10 +66,8 @@ export namespace HumanPerformanceAim {
             seconds,
             frame,
           );
-        const other: HumanSegment.IPerson = HumanPerformanceRead.person(
-          self,
-          target.subject,
-        );
+        const other: IAutoMovieMotionHumanSegment.IPerson =
+          HumanPerformanceRead.person(self, target.subject);
         const region = other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
           throw new HumanRefusal({
@@ -107,7 +105,9 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
-        const prop: IHumanProp | undefined = self.props.get(target.subject);
+        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(
+          target.subject,
+        );
         // A part an act has moved is where the prop's state poses it.
         const local =
           prop === undefined
@@ -136,7 +136,7 @@ export namespace HumanPerformanceAim {
         if (moving !== undefined) return moving;
         // A prop the performer carries is read on the performer's own body,
         // as their own region is (`HumanPerformanceRead.prop`).
-        const at: IHumanProp.IFrame = HumanPerformanceRead.prop(
+        const at: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
           self,
           target.subject,
           seconds,
@@ -205,11 +205,11 @@ export namespace HumanPerformanceAim {
    * @returns The frame.
    */
   export function frame(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    bones: IFrame["bones"],
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    bones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"],
     subject?: string,
-  ): IFrame {
+  ): IAutoMovieMotionHumanPerformanceAim.IFrame {
     return {
       root: posture.root,
       yaw: posture.yaw,
@@ -223,29 +223,5 @@ export namespace HumanPerformanceAim {
       bones,
       ...(subject === undefined ? {} : { subject }),
     };
-  }
-
-  /** The aiming person's own frame, body and bones (`aim`). */
-  export interface IFrame {
-    /** Their root, world metres. */
-    root: IAutoMovieVector3;
-
-    /** Their heading, degrees about +Y. */
-    yaw: number;
-
-    /** The heights of a `none` target's lines, world metres. */
-    heights: Record<"low" | "middle" | "high", number>;
-
-    /** A `none` target's distance when it names none, metres. */
-    range: number;
-
-    /** Their body. */
-    body: IHumanBody;
-
-    /** Their bones. */
-    bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /** Their subject id. */
-    subject?: string;
   }
 }

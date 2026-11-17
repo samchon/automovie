@@ -1,14 +1,23 @@
 import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieConfigurePhysicalJointMotor,
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalRecoveryPolicy,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
@@ -24,7 +33,6 @@ import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 import { trackPhysicalBalanceTargets } from "./trackPhysicalBalanceTargets";
 import { trackPhysicalContactTargets } from "./trackPhysicalContactTargets";
@@ -45,19 +53,21 @@ import { trackPhysicalSupports } from "./trackPhysicalSupports";
  */
 export function trackPhysicalWorld(
   world: World,
-  input: AutoMoviePhysicalSimulation.IInput,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   step: number,
   softened: Map<string, number>,
-  diagnostics: AutoMoviePhysicalSimulation.IDiagnostic[],
-  recovery: Record<string, AdvanceBalance.IState>,
+  diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
+  recovery: Record<string, IAutoMoviePhysicalRecoveryState>,
   contacts: readonly IAutoMovieContactReceipt[],
   seconds: number,
 ): void {
   const dt: number = world.timestep;
-  let scene: ReturnType<typeof readPhysicalScene> | undefined;
+  let scene:
+    | Record<string, Record<string, IAutoMovieRigidTransform>>
+    | undefined;
   for (const body of input.bodies) {
-    const target: AutoMoviePhysicalSimulation.ITarget =
+    const target: IAutoMoviePhysicalSimulationInput.ITarget =
       samplePhysicalTrackingTarget(
         body,
         body.targets[step]!,
@@ -80,7 +90,7 @@ export function trackPhysicalWorld(
     }
     const authoredGoals: Record<
       string,
-      ReturnType<typeof samplePhysicalTarget>
+      IAutoMovieSamplePhysicalTarget.IResult
     > = samplePhysicalAuthoredTargets(
       body,
       target,
@@ -89,13 +99,13 @@ export function trackPhysicalWorld(
       seconds,
       input.rate,
     );
-    const root: P.ISegment = bound.order.get(body.id)![0]!;
+    const root: IAutoMoviePhysicalSegment = bound.order.get(body.id)![0]!;
     const earlyFit: boolean =
       body.mode.kind === "kinematic" ||
       target.dynamicSegments !== undefined ||
       hasPhysicalHandoff(bound.handoffs.get(body.id));
     const goals: typeof authoredGoals = { ...authoredGoals };
-    const rootIntent: ReturnType<typeof samplePhysicalTarget> = structuredClone(
+    const rootIntent: IAutoMovieSamplePhysicalTarget.IResult = structuredClone(
       authoredGoals[root.bone]!,
     );
     if (earlyFit)
@@ -150,9 +160,9 @@ export function trackPhysicalWorld(
       body.actuation === "internal" ? new Map() : undefined;
     const supportsFor: (
       pattern: IAutoMovieFootfallPattern,
-    ) => ReturnType<typeof collectPhysicalSupports> = (
+    ) => IAutoMovieCollectPhysicalSupports.ISupport[] = (
       pattern: IAutoMovieFootfallPattern,
-    ): ReturnType<typeof collectPhysicalSupports> =>
+    ): IAutoMovieCollectPhysicalSupports.ISupport[] =>
       (actuation || body.balance) && rootDynamic
         ? collectPhysicalSupports({
             world,
@@ -178,7 +188,7 @@ export function trackPhysicalWorld(
     const supports: ReturnType<typeof supportsFor> = body.supportTracking
       ? endpointSupports
       : balanceSupports;
-    const assessment: ReturnType<typeof AdvanceBalance> | undefined =
+    const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
       rootDynamic && body.balance && target.strength > 0
         ? AdvanceBalance({
             world,
@@ -197,16 +207,16 @@ export function trackPhysicalWorld(
               Object.entries(authoredGoals).map(
                 ([bone, goal]: [
                   string,
-                  ReturnType<typeof samplePhysicalTarget>,
-                ]): [string, P.ITransform] => [bone, goal.pose],
+                  IAutoMovieSamplePhysicalTarget.IResult,
+                ]): [string, IAutoMovieRigidTransform] => [bone, goal.pose],
               ),
             ),
             velocities: Object.fromEntries(
               body.balance.pattern.limbs.map(
                 (
-                  limb: AdvanceBalance.IPolicy["pattern"]["limbs"][number],
+                  limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
                 ): [string, IAutoMovieVector3] => {
-                  const goal: ReturnType<typeof samplePhysicalTarget> =
+                  const goal: IAutoMovieSamplePhysicalTarget.IResult =
                     authoredGoals[limb.bone]!;
                   return [
                     limb.bone,
@@ -243,7 +253,7 @@ export function trackPhysicalWorld(
           })
         : undefined;
     const balance: number = assessment?.rootStrength ?? 1;
-    const effort: AutoMoviePhysicalSimulation.ITarget = {
+    const effort: IAutoMoviePhysicalSimulationInput.ITarget = {
       ...target,
       strength: target.strength * balance,
     };
@@ -294,7 +304,7 @@ export function trackPhysicalWorld(
         );
       }
     if (assessment && body.balance) {
-      const lowering: ReturnType<typeof trackPhysicalBalanceTargets> =
+      const lowering: IAutoMovieTrackPhysicalBalanceTargets.IResult =
         trackPhysicalBalanceTargets({
           settings: input,
           body,
@@ -315,7 +325,7 @@ export function trackPhysicalWorld(
       rootIntent.pose.position.y -= lowering.rootDrop;
       rootIntent.velocity.y -= lowering.rootDropVelocity;
     }
-    const gravity: ReturnType<typeof physicalGravityTorques> =
+    const gravity: IAutoMoviePhysicalGravityTorques.IResult =
       body.compensateGravity
         ? physicalGravityTorques(
             body.profile,
@@ -399,26 +409,27 @@ export function trackPhysicalWorld(
       if (!dynamic.has(joint.child)) continue;
       const parent: RigidBody = bound.bodies.get(`${body.id}/${joint.parent}`)!;
       const child: RigidBody = bound.bodies.get(`${body.id}/${joint.child}`)!;
-      const parentFrame: P.ITransform["rotation"] = Quaternion.multiply(
-        parent.rotation(),
-        joint.parentFrame.rotation,
-      );
-      const childFrame: P.ITransform["rotation"] = Quaternion.multiply(
-        child.rotation(),
-        joint.childFrame.rotation,
-      );
-      const desiredParent: P.ITransform["rotation"] = Quaternion.multiply(
-        goals[joint.parent]!.pose.rotation,
-        joint.parentFrame.rotation,
-      );
-      const desiredChild: P.ITransform["rotation"] = Quaternion.multiply(
-        goals[joint.child]!.pose.rotation,
-        joint.childFrame.rotation,
-      );
-      const inv: P.ITransform["rotation"] = Quaternion.inverse(parentFrame);
+      const parentFrame: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
+      const childFrame: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
+      const desiredParent: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(
+          goals[joint.parent]!.pose.rotation,
+          joint.parentFrame.rotation,
+        );
+      const desiredChild: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(
+          goals[joint.child]!.pose.rotation,
+          joint.childFrame.rotation,
+        );
+      const inv: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.inverse(parentFrame);
       const moving: boolean =
         body.balance?.pattern.limbs.some(
-          (limb: AdvanceBalance.IPolicy["pattern"]["limbs"][number]): boolean =>
+          (
+            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+          ): boolean =>
             (recovery[body.id]?.swing?.bone === limb.bone ||
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&
             limb.chain.includes(joint.child),
@@ -441,7 +452,7 @@ export function trackPhysicalWorld(
           goals[joint.parent]!.angularVelocity,
         ),
       );
-      const result: ReturnType<typeof configurePhysicalJointMotor> =
+      const result: IAutoMovieConfigurePhysicalJointMotor.IResult =
         configurePhysicalJointMotor({
           world,
           native: bound.joints.get(`${body.id}/${joint.id}`)!,

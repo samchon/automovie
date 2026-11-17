@@ -1,6 +1,10 @@
-import { IAutoMovieSubdivisionParameter } from "./IAutoMovieSubdivisionParameter";
-import { IAutoMovieSubdivisionSurface } from "./IAutoMovieSubdivisionSurface";
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
+import type {
+  IAutoMovieLimitSubdivisionLevel,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionParameter,
+  IAutoMovieSubdivisionSurface,
+} from "@automovie/interface";
+
 import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
 
 /**
@@ -21,9 +25,9 @@ import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result shares level arrays rather than duplicating them, and owns new limit and parameter arrays. No module state or completed request is retained.
  */
 export function evaluateSubdivisionLevel(
-  level: ISubdivisionLevel,
+  level: IAutoMovieSubdivisionLevel,
 ): IAutoMovieSubdivisionSurface {
-  const limit: ReturnType<typeof limitSubdivisionLevel> =
+  const limit: IAutoMovieLimitSubdivisionLevel.IResult =
     limitSubdivisionLevel(level);
   const parameters: IAutoMovieSubdivisionParameter[] =
     new Array<IAutoMovieSubdivisionParameter>(level.topology.vertexCount);

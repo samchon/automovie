@@ -1,4 +1,4 @@
-import { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
+import type { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
 
 /**
  * One explicitly authored role-specific reference selected from the production asset manifest.

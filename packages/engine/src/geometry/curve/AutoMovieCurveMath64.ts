@@ -1,3 +1,8 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveMath64,
+} from "@automovie/interface";
+
 import { AutoMoviePchip64 } from "./AutoMoviePchip64";
 
 /**
@@ -11,26 +16,6 @@ import { AutoMoviePchip64 } from "./AutoMoviePchip64";
  */
 export namespace AutoMovieCurveMath64 {
   /**
-   * Three-component spatial value or field derivative; units follow the owning position, angular or longitudinal chart.
-   *
-   * @evidence contracts/development/design.md#principled-representation A fixed mutable triple preserves coordinate ordering for coefficient construction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tuple is shared by scalar-scaled positions and derivative fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No anatomical frame, unit conversion or finite admission is implied by a tuple.
-   * @evidence contracts/development/common.md#meaningful-documentation The enclosing field owns physical or parameter units.
-   */
-  export type V = [number, number, number];
-
-  /**
-   * One cubic Bernstein record in P0, P1, P2, P3 order; the inner coefficients are handles, not interpolated supports.
-   *
-   * @evidence contracts/development/design.md#principled-representation Four ordered vectors define a cubic Bernstein coefficient net.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One tuple records endpoint and handle order for all cubic helpers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Handles remain coefficients rather than interpolation samples.
-   * @evidence contracts/development/common.md#meaningful-documentation P0/P1/P2/P3 order is stated independently of the enclosing coordinate units.
-   */
-  export type Span = [V, V, V, V];
-
-  /**
    * Copy the first three components into a fresh vector; the caller supplies a valid three-component value.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Copies the first three components in their original order.
@@ -41,9 +26,9 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The current three components are copied without retaining a prior input/result pair.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh three-number tuple transfers to the caller.
    */
-  export const clone: (a: readonly number[]) => V = (
+  export const clone: (a: readonly number[]) => AutoMovieVector3Tuple = (
     a: readonly number[],
-  ): V => [a[0]!, a[1]!, a[2]!];
+  ): AutoMovieVector3Tuple => [a[0]!, a[1]!, a[2]!];
 
   /**
    * Add two vectors in the same chart and units; no placement or derivative conversion is performed.
@@ -56,10 +41,13 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Current operands determine the sum; no cross-call state is retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new tuple aliases neither input array.
    */
-  export const add: (a: readonly number[], b: readonly number[]) => V = (
+  export const add: (
     a: readonly number[],
     b: readonly number[],
-  ): V => [a[0]! + b[0]!, a[1]! + b[1]!, a[2]! + b[2]!];
+  ) => AutoMovieVector3Tuple = (
+    a: readonly number[],
+    b: readonly number[],
+  ): AutoMovieVector3Tuple => [a[0]! + b[0]!, a[1]! + b[1]!, a[2]! + b[2]!];
 
   /**
    * Subtract two vectors in the same chart and units; no placement or derivative conversion is performed.
@@ -72,10 +60,13 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work No coordinate-dependent displacement is cached across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the three scalar differences are returned.
    */
-  export const sub: (a: readonly number[], b: readonly number[]) => V = (
+  export const sub: (
     a: readonly number[],
     b: readonly number[],
-  ): V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  ) => AutoMovieVector3Tuple = (
+    a: readonly number[],
+    b: readonly number[],
+  ): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
 
   /**
    * Multiply every component by the supplied scalar; callers own the scalar's physical or parameter meaning.
@@ -88,10 +79,13 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Scaling depends on the current vector and factor without retained results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned triple does not retain the supplied array.
    */
-  export const scale: (a: readonly number[], n: number) => V = (
+  export const scale: (
     a: readonly number[],
     n: number,
-  ): V => [a[0]! * n, a[1]! * n, a[2]! * n];
+  ) => AutoMovieVector3Tuple = (
+    a: readonly number[],
+    n: number,
+  ): AutoMovieVector3Tuple => [a[0]! * n, a[1]! * n, a[2]! * n];
 
   /**
    * Affine interpolation a + (b - a)t in binary64; t is dimensionless and extrapolation is not clamped.
@@ -104,8 +98,15 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work No interpolation result is shared across unrelated parameters.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate triples are local and only the resulting triple escapes.
    */
-  export const mix: (a: V, b: V, t: number) => V = (a: V, b: V, t: number): V =>
-    add(a, scale(sub(b, a), t));
+  export const mix: (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    t: number,
+  ) => AutoMovieVector3Tuple = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    t: number,
+  ): AutoMovieVector3Tuple => add(a, scale(sub(b, a), t));
 
   /**
    * Convert endpoint values and derivatives to cubic Bernstein coefficients using the supplied positive physical or phase interval dy. Derivatives are with respect to that interval's chart, not the unit cubic parameter.
@@ -118,13 +119,19 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint data are consumed once to construct the reusable cubic net.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Endpoint and handle tuples are newly owned by the returned span.
    */
-  export const hermite: (a: V, b: V, da: V, db: V, dy: number) => Span = (
-    a: V,
-    b: V,
-    da: V,
-    db: V,
+  export const hermite: (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    da: AutoMovieVector3Tuple,
+    db: AutoMovieVector3Tuple,
     dy: number,
-  ): Span => [
+  ) => IAutoMovieCurveMath64.Span = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    da: AutoMovieVector3Tuple,
+    db: AutoMovieVector3Tuple,
+    dy: number,
+  ): IAutoMovieCurveMath64.Span => [
     clone(a),
     add(a, scale(da, dy / 3)),
     sub(b, scale(db, dy / 3)),
@@ -153,7 +160,7 @@ export namespace AutoMovieCurveMath64 {
   export function toHermite(
     span: readonly (readonly number[])[],
     dy: number,
-  ): { start: V; end: V; startDerivative: V; endDerivative: V } {
+  ): IAutoMovieCurveMath64.IToHermiteResult {
     if (!(dy > 0 && Number.isFinite(dy)))
       throw new Error(
         "A positive finite cubic Hermite chart width is required",
@@ -177,8 +184,16 @@ export namespace AutoMovieCurveMath64 {
     return {
       start: clone(span[0]!),
       end: clone(span[3]!),
-      startDerivative: endpointDerivative(span as readonly V[], 0, dy),
-      endDerivative: endpointDerivative(span as readonly V[], 1, dy),
+      startDerivative: endpointDerivative(
+        span as readonly AutoMovieVector3Tuple[],
+        0,
+        dy,
+      ),
+      endDerivative: endpointDerivative(
+        span as readonly AutoMovieVector3Tuple[],
+        1,
+        dy,
+      ),
     };
   }
 
@@ -192,13 +207,13 @@ export namespace AutoMovieCurveMath64 {
    * The public conversion comment owns this private helper's Evidence answers.
    */
   function endpointDerivative(
-    span: readonly V[],
+    span: readonly AutoMovieVector3Tuple[],
     endpoint: 0 | 1,
     dy: number,
-  ): V {
-    const ordinary: V = derivative(span, endpoint, dy);
-    const a: V = span[endpoint === 0 ? 0 : 2]!,
-      b: V = span[endpoint === 0 ? 1 : 3]!;
+  ): AutoMovieVector3Tuple {
+    const ordinary: AutoMovieVector3Tuple = derivative(span, endpoint, dy);
+    const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,
+      b: AutoMovieVector3Tuple = span[endpoint === 0 ? 1 : 3]!;
     return [0, 1, 2].map((axis: number): number => {
       const delta: number = b[axis]! - a[axis]!;
       let value: number = ordinary[axis]!;
@@ -211,7 +226,7 @@ export namespace AutoMovieCurveMath64 {
       if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
         throw new Error("Cubic endpoint derivative is unresolved in binary64");
       return value;
-    }) as V;
+    }) as AutoMovieVector3Tuple;
   }
 
   /**
@@ -225,17 +240,20 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One supplied span is evaluated without a cross-parameter cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A new result tuple is returned and no source net is retained.
    */
-  export const cubic: (a: readonly V[], t: number) => V = (
-    a: readonly V[],
+  export const cubic: (
+    a: readonly AutoMovieVector3Tuple[],
     t: number,
-  ): V =>
+  ) => AutoMovieVector3Tuple = (
+    a: readonly AutoMovieVector3Tuple[],
+    t: number,
+  ): AutoMovieVector3Tuple =>
     [0, 1, 2].map(
       (k: number): number =>
         (1 - t) ** 3 * a[0]![k]! +
         3 * (1 - t) ** 2 * t * a[1]![k]! +
         3 * (1 - t) * t * t * a[2]![k]! +
         t ** 3 * a[3]![k]!,
-    ) as V;
+    ) as AutoMovieVector3Tuple;
 
   /**
    * Evaluate the cubic derivative divided by dy, yielding derivative per physical or phase unit rather than per unit t; callers must supply nonzero chart width. Signed widths and extrapolated t retain the same basis arithmetic. This evaluator adds no admission or finite-result exception; inverse conversion separately admits its stricter endpoint record.
@@ -248,18 +266,22 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The derivative reads existing controls rather than reconstructing their generating field.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the derivative tuple escapes; input controls remain caller-owned.
    */
-  export const derivative: (a: readonly V[], t: number, dy: number) => V = (
-    a: readonly V[],
+  export const derivative: (
+    a: readonly AutoMovieVector3Tuple[],
     t: number,
     dy: number,
-  ): V =>
+  ) => AutoMovieVector3Tuple = (
+    a: readonly AutoMovieVector3Tuple[],
+    t: number,
+    dy: number,
+  ): AutoMovieVector3Tuple =>
     [0, 1, 2].map(
       (k: number): number =>
         (3 / dy) *
         ((1 - t) ** 2 * (a[1]![k]! - a[0]![k]!) +
           2 * (1 - t) * t * (a[2]![k]! - a[1]![k]!) +
           t * t * (a[3]![k]! - a[2]![k]!)),
-    ) as V;
+    ) as AutoMovieVector3Tuple;
 
   /**
    * De Casteljau subdivision at dimensionless t. The affine flag preserves the caller's chosen blend operation order; both children retain the same value units.
@@ -273,19 +295,28 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both returned child nets own copied endpoint tuples and local subdivision results.
    */
   export function split(
-    a: readonly V[],
+    a: readonly AutoMovieVector3Tuple[],
     t: number,
     affine: boolean = false,
-  ): [Span, Span] {
-    const blend: (p: V, q: V) => V = (p: V, q: V): V =>
+  ): [IAutoMovieCurveMath64.Span, IAutoMovieCurveMath64.Span] {
+    const blend: (
+      p: AutoMovieVector3Tuple,
+      q: AutoMovieVector3Tuple,
+    ) => AutoMovieVector3Tuple = (
+      p: AutoMovieVector3Tuple,
+      q: AutoMovieVector3Tuple,
+    ): AutoMovieVector3Tuple =>
       affine ? mix(p, q, t) : add(scale(p, 1 - t), scale(q, t));
-    const b: V[] = [
+    const b: AutoMovieVector3Tuple[] = [
       blend(a[0]!, a[1]!),
       blend(a[1]!, a[2]!),
       blend(a[2]!, a[3]!),
     ];
-    const c: V[] = [blend(b[0]!, b[1]!), blend(b[1]!, b[2]!)];
-    const d: V = blend(c[0]!, c[1]!);
+    const c: AutoMovieVector3Tuple[] = [
+      blend(b[0]!, b[1]!),
+      blend(b[1]!, b[2]!),
+    ];
+    const d: AutoMovieVector3Tuple = blend(c[0]!, c[1]!);
     return [
       [clone(a[0]!), b[0]!, c[0]!, d],
       [clone(d), c[1]!, b[2]!, clone(a[3]!)],
@@ -304,20 +335,23 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned pieces own their controls and temporary remaining nets expire.
    */
   export function partition(
-    a: readonly V[],
+    a: readonly AutoMovieVector3Tuple[],
     widths: readonly number[],
     affine: boolean = false,
-  ): Span[] {
+  ): IAutoMovieCurveMath64.Span[] {
     if (widths.some((w: number): boolean => !(w > 0)))
       throw new Error("Positive actual phase widths required");
     let remaining: number = widths.reduce(
       (s: number, w: number): number => s + w,
       0,
     );
-    let rest: Span = a.map(clone) as Span;
-    const out: Span[] = [];
+    let rest: IAutoMovieCurveMath64.Span = a.map(
+      clone,
+    ) as IAutoMovieCurveMath64.Span;
+    const out: IAutoMovieCurveMath64.Span[] = [];
     for (const w of widths.slice(0, -1)) {
-      const parts: [Span, Span] = split(rest, w / remaining, affine);
+      const parts: [IAutoMovieCurveMath64.Span, IAutoMovieCurveMath64.Span] =
+        split(rest, w / remaining, affine);
       out.push(parts[0]);
       rest = parts[1];
       remaining -= w;
@@ -344,9 +378,9 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only new handle triples escape; wrapped coordinates and component columns expire.
    */
   export function angular(
-    points: readonly V[],
+    points: readonly AutoMovieVector3Tuple[],
     widths: readonly number[],
-  ): V[] {
+  ): AutoMovieVector3Tuple[] {
     const phases: number[] = [0];
     for (const w of widths) phases.push(phases.at(-1)! + w);
     const xs: number[] = [
@@ -354,14 +388,21 @@ export namespace AutoMovieCurveMath64 {
       ...phases,
       phases.at(-1)! + widths[0]!,
     ];
-    const rows: V[] = [points.at(-1)!, ...points, points[0]!, points[1]!];
-    const out: V[] = points.map((): V => [0, 0, 0]);
+    const rows: AutoMovieVector3Tuple[] = [
+      points.at(-1)!,
+      ...points,
+      points[0]!,
+      points[1]!,
+    ];
+    const out: AutoMovieVector3Tuple[] = points.map(
+      (): AutoMovieVector3Tuple => [0, 0, 0],
+    );
     for (let k: number = 0; k < 3; k++) {
       const d: number[] = slopes(
         xs,
-        rows.map((p: V): number => p[k]!),
+        rows.map((p: AutoMovieVector3Tuple): number => p[k]!),
       );
-      out.forEach((p: V, i: number): void => {
+      out.forEach((p: AutoMovieVector3Tuple, i: number): void => {
         p[k] = d[i + 1]! / 3;
       });
     }
@@ -380,18 +421,20 @@ export namespace AutoMovieCurveMath64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Endpoints are cloned and new handle triples belong to the returned spans.
    */
   export function spans(
-    points: readonly V[],
-    handles: readonly V[],
+    points: readonly AutoMovieVector3Tuple[],
+    handles: readonly AutoMovieVector3Tuple[],
     widths: readonly number[],
-  ): Span[] {
-    return points.map((p: V, i: number): Span => {
-      const n: number = (i + 1) % points.length;
-      return [
-        clone(p),
-        add(p, scale(handles[i]!, widths[i]!)),
-        sub(points[n]!, scale(handles[n]!, widths[i]!)),
-        clone(points[n]!),
-      ];
-    });
+  ): IAutoMovieCurveMath64.Span[] {
+    return points.map(
+      (p: AutoMovieVector3Tuple, i: number): IAutoMovieCurveMath64.Span => {
+        const n: number = (i + 1) % points.length;
+        return [
+          clone(p),
+          add(p, scale(handles[i]!, widths[i]!)),
+          sub(points[n]!, scale(handles[n]!, widths[i]!)),
+          clone(points[n]!),
+        ];
+      },
+    );
   }
 }

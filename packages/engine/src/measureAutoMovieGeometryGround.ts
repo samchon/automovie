@@ -1,9 +1,10 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
+  type IAutoMovieReadGeometryGround,
 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
 
 /**
@@ -19,9 +20,9 @@ import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
  */
 export function measureAutoMovieGeometryGround(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "ground" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "ground" }>,
 ): IAutoMovieGeometryResult {
-  const sample: ReturnType<typeof readAutoMovieGeometryGround> =
+  const sample: IAutoMovieReadGeometryGround.IResult =
     readAutoMovieGeometryGround(props.design.world, request.point);
 
   return {

@@ -1,19 +1,20 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanFoot,
   HumanFrame,
-  type IHumanBody,
   hipJoints,
   humanRig,
   poseBones,
@@ -111,7 +112,7 @@ export function test_motion_posture_frames(): void {
       ),
   );
 
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const side of ["left", "right"] as const) {
     const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
     // 2. Offsets.
@@ -161,7 +162,7 @@ export function test_motion_posture_frames(): void {
     for (const point of ["heel", "ball", "toe"] as const)
       for (const heading of [0, 90])
         for (const pitch of [-20, 0, 30]) {
-          const placed: HumanFoot.IPlacement = HumanFoot.pivot(
+          const placed: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
             body,
             side,
             point,
@@ -194,7 +195,11 @@ export function test_motion_posture_frames(): void {
     pose,
   );
   for (const side of ["left", "right"] as const) {
-    const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      bones,
+      side,
+    );
     complaints.equals(
       `${side}: the sockets in order`,
       sockets.map((s) => s.socket),

@@ -1,12 +1,8 @@
-import {
-  type IArticulatedRigReader,
-  Quaternion,
-  Vector3,
-  prepareArticulatedRig,
-} from "@automovie/engine";
+import { Quaternion, Vector3, prepareArticulatedRig } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
+  IAutoMovieArticulatedRigReader,
   IAutoMovieJointPose,
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -178,7 +174,7 @@ export namespace QuadrupedSkeleton {
     root?: IAutoMovieTransform,
   ): Archetype<Id, Dimension> {
     const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> = of(animal);
-    const reader: IArticulatedRigReader<QuadrupedBody.Bone> =
+    const reader: IAutoMovieArticulatedRigReader<QuadrupedBody.Bone> =
       prepareArticulatedRig(rig);
     return apply(
       animal,

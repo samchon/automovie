@@ -1,7 +1,12 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
 import { admitPhysicalTargetMotion } from "./admitPhysicalTargetMotion";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
@@ -19,8 +24,8 @@ import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalTargets(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   for (const [step, target] of body.targets.entries()) {
     if (
@@ -42,11 +47,12 @@ export function admitPhysicalTargets(
           (bone: string): boolean =>
             typeof bone !== "string" ||
             !body.profile.segments.some(
-              (segment: P.ISegment): boolean => segment.bone === bone,
+              (segment: IAutoMoviePhysicalSegment): boolean =>
+                segment.bone === bone,
             ),
         ) ||
         body.profile.joints.some(
-          (joint: P.IJoint): boolean =>
+          (joint: IAutoMoviePhysicalJoint): boolean =>
             target.dynamicSegments!.includes(joint.parent) &&
             !target.dynamicSegments!.includes(joint.child),
         ))
@@ -59,7 +65,9 @@ export function admitPhysicalTargets(
       target.pointBounds,
     );
     const joints: Set<string> = new Set(
-      body.profile.joints.map((joint: P.IJoint): string => joint.id),
+      body.profile.joints.map(
+        (joint: IAutoMoviePhysicalJoint): string => joint.id,
+      ),
     );
     const strengths: (
       values: Record<string, number>,
@@ -94,7 +102,7 @@ export function admitPhysicalTargets(
           body.supportTracking?.pattern.limbs.map(
             (
               limb: NonNullable<
-                Simulation.IBody["supportTracking"]
+                IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
               >["pattern"]["limbs"][number],
             ): string => limb.bone,
           ),
@@ -114,7 +122,7 @@ export function admitPhysicalTargets(
             !body.balance?.pattern.limbs.some(
               (
                 limb: NonNullable<
-                  Simulation.IBody["balance"]
+                  IAutoMoviePhysicalSimulationInput.IBody["balance"]
                 >["pattern"]["limbs"][number],
               ): boolean => limb.bone === bone,
             ),
@@ -124,7 +132,8 @@ export function admitPhysicalTargets(
         `${body.id}: invalid reserved support endpoint at ${step}`,
       );
     for (const segment of body.profile.segments) {
-      const pose: P.ITransform | undefined = target.segments[segment.bone];
+      const pose: IAutoMovieRigidTransform | undefined =
+        target.segments[segment.bone];
       if (
         !pose?.position ||
         !pose.rotation ||
@@ -149,7 +158,7 @@ export function admitPhysicalTargets(
         );
       if (
         segment.shapes.some(
-          (shape: P.IShape): boolean =>
+          (shape: IAutoMoviePhysicalShape): boolean =>
             !inPhysicalFloorBounds(pose, shape, input.floorBounds),
         )
       )

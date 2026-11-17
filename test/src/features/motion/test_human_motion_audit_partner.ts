@@ -1,13 +1,15 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditPartner,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditPartner,
   HumanColliders,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,15 +58,15 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_partner(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const man: IHumanBody = motionHumanBody("m-average");
-  const woman: IHumanBody = motionHumanBody("f-small");
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const his: Bones = motionHumanStance(man);
   const hers: Bones = motionHumanStance(woman, { x: 0, y: 0, z: 2 }, 180);
-  const a: AutoMovieMotionHumanAuditPartner.IPerson = {
+  const a: IAutoMovieMotionHumanAuditPartner.IPerson = {
     subject: "a",
     body: man,
   };
-  const b: AutoMovieMotionHumanAuditPartner.IPerson = {
+  const b: IAutoMovieMotionHumanAuditPartner.IPerson = {
     subject: "b",
     body: woman,
   };
@@ -94,12 +96,12 @@ export function test_human_motion_audit_partner(): void {
   };
   const measure = (
     motion: IAutoMovieMotionHumanAuditMotion,
-  ): AutoMovieMotionHumanAuditPartner.IResult =>
+  ): IAutoMovieMotionHumanAuditPartner.IResult =>
     AutoMovieMotionHumanAuditPartner.measure(motion, a, b);
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
 
   // 1. Apart.
-  const apart: AutoMovieMotionHumanAuditPartner.IResult = measure(
+  const apart: IAutoMovieMotionHumanAuditPartner.IResult = measure(
     film(
       (): boolean => false,
       (): IAutoMovieVector3 => zero,
@@ -113,18 +115,19 @@ export function test_human_motion_audit_partner(): void {
   });
 
   // His trunk's front surface, right of the midline.
-  const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
-    man,
-    new Map(
-      [...his].filter(
-        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-          bone === "chest" || bone === "spine",
+  const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+    HumanColliders.cast(
+      man,
+      new Map(
+        [...his].filter(
+          ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
+            bone === "chest" || bone === "spine",
+        ),
       ),
-    ),
-    { x: -0.05, y: his.get("chest")!.worldPosition.y, z: 1 },
-    { x: 0, y: 0, z: -1 },
-    2,
-  );
+      { x: -0.05, y: his.get("chest")!.worldPosition.y, z: 1 },
+      { x: 0, y: 0, z: -1 },
+      2,
+    );
   if (hit === undefined) throw new Error("The ray missed the trunk");
   const middle = (
     from: AutoMovieHumanoidBone,
@@ -155,11 +158,11 @@ export function test_human_motion_audit_partner(): void {
   ): IAutoMovieMotionHumanAuditMotion =>
     film(arm, (t: number): IAutoMovieVector3 => into(anchor, inside(t)));
   const depth = (
-    result: AutoMovieMotionHumanAuditPartner.IResult,
+    result: IAutoMovieMotionHumanAuditPartner.IResult,
     part: AutoMovieHumanoidBone,
   ): number =>
     result.pairs.find(
-      (p: AutoMovieMotionHumanAuditPartner.IPair): boolean =>
+      (p: IAutoMovieMotionHumanAuditPartner.IPair): boolean =>
         p.subject === "b" &&
         p.part === part &&
         p.other === "a" &&
@@ -167,7 +170,7 @@ export function test_human_motion_audit_partner(): void {
     )?.depth ?? 0;
 
   // 2. Inside.
-  const inside: AutoMovieMotionHumanAuditPartner.IResult = measure(
+  const inside: IAutoMovieMotionHumanAuditPartner.IResult = measure(
     forearm((): number => 0.03),
   );
   const set: number = depth(inside, "rightLowerArm");
@@ -201,7 +204,7 @@ export function test_human_motion_audit_partner(): void {
   );
 
   // 5. In time.
-  const ramp: AutoMovieMotionHumanAuditPartner.IResult = measure(
+  const ramp: IAutoMovieMotionHumanAuditPartner.IResult = measure(
     forearm((t: number): number => 0.06 * t - 0.03),
   );
   TestValidator.predicate(
@@ -209,7 +212,7 @@ export function test_human_motion_audit_partner(): void {
     Math.abs(ramp.worst.seconds - 1) <= 1e-9 &&
       Math.abs(ramp.worst.value - inside.worst.value) <= 1e-9,
   );
-  const pass: AutoMovieMotionHumanAuditPartner.IResult = measure(
+  const pass: IAutoMovieMotionHumanAuditPartner.IResult = measure(
     forearm((t: number): number => 0.03 - 0.12 * Math.abs(t - 0.5)),
   );
   TestValidator.predicate(
@@ -220,7 +223,7 @@ export function test_human_motion_audit_partner(): void {
   TestValidator.predicate(
     "the pairs come deepest first",
     pass.pairs.every(
-      (p: AutoMovieMotionHumanAuditPartner.IPair, i: number): boolean =>
+      (p: IAutoMovieMotionHumanAuditPartner.IPair, i: number): boolean =>
         i === 0 || pass.pairs[i - 1]!.depth >= p.depth,
     ),
   );
@@ -239,17 +242,17 @@ export function test_human_motion_audit_partner(): void {
     0.02,
   );
   const sunk = (spans: IAutoMovieMotionHumanAuditMotion.ISpan[]): number => {
-    const result: AutoMovieMotionHumanAuditPartner.IResult = measure(
+    const result: IAutoMovieMotionHumanAuditPartner.IResult = measure(
       film(hand, (): IAutoMovieVector3 => palm, spans),
     );
     return Math.max(
       0,
       ...result.pairs
         .filter(
-          (p: AutoMovieMotionHumanAuditPartner.IPair): boolean =>
+          (p: IAutoMovieMotionHumanAuditPartner.IPair): boolean =>
             p.subject === "b" && hand(p.part) && p.into === hit.bone,
         )
-        .map((p: AutoMovieMotionHumanAuditPartner.IPair): number => p.depth),
+        .map((p: IAutoMovieMotionHumanAuditPartner.IPair): number => p.depth),
     );
   };
   const undeclared: number = sunk([]);

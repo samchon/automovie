@@ -2,6 +2,10 @@ import {
   AutoMovieMatrix3,
   decomposeAutoMovieSingularMatrix,
 } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryEpipolarMatrixFittingOperation,
+  IAutoMovieRecoveryImagePointsNormalizationOperation,
+} from "@automovie/interface";
 
 import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
@@ -20,16 +24,16 @@ import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary normalized points, design and factors expire synchronously; only nine F entries and a rank ratio return. No source image, external handle or cache is retained.
  */
 export function fitRecoveryEpipolarMatrix(
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-  minimumRatio: number,
-  maxSweeps: number,
-): { matrix: number[]; designSingularRatio: number } {
+  first: Parameters<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation>[0],
+  second: Parameters<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation>[1],
+  minimumRatio: Parameters<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation>[2],
+  maxSweeps: Parameters<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation> {
   if (first.length !== second.length || first.length < 8)
     throw new Error("camera-design: at least eight paired points required");
-  const a: ReturnType<typeof normalizeRecoveryImagePoints> =
+  const a: ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> =
     normalizeRecoveryImagePoints(first);
-  const b: ReturnType<typeof normalizeRecoveryImagePoints> =
+  const b: ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> =
     normalizeRecoveryImagePoints(second);
   const rows: number[][] = a.points.map(
     (point: [number, number], at: number): number[] => {

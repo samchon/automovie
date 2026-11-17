@@ -1,10 +1,13 @@
-import { IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieFootprint,
+  type IAutoMovieFootprintRing,
+  IAutoMoviePlanarPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
 import { planarCross } from "../geometry/planarCross";
 import { convexHull2D } from "../math/convexHull2D";
-import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
-import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
 
 /**
  * Produce convex pieces for the footprint's exact-region contract.

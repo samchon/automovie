@@ -1,17 +1,20 @@
 import type {
   IAutoMovieEllipticLoft,
+  IAutoMovieRecoveryImageDirectionSolverCreationOperation,
+  IAutoMovieRecoveryImageFit,
+  IAutoMovieRecoveryImageFitPolicy,
   IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageProfileSample,
+  IAutoMovieRecoveryImageProfilesFittingOperation,
+  IAutoMovieRecoveryImageSource,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
 import { createRecoveryImageDirectionSolver } from "../internal/createRecoveryImageDirectionSolver";
 import { fitRecoveryImageProfiles } from "../internal/fitRecoveryImageProfiles";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
-import type { IAutoMovieRecoveryImageFit } from "../structures/image/IAutoMovieRecoveryImageFit";
-import type { IAutoMovieRecoveryImageFitPolicy } from "../structures/image/IAutoMovieRecoveryImageFitPolicy";
-import type { IAutoMovieRecoveryImageProfileSample } from "../structures/image/IAutoMovieRecoveryImageProfileSample";
-import type { IAutoMovieRecoveryImageSource } from "../structures/image/IAutoMovieRecoveryImageSource";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Infer aligned elliptical sections from calibrated horizontal silhouette supports.
@@ -41,16 +44,37 @@ export function fitAutoMovieRecoveryImageLoft(
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryImageFit> {
   const operator: IAutoMovieRecoveryResult<unknown>["operator"] =
     "image-elliptic-loft-v1";
-  const cancelled: () => boolean = (): boolean =>
-    options.signal?.aborted === true;
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before image fitting"],
-    };
+  let cancellationRequested: boolean = false;
+  let cancellationCallback: boolean = false;
   let callback: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    cancellationCallback = true;
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
+    cancellationCallback = false;
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
   try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
+
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before image fitting"],
+      };
+
     if (
       !observation ||
       observation.method !== "fixed-background-channel-distance-v1" ||
@@ -85,7 +109,7 @@ export function fitAutoMovieRecoveryImageLoft(
       directions,
       stations,
       supports,
-    }: ReturnType<typeof prepareRecoveryImageSupports> =
+    }: ReturnType<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation> =
       prepareRecoveryImageSupports(observation, policy);
     const unique: number[] = [];
     for (const direction of directions) {
@@ -102,7 +126,7 @@ export function fitAutoMovieRecoveryImageLoft(
       throw new Error(
         "insufficient-directions: three separated squared-support directions are needed to test the family",
       );
-    const radiiSolver: ReturnType<typeof createRecoveryImageDirectionSolver> =
+    const radiiSolver: ReturnType<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation> =
       createRecoveryImageDirectionSolver(
         directions.map(
           (direction: (typeof directions)[number]): [number, number] => [
@@ -112,7 +136,7 @@ export function fitAutoMovieRecoveryImageLoft(
         ),
         policy.minimumDirectionRatio,
       );
-    const centreSolver: ReturnType<typeof createRecoveryImageDirectionSolver> =
+    const centreSolver: ReturnType<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation> =
       createRecoveryImageDirectionSolver(
         directions.map(
           (direction: (typeof directions)[number]): [number, number] => [
@@ -225,7 +249,7 @@ export function fitAutoMovieRecoveryImageLoft(
           status: "cancelled",
           diagnostics: ["Cancelled between profile candidates"],
         };
-      let candidate: ReturnType<typeof fitRecoveryImageProfiles>;
+      let candidate: ReturnType<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>;
       try {
         candidate = fitRecoveryImageProfiles(
           samples,
@@ -333,7 +357,11 @@ export function fitAutoMovieRecoveryImageLoft(
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancelled() ? "cancelled" : callback ? "failed" : "refused",
+      status: cancellationRequested
+        ? "cancelled"
+        : cancellationCallback || callback
+          ? "failed"
+          : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
       ],

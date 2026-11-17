@@ -1,6 +1,7 @@
-import { type IAutoMovieMark, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
+  IAutoMovieMark,
   IAutoMovieModelPart,
   IAutoMovieTransform,
   IAutoMovieVector3,

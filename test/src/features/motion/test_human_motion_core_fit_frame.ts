@@ -1,14 +1,17 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanLimbFitFrame,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -62,16 +65,16 @@ export function test_human_motion_core_fit_frame(): void {
     };
   };
   const reaching = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
     yaw: number,
     attached: boolean = false,
     nudge: number = 0,
     pivoting: boolean = false,
-  ): IHumanPosture => {
-    const base: IHumanPosture = stand.posture(body, at, yaw);
+  ): IAutoMovieMotionHumanPosture => {
+    const base: IAutoMovieMotionHumanPosture = stand.posture(body, at, yaw);
     const reach: number = 0.8 * (body.measure.upperArm + body.measure.forearm);
-    const goal: IHumanPosture.IGoal = {
+    const goal: IAutoMovieHumanLimbGoal = {
       point: turn(
         {
           x: -0.25,
@@ -100,7 +103,7 @@ export function test_human_motion_core_fit_frame(): void {
     return { ...base, limbs: { ...base.limbs, rightArm: goal } };
   };
   const world = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, pose);
@@ -111,7 +114,7 @@ export function test_human_motion_core_fit_frame(): void {
     ["m-average", true],
     ["f-small", true],
   ] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const first: IAutoMoviePose = resolveHumanPosture(
       body,
@@ -126,13 +129,13 @@ export function test_human_motion_core_fit_frame(): void {
       [180, { x: -3, y: 0, z: 2 }],
       [-90, { x: 1, y: 0, z: -4 }],
     ] as const) {
-      const before: HumanLimbFitFrame.IStatistics =
+      const before: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
         HumanLimbFitFrame.statistics(body);
       const moved: IAutoMoviePose = resolveHumanPosture(
         body,
         reaching(body, at, yaw, false, 0, pivoting),
       );
-      const after: HumanLimbFitFrame.IStatistics =
+      const after: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
         HumanLimbFitFrame.statistics(body);
       if (after.misses !== before.misses)
         findings.push(
@@ -166,14 +169,14 @@ export function test_human_motion_core_fit_frame(): void {
 
     // 4. An attached goal stays in the world.
     resolveHumanPosture(body, reaching(body, origin, 0, true));
-    const held: HumanLimbFitFrame.IStatistics =
+    const held: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
       HumanLimbFitFrame.statistics(body);
     resolveHumanPosture(body, reaching(body, { x: 7, y: 0, z: 7 }, 0, true));
     if (!(HumanLimbFitFrame.statistics(body).misses > held.misses))
       findings.push(`${name}: an attached goal was shared across places`);
 
     // 5. A moved goal misses.
-    const known: HumanLimbFitFrame.IStatistics =
+    const known: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
       HumanLimbFitFrame.statistics(body);
     resolveHumanPosture(body, reaching(body, origin, 0, false, 0.05));
     if (!(HumanLimbFitFrame.statistics(body).misses > known.misses))

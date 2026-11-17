@@ -1,9 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieWearableSoftFrame,
-  simulateAutoMovieWearableSoftBody,
-} from "@automovie/engine";
-import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import { simulateAutoMovieWearableSoftBody } from "@automovie/engine";
+import type {
+  IAutoMovieResolvedBone,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieWearableSoftFrame,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "./predicates";

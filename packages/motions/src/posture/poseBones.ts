@@ -1,15 +1,14 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * Every bone of a canonical pose placed in the world, by name: forward
@@ -30,7 +29,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function poseBones(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(

@@ -1,12 +1,13 @@
 import {
-  type IAutoMovieHingedArticulation,
-  type IAutoMovieSwivelNear,
   Quaternion,
   hingedArmArticulation,
   hingedArmSwivel,
 } from "@automovie/engine";
 import type {
+  IAutoMovieHingedArticulation,
+  IAutoMovieHingedChainGeometry,
   IAutoMovieQuaternion,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -51,7 +52,7 @@ export function test_kinematics_hinged_arm_near(): void {
   type IScore = { overshoot: number; deviation: number };
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const target: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0 };
-  const chain: hingedArmSwivel.IChain = {
+  const chain: IAutoMovieHingedChainGeometry = {
     upper: {
       worldPosition: { x: 0, y: 0, z: 0 },
       worldRotation: identity,

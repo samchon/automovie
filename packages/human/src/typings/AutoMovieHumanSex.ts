@@ -1,12 +1,16 @@
+import type { AutoMovieHumanSex as AutoMovieHumanSexContract } from "@automovie/interface";
+
+/** The canonical AutoMovieHumanSex literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanSex = AutoMovieHumanSexContract;
+
 /**
  * Sex category associated with requested reference statistics.
  *
  * This category distinguishes female and male population statistics. It does not specify detailed body measurements or the continuous masculine/feminine shape coordinate.
  */
-export enum AutoMovieHumanSex {
+export const AutoMovieHumanSex = {
   /** Female population statistics. */
-  Female = "female",
-
+  Female: "female",
   /** Male population statistics. */
-  Male = "male",
-}
+  Male: "male",
+} as const satisfies Readonly<Record<string, AutoMovieHumanSexContract>>;

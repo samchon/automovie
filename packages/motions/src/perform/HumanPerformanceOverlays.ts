@@ -1,14 +1,18 @@
-import type { IAutoMovieIntent, IAutoMovieSchedule } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieScheduleEntry,
+} from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * A planned action placed over its carrier: the channels it claims checked
@@ -31,19 +35,19 @@ export namespace HumanPerformanceOverlays {
    */
   export interface IPlanned {
     /** The action's name. */
-    name: HumanActionKey;
+    name: AutoMovieMotionHumanActionKey;
 
     /** The parameters it was planned from. */
     params: object;
 
     /** Its law. */
-    law: IHumanActionLaw<never>;
+    law: IAutoMovieMotionHumanActionLaw<never>;
 
     /** The context it was planned in. */
-    context: IHumanActionContext<never>;
+    context: IAutoMovieMotionHumanActionContext<never>;
 
     /** Its plan. */
-    plan: IHumanActionPlan;
+    plan: IAutoMovieMotionHumanActionPlan;
 
     /** Film second it starts. */
     start: number;
@@ -70,11 +74,11 @@ export namespace HumanPerformanceOverlays {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The overlay record is owned by its performer.
    */
   export function place(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    carrier: HumanSegment.ISegment,
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    carrier: IAutoMovieMotionHumanSegment,
     intent: IAutoMovieIntent,
-    entries: readonly IAutoMovieSchedule.IEntry[],
+    entries: readonly IAutoMovieScheduleEntry[],
     planned: IPlanned,
   ): {
     duration: number;
@@ -84,16 +88,16 @@ export namespace HumanPerformanceOverlays {
     const { name, params, law, context, plan, start }: IPlanned = planned;
     // The overlay takes what its plan claims, which the carrier must yield
     // and no other overlay of the same span may hold.
-    const channels: readonly AutoMovieMotionHumanChannel.Claim[] =
+    const channels: readonly AutoMovieMotionHumanChannelClaim[] =
       plan.channels ?? [];
     // An instance's own yields, where its parameters decide them, before its law's.
-    const yielded: readonly AutoMovieMotionHumanChannel.Claim[] =
+    const yielded: readonly AutoMovieMotionHumanChannelClaim[] =
       carrier.plan.yields ?? carrier.law.yields ?? [];
     // A claimed digit is yielded with its hand; a claimed hand needs the
     // hand itself yielded, not one of its digits.
-    const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
-      (c: AutoMovieMotionHumanChannel.Claim): boolean =>
-        !AutoMovieMotionHumanChannel.claims(yielded, c),
+    const kept: AutoMovieMotionHumanChannelClaim[] = channels.filter(
+      (c: AutoMovieMotionHumanChannelClaim): boolean =>
+        !HumanChannels.claims(yielded, c),
     );
     if (kept.length !== 0)
       throw new HumanRefusal({
@@ -109,11 +113,11 @@ export namespace HumanPerformanceOverlays {
       if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9)) continue;
       // Two claims clash when either covers the other: a hand and one of
       // its digits, or the same digit twice; two digits of one hand do not.
-      const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel.Claim): boolean =>
-          AutoMovieMotionHumanChannel.claims(other.channels, c) ||
-          other.channels.some((o: AutoMovieMotionHumanChannel.Claim): boolean =>
-            AutoMovieMotionHumanChannel.claims([c], o),
+      const shared: AutoMovieMotionHumanChannelClaim[] = channels.filter(
+        (c: AutoMovieMotionHumanChannelClaim): boolean =>
+          HumanChannels.claims(other.channels, c) ||
+          other.channels.some((o: AutoMovieMotionHumanChannelClaim): boolean =>
+            HumanChannels.claims([c], o),
           ),
       );
       if (shared.length !== 0)
@@ -125,7 +129,7 @@ export namespace HumanPerformanceOverlays {
           fix: `give one of them the other hand, or let ${other.name} end first (put ${name} after it in the same overlay)`,
         });
     }
-    const overlay: HumanSegment.IOverlay = {
+    const overlay: IAutoMovieMotionHumanSegment.IOverlay = {
       index: person.overlays.length,
       entry: entries.length,
       id: intent.anchor ?? name,

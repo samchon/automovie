@@ -1,5 +1,12 @@
 import {
   IAutoMovieExplicitInstanceTransform,
+  type IAutoMoviePatternFaceFrame,
+  type IAutoMoviePatternFacet,
+  type IAutoMoviePatternInstanceTransforms,
+  type IAutoMoviePatternInstancing,
+  type IAutoMoviePatternPoint,
+  type IAutoMoviePatternZoneQuantities,
+  type IAutoMovieSurfacePatternResult,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -7,12 +14,6 @@ import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
-import { IAutoMoviePatternFaceFrame } from "./IAutoMoviePatternFaceFrame";
-import { IAutoMoviePatternFacet } from "./IAutoMoviePatternFacet";
-import { IAutoMoviePatternInstancing } from "./IAutoMoviePatternInstancing";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
-import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantities";
-import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /**
  * Turn whole occurrences into computed instance slots and name the ones that
@@ -51,22 +52,11 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every placement of a zone reuses that zone's resolved panel basis instead of re-validating its frame; nothing is reused across calls, since the result and frames are inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The panel map is dropped on return; the caller owns the slots and cut ids, together bounded by the placement count.
  */
-export const autoMoviePatternInstanceTransforms: (props: {
-  result: IAutoMovieSurfacePatternResult;
-  frame: IAutoMoviePatternFaceFrame;
-  facets?: readonly IAutoMoviePatternFacet[];
-  thickness: number;
-  prototypes?: readonly string[];
-}) => IAutoMoviePatternInstancing = (props: {
-  result: IAutoMovieSurfacePatternResult;
-  frame: IAutoMoviePatternFaceFrame;
-  /** Panels the folded or curved zones return onto; the rest use `frame`. */
-  facets?: readonly IAutoMoviePatternFacet[];
-  /** Module thickness along the face normal in metres, strictly above zero. */
-  thickness: number;
-  /** Prototype ids indexed by variant; omitted leaves the set default. */
-  prototypes?: readonly string[];
-}): IAutoMoviePatternInstancing => {
+export const autoMoviePatternInstanceTransforms: (
+  props: IAutoMoviePatternInstanceTransforms.IProps,
+) => IAutoMoviePatternInstancing = (
+  props: IAutoMoviePatternInstanceTransforms.IProps,
+): IAutoMoviePatternInstancing => {
   positive(props.thickness, "pattern module thickness");
   const flat: IResolvedPanel = resolvePanel(
     { u: 0, v: 0 },

@@ -1,11 +1,10 @@
 import {
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePreparePlaybackTimeline,
   IAutoMovieSequence,
   IAutoMovieSequenceEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
-
-import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 
 /**
  * Build a playback layout and the shot index its frame and event consumers share.
@@ -25,10 +24,7 @@ import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 export function preparePlaybackTimeline(
   sequence: IAutoMovieSequence,
   shots: readonly IAutoMovieShot[],
-): {
-  timeline: IAutoMoviePlaybackTimeline;
-  shotById: ReadonlyMap<string, { shot: IAutoMovieShot; index: number }>;
-} {
+): IAutoMoviePreparePlaybackTimeline.IResult {
   if (sequence.shots.length === 0)
     throw new Error(`sequence "${sequence.id}" must contain at least one shot`);
   const shotById: Map<string, { shot: IAutoMovieShot; index: number }> =

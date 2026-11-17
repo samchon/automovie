@@ -1,10 +1,8 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMoviePoseRig,
-} from "@automovie/engine";
-
-import type { IHumanBody } from "../body/IHumanBody";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePoseRig,
+} from "@automovie/interface";
 
 /**
  * The rig a body's poses are read through: its skeleton with the canonical
@@ -23,7 +21,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function humanRig(body: IHumanBody): IAutoMoviePoseRig {
+export function humanRig(body: IAutoMovieMotionHumanBody): IAutoMoviePoseRig {
   return {
     skeleton: body.skeleton,
     jointAxes: HUMANOID_JOINT_AXES,

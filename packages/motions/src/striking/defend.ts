@@ -1,22 +1,25 @@
 import type {
   AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDefenceOutcome,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanPlacedAction,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendGeometry } from "./defendGeometry";
-import type { kick } from "./kick";
-import type { punch } from "./punch";
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
@@ -68,10 +71,10 @@ import type { punch } from "./punch";
  */
 export namespace defend {
   /** The action's name. */
-  export const name: HumanActionName = "defend";
+  export const name: AutoMovieMotionHumanActionName = "defend";
 
   /** Cancel table: a defence flows into a counter punch or another defence once the strike has passed. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
       { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
     ],
@@ -79,33 +82,6 @@ export namespace defend {
       { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
     ],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the kind, the answered strike's anchor and the outcome's default.
-   * @evidence contracts/development/design.md#principled-representation A closed union of defence kinds, the strike as its anchor (checked when planning to strike this performer) and an optional forced outcome.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
-   */
-  export interface IParams {
-    /** The defence. */
-    kind:
-      | "cover"
-      | "parry"
-      | "elbowBlock"
-      | "highBlock"
-      | "slip"
-      | "roll"
-      | "sway"
-      | "check";
-
-    /** The anchor of the strike it answers. */
-    against: string;
-
-    /** The forced outcome; drawn from the defender's skill when absent. */
-    outcome?: DefenceOutcome.Outcome;
-  }
 
   /**
    * How much of a strike its preparation shows, in [0, 1]: provisional
@@ -125,11 +101,15 @@ export namespace defend {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function telegraph(attack: IHumanActionContext.IPlaced): number {
+  export function telegraph(attack: IAutoMovieMotionHumanPlacedAction): number {
     if (attack.family === "kick")
-      return (attack.params as kick.IParams).technique === "round" ? 1 : 0.8;
+      return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
+        "round"
+        ? 1
+        : 0.8;
     if (attack.family === "punch") {
-      const p: punch.IParams = attack.params as punch.IParams;
+      const p: IAutoMovieMotionHumanPunch.IParams =
+        attack.params as IAutoMovieMotionHumanPunch.IParams;
       return p.technique === "straight" && (p.hand ?? "lead") === "lead"
         ? 0.4
         : 0.6;
@@ -138,8 +118,10 @@ export namespace defend {
   }
 
   /** Every planned defence's decision, for audits. */
-  const DECISIONS: WeakMap<IHumanActionPlan, DefenceOutcome.IDecision> =
-    new WeakMap();
+  const DECISIONS: WeakMap<
+    IAutoMovieMotionHumanActionPlan,
+    IAutoMovieMotionHumanDefenceOutcome.IDecision
+  > = new WeakMap();
 
   /**
    * The outcome decision of a planned defence.
@@ -156,8 +138,8 @@ export namespace defend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Decisions are keyed weakly by their plans, so each is released with its plan.
    */
   export function decision(
-    plan: IHumanActionPlan,
-  ): DefenceOutcome.IDecision | undefined {
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanDefenceOutcome.IDecision | undefined {
     return DECISIONS.get(plan);
   }
 
@@ -177,10 +159,10 @@ export namespace defend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle, and one decision keyed weakly by the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
-    const attack: IHumanActionContext.IPlaced = context.action(p.against);
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanDefend.IParams = context.params;
+    const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
 
     // A feint has no contact: the defender bites on the moment the strike it
     // shows would have landed, which the feint declares, and which is how a
@@ -230,17 +212,18 @@ export namespace defend {
         attack.plan.duration;
     const hit: number = attack.start + decisive;
     const movement: number = StrikingSkill.defence(context.skill);
-    const decided: DefenceOutcome.IDecision = DefenceOutcome.decide(
-      {
-        launch,
-        hit,
-        telegraph: telegraph(attack),
-        movement,
-        skill: context.skill,
-      },
-      context.random("defence"),
-      p.outcome,
-    );
+    const decided: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+      DefenceOutcome.decide(
+        {
+          launch,
+          hit,
+          telegraph: telegraph(attack),
+          movement,
+          skill: context.skill,
+        },
+        context.random("defence"),
+        p.outcome,
+      );
     const begin: number = Math.max(0, decided.start - context.start);
     const contact: number = hit - context.start;
     const hold: number = Math.max(begin + movement, contact + 0.05);
@@ -283,15 +266,16 @@ export namespace defend {
       return built;
     };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const contacts: IHumanContactWindow[] = defendGeometry.windows(
-      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
-      timing,
-    );
-    const out: IHumanActionPlan = {
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      defendGeometry.windows(
+        p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
+        timing,
+      );
+    const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return t <= begin + 1e-9 ? idle(context, lead) : geometry().posture(t);
       },
@@ -305,11 +289,11 @@ export namespace defend {
 
   /** The guard held while waiting for the read: the entry's feet planted and the gloves up. */
   function idle(
-    context: IHumanActionContext<IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     lead: "left" | "right",
-  ): IHumanPosture {
-    const entry: IHumanPosture = context.entry.posture;
-    const posture: IHumanPosture = {
+  ): IAutoMovieMotionHumanPosture {
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const posture: IAutoMovieMotionHumanPosture = {
       ...entry,
       joints: { ...entry.joints, ...StrikingStance.joints() },
       limbs: StrikingStance.legs(

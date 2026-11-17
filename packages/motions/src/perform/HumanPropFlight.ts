@@ -1,23 +1,21 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieProjectile,
-  type IAutoMovieProjectileState,
-  projectileAt,
-} from "@automovie/engine";
+import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionPropLaunch,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileState,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
-import type { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * Props that fly: every launch an action publishes (`IHumanActionPlan.launches`)
@@ -54,81 +52,6 @@ import type { IHumanProp } from "./IHumanProp";
  */
 export namespace HumanPropFlight {
   /**
-   * What a flight struck.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a person's canonical bone, a prop subject and the world ground; identities refer to the placed performance.
-   * @evidence contracts/development/design.md#principled-representation A closed discriminated union keeps the carrier facts required by each target kind; runtime performance readers establish that the subject and bone exist.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The sweep produces these targets and contact settlement/frame readers consume every variant.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No material, response or actor identity is inferred from the subject string; each variant carries only its carrier identity.
-   */
-  export type Struck =
-    | { kind: "person"; subject: string; bone: AutoMovieHumanoidBone }
-    | { kind: "prop"; subject: string }
-    | { kind: "ground" };
-
-  /**
-   * One flight of a prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States film-absolute launch/end times, launch-relative projectile/leg clocks, source action, optional first contact and unended-flight Infinity.
-   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact and infinite end express an unended flight, with their consistency established by fly rather than by the record type alone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Frame and hit readers consume the launch, source, projectile, end, contact and continuation legs emitted by this owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores neither sampled frames nor a second ballistic law; source/published records are borrowed from the planned performance and returned flight records are not deeply frozen.
-   */
-  export interface IFlight {
-    /** The prop. */
-    prop: string;
-
-    /** Film second of the launch. */
-    launch: number;
-
-    /** The launching action, with its performer. */
-    source: HumanSegment.ISegment & { subject: string };
-
-    /** The launch as the action published it. */
-    published: IHumanActionPlan.ILaunch;
-
-    /** The flight, its time zero at `launch`. */
-    projectile: IAutoMovieProjectile;
-
-    /** Film second of its first contact; Infinity when it is still in the air at the film's end. */
-    end: number;
-
-    /** Its first contact, absent while unended. */
-    contact?: IContact;
-
-    /** What follows the first contact, by the body's flight data: a bounce, a pass, a roll (`HumanPropOutcome`); none when it stays where it struck. */
-    legs?: readonly HumanPropOutcome.ILeg[];
-  }
-
-  /**
-   * Where and how a flight struck.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names world-metre point/normal and incoming velocity, the carrier-relative resting offset and the declared contact outcome.
-   * @evidence contracts/development/design.md#principled-representation Keeps the observed world contact separate from the prop's embedded or unembedded offset in the struck carrier's frame; supported target and outcome unions constrain their alternatives.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Flight frames use the target/offset, while hit records read the geometry, velocity and outcome.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contact data does not claim a calibrated moving-surface impulse or a coupled rigid-body solve; the existing continuation uses its fixed-surface response approximation.
-   */
-  export interface IContact {
-    /** What it struck. */
-    struck: Struck;
-
-    /** The contact point on the struck surface, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The struck surface's outward unit normal. */
-    normal: IAutoMovieVector3;
-
-    /** The prop's velocity at contact, m/s. */
-    velocity: IAutoMovieVector3;
-
-    /** The prop's frame at contact, in the frame of what it struck (the bone, the prop, or the world); embedded by its depth where it sticks. */
-    offset: IHumanProp.IFrame;
-
-    /** What the contact does (`HumanPropOutcome.decide`); `stick` where it stays. */
-    outcome: "stick" | "bounce" | "roll" | "pass";
-  }
-
-  /**
    * A prop's flights in film order, found once the performance is placed.
    *
    * @param self The performance.
@@ -144,19 +67,21 @@ export namespace HumanPropFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
   export function flights(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly IFlight[] {
-    const kept: readonly IFlight[] | undefined = KEPT.get(self)?.get(subject);
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+    const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
+      KEPT.get(self)?.get(subject);
     if (kept !== undefined) return kept;
-    const building: IFlight[] | undefined = BUILDING.get(self)?.get(subject);
+    const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
+      BUILDING.get(self)?.get(subject);
     if (building !== undefined) return building;
-    const prop: IHumanProp | undefined = self.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
     const launches: {
       seconds: number;
-      source: IFlight["source"];
-      launch: IHumanActionPlan.ILaunch;
+      source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
+      launch: IAutoMovieMotionPropLaunch;
     }[] = [];
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
@@ -176,8 +101,9 @@ export namespace HumanPropFlight {
         }
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) return [];
-    const out: IFlight[] = [];
-    const map: Map<string, IFlight[]> = BUILDING.get(self) ?? new Map();
+    const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
+    const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> =
+      BUILDING.get(self) ?? new Map();
     map.set(subject, out);
     BUILDING.set(self, map);
     try {
@@ -187,7 +113,10 @@ export namespace HumanPropFlight {
       map.delete(subject);
     }
     if (!self.resolving) {
-      const done: Map<string, readonly IFlight[]> = KEPT.get(self) ?? new Map();
+      const done: Map<
+        string,
+        readonly IAutoMovieMotionHumanPropFlight.IFlight[]
+      > = KEPT.get(self) ?? new Map();
       done.set(subject, out);
       KEPT.set(self, done);
     }
@@ -214,12 +143,12 @@ export namespace HumanPropFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no query or frame locally; active paths return a small frame wrapper, and an uncarried settled path borrows the cached contact offset.
    */
   export function frame(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     since: number,
-  ): IHumanProp.IFrame | undefined {
-    let latest: IFlight | undefined;
+  ): IAutoMovieRigidTransform | undefined {
+    let latest: IAutoMovieMotionHumanPropFlight.IFlight | undefined;
     for (const f of flights(self, subject))
       if (f.launch <= seconds && f.launch >= since) latest = f;
     if (latest === undefined) return undefined;
@@ -233,7 +162,7 @@ export namespace HumanPropFlight {
 
     // After the first contact: the leg running at that second, or the
     // contact the last one ended at.
-    let contact: IContact = latest.contact!;
+    let contact: IAutoMovieMotionHumanPropFlight.IContact = latest.contact!;
     const t: number = seconds - latest.launch;
     for (const leg of latest.legs ?? []) {
       if (t < leg.from) break;
@@ -246,7 +175,7 @@ export namespace HumanPropFlight {
       }
       contact = leg.contact!;
     }
-    const carrier: IHumanProp.IFrame | undefined = struckFrame(
+    const carrier: IAutoMovieRigidTransform | undefined = struckFrame(
       self,
       contact.struck,
       seconds,
@@ -258,19 +187,19 @@ export namespace HumanPropFlight {
 
   /** Fly one launch to its first contact and on, by the outcome its body's data give. */
   function fly(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
     seconds: number,
-    source: IFlight["source"],
-    launch: IHumanActionPlan.ILaunch,
-  ): IFlight {
+    source: IAutoMovieMotionHumanPropFlight.IFlight["source"],
+    launch: IAutoMovieMotionPropLaunch,
+  ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
     const held: boolean = HumanPerformanceRead.grips(self, prop.subject).some(
-      (g: HumanPerformanceState.IGrip): boolean =>
+      (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
         g.from < seconds && g.to >= seconds - 1e-6,
     );
-    const shown: IHumanProp.IFrame = HumanPerformanceRead.prop(
+    const shown: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
       self,
       prop.subject,
       seconds,
@@ -293,7 +222,7 @@ export namespace HumanPropFlight {
             : { ...launch.attitude, rotation },
     };
     const horizon: number = self.duration - seconds;
-    const flight: IFlight = {
+    const flight: IAutoMovieMotionHumanPropFlight.IFlight = {
       prop: prop.subject,
       launch: seconds,
       source,
@@ -307,7 +236,7 @@ export namespace HumanPropFlight {
       base: number,
       leave?: string,
       departing?: string,
-    ): HumanPropOutcome.IMeeting | null =>
+    ): IAutoMovieMotionHumanPropOutcome.IMeeting | null =>
       HumanPropSweep.sweep(
         self,
         prop,
@@ -319,20 +248,26 @@ export namespace HumanPropFlight {
         departing,
       );
     const settle = (
-      m: HumanPropOutcome.IMeeting,
+      m: IAutoMovieMotionHumanPropOutcome.IMeeting,
       p: IAutoMovieProjectile,
       base: number,
-    ): IContact => contactOf(self, prop, m, p, seconds + base);
-    const first: HumanPropOutcome.IMeeting | null = meet(projectile, 0);
-    if (first === null) return flight;
-    const legs: HumanPropOutcome.ILeg[] = HumanPropOutcome.legs({
-      prop,
+    ): IAutoMovieMotionHumanPropFlight.IContact =>
+      contactOf(self, prop, m, p, seconds + base);
+    const first: IAutoMovieMotionHumanPropOutcome.IMeeting | null = meet(
       projectile,
-      meeting: first,
-      horizon,
-      meet,
-      settle,
-    });
+      0,
+    );
+    if (first === null) return flight;
+    const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(
+      {
+        prop,
+        projectile,
+        meeting: first,
+        horizon,
+        meet,
+        settle,
+      },
+    );
     return {
       ...flight,
       end: seconds + first.hit.time,
@@ -343,22 +278,22 @@ export namespace HumanPropFlight {
 
   /** A meeting's contact record: where it struck, and where the prop stays in the frame of what it struck, embedded where it sticks. */
   function contactOf(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
-    meeting: HumanPropOutcome.IMeeting,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
+    meeting: IAutoMovieMotionHumanPropOutcome.IMeeting,
     projectile: IAutoMovieProjectile,
     zero: number,
-  ): IContact {
+  ): IAutoMovieMotionHumanPropFlight.IContact {
     const state: IAutoMovieProjectileState = projectileAt(
       projectile,
       meeting.hit.time,
     );
     const at: number = zero + meeting.hit.time;
-    const world: IHumanProp.IFrame = {
+    const world: IAutoMovieRigidTransform = {
       position: HumanPropOutcome.rest(prop, meeting.struck, state),
       rotation: state.rotation!,
     };
-    const carrier: IHumanProp.IFrame | undefined = struckFrame(
+    const carrier: IAutoMovieRigidTransform | undefined = struckFrame(
       self,
       meeting.struck,
       at,
@@ -376,10 +311,10 @@ export namespace HumanPropFlight {
 
   /** The world frame of what a flight struck at a second: a bone's, a prop's, or none for the floor. */
   function struckFrame(
-    self: HumanPerformanceState,
-    struck: Struck,
+    self: IAutoMovieMotionHumanPerformanceState,
+    struck: IAutoMovieMotionHumanPropFlight.Struck,
     seconds: number,
-  ): IHumanProp.IFrame | undefined {
+  ): IAutoMovieRigidTransform | undefined {
     switch (struck.kind) {
       case "person":
         return HumanPropFrame.bone(
@@ -396,13 +331,13 @@ export namespace HumanPropFlight {
 
   /** The flights found, per placed performance and prop. */
   const KEPT: WeakMap<
-    HumanPerformanceState,
-    Map<string, readonly IFlight[]>
+    IAutoMovieMotionHumanPerformanceState,
+    Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]>
   > = new WeakMap();
 
   /** The flights being found, so a launch reading its prop sees the flights before it. */
   const BUILDING: WeakMap<
-    HumanPerformanceState,
-    Map<string, IFlight[]>
+    IAutoMovieMotionHumanPerformanceState,
+    Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]>
   > = new WeakMap();
 }

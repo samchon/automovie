@@ -5,17 +5,19 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMovieMotionHumanWalkStanceCourse,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanLegChain } from "../posture/HumanLegChain";
 import { walkLeg } from "./walkLeg";
-import type { walkLegClearance } from "./walkLegClearance";
-import type { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
@@ -39,8 +41,8 @@ export namespace walkStanceGeometry {
    * @returns The knot count, the step, the reach, the units and ranges, the variables' readers, each stance's reading at a course, each foot's share of the weight and the base the feet bear.
    */
   export function of(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
   ) {
     const n: number = knots.length;
     const step: number = n > 1 ? knots[1]!.seconds - knots[0]!.seconds : 1;
@@ -58,10 +60,12 @@ export namespace walkStanceGeometry {
       side === "left" ? 7 : 9;
     const turnOf = (side: "left" | "right"): number =>
       side === "left" ? 5 : 6;
-    const scheduled: number[][] = knots.map((knot: walkStanceCourse.IKnot): number[] =>
-      knot.stances.map((s: walkStanceCourse.IStance): number =>
-        HumanFoot.pitch(s.placement.rotation),
-      ),
+    const scheduled: number[][] = knots.map(
+      (knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): number[] =>
+        knot.stances.map(
+          (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): number =>
+            HumanFoot.pitch(s.placement.rotation),
+        ),
     );
     const flat = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: p.x,
@@ -71,12 +75,22 @@ export namespace walkStanceGeometry {
 
     // Each knot's pelvis at the trunk's tilt it was last read at: the
     // differences that move the drop, a pitch or a turn read it again.
-    const pelves: { pitch: number; roll: number; pelvis: walkStanceCourse.IPelvis }[] = [];
-    const pelvisAt = (k: number, pitch: number, roll: number): walkStanceCourse.IPelvis => {
+    const pelves: {
+      pitch: number;
+      roll: number;
+      pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis;
+    }[] = [];
+    const pelvisAt = (
+      k: number,
+      pitch: number,
+      roll: number,
+    ): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => {
       const kept = pelves[k];
       if (kept !== undefined && kept.pitch === pitch && kept.roll === roll)
         return kept.pelvis;
-      const pelvis: walkStanceCourse.IPelvis = knots[k]!.pelvis({ pitch, roll });
+      const pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis = knots[
+        k
+      ]!.pelvis({ pitch, roll });
       pelves[k] = { pitch, roll, pelvis };
       return pelvis;
     };
@@ -92,23 +106,28 @@ export namespace walkStanceGeometry {
       dorsi: number;
       trail: number;
       twist: number;
-      leg: walkLegClearance.ILeg | null;
-      planted: walkStanceCourse.IPlanted;
+      leg: IAutoMovieMotionHumanWalkLegClearance.ILeg | null;
+      planted: IAutoMovieMotionHumanWalkStanceCourse.IPlanted;
     } => {
       const o: number = walkStanceTerms.WIDTH * k;
-      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
-      const pelvis: walkStanceCourse.IPelvis = pelvisAt(k, x[o + 3]!, x[o + 4]!);
+      const s: IAutoMovieMotionHumanWalkStanceCourse.IStance =
+        knots[k]!.stances[j]!;
+      const pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis = pelvisAt(
+        k,
+        x[o + 3]!,
+        x[o + 4]!,
+      );
       const hip: IAutoMovieVector3 = {
         ...pelvis.hips[s.side],
         y: pelvis.hips[s.side].y - x[o]!,
       };
-      const placement: HumanFoot.IPlacement = HumanFoot.turned(
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.turned(
         slid(s.placement, x[o + slideOf(s.side)]!, x[o + slideOf(s.side) + 1]!),
         x[o + turnOf(s.side)]!,
       );
       const heading: number = HumanFoot.heading(placement.rotation);
       const pitch: number = x[o + pitchOf(s.side)]!;
-      const pivoted: HumanFoot.IPlacement = HumanFoot.pivot(
+      const pivoted: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
         body,
         s.side,
         "mtp",
@@ -124,7 +143,7 @@ export namespace walkStanceGeometry {
       // (as `walkLeg.lean` reads it, there of its own knee) plus the pitch.
       // A held swivel's first-order piece moves it with the leg's own
       // variables (`ISwivel`).
-      const swivel: HumanLegChain.ISwivel | undefined =
+      const swivel: IAutoMovieMotionHumanLegChain.ISwivel | undefined =
         s.swivel === undefined
           ? undefined
           : {
@@ -133,7 +152,10 @@ export namespace walkStanceGeometry {
                 s.swivel.swivel +
                 (s.swivel.slope ?? []).reduce(
                   (sum: number, g: number, v: number): number =>
-                    sum + g * (x[walkStanceTerms.legOf(o, s.side, v)]! - s.swivel!.about![v]!),
+                    sum +
+                    g *
+                      (x[walkStanceTerms.legOf(o, s.side, v)]! -
+                        s.swivel!.about![v]!),
                   0,
                 ),
             };
@@ -141,10 +163,17 @@ export namespace walkStanceGeometry {
       // the leg cannot reach stands on its reachable shell along the line to
       // the ankle (`hingedArmSwivel.branches`), as the shown leg does, and
       // the reach's own constraint answers for the excess.
-      const posed: HumanLegChain.IPosed | null =
+      const posed: IAutoMovieMotionHumanLegChain.IPosed | null =
         swivel === undefined
           ? null
-          : HumanLegChain.pose(body, s.side, pelvis.rotation, hip, ankle, swivel);
+          : HumanLegChain.pose(
+              body,
+              s.side,
+              pelvis.rotation,
+              hip,
+              ankle,
+              swivel,
+            );
       const held: IAutoMovieVector3 = posed?.ankle ?? ankle;
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
@@ -157,8 +186,8 @@ export namespace walkStanceGeometry {
         dorsi:
           (shin === null
             ? walkLeg.lean(body, hip, held, heading)
-            : (Math.atan2(Vector3.dot(shin, forward), shin.y) * 180) / Math.PI) +
-          pitch,
+            : (Math.atan2(Vector3.dot(shin, forward), shin.y) * 180) /
+              Math.PI) + pitch,
         trail: walkLeg.trailing(
           body,
           { x: 0, y: 0, z: 0 },
@@ -198,8 +227,8 @@ export namespace walkStanceGeometry {
       heel: IAutoMovieVector3;
       ahead: IAutoMovieVector3;
       ankle: IAutoMovieVector3;
-    }[][] = knots.map((knot: walkStanceCourse.IKnot) =>
-      knot.stances.map((s: walkStanceCourse.IStance) => ({
+    }[][] = knots.map((knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot) =>
+      knot.stances.map((s: IAutoMovieMotionHumanWalkStanceCourse.IStance) => ({
         outline: hull(HumanFoot.sole(body, s.side, s.placement).map(flat)),
         ball: flat(HumanFoot.point(body, s.side, "ball", s.placement)),
         heel: flat(HumanFoot.point(body, s.side, "heel", s.placement)),
@@ -265,24 +294,35 @@ export namespace walkStanceGeometry {
     // near it lies to the other foot (each nearness its distance to that
     // foot's outline, none inside it), as the centre of pressure lies where
     // the weight bears.
-    const shares: number[][] = knots.map((knot: walkStanceCourse.IKnot, k: number): number[] => {
-      const pressure: IAutoMovieVector3 | undefined = knot.borne?.[0];
-      if (knot.stances.length < 2 || pressure === undefined)
-        return knot.stances.map((): number => 1);
-      const far: number[] = knot.stances.map((_: walkStanceCourse.IStance, j: number): number =>
-        Math.max(0, -depth(soles[k]![j]!.outline, pressure)),
-      );
-      const sum: number = far[0]! + far[1]!;
-      return sum > 0
-        ? [far[1]! / sum, far[0]! / sum]
-        : knot.stances.map((): number => 0.5);
-    });
+    const shares: number[][] = knots.map(
+      (
+        knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot,
+        k: number,
+      ): number[] => {
+        const pressure: IAutoMovieVector3 | undefined = knot.borne?.[0];
+        if (knot.stances.length < 2 || pressure === undefined)
+          return knot.stances.map((): number => 1);
+        const far: number[] = knot.stances.map(
+          (
+            _: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+            j: number,
+          ): number => Math.max(0, -depth(soles[k]![j]!.outline, pressure)),
+        );
+        const sum: number = far[0]! + far[1]!;
+        return sum > 0
+          ? [far[1]! / sum, far[0]! / sum]
+          : knot.stances.map((): number => 0.5);
+      },
+    );
     const load = (k: number, j: number): number => shares[k]![j]!;
     // The base the knot's feet bear at a course's pitches and turns.
     const support = (x: Float64Array, k: number): IAutoMovieVector3[] =>
       hull(
         knots[k]!.stances.flatMap(
-          (s: walkStanceCourse.IStance, j: number): IAutoMovieVector3[] =>
+          (
+            s: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+            j: number,
+          ): IAutoMovieVector3[] =>
             region(
               k,
               j,
@@ -311,7 +351,6 @@ export namespace walkStanceGeometry {
       support,
     };
   }
-
 
   /**
    * A convex outline cut by a line: the part where `(q - at) 쨌 normal` is at
@@ -348,7 +387,9 @@ export namespace walkStanceGeometry {
    * @param points The points.
    * @returns The hull's corners.
    */
-  export function hull(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+  export function hull(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
     const sorted: IAutoMovieVector3[] = [...points].sort(
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
         a.x - b.x || a.z - b.z,
@@ -415,10 +456,10 @@ export namespace walkStanceGeometry {
    * @returns The slid placement; the same one for no slide.
    */
   export function slid(
-    foot: HumanFoot.IPlacement,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
     dx: number,
     dz: number,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return dx === 0 && dz === 0
       ? foot
       : {

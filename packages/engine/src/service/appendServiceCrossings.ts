@@ -6,10 +6,10 @@ import {
   IAutoMovieServicePenetration,
   IAutoMovieServiceSegment,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**
  * Report a run that leaves the logical space it was in without a sleeve.
@@ -42,13 +42,13 @@ export const appendServiceCrossings: (
   environment: IAutoMovieBuiltEnvironment,
   segment: IAutoMovieServiceSegment,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   network: IAutoMovieServiceNetwork,
   environment: IAutoMovieBuiltEnvironment,
   segment: IAutoMovieServiceSegment,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const located: IAutoMovieBuiltSpace[] = environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => space.cells.length > 0,

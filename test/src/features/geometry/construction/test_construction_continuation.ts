@@ -1,9 +1,9 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -27,19 +27,19 @@ export function test_construction_continuation(): void {
   const failures: string[] = [];
 
   // The host's stations run down from z = 0 to z = -0.1 m; the part starts where the host ends and runs on down.
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "trunk",
     ConstructionShapes.DOWN,
     0.02,
     0.1,
   );
-  const part: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const part: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "neck",
     { ...ConstructionShapes.DOWN, origin: { x: 0, y: 0, z: -0.1 } },
     0.015,
     0.06,
   );
-  const tree: AutoMovieConstructionNode = {
+  const tree: IAutoMovieConstructionNode = {
     type: "continue",
     name: "join.neck",
     host,
@@ -49,7 +49,7 @@ export function test_construction_continuation(): void {
     partFace: "neck",
     partEnd: "bottom",
   };
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);

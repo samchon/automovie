@@ -3,7 +3,10 @@ import {
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -26,13 +29,13 @@ export namespace HumanArmTrajectoryWaypoint {
    */
   export interface IWaypoint {
     /** Each arm's frame. */
-    frames: G.IFrame[];
+    frames: IAutoMovieMotionHumanArmGeometry.IFrame[];
     /** Each arm's site, on the hold. */
     sites: (M.ISite | undefined)[];
     /** Each arm resting at the waypoint, placed: the rest arm, or at a fixed last waypoint the arm the action leaves to, which the waypoint holds. */
-    placed: G.IPlaced[];
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced[];
     /** Each arm's colliders resting there, which the other arm's probes are read against. */
-    colliders: G.IShape[][];
+    colliders: IAutoMovieMotionHumanArmGeometry.IShape[][];
     /** Each arm's site's touched collider; -1 where none. */
     touched: number[];
     /** Each arm's site's outward normal. */
@@ -44,7 +47,7 @@ export namespace HumanArmTrajectoryWaypoint {
     /** The body's corners' allowances inside each arm's colliders (`inside`), by pair. */
     inside: Map<number, number>[];
     /** Each arm's colliders, one entry per shape, once read. */
-    flat: (G.IFrame["colliders"] | undefined)[];
+    flat: (IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] | undefined)[];
   }
 
   /**
@@ -62,17 +65,23 @@ export namespace HumanArmTrajectoryWaypoint {
    */
   export function of(
     problem: HumanArmTrajectoryContext.IProblem,
-    setups: readonly G.ISetup[],
+    setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],
     resting: readonly (readonly number[])[],
-    frames: G.IFrame[],
+    frames: IAutoMovieMotionHumanArmGeometry.IFrame[],
     sites: (M.ISite | undefined)[],
   ): IWaypoint {
-    const placed: G.IPlaced[] = setups.map(
-      (setup: G.ISetup, a: number): G.IPlaced =>
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = setups.map(
+      (
+        setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         G.placed(setup, frames[a]!, resting[a]!),
     );
-    const colliders: G.IShape[][] = frames.map(
-      (frame: G.IFrame, a: number): G.IShape[] =>
+    const colliders: IAutoMovieMotionHumanArmGeometry.IShape[][] = frames.map(
+      (
+        frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
         S.colliders(frame, placed[a]!),
     );
     const touched: number[] = sites.map((): number => -1);
@@ -83,32 +92,34 @@ export namespace HumanArmTrajectoryWaypoint {
         if (site === undefined || problem.arms[a]!.grasp !== undefined)
           return undefined;
         const on: M.ISite["on"] = site.on;
-        const candidates: G.IShape[] =
+        const candidates: IAutoMovieMotionHumanArmGeometry.IShape[] =
           on === undefined ? frames[a]!.shapes : colliders[on.arm]!;
         const owners: ("upper" | "lower" | "hand")[] =
           on === undefined
             ? []
             : frames[on.arm]!.colliders.flatMap(
                 (
-                  col: G.IFrame["colliders"][number],
+                  col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number],
                 ): ("upper" | "lower" | "hand")[] =>
                   col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
               );
         let best: number = -1;
         let least: number = Infinity;
-        candidates.forEach((shape: G.IShape, i: number): void => {
-          if (on !== undefined && owners[i] !== on.owner) return;
-          const d: number = physicalShapeSegmentDistance(
-            shape.pose,
-            shape.shape,
-            site.point,
-            site.point,
-          );
-          if (d < least) {
-            least = d;
-            best = i;
-          }
-        });
+        candidates.forEach(
+          (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+            if (on !== undefined && owners[i] !== on.owner) return;
+            const d: number = physicalShapeSegmentDistance(
+              shape.pose,
+              shape.shape,
+              site.point,
+              site.point,
+            );
+            if (d < least) {
+              least = d;
+              best = i;
+            }
+          },
+        );
 
         // A site touches the collider its point lies on, within the depth a
         // pressed skin gives (`AutoMovieMotionHumanAuditSkin.BUILT`); a site
@@ -116,7 +127,7 @@ export namespace HumanArmTrajectoryWaypoint {
         if (best < 0 || least > AutoMovieMotionHumanAuditSkin.BUILT)
           return undefined;
         touched[a] = best;
-        const s: G.IShape = candidates[best]!;
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = candidates[best]!;
         return physicalShapeNormal(
           s.pose,
           s.shape,

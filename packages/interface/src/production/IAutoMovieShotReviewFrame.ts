@@ -1,4 +1,4 @@
-import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
  * One shot-local frame-grid time and nonempty render-pass population required for visual review.

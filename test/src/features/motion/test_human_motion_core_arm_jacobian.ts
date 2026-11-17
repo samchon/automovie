@@ -1,12 +1,13 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmJacobian,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanArmJacobian,
-  type IHumanBody,
   resolveHumanPosture,
   stand,
 } from "@automovie/motions";
@@ -34,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the 2 scenarios and their bounds.
  */
 export function test_human_motion_core_arm_jacobian(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const pose: IAutoMoviePose = resolveHumanPosture(
     body,
     stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
@@ -78,14 +79,14 @@ export function test_human_motion_core_arm_jacobian(): void {
   const miss = (read: ReturnType<typeof HumanArmJacobian.read>): number => {
     let worst: number = 0;
     read.columns.forEach(
-      (column: HumanArmJacobian.IColumn, i: number): void => {
+      (column: IAutoMovieMotionHumanArmJacobian.IColumn, i: number): void => {
         const d: number = read.free[i]!;
         const up: number[] = [...read.c];
         const down: number[] = [...read.c];
         up[d] = up[d]! + H;
         down[d] = down[d]! - H;
-        const a: HumanArmJacobian.IChain = read.chain(down);
-        const b: HumanArmJacobian.IChain = read.chain(up);
+        const a: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(down);
+        const b: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(up);
         for (const [analytic, numeric] of [
           [column.upper.angular, scale(turn(a.upper, b.upper), 1 / (2 * H))],
           [column.lower.angular, scale(turn(a.lower, b.lower), 1 / (2 * H))],
@@ -130,7 +131,7 @@ export function test_human_motion_core_arm_jacobian(): void {
   };
   const zero = (offset: number[], d: number): boolean => {
     const read = HumanArmJacobian.read(body, "right", pose, arm, offset);
-    const column: HumanArmJacobian.IColumn =
+    const column: IAutoMovieMotionHumanArmJacobian.IColumn =
       read.columns[read.free.indexOf(d)]!;
     const moved: number = [column.upper, column.lower, column.hand].reduce(
       (s: number, t): number => s + length(t.angular) + length(t.linear),

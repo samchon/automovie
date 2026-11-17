@@ -1,9 +1,9 @@
-import { AutoMovieDesignReferenceMedia } from "./AutoMovieDesignReferenceMedia";
-import { IAutoMovieDesignAnalysis } from "./IAutoMovieDesignAnalysis";
-import { IAutoMovieDesignIssue } from "./IAutoMovieDesignIssue";
-import { IAutoMovieDesignSourceFrame } from "./IAutoMovieDesignSourceFrame";
-import { IAutoMovieObservedCandidate } from "./IAutoMovieObservedCandidate";
-import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
+import type { AutoMovieDesignReferenceMedia } from "./AutoMovieDesignReferenceMedia";
+import type { IAutoMovieDesignAnalysis } from "./IAutoMovieDesignAnalysis";
+import type { IAutoMovieDesignIssue } from "./IAutoMovieDesignIssue";
+import type { IAutoMovieDesignSourceFrame } from "./IAutoMovieDesignSourceFrame";
+import type { IAutoMovieObservedCandidate } from "./IAutoMovieObservedCandidate";
+import type { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
 
 /**
  * One observed design reference: the bytes, how they are read, what was seen, what was proposed, and what remains undecided.

@@ -1,4 +1,4 @@
-import { ViolationCollector } from "./ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
  * Collect the ids a list of records declares, reporting each blank or
@@ -29,7 +29,7 @@ export const collectDeclaredIds = <Declared extends { id: string }>(
   records: readonly Declared[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): Set<string> => {
   const ids: Set<string> = new Set();
   records.forEach((record: Declared, index: number): void => {

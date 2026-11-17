@@ -1,4 +1,8 @@
-import type { IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditRange } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,7 +51,7 @@ export function test_motion_audit_range(): void {
   const read = (
     joints: Joints,
     rate: number = 24,
-  ): AutoMovieMotionHumanAuditRange.IResult =>
+  ): IAutoMovieMotionHumanAuditRange.IResult =>
     AutoMovieMotionHumanAuditRange.measure(
       {
         duration: 1,
@@ -62,7 +66,7 @@ export function test_motion_audit_range(): void {
     );
   const near = (got: number, expected: number): boolean =>
     Math.abs(got - expected) <= 1e-9;
-  const clean: AutoMovieMotionHumanAuditRange.IResult = {
+  const clean: IAutoMovieMotionHumanAuditRange.IResult = {
     overshoot: { value: 0, seconds: 0, where: "none" },
     share: 0,
   };
@@ -87,7 +91,7 @@ export function test_motion_audit_range(): void {
   );
 
   // 2. Past a maximum, growing.
-  const flexed: AutoMovieMotionHumanAuditRange.IResult = read(
+  const flexed: IAutoMovieMotionHumanAuditRange.IResult = read(
     (t: number): IAutoMovieJointPose[] => [joint("leftLowerArm", 150 + 12 * t)],
   );
   TestValidator.predicate(
@@ -99,7 +103,7 @@ export function test_motion_audit_range(): void {
   );
 
   // 3. Past a minimum.
-  const backward: AutoMovieMotionHumanAuditRange.IResult = read(
+  const backward: IAutoMovieMotionHumanAuditRange.IResult = read(
     (): IAutoMovieJointPose[] => [joint("rightLowerArm", -7)],
   );
   TestValidator.predicate(
@@ -110,7 +114,7 @@ export function test_motion_audit_range(): void {
   );
 
   // 4. An axis the joint does not have.
-  const sideways: AutoMovieMotionHumanAuditRange.IResult = read(
+  const sideways: IAutoMovieMotionHumanAuditRange.IResult = read(
     (): IAutoMovieJointPose[] => [joint("leftLowerArm", 90, 9)],
   );
   TestValidator.predicate(
@@ -128,7 +132,7 @@ export function test_motion_audit_range(): void {
       180) /
       Math.PI -
     120;
-  const swung: AutoMovieMotionHumanAuditRange.IResult = read(
+  const swung: IAutoMovieMotionHumanAuditRange.IResult = read(
     (): IAutoMovieJointPose[] => [joint("rightUpperLeg", 120, 45)],
   );
   TestValidator.predicate(
@@ -140,7 +144,7 @@ export function test_motion_audit_range(): void {
   );
 
   // 6. The worst of two.
-  const both: AutoMovieMotionHumanAuditRange.IResult = read(
+  const both: IAutoMovieMotionHumanAuditRange.IResult = read(
     (): IAutoMovieJointPose[] => [
       joint("neck", 0, null, 75),
       joint("leftLowerArm", 170),
@@ -151,7 +155,7 @@ export function test_motion_audit_range(): void {
     near(both.overshoot.value, 20) &&
       both.overshoot.where === "leftLowerArm flexion",
   );
-  const lone: AutoMovieMotionHumanAuditRange.IResult = read(
+  const lone: IAutoMovieMotionHumanAuditRange.IResult = read(
     (): IAutoMovieJointPose[] => [joint("neck", 0, null, 75)],
   );
   TestValidator.predicate(
@@ -160,7 +164,7 @@ export function test_motion_audit_range(): void {
   );
 
   // 7. Not a number.
-  const broken: AutoMovieMotionHumanAuditRange.IResult = read(
+  const broken: IAutoMovieMotionHumanAuditRange.IResult = read(
     (t: number): IAutoMovieJointPose[] => [
       joint("leftLowerArm", t < 0.5 ? 30 : Number.NaN),
     ],

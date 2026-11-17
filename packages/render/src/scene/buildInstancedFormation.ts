@@ -1,7 +1,4 @@
 import {
-  IAutoMovieFormationCadenceSegment,
-  IAutoMovieFormationReform,
-  IAutoMovieSampledFormationMotion,
   composeFormationHeroTransform,
   formationCadenceSegments,
   formationSlotPosition,
@@ -15,10 +12,13 @@ import {
   IAutoMovieCompiledFormationHero,
   IAutoMovieCompiledFormationLod,
   IAutoMovieDeliveryCrop,
+  type IAutoMovieFormationCadenceSegment,
   IAutoMovieFormationChunk,
+  type IAutoMovieFormationReform,
   IAutoMovieFormationSlot,
   IAutoMovieFormationSlotMotion,
   IAutoMovieFormationSlotState,
+  type IAutoMovieSampledFormationMotion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

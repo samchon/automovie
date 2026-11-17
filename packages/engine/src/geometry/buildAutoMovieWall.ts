@@ -1,7 +1,10 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  type IAutoMovieBuildWall,
+  IAutoMovieMesh,
+  type IAutoMovieTessellation,
+  type IAutoMovieWallOpening,
+} from "@automovie/interface";
 
-import { IAutoMovieWallOpening } from "./IAutoMovieWallOpening";
-import { ITessellation } from "./ITessellation";
 import { finitePoint } from "./finitePoint";
 import { positive } from "./positive";
 
@@ -28,24 +31,9 @@ import { positive } from "./positive";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One mesh per wall description; a caller placing identical walls can keep the returned mesh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new position, normal and index arrays bounded by six quads per standing cell; the id set, cut lists and standing flags are released on return.
  */
-export const buildAutoMovieWall: (props: {
-  width: number;
-  height: number;
-  depth: number;
-  openings: readonly IAutoMovieWallOpening[];
-}) => IAutoMovieMesh = (props: {
-  /** Wall width along X, in metres. */
-  width: number;
-
-  /** Wall height along Y, in metres. */
-  height: number;
-
-  /** Wall thickness along Z, in metres. */
-  depth: number;
-
-  /** Rectangles to cut, from the wall's bottom-left corner. */
-  openings: readonly IAutoMovieWallOpening[];
-}): IAutoMovieMesh => {
+export const buildAutoMovieWall: (
+  props: IAutoMovieBuildWall.IProps,
+) => IAutoMovieMesh = (props: IAutoMovieBuildWall.IProps): IAutoMovieMesh => {
   positive(props.width, "wall width");
   positive(props.height, "wall height");
   positive(props.depth, "wall depth");
@@ -134,7 +122,11 @@ export const buildAutoMovieWall: (props: {
   const halfWidth: number = props.width / 2;
   const halfHeight: number = props.height / 2;
   const halfDepth: number = props.depth / 2;
-  const target: ITessellation = { positions: [], normals: [], indices: [] };
+  const target: IAutoMovieTessellation = {
+    positions: [],
+    normals: [],
+    indices: [],
+  };
   for (let x: number = 0; x < columns; ++x)
     for (let y: number = 0; y < rows; ++y) {
       if (stands(x, y) === false) continue;
@@ -183,13 +175,13 @@ const WALL_CELL_SIDES: ReadonlyArray<
  * Borrow the admitted cell extremes and append four corners/normals plus two triangles to the caller's tessellation. Constant per-face scratch arrays are released immediately; only appended buffers survive, with no cached face or wall-specific case.
  */
 const pushCellFace: (
-  target: ITessellation,
+  target: IAutoMovieTessellation,
   min: readonly [number, number, number],
   max: readonly [number, number, number],
   axis: 0 | 1 | 2,
   outward: 1 | -1,
 ) => void = (
-  target: ITessellation,
+  target: IAutoMovieTessellation,
   min: readonly [number, number, number],
   max: readonly [number, number, number],
   axis: 0 | 1 | 2,

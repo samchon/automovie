@@ -1,13 +1,22 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWipe,
+  IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -17,13 +26,8 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -56,10 +60,10 @@ import { poseBones } from "../posture/poseBones";
  */
 export namespace wipe {
   /** The action's name. */
-  export const name: HumanActionName = "wipe";
+  export const name: AutoMovieMotionHumanActionName = "wipe";
 
   /** Cancel table: the hand lifts off and the body stands, walks or operates. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -71,28 +75,6 @@ export namespace wipe {
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The surface's centre, the hand and the count.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The middle of the patch wiped, on the surface's top. */
-    on: AutoMovieMotionTarget;
-
-    /** The hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** How many circles; 3 when absent. */
-    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** The share of the arm's length the wrist is kept within, so the elbow never locks straight on the surface (provisional). */
   export const REACH: number = 0.97;
@@ -132,14 +114,14 @@ export namespace wipe {
    * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWipe.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const side: HumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const centre: IAutoMovieVector3 = context.aim(
       context.params.on,
@@ -152,9 +134,9 @@ export namespace wipe {
       { x: 0, y: 0, z: 1 },
     );
     const palm = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       progress: number,
-    ): AutoMovieMotionHumanArm.ITarget =>
+    ): IAutoMovieMotionHumanArmTarget.ITarget =>
       AutoMovieMotionHumanTarget.hand(
         body,
         posture,
@@ -166,17 +148,20 @@ export namespace wipe {
         { surface: "palm", shape: "flat", forward },
       );
     // The lean into a patch whose far side lies beyond the standing arm.
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const lean: AutoMovieMotionHumanLeanInto.ILean =
+    const lean: IAutoMovieMotionHumanLeanInto.ILean =
       AutoMovieMotionHumanLeanInto.solve({
         body,
         standing,
         side,
         share: REACH,
-        wrist: (posture: IHumanPosture, progress: number) => {
-          const goal: AutoMovieMotionHumanArm.ITarget = palm(posture, progress);
+        wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
+          const goal: IAutoMovieMotionHumanArmTarget.ITarget = palm(
+            posture,
+            progress,
+          );
           return HumanHand.place(
             body,
             side,
@@ -187,14 +172,14 @@ export namespace wipe {
           ).point;
         },
         // The arm on the circle's start, as the stroke lays the palm there.
-        arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
+        arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
       });
     // Refuse at plan time a patch a circle of which leaves the reach.
     for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / (8 * cycles));
-    const origin: AutoMovieMotionHumanArm.IOrigin =
+    const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
         poseBones(body, context.entry.pose),
@@ -211,7 +196,7 @@ export namespace wipe {
       ),
       0.1,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: travel,
         attack: PERIOD * cycles,
@@ -237,8 +222,11 @@ export namespace wipe {
                 ? { kind: "prop", subject: context.params.on.subject }
                 : { kind: "ground" },
           },
-          path: (posture: IHumanPosture, _: number, progress: number) =>
-            palm(posture, progress),
+          path: (
+            posture: IAutoMovieMotionHumanPosture,
+            _: number,
+            progress: number,
+          ) => palm(posture, progress),
         }),
       ],
     });

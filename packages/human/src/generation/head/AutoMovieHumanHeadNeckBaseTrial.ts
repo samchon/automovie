@@ -2,60 +2,22 @@ import {
   AutoMovieNativeCoordinate,
   AutoMovieViewOutline,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadNeckBaseTrial,
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieHumanHeadNeckScalars,
+  IAutoMovieNativeCoordinate,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
-import type { AutoMovieHumanHeadNeckCurves } from "./AutoMovieHumanHeadNeckCurves";
 import { AutoMovieHumanHeadNeckScalars } from "./AutoMovieHumanHeadNeckScalars";
 
 /** A complete radius-dependent original neck trial, before any emitted curve or loft. */
 export namespace AutoMovieHumanHeadNeckBaseTrial {
-  /** One actual source and its requested numerical observation; no prepared callback survives. */
-  export interface IOutput {
-    /** Actual root-parameter radius declaration, calibration mm. */
-    readonly radius: IAutoMovieViewPart.IOutline;
-
-    /** Actual physical-Y axis declaration, calibration mm. */
-    readonly centre: IAutoMovieViewPart.IOutline;
-
-    /** Actual finite-clock height declaration with this trial's side phase. */
-    readonly height: IAutoMovieViewPart.IOutline;
-
-    /** Positive-Z original polar phase of the authored AP-plane intersection. */
-    readonly sidePhase: number;
-
-    /** Engine GL8 K/2K reading of these exact numeric declarations. */
-    readonly measured: ReturnType<typeof measureAutoMovieCurveLength64>;
-
-    /** Actual front, left, C7 and right points, calibration mm. */
-    readonly points: [number, number, number][];
-
-    /** Their closed chord polygon, a necessary lower bound only. */
-    readonly polygon: number;
-  }
-
-  /** Native polar data of the immutable normal template, independent of every world radius/height trial. */
-  export interface IPolarReading {
-    /** Original radial value and its first/second polar derivatives, calibration mm. */
-    readonly jet: readonly [number, number, number];
-
-    /** Cosine of the exact queried native polar parameter. */
-    readonly cos: number;
-
-    /** Sine of the exact queried native polar parameter. */
-    readonly sin: number;
-  }
-
-  /** One native template reader; only fixed-partition query parameters may be retained. */
-  export interface IPolar {
-    /** Actual quarter/G2 source-piece boundaries in the immutable native radian clock; inspection/refinement samples are separate. */
-    readonly boundaries: readonly number[];
-
-    /** False evaluates without retaining a trial-dependent quadrature parameter. */
-    at(theta: number, fixedPartition: boolean): IPolarReading;
-  }
-
   /**
    * Reuse only identical binary64 theta readings of this immutable template.
    * Fixed native-piece intervals use the engine's unchanged K/2K nodes;
@@ -65,10 +27,13 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
    * and it is released with this one base solve.
    */
   export function prepareNative(
-    template: AutoMovieViewSection.ISection,
-    work?: AutoMovieHumanHeadNeckCurves.IWork,
-  ): IPolar {
-    const readings: Map<number, IPolarReading> = new Map();
+    template: IAutoMovieViewSection.ISection,
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+  ): IAutoMovieHumanHeadNeckBaseTrial.IPolar {
+    const readings: Map<
+      number,
+      IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
+    > = new Map();
     const boundaries: Set<number> = new Set([0, 2 * Math.PI]);
     for (const [q, arc] of template.conics.quarters.entries()) {
       const first: number = (q * Math.PI) / 2;
@@ -80,15 +45,18 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     }
     return {
       boundaries: [...boundaries].sort((a: number, b: number): number => a - b),
-      at(theta: number, fixedPartition: boolean): IPolarReading {
-        const previous: IPolarReading | undefined = fixedPartition
-          ? readings.get(theta)
-          : undefined;
+      at(
+        theta: number,
+        fixedPartition: boolean,
+      ): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading {
+        const previous:
+          | IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
+          | undefined = fixedPartition ? readings.get(theta) : undefined;
         if (previous !== undefined) {
           if (work !== undefined) work.baseNativeReused++;
           return previous;
         }
-        const value: IPolarReading = {
+        const value: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading = {
           jet: AutoMovieViewSection.radius(template, theta),
           cos: Math.cos(theta),
           sin: Math.sin(theta),
@@ -121,18 +89,18 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Preparations and callbacks end with the synchronous measurement; only numeric declarations, four points and small integral metadata return.
    */
   export function create(
-    input: AutoMovieHumanHeadNeckCurves.IInputs,
-    family: AutoMovieHumanHeadNeckScalars.IOutput,
-    template: AutoMovieViewSection.ISection,
-    extents: readonly [number, number, number, number],
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
+    family: IAutoMovieHumanHeadNeckScalars.IOutput,
+    template: IAutoMovieViewSection.ISection,
+    extents: IAutoMovieHumanHeadNeckBaseTrial.CreateExtents,
     base: number,
-    work?: AutoMovieHumanHeadNeckCurves.IWork,
-    sharedPolar?: IPolar,
-  ): IOutput {
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+    sharedPolar?: IAutoMovieHumanHeadNeckBaseTrial.IPolar,
+  ): IAutoMovieHumanHeadNeckBaseTrial.IOutput {
     const radius: IAutoMovieViewPart.IOutline = family.radius(base);
     const centre: IAutoMovieViewPart.IOutline = family.centre;
-    const radial: AutoMovieViewOutline.IOutline = prepareScalar(radius);
-    const axis: AutoMovieViewOutline.IOutline = family.preparedCentre;
+    const radial: IAutoMovieViewOutline.IOutline = prepareScalar(radius);
+    const axis: IAutoMovieViewOutline.IOutline = family.preparedCentre;
     const r: number = input.neck.radius;
     const frontY: number = input.base.suprasternaleHeight;
     const backY: number = input.base.cervicaleHeight;
@@ -143,7 +111,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
       read(axis, backY).value - (read(radial, backY).value * extents[2]) / r;
     const sideX: number = backX + (frontX - backX) / 4;
     const q: number = read(radial, sideY).value / r;
-    const located: AutoMovieNativeCoordinate.IResult =
+    const located: IAutoMovieNativeCoordinate.IResult =
       AutoMovieNativeCoordinate.locate(
         {
           extents: [
@@ -165,8 +133,10 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
       );
     const height: IAutoMovieViewPart.IOutline =
       AutoMovieHumanHeadNeckScalars.height(input, located.phase);
-    const preparedHeight: AutoMovieViewOutline.IOutline = prepareScalar(height);
-    const native: IPolar = sharedPolar ?? prepareNative(template, work);
+    const preparedHeight: IAutoMovieViewOutline.IOutline =
+      prepareScalar(height);
+    const native: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
+      sharedPolar ?? prepareNative(template, work);
 
     // Only actual rational-piece joins belong to the source partition.
     // The template's observation knots refine inspection/native quadrature;
@@ -222,24 +192,23 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
                   work.baseFixedQueries++;
                   work.baseRadiusQueries++;
                 }
-                const y: AutoMovieViewOutline.IReading = read(
+                const y: IAutoMovieViewOutline.IReading = read(
                   preparedHeight,
                   s,
                 );
-                const radiusAt: AutoMovieViewOutline.IReading = read(
+                const radiusAt: IAutoMovieViewOutline.IReading = read(
                   radial,
                   y.value,
                 );
-                const origin: AutoMovieViewOutline.IReading = read(
+                const origin: IAutoMovieViewOutline.IReading = read(
                   axis,
                   y.value,
                 );
                 const theta: number = (2 * Math.PI * s) / family.clock;
-                const polar: IPolarReading = native.at(
-                  theta,
-                  fixed.has(partition[i]!) && fixed.has(end),
-                );
-                const jet: IPolarReading["jet"] = polar.jet;
+                const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading =
+                  native.at(theta, fixed.has(partition[i]!) && fixed.has(end));
+                const jet: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading["jet"] =
+                  polar.jet;
                 const u: number = jet[0] * polar.cos;
                 const v: number = jet[0] * polar.sin;
                 const du: number = jet[1] * polar.cos - jet[0] * polar.sin;
@@ -296,7 +265,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
 /** Prepare an actual numeric declaration; original admission failures remain failures. */
 function prepareScalar(
   outline: IAutoMovieViewPart.IOutline,
-): AutoMovieViewOutline.IOutline {
+): IAutoMovieViewOutline.IOutline {
   const prepared: ReturnType<typeof AutoMovieViewOutline.create> =
     AutoMovieViewOutline.create(outline);
   if ("detail" in prepared)
@@ -306,9 +275,9 @@ function prepareScalar(
 
 /** Read the actual regular physical/clock jet, including a valid zero derivative. */
 function read(
-  outline: AutoMovieViewOutline.IOutline,
+  outline: IAutoMovieViewOutline.IOutline,
   station: number,
-): AutoMovieViewOutline.IReading {
+): IAutoMovieViewOutline.IReading {
   const result: ReturnType<typeof AutoMovieViewOutline.at> =
     AutoMovieViewOutline.at(outline, station);
   if (typeof result === "string") throw new Error(result);

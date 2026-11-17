@@ -258,7 +258,7 @@ export function test_recovery_image_support_loft(): void {
   TestValidator.equals(
     "pre-cancelled support fitting",
     fitAutoMovieRecoveryImageSupportLoft(observation, policy, {
-      signal: controller.signal,
+      cancelled: (): boolean => controller.signal.aborted,
     }).status,
     "cancelled",
   );

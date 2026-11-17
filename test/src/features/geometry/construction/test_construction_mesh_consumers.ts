@@ -1,21 +1,25 @@
 import {
   AutoMovieConstructionSkin,
-  type AutoMovieConstructionState,
   AutoMovieLoftChain,
-  type AutoMovieLoftContract,
   AutoMovieSolidBody,
   AutoMovieSolidChain,
   AutoMovieSolidMesh,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import {
   AutoMovieHumanBodySurfaceSolids,
   AutoMovieHumanLoftMesh,
-  type IAutoMovieHumanBodyCalibration,
-  type IAutoMovieHumanSurfaceContext,
 } from "@automovie/human";
+import type {
+  IAutoMovieConstructionState,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 import { nclose } from "../../internal/nclose";
@@ -93,7 +97,7 @@ function ownedCapReplay(failures: string[], chain: IAutoMovieLoftChain): void {
     failures.push("Owned cap replay has no actual surface.");
     return;
   }
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     "owned-cap-consumer",
     [
       {
@@ -111,7 +115,7 @@ function ownedCapReplay(failures: string[], chain: IAutoMovieLoftChain): void {
   );
   const context: IAutoMovieHumanSurfaceContext = contextOf([chain]);
   context.tolerance = 0.0005;
-  const diagnostics: AutoMovieLoftContract.IDiagnostic[] =
+  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
     AutoMovieHumanBodySurfaceSolids.draw(context, {
       stature: 4,
       chains: [chain],
@@ -192,7 +196,7 @@ function inspect(
     { length: chain.samples },
     (_: unknown, k: number): number => (2 * Math.PI * k) / chain.samples,
   );
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     `consumer-${label}`,
     [{ surface, stations, phases }],
   );
@@ -214,9 +218,9 @@ function inspect(
       neighbours: [],
     });
   }
-  const published: AutoMovieSolidBody.IPublished =
+  const published: IAutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);
-  const state: AutoMovieConstructionState.IState = {
+  const state: IAutoMovieConstructionState.IState = {
     faces: new Map([[chain.name, 0]]),
     chains: new Map([[chain.name, chain]]),
     chainList: [chain],
@@ -227,7 +231,7 @@ function inspect(
     diagnostics: [],
     overrides: new Map(),
   };
-  const open: AutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
+  const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
     body,
     (name: string, detail: string): void => {
       state.diagnostics.push({
@@ -254,11 +258,11 @@ function inspect(
     eyes: [],
     bodies: [published],
   };
-  const diagnostics: AutoMovieLoftContract.IDiagnostic[] =
+  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
     AutoMovieHumanBodySurfaceSolids.draw(context, calibration);
   poles(failures, `${label}/Human`, context.mesh.positions, chain, cut);
   const human: string[] = diagnostics.map(
-    (diagnostic: AutoMovieLoftContract.IDiagnostic): string =>
+    (diagnostic: IAutoMovieLoftContract.IDiagnostic): string =>
       diagnostic.detail,
   );
   if (cut) {
@@ -377,13 +381,13 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     failures.push("named refusal: missing actual source surface");
     return;
   }
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     "named-refusal",
     chains.map(
       (
         value: IAutoMovieLoftChain,
         index: number,
-      ): AutoMovieSolidBody.IFaceInput => ({
+      ): IAutoMovieSolidBody.IFaceInput => ({
         surface: surfaces[index]!,
         stations: value.layers.map(
           (layer: IAutoMovieLoftChain.ILayer): number => layer.y,
@@ -421,9 +425,9 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     chart,
     neighbours: [],
   });
-  const published: AutoMovieSolidBody.IPublished =
+  const published: IAutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);
-  const state: AutoMovieConstructionState.IState = {
+  const state: IAutoMovieConstructionState.IState = {
     faces: new Map(
       chains.map(
         (value: IAutoMovieLoftChain, index: number): [string, number] => [
@@ -448,7 +452,7 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     diagnostics: [],
     overrides: new Map(),
   };
-  const open: AutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
+  const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
     body,
     (node: string, detail: string): void => {
       state.diagnostics.push({ node, contract: "face triangulation", detail });
@@ -474,7 +478,7 @@ function namedRefusal(failures: string[], chain: IAutoMovieLoftChain): void {
     eyes: [],
     bodies: [published],
   };
-  const diagnostics: AutoMovieLoftContract.IDiagnostic[] =
+  const diagnostics: IAutoMovieLoftContract.IDiagnostic[] =
     AutoMovieHumanBodySurfaceSolids.draw(context, calibration);
   poles(
     failures,

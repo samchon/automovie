@@ -1,11 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanManipulate,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
 import { manipulate } from "./manipulate";
 import { manipulateReach } from "./manipulateReach";
 
@@ -31,16 +32,19 @@ import { manipulateReach } from "./manipulateReach";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
  */
 export function manipulateFingering(
-  body: IHumanBody,
-  contacts: readonly manipulate.IContactAt[],
-  sides: readonly HumanHand.Side[],
-  rotation: Readonly<Record<HumanHand.Side, IAutoMovieQuaternion>>,
-): manipulate.Finger[] {
-  type Finger = manipulate.Finger;
+  body: IAutoMovieMotionHumanBody,
+  contacts: readonly IAutoMovieMotionHumanManipulate.IContactAt[],
+  sides: readonly AutoMovieHumanSide[],
+  rotation: Readonly<Record<AutoMovieHumanSide, IAutoMovieQuaternion>>,
+): IAutoMovieMotionHumanManipulate.Finger[] {
+  type Finger = IAutoMovieMotionHumanManipulate.Finger;
   const out: Finger[] = new Array<Finger>(contacts.length);
   for (const side of ["left", "right"] as const) {
     const mine: number[] = contacts
-      .map((_c: manipulate.IContactAt, i: number): number => i)
+      .map(
+        (_c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): number =>
+          i,
+      )
       .filter((i: number): boolean => sides[i] === side);
     if (mine.length === 0) continue;
     const choices: (i: number) => readonly Finger[] = (

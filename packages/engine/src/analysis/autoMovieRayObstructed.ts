@@ -1,6 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisSolid,
+  IAutoMovieRayObstruction,
+} from "@automovie/interface";
 
-import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
 
 /**
@@ -19,24 +21,9 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call answers one ray; rays differ in origin or direction, so no answer is equivalent to another's.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the only allocation is one short-lived props object per solid tested, released when the test returns.
  */
-export const autoMovieRayObstructed: (props: {
-  origin: IAutoMovieVector3;
-  direction: IAutoMovieVector3;
-  solids: readonly IAutoMovieAnalysisSolid[];
-  maxDistance: number;
-}) => boolean = (props: {
-  /** World-space ray origin in metres. */
-  origin: IAutoMovieVector3;
-
-  /** Unit ray direction; `maxDistance` is in metres only when it is unit. */
-  direction: IAutoMovieVector3;
-
-  /** Convex blockers, tested in list order. */
-  solids: readonly IAutoMovieAnalysisSolid[];
-
-  /** Furthest distance that counts as a hit; `Infinity` for a sky ray. */
-  maxDistance: number;
-}): boolean =>
+export const autoMovieRayObstructed: (
+  props: IAutoMovieRayObstruction.IProps,
+) => boolean = (props: IAutoMovieRayObstruction.IProps): boolean =>
   props.solids.some((solid: IAutoMovieAnalysisSolid): boolean =>
     autoMovieSolidBlocks({
       origin: props.origin,

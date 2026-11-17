@@ -1,7 +1,9 @@
-import type { IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieFormationPoseTake,
+  IAutoMovieModel,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieFormationPoseTake } from "./IAutoMovieFormationPoseTake.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**

@@ -1,10 +1,10 @@
 import { Quaternion, Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face
@@ -64,11 +64,11 @@ export namespace HumanShapeFraming {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Kept in a WeakMap keyed by the posed frame and released with it.
    */
   export function of(
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): IFramed {
     let shapes:
-      | Map<HumanColliders.IPlaced["shapes"][number], IFramed>
+      | Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], IFramed>
       | undefined = FRAMED.get(pose);
     if (shapes === undefined) {
       shapes = new Map();
@@ -101,14 +101,18 @@ export namespace HumanShapeFraming {
   }
 
   /** A hull's face planes packed four numbers each, the normal then the offset. */
-  function planes(faces: physicalHullFaces.IHull["faces"]): Float64Array {
+  function planes(
+    faces: IAutoMoviePhysicalHullFaces.IHull["faces"],
+  ): Float64Array {
     const packed: Float64Array = new Float64Array(4 * faces.length);
-    faces.forEach((face: physicalHullFaces.IFace, index: number): void => {
-      packed[4 * index] = face.normal.x;
-      packed[4 * index + 1] = face.normal.y;
-      packed[4 * index + 2] = face.normal.z;
-      packed[4 * index + 3] = face.offset;
-    });
+    faces.forEach(
+      (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
+        packed[4 * index] = face.normal.x;
+        packed[4 * index + 1] = face.normal.y;
+        packed[4 * index + 2] = face.normal.z;
+        packed[4 * index + 3] = face.offset;
+      },
+    );
     return packed;
   }
 
@@ -191,8 +195,8 @@ export namespace HumanShapeFraming {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sphere(
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
     const local: { centre: IAutoMovieVector3; radius: number } =
       shape.kind === "hull"
@@ -224,6 +228,9 @@ export namespace HumanShapeFraming {
 
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<
-  HumanColliders.IPlaced["pose"],
-  Map<HumanColliders.IPlaced["shapes"][number], HumanShapeFraming.IFramed>
+  IAutoMovieMotionHumanColliders.IPlaced["pose"],
+  Map<
+    IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+    HumanShapeFraming.IFramed
+  >
 > = new WeakMap();

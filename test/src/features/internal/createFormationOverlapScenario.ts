@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieFormationPlacement,
-  validateAutoMovieFormationOverlap,
-} from "@automovie/engine";
+import { validateAutoMovieFormationOverlap } from "@automovie/engine";
 import {
   AutoMovieFormationCapability,
   AutoMovieHumanoidBone,
@@ -10,6 +7,7 @@ import {
   IAutoMovieFormationLayout,
   IAutoMovieFormationMotion,
   IAutoMovieFormationMotionState,
+  type IAutoMovieFormationPlacement,
   IAutoMovieFormationSlotMotion,
   IAutoMovieModel,
   IAutoMovieTransform,

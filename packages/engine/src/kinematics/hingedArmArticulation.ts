@@ -1,8 +1,11 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieHingedArmArticulation,
+  type IAutoMovieHingedArmSwivel,
+  type IAutoMovieHingedArticulation,
+  IAutoMovieQuaternion,
+  type IAutoMovieSwivelNear,
+} from "@automovie/interface";
 
-import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
-import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import { IAutoMovieSwivelNear } from "./IAutoMovieSwivelNear";
 import { hingedArmSwivel } from "./hingedArmSwivel";
 
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
@@ -104,115 +107,23 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
  */
-export const hingedArmArticulation: (props: {
-  upper: IAutoMovieChainBone;
-  midOffset: IAutoMovieVector3;
-  midRest: IAutoMovieQuaternion;
-  endOffset: IAutoMovieVector3;
-  hinge: IAutoMovieVector3;
-  target: IAutoMovieVector3;
-  range?: { min: number; max: number };
-  score: (
-    upper: IAutoMovieQuaternion,
-    lower: IAutoMovieQuaternion,
-  ) => {
-    overshoot: number;
-    deviation: number;
-    exact?: () => number;
-    tiebreak?: () => number;
-  };
-  excluded?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-  ) => (low: number, high: number) => boolean;
-  near?: IAutoMovieSwivelNear;
-  tie?: number;
-}) => IAutoMovieHingedArticulation | null = (props: {
-  /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
-  upper: IAutoMovieChainBone;
-
-  /** Mid bone's rest offset from the chain root, in the root's bone frame. */
-  midOffset: IAutoMovieVector3;
-
-  /** Mid bone's rest rotation relative to the chain root. */
-  midRest: IAutoMovieQuaternion;
-
-  /** Effector's rest offset from the mid joint, in the mid bone's frame. */
-  endOffset: IAutoMovieVector3;
-
-  /** The mid joint's flexion axis in the mid bone's frame; any length. */
-  hinge: IAutoMovieVector3;
-
-  /** World target the effector should land on. */
-  target: IAutoMovieVector3;
-
-  /**
-   * The mid joint's legal rotation about `hinge`, radians, `min <= max` and
-   * no wider than a full turn; omitted, every hinge angle is legal. A branch
-   * outside it stops at the nearer limit, read around the circle from the
-   * range's centre.
-   */
-  range?: { min: number; max: number };
-
-  /**
-   * Score one candidate's bone-local root and mid rotations: `overshoot` is
-   * the total ROM overshoot in degrees, compared first, and `deviation` the
-   * effort tie-break, compared second. The caller owns the decomposition
-   * convention and the rig's constraints. With `exact`, `deviation` is a
-   * lower bound of the tie-break and `exact` gives it exactly: a caller
-   * whose tie-break ends in a costly non-negative term passes the rest as
-   * the bound, and the term is computed only for a comparison the bound
-   * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
-   * within `tie` of each other are one, and the lesser `tiebreak` decides
-   * (task priority, Siciliano and Slotine 1991: the second objective only
-   * among the first's optima).
-   */
-  score: (
-    upper: IAutoMovieQuaternion,
-    lower: IAutoMovieQuaternion,
-  ) => {
-    overshoot: number;
-    deviation: number;
-    exact?: () => number;
-    tiebreak?: () => number;
-  };
-
-  /**
-   * Given the root's bone-local rotation at a swivel on one bend branch,
-   * degrees, a test of whether every swivel from `low` to `high` degrees is
-   * certain to score a positive `overshoot` (`boxExcludedSwivels`); omitted,
-   * every step is scored. Only a certainty may be returned: the returned pose
-   * is then the one the full sweep gives.
-   */
-  excluded?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-  ) => (low: number, high: number) => boolean;
-
-  /**
-   * The seed of a fit of a nearby target to continue (`IAutoMovieSwivelNear`):
-   * its branch, or the last branch when the target has fewer (two branches
-   * meet at the span's ends), and its swivel refined within one step either
-   * way to its tolerance, with no sweep; omitted, every swivel is swept.
-   */
-  near?: IAutoMovieSwivelNear;
-
-  /**
-   * How far apart two deviations may lie and still be one, the unit of
-   * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
-   * are compared exactly and `tiebreak` is not read.
-   */
-  tie?: number;
-}): IAutoMovieHingedArticulation | null => {
+export const hingedArmArticulation: (
+  props: IAutoMovieHingedArmArticulation.IProps,
+) => IAutoMovieHingedArticulation | null = (
+  props: IAutoMovieHingedArmArticulation.IProps,
+): IAutoMovieHingedArticulation | null => {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
   // the line to the target, as it does on the geometric shell. Of two
   // branches the one stopping nearer the target is kept; branches inside the
   // range stop nowhere and tie.
-  const found: hingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(props);
+  const found: IAutoMovieHingedArmSwivel.IStop[] | null =
+    hingedArmSwivel.branches(props);
   if (found === null) return null;
   const stops: IBranch[] = found
     .map(
-      (stop: hingedArmSwivel.IStop, branch: number): IBranch => ({
+      (stop: IAutoMovieHingedArmSwivel.IStop, branch: number): IBranch => ({
         ...stop,
         branch,
       }),
@@ -232,7 +143,7 @@ export const hingedArmArticulation: (props: {
   const prober =
     (
       stop: IBranch,
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: IAutoMovieHingedArmSwivel.IPoseResult,
     ): ((angle: number) => IScored) =>
     (angle: number): IScored => {
       const { upper, lower } = posed(angle);
@@ -397,7 +308,7 @@ export const hingedArmArticulation: (props: {
 };
 
 /** One bend branch with its index among `hingedArmSwivel.branches`. */
-interface IBranch extends hingedArmSwivel.IStop {
+interface IBranch extends IAutoMovieHingedArmSwivel.IStop {
   /** Its index among the branches. */
   branch: number;
 }

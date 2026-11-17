@@ -1,30 +1,30 @@
-import {
-  type IAutoMovieRandom,
-  minimumJerk,
-  seededSmoothNoise,
-} from "@automovie/engine";
+import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieRandom,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { standFeet } from "./standFeet";
 import { standRelaxed } from "./standRelaxed";
@@ -58,15 +58,15 @@ import { standUpright } from "./standUpright";
  */
 export namespace stand {
   /** The action's name. */
-  export const name: HumanActionName = "stand";
+  export const name: AutoMovieMotionHumanActionName = "stand";
 
   /** Cancel table: a stand can be cut anywhere. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
   /** What quiet standing lets an overlay take: the arms, the hands, the head and the trunk's turn. */
-  export const yields: IHumanActionLaw["yields"] = [
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
     "head",
     "leftHand",
     "rightHand",
@@ -83,9 +83,9 @@ export namespace stand {
    * @returns The plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-    side: HumanHand.Side = "right",
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+    side: AutoMovieHumanSide = "right",
+  ): IAutoMovieMotionHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     HumanBound.above("seconds", duration, 0, "s");
     const yaw: number = context.entry.posture.yaw;
@@ -96,9 +96,10 @@ export namespace stand {
     );
     const footing: Record<"left" | "right", IAutoMovieVector3> = course.flat;
     const initial: IAutoMovieVector3 = course.offset(0);
-    const upright: standUpright.IAlignment = standUpright.of(context.body);
+    const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+      standUpright.of(context.body);
     const middle: IAutoMovieVector3 = root(context.body, footing, yaw);
-    const joints: IHumanPosture["joints"] = {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...relaxed(context.body),
       ...upright.joints,
     };
@@ -111,14 +112,10 @@ export namespace stand {
     const sz: IAutoMovieRandom = context.random("swayZ");
 
     // The support the stance stands on: the ground, or a prop that moves.
-    const left: IHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "leftFoot",
-    );
-    const right: IHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "rightFoot",
-    );
+    const left: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame.contact(context, "leftFoot");
+    const right: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame.contact(context, "rightFoot");
     const inherited: string | undefined =
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
@@ -127,12 +124,14 @@ export namespace stand {
       left.subject === right.subject
         ? left.subject
         : undefined;
-    const on: IParams["on"] =
+    const on: IAutoMovieMotionHumanStand.IParams["on"] =
       context.params.on ??
       (inherited === undefined ? undefined : { prop: inherited });
-    const carried: (seconds: number) => HumanSupportCarry.ICarry = (
+    const carried: (
       seconds: number,
-    ): HumanSupportCarry.ICarry =>
+    ) => IAutoMovieMotionHumanSupportCarry.ICarry = (
+      seconds: number,
+    ): IAutoMovieMotionHumanSupportCarry.ICarry =>
       on === undefined
         ? {
             point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
@@ -140,7 +139,8 @@ export namespace stand {
             yaw: 0,
           }
         : HumanSupportCarry.of(
-            (t: number): IHumanProp.IFrame => context.prop(on.prop).frame(t),
+            (t: number): IAutoMovieRigidTransform =>
+              context.prop(on.prop).frame(t),
             context.start,
             context.start + seconds,
           );
@@ -148,7 +148,9 @@ export namespace stand {
       duration,
       events: [{ name: "settled", share: settle / duration }],
       contacts: (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant" as const,
           from: 0,
@@ -159,7 +161,7 @@ export namespace stand {
               : { kind: "prop" as const, subject: on.prop },
         }),
       ),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
@@ -196,7 +198,7 @@ export namespace stand {
         // On a moving support the stance planned at the entry is carried by
         // the support's rigid motion since then (#3491); its tilt is not
         // read yet, only its travel and its turn about the vertical.
-        const carry: HumanSupportCarry.ICarry = carried(t);
+        const carry: IAutoMovieMotionHumanSupportCarry.ICarry = carried(t);
         const placed: IAutoMovieVector3 = carry.point(root);
         return course.write(
           {
@@ -212,29 +214,6 @@ export namespace stand {
         );
       },
     };
-  }
-
-  /** Parameters. */
-  export interface IParams {
-    /** How long to stand, seconds; 1.5 when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
-
-    /**
-     * The postural sway's RMS on each floor axis, metres; the performer's own
-     * when absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for
-     * a stance that keeps exactly still, such as a reference scene a mirror
-     * or a difference is read against.
-     */
-    sway?: number & tags.Minimum<0> & HumanUnit<"m">;
-
-    /**
-     * A moving support stood on (#3491): a cart's bed, a deck. The stance is
-     * planned where the body stands at the entry and carried by the prop's
-     * motion from there, its feet planted on the prop. When absent, a prop
-     * already under both planted entry feet is continued; otherwise the
-     * feet retain their declared entry support frames.
-     */
-    on?: { prop: string };
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
@@ -264,7 +243,7 @@ export namespace stand {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This entry owns no retained state.
    */
   export function relaxed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     return standRelaxed(body);
   }
@@ -284,7 +263,7 @@ export namespace stand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the relaxed posture's per-body weak cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself.
    */
-  export function abduction(body: IHumanBody): number {
+  export function abduction(body: IAutoMovieMotionHumanBody): number {
     return relaxed(body).leftUpperArm![1];
   }
 
@@ -320,8 +299,8 @@ export namespace stand {
    * @returns Ankle points, world metres.
    */
   export function feet(
-    body: IHumanBody,
-    entry: IHumanEntryState,
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
   ): Record<"left" | "right", IAutoMovieVector3> {
     return standFeet.of(body, entry, yaw).flat;
@@ -341,7 +320,7 @@ export namespace stand {
    * @returns The root, world metres.
    */
   export function root(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
     yaw: number,
   ): IAutoMovieVector3 {
@@ -370,12 +349,12 @@ export namespace stand {
    * @returns The leg goals.
    */
   export function legs(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     feet: Record<"left" | "right", IAutoMovieVector3>,
-  ): IHumanPosture["limbs"] {
-    const frame: HumanFrame.IFrame = { origin: root, yaw };
+  ): IAutoMovieMotionHumanPosture["limbs"] {
+    const frame: IAutoMovieMotionHumanFrame = { origin: root, yaw };
     // The knee points over the foot (Perry and Burnfield): the foot has no
     // axial joint, so its toe-out comes from the hip's twist that this hint sets.
     const knee = (side: "left" | "right"): IAutoMovieVector3 =>
@@ -415,10 +394,10 @@ export namespace stand {
    * @returns The posture.
    */
   export function posture(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
     yaw: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return stance(body, at, yaw, relaxed(body));
   }
 
@@ -432,14 +411,14 @@ export namespace stand {
    * @returns The posture.
    */
   export function stance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
     yaw: number,
     arms: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >,
-  ): IHumanPosture {
-    const frame: HumanFrame.IFrame = { origin: at, yaw };
+  ): IAutoMovieMotionHumanPosture {
+    const frame: IAutoMovieMotionHumanFrame = { origin: at, yaw };
     const feet = {} as Record<"left" | "right", IAutoMovieVector3>;
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
@@ -462,7 +441,10 @@ export namespace stand {
 }
 
 /** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
-function centre(body: IHumanBody, yaw: number): IAutoMovieVector3 {
+function centre(
+  body: IAutoMovieMotionHumanBody,
+  yaw: number,
+): IAutoMovieVector3 {
   const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
   const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
   return HumanFrame.point(

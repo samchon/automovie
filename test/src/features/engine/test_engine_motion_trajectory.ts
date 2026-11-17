@@ -1,5 +1,8 @@
 import { Quaternion, integrateMotionTrajectory } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,22 +30,22 @@ export function test_engine_motion_trajectory(): void {
   const findings: string[] = [];
 
   // 1. Closed forms.
-  const decay: integrateMotionTrajectory.ITrajectory =
+  const decay: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
       x0: [1],
       t0: 0,
       t1: 2,
     });
-  const spring: integrateMotionTrajectory.ITrajectory =
+  const spring: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [x[1]!, -x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [x[1]!, -x[0]!] }),
       x0: [1, 0],
       t0: 0,
       t1: 2,
@@ -87,24 +90,28 @@ export function test_engine_motion_trajectory(): void {
   const i1: number = 1;
   const i3: number = 2;
   const axial: number = 3;
-  const top: integrateMotionTrajectory.ITrajectory = integrateMotionTrajectory({
-    f: (_t: number, w: readonly number[]): integrateMotionTrajectory.IRate => ({
-      dx: [
-        ((i1 - i3) / i1) * w[1]! * w[2]!,
-        ((i3 - i1) / i1) * w[0]! * w[2]!,
-        0,
-      ],
-      w: { x: w[0]!, y: w[1]!, z: w[2]! },
-    }),
-    x0: [0.5, 0, axial],
-    q0: { x: 0, y: 0, z: 0, w: 1 },
-    t0: 0,
-    t1: 2,
-  });
+  const top: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    integrateMotionTrajectory({
+      f: (
+        _t: number,
+        w: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+        dx: [
+          ((i1 - i3) / i1) * w[1]! * w[2]!,
+          ((i3 - i1) / i1) * w[0]! * w[2]!,
+          0,
+        ],
+        w: { x: w[0]!, y: w[1]!, z: w[2]! },
+      }),
+      x0: [0.5, 0, axial],
+      q0: { x: 0, y: 0, z: 0, w: 1 },
+      t0: 0,
+      t1: 2,
+    });
   const precession: number = ((i3 - i1) / i1) * axial;
   for (let k: number = 0; k <= 20; k++) {
     const t: number = (2 * k) / 20;
-    const state: integrateMotionTrajectory.IState = top.at(t);
+    const state: IAutoMovieIntegrateMotionTrajectory.IState = top.at(t);
     const expected: [number, number] = [
       0.5 * Math.cos(precession * t),
       0.5 * Math.sin(precession * t),
@@ -127,7 +134,7 @@ export function test_engine_motion_trajectory(): void {
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
       x0: [1],
       t0: 0,
       t1: 2,
@@ -137,27 +144,27 @@ export function test_engine_motion_trajectory(): void {
   if (!(ratio > 12 && ratio < 20)) findings.push(`halving ratio ${ratio}`);
 
   // 6. Error control: the closed forms within the steps' summed budgets.
-  const tight: integrateMotionTrajectory.ITolerance = {
+  const tight: IAutoMovieIntegrateMotionTrajectory.ITolerance = {
     relative: 1e-10,
     absolute: 1e-10,
   };
-  const decayed: integrateMotionTrajectory.ITrajectory =
+  const decayed: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
       x0: [1],
       t0: 0,
       t1: 2,
       tolerance: tight,
     });
-  const sprung: integrateMotionTrajectory.ITrajectory =
+  const sprung: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [x[1]!, -x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [x[1]!, -x[0]!] }),
       x0: [1, 0],
       t0: 0,
       t1: 2,
@@ -196,12 +203,12 @@ export function test_engine_motion_trajectory(): void {
   }
 
   // 7. The steps follow the right-hand side: a narrow pulse draws short steps.
-  const pulsed: integrateMotionTrajectory.ITrajectory =
+  const pulsed: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [-x[0]! + 50 * Math.exp(-(((t - 1) / 0.02) ** 2))],
       }),
       x0: [1],
@@ -232,12 +239,12 @@ export function test_engine_motion_trajectory(): void {
     );
 
   // 8. The symmetric top under error control.
-  const controlled: integrateMotionTrajectory.ITrajectory =
+  const controlled: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         _t: number,
         w: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [
           ((i1 - i3) / i1) * w[1]! * w[2]!,
           ((i3 - i1) / i1) * w[0]! * w[2]!,
@@ -253,7 +260,7 @@ export function test_engine_motion_trajectory(): void {
     });
   for (let k: number = 0; k <= 40; k++) {
     const t: number = (2 * k) / 40;
-    const state: integrateMotionTrajectory.IState = controlled.at(t);
+    const state: IAutoMovieIntegrateMotionTrajectory.IState = controlled.at(t);
     const expected: [number, number] = [
       0.5 * Math.cos(precession * t),
       0.5 * Math.sin(precession * t),
@@ -275,12 +282,12 @@ export function test_engine_motion_trajectory(): void {
   }
 
   // 9. The pair's orders: one step of the decay, accepted whatever its error.
-  const once = (h: number): integrateMotionTrajectory.ITrajectory =>
+  const once = (h: number): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
     integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [-x[0]!] }),
       x0: [1],
       t0: 0,
       t1: h,
@@ -367,7 +374,7 @@ export function test_engine_motion_trajectory(): void {
     [
       "a backward interval",
       {
-        f: (): integrateMotionTrajectory.IRate => ({ dx: [0] }),
+        f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [0] }),
         x0: [0],
         t0: 1,
         t1: 0,
@@ -376,7 +383,7 @@ export function test_engine_motion_trajectory(): void {
     [
       "a zero step",
       {
-        f: (): integrateMotionTrajectory.IRate => ({ dx: [0] }),
+        f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [0] }),
         x0: [0],
         t0: 0,
         t1: 1,
@@ -386,7 +393,7 @@ export function test_engine_motion_trajectory(): void {
     [
       "a rate of the wrong length",
       {
-        f: (): integrateMotionTrajectory.IRate => ({ dx: [0, 0] }),
+        f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [0, 0] }),
         x0: [0],
         t0: 0,
         t1: 1,
@@ -395,7 +402,7 @@ export function test_engine_motion_trajectory(): void {
     [
       "a zero tolerance",
       {
-        f: (): integrateMotionTrajectory.IRate => ({ dx: [0] }),
+        f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [0] }),
         x0: [0],
         t0: 0,
         t1: 1,

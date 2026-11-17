@@ -1,12 +1,17 @@
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanBodyFit } from "./HumanBodyFit";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanQuadraticProgram,
+} from "@automovie/interface";
+
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitTargets } from "./HumanFitTargets";
 import type { HumanFloorReading } from "./HumanFloorReading";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
-import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 
 /**
  * The rows of one step of a whole-body fit (`HumanBodyFit`), each with the
@@ -30,7 +35,7 @@ export namespace HumanBodyFitRows {
   /** A row of a step and the reading it linearises. */
   export interface IRead {
     /** The row. */
-    row: HumanQuadraticProgram.IRow;
+    row: IAutoMovieMotionHumanQuadraticProgram.IRow;
 
     /** The reading, metres or radians. */
     f: (r: IReading) => number;
@@ -39,25 +44,25 @@ export namespace HumanBodyFitRows {
   /** One step's inputs. */
   export interface IStep {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The reading the step starts from. */
     at: IReading;
 
     /** The variables' motions there. */
-    motions: readonly HumanJacobian.IMotion[];
+    motions: readonly IAutoMovieMotionHumanJacobian.IMotion[];
 
     /** Each variable's solved unit, in its own. */
     units: readonly number[];
 
     /** The goals. */
-    targets: readonly HumanBodyFit.ITarget[];
+    targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
     /** Geometric included angles held by the same fit. */
-    angles: readonly HumanFitGoals.IAngle[];
+    angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[];
 
     /** A positional centre-of-mass goal, if requested. */
-    centre?: HumanFitGoals.ICentre;
+    centre?: IAutoMovieMotionHumanFitGoals.ICentre;
 
     /** The floor's price per millimetre. */
     price: number;
@@ -84,7 +89,7 @@ export namespace HumanBodyFitRows {
   export function of(step: IStep): IRead[] {
     const { at, motions }: Pick<IStep, "at" | "motions"> = step;
     const all: number[] = motions.map(
-      (_: HumanJacobian.IMotion, i: number): number => i,
+      (_: IAutoMovieMotionHumanJacobian.IMotion, i: number): number => i,
     );
     const rows: IRead[] = [];
     const equal: (
@@ -166,7 +171,7 @@ export namespace HumanBodyFitRows {
    */
   export function floor(step: IStep, rowed: ReadonlySet<number>): IRead[] {
     const all: number[] = step.motions.map(
-      (_: HumanJacobian.IMotion, i: number): number => i,
+      (_: IAutoMovieMotionHumanJacobian.IMotion, i: number): number => i,
     );
     return [...rowed].map(
       (s: number): IRead => ({
@@ -238,10 +243,10 @@ export namespace HumanBodyFitRows {
   /** A slope in millimetres per solved unit from a reading's rate per a variable's own unit. */
   function scaled(
     step: IStep,
-    rate: (m: HumanJacobian.IMotion) => number,
+    rate: (m: IAutoMovieMotionHumanJacobian.IMotion) => number,
   ): number[] {
     return step.motions.map(
-      (m: HumanJacobian.IMotion, i: number): number =>
+      (m: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
         rate(m) * step.units[i]! * MM,
     );
   }
@@ -250,7 +255,7 @@ export namespace HumanBodyFitRows {
   function low(step: IStep, c: number): number[] {
     return scaled(
       step,
-      (m: HumanJacobian.IMotion): number =>
+      (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
         HumanJacobian.velocity(
           m,
           step.at.owners[step.at.of[c]!]!,

@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieExplicitInstanceTransform } from "./IAutoMovieExplicitInstanceTransform";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieExplicitInstanceTransform } from "./IAutoMovieExplicitInstanceTransform";
 
 /**
  * Compact deterministic placement law for a general instance set.

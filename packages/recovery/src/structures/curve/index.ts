@@ -1,4 +1,3 @@
-export * from "./IAutoMovieRecoveryConstructionLine";
 export * from "./IAutoMovieRecoveryCurveFit";
 export * from "./IAutoMovieRecoveryCurveOverride";
 export * from "./IAutoMovieRecoveryEventCurveArc";

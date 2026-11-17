@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryContourFaceSupportCollectionOperation } from "@automovie/interface";
+
 /**
  * Union original triangle incidence at every sampled contour vertex or crossed source edge. The resulting support can include adjacent faces and is not a semantic region or an exact generating patch.
  *
@@ -10,11 +12,11 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned face set for its extraction lifetime; borrowed contour and incidence maps are not retained separately.
  */
 export function collectRecoveryContourFaceSupport(
-  points: readonly { a: number; b: number }[],
-  vertexFaces: ReadonlyMap<number, ReadonlySet<number>>,
-  faceEdges: ReadonlyMap<string, ReadonlySet<number>>,
-  edgeKey: (a: number, b: number) => string,
-): Set<number> {
+  points: Parameters<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation>[0],
+  vertexFaces: Parameters<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation>[1],
+  faceEdges: Parameters<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation>[2],
+  edgeKey: Parameters<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryContourFaceSupportCollectionOperation.Operation> {
   const support: Set<number> = new Set();
   for (const point of points) {
     const incident: ReadonlySet<number> | undefined =

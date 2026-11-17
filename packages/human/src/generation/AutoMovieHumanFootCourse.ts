@@ -1,5 +1,9 @@
-import { AutoMovieLoftChain as Loft, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanFootSurface as Foot } from "./AutoMovieHumanFootSurface";
+import { AutoMovieLoftChain as Loft } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootCourse,
+  IAutoMovieHumanFootSurface,
+} from "@automovie/interface";
 
 /**
  * Samples generated loft courses for the optional rigid foot display, never a construction input.
@@ -14,47 +18,6 @@ import type { AutoMovieHumanFootSurface as Foot } from "./AutoMovieHumanFootSurf
  */
 export namespace AutoMovieHumanFootCourse {
   /**
-   * Exact source chain and material address before a display ring exists.
-   *
-   * @evidence contracts/common.md#principled-implementation Names the actual chain and its calibration-mm station directly.
-   * @evidence contracts/common.md#clear-and-simple-design The pair identifies one source course without a fabricated ring.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no world-height or old station-index substitute.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes the source chain reference and material station units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An address type owns no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Query functions determine sampler reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The display query borrows the chain; the address owns no external handle.
-   */
-  export interface IAddress {
-    /** Source chain. */
-    chain: IAutoMovieLoftChain;
-
-    /** Calibration-mm station. */
-    station: number;
-  }
-
-  /**
-   * The best evaluated point of a bounded phase search, not a continuous global-minimum guarantee.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the lowest actually evaluated score with that source point and phase.
-   * @evidence contracts/common.md#clear-and-simple-design Three values expose exactly what the bounded search observed.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not present an unevaluated interpolation or local refinement as a certified global minimum.
-   * @evidence contracts/common.md#meaningful-documentation States phase, point units and objective-score meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result declaration has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The minimum query owns search work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the fixed-size result and sampled point.
-   */
-  export interface IMinimum {
-    /** Material phase, radians. */
-    phase: number;
-
-    /** Actual source point, calibration mm. */
-    point: Foot.Vector;
-
-    /** Value of the anatomical site objective. */
-    score: number;
-  }
-
-  /**
    * Sample an objective at 64 phases and refine its best bracket by 40 golden-section steps.
    * Returns the lowest score among those evaluations. An arbitrary objective
    * need not be unimodal, so neither the bracket nor the global minimum is
@@ -68,23 +31,33 @@ export namespace AutoMovieHumanFootCourse {
    * @evidence contracts/performance.md#reuse-equivalent-work One engine sampler serves all evaluations of the same course query.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the best point and current bracket during one synchronous query.
    */
-  export function minimum(address: IAddress, score: (point: Foot.Vector) => number): IMinimum {
-    const sample: (phase: number) => Foot.Vector = Loft.sampler(address.chain, address.station);
-    const at = (phase: number): IMinimum => {
-      const point: Foot.Vector = sample(phase);
+  export function minimum(
+    address: IAutoMovieHumanFootCourse.IAddress,
+    score: IAutoMovieHumanFootCourse.MinimumScore,
+  ): IAutoMovieHumanFootCourse.IMinimum {
+    const sample: (phase: number) => AutoMovieVector3Tuple = Loft.sampler(
+      address.chain,
+      address.station,
+    );
+    const at = (phase: number): IAutoMovieHumanFootCourse.IMinimum => {
+      const point: AutoMovieVector3Tuple = sample(phase);
       return { phase, point, score: score(point) };
     };
     const pitch: number = (2 * Math.PI) / 64;
-    let best: IMinimum = at(0);
+    let best: IAutoMovieHumanFootCourse.IMinimum = at(0);
     for (let index: number = 1; index < 64; index++) {
-      const candidate: IMinimum = at(index * pitch);
+      const candidate: IAutoMovieHumanFootCourse.IMinimum = at(index * pitch);
       if (candidate.score < best.score) best = candidate;
     }
     let low: number = best.phase - pitch;
     let high: number = best.phase + pitch;
     for (let step: number = 0; step < 40; step++) {
-      const a: IMinimum = at(low + ((high - low) * (3 - Math.sqrt(5))) / 2);
-      const b: IMinimum = at(low + ((high - low) * (Math.sqrt(5) - 1)) / 2);
+      const a: IAutoMovieHumanFootCourse.IMinimum = at(
+        low + ((high - low) * (3 - Math.sqrt(5))) / 2,
+      );
+      const b: IAutoMovieHumanFootCourse.IMinimum = at(
+        low + ((high - low) * (Math.sqrt(5) - 1)) / 2,
+      );
       if (a.score < best.score) best = a;
       if (b.score < best.score) best = b;
       if (a.score < b.score) high = b.phase;
@@ -106,15 +79,50 @@ export namespace AutoMovieHumanFootCourse {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the retained samples for projected extents, chord perimeter and display coordinates.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned small arrays without retaining the source calibration or sampler.
    */
-  export function course(address: IAddress, phases: number[], scale: number): Foot.ICourse {
-    const points: Foot.Vector[] = Loft.ring(address.chain, address.station, phases).map((point: Foot.Vector): Foot.Vector => [point[0] * scale, point[1] * scale, point[2] * scale]);
-    const centre: Foot.Vector = Loft.axis(address.chain, address.station).map((value: number): number => value * scale) as Foot.Vector;
-    const frame: ReturnType<typeof Loft.frame> = Loft.frame(address.chain, address.station);
-    const u: number[] = points.map((point: Foot.Vector): number => dot(sub(point, centre), frame.u));
-    const v: number[] = points.map((point: Foot.Vector): number => dot(sub(point, centre), frame.v));
-    const lengths: number[] = points.map((point: Foot.Vector, index: number): number => Math.hypot(...sub(points[(index + 1) % points.length]!, point)));
-    const total: number = lengths.reduce((sum: number, length: number): number => sum + length, 0);
-    if (!(total > 0) || !points.every((point: Foot.Vector): boolean => point.every(Number.isFinite)))
+  export function course(
+    address: IAutoMovieHumanFootCourse.IAddress,
+    phases: number[],
+    scale: number,
+  ): IAutoMovieHumanFootSurface.ICourse {
+    const points: AutoMovieVector3Tuple[] = Loft.ring(
+      address.chain,
+      address.station,
+      phases,
+    ).map(
+      (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+        point[0] * scale,
+        point[1] * scale,
+        point[2] * scale,
+      ],
+    );
+    const centre: AutoMovieVector3Tuple = Loft.axis(
+      address.chain,
+      address.station,
+    ).map((value: number): number => value * scale) as AutoMovieVector3Tuple;
+    const frame: ReturnType<typeof Loft.frame> = Loft.frame(
+      address.chain,
+      address.station,
+    );
+    const u: number[] = points.map((point: AutoMovieVector3Tuple): number =>
+      dot(sub(point, centre), frame.u),
+    );
+    const v: number[] = points.map((point: AutoMovieVector3Tuple): number =>
+      dot(sub(point, centre), frame.v),
+    );
+    const lengths: number[] = points.map(
+      (point: AutoMovieVector3Tuple, index: number): number =>
+        Math.hypot(...sub(points[(index + 1) % points.length]!, point)),
+    );
+    const total: number = lengths.reduce(
+      (sum: number, length: number): number => sum + length,
+      0,
+    );
+    if (
+      !(total > 0) ||
+      !points.every((point: AutoMovieVector3Tuple): boolean =>
+        point.every(Number.isFinite),
+      )
+    )
       throw new Error("Foot source course is collapsed or nonfinite");
     let travelled: number = 0;
     const coordinates: number[] = lengths.map((length: number): number => {
@@ -122,16 +130,28 @@ export namespace AutoMovieHumanFootCourse {
       travelled += length;
       return value;
     });
-    return { chain: address.chain.name as Foot.Chain, stationMm: address.station, centre, depth: Math.max(...u) - Math.min(...u), breadth: Math.max(...v) - Math.min(...v), points, sourcePhases: [...phases], displayCoordinates: coordinates };
+    return {
+      chain: address.chain.name as IAutoMovieHumanFootSurface.Chain,
+      stationMm: address.station,
+      centre,
+      depth: Math.max(...u) - Math.min(...u),
+      breadth: Math.max(...v) - Math.min(...v),
+      points,
+      sourcePhases: [...phases],
+      displayCoordinates: coordinates,
+    };
   }
 }
 
 /** Physical vector difference for the retained display samples. */
-function sub(a: Foot.Vector, b: Foot.Vector): Foot.Vector {
+function sub(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
 /** Euclidean projection onto the source frame's unit direction. */
-function dot(a: Foot.Vector, b: Foot.Vector): number {
+function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }

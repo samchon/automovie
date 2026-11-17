@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieArtifactKey,
-  composeAutoMovieArtifactKey,
-} from "@automovie/engine";
+import { composeAutoMovieArtifactKey } from "@automovie/engine";
+import type { IAutoMovieArtifactKey } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 

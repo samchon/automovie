@@ -1,5 +1,8 @@
 import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
-import type { IAutoMovieFootfallPattern } from "@automovie/interface";
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMovieStepPlanner,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical planner behavior.
@@ -16,14 +19,16 @@ import { TestValidator } from "@nestia/e2e";
 export function test_physical_layers_planner(): void {
   for (const count of [2, 4]) {
     const pattern: IAutoMovieFootfallPattern = supports(count);
-    const desired: (seconds: number) => Record<string, Planner.IPlacement> = (
+    const desired: (
       seconds: number,
-    ): Record<string, Planner.IPlacement> =>
+    ) => Record<string, IAutoMovieStepPlanner.IPlacement> = (
+      seconds: number,
+    ): Record<string, IAutoMovieStepPlanner.IPlacement> =>
       Object.fromEntries(
         pattern.limbs.map(
           (
             limb: (typeof pattern.limbs)[number],
-          ): [string, Planner.IPlacement] => [
+          ): [string, IAutoMovieStepPlanner.IPlacement] => [
             limb.bone,
             {
               point: [
@@ -37,7 +42,7 @@ export function test_physical_layers_planner(): void {
           ],
         ),
       );
-    const planner: Planner = new Planner({
+    const planner: IAutoMovieStepPlanner = new Planner({
       pattern,
       start: 0,
       end: 5,
@@ -74,23 +79,23 @@ export function test_physical_layers_planner(): void {
               step.kind === "swing",
           )
           .every(
-            (step: Planner.IStep): boolean =>
+            (step: IAutoMovieStepPlanner.IStep): boolean =>
               step.end <= 2 || step.start >= 2.4,
           ),
     );
     for (const limb of pattern.limbs) {
-      const steps: Planner.IStep[] = planner.steps.filter(
+      const steps: IAutoMovieStepPlanner.IStep[] = planner.steps.filter(
         (step: (typeof planner.steps)[number]): boolean =>
           step.bone === limb.bone,
       );
       for (const [index, step] of steps.entries()) {
         const end: number = steps[index + 1]?.start ?? 5;
         if (end <= step.end) continue;
-        const planted: Planner.IState = planner.at(
+        const planted: IAutoMovieStepPlanner.IState = planner.at(
           limb.bone,
           step.end + (end - step.end) / 3,
         );
-        const again: Planner.IState = planner.at(
+        const again: IAutoMovieStepPlanner.IState = planner.at(
           limb.bone,
           step.end + ((end - step.end) * 2) / 3,
         );
@@ -104,7 +109,7 @@ export function test_physical_layers_planner(): void {
               planted.placement.point[1] - again.placement.point[1],
             ) < 1e-12,
         );
-        const next: Planner.IStep | undefined = steps[index + 1];
+        const next: IAutoMovieStepPlanner.IStep | undefined = steps[index + 1];
         if (next)
           TestValidator.predicate(
             `${limb.bone} next departure retains the last landing`,

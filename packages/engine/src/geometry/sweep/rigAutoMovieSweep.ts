@@ -1,15 +1,19 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieBoneBuffer,
+  IAutoMovieQuaternion,
+  type IAutoMovieRigSweep,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepOrientation,
+  type IAutoMovieSweepRig,
+  type IAutoMovieSweepSection,
+  type IAutoMovieSweepSurface,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
-import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
-import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
-import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
@@ -53,21 +57,11 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shapes, rest planes, section moments and the rest volume are computed once; a pose recomputes only what bones move.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the compiled surface, registered frame/scale parameter maps, 24 F frame numbers, 5 L current/rest/girth/staging scale numbers and 12 P current/staging probe outputs, plus four dynamic sample writers and one span per probe. Each writer retains one frame slot and one to three weighted scale terms. Bound rigs retain spine/rotation buffers; volume preservation owns its documented moments and staging arrays. Registration ends at seal and all storage is released with the rig.
  */
-export const rigAutoMovieSweep: (props: {
-  sweep: IAutoMovieSweep;
-  binding?: {
-    points: number[];
-    stations: number[][];
-  };
-  preserveVolume: boolean;
-}) => IAutoMovieSweepRig = (props: {
-  sweep: IAutoMovieSweep;
-  binding?: {
-    points: number[];
-    stations: number[][];
-  };
-  preserveVolume: boolean;
-}): IAutoMovieSweepRig => {
+export const rigAutoMovieSweep: (
+  props: IAutoMovieRigSweep.IProps,
+) => IAutoMovieSweepRig = (
+  props: IAutoMovieRigSweep.IProps,
+): IAutoMovieSweepRig => {
   const { sweep, binding }: typeof props = props;
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   if (binding !== undefined) {

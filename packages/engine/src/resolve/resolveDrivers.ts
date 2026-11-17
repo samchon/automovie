@@ -5,11 +5,11 @@ import {
   IAutoMovieDriver,
   IAutoMovieNode,
   IAutoMovieQuaternion,
+  type IAutoMovieSampledChannel,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelKey } from "./channelKey";
 import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
 import { orderValueDrivers } from "./orderValueDrivers";

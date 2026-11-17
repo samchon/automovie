@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionRequest } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionRequest,
   applyAutoMovieInspection,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";

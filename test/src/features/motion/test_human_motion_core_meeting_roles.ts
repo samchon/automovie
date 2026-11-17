@@ -1,16 +1,17 @@
 import { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  type AutoMovieMotionMeeting,
-  HumanChain,
-  HumanFrame,
-  HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingTiming,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanChain, HumanFrame, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -50,11 +51,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_meeting_roles(): void {
   const complaints: string[] = [];
   const SHARE: number = 0.75;
-  const kind: AutoMovieMotionMeeting.IKind = {
+  const kind: IAutoMovieMotionMeetingKind = {
     name: "toast",
     roles: ["drinker", "drinker", "drinker"],
     contacts: { clink: { height: SHARE, range: 0.8, facing: "performer" } },
-    timing: (): AutoMovieMotionMeeting.ITiming => ({
+    timing: (): IAutoMovieMotionMeetingTiming => ({
       ready: 0.6,
       stroke: 0.8,
       relax: 1.4,
@@ -77,14 +78,16 @@ export function test_human_motion_core_meeting_roles(): void {
 
   // What every role of a cast read, by subject, in one performance.
   const read = (
-    bodies: readonly IHumanBody[],
+    bodies: readonly IAutoMovieMotionHumanBody[],
     order: readonly string[],
-  ): Map<string, AutoMovieMotionMeeting.IMeeting> => {
-    const seen: Map<string, AutoMovieMotionMeeting.IMeeting> = new Map();
-    const clink: IHumanActionLaw<never> = {
+  ): Map<string, IAutoMovieMotionMeeting> => {
+    const seen: Map<string, IAutoMovieMotionMeeting> = new Map();
+    const clink: IAutoMovieMotionHumanActionLaw<never> = {
       name: "clink",
       interrupts: {},
-      plan: (context: IHumanActionContext<never>): IHumanActionPlan => {
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<never>,
+      ): IAutoMovieMotionHumanActionPlan => {
         seen.set(
           context.subject,
           context.meeting(
@@ -93,7 +96,9 @@ export function test_human_motion_core_meeting_roles(): void {
             order
               .filter((subject: string): boolean => subject !== context.subject)
               .map(
-                (subject: string): IHumanActionContext.IPartner => ({
+                (
+                  subject: string,
+                ): IAutoMovieMotionHumanActionContext.IPartner => ({
                   role: "drinker",
                   subject,
                 }),
@@ -105,14 +110,14 @@ export function test_human_motion_core_meeting_roles(): void {
           events: [],
           contacts: context.entry.supports.map(
             (
-              support: IHumanEntryState.ISupport,
-            ): IHumanActionPlan["contacts"][number] => ({
+              support: IAutoMovieMotionHumanEntryState.ISupport,
+            ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
               ...support,
               from: 0,
               to: 1,
             }),
           ),
-          posture: (): ReturnType<IHumanActionPlan["posture"]> =>
+          posture: (): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
             context.entry.posture,
         };
       },
@@ -129,18 +134,18 @@ export function test_human_motion_core_meeting_roles(): void {
       })),
       composition: AutoMovieComposition.parallel(
         ...order.map(
-          (subject: string): HumanChain =>
+          (subject: string): IAutoMovieMotionHumanChain =>
             HumanChain.subject(subject).registered("clink"),
         ),
       ),
     });
     return seen;
   };
-  const place = (meeting: AutoMovieMotionMeeting.IMeeting): IAutoMovieVector3 =>
+  const place = (meeting: IAutoMovieMotionMeeting): IAutoMovieVector3 =>
     HumanFrame.point(meeting.frame, meeting.contacts.clink!);
   const apart = (
-    one: AutoMovieMotionMeeting.IMeeting,
-    other: AutoMovieMotionMeeting.IMeeting,
+    one: IAutoMovieMotionMeeting,
+    other: IAutoMovieMotionMeeting,
   ): number =>
     Math.max(
       Math.hypot(
@@ -157,7 +162,7 @@ export function test_human_motion_core_meeting_roles(): void {
       Math.abs(one.instants.stroke - other.instants.stroke),
       Math.abs(one.instants.relax - other.instants.relax),
       one.roles.every(
-        (role: AutoMovieMotionMeeting.IMeeting["roles"][number], i: number) =>
+        (role: IAutoMovieMotionMeeting["roles"][number], i: number) =>
           role.subject === other.roles[i]?.subject,
       )
         ? 0
@@ -165,7 +170,7 @@ export function test_human_motion_core_meeting_roles(): void {
     );
 
   // 1 and 2. Three builds in the six orders.
-  const mixed: readonly IHumanBody[] = [
+  const mixed: readonly IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-large"),
@@ -178,15 +183,11 @@ export function test_human_motion_core_meeting_roles(): void {
     ["c", "a", "b"],
     ["c", "b", "a"],
   ];
-  let reference: AutoMovieMotionMeeting.IMeeting | undefined;
+  let reference: IAutoMovieMotionMeeting | undefined;
   for (const order of ORDERS) {
-    const seen: Map<string, AutoMovieMotionMeeting.IMeeting> = read(
-      mixed,
-      order,
-    );
+    const seen: Map<string, IAutoMovieMotionMeeting> = read(mixed, order);
     for (const subject of SUBJECTS) {
-      const meeting: AutoMovieMotionMeeting.IMeeting | undefined =
-        seen.get(subject);
+      const meeting: IAutoMovieMotionMeeting | undefined = seen.get(subject);
       if (meeting === undefined) {
         complaints.push(
           `composed ${order.join(", ")}: ${subject} read nothing`,
@@ -203,7 +204,7 @@ export function test_human_motion_core_meeting_roles(): void {
   }
   if (reference !== undefined) {
     const heights: number[] = mixed.map(
-      (body: IHumanBody): number => SHARE * body.measure.stature,
+      (body: IAutoMovieMotionHumanBody): number => SHARE * body.measure.stature,
     );
     const y: number = place(reference).y;
     if (
@@ -217,8 +218,8 @@ export function test_human_motion_core_meeting_roles(): void {
   }
 
   // 3. Three of one body meet on the middle.
-  const average: IHumanBody = motionHumanBody("m-average");
-  const even: AutoMovieMotionMeeting.IMeeting | undefined = read(
+  const average: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const even: IAutoMovieMotionMeeting | undefined = read(
     [average, average, average],
     SUBJECTS,
   ).get("a");

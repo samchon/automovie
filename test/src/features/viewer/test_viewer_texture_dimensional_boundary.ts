@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
@@ -58,8 +59,10 @@ export async function test_viewer_texture_dimensional_boundary(): Promise<void> 
   );
   const target: WebGLRenderTarget<Texture<unknown, TextureEventMap>> =
     new THREE.WebGLRenderTarget(4, 4);
-  const facts: import("@automovie/engine").IAutoMovieRenderTextureSource =
-    readAutoMovieTextureSource("target", target.texture);
+  const facts: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+    "target",
+    target.texture,
+  );
   TestValidator.equals(
     "target attachment boundary",
     [facts.width, facts.height, facts.format],

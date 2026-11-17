@@ -1,18 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "./HumanColliders";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -79,8 +75,8 @@ export namespace HumanFloorReading {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bearing: readonly RegExp[],
     targets: readonly {
       bone: AutoMovieHumanoidBone;

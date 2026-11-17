@@ -2,17 +2,18 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
-import type { defend } from "./defend";
 
 /**
  * Where a defence brings its arms and its checking leg: goals on the
@@ -73,19 +74,19 @@ export namespace defendGoals {
    */
   export interface IProps {
     /** The defender's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The defender's posture at the instant, before its limb goals. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** The defence. */
-    kind: defend.IParams["kind"];
+    kind: IAutoMovieMotionHumanDefend.IParams["kind"];
 
     /** The struck region. */
     region: AutoMovieHumanoidRegion;
 
     /** The strike's own point within the region, when it declares one. */
-    aimed: IHumanActionPlan["aimed"];
+    aimed: IAutoMovieMotionHumanActionPlan["aimed"];
 
     /** What the defender saw. */
     sight: ISight;
@@ -105,7 +106,9 @@ export namespace defendGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's posture, which changes each instant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
-  export function at(props: IProps): Partial<IHumanPosture["limbs"]> {
+  export function at(
+    props: IProps,
+  ): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     const { body, sight } = props;
     const { incoming, across, outside, attackedSide } = sight;
     const m = body.measure;
@@ -117,7 +120,7 @@ export namespace defendGoals {
       side: "left" | "right",
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
-    ): IHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
+    ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
     const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({
@@ -133,7 +136,7 @@ export namespace defendGoals {
           Vector3.scale(toward, 0.5 * m.upperArm),
         ),
       );
-    const out: Partial<IHumanPosture["limbs"]> = {};
+    const out: Partial<IAutoMovieMotionHumanPosture["limbs"]> = {};
     const arm = (side: "left" | "right"): "leftArm" | "rightArm" =>
       side === "left" ? "leftArm" : "rightArm";
     const cover = (side: "left" | "right"): void => {

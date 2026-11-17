@@ -3,10 +3,10 @@ import {
   sampleCompiledEffect,
 } from "@automovie/engine";
 import type {
-  AutoMovieGeometryQuery,
   IAutoMovieCompiledEffect,
   IAutoMovieCompiledShotSource,
   IAutoMovieEffectRecipe,
+  IAutoMovieGeometryQuery,
   IAutoMovieProductionDesign,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
@@ -154,7 +154,7 @@ const PRODUCTION: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
 };
 
 function measure(
-  request: Partial<Extract<AutoMovieGeometryQuery, { query: "effect" }>>,
+  request: Partial<Extract<IAutoMovieGeometryQuery, { query: "effect" }>>,
   shot: IAutoMovieCompiledShotSource = storm(),
   production: typeof PRODUCTION | null = PRODUCTION,
 ): Record<string, number | string | boolean> {

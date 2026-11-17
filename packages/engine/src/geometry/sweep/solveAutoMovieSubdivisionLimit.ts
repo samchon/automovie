@@ -1,4 +1,4 @@
-import { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
+import type { IAutoMovieSolveSubdivisionLimit } from "@automovie/interface";
 
 /** Most Jacobi sweeps one solve runs. */
 const MAX_ITERATIONS: number = 2000;
@@ -29,23 +29,13 @@ const TOLERANCE: number = 1e-10;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain loop over compressed rows into two caller buffers, so a cage refitted every frame allocates nothing.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every solve starts from the targets, never from a previous frame's controls, so the result depends on this pose alone.
  * @evidence contracts/development/common.md#meaningful-documentation States the system, the solver, its start, its stopping rule, holding and the return value.
- * @evidence contracts/development/implementation.md#efficient-algorithms For V vertices and S stencil terms: O(V + S) per sweep, at most 2,000 sweeps; a regular grid's slowest mode decays by 8/9 per sweep, so about 200 reach the tolerance; no allocation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For V vertices and S stencil terms: O(V + S) per residual/update traversal, at most 2,000 updates and one final residual traversal; a regular grid's slowest mode decays by 8/9 per update, and no buffer is allocated.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The stencils are the reuse; each call solves one set of targets.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; writes only the two caller buffers.
  */
-export const solveAutoMovieSubdivisionLimit: (props: {
-  stencil: IAutoMovieSubdivisionStencil;
-  targets: ArrayLike<number>;
-  free: Uint8Array;
-  positions: { [index: number]: number; length: number };
-  scratch: { [index: number]: number; length: number };
-}) => number = (props: {
-  stencil: IAutoMovieSubdivisionStencil;
-  targets: ArrayLike<number>;
-  free: Uint8Array;
-  positions: { [index: number]: number; length: number };
-  scratch: { [index: number]: number; length: number };
-}): number => {
+export const solveAutoMovieSubdivisionLimit: (
+  props: IAutoMovieSolveSubdivisionLimit.IProps,
+) => number = (props: IAutoMovieSolveSubdivisionLimit.IProps): number => {
   const { stencil, targets, free } = props;
   const count: number = stencil.count;
   let extent: number = 0;
@@ -65,7 +55,7 @@ export const solveAutoMovieSubdivisionLimit: (props: {
     next[k] = targets[k]!;
   }
   let residual: number = 0;
-  for (let iteration: number = 0; iteration < MAX_ITERATIONS; ++iteration) {
+  for (let iteration: number = 0; iteration <= MAX_ITERATIONS; ++iteration) {
     residual = 0;
     for (let i: number = 0; i < count; ++i) {
       if (free[i] === 0) continue;
@@ -91,7 +81,12 @@ export const solveAutoMovieSubdivisionLimit: (props: {
       next[3 * i + 1] = positions[3 * i + 1]! + dy;
       next[3 * i + 2] = positions[3 * i + 2]! + dz;
     }
-    if (residual <= TOLERANCE * Math.max(extent, Number.MIN_VALUE)) break;
+    // Measure the returned controls after the last permitted update as well.
+    if (
+      residual <= TOLERANCE * Math.max(extent, Number.MIN_VALUE) ||
+      iteration === MAX_ITERATIONS
+    )
+      break;
     const swap: { [index: number]: number; length: number } = positions;
     positions = next;
     next = swap;

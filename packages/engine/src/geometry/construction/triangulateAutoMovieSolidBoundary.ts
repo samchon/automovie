@@ -1,16 +1,17 @@
-import type { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
-import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshIncidence,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 
-/** A represented native station/phase point. */
-type Point = readonly [number, number];
+import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** One boundary occurrence; the same original ID can occur on another sheet. */
 interface Corner {
   /** Original shared vertex ID. */ id: number;
   /** Explicit phase-cover image. */ lift: number;
-  /** Coordinate of that occurrence. */ point: Point;
-  /** Original declared chart before its cover lift. */ original: Point;
+  /** Coordinate of that occurrence. */ point: Readonly<AutoMovieVector2Tuple>;
+  /** Original declared chart before its cover lift. */ original: Readonly<AutoMovieVector2Tuple>;
 }
 
 /**
@@ -55,12 +56,12 @@ interface Corner {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The working ring and output have linear size, expire with the call except caller-owned fresh triangle triples, and retain no source map or callback.
  */
 export function triangulateAutoMovieSolidBoundary(
-  vertices: ReadonlyMap<number, Point>,
-  walk: AutoMovieSolidMeshIncidence.IWalk,
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  walk: IAutoMovieSolidMeshIncidence.IWalk,
   period?: number,
   indexed: boolean = false,
   occupied?: ReadonlySet<string>,
-): AutoMovieSolidMeshPlan.ITriangle[] | string {
+): IAutoMovieSolidMeshPlan.ITriangle[] | string {
   if (
     walk.winding !== 0 ||
     walk.vertices.length < 3 ||
@@ -73,14 +74,18 @@ export function triangulateAutoMovieSolidBoundary(
   for (let k: number = 0; k < walk.vertices.length; k++) {
     const id: number = walk.vertices[k]!;
     const lift: number = walk.lifts[k]!;
-    const stored: Point | undefined = vertices.get(id);
+    const stored: Readonly<AutoMovieVector2Tuple> | undefined =
+      vertices.get(id);
     if (
       stored === undefined ||
       !Number.isSafeInteger(lift) ||
       (period === undefined && lift !== 0)
     )
       return "kept boundary has an unavailable endpoint or invalid cover occurrence";
-    const point: Point = [stored[0], stored[1] + lift * (period ?? 0)];
+    const point: Readonly<AutoMovieVector2Tuple> = [
+      stored[0],
+      stored[1] + lift * (period ?? 0),
+    ];
     if (!point.every(Number.isFinite))
       return "kept boundary cover coordinates are not representable";
     corners.push({ id, lift, point, original: stored });
@@ -92,7 +97,7 @@ export function triangulateAutoMovieSolidBoundary(
     period === undefined ? Infinity : locality(corners);
   if (period !== undefined && !Number.isFinite(phaseLimit))
     return "original walk phase sampling locality is not representable";
-  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [];
+  const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [];
   const links: Map<string, number> = new Map();
   let minU: number = Infinity;
   let maxU: number = -Infinity;
@@ -155,7 +160,7 @@ export function triangulateAutoMovieSolidBoundary(
               occurrence: number;
               id: number;
               lift: number;
-              point: Point;
+              point: Readonly<AutoMovieVector2Tuple>;
             } => ({
               occurrence: index,
               id: corners[index]!.id,
@@ -313,12 +318,16 @@ function represented(
 ): boolean {
   const lifts: [number, number] = [b.lift - a.lift, c.lift - a.lift];
   if (!lifts.every(Number.isSafeInteger)) return false;
-  const points: Point[] = [
+  const points: Readonly<AutoMovieVector2Tuple>[] = [
     a.original,
     [b.original[0], b.original[1] + lifts[0] * (period ?? 0)],
     [c.original[0], c.original[1] + lifts[1] * (period ?? 0)],
   ];
-  if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
+  if (
+    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return false;
   const span: number =
     Math.max(points[0]![1], points[1]![1], points[2]![1]) -
@@ -329,14 +338,14 @@ function represented(
       (span > period / 2 || (indexed && span === period / 2)))
   )
     return false;
-  const center: Point = [
+  const center: Readonly<AutoMovieVector2Tuple> = [
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
   return (
     center.every(Number.isFinite) &&
     points.every(
-      (point: Point, index: number): boolean =>
+      (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
         orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
     )
   );

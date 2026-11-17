@@ -1,3 +1,9 @@
+import type {
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -44,10 +50,10 @@ export async function captureAutoMovie(props: {
     readAutoMovieCaptureHostOptions(
       render.readAutoMovieCaptureArguments(props.args),
     );
-  const request: Render.IAutoMovieCapturePlanRequest =
+  const request: IAutoMovieCapturePlanRequest =
     render.parseAutoMovieCapturePlanRequest(options.request);
 
-  let record: Extract<Render.IAutoMovieCaptureRecord, { state: "complete" }>;
+  let record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
   let backend: string;
   let folder: string;
   if (options.file !== null) {
@@ -112,30 +118,26 @@ export async function captureAutoMovie(props: {
   }
 
   // What was written, and what was not drawn.
-  const failed: Extract<
-    Render.IAutoMovieCaptureRecord.Row,
-    { state: "failed" }
-  >[] = record.rows.filter(
-    (
-      row: Render.IAutoMovieCaptureRecord.Row,
-    ): row is Extract<
-      Render.IAutoMovieCaptureRecord.Row,
-      { state: "failed" }
-    > => row.state === "failed",
-  );
+  const failed: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>[] =
+    record.rows.filter(
+      (
+        row: IAutoMovieCaptureCellRecord,
+      ): row is Extract<IAutoMovieCaptureCellRecord, { state: "failed" }> =>
+        row.state === "failed",
+    );
   const lines: string[] = [
     `capture ${record.subject.name}: ${record.rows.length - failed.length} of ${record.rows.length} cells drawn into ${folder}`,
     `backend ${backend}`,
     ...record.sheets.map((sheet: string): string => path.join(folder, sheet)),
     ...failed.map(
       (
-        row: Extract<Render.IAutoMovieCaptureRecord.Row, { state: "failed" }>,
+        row: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>,
       ): string => `not drawn ${row.name}: ${row.cause}`,
     ),
     ...(record.comparison === null
       ? []
       : record.comparison.entries.flatMap(
-          (entry: Render.IAutoMovieCaptureComparison.Entry): string[] =>
+          (entry: IAutoMovieCaptureCellComparison): string[] =>
             entry.state === "unmatched"
               ? [`unmatched ${entry.current ?? entry.earlier}: ${entry.cause}`]
               : entry.mode === "difference" && entry.changed !== 0

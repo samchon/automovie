@@ -1,11 +1,11 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieRandom,
   Quaternion,
   createAutoMovieRandom,
   deriveAutoMovieSeed,
 } from "@automovie/engine";
 import type {
+  IAutoMovieRandom,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

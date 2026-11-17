@@ -1,12 +1,12 @@
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { IAutoMovieBuildingUnit } from "./IAutoMovieBuildingUnit";
-import { IAutoMovieBuiltBoundary } from "./IAutoMovieBuiltBoundary";
-import { IAutoMovieBuiltConnector } from "./IAutoMovieBuiltConnector";
-import { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
-import { IAutoMovieBuiltOpening } from "./IAutoMovieBuiltOpening";
-import { IAutoMovieBuiltPopulation } from "./IAutoMovieBuiltPopulation";
-import { IAutoMovieBuiltSpace } from "./IAutoMovieBuiltSpace";
-import { IAutoMovieBuiltSurface } from "./IAutoMovieBuiltSurface";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieBuildingUnit } from "./IAutoMovieBuildingUnit";
+import type { IAutoMovieBuiltBoundary } from "./IAutoMovieBuiltBoundary";
+import type { IAutoMovieBuiltConnector } from "./IAutoMovieBuiltConnector";
+import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
+import type { IAutoMovieBuiltOpening } from "./IAutoMovieBuiltOpening";
+import type { IAutoMovieBuiltPopulation } from "./IAutoMovieBuiltPopulation";
+import type { IAutoMovieBuiltSpace } from "./IAutoMovieBuiltSpace";
+import type { IAutoMovieBuiltSurface } from "./IAutoMovieBuiltSurface";
 
 /**
  * A complete code-authored building work containing one or more building units.

@@ -1,0 +1,10 @@
+export type { IAutoMovieMotionHumanAttribute } from "./IAutoMovieMotionHumanAttribute";
+export type { IAutoMovieMotionHumanAttributeEffects } from "./IAutoMovieMotionHumanAttributeEffects";
+export type { IAutoMovieMotionHumanCrowd } from "./IAutoMovieMotionHumanCrowd";
+export type { IAutoMovieMotionHumanEnsemble } from "./IAutoMovieMotionHumanEnsemble";
+export type { IAutoMovieMotionHumanEnsemblePreset } from "./IAutoMovieMotionHumanEnsemblePreset";
+export type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
+export type { IAutoMovieMotionHumanInstance } from "./IAutoMovieMotionHumanInstance";
+export type { IAutoMovieMotionHumanManoeuvre } from "./IAutoMovieMotionHumanManoeuvre";
+export type { IAutoMovieMotionHumanManoeuvreWheel } from "./IAutoMovieMotionHumanManoeuvreWheel";
+export type { IAutoMovieMotionHumanPopulation } from "./IAutoMovieMotionHumanPopulation";

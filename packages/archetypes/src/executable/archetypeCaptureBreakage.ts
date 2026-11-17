@@ -1,8 +1,5 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieProjectileState,
-  projectileAt,
-} from "@automovie/engine";
+import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import type { IAutoMovieProjectileState } from "@automovie/interface";
 
 import {
   type Archetype,

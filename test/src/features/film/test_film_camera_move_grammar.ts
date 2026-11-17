@@ -1,11 +1,8 @@
-import {
-  IAutoMovieFramedSubject,
-  Quaternion,
-  compileCameraMove,
-} from "@automovie/engine";
+import { Quaternion, compileCameraMove } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
+  type IAutoMovieFramedSubject,
   IAutoMovieQuaternion,
   IAutoMovieTrack,
   IAutoMovieVector3,

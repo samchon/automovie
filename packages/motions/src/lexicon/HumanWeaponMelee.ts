@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { HumanActionRow } from "../law/HumanActionRow";
 import { touch } from "../touch/touch";
 import { HumanSword } from "./HumanSword";
@@ -22,45 +27,47 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  */
 export namespace HumanWeaponMelee {
   /** A club or a bat swung level at a person or a thing. */
-  export const clubSwing = HumanActionRow.of("clubSwing", HumanSword.cut, {
+  export const clubSwing: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubSwing"]
+  > = HumanActionRow.of("clubSwing", HumanSword.cut, {
     from: "forehand",
     tip: "strike",
   });
 
   /** A club or a baton brought down from overhead. */
-  export const clubStrike = HumanActionRow.of("clubStrike", HumanSword.cut, {
+  export const clubStrike: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubStrike"]
+  > = HumanActionRow.of("clubStrike", HumanSword.cut, {
     from: "above",
     tip: "strike",
   });
 
   /** A knife slashed across from the knife hand's side. */
-  export const knifeSlash = HumanActionRow.of("knifeSlash", HumanSword.cut, {
+  export const knifeSlash: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeSlash"]
+  > = HumanActionRow.of("knifeSlash", HumanSword.cut, {
     from: "forehand",
   });
 
   /** A knife slashed back across from the off side. */
-  export const knifeBackslash = HumanActionRow.of(
-    "knifeBackslash",
-    HumanSword.cut,
-    { from: "backhand" },
-  );
+  export const knifeBackslash: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeBackslash"]
+  > = HumanActionRow.of("knifeBackslash", HumanSword.cut, { from: "backhand" });
 
   /** A knife driven forward, the point first, with the least advance that reaches. */
-  export const knifeStab = HumanActionRow.of(
-    "knifeStab",
-    HumanSwordThrust.thrust,
-    {},
-  );
+  export const knifeStab: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeStab"]
+  > = HumanActionRow.of("knifeStab", HumanSwordThrust.thrust, {});
 
   /** A knife held point down (taken by its `reverseGrip`) and driven down from overhead. */
-  export const stabOverhand = HumanActionRow.of(
-    "stabOverhand",
-    HumanSword.cut,
-    { from: "above" },
-  );
+  export const stabOverhand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["stabOverhand"]
+  > = HumanActionRow.of("stabOverhand", HumanSword.cut, { from: "above" });
 
   /** A reload: the support hand's palm pressed once to the magazine well the composition names. */
-  export const reload = HumanActionRow.of("reloadFirearm", touch, {
+  export const reload: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponMelee"]["reload"]
+  > = HumanActionRow.of("reloadFirearm", touch, {
     with: "palm",
     kind: "press",
     count: 1,

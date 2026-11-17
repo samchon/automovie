@@ -1,14 +1,17 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
@@ -26,13 +29,13 @@ export namespace exerciseLunge {
   /** What the exercise hands the lunge. */
   export interface IProps {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The posture the exercise starts from. */
-    entry: IHumanPosture;
+    entry: IAutoMovieMotionHumanPosture;
 
     /** The feet at the entry. */
-    stance: Record<"left" | "right", HumanFoot.IPlacement>;
+    stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The heading's forward, world. */
     forward: IAutoMovieVector3;
@@ -66,10 +69,10 @@ export namespace exerciseLunge {
    */
   export function plan(props: IProps): {
     primitives: IAutoMovieMotionHumanPrimitive[];
-    contacts: IHumanContactWindow[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
   } {
     const { body, entry, stance, forward, lead, any, extent, duration } = props;
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const trail: "left" | "right" = lead === "right" ? "left" : "right";
     const hip: IAutoMovieVector3 = HumanFrame.point(
       { origin: entry.root, yaw: entry.yaw },
@@ -79,7 +82,7 @@ export namespace exerciseLunge {
     const sink: number = Math.max(0, hip.y - low) * extent;
     const heel: number =
       90 - (AutoMovieMotionHumanRange.limit(`${trail}Foot`, "flexion") ?? 0);
-    const tiptoe = (share: number): HumanFoot.IPlacement =>
+    const tiptoe = (share: number): IAutoMovieMotionHumanFoot.IPlacement =>
       HumanFoot.pivot(
         body,
         trail,
@@ -99,7 +102,7 @@ export namespace exerciseLunge {
       travel +
       m.thigh -
       Vector3.dot(Vector3.subtract(stance[lead].ankle, hip), forward);
-    const stepped: HumanFoot.IPlacement = {
+    const stepped: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: Vector3.add(stance[lead].ankle, Vector3.scale(forward, stride)),
       rotation: stance[lead].rotation,
     };
@@ -109,7 +112,10 @@ export namespace exerciseLunge {
         channels: ["root"],
         from: 0,
         to: duration,
-        write: (posture: IHumanPosture, s: number): IHumanPosture => ({
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
@@ -126,7 +132,10 @@ export namespace exerciseLunge {
         side: lead,
         from: 0,
         to: duration,
-        placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement =>
           AutoMovieMotionHumanLeg.arc(
             stance[lead],
             stepped,
@@ -140,7 +149,10 @@ export namespace exerciseLunge {
         channels: [`${trail}Leg`],
         from: 0,
         to: duration,
-        write: (posture: IHumanPosture, s: number): IHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
           const share: number = any(s) * extent;
           return {
             ...posture,

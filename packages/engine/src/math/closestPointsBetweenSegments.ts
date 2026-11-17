@@ -1,6 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieClosestSegmentPoints,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "./Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 

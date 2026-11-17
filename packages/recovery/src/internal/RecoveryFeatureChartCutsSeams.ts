@@ -1,21 +1,11 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryDirectedEdgeIncidence,
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryFeatureChartCutsSeams,
+  IAutoMovieRecoveryIndexedCrease,
+  IAutoMovieRecoveryObservedMeshTopology,
+} from "@automovie/interface";
 
-import type { RecoveryFeatureChartCuts } from "./RecoveryFeatureChartCuts";
-
-type Input = Parameters<typeof RecoveryFeatureChartCuts>[0];
-type Output = ReturnType<typeof RecoveryFeatureChartCuts>;
-type Row = { a: number; b: number; face: number };
-type Topology = {
-  edges: Map<string, Row[]>;
-  vertexEdges: string[][];
-  incident: number[][];
-  components: number[][];
-  faceComponent: Int32Array;
-  cycles: number[][];
-  areas: number[];
-  normals: C.Vector[];
-};
-type Feature = Input["featureEdges"][number];
 /**
  * Publish maximal feature arcs with their two actual coherent boundary banks.
  *
@@ -28,25 +18,11 @@ type Feature = Input["featureEdges"][number];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned charts, seams and diagnostics escape; traversal sets and arcs are local.
  */
 export function RecoveryFeatureChartCutsSeams(
-  context: {
-    subdivided: Topology;
-    expanded: Map<string, Feature>;
-    physical: string[];
-    occurrences: string[];
-    remap: Map<number, number>[];
-    actual: Topology;
-    localOf: Map<number, number>;
-    chartOf: Map<number, number>;
-    charts: Output["charts"];
-    triangles: [number, number, number][];
-    insertions: Output["insertions"];
-    diagnostics: string[];
-    observationDisplacementUpperMm: number;
-  },
-  fail: (reason: string) => never,
-  edge: (a: number, b: number) => string,
-  lex: (a: string, b: string) => number,
-): Output {
+  context: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[0],
+  fail: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[1],
+  edge: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[2],
+  lex: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[3],
+): ReturnType<IAutoMovieRecoveryFeatureChartCutsSeams.Operation> {
   const {
     subdivided,
     expanded,
@@ -62,17 +38,17 @@ export function RecoveryFeatureChartCutsSeams(
     diagnostics,
     observationDisplacementUpperMm,
   }: {
-    subdivided: Topology;
-    expanded: Map<string, Feature>;
+    subdivided: IAutoMovieRecoveryObservedMeshTopology;
+    expanded: Map<string, IAutoMovieRecoveryIndexedCrease>;
     physical: string[];
     occurrences: string[];
     remap: Map<number, number>[];
-    actual: Topology;
+    actual: IAutoMovieRecoveryObservedMeshTopology;
     localOf: Map<number, number>;
     chartOf: Map<number, number>;
-    charts: Output["charts"];
+    charts: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"];
     triangles: [number, number, number][];
-    insertions: Output["insertions"];
+    insertions: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["insertions"];
     diagnostics: string[];
     observationDisplacementUpperMm: number;
   } = context;
@@ -125,7 +101,7 @@ export function RecoveryFeatureChartCutsSeams(
       if (visited.has(key)) fail("a maximal feature chain revisits an edge");
       visited.add(key);
       edges.push(key);
-      const feature: Feature = expanded.get(key)!,
+      const feature: IAutoMovieRecoveryIndexedCrease = expanded.get(key)!,
         next: number = feature.a === current ? feature.b : feature.a;
       path.push(next);
       if (next === first) {
@@ -165,8 +141,8 @@ export function RecoveryFeatureChartCutsSeams(
   );
   for (const id of orderedVertices)
     featureAt.get(id)!.sort((a: string, b: string): number => {
-      const x: Feature = expanded.get(a)!,
-        y: Feature = expanded.get(b)!;
+      const x: IAutoMovieRecoveryIndexedCrease = expanded.get(a)!,
+        y: IAutoMovieRecoveryIndexedCrease = expanded.get(b)!;
       return lex(
         vertexWord(x.a === id ? x.b : x.a),
         vertexWord(y.a === id ? y.b : y.a),
@@ -179,26 +155,36 @@ export function RecoveryFeatureChartCutsSeams(
   for (const id of orderedVertices)
     for (const key of featureAt.get(id)!) if (!visited.has(key)) walk(id, key);
   arcs.sort((a: Arc, b: Arc): number => lex(a.word, b.word));
-  const seams: ReturnType<typeof RecoveryFeatureChartCuts>["seams"] = [];
+  const seams: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"] =
+    [];
   for (const arc of arcs) {
     const banks: [number[], number[]] = [[], []];
     for (let k: number = 0; k < arc.edges.length; k++) {
       const a: number = arc.vertices[k]!,
         b: number = arc.vertices[k + 1]!,
-        rows: Row[] = subdivided.edges.get(arc.edges[k]!)!;
-      const forward: Row | undefined = rows.find(
-          (row: Row): boolean => row.a === a && row.b === b,
-        ),
-        backward: Row | undefined = rows.find(
-          (row: Row): boolean => row.a === b && row.b === a,
-        );
+        rows: IAutoMovieRecoveryDirectedEdgeIncidence[] = subdivided.edges.get(
+          arc.edges[k]!,
+        )!;
+      const forward: IAutoMovieRecoveryDirectedEdgeIncidence | undefined =
+          rows.find(
+            (row: IAutoMovieRecoveryDirectedEdgeIncidence): boolean =>
+              row.a === a && row.b === b,
+          ),
+        backward: IAutoMovieRecoveryDirectedEdgeIncidence | undefined =
+          rows.find(
+            (row: IAutoMovieRecoveryDirectedEdgeIncidence): boolean =>
+              row.a === b && row.b === a,
+          );
       if (!forward || !backward)
         fail("a feature arc lacks opposite coherent source incidents");
       for (let bank: number = 0; bank < 2; bank++) {
-        const row: Row = bank === 0 ? forward! : backward!,
+        const row: IAutoMovieRecoveryDirectedEdgeIncidence =
+            bank === 0 ? forward! : backward!,
           from: number = remap[a]!.get(row.face)!,
           to: number = remap[b]!.get(row.face)!;
-        const actualRows: Row[] | undefined = actual.edges.get(edge(from, to));
+        const actualRows:
+          | IAutoMovieRecoveryDirectedEdgeIncidence[]
+          | undefined = actual.edges.get(edge(from, to));
         if (
           actualRows?.length !== 1 ||
           actualRows[0]!.a !== (bank === 0 ? from : to) ||
@@ -213,10 +199,8 @@ export function RecoveryFeatureChartCutsSeams(
         banks[bank]!.push(to);
       }
     }
-    const bindings: ReturnType<
-      typeof RecoveryFeatureChartCuts
-    >["seams"][number]["banks"] = banks.map(
-      (path: number[]): { chart: number; path: number[] } => {
+    const bindings: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"][number]["banks"] =
+      banks.map((path: number[]): { chart: number; path: number[] } => {
         const chart: number = chartOf.get(path[0]!)!;
         if (
           path.some((id: number): boolean => chartOf.get(id) !== chart) ||
@@ -227,8 +211,10 @@ export function RecoveryFeatureChartCutsSeams(
           chart,
           path: path.map((id: number): number => localOf.get(id)!),
         };
-      },
-    ) as [{ chart: number; path: number[] }, { chart: number; path: number[] }];
+      }) as [
+        { chart: number; path: number[] },
+        { chart: number; path: number[] },
+      ];
     seams.push({
       id: `feature-arc.${seams.length}`,
       kind: "crease",

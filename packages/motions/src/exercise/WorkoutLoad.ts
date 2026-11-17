@@ -1,24 +1,25 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanWorkoutLoad,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
 
@@ -68,49 +69,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop must already be held, by the grammar's own pick-up; the law grasps nothing itself.
  */
 export namespace WorkoutLoad {
-  /** The load's parameters. */
-  export interface IParams {
-    /** The held prop's subject id. */
-    prop: string;
-
-    /** The hand that holds it; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. */
-    other?: string;
-
-    /** The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth. */
-    handle?: string;
-  }
-
-  /** What a load gives the workout's plan. */
-  export interface ILoad {
-    /**
-     * The posture with its hands on the load.
-     *
-     * @param posture The posture the exercise's key gives.
-     * @returns The same posture with the holding arms' goals.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-     * @evidence contracts/development/implementation.md#principled-implementation The key places the body and the holding hand; this turns the hand to level the load and lays the other hand on its handle.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per evaluated posture.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A one-handed load changes the holding hand's fingers only, stated on the namespace.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    apply(posture: IHumanPosture): IHumanPosture;
-
-    /** The grip's contact window. */
-    contacts: IHumanContactWindow[];
-
-    /** The hold the action leaves as it found it. */
-    holds: IHumanActionPlan.IHold[];
-
-    /** The hands the load drives. */
-    hands: HumanHand.Side[];
-  }
-
   /**
    * The load of a workout.
    *
@@ -129,17 +87,20 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "subject">,
-    load: IParams,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >,
+    load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
-  ): ILoad {
-    const body: IHumanActionContext["body"] = context.body;
-    const side: HumanHand.Side = load.hand ?? "right";
-    const other: HumanHand.Side = side === "right" ? "left" : "right";
+  ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const side: AutoMovieHumanSide = load.hand ?? "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
 
     // The holding hand keeps the fingers it closed on the prop: a key
     // writes every joint, the fingers among them.
-    const closed: IHumanPosture["joints"] = Object.fromEntries(
+    const closed: IAutoMovieMotionHumanPosture["joints"] = Object.fromEntries(
       Object.entries(context.entry.posture.joints).filter(
         ([bone]: [string, unknown]): boolean =>
           bone.startsWith(side) &&
@@ -150,7 +111,9 @@ export namespace WorkoutLoad {
       const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> =
         AutoMovieMotionHumanHeld.of(context, side, load.prop);
       return {
-        apply: (posture: IHumanPosture): IHumanPosture => ({
+        apply: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           joints: { ...posture.joints, ...closed },
         }),
@@ -159,10 +122,18 @@ export namespace WorkoutLoad {
         hands: [side],
       };
     }
-    const tool: StrikingHeld.ITool = StrikingHeld.of(context, side, load.prop, {
-      tip: load.other,
-    });
-    const own: StrikingHeld.ITool = StrikingHeld.of(context, side);
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+      load.prop,
+      {
+        tip: load.other,
+      },
+    );
+    const own: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+    );
 
     // The bar's line in the hand: from the handle the hand took to the
     // other one, both read in the hand's frame.
@@ -174,7 +145,10 @@ export namespace WorkoutLoad {
             StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
           ),
     );
-    const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
+    const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      other,
+    );
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
@@ -199,9 +173,9 @@ export namespace WorkoutLoad {
       0.25,
     );
     const bend = (
-      posture: IHumanPosture,
-      arm: HumanHand.Side,
-      goal: Pick<IHumanPosture.IGoal, "point" | "rotation">,
+      posture: IAutoMovieMotionHumanPosture,
+      arm: AutoMovieHumanSide,
+      goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
     ): IAutoMovieVector3 =>
       AutoMovieMotionHumanBend.solve({
         body,
@@ -215,7 +189,9 @@ export namespace WorkoutLoad {
       contacts: StrikingHeld.grips(tool),
       holds: StrikingHeld.holds(context, tool),
       hands: [side, other],
-      apply: (posture: IHumanPosture): IHumanPosture => {
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           StrikingBody.trunk(body, posture);
         // The bar runs level to the performer's other side from the hand,
@@ -247,7 +223,7 @@ export namespace WorkoutLoad {
                 : { x: 0, y: -1, z: 0 },
           },
         );
-        const keyed: StrikingHeld.IHandFrame = {
+        const keyed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
           point: HumanHand.frame(body, bones, side, "grip").point,
           rotation: turn,
         };
@@ -286,7 +262,7 @@ export namespace WorkoutLoad {
           -radius,
           Math.min(radius, Vector3.dot(reach, ahead) + Vector3.dot(off, ahead)),
         );
-        const frame: StrikingHeld.IHandFrame = !midfoot
+        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = !midfoot
           ? keyed
           : {
               ...keyed,
@@ -301,14 +277,14 @@ export namespace WorkoutLoad {
                 }),
               ),
             };
-        const first: IHumanPosture.IGoal = StrikingHeld.goal(
+        const first: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
           frame,
           0,
           { x: 0, y: 0, z: 0 },
         );
-        const second: Omit<AutoMovieMotionHumanArm.ITarget, "bend"> = {
+        const second: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "bend"> = {
           surface: "grip",
           shape: "fist",
           ...StrikingHeld.hand(
@@ -319,7 +295,7 @@ export namespace WorkoutLoad {
             Quaternion.rotateVector(frame.rotation, own.edge),
           ),
         };
-        const wrist: HumanHand.IWrist = HumanHand.place(
+        const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
           body,
           other,
           "grip",

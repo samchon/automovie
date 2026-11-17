@@ -1,8 +1,8 @@
 import { ArchetypeRefusal, createProjectile } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,7 +32,7 @@ export function test_archetype_projectile_stone(): void {
     const part: IAutoMovieModelPart | undefined = stone.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === "stone",
     );
-    const shape: AutoMoviePrimitiveShape | undefined =
+    const shape: IAutoMoviePrimitiveShape | undefined =
       part?.geometry.type === "primitive" ? part.geometry.shape : undefined;
     return shape?.type === "sphere" ? shape.radius : Number.NaN;
   };

@@ -1,14 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanDrinkingSwivel,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -44,8 +44,12 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the body, the arm, the grid and the 3 scenarios with their bounds.
  */
 export function test_motion_compose_drinking_swivel(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     resolveHumanPosture(body, { ...posture, limbs: {} }),

@@ -1,15 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanPutDown,
   IAutoMoviePose,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { poseBones } from "../posture/poseBones";
-import type { putDown } from "./putDown";
 
 /**
  * The rigid frame a prop is set on: a bone of the performer or another
@@ -40,14 +41,15 @@ export namespace putDownTarget {
    */
   export function of(
     context: Pick<
-      IHumanActionContext<putDown.IParams>,
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
       "params" | "body" | "prop" | "start"
     >,
     pose: IAutoMoviePose,
-  ): IHumanProp.IFrame | undefined {
-    const onto: putDown.IParams["onto"] = context.params.onto;
+  ): IAutoMovieRigidTransform | undefined {
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
     if (onto === undefined) {
-      const on: putDown.IParams["on"] = context.params.on;
+      const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
       if (on === undefined) return undefined;
       return HumanPropFrame.compose(
         HumanPropFrame.bone(poseBones(context.body, pose).get(on.bone)!),
@@ -56,7 +58,7 @@ export namespace putDownTarget {
     }
 
     const socket = (prop: string, id: string): IAutoMovieAffordance => {
-      const record: IHumanActionContext.IProp = context.prop(prop);
+      const record: IAutoMovieMotionHumanPropReader = context.prop(prop);
       const contacts: readonly IAutoMovieAffordance[] =
         record.prop.articulate === undefined
           ? (record.prop.affordances ?? [])
@@ -80,7 +82,7 @@ export namespace putDownTarget {
       return found;
     };
     const receiver: IAutoMovieAffordance = socket(onto.prop, onto.point);
-    const destination: IHumanProp.IFrame = HumanPropFrame.compose(
+    const destination: IAutoMovieRigidTransform = HumanPropFrame.compose(
       context.prop(onto.prop).frame(context.start),
       {
         position: receiver.frame.translation,
@@ -90,7 +92,7 @@ export namespace putDownTarget {
     if (onto.via === undefined) return destination;
 
     const source: IAutoMovieAffordance = socket(context.params.prop, onto.via);
-    const rotation: IHumanProp.IFrame["rotation"] = Quaternion.normalize(
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.normalize(
       Quaternion.multiply(
         destination.rotation,
         Quaternion.inverse(source.frame.rotation),

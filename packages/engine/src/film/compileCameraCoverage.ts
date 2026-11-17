@@ -1,10 +1,10 @@
 import {
-  IAutoMovieCamera,
+  type IAutoMovieCameraCoverageEntry,
   IAutoMovieCameraIntent,
+  type IAutoMovieCompileCameraCoverage,
   IAutoMovieShotCoverage,
 } from "@automovie/interface";
 
-import { IAutoMovieCameraCoverageEntry } from "./IAutoMovieCameraCoverageEntry";
 import { compileCameraMove } from "./compileCameraMove";
 
 /**
@@ -20,22 +20,9 @@ import { compileCameraMove } from "./compileCameraMove";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per coverage camera per shot with that camera's own entries, so no two calls compute the same take.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned take references the entries' intent records and a fresh clip, both owned by the caller.
  */
-export function compileCameraCoverage(props: {
-  /** The covering camera, staged in the same scene as the hero. */
-  camera: IAutoMovieCamera;
-
-  /** Id the take's camera clip carries. */
-  clipId: string;
-
-  /** Frame entries with their intents, sorted by start and non-overlapping. */
-  entries: IAutoMovieCameraCoverageEntry[];
-
-  /** Shot length in seconds. */
-  shotDuration: number;
-
-  /** Frame width over height, as {@link compileCameraMove} reads it. */
-  aspect?: number;
-}): IAutoMovieShotCoverage {
+export function compileCameraCoverage(
+  props: IAutoMovieCompileCameraCoverage.IProps,
+): IAutoMovieShotCoverage {
   return {
     camera: props.camera.id,
     cameraMotion: compileCameraMove({

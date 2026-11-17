@@ -2,13 +2,11 @@ import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -58,11 +56,11 @@ export function assertSportSprintStart(complaints: string[]): void {
     );
   };
   for (const name of ["f-small", "m-average", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     // The fixtures' bodies are named by sex (`f-`, `m-`), the stratum the
     // centre of mass's measured distance is read in.
     const sex: "female" | "male" = name.startsWith("f-") ? "female" : "male";
-    let built: HumanPerformance;
+    let built: IAutoMovieMotionHumanPerformance;
     try {
       built = new HumanPerformance({
         seed: "sport",
@@ -83,8 +81,9 @@ export function assertSportSprintStart(complaints: string[]): void {
       );
       continue;
     }
-    const placed: ReturnType<HumanPerformance["segments"]>[number] =
-      built.segments("a")[0]!;
+    const placed: ReturnType<
+      IAutoMovieMotionHumanPerformance["segments"]
+    >[number] = built.segments("a")[0]!;
     const set: number =
       placed.start +
       (placed.plan.events.find(
@@ -95,7 +94,8 @@ export function assertSportSprintStart(complaints: string[]): void {
       complaints.push(`${name} sprint start: no set event`);
       continue;
     }
-    const bones: ReturnType<HumanPerformance["bones"]> = built.bones("a", set);
+    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+      built.bones("a", set);
     const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 => bones.get(bone)!.worldPosition;

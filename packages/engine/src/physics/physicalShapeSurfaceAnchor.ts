@@ -1,6 +1,9 @@
 import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeSurfaceAnchor,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -19,15 +22,15 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalShapeSurfaceAnchor(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   normal: IAutoMovieVector3,
-): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+): IAutoMoviePhysicalShapeSurfaceAnchor.IResult {
   const world: IAutoMovieVector3 = Quaternion.rotateVector(
     pose.rotation,
     Vector3.normalize(normal),
   );
-  const rotation: P.ITransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
@@ -53,7 +56,9 @@ export function physicalShapeSurfaceAnchor(
   else if (shape.kind === "hull") {
     // The support feature: the mean of the vertices farthest along the
     // direction, a vertex, an edge midpoint or a face's vertex mean.
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     let reach: number = -Infinity;
     for (const vertex of hull.vertices)
       reach = Math.max(reach, Vector3.dot(vertex, direction));

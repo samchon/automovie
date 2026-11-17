@@ -1,7 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExercise,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { exercise } from "../../exercise/exercise";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -47,7 +51,7 @@ export function exerciseCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
@@ -57,9 +61,9 @@ export function exerciseCases(
       "lunge",
       "highKnees",
       "jumpingJack",
-    ] as exercise.Kind[]) {
+    ] as IAutoMovieMotionHumanExercise.Kind[]) {
       const name: string = `exercise-${kind}${suffix}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "exercise",

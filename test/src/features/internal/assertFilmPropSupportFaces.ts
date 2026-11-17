@@ -1,5 +1,4 @@
 import {
-  type IAutoMoviePropSupportFace,
   propSupportFace,
   propSupportGap,
   surfaceHeightAt,
@@ -7,6 +6,7 @@ import {
 import type {
   IAutoMovieBuiltSurface,
   IAutoMoviePropBox,
+  IAutoMoviePropSupportFace,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

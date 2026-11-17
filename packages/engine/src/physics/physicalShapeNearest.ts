@@ -1,7 +1,10 @@
 import type {
+  IAutoMovieClosestSegmentPoints,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -62,12 +65,12 @@ import { physicalHullSegment } from "./physicalHullSegment";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeNearest(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper?: readonly [number, number],
-): physicalShapeNearest.IResult {
+): IAutoMoviePhysicalShapeNearest.IResult {
   const centre: IAutoMovieVector3 = Vector3.add(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
@@ -85,7 +88,7 @@ export function physicalShapeNearest(
       y: shape.kind === "capsule" ? shape.halfLength : 0,
       z: 0,
     });
-    const closest: ReturnType<typeof closestPointsBetweenSegments> =
+    const closest: IAutoMovieClosestSegmentPoints =
       closestPointsBetweenSegments(
         a,
         b,
@@ -267,21 +270,3 @@ const roundNearest = (
     normal,
   };
 };
-
-/**
- * The reading of one proximity query.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the record the proximity owner returns; each member states its frame, unit and sign.
- * @evidence contracts/development/design.md#principled-representation One contact reading as the four quantities that define it, all in the world frame, with no optional member: a distance without its point and normal is the split this record removes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `physicalShapeNearest`; the distance is read by `physicalShapeSegmentDistance` and the colliders, the point and normal by contact laws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast; it repeats no type another owner declares.
- */
-export namespace physicalShapeNearest {
-  /** Where a segment comes nearest a shape. */
-  export interface IResult {
-    /** Signed distance, metres; negative when the segment enters. */ distance: number;
-    /** The nearest point of the shape's surface, world metres. */ point: IAutoMovieVector3;
-    /** Outward unit normal of the surface at `point`, world frame. */ normal: IAutoMovieVector3;
-    /** The nearest point of the segment, world metres. */ at: IAutoMovieVector3;
-  }
-}

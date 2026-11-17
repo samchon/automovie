@@ -1,7 +1,12 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraResidualsScoreOperation,
+  IAutoMovieRecoveryEpipolarConsensusFittingOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryEpipolarMatrixFittingOperation,
+  IAutoMovieRecoveryEpipolarModelRefinementOperation,
+} from "@automovie/interface";
 
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
@@ -28,40 +33,30 @@ import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner returns one best matrix, O(M) indices, the last at-most-three fit summaries and scalar counters; replaced proposals and local arrays expire without images, handles, callbacks or global state.
  */
 export function fitRecoveryEpipolarConsensus(
-  firstPoints: readonly (readonly [number, number])[],
-  secondPoints: readonly (readonly [number, number])[],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  policy: IAutoMovieRecoveryCameraPairInput["policy"],
-  budget: IAutoMovieRecoveryCameraPairInput["budget"],
-  checkpoint: (completed: number, total: number) => void,
-): {
-  matrix: number[] | null;
-  score: ReturnType<typeof scoreRecoveryCameraResiduals>;
-  trials: number;
-  requiredTrialsAtFinalSupport: number | null;
-  conditionalTrialTargetMet: boolean;
-  numericalRefusals: number;
-  localRefinements: number;
-  localRefinementRefusals: number;
-  finalReestimations: number;
-  finalRefinement: ReturnType<typeof refineRecoveryEpipolarModel> | null;
-} {
+  firstPoints: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[0],
+  secondPoints: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[1],
+  first: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[2],
+  second: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[4],
+  budget: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[5],
+  checkpoint: Parameters<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation>[6],
+): ReturnType<IAutoMovieRecoveryEpipolarConsensusFittingOperation.Operation> {
   if (firstPoints.length !== secondPoints.length || firstPoints.length < 8)
     throw new Error("camera-design: at least eight tentative pairs required");
   let matrix: number[] | null = null;
-  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = {
-    indices: [],
-    medianPx: null,
-    p90Px: null,
-  };
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
+    {
+      indices: [],
+      medianPx: null,
+      p90Px: null,
+    };
   let trials: number = 0,
     numericalRefusals: number = 0,
     localRefinements: number = 0;
   let localRefinementRefusals: number = 0,
     finalReestimations: number = 0;
   let required: number = Infinity;
-  let finalRefinement: ReturnType<typeof refineRecoveryEpipolarModel> | null =
+  let finalRefinement: ReturnType<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation> | null =
     null;
   while (trials < budget.maxRansacTrials) {
     while (
@@ -81,7 +76,7 @@ export function fitRecoveryEpipolarConsensus(
       let candidate: number[];
       let candidateScore: typeof score;
       try {
-        const original: ReturnType<typeof fitRecoveryEpipolarMatrix> =
+        const original: ReturnType<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation> =
           fitRecoveryEpipolarMatrix(
             sample.map(
               (at: number): readonly [number, number] => firstPoints[at]!,
@@ -98,7 +93,7 @@ export function fitRecoveryEpipolarConsensus(
           second,
           budget.maxSingularSweeps,
         ).fundamental;
-        const errors: ReturnType<typeof measureRecoveryEpipolarErrors> =
+        const errors: ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> =
           measureRecoveryEpipolarErrors(candidate, firstPoints, secondPoints);
         candidateScore = scoreRecoveryCameraResiduals(
           errors.map(
@@ -118,7 +113,7 @@ export function fitRecoveryEpipolarConsensus(
       ) {
         localRefinements++;
         try {
-          const refined: ReturnType<typeof refineRecoveryEpipolarModel> =
+          const refined: ReturnType<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation> =
             refineRecoveryEpipolarModel(
               candidate,
               candidateScore,

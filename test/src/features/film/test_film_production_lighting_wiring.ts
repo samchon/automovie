@@ -1,5 +1,4 @@
 import {
-  IAutoMovieCompiledDefinedShot,
   compileDefinedShot,
   defineShot,
   inheritProductionLighting,
@@ -7,6 +6,7 @@ import {
 import {
   IAutoMovieBlocking,
   IAutoMovieClip,
+  type IAutoMovieCompiledDefinedShot,
   IAutoMovieLight,
   IAutoMoviePerformance,
   IAutoMovieProductionDesign,

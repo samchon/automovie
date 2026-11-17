@@ -1,7 +1,9 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleModel,
-  type IAutoMovieRecoveryFeasibleProblem,
   refineRecoveryFeasibleState,
   updateRecoveryRegularization,
 } from "@automovie/recovery";

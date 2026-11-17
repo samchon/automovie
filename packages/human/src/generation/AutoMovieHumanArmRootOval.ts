@@ -1,7 +1,11 @@
-﻿import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
+import type {
+  IAutoMovieHumanArmRootOval,
+  IAutoMovieHumanDeltoidCap,
+  IAutoMovieHumanTrunkSolve,
+} from "@automovie/interface";
+
 import { AutoMovieHumanDeltoidCap } from "./AutoMovieHumanDeltoidCap";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
-import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
 /**
  * The arm's horizontal section at a height, the ellipse the arm's root is
@@ -19,21 +23,6 @@ import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
  * (`AutoMovieHumanDeltoidCap`).
  */
 export namespace AutoMovieHumanArmRootOval {
-  /** An ellipse in a horizontal plane. */
-  export type IOval = AutoMovieHumanDeltoidCap.IOval;
-
-  /** What the oval reads. */
-  export interface IInput {
-    /** The glenohumeral centre `[x, y, z]`, mm. */
-    glenohumeral: readonly [number, number, number];
-
-    /** The upper arm's girth radius, mm: the biceps tape over 2 pi. */
-    radius: number;
-
-    /** The cap's outline from the centre's height to the shoulder point. */
-    cap: IAutoMovieHumanShoulderOutline;
-  }
-
   /**
    * The ellipse at a height.
    *
@@ -41,7 +30,10 @@ export namespace AutoMovieHumanArmRootOval {
    * @param y Height, mm.
    * @returns The ellipse, or null where the arm has no root (at and above the shoulder point).
    */
-  export function at(input: IInput, y: number): IOval | null {
+  export function at(
+    input: IAutoMovieHumanArmRootOval.IInput,
+    y: number,
+  ): IAutoMovieHumanDeltoidCap.IOval | null {
     const [x, gy, gz]: readonly [number, number, number] = input.glenohumeral;
     const R: number = input.radius;
     if (y >= input.cap.to) return null;
@@ -57,7 +49,10 @@ export namespace AutoMovieHumanArmRootOval {
       };
 
     // Above it the deltoid cap's ellipse reaches the cap's outline from the fixed centre.
-    return AutoMovieHumanDeltoidCap.at({ glenohumeral: input.glenohumeral, outline: input.cap }, y);
+    return AutoMovieHumanDeltoidCap.at(
+      { glenohumeral: input.glenohumeral, outline: input.cap },
+      y,
+    );
   }
 
   /**
@@ -68,7 +63,10 @@ export namespace AutoMovieHumanArmRootOval {
    * @param y Height, mm.
    * @returns The extreme's jet.
    */
-  export function outline(input: IInput, y: number): AutoMovieHumanTrunkSolve.IJet {
+  export function outline(
+    input: IAutoMovieHumanArmRootOval.IInput,
+    y: number,
+  ): IAutoMovieHumanTrunkSolve.IJet {
     const [, gy, gz]: readonly [number, number, number] = input.glenohumeral;
 
     if (y >= gy) return input.cap.at(Math.min(y, input.cap.to));
@@ -84,7 +82,7 @@ export namespace AutoMovieHumanArmRootOval {
    * @param oval The ellipse.
    * @returns The curvature.
    */
-  export function curvature(oval: IOval): number {
+  export function curvature(oval: IAutoMovieHumanDeltoidCap.IOval): number {
     return oval.rz / (oval.rx * oval.rx);
   }
 }

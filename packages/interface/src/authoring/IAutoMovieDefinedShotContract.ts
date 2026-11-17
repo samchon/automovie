@@ -1,4 +1,4 @@
-import { IAutoMovieShotContract } from "../production/IAutoMovieShotContract";
+import type { IAutoMovieShotContract } from "../production/IAutoMovieShotContract";
 
 /**
  * The shot contract as a registration embeds it, without identity or source pointer.

@@ -6,6 +6,10 @@ import {
   planPhysicalBalanceTargets,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
@@ -33,15 +37,20 @@ import { vclose } from "../internal/vclose";
  */
 export async function test_physical_balance_targets(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const policy: NonNullable<Simulation.IBody["balance"]> =
-    PhysicalSupportFixtures.body(profile, 1).balance!;
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const policy: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  > = PhysicalSupportFixtures.body(profile, 1).balance!;
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
-  const actual: P.ITransform = structuredClone(targets.body!);
+  const actual: IAutoMovieRigidTransform = structuredClone(targets.body!);
   actual.position.x += 0.02;
   actual.position.y -= 0.015;
   const goals: Record<string, V> = Object.fromEntries(
@@ -83,7 +92,7 @@ export async function test_physical_balance_targets(): Promise<void> {
       nclose(Vector3.length(error), 0, 0.001),
     );
     for (const segment of profile.segments.filter(
-      (segment: P.ISegment): boolean =>
+      (segment: IAutoMoviePhysicalSegment): boolean =>
         (limb.contacts ?? [limb.bone]).includes(segment.bone),
     ))
       for (const shape of segment.shapes)
@@ -97,12 +106,8 @@ export async function test_physical_balance_targets(): Promise<void> {
         );
   }
   assert.equal(JSON.stringify({ targets, actual, goals }), before);
-  const input: Simulation.IInput = createPhysicalBalanceInput(
-    profile,
-    "internal",
-    0,
-    1.2,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    createPhysicalBalanceInput(profile, "internal", 0, 1.2);
   // Continuation identity does not depend on the episode length or the
   // native substep count, so the shortest checkpointed run exercises it.
   input.duration = 0.1;
@@ -111,8 +116,10 @@ export async function test_physical_balance_targets(): Promise<void> {
   input.checkpointEvery = 4;
   input.impulses = [];
   input.bodies[0]!.targets = input.bodies[0]!.targets.slice(0, 13);
-  const baseline: Simulation = await Simulation.compute(input);
-  const edited: Simulation.IInput = structuredClone(input);
+  const baseline: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   edited.impulses.push({
     step: 10,
     body: profile.id,
@@ -120,8 +127,11 @@ export async function test_physical_balance_targets(): Promise<void> {
     point: profile.centerOfMass,
     impulse: { x: 0.001, y: 0, z: 0 },
   });
-  const cold: Simulation = await Simulation.compute(edited);
-  const resumed: Simulation = await Simulation.compute(edited, baseline);
+  const cold: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    edited,
+    baseline,
+  );
   assert.equal(resumed.recomputedSteps, 4);
   for (const field of [
     "frames",

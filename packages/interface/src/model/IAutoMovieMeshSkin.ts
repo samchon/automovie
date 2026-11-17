@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Per-vertex skeletal binding: which bones influence each vertex and by how much. Drives mesh deformation when the skeleton poses.

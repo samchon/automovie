@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateMotionTrajectory,
@@ -9,11 +8,15 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWater,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveHydrodynamicForce,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * A body the water carries (#3432): the water's forces on every segment
@@ -44,30 +47,6 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
 export namespace HumanWater {
-  /** The water a body is in. */
-  export interface IWater {
-    /** The surface's height, world metres. */
-    surface: number;
-
-    /** The density, kg/m³; fresh water when absent. */
-    density?: number;
-  }
-
-  /** The water's summed forces on a posed body. */
-  export interface ISum {
-    /** Buoyancy, world newtons. */
-    buoyancy: IAutoMovieVector3;
-
-    /** Drag, world newtons. */
-    drag: IAutoMovieVector3;
-
-    /** The submerged volume, m³. */
-    submerged: number;
-
-    /** The body's whole volume, m³. */
-    volume: number;
-  }
-
   /**
    * The water's forces on a posed body moving at one velocity.
    *
@@ -78,24 +57,24 @@ export namespace HumanWater {
    * @returns The summed forces.
    */
   export function sum(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     velocity: IAutoMovieVector3,
-    water: IWater,
-  ): ISum {
+    water: IAutoMovieMotionHumanWater,
+  ): IAutoMovieMotionHumanWater.ISum {
     let buoyancy: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let submerged: number = 0;
     let volume: number = 0;
-    const model: resolveAutoMovieCenterOfMass.IModel = modelOf(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel = modelOf(body);
     body.profile.segments.forEach(
-      (segment: IAutoMoviePhysicalProfile.ISegment, i: number): void => {
+      (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
         if (!(v > 0)) return;
-        const s: resolveAutoMovieCenterOfMass.ISegment = model.segments[i]!;
+        const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
         const bone: IAutoMovieResolvedBone = bones.get(s.bone)!;
-        const force: resolveHydrodynamicForce.IForce = resolveHydrodynamicForce(
-          {
+        const force: IAutoMovieResolveHydrodynamicForce.IForce =
+          resolveHydrodynamicForce({
             volume: v,
             centre: Vector3.add(
               bone.worldPosition,
@@ -104,8 +83,7 @@ export namespace HumanWater {
             velocity,
             surface: water.surface,
             density: water.density,
-          },
-        );
+          });
         buoyancy = Vector3.add(buoyancy, force.buoyancy);
         drag = Vector3.add(drag, force.drag);
         submerged += force.submerged;
@@ -125,9 +103,9 @@ export namespace HumanWater {
    * @returns Metres to add to the root's height, or null for a body that sinks.
    */
   export function float(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    water: IWater,
+    water: IAutoMovieMotionHumanWater,
   ): number | null {
     const weight: number = body.profile.mass * AutoMovieGravity.STANDARD;
     const lift = (dy: number): number =>
@@ -163,18 +141,18 @@ export namespace HumanWater {
    * @returns The speed's trajectory, its state `[speed, distance]`.
    */
   export function glide(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     direction: IAutoMovieVector3,
     v0: number,
     seconds: number,
-    water: IWater,
-  ): integrateMotionTrajectory.ITrajectory {
+    water: IAutoMovieMotionHumanWater,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     return integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => {
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
         const drag: IAutoMovieVector3 = sum(
           body,
           bones,
@@ -212,8 +190,10 @@ export namespace HumanWater {
   }
 
   /** Each body's mass model, built once. */
-  const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
-    new WeakMap();
+  const MODELS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieResolveCenterOfMass.IModel
+  > = new WeakMap();
 
   /**
    * A body's mass model, built once.
@@ -221,8 +201,10 @@ export namespace HumanWater {
    * @param body The body.
    * @returns The model, its segments in the profile's order.
    */
-  function modelOf(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
-    let model: resolveAutoMovieCenterOfMass.IModel | undefined =
+  function modelOf(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
+    let model: IAutoMovieResolveCenterOfMass.IModel | undefined =
       MODELS.get(body);
     if (model === undefined) {
       model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);

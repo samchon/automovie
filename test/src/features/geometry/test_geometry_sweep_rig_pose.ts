@@ -1,14 +1,16 @@
 import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSurfaceCage,
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSurfaceRig,
   poseAutoMovieSurfaceNetwork,
   rigAutoMovieSurfaceNetwork,
   sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
-import { type IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRig,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBranchedBody } from "../internal/sweepBranchedBody";

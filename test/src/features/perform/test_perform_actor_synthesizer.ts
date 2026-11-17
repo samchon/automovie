@@ -1,5 +1,4 @@
 import {
-  IAutoMovieActorContext,
   Quaternion,
   compilePerformance,
   makeActorSynthesizer,
@@ -9,6 +8,7 @@ import {
 import {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
+  type IAutoMovieActorContext,
   IAutoMovieGait,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,

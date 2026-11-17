@@ -1,5 +1,14 @@
+import type {
+  AutoMovieMatrix3Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveBoundary64,
+  IAutoMovieCurveBoundaryEdge64,
+  IAutoMovieCurveBoundaryPublication64,
+  IAutoMovieCurveHierarchyFrame64,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../../math/Matrix4";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurveBoundary64 } from "./assertAutoMovieCurveBoundary64";
 
 /**
@@ -17,23 +26,28 @@ export class AutoMovieCurveParentContext {
   public readonly revision: string;
 
   /** Resolved world frames owned by this context, keyed by node. */
-  private readonly frames: Map<string, C.Frame> = new Map();
+  private readonly frames: Map<string, IAutoMovieCurveHierarchyFrame64> =
+    new Map();
 
   /** Column-major local-to-world matrices reused by point transforms. */
   private readonly matrices: Map<string, number[]> = new Map();
 
   /** Cloned and frozen routing declarations keyed by boundary ID. */
-  private readonly edges: Map<string, C.Edge> = new Map();
+  private readonly edges: Map<string, IAutoMovieCurveBoundaryEdge64> =
+    new Map();
 
   /** Genuine frozen publications, bounded by the declared edge count. */
-  private readonly published: Map<string, C.Operator> = new Map();
+  private readonly published: Map<
+    string,
+    IAutoMovieCurveBoundaryPublication64
+  > = new Map();
 
   /**
    * Admit and resolve the supplied parent-first frames and clone the directed edge declarations. Construction throws before a usable context exists if a transform or graph endpoint is invalid.
    */
   public constructor(
-    localFrames: readonly C.Frame[],
-    edges: readonly C.Edge[],
+    localFrames: readonly IAutoMovieCurveHierarchyFrame64[],
+    edges: readonly IAutoMovieCurveBoundaryEdge64[],
   ) {
     for (const frame of localFrames) {
       if (
@@ -45,7 +59,9 @@ export class AutoMovieCurveParentContext {
         throw new Error("Parents must precede unique bones");
       if (
         frame.rotation.length !== 3 ||
-        frame.rotation.some((r: C.Vector): boolean => r.length !== 3) ||
+        frame.rotation.some(
+          (r: Readonly<AutoMovieVector3Tuple>): boolean => r.length !== 3,
+        ) ||
         frame.translationMm.length !== 3 ||
         ![...frame.rotation.flat(), ...frame.translationMm].every(
           Number.isFinite,
@@ -62,14 +78,14 @@ export class AutoMovieCurveParentContext {
           if (Math.abs(dot - (i === j ? 1 : 0)) > 64 * Number.EPSILON)
             throw new Error("Proper orthonormal frame required");
         }
-      const r: C.Matrix = frame.rotation;
+      const r: AutoMovieMatrix3Tuple.ReadonlyRows = frame.rotation;
       const determinant: number =
         r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1]) -
         r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0]) +
         r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
       if (determinant <= 0)
         throw new Error("Reflected frames are not proper rotations");
-      const parent: C.Frame | undefined =
+      const parent: IAutoMovieCurveHierarchyFrame64 | undefined =
         frame.parent === null ? undefined : this.frames.get(frame.parent);
       const local: number[] = [
         r[0][0],
@@ -91,10 +107,18 @@ export class AutoMovieCurveParentContext {
         parent === undefined
           ? local
           : Matrix4.multiply(this.matrices.get(parent.bone)!, local);
-      const rotation: C.Matrix = [0, 1, 2].map(
-        (i: number): C.Vector => [world[i]!, world[4 + i]!, world[8 + i]!],
-      ) as unknown as C.Matrix;
-      const translation: C.Vector = [world[12]!, world[13]!, world[14]!];
+      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [0, 1, 2].map(
+        (i: number): Readonly<AutoMovieVector3Tuple> => [
+          world[i]!,
+          world[4 + i]!,
+          world[8 + i]!,
+        ],
+      ) as unknown as AutoMovieMatrix3Tuple.ReadonlyRows;
+      const translation: Readonly<AutoMovieVector3Tuple> = [
+        world[12]!,
+        world[13]!,
+        world[14]!,
+      ];
       if (![...rotation.flat(), ...translation].every(Number.isFinite))
         throw new Error("Unresolved parent transform");
       this.frames.set(frame.bone, {
@@ -131,20 +155,25 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the constructor-resolved basis rather than recomposing the hierarchy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new vector and retains neither the input nor the result.
    */
-  public direction(bone: string, vector: C.Vector): C.Vector {
-    const frame: C.Frame | undefined = this.frames.get(bone);
+  public direction(
+    bone: string,
+    vector: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> {
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (
       frame === undefined ||
       vector.length !== 3 ||
       !vector.every(Number.isFinite)
     )
       throw new Error("Unknown bone or invalid direction");
-    const result: C.Vector = frame.rotation.map((row: C.Vector): number =>
-      row.reduce(
-        (s: number, x: number, k: number): number => s + x * vector[k]!,
-        0,
-      ),
-    ) as unknown as C.Vector;
+    const result: Readonly<AutoMovieVector3Tuple> = frame.rotation.map(
+      (row: Readonly<AutoMovieVector3Tuple>): number =>
+        row.reduce(
+          (s: number, x: number, k: number): number => s + x * vector[k]!,
+          0,
+        ),
+    ) as unknown as Readonly<AutoMovieVector3Tuple>;
     if (!result.every(Number.isFinite))
       throw new Error("Unresolved direction transform");
     return result;
@@ -161,20 +190,29 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the matrix resolved once during context construction.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new point belongs to the caller; the input is not retained.
    */
-  public point(bone: string, point: C.Vector): C.Vector {
+  public point(
+    bone: string,
+    point: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> {
     if (
       !this.frames.has(bone) ||
       point.length !== 3 ||
       !point.every(Number.isFinite)
     )
       throw new Error("Unknown bone or invalid point");
-    const pointWorld: ReturnType<typeof Matrix4.transformPoint> =
-      Matrix4.transformPoint(this.matrices.get(bone)!, {
+    const pointWorld: IAutoMovieVector3 = Matrix4.transformPoint(
+      this.matrices.get(bone)!,
+      {
         x: point[0],
         y: point[1],
         z: point[2],
-      });
-    const result: C.Vector = [pointWorld.x, pointWorld.y, pointWorld.z];
+      },
+    );
+    const result: Readonly<AutoMovieVector3Tuple> = [
+      pointWorld.x,
+      pointWorld.y,
+      pointWorld.z,
+    ];
     if (!result.every(Number.isFinite))
       throw new Error("Unresolved point transform");
     return result;
@@ -191,21 +229,29 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the retained resolved rotation instead of rebuilding or inverting the hierarchy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a new result tuple is allocated; no inverse-query state is retained.
    */
-  public inverseDirection(bone: string, vector: C.Vector): C.Vector {
-    const frame: C.Frame | undefined = this.frames.get(bone);
+  public inverseDirection(
+    bone: string,
+    vector: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> {
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (
       frame === undefined ||
       vector.length !== 3 ||
       !vector.every(Number.isFinite)
     )
       throw new Error("Unknown bone or invalid direction");
-    const result: C.Vector = [0, 1, 2].map((k: number): number =>
-      frame.rotation.reduce(
-        (s: number, row: C.Vector, i: number): number =>
-          s + row[k]! * vector[i]!,
-        0,
-      ),
-    ) as unknown as C.Vector;
+    const result: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
+      (k: number): number =>
+        frame.rotation.reduce(
+          (
+            s: number,
+            row: Readonly<AutoMovieVector3Tuple>,
+            i: number,
+          ): number => s + row[k]! * vector[i]!,
+          0,
+        ),
+    ) as unknown as Readonly<AutoMovieVector3Tuple>;
     if (!result.every(Number.isFinite))
       throw new Error("Unresolved inverse direction");
     return result;
@@ -222,14 +268,18 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses stored world translation and the shared inverseDirection method.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary difference/result tuples are caller-local and not retained.
    */
-  public inversePoint(bone: string, point: C.Vector): C.Vector {
-    const frame: C.Frame | undefined = this.frames.get(bone);
+  public inversePoint(
+    bone: string,
+    point: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> {
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
     return this.inverseDirection(
       bone,
       point.map(
         (x: number, k: number): number => x - frame.translationMm[k]!,
-      ) as unknown as C.Vector,
+      ) as unknown as Readonly<AutoMovieVector3Tuple>,
     );
   }
 
@@ -244,8 +294,9 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved frame is reused as the snapshot source; returned snapshots are independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clone and the context retains only its original frame.
    */
-  public frame(bone: string): C.Frame {
-    const frame: C.Frame | undefined = this.frames.get(bone);
+  public frame(bone: string): IAutoMovieCurveHierarchyFrame64 {
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
     return structuredClone(frame);
   }
@@ -264,10 +315,12 @@ export class AutoMovieCurveParentContext {
   public publish(
     region: string,
     bone: string,
-    boundary: C.Boundary,
-  ): C.Operator {
+    boundary: IAutoMovieCurveBoundary64,
+  ): IAutoMovieCurveBoundaryPublication64 {
     assertAutoMovieCurveBoundary64(boundary);
-    const edge: C.Edge | undefined = this.edges.get(boundary.id);
+    const edge: IAutoMovieCurveBoundaryEdge64 | undefined = this.edges.get(
+      boundary.id,
+    );
     if (
       edge === undefined ||
       edge.ownerRegion !== region ||
@@ -276,7 +329,7 @@ export class AutoMovieCurveParentContext {
       this.published.has(boundary.id)
     )
       throw new Error("Wrong or repeated anatomical boundary owner");
-    const value: C.Boundary = structuredClone(boundary);
+    const value: IAutoMovieCurveBoundary64 = structuredClone(boundary);
     const freeze: (item: unknown) => void = (item: unknown): void => {
       if (item !== null && typeof item === "object") {
         for (const child of Object.values(item)) freeze(child);
@@ -284,7 +337,7 @@ export class AutoMovieCurveParentContext {
       }
     };
     freeze(value);
-    const operator: C.Operator = Object.freeze({
+    const operator: IAutoMovieCurveBoundaryPublication64 = Object.freeze({
       edge,
       contextRevision: this.revision,
       value,
@@ -304,8 +357,14 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the published field instance reused across dependent constructors.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation adds no retained references or handles; existing context publication ownership is unchanged.
    */
-  public bind(region: string, bone: string, operator: C.Operator): C.Boundary {
-    const edge: C.Edge | undefined = this.edges.get(operator.value.id);
+  public bind(
+    region: string,
+    bone: string,
+    operator: IAutoMovieCurveBoundaryPublication64,
+  ): IAutoMovieCurveBoundary64 {
+    const edge: IAutoMovieCurveBoundaryEdge64 | undefined = this.edges.get(
+      operator.value.id,
+    );
     if (
       edge === undefined ||
       edge.consumerRegion !== region ||

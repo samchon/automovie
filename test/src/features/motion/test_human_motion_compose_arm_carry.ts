@@ -1,12 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  getConstraint,
-  jointRomOvershoot,
-} from "@automovie/engine";
+import { getConstraint, jointRomOvershoot } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -14,8 +16,6 @@ import {
   AutoMovieMotionHumanBend,
   HumanArmClearance,
   HumanColliders,
-  type IHumanBody,
-  type IHumanPosture,
   blendHumanJoint,
   poseBones,
   resolveHumanPosture,
@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * puts the wrist across the belly, on the front of the other shoulder,
  * ahead at chest height, or ahead at chest height with a partner of the
  * average man's body standing 0.35 m ahead facing back, whose colliders the
- * goal names to keep clear of (`IHumanPosture.IGoal.clear`). The elbow is
+ * goal names to keep clear of (`HumanPosture.IGoal.clear`). The elbow is
  * bent the way a hanging arm bends (`AutoMovieMotionHumanBend.hang`).
  *
  * The forearm's need for room is read on the displayed bones of the carried
@@ -65,20 +65,25 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_compose_arm_carry(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const partner: IHumanBody = motionHumanBody("m-average");
-  const others: HumanColliders.IPlaced[] = HumanColliders.placed(
-    partner,
-    poseBones(
+  const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const others: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(
       partner,
-      resolveHumanPosture(
+      poseBones(
         partner,
-        stand.posture(partner, { x: 0, y: 0, z: 0.35 }, 180),
+        resolveHumanPosture(
+          partner,
+          stand.posture(partner, { x: 0, y: 0, z: 0.35 }, 180),
+        ),
       ),
-    ),
-  );
+    );
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
-    const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const base: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const stance: IAutoMoviePose = resolveHumanPosture(body, base);
     const bones = poseBones(body, stance);
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -89,7 +94,7 @@ export function test_human_motion_compose_arm_carry(): void {
     for (const side of ["left", "right"] as const) {
       const sign: number = side === "left" ? 1 : -1;
       const shoulder: IAutoMovieVector3 = at(`${side}UpperArm`);
-      const held: AutoMovieMotionHumanArm.IAngles =
+      const held: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(stance, side);
       const goals: [string, IAutoMovieVector3, boolean][] = [
         [
@@ -111,8 +116,10 @@ export function test_human_motion_compose_arm_carry(): void {
       ];
       for (const [goal, point, near] of goals) {
         const cell: string = `${name} ${side} ${goal}`;
-        const blocking: HumanColliders.IPlaced[] = near ? others : [];
-        const posture: IHumanPosture = {
+        const blocking: IAutoMovieMotionHumanColliders.IPlaced[] = near
+          ? others
+          : [];
+        const posture: IAutoMovieMotionHumanPosture = {
           ...base,
           limbs: {
             ...base.limbs,
@@ -124,9 +131,9 @@ export function test_human_motion_compose_arm_carry(): void {
           },
         };
         const solved: IAutoMoviePose = resolveHumanPosture(body, posture);
-        const end: AutoMovieMotionHumanArm.IAngles =
+        const end: IAutoMovieMotionHumanArmAngles.IAngles =
           AutoMovieMotionHumanArm.angles(solved, side);
-        const carried = (share: number): IHumanPosture =>
+        const carried = (share: number): IAutoMovieMotionHumanPosture =>
           AutoMovieMotionHumanArm.carry(body, posture, { [side]: held }, share);
         const other: string = side === "left" ? "right" : "left";
         const shown = (
@@ -139,7 +146,7 @@ export function test_human_motion_compose_arm_carry(): void {
           HumanArmClearance.overshoot(
             body,
             HumanColliders.placed(body, displayed).filter(
-              (s: HumanColliders.IPlaced): boolean =>
+              (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
                 OBSTACLES.has(s.bone) ||
                 s.bone === `${other}UpperArm` ||
                 s.bone === `${other}LowerArm` ||
@@ -179,17 +186,17 @@ export function test_human_motion_compose_arm_carry(): void {
         for (const share of [0.2, 0.4, 0.6, 0.8]) {
           const allowed: number = need0 * (1 - share) + need1 * share;
           const need: number = room(shown(share));
-          const written: IHumanPosture = carried(share);
+          const written: IAutoMovieMotionHumanPosture = carried(share);
           // What the carry's own reading says of the written arm, of the
           // plain blend and of the two ends, so a failing row tells a
           // clearing that found no way from one that read another room.
-          const own = (arm: HumanArmClearance.IArm): string =>
+          const own = (arm: IAutoMovieMotionHumanArmClearance.IArm): string =>
             HumanArmClearance.room(body, solved, side, arm, blocking).toFixed(
               3,
             );
           const angles = (of: readonly [number, number, number]): string =>
             of.map((v: number): string => v.toFixed(1)).join("/");
-          const plain: HumanArmClearance.IArm = {
+          const plain: IAutoMovieMotionHumanArmClearance.IArm = {
             upper: blendHumanJoint(
               body,
               `${side}UpperArm`,
@@ -283,7 +290,7 @@ function apart(a: IAutoMovieVector3[], b: IAutoMovieVector3[]): number {
 
 /** A joint's range of motion overshoot at a triple, degrees. */
 function outside(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
   of: readonly [number, number, number],
 ): number {

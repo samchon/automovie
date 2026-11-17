@@ -1,6 +1,8 @@
-import { IAutoMovieBeatEndState } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  type IAutoMovieResolveBeatProps,
+} from "@automovie/interface";
 
-import { IResolveBeatProps } from "./IResolveBeatProps";
 import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
 
 /**
@@ -22,7 +24,7 @@ import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing after returning; the opening states it hands back are owned as `resolveBeatSnapshot` describes.
  */
 export function resolveBeatOpening(
-  props: IResolveBeatProps,
+  props: IAutoMovieResolveBeatProps,
 ): IAutoMovieBeatEndState {
   return resolveBeatSnapshot(props, 0);
 }

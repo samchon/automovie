@@ -1,5 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMovieTransform } from "@automovie/interface";
 import {
   type AutoMovieDrawSubjects,
   type IAutoMovieDrawScene,

@@ -1,14 +1,15 @@
-import {
-  type AutoMovieLoftContract,
-  AutoMovieSolidBody,
-  AutoMovieSolidMesh,
-  type AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import { AutoMovieSolidBody, AutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 type IMerged = ReturnType<typeof AutoMovieSolidBody.merge>;
 const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
 
@@ -66,15 +67,15 @@ export function test_construction_operator_body(): void {
     [0, 1, 0],
     6,
   );
-  const details: (d: AutoMovieLoftContract.IDiagnostic[]) => string = (
-    d: AutoMovieLoftContract.IDiagnostic[],
+  const details: (d: IAutoMovieLoftContract.IDiagnostic[]) => string = (
+    d: IAutoMovieLoftContract.IDiagnostic[],
   ): string =>
     d
-      .map((x: AutoMovieLoftContract.IDiagnostic): string => x.detail)
+      .map((x: IAutoMovieLoftContract.IDiagnostic): string => x.detail)
       .join("; ");
 
   // 1. The column onto the floor, then the beam onto the body.
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
     { surface: floor, stations: range(-40, 40, 2), phases: range(-40, 40, 2) },
   ]);
   const first: IMerged = AutoMovieSolidBody.merge(body, {
@@ -128,10 +129,10 @@ export function test_construction_operator_body(): void {
   // emission ranges without replacing a producer method or attributing a face
   // from a triangle's first vertex owner.
   const ranges: { name: string; start: number; end: number }[] = [];
-  const drawn: AutoMovieSolidBody.IBody = {
+  const drawn: IAutoMovieSolidBody.IBody = {
     ...body,
     faces: body.faces.map(
-      (face: AutoMovieSolidBody.IFace): AutoMovieSolidBody.IFace => {
+      (face: IAutoMovieSolidBody.IFace): IAutoMovieSolidBody.IFace => {
         const range: { name: string; start: number; end: number } = {
           name: face.surface.name,
           start: -1,
@@ -164,34 +165,34 @@ export function test_construction_operator_body(): void {
       },
     ),
   };
-  const open: AutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(drawn);
+  const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(drawn);
   for (const range of ranges)
     if (range.start >= 0 && range.end < 0) range.end = body.mesh.indices.length;
   const rim: Set<number> = new Set(
     open
       .flat()
       .flatMap(
-        (boundary: AutoMovieSolidMesh.IOpen): number[] => boundary.vertices,
+        (boundary: IAutoMovieSolidMesh.IOpen): number[] => boundary.vertices,
       ),
   );
-  const mesh: AutoMovieSolidMesh.IMesh = body.mesh;
+  const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
   failures.push(...audit(mesh, rim));
 
   // 3. Red: a turned triangle, a dropped triangle, a moved coordinate.
-  const turned: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const turned: IAutoMovieSolidMesh.IMesh = copy(mesh);
   [turned.indices[0], turned.indices[1]] = [
     turned.indices[1]!,
     turned.indices[0]!,
   ];
-  const dropped: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const dropped: IAutoMovieSolidMesh.IMesh = copy(mesh);
   dropped.indices.splice(3 * Math.floor(dropped.indices.length / 6), 3);
-  const moved: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const moved: IAutoMovieSolidMesh.IMesh = copy(mesh);
   moved.coordinates[3 * 7 + 1] = moved.coordinates[3 * 7 + 1]! + 0.01;
   for (const [what, made, check] of [
     ["a turned triangle", turned, "edge"],
     ["a dropped triangle", dropped, "edge"],
     ["a moved coordinate", moved, "coordinates"],
-  ] as [string, AutoMovieSolidMesh.IMesh, string][])
+  ] as [string, IAutoMovieSolidMesh.IMesh, string][])
     if (!audit(made, rim).some((f: string): boolean => f.startsWith(check)))
       failures.push(`made defect, ${what}: no "${check}" finding`);
 
@@ -201,12 +202,12 @@ export function test_construction_operator_body(): void {
         ranges,
         faces: body.faces.map(
           (
-            face: AutoMovieSolidBody.IFace,
+            face: IAutoMovieSolidBody.IFace,
           ): {
             name: string;
             stations: number[];
             phases: number[];
-            cycles: AutoMovieSolidBody.IFace["cycles"];
+            cycles: IAutoMovieSolidBody.IFace["cycles"];
           } => ({
             name: face.surface.name,
             stations: face.stations,
@@ -219,15 +220,15 @@ export function test_construction_operator_body(): void {
           indices: mesh.indices,
           coordinates: mesh.coordinates,
           owners: mesh.owners.map(
-            (owner: AutoMovieSolidMesh.IOwner): string => owner.name,
+            (owner: IAutoMovieSolidMesh.IOwner): string => owner.name,
           ),
         },
         open,
       })}`,
     );
-    body.faces.forEach((f: AutoMovieSolidBody.IFace, i: number): void => {
+    body.faces.forEach((f: IAutoMovieSolidBody.IFace, i: number): void => {
       failures.push(
-        `face ${f.surface.name}: cycles ${f.cycles.map((c: { kind: string; vertices: number[] }): string => `${c.kind}(${c.vertices.length})`).join(", ")}; open ${(open[i] ?? []).map((c: AutoMovieSolidMesh.IOpen): string => String(c.vertices.length)).join(", ")}`,
+        `face ${f.surface.name}: cycles ${f.cycles.map((c: { kind: string; vertices: number[] }): string => `${c.kind}(${c.vertices.length})`).join(", ")}; open ${(open[i] ?? []).map((c: IAutoMovieSolidMesh.IOpen): string => String(c.vertices.length)).join(", ")}`,
       );
     });
     throw new Error(
@@ -243,7 +244,7 @@ export function test_construction_operator_body(): void {
  * coordinates evaluate elsewhere), `duplicate` (two vertices at one point).
  */
 function audit(
-  m: AutoMovieSolidMesh.IMesh,
+  m: IAutoMovieSolidMesh.IMesh,
   rim: ReadonlySet<number>,
 ): string[] {
   const out: string[] = [];
@@ -278,7 +279,7 @@ function audit(
       m.indices[t + 1]!,
       m.indices[t + 2]!,
     ].map(point);
-    const owner: AutoMovieSolidMesh.IOwner =
+    const owner: IAutoMovieSolidMesh.IOwner =
       m.owners[m.coordinates[3 * m.indices[t]!]!]!;
     const n: Vec3 = cross(
       [b![0] - a![0], b![1] - a![1], b![2] - a![2]],
@@ -311,7 +312,7 @@ function audit(
 }
 
 /** A mesh's copy whose buffers can be changed. */
-function copy(m: AutoMovieSolidMesh.IMesh): AutoMovieSolidMesh.IMesh {
+function copy(m: IAutoMovieSolidMesh.IMesh): IAutoMovieSolidMesh.IMesh {
   return {
     positions: [...m.positions],
     indices: [...m.indices],

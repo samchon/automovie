@@ -1,10 +1,10 @@
 import {
   IAutoMovieDesignScaleCandidate,
   IAutoMovieDesignSourceFrame,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
 import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./constants/AUTO_MOVIE_DESIGN_FRAME_VIEWS";
@@ -41,11 +41,11 @@ const AXIS_EPSILON: number = 1e-12;
 export const validateDesignSourceFrame: (
   frame: IAutoMovieDesignSourceFrame,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   frame: IAutoMovieDesignSourceFrame,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (
     !(AUTO_MOVIE_DESIGN_FRAME_VIEWS as readonly string[]).includes(frame.view)

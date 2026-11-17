@@ -1,20 +1,14 @@
-/*
- * Copyright 2022 University of Oxford Control Group
- * SPDX-License-Identifier: Apache-2.0
- *
- * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
- * with zero/nonnegative cones and engine-owned numerical workspaces.
- * Adapted from Clarabel.rs 0.11.1, revision
- * 25540f559592068d0c8a80e46ded1b21760212a1.
- * Original source: src/solver/core/solver.rs; src/solver/implementations/default/variables.rs; src/solver/implementations/default/info.rs
- * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
- */
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
-import { IAutoMovieQuadraticState } from "./IAutoMovieQuadraticState";
+import type {
+  IAutoMovieCreateQuadraticFactor,
+  IAutoMovieMeasureQuadraticState,
+  IAutoMovieQuadraticConicProgram,
+  IAutoMovieQuadraticState,
+  IAutoMovieSolveQuadraticKernel,
+} from "@automovie/interface";
+
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { createAutoMovieQuadraticFactor } from "./createAutoMovieQuadraticFactor";
 import { measureAutoMovieQuadraticState } from "./measureAutoMovieQuadraticState";
-import type { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
 import { solveAutoMovieQuadraticStep } from "./solveAutoMovieQuadraticStep";
 
 /**
@@ -42,7 +36,7 @@ export function solveAutoMovieQuadraticInterior(
   data: IAutoMovieQuadraticConicProgram,
   workspace: Float64Array,
   originalCount: number,
-): ReturnType<typeof solveAutoMovieQuadraticKernel> {
+): IAutoMovieSolveQuadraticKernel.IResult {
   const state: IAutoMovieQuadraticState = {
     x: workspace.subarray(0, data.n),
     s: workspace.subarray(data.n, data.n + data.m),
@@ -50,7 +44,7 @@ export function solveAutoMovieQuadraticInterior(
     tau: 1,
     kappa: 1,
   };
-  const factor: ReturnType<typeof createAutoMovieQuadraticFactor> =
+  const factor: IAutoMovieCreateQuadraticFactor.IResult =
     createAutoMovieQuadraticFactor(data);
   const h: Float64Array = new Float64Array(data.m);
   const applied: Float64Array = new Float64Array(2);
@@ -81,7 +75,7 @@ export function solveAutoMovieQuadraticInterior(
   shiftInterior(state.s, data.equalities);
   shiftInterior(state.z, data.equalities);
   let iterations: number = 0;
-  let reading: ReturnType<typeof measureAutoMovieQuadraticState> =
+  let reading: IAutoMovieMeasureQuadraticState.IResult =
     measureAutoMovieQuadraticState(data, state);
   let previous: IAutoMovieQuadraticState | undefined;
   let prior: typeof reading | undefined;
@@ -278,7 +272,7 @@ function stepLength(
 
 /** Full and reduced thresholds keep feasible optima separate from certificates. */
 function convergence(
-  reading: ReturnType<typeof measureAutoMovieQuadraticState>,
+  reading: IAutoMovieMeasureQuadraticState.IResult,
   reduced: boolean,
 ): number {
   const gap: number = reduced ? 5e-5 : 1e-9;

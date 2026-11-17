@@ -1,15 +1,17 @@
 import { Quaternion } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -34,10 +36,10 @@ export namespace touchPresented {
    */
   export interface IPresented {
     /** The arm. */
-    side: HumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Its goal, world, on the entry posture. */
-    goal: IHumanPosture.IGoal;
+    goal: IAutoMovieHumanLimbGoal;
 
     /** The body's bones with that arm at its goal. */
     bones: ReturnType<typeof poseBones>;
@@ -64,13 +66,13 @@ export namespace touchPresented {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body" | "entry">,
-    side: HumanHand.Side,
-    target: AutoMovieMotionTarget,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
   ): IPresented | null {
     if (target.kind !== "self") return null;
     const body = context.body;
-    const other: HumanHand.Side = side === "right" ? "left" : "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const bone = body.surfaces.regions[target.region].bone;
     if (
       bone !== `${other}UpperArm` &&
@@ -78,8 +80,11 @@ export namespace touchPresented {
       bone !== `${other}Hand`
     )
       return null;
-    const entry: IHumanPosture = context.entry.posture;
-    const frame: HumanFrame.IFrame = { origin: entry.root, yaw: entry.yaw };
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: entry.root,
+      yaw: entry.yaw,
+    };
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
     const at: IAutoMovieVector3 = HumanFrame.point(frame, {
@@ -93,15 +98,16 @@ export namespace touchPresented {
       HumanFrame.turn(entry.yaw),
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
     );
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      other,
-      { surface: "palm", shape: "flat" },
-      at,
-      { x: 0, y: 1, z: 0 },
-      across,
-      AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
-    );
+    const goal: IAutoMovieHumanLimbGoal =
+      AutoMovieMotionHumanTouchEffector.goal(
+        body,
+        other,
+        { surface: "palm", shape: "flat" },
+        at,
+        { x: 0, y: 1, z: 0 },
+        across,
+        AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
+      );
     return {
       side: other,
       goal,

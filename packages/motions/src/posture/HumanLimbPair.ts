@@ -1,27 +1,25 @@
-import {
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import type { HumanColliders } from "./HumanColliders";
 import { HumanLimbFit } from "./HumanLimbFit";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
 /**
@@ -73,9 +71,9 @@ export namespace HumanLimbPair {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fitted(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
     near: Readonly<
       Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
     > = {},
@@ -84,7 +82,7 @@ export namespace HumanLimbPair {
       pose,
       others: [],
     }).pose;
-    const image: Record<"left" | "right", IHumanPosture.IGoal> = {
+    const image: Record<"left" | "right", IAutoMovieHumanLimbGoal> = {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
@@ -93,7 +91,7 @@ export namespace HumanLimbPair {
     // nothing.
     const key = (
       p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+      g: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
     ): string =>
       JSON.stringify([
         p.root,
@@ -146,12 +144,12 @@ export namespace HumanLimbPair {
 
 /** The pair fitted on the representative: independent fits, or the coupled solve where they meet. */
 function solved(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
 ): HumanLimbPair.IFitted {
-  const world = (limb: "leftArm" | "rightArm"): IHumanPosture.IGoal =>
+  const world = (limb: "leftArm" | "rightArm"): IAutoMovieHumanLimbGoal =>
     HumanLimbFit.world(
       body,
       pose,
@@ -185,7 +183,7 @@ function solved(
   const arm = (
     p: IAutoMoviePose,
     side: "left" | "right",
-  ): HumanArmClearance.IArm => {
+  ): IAutoMovieMotionHumanArmClearance.IArm => {
     const read = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {
@@ -200,10 +198,11 @@ function solved(
       hand: read(`${side}Hand`),
     };
   };
-  const fits: Record<"left" | "right", HumanArmClearance.IArm> = {
-    left: arm(own.left.pose, "left"),
-    right: arm(own.right.pose, "right"),
-  };
+  const fits: Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IArm> =
+    {
+      left: arm(own.left.pose, "left"),
+      right: arm(own.right.pose, "right"),
+    };
   const both: IAutoMoviePose = HumanArmClearance.posed(
     HumanArmClearance.posed(pose, "left", fits.left),
     "right",
@@ -214,14 +213,11 @@ function solved(
   const bones = poseBones(body, both);
   const meets = (side: "left" | "right"): boolean => {
     const other: "left" | "right" = side === "left" ? "right" : "left";
-    const shapes: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
-      body,
-      bones,
-      [other],
-    ).filter(
-      (s: HumanColliders.IPlaced): boolean =>
-        s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
-    );
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.obstacles(body, bones, [other]).filter(
+        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
+      );
     return (
       HumanArmClearance.overshoot(
         body,
@@ -242,7 +238,7 @@ function solved(
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
   const site = (side: "left" | "right"): M.ISite => {
-    const goal: IHumanPosture.IGoal = world(
+    const goal: IAutoMovieHumanLimbGoal = world(
       side === "left" ? "leftArm" : "rightArm",
     );
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
@@ -259,8 +255,10 @@ function solved(
       ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
     };
   };
-  const others: HumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
-    (side: "left" | "right"): HumanColliders.IPlaced[] => [
+  const others: IAutoMovieMotionHumanColliders.IPlaced[] = (
+    ["left", "right"] as const
+  ).flatMap(
+    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [
       ...(goals[side].clear ?? []),
       ...(goals[side].rests ?? []),
     ],

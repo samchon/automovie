@@ -1,16 +1,23 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
-import type { bend } from "./bend";
 
 /**
  * A standing body lowered toward a low target by a strategy, and the trunk
@@ -25,12 +32,13 @@ import type { bend } from "./bend";
  */
 export namespace bendLower {
   /** Hip height kept by each strategy, a share of the standing hip height (provisional). */
-  export const HIPS: Readonly<Record<Exclude<bend.Strategy, "auto">, number>> =
-    {
-      stoop: 0.97,
-      semiSquat: 0.75,
-      squat: 0.45,
-    };
+  export const HIPS: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>
+  > = {
+    stoop: 0.97,
+    semiSquat: 0.75,
+    squat: 0.45,
+  };
 
   /**
    * A standing posture lowered by a strategy: the hips dropped by a share of
@@ -54,16 +62,19 @@ export namespace bendLower {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function lower(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    strategy: Exclude<bend.Strategy, "auto">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     pitch: number,
     share: number,
     back: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
-    const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: posture.root,
+      yaw: posture.yaw,
+    };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y - drop,
@@ -79,18 +90,18 @@ export namespace bendLower {
     // A squat deeper than the ankles' 20 degree dorsiflexion range lets the
     // heels rise, each foot turning about its toes' joint, the contact its
     // goal names (provisional heel lift).
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     const heel: number = HEEL[strategy] * share;
     if (heel > 0)
       for (const leg of ["leftLeg", "rightLeg"] as const) {
-        const goal0: IHumanPosture.IGoal | undefined = posture.limbs[leg];
+        const goal0: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
         if (goal0 === undefined || goal0.rotation === undefined) continue;
         const side: "left" | "right" = leg === "leftLeg" ? "left" : "right";
-        const flat: HumanFoot.IPlacement = {
+        const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal0.point,
           rotation: goal0.rotation,
         };
-        const lifted: HumanFoot.IPlacement = HumanFoot.pivot(
+        const lifted: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
           body,
           side,
           "mtp",
@@ -117,14 +128,14 @@ export namespace bendLower {
         right: limbs.rightLeg!.point,
       }),
     );
-    const tipped: IHumanPosture = {
+    const tipped: IAutoMovieMotionHumanPosture = {
       ...posture,
       pitch: posture.pitch + tilt.pitch,
     };
-    const joints: IHumanPosture["joints"] = tilt.joints;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = tilt.joints;
 
     // With the heels up the toes bend at their joints and stay flat on the floor.
-    const toes: IHumanPosture["joints"] =
+    const toes: IAutoMovieMotionHumanPosture["joints"] =
       heel > 0 ? { leftToes: [heel, 0, 0], rightToes: [heel, 0, 0] } : {};
     return resolveHumanPosture.lower(body, {
       ...tipped,
@@ -138,12 +149,13 @@ export namespace bendLower {
   }
 
   /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
-  export const HEEL: Readonly<Record<Exclude<bend.Strategy, "auto">, number>> =
-    {
-      stoop: 0,
-      semiSquat: 0,
-      squat: 30,
-    };
+  export const HEEL: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>
+  > = {
+    stoop: 0,
+    semiSquat: 0,
+    squat: 30,
+  };
 
   /**
    * The least trunk pitch that brings the shoulder within reach of the
@@ -170,17 +182,17 @@ export namespace bendLower {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pitch(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: HumanHand.Side,
-    strategy: Exclude<bend.Strategy, "auto">,
+    side: AutoMovieHumanSide,
+    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     lean: number,
     reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
       Vector3.length(HumanHand.offset(body, side, "palm").point),
   ): number {
     const gap = (deg: number): number => {
-      const lowered: IHumanPosture = lower(
+      const lowered: IAutoMovieMotionHumanPosture = lower(
         body,
         posture,
         strategy,
@@ -219,18 +231,6 @@ export namespace bendLower {
   /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
   export const SCAN: number = 5;
 
-  /** A strategy's solved lowering: the balance shift per unit sine of the inclination and the inclination itself. */
-  export interface ISolved {
-    /** The strategy. */
-    strategy: Exclude<bend.Strategy, "auto">;
-
-    /** How far the hips move back for balance per unit sine of the inclination, metres. */
-    lean: number;
-
-    /** The trunk's inclination, degrees. */
-    pitch: number;
-  }
-
   /**
    * The lowering that brings a hand within reach of a target under a
    * strategy: the hips' balance shift found on the lowered posture at a
@@ -256,17 +256,17 @@ export namespace bendLower {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function solve(
-    body: IHumanBody,
-    upright: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: HumanHand.Side,
-    strategy: Exclude<bend.Strategy, "auto">,
+    side: AutoMovieHumanSide,
+    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     reach?: number,
-  ): ISolved {
+  ): IAutoMovieMotionHumanBendLower.ISolved {
     const shift = (deg: number): number =>
       HumanBalance.shift(
         body,
-        (back: number): IHumanPosture =>
+        (back: number): IAutoMovieMotionHumanPosture =>
           lower(body, upright, strategy, deg, 1, back),
       ) / Math.sin((deg * Math.PI) / 180);
     let lean: number = shift(60);

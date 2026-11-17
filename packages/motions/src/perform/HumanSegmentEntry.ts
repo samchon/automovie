@@ -1,22 +1,20 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  samplePoseVelocity,
-} from "@automovie/engine";
+import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanBase } from "../law/HumanBase";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
@@ -40,11 +38,11 @@ export namespace HumanSegmentEntry {
    * @returns The entry state.
    */
   export function entry(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment | undefined,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     blend?: number,
-  ): IHumanEntryState {
+  ): IAutoMovieMotionHumanEntryState {
     const body = person.performer.body;
     // The difference interval of every rate read here, seconds.
     const step: number = HumanSegmentPose.STEP;
@@ -59,8 +57,8 @@ export namespace HumanSegmentEntry {
       previous !== undefined && blend !== undefined
         ? left(person, previous, seconds, blend)
         : shown(person, previous, seconds, step);
-    const state: samplePoseVelocity.IState = read.state;
-    const posture: IHumanPosture =
+    const state: IAutoMoviePoseState = read.state;
+    const posture: IAutoMovieMotionHumanPosture =
       previous === undefined
         ? person.initial
         : HumanSegmentPose.layered(
@@ -84,7 +82,7 @@ export namespace HumanSegmentEntry {
         Math.max(0, (seconds - previous.start) / previous.plan.duration),
       );
       return previous.plan.contacts.some(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === part &&
           (c.kind === "plant" || c.kind === "pivot") &&
           u >= c.from - 1e-9 &&
@@ -103,7 +101,9 @@ export namespace HumanSegmentEntry {
       Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ];
-    const foot = (side: "left" | "right"): IHumanEntryState.IFoot => {
+    const foot = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
       const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
@@ -177,13 +177,14 @@ export namespace HumanSegmentEntry {
       holds: Object.fromEntries(
         person.holds
           .filter(
-            (h: HumanSegment.IHeld): boolean =>
+            (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               h.from <= seconds && seconds < h.until,
           )
-          .map((h: HumanSegment.IHeld): ["left" | "right", string] => [
-            h.side,
-            h.prop,
-          ]),
+          .map(
+            (
+              h: IAutoMovieMotionHumanSegment.IHeld,
+            ): ["left" | "right", string] => [h.side, h.prop],
+          ),
       ),
       ...(previous === undefined
         ? {}
@@ -216,12 +217,14 @@ export namespace HumanSegmentEntry {
    * @returns The supports.
    */
   export function supports(
-    previous: HumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
-  ): IHumanEntryState.ISupport[] {
+  ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanEntryState.ISupport => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -233,14 +236,16 @@ export namespace HumanSegmentEntry {
     );
     return previous.plan.contacts
       .filter(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.kind !== "grip" &&
           c.kind !== "strike" &&
           u >= c.from - 1e-9 &&
           u <= c.to + 1e-9,
       )
       .map(
-        (c: IHumanContactWindow): IHumanEntryState.ISupport => ({
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part: c.part,
           kind: c.kind,
           support: c.support,
@@ -260,8 +265,8 @@ export namespace HumanSegmentEntry {
    * @returns The state and the samples it was read from.
    */
   function shown(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment | undefined,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     step: number,
   ): HumanSegmentPose.IContinued {
@@ -277,7 +282,7 @@ export namespace HumanSegmentEntry {
       }
       return pose;
     };
-    const state: samplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = samplePoseVelocity(
       read,
       seconds,
       step,
@@ -302,8 +307,8 @@ export namespace HumanSegmentEntry {
    * @returns The state and the continued samples it was read from.
    */
   function left(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment,
     seconds: number,
     blend: number,
   ): HumanSegmentPose.IContinued {

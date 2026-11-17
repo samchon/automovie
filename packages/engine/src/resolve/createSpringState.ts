@@ -1,4 +1,4 @@
-import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
+import type { IAutoMovieSpringState } from "@automovie/interface";
 
 /** A fresh, empty spring state.
  *

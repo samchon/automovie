@@ -1,9 +1,14 @@
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieSeamStation,
+} from "@automovie/interface";
+
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * The station rule along a chain and the copy of a shared layer (rule J3).
@@ -126,34 +131,6 @@ export namespace AutoMovieSeamStation {
   }
 
   /**
-   * A shared layer's copied section/plane values and station derivatives.
-   *
-   * @evidence contracts/development/design.md#principled-representation The record carries the owner's boundary data and both derivative orders after conversion to a neighbour's station direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six arrays separate section coefficients from flattened plane values and their derivatives.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type certifies neither matching widths nor geometric equality; copy's producer premises and the continuation operator own those checks.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the nine-component plane layout, first-derivative sign and squared second-derivative factor.
-   */
-  export interface ICopy {
-    /** The owner's coefficients. */
-    coefficients: number[];
-
-    /** The owner's plane as nine numbers `[origin, u, v]`; horizontal at its station when the owner's layer has no frame. */
-    plane: number[];
-
-    /** Station slopes, signed into the neighbour's direction. */
-    slopes: number[];
-
-    /** Second station derivatives; the sign squared leaves them as they are. */
-    curvatures: number[];
-
-    /** The plane's station slopes, signed. */
-    frameSlopes: number[];
-
-    /** The plane's second station derivatives. */
-    frameCurvatures: number[];
-  }
-
-  /**
    * The copy of an owner's layer for a neighbour that shares it.
    *
    * A neighbour whose station runs the same way as the owner's at the ring
@@ -175,7 +152,7 @@ export namespace AutoMovieSeamStation {
   export function copy(
     owner: IAutoMovieLoftChain.ILayer,
     factor: number,
-  ): ICopy {
+  ): IAutoMovieSeamStation.ICopy {
     if (owner.curvatures === undefined || owner.frameSlopes === undefined)
       throw new Error("A shared layer's owner carries no jets");
     return {
@@ -221,7 +198,7 @@ export namespace AutoMovieSeamStation {
     keep: readonly number[] = [],
   ): IAutoMovieLoftChain {
     const rows: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
-    const t: AutoMovieLoftContract.Stations = AutoMovieLoftContract.stations(
+    const t: IAutoMovieLoftContract.Stations = AutoMovieLoftContract.stations(
       chain.name,
       rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y),
       AutoMovieLoftContract.splineGap(
@@ -334,7 +311,7 @@ export namespace AutoMovieSeamStation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A fixed record conversion owns no coordinated preparation or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fresh array owns its numbers without retaining the input tuples.
    */
-  export function flat(f: AutoMovieLoftFrame.IFrame): number[] {
+  export function flat(f: IAutoMovieLoftSectionFrame): number[] {
     return [...f.origin, ...f.u, ...f.v];
   }
 
@@ -349,7 +326,7 @@ export namespace AutoMovieSeamStation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This representation conversion coordinates no repeated solve or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns its three tuples and retains no input array.
    */
-  export function unflat(x: readonly number[]): AutoMovieLoftFrame.IFrame {
+  export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
       u: [x[3]!, x[4]!, x[5]!],
@@ -359,6 +336,6 @@ export namespace AutoMovieSeamStation {
 }
 
 /** Horizontal plane at a station, the default of an unframed layer. */
-function horizontal(y: number): AutoMovieLoftFrame.IFrame {
+function horizontal(y: number): IAutoMovieLoftSectionFrame {
   return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
 }

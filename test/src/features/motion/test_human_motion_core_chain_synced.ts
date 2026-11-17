@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanChain } from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +29,7 @@ export function test_human_motion_core_chain_synced(): void {
     }
     return "no error";
   };
-  const synced = (): HumanChain =>
+  const synced = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("b")
       .stand()
       .flinch()
@@ -54,7 +55,7 @@ export function test_human_motion_core_chain_synced(): void {
     "over after sync",
     message(() =>
       synced().over(
-        (u: HumanChain): HumanChain =>
+        (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           u.look({
             target: { kind: "person", subject: "a", region: "sternum" },
           }),
@@ -64,11 +65,17 @@ export function test_human_motion_core_chain_synced(): void {
   );
 
   // 4. On no action.
-  const empty = (): HumanChain => HumanChain.subject("a");
+  const empty = (): IAutoMovieMotionHumanChain => HumanChain.subject("a");
   for (const [what, run] of [
     ["sync", () => empty().sync({ of: "strike" })],
     ["until", () => empty().until({ share: 0.5 })],
-    ["over", () => empty().over((u: HumanChain): HumanChain => u)],
+    [
+      "over",
+      () =>
+        empty().over(
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u,
+        ),
+    ],
   ] as const)
     expect(`${what} on an empty chain`, message(run), "append one first");
   TestValidator.equals(

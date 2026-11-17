@@ -1,5 +1,7 @@
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
-import type { touch } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanTouch,
+} from "@automovie/interface";
 
 import { motionHumanLawTouch } from "./motionHumanLawTouch";
 
@@ -71,7 +73,7 @@ export namespace motionHumanLawTouchRows {
       count: 1,
       tangent: "across",
     },
-  } as const satisfies Record<string, touch.IParams>;
+  } as const satisfies Record<string, IAutoMovieMotionHumanTouch.IParams>;
 
   /** The affectionate family's rows, each with whether the partner faces the performer: a pat on the head, a two-finger tap on the shoulder, a stroke of the upper arm and a hand cupping the cheek of a partner facing the performer, and a rub of the upper back of a partner turned away. */
   export const PARTNER = {
@@ -102,7 +104,7 @@ export namespace motionHumanLawTouchRows {
     },
   } as const satisfies Record<
     string,
-    { params: touch.IParams; facing: boolean }
+    { params: IAutoMovieMotionHumanTouch.IParams; facing: boolean }
   >;
 
   /**
@@ -131,7 +133,8 @@ export namespace motionHumanLawTouchRows {
     label: keyof typeof PARTNER,
     part: Parameters<typeof motionHumanLawTouch>[2],
   ): string[] {
-    const row: { params: touch.IParams; facing: boolean } = PARTNER[label];
+    const row: { params: IAutoMovieMotionHumanTouch.IParams; facing: boolean } =
+      PARTNER[label];
     return motionHumanLawTouch(label, row.params, part, {
       facing: row.facing,
       gap: row.facing ? 0.55 : 0.45,

@@ -1,9 +1,27 @@
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchEffectors,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionHumanTouchStance,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -18,19 +36,10 @@ import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTo
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import type { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { touchEffectors } from "./touchEffectors";
 import { touchHold } from "./touchHold";
@@ -38,7 +47,6 @@ import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
 import { touchSide } from "./touchSide";
-import type { touchSite } from "./touchSite";
 
 /**
  * A touch while standing: one hand, or both, laid on a region of a partner
@@ -80,10 +88,10 @@ import type { touchSite } from "./touchSite";
  */
 export namespace touch {
   /** The action's name. */
-  export const name: HumanActionName = "touch";
+  export const name: AutoMovieMotionHumanActionName = "touch";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     ...AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       gesture: ["fromRelax", "smooth"],
@@ -96,83 +104,13 @@ export namespace touch {
   /** A touch may be performed over a carrier: it claims the touching arms and hands, and the trunk when it must lean. */
   export const overlay: boolean = true;
 
-  /** Which part of the hand touches (`touchEffectors`). */
-  export type With = touchEffectors.With;
-
   /** Each part's effector (`touchEffectors`). */
   export const EFFECTORS: Readonly<
-    Record<With, AutoMovieMotionHumanTouchEffector.IEffector>
+    Record<
+      IAutoMovieMotionHumanTouchEffectors.With,
+      IAutoMovieMotionHumanTouchEffector.IEffector
+    >
   > = touchEffectors.TABLE;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The region as the shared target union, the kind and the effector as closed unions, timing as counts and seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and the manner.
-   */
-  export interface IParams {
-    /** The region touched: a partner's (`person`) or the performer's own (`self`). */
-    target: AutoMovieMotionTarget;
-
-    /** The kind; `pat` when absent. */
-    kind?: AutoMovieMotionHumanTouchForm.Kind;
-
-    /** The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. */
-    with?: With;
-
-    /** The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`). */
-    side?: HumanHand.Side;
-
-    /** Where on the region the first hand lands (`touchSite`): an offset, a place the seed draws, or the place a rule chooses; the region's own point when absent. */
-    site?: touchSite.ISite;
-
-    /** The subject id of the prop that hand holds, whose point touches in place of the hand part: a cigarette's lit end tapped on an ashtray, a pen's tip on a page. No prop when absent. */
-    prop?: string;
-
-    /** The held prop's point that touches, one of its affordance ids; required with `prop`. */
-    point?: string;
-
-    /**
-     * With `prop` on a region of the performer's own, the grasp the tool was
-     * taken up by for its use (`pickUp`'s `handle` and `use.line`): the
-     * stroke holds the tool as that grasp presents it at the region
-     * (`HumanGraspUse.presented`, the region as the use's place) and moves
-     * only its point, as a razor keeps its angle on the jaw. Absent, the
-     * prop's point faces into the region.
-     */
-    grasp?: HumanHeldUse.IGrasp;
-
-    /** A miss staged as a touch: the effector passes the region this far off its surface along its normal, in the hand's lengths, at the stroke's full speed, and no contact is declared (a stage slap). A touch that lands when absent. */
-    clear?: number;
-
-    /**
-     * Where the elbow lies while the hand is on the region: `natural`, the
-     * place of least strain, or `level`, raised to the shoulder's height so
-     * the upper arm is horizontal, as a salute or a hand shading the eyes
-     * holds it. `natural` when absent.
-     */
-    elbow?: "natural" | "level";
-
-    /** The other hand's region, touched the same way at the same time; one hand when absent. */
-    other?: AutoMovieMotionTarget;
-
-    /** The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent. */
-    rests?: readonly AutoMovieMotionHumanTouchContacts.IDeclared[];
-
-    /** Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent. */
-    count?: number;
-
-    /** Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent. */
-    hold?: number;
-
-    /** The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`). */
-    tangent?: AutoMovieMotionHumanTouchForm.Tangent;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region (provisional, as `operate.REACH`). */
   export const REACH: number = 0.97;
@@ -193,11 +131,11 @@ export namespace touch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     const body = context.body;
-    const kind: AutoMovieMotionHumanTouchForm.Kind = p.kind ?? "pat";
+    const kind: IAutoMovieMotionHumanTouchForm.Kind = p.kind ?? "pat";
     const still: boolean =
       kind === "press" || kind === "squeeze" || kind === "hold";
     const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
@@ -205,13 +143,13 @@ export namespace touch {
     HumanBound.least("hold", hold, 0, "s");
     if (p.clear !== undefined) HumanBound.above("clear", p.clear, 0, "hand");
     const standoff: number = (p.clear ?? 0) * body.measure.hand;
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     // The part of the hand that touches; the hand is the author's, or the
     // one whose arm reaches the region with the least strain (	ouchSide).
-    const touching: AutoMovieMotionHumanTouchEffector.IEffector =
+    const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
       AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
-    const first: HumanHand.Side = touchSide.of(context, touching);
+    const first: AutoMovieHumanSide = touchSide.of(context, touching);
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
       first,
@@ -220,7 +158,7 @@ export namespace touch {
     );
 
     // The hand part that touches, or the point of the prop the hand holds.
-    const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+    const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
       p.prop === undefined
         ? touching
         : HumanHeld.effector(
@@ -230,11 +168,11 @@ export namespace touch {
             p.prop,
             p.point,
           );
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
 
     // A tool held for its use keeps the rotation its grasp presents it in at
     // the region; the first hand alone holds it.
-    const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
+    const kept: IAutoMovieMotionHumanGrasp.IKey | null = HumanHeldUse.kept(
       context,
       first,
       {
@@ -249,14 +187,14 @@ export namespace touch {
         ? touchPresented.of(context, first, p.target)
         : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
-    const hands: [HumanHand.Side, AutoMovieMotionTarget][] = [
+    const hands: [AutoMovieHumanSide, IAutoMovieMotionTarget][] = [
       [first, p.target],
       ...(p.other === undefined
         ? []
         : [
             [first === "right" ? "left" : "right", p.other] as [
-              HumanHand.Side,
-              AutoMovieMotionTarget,
+              AutoMovieHumanSide,
+              IAutoMovieMotionTarget,
             ],
           ]),
     ];
@@ -279,12 +217,15 @@ export namespace touch {
       context.carrier === undefined &&
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
-      context.entry.supports.every((s: IHumanEntryState.ISupport): boolean =>
-        /Foot$/.test(s.part),
+      context.entry.supports.every(
+        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          /Foot$/.test(s.part),
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (posture: IHumanPosture): IHumanPosture.IGoal =>
+    const laidOn = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         posture,
@@ -295,21 +236,21 @@ export namespace touch {
         AutoMovieMotionHumanBend.hang(body, posture, first),
         "arm",
       );
-    const stance: AutoMovieMotionHumanTouchStance.IStance =
+    const stance: IAutoMovieMotionHumanTouchStance.IStance =
       AutoMovieMotionHumanTouchStance.solve({
         body,
         standing: entry,
         ...(grounded ? { feet: context.entry.feet } : {}),
         side: first,
         share: REACH,
-        wrist: (posture: IHumanPosture): IAutoMovieVector3 =>
+        wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
           laidOn(posture).point,
         arm: laidOn,
         refuse: (beyond: number, limit: number): string =>
           `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
       });
     const leaning: boolean = stance.leaning;
-    const region = (target: AutoMovieMotionTarget) => placed(target, leaning);
+    const region = (target: IAutoMovieMotionTarget) => placed(target, leaning);
 
     // While the hand lies on a person it rides them: read as they are.
     const felt: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
@@ -323,8 +264,8 @@ export namespace touch {
     // The posture the stroke is entered from (the entry, risen), and the one
     // the arms are solved on at plan time: risen and leaned as the stroke's
     // start asks, where the arm reaches its region.
-    const risen: IHumanPosture = stance.risen;
-    const reached: IHumanPosture = stance.reached;
+    const risen: IAutoMovieMotionHumanPosture = stance.risen;
+    const reached: IAutoMovieMotionHumanPosture = stance.reached;
 
     // The reach's length: the farther hand's distance to its region at the entry.
     let far: number = 0;
@@ -361,7 +302,7 @@ export namespace touch {
         AutoMovieMotionHumanTouchForm.FORMS[kind].period,
       ),
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: count * repetition,
@@ -381,7 +322,7 @@ export namespace touch {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, shown.side),
-          goal: (): IHumanPosture.IGoal => shown.goal,
+          goal: (): IAutoMovieHumanLimbGoal => shown.goal,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           // The shown hand's reach, hold and return, planned over the
@@ -395,7 +336,7 @@ export namespace touch {
         }),
       );
     // Two hands are planned as one trajectory.
-    const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
+    const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     for (const [side, target] of hands) {
       const disc: number | undefined = touchRegion.disc(
@@ -403,7 +344,7 @@ export namespace touch {
         target,
         side === first ? p.site : undefined,
       );
-      const support: IHumanContactWindow.Support | undefined =
+      const support: IAutoMovieMotionHumanContactWindow.Support | undefined =
         target.kind === "person"
           ? { kind: "person", subject: target.subject, region: target.region }
           : target.kind === "self"
@@ -429,7 +370,8 @@ export namespace touch {
               p.elbow,
             )
           : undefined;
-      const own: HumanGrasp.IKey | null = side === first ? kept : null;
+      const own: IAutoMovieMotionHumanGrasp.IKey | null =
+        side === first ? kept : null;
       const bend: IAutoMovieVector3 =
         from ??
         own?.bend ??
@@ -513,12 +455,13 @@ export namespace touch {
         }),
       );
     }
-    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      primitives,
-      contact: "ready",
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        primitives,
+        contact: "ready",
+      });
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);

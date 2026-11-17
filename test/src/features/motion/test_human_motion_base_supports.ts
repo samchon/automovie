@@ -1,13 +1,19 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -48,16 +54,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_supports(): void {
   const complaints: string[] = [];
   const whole = (
-    contacts: readonly IHumanContactWindow[],
-    part: IHumanContactWindow["part"],
+    contacts: readonly IAutoMovieMotionHumanContactWindow[],
+    part: IAutoMovieMotionHumanContactWindow["part"],
   ): boolean =>
     contacts.some(
-      (c: IHumanContactWindow): boolean =>
+      (c: IAutoMovieMotionHumanContactWindow): boolean =>
         c.part === part && c.from <= 1e-9 && c.to >= 1 - 1e-9,
     );
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const chair: seated.ISeat = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(body),
@@ -66,7 +72,9 @@ export function test_human_motion_base_supports(): void {
       yaw: 0,
       depth: 0.45,
     };
-    const perform = (chain: HumanChain): HumanPerformance =>
+    const perform = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "base",
         performers: [
@@ -80,27 +88,29 @@ export function test_human_motion_base_supports(): void {
         ],
         composition: chain.node,
       });
-    const sitting = (): HumanChain =>
+    const sitting = (): IAutoMovieMotionHumanChain =>
       HumanChain.subject("a").sit({ seat: chair, seconds: 0.5 });
 
     // 1. Standing: the feet, no seat.
-    const stood: readonly IHumanContactWindow[] = perform(
+    const stood: readonly IAutoMovieMotionHumanContactWindow[] = perform(
       HumanChain.subject("a").handToFace({ task: "drink", seconds: 0.3 }),
     ).segments("a")[0]!.plan.contacts;
     if (
       !whole(stood, "leftFoot") ||
       !whole(stood, "rightFoot") ||
-      stood.some((c: IHumanContactWindow): boolean => c.part === "seat")
+      stood.some(
+        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === "seat",
+      )
     )
       complaints.push(
         `${name}: a standing drink declares ${stood.map((c) => c.part).join(", ")}, both feet and no seat expected`,
       );
 
     // 2 and 5. Seated: the feet and the seat, for a drink and for a pat.
-    const drinking: HumanPerformance = perform(
+    const drinking: IAutoMovieMotionHumanPerformance = perform(
       sitting().handToFace({ task: "drink", seconds: 0.3 }),
     );
-    const patting: HumanPerformance = perform(
+    const patting: IAutoMovieMotionHumanPerformance = perform(
       sitting().touch({
         target: { kind: "self", region: "sternum" },
         kind: "pat",
@@ -111,7 +121,7 @@ export function test_human_motion_base_supports(): void {
       ["drink", drinking],
       ["pat", patting],
     ] as const) {
-      const contacts: readonly IHumanContactWindow[] =
+      const contacts: readonly IAutoMovieMotionHumanContactWindow[] =
         performance.segments("a")[1]!.plan.contacts;
       if (
         !whole(contacts, "leftFoot") ||
@@ -124,8 +134,8 @@ export function test_human_motion_base_supports(): void {
     }
 
     // 3. The base holds through the drink.
-    const drink: HumanSegment.ISegment = drinking.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const drink: IAutoMovieMotionHumanSegment = drinking.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       drinking,
       "a",
       body,
@@ -171,8 +181,8 @@ export function test_human_motion_base_supports(): void {
 
     // 4. A seated body is not judged as standing: at no instant of the drink
     // do the feet alone bear it.
-    const windows: ReturnType<typeof IAutoMovieMotionHumanAuditMotion.windows> =
-      IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
+    const windows: ReturnType<typeof AutoMovieMotionHumanAuditMotion.windows> =
+      AutoMovieMotionHumanAuditMotion.windows(drinking, "a");
     for (let t: number = drink.entryTime; t <= drink.end; t += 0.1)
       if (AutoMovieMotionHumanAuditBalance.standing(windows, t)) {
         complaints.push(

@@ -1,18 +1,21 @@
 import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieAffordanceKind,
-  AutoMovieMotionTarget,
   IAutoMovieAffordance,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionPropDrive,
+  IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { operate } from "./operate";
 
 /**
  * The part an operation moves on a prop that articulates, and the drive the
@@ -44,7 +47,7 @@ export namespace operateDrive {
    */
   export const KINDS: Readonly<
     Record<
-      Exclude<operate.Mechanism["kind"], "insert">,
+      Exclude<IAutoMovieMotionHumanOperate.Mechanism["kind"], "insert">,
       ReadonlySet<AutoMovieAffordanceKind>
     >
   > = {
@@ -53,61 +56,6 @@ export namespace operateDrive {
     slider: new Set<AutoMovieAffordanceKind>(["slider"]),
     button: new Set<AutoMovieAffordanceKind>(["button", "trigger", "pedal"]),
   };
-
-  /** A contact's world point and outward unit normal. */
-  export interface IPlace {
-    /** World metres. */
-    point: IAutoMovieVector3;
-
-    /** Outward unit normal. */
-    normal: IAutoMovieVector3;
-  }
-
-  /** An operated part of an articulated prop. */
-  export interface IPart {
-    /** The prop's subject. */
-    prop: string;
-
-    /** The contact the hand takes. */
-    contact: string;
-
-    /** The articulation the contact moves with. */
-    articulation: string;
-
-    /** The articulation's travel at the operation's start. */
-    base: number;
-
-    /** The signed amount the operation moves it by. */
-    amount: number;
-
-    /**
-     * The contact's world place at a progress of the stroke, on the prop as
-     * it is shown at a film second: a held prop that moves meanwhile (a bow
-     * raised while it is drawn) carries its part with it.
-     *
-     * @param progress 0 at the stroke's start, 1 at its end.
-     * @param seconds The film second the prop is read at; the operation's start when absent.
-     * @returns The point and outward normal.
-     */
-    place(progress: number, seconds?: number): IPlace;
-
-    /**
-     * A hinge articulation's own line at the stroke's start, world: a point
-     * of it and its unit axis, the affordance frame's `+Y`, about which a
-     * positive travel turns by the right-hand rule (a door's upright hinge,
-     * a gun cock's cross pin). Absent for any other articulation.
-     */
-    line?: ILine;
-  }
-
-  /** A turning line, world. */
-  export interface ILine {
-    /** A point of the line, metres. */
-    point: IAutoMovieVector3;
-
-    /** Its unit axis. */
-    axis: IAutoMovieVector3;
-  }
 
   /**
    * A mechanism's signed amount in its articulation's unit: a button's
@@ -118,7 +66,7 @@ export namespace operateDrive {
    * @returns The amount.
    */
   export function amount(
-    mechanism: Exclude<operate.Mechanism, { kind: "insert" }>,
+    mechanism: IAutoMovieMotionHumanOperateDrive.IAmountMechanism,
   ): number {
     switch (mechanism.kind) {
       case "button":
@@ -143,13 +91,13 @@ export namespace operateDrive {
    * @returns The part, or undefined for a rigid prop or a target that is not, and rides no, articulation of the mechanism's kinds.
    */
   export function part(
-    context: IHumanActionContext,
-    at: AutoMovieMotionTarget,
+    context: IAutoMovieMotionHumanActionContext,
+    at: IAutoMovieMotionTarget,
     amount: number,
-    kind: Exclude<operate.Mechanism["kind"], "insert">,
-  ): IPart | undefined {
+    kind: Exclude<IAutoMovieMotionHumanOperate.Mechanism["kind"], "insert">,
+  ): IAutoMovieMotionHumanOperateDrive.IPart | undefined {
     if (at.kind !== "prop") return undefined;
-    const held: IHumanActionContext.IProp = context.prop(at.subject);
+    const held: IAutoMovieMotionHumanPropReader = context.prop(at.subject);
     const articulate = held.prop.articulate;
     if (articulate === undefined) return undefined;
     const contact: IAutoMovieAffordance | undefined = (
@@ -199,7 +147,7 @@ export namespace operateDrive {
           (AffordanceArticulation.leader(byId, id) ?? id) !== degree,
       ),
     );
-    const frame: IHumanProp.IFrame = held.frame(context.start);
+    const frame: IAutoMovieRigidTransform = held.frame(context.start);
 
     // A hinge's own line, read off the prop posed where the stroke starts.
     const hinge: IAutoMovieAffordance | undefined = (
@@ -208,7 +156,9 @@ export namespace operateDrive {
       (a: IAutoMovieAffordance): boolean =>
         a.id === articulation && a.kind === "hinge",
     );
-    const line: ILine | undefined = ((): ILine | undefined => {
+    const line: IAutoMovieMotionHumanOperateDrive.ILine | undefined = (():
+      | IAutoMovieMotionHumanOperateDrive.ILine
+      | undefined => {
       if (hinge === undefined) return undefined;
       const pin: IAutoMovieAffordance = articulate(before).affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === articulation,
@@ -228,7 +178,11 @@ export namespace operateDrive {
     // One posed prop per progress read last: a stroke reads the same
     // progress for the hand's point and its turn.
     let last:
-      | { progress: number; seconds: number | undefined; place: IPlace }
+      | {
+          progress: number;
+          seconds: number | undefined;
+          place: IAutoMovieMotionHumanOperateDrive.IPlace;
+        }
       | undefined;
     return {
       prop: at.subject,
@@ -237,16 +191,19 @@ export namespace operateDrive {
       base,
       amount,
       ...(line === undefined ? {} : { line }),
-      place: (progress: number, seconds?: number): IPlace => {
+      place: (
+        progress: number,
+        seconds?: number,
+      ): IAutoMovieMotionHumanOperateDrive.IPlace => {
         if (
           last !== undefined &&
           last.progress === progress &&
           last.seconds === seconds
         )
           return last.place;
-        const shown: IHumanProp.IFrame =
+        const shown: IAutoMovieRigidTransform =
           seconds === undefined ? frame : held.frame(seconds);
-        const posed: IHumanProp.IPosed = articulate({
+        const posed: IAutoMovieMotionHumanProp.IPosed = articulate({
           ...other,
           [articulation]: base + amount * progress,
         });
@@ -257,7 +214,7 @@ export namespace operateDrive {
           shown.rotation,
           moved.frame.rotation,
         );
-        const place: IPlace = {
+        const place: IAutoMovieMotionHumanOperateDrive.IPlace = {
           point: Vector3.add(
             shown.position,
             Quaternion.rotateVector(shown.rotation, moved.frame.translation),
@@ -268,15 +225,6 @@ export namespace operateDrive {
         return place;
       },
     };
-  }
-
-  /** A leaf's hinge line: a point of it and its unit axis, the vertical when absent (a door's line given by a point). */
-  export interface IHinge {
-    /** A point of the line, world metres. */
-    point: IAutoMovieVector3;
-
-    /** Its unit axis; the vertical when absent. */
-    axis?: IAutoMovieVector3;
   }
 
   /**
@@ -291,10 +239,10 @@ export namespace operateDrive {
    * @throws {HumanRefusal} When the mechanism names no point and the handle rides no hinge articulation.
    */
   export function hinge(
-    context: IHumanActionContext,
-    mechanism: Extract<operate.Mechanism, { kind: "hinge" }>,
-    part: IPart | undefined,
-  ): IHinge {
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateDrive.IHingeMechanism,
+    part: IAutoMovieMotionHumanOperateDrive.IPart | undefined,
+  ): IAutoMovieMotionHumanOperateDrive.IHinge {
     if (mechanism.hinge !== undefined)
       return { point: context.aim(mechanism.hinge, context.start).point };
     if (part?.line !== undefined) return part.line;
@@ -316,7 +264,10 @@ export namespace operateDrive {
    * @param point The point.
    * @returns The radius.
    */
-  export function radius(line: IHinge, point: IAutoMovieVector3): number {
+  export function radius(
+    line: IAutoMovieMotionHumanOperateDrive.IHinge,
+    point: IAutoMovieVector3,
+  ): number {
     return line.axis === undefined
       ? Vector3.length(
           Vector3.subtract({ ...point, y: 0 }, { ...line.point, y: 0 }),
@@ -334,7 +285,7 @@ export namespace operateDrive {
    * @returns The foot, world metres.
    */
   export function foot(
-    line: IHinge,
+    line: IAutoMovieMotionHumanOperateDrive.IHinge,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (line.axis === undefined) return { ...line.point, y: point.y };
@@ -357,9 +308,9 @@ export namespace operateDrive {
    * @returns The drive.
    */
   export function drive(
-    part: IPart,
-    clock: AutoMovieMotionClock.IClock,
-  ): IHumanActionPlan.IDrive {
+    part: IAutoMovieMotionHumanOperateDrive.IPart,
+    clock: IAutoMovieMotionClock,
+  ): IAutoMovieMotionPropDrive {
     return {
       prop: part.prop,
       articulation: part.articulation,

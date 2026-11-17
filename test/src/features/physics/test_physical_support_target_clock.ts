@@ -1,6 +1,4 @@
 import {
-  type advancePhysicalBalance as Balance,
-  AutoMoviePhysicalSimulation as Simulation,
   bindPhysicalWorld,
   physicalSupportPoint,
   samplePhysicalTarget,
@@ -8,7 +6,10 @@ import {
   trackPhysicalRootSupportTargets,
 } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile as P,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
@@ -37,14 +38,13 @@ import { vclose } from "../internal/vclose";
  */
 export async function test_physical_support_target_clock(): Promise<void> {
   await RAPIER.init();
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    1 / 120,
-  );
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
   body.balance!.iterations = 32;
   body.balance!.targetTolerance = 1e-5;
-  const pattern: NonNullable<Simulation.IBody["balance"]>["pattern"] =
-    body.balance!.pattern;
+  const pattern: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  >["pattern"] = body.balance!.pattern;
   for (const pose of Object.values(body.targets[1]!.segments))
     pose.position.x += 0.001;
   body.targets[1]!.supportStrength = Object.fromEntries(
@@ -55,7 +55,8 @@ export async function test_physical_support_target_clock(): Promise<void> {
       ],
     ),
   );
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   input.substeps = 8;
   input.floor = 0;
   input.internalIterations = 1;
@@ -66,7 +67,7 @@ export async function test_physical_support_target_clock(): Promise<void> {
       input,
       false,
     );
-    const root: P.ISegment = body.profile.segments[0]!;
+    const root: IAutoMoviePhysicalSegment = body.profile.segments[0]!;
     const base: RigidBody = bound.segments.get(body.id)!.get(root.bone)!;
     base.setTranslation(
       { ...base.translation(), y: base.translation().y - 0.015 },
@@ -78,7 +79,11 @@ export async function test_physical_support_target_clock(): Promise<void> {
       { ...carrier.translation(), x: carrier.translation().x + 0.02 },
       true,
     );
-    const state: Balance.IState = { last: "supported", steps: [], offsets: {} };
+    const state: IAutoMoviePhysicalRecoveryState = {
+      last: "supported",
+      steps: [],
+      offsets: {},
+    };
     const planted: string[] = pattern.limbs.map(
       (limb: (typeof pattern.limbs)[number]): string => limb.bone,
     );
@@ -89,7 +94,7 @@ export async function test_physical_support_target_clock(): Promise<void> {
     ): Record<string, ReturnType<typeof samplePhysicalTarget>> =>
       Object.fromEntries(
         Object.entries(body.targets[1]!.segments).map(
-          ([bone, pose]: [string, P.ITransform]): [
+          ([bone, pose]: [string, IAutoMovieRigidTransform]): [
             string,
             ReturnType<typeof samplePhysicalTarget>,
           ] => [

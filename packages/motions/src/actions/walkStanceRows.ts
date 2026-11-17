@@ -1,8 +1,11 @@
-import type { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
+import type {
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanWalkStanceCourse,
+} from "@automovie/interface";
+
 import { walkLeg } from "./walkLeg";
-import type { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceGeometry } from "./walkStanceGeometry";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * The rows of a stance course's problem linear in the course
@@ -23,19 +26,25 @@ export namespace walkStanceRows {
    * @returns The rows at a course inside a trust region.
    */
   export function of(
-    knots: readonly walkStanceCourse.IKnot[],
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
     hold: number,
     geometry: ReturnType<typeof walkStanceGeometry.of>,
-  ): (x: Float64Array, trust: number) => Q.IRow[] {
-    const { n, pitchOf, slideOf, turnOf, scheduled } = geometry;    // The rows linear in the course, about a course, inside the trust region:
+  ): (
+    x: Float64Array,
+    trust: number,
+  ) => IAutoMovieMotionHumanQuadraticProgram.IRow[] {
+    const { n, pitchOf, slideOf, turnOf, scheduled } = geometry; // The rows linear in the course, about a course, inside the trust region:
     // the drop no less than none; a planted foot pitched about its ball no
     // higher than its schedule pitches it, one the schedule sets on its heel
     // keeping that pitch; the trunk held where the take holds it; a foot that
     // has not landed in the take unturned, and a turn kept while its foot
     // stands. A foot in the air carries its pitch and its turn on the
     // acceleration alone.
-    const bounds = (x: Float64Array, trust: number): Q.IRow[] => {
-      const rows: Q.IRow[] = [];
+    const bounds = (
+      x: Float64Array,
+      trust: number,
+    ): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
+      const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
       const fixed = (i: number, value: number): void => {
         rows.push({
           index: [i],
@@ -59,14 +68,18 @@ export namespace walkStanceRows {
       };
       for (let k: number = 0; k < n; k++) {
         const o: number = walkStanceTerms.WIDTH * k;
-        const knot: walkStanceCourse.IKnot = knots[k]!;
+        const knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot = knots[k]!;
         if (k < hold) {
-          for (let i: number = 0; i < walkStanceTerms.WIDTH; i++) fixed(o + i, x[o + i]!);
+          for (let i: number = 0; i < walkStanceTerms.WIDTH; i++)
+            fixed(o + i, x[o + i]!);
           // A stance that runs on past the held knots keeps its turn and its
           // slide across the join.
           for (const s of knot.stances) {
-            const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-              (t: walkStanceCourse.IStance): boolean => t.side === s.side,
+            const next:
+              | IAutoMovieMotionHumanWalkStanceCourse.IStance
+              | undefined = knots[k + 1]?.stances.find(
+              (t: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+                t.side === s.side,
             );
             if (k + 1 >= hold && next?.placement === s.placement)
               for (const i of [
@@ -94,21 +107,33 @@ export namespace walkStanceRows {
         }
         for (const side of ["left", "right"] as const) {
           const j: number = knot.stances.findIndex(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+              s.side === side,
           );
           const p: number = o + pitchOf(side);
           const t: number = o + turnOf(side);
           if (j < 0) {
             range(p, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
             range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-            range(o + slideOf(side), -Infinity, Infinity, walkStanceTerms.TRUST.slide);
-            range(o + slideOf(side) + 1, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
+            range(
+              o + slideOf(side),
+              -Infinity,
+              Infinity,
+              walkStanceTerms.TRUST.slide,
+            );
+            range(
+              o + slideOf(side) + 1,
+              -Infinity,
+              Infinity,
+              walkStanceTerms.TRUST.slide,
+            );
             continue;
           }
           const pitch: number = scheduled[k]![j]!;
           if (pitch > 1e-6) fixed(p, pitch);
           else range(p, -walkLeg.STEEPEST, pitch, walkStanceTerms.TRUST.angle);
-          const stance: walkStanceCourse.IStance = knot.stances[j]!;
+          const stance: IAutoMovieMotionHumanWalkStanceCourse.IStance =
+            knot.stances[j]!;
           if (stance.turning !== true) fixed(t, 0);
           else range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
           const d: number = o + slideOf(side);
@@ -116,8 +141,11 @@ export namespace walkStanceRows {
             if (stance.landing === undefined) fixed(i, 0);
             else range(i, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
           // A turn kept from one knot to the next of the same stance.
-          const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
+          const next:
+            | IAutoMovieMotionHumanWalkStanceCourse.IStance
+            | undefined = knots[k + 1]?.stances.find(
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+              s.side === side,
           );
           if (next !== undefined && next.placement === stance.placement)
             for (const i of [t, d, d + 1])

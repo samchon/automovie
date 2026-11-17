@@ -1,12 +1,10 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieSolidIntersection,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
-  AutoMovieConstructionWidth,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionWidth,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
@@ -34,13 +32,13 @@ export function test_construction_widths(): void {
   const R: number = 0.03;
   const r: number = 0.015;
   const merge: (widths: {
-    part: AutoMovieConstructionWidth;
-    host: AutoMovieConstructionWidth;
-  }) => AutoMovieConstructionRealization.IRealization = (widths: {
-    part: AutoMovieConstructionWidth;
-    host: AutoMovieConstructionWidth;
-  }): AutoMovieConstructionRealization.IRealization => {
-    const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    part: IAutoMovieConstructionWidth;
+    host: IAutoMovieConstructionWidth;
+  }) => IAutoMovieConstructionRealization.IRealization = (widths: {
+    part: IAutoMovieConstructionWidth;
+    host: IAutoMovieConstructionWidth;
+  }): IAutoMovieConstructionRealization.IRealization => {
+    const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
       "beam",
       {
         origin: { x: -0.1, y: 0, z: 0 },
@@ -50,7 +48,7 @@ export function test_construction_widths(): void {
       R,
       0.2,
     );
-    const part: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    const part: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
       "post",
       {
         origin: { x: 0, y: 0, z: 0 },
@@ -60,7 +58,7 @@ export function test_construction_widths(): void {
       r,
       0.08,
     );
-    const tree: AutoMovieConstructionNode = ConstructionShapes.join(
+    const tree: IAutoMovieConstructionNode = ConstructionShapes.join(
       "merge",
       "blend.post",
       host,
@@ -79,19 +77,19 @@ export function test_construction_widths(): void {
     );
   };
   const joined: (
-    real: AutoMovieConstructionRealization.IRealization,
+    real: IAutoMovieConstructionRealization.IRealization,
     label: string,
-  ) => AutoMovieConstructionRealization.IJoin | null = (
-    real: AutoMovieConstructionRealization.IRealization,
+  ) => IAutoMovieConstructionRealization.IJoin | null = (
+    real: IAutoMovieConstructionRealization.IRealization,
     label: string,
-  ): AutoMovieConstructionRealization.IJoin | null => {
+  ): IAutoMovieConstructionRealization.IJoin | null => {
     if (real.diagnostics.length !== 0)
       failures.push(
         `${label}: diagnostics ${ConstructionRead.diagnostics(real)}`,
       );
-    const found: AutoMovieConstructionRealization.IJoin | undefined =
+    const found: IAutoMovieConstructionRealization.IJoin | undefined =
       real.joins.find(
-        (j: AutoMovieConstructionRealization.IJoin): boolean =>
+        (j: IAutoMovieConstructionRealization.IJoin): boolean =>
           j.name === "blend.post",
       );
     if (found === undefined) failures.push(`${label}: no join`);
@@ -99,18 +97,18 @@ export function test_construction_widths(): void {
   };
   // Every traced point's law value against an expectation, in millimetres.
   const laws: (
-    join: AutoMovieConstructionRealization.IJoin,
+    join: IAutoMovieConstructionRealization.IJoin,
     side: "host" | "part",
-    want: (p: AutoMovieSolidIntersection.IPoint) => number,
+    want: (p: IAutoMovieSolidIntersection.IPoint) => number,
     relative: number,
   ) => string[] = (
-    join: AutoMovieConstructionRealization.IJoin,
+    join: IAutoMovieConstructionRealization.IJoin,
     side: "host" | "part",
-    want: (p: AutoMovieSolidIntersection.IPoint) => number,
+    want: (p: IAutoMovieSolidIntersection.IPoint) => number,
     relative: number,
   ): string[] =>
     join.join.curve.points.flatMap(
-      (p: AutoMovieSolidIntersection.IPoint): string[] => {
+      (p: IAutoMovieSolidIntersection.IPoint): string[] => {
         const got: number | null = join.join.widths(p.t)[side];
         const expected: number = want(p);
         return got !== null && Math.abs(got - expected) <= relative * expected
@@ -122,7 +120,7 @@ export function test_construction_widths(): void {
   // 1. The chord table.
   const values: number[] = [4, 5, 6, 7];
   const table: (t: number) => number = periodic(values);
-  const tabled: AutoMovieConstructionRealization.IJoin | null = joined(
+  const tabled: IAutoMovieConstructionRealization.IJoin | null = joined(
     merge({
       part: { type: "chord", value: 0.006 },
       host: {
@@ -137,7 +135,7 @@ export function test_construction_widths(): void {
       ...laws(
         tabled,
         "host",
-        (p: AutoMovieSolidIntersection.IPoint): number => table(p.t),
+        (p: IAutoMovieSolidIntersection.IPoint): number => table(p.t),
         1e-9,
       ).map((f: string): string => `table: ${f}`),
     );
@@ -153,7 +151,7 @@ export function test_construction_widths(): void {
       laws(
         tabled,
         "host",
-        (p: AutoMovieSolidIntersection.IPoint): number =>
+        (p: IAutoMovieSolidIntersection.IPoint): number =>
           table(p.t + Math.PI / 2),
         1e-9,
       ).length === 0
@@ -164,11 +162,11 @@ export function test_construction_widths(): void {
   }
 
   // 2. The fold width.
-  const real: AutoMovieConstructionRealization.IRealization = merge({
+  const real: IAutoMovieConstructionRealization.IRealization = merge({
     part: { type: "fold", radius: 0.004, cap: 0.008 },
     host: { type: "fold", radius: 0.004, cap: 0.008 },
   });
-  const folded: AutoMovieConstructionRealization.IJoin | null = joined(
+  const folded: IAutoMovieConstructionRealization.IJoin | null = joined(
     real,
     "fold",
   );
@@ -187,7 +185,7 @@ export function test_construction_widths(): void {
         ...laws(
           folded,
           side,
-          (p: AutoMovieSolidIntersection.IPoint): number => fold(p.t),
+          (p: IAutoMovieSolidIntersection.IPoint): number => fold(p.t),
           1e-9,
         ).map((f: string): string => `fold: ${f}`),
       );
@@ -207,7 +205,7 @@ export function test_construction_widths(): void {
       laws(
         folded,
         "host",
-        (p: AutoMovieSolidIntersection.IPoint): number => wider(p.t),
+        (p: IAutoMovieSolidIntersection.IPoint): number => wider(p.t),
         1e-9,
       ).length === 0
     )
@@ -216,7 +214,7 @@ export function test_construction_widths(): void {
 
   // 3. The curvature width on the host.
   const share: number = 0.2;
-  const curved: AutoMovieConstructionRealization.IJoin | null = joined(
+  const curved: IAutoMovieConstructionRealization.IJoin | null = joined(
     merge({
       part: { type: "chord", value: 0.006 },
       host: { type: "curvature", share, cap: 0.008, end: null },
@@ -226,9 +224,9 @@ export function test_construction_widths(): void {
   if (curved !== null) {
     const law: (
       s: number,
-    ) => (p: AutoMovieSolidIntersection.IPoint) => number =
-      (s: number): ((p: AutoMovieSolidIntersection.IPoint) => number) =>
-      (p: AutoMovieSolidIntersection.IPoint): number => {
+    ) => (p: IAutoMovieSolidIntersection.IPoint) => number =
+      (s: number): ((p: IAutoMovieSolidIntersection.IPoint) => number) =>
+      (p: IAutoMovieSolidIntersection.IPoint): number => {
         // The beam's axis is +x; its outward normal at the point is radial in y and z.
         const q: V3 = [p.point[0], p.point[1], p.point[2]];
         const n: V3 = unit([0, q[1], q[2]]);

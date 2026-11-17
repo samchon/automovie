@@ -1,13 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { HumanHand } from "../posture/HumanHand";
 
 /**
  * The two handles a sled push (`pushSled`) takes, read on the pushed prop
@@ -29,7 +31,7 @@ export namespace pushSledHandles {
    */
   export interface IHandle {
     /** Its frame: the point, the palm's way in (`normal`) and the wrapped axis (`forward`). */
-    frame: HumanHand.IFrame;
+    frame: IAutoMovieMotionHumanHand.IFrame;
 
     /** How its grasp repeats about the wrapped axis. */
     symmetry: IAutoMovieAffordance["symmetry"];
@@ -57,13 +59,13 @@ export namespace pushSledHandles {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     sled: string,
     left: string,
     right: string,
-  ): Record<HumanHand.Side, IHandle> {
-    const read: IHumanActionContext.IProp = context.prop(sled);
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+  ): Record<AutoMovieHumanSide, IHandle> {
+    const read: IAutoMovieMotionHumanPropReader = context.prop(sled);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const handle = (id: string): IHandle => {
       const found: IAutoMovieAffordance | undefined = (
         read.prop.affordances ?? []

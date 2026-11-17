@@ -1,12 +1,14 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanHand,
-  type IHumanBody,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -62,7 +64,7 @@ export function test_motion_posture_hand(): void {
   const turn = (q: IAutoMovieQuaternion, v: IAutoMovieVector3) =>
     Quaternion.rotateVector(q, v);
   const length = (v: IAutoMovieVector3): number => Math.hypot(v.x, v.y, v.z);
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const pose = resolveHumanPosture(
     body,
     stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
@@ -74,8 +76,16 @@ export function test_motion_posture_hand(): void {
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
     // 1. Offsets.
-    const palm: HumanHand.IFrame = HumanHand.offset(body, side, "palm");
-    const wrist: HumanHand.IFrame = HumanHand.offset(body, side, "wrist");
+    const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "palm",
+    );
+    const wrist: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "wrist",
+    );
     complaints.check(
       `${side}: the wrist surface is the joint with the palm's normal`,
       near(wrist.point, { x: 0, y: 0, z: 0 }) &&
@@ -156,7 +166,13 @@ export function test_motion_posture_hand(): void {
 
     // 4. Place.
     const at: IAutoMovieVector3 = { x: 0.2 * sign, y: 1.1, z: 0.35 };
-    const placed: HumanHand.IWrist = HumanHand.place(body, side, "palm", at, r);
+    const placed: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
+      body,
+      side,
+      "palm",
+      at,
+      r,
+    );
     const p: IAutoMovieVector3 = turn(r, palm.point);
     complaints.check(
       `${side}: place puts the palm on the point`,
@@ -171,20 +187,20 @@ export function test_motion_posture_hand(): void {
     );
 
     // 5. Reach and frame.
-    const target: HumanHand.IFrame = {
+    const target: IAutoMovieMotionHumanHand.IFrame = {
       point: at,
       normal: n({ x: -0.2 * sign, y: 0.3, z: -1 }),
       forward: { x: 0, y: 1, z: 0 },
     };
     for (const surface of ["palm", "handBack", "fist"] as const) {
-      const goal: HumanHand.IWrist = HumanHand.reach(
+      const goal: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
         body,
         side,
         surface,
         target,
         surface === "fist" ? "fist" : "relaxed",
       );
-      const read: HumanHand.IFrame = HumanHand.frame(
+      const read: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
         body,
         new Map([
           [
@@ -201,7 +217,7 @@ export function test_motion_posture_hand(): void {
         near(read.point, target.point) && near(read.normal, target.normal),
       );
     }
-    const tip: HumanHand.IFrame = HumanHand.frame(
+    const tip: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
       body,
       bones,
       side,

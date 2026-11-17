@@ -1,4 +1,5 @@
-import { type IAutoMovieMark, markAutoMovieSlip } from "@automovie/engine";
+import { markAutoMovieSlip } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

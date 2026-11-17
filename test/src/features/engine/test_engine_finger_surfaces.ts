@@ -1,16 +1,16 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand, type IHumanBody, poseBones } from "@automovie/motions";
+import { HumanHand, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -26,18 +26,21 @@ const DIGITS: readonly { name: string; bone: string; before: string }[] = [
 
 /** A region's world frame under a hand shape. */
 const placed = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   region: AutoMovieHumanoidRegion,
 ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+  const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
 };
 
 /** A pose holding one hand shape. */
-const shaped = (body: IHumanBody, form: HumanHand.Shape): IAutoMoviePose => ({
+const shaped = (
+  body: IAutoMovieMotionHumanBody,
+  form: IAutoMovieMotionHumanHand.Shape,
+): IAutoMoviePose => ({
   skeleton: body.skeleton.id,
   root: null,
   joints: Object.entries(HumanHand.shape("right", form)).map(
@@ -76,7 +79,7 @@ const shaped = (body: IHumanBody, form: HumanHand.Shape): IAutoMoviePose => ({
 export function test_engine_finger_surfaces(): void {
   const complaints: string[] = [];
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const flat: IAutoMoviePose = shaped(body, "flat");
     const fist: IAutoMoviePose = shaped(body, "fist");
     const palm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =

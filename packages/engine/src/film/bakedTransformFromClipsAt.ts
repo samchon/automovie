@@ -1,6 +1,9 @@
-import { IAutoMovieClip, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  type IAutoMovieSampledChannel,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
-import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 

@@ -1,8 +1,11 @@
-import type { IAutoMovieModel, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieFormationPoseTake,
+  IAutoMovieModel,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import {
   type IAutoMovieFormationCycle,
   type IAutoMovieFormationCycleTake,
-  type IAutoMovieFormationPoseTake,
   flattenInstancedModel,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";

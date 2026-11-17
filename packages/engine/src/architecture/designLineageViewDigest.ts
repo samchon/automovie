@@ -1,6 +1,7 @@
 import {
   IAutoMovieDesignChange,
   IAutoMovieDesignLineage,
+  type IAutoMovieDesignLineageViewDigest,
   IAutoMovieDesignPhaseSnapshot,
   IAutoMovieDesignPhaseState,
   IAutoMovieDesignRevision,
@@ -40,10 +41,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  */
 export const designLineageViewDigest: (
   lineage: IAutoMovieDesignLineage,
-  view: { variant: string | null; phase: string | null },
+  view: IAutoMovieDesignLineageViewDigest.IView,
 ) => string = (
   lineage: IAutoMovieDesignLineage,
-  view: { variant: string | null; phase: string | null },
+  view: IAutoMovieDesignLineageViewDigest.IView,
 ): string => {
   const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
     lineage,

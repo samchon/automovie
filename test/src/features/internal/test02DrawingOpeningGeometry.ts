@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieDrawingTriangle,
   autoMovieBoundaryFacePoint,
   autoMovieBoundaryShellTriangles,
   autoMovieOpeningArea,
@@ -15,6 +14,7 @@ import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawingGap,
   IAutoMovieDrawingSchedule,
+  IAutoMovieDrawingTriangle,
   IAutoMovieOpeningProfile,
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";

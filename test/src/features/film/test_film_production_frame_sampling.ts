@@ -1,11 +1,9 @@
-import {
-  IAutoMovieProductionRenderFrame,
-  IAutoMovieProductionRenderLayer,
-  sampleProductionRenderFrame,
-} from "@automovie/engine";
+import { sampleProductionRenderFrame } from "@automovie/engine";
 import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
+  type IAutoMovieProductionRenderFrame,
+  type IAutoMovieProductionRenderLayer,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

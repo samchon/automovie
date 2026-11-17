@@ -1,20 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkLegClearance,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanAuditTangleModel,
-} from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
-import { walkLegClearance } from "./walkLegClearance";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): a leg's
@@ -30,8 +25,8 @@ import { walkLegClearance } from "./walkLegClearance";
 export namespace walkLegCapsules {
   /** The leg's four bones as posed, world frame (`walkLegClearance.placed`). */
   export function bones(
-    body: IHumanBody,
-    leg: walkLegClearance.ILeg,
+    body: IAutoMovieMotionHumanBody,
+    leg: IAutoMovieMotionHumanWalkLegClearance.ILeg,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const names: Record<string, AutoMovieHumanoidBone> = NAMES[leg.side];
     const resolved = (
@@ -100,7 +95,7 @@ export namespace walkLegCapsules {
    * is its joint.
    */
   export function capsules(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): ReadonlyMap<AutoMovieHumanoidBone, ICapsule> {
     const known: Map<AutoMovieHumanoidBone, ICapsule> | undefined =
       CAPSULES.get(body);
@@ -181,7 +176,9 @@ export namespace walkLegCapsules {
   }
 
   /** Each segment's index among the audit model's parts, read once per body. */
-  export function indices(body: IHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
+  export function indices(
+    body: IAutoMovieMotionHumanBody,
+  ): ReadonlyMap<AutoMovieHumanoidBone, number> {
     const known: Map<AutoMovieHumanoidBone, number> | undefined =
       INDICES.get(body);
     if (known !== undefined) return known;
@@ -216,7 +213,7 @@ export namespace walkLegCapsules {
    */
   export function readable(
     m: AutoMovieMotionHumanAuditTangleModel.IModel,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     i: number,
     j: number,
   ): IReadable {
@@ -242,18 +239,25 @@ export namespace walkLegCapsules {
   }
 
   /** Each body's bounding capsules of its leg segments (`capsules`). */
-  const CAPSULES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
-    new WeakMap();
+  const CAPSULES: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<AutoMovieHumanoidBone, ICapsule>
+  > = new WeakMap();
 
   /** Each body's segment indices among the audit model's parts (`indices`). */
-  const INDICES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, number>> =
-    new WeakMap();
+  const INDICES: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<AutoMovieHumanoidBone, number>
+  > = new WeakMap();
 
   /** Each body's readable probes by ordered pair of segments (`readable`). */
-  const READABLE: WeakMap<IHumanBody, Map<number, IReadable>> = new WeakMap();
+  const READABLE: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<number, IReadable>
+  > = new WeakMap();
 
   /** The identity frame a shape's distance is read in. */
-  export const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+  export const IDENTITY: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
@@ -268,9 +272,21 @@ export namespace walkLegCapsules {
   };
 
   /** Each side's leg bones by their name without the side. */
-  export const NAMES: Readonly<Record<"left" | "right", Record<string, AutoMovieHumanoidBone>>> = {
-    left: { UpperLeg: "leftUpperLeg", LowerLeg: "leftLowerLeg", Foot: "leftFoot", Toes: "leftToes" },
-    right: { UpperLeg: "rightUpperLeg", LowerLeg: "rightLowerLeg", Foot: "rightFoot", Toes: "rightToes" },
+  export const NAMES: Readonly<
+    Record<"left" | "right", Record<string, AutoMovieHumanoidBone>>
+  > = {
+    left: {
+      UpperLeg: "leftUpperLeg",
+      LowerLeg: "leftLowerLeg",
+      Foot: "leftFoot",
+      Toes: "leftToes",
+    },
+    right: {
+      UpperLeg: "rightUpperLeg",
+      LowerLeg: "rightLowerLeg",
+      Foot: "rightFoot",
+      Toes: "rightToes",
+    },
   };
   /**
    * The least distance between two segments (Ericson 2005, Real-Time Collision

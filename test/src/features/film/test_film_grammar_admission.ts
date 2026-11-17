@@ -1,9 +1,7 @@
-import {
-  type IAutoMovieGrammarDiagnostic,
-  type IAutoMovieGrammarShotObservation,
-  classifyGrammarShotSize,
-} from "@automovie/engine";
+import { classifyGrammarShotSize } from "@automovie/engine";
 import type {
+  IAutoMovieGrammarDiagnostic,
+  IAutoMovieGrammarShotObservation,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";

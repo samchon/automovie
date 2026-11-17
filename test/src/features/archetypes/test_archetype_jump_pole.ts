@@ -1,15 +1,19 @@
 import { createLandingMat, createVaultingPole } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanGymnastics,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,10 +46,10 @@ export function test_archetype_jump_pole(): void {
   const tip: IAutoMovieVector3 = pole.affordance("tip").frame.translation;
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. It plans.
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "pole",
@@ -80,16 +84,18 @@ export function test_archetype_jump_pole(): void {
       );
       continue;
     }
-    const segment: HumanSegment.ISegment = film
+    const segment: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "vaultOnPole")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "vaultOnPole",
+      )!;
     const at = (event: string): number =>
       segment.start +
       (segment.plan.events.find((e): boolean => e.name === event)?.share ??
         Number.NaN) *
         segment.plan.duration;
     const end = (seconds: number): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = film.prop("pole", seconds);
+      const frame: IAutoMovieRigidTransform = film.prop("pole", seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, tip),
@@ -117,7 +123,7 @@ export function test_archetype_jump_pole(): void {
     }
 
     // 4. The swing lifts the body.
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,

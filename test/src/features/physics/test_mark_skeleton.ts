@@ -1,9 +1,9 @@
-import {
-  type AutoMoviePhysicsCache,
-  type IAutoMovieMark,
-  markAutoMovieSkeleton,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import { markAutoMovieSkeleton } from "@automovie/engine";
+import type {
+  IAutoMovieMark,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -31,7 +31,7 @@ export function test_mark_skeleton(): void {
     }) as unknown as IAutoMoviePhysicalProfile;
   const frame = (
     bodies: Record<string, Record<string, [number, number, number]>>,
-  ): AutoMoviePhysicsCache.IFrame =>
+  ): IAutoMoviePhysicalFrame =>
     ({
       seconds: 0,
       bodies: Object.fromEntries(
@@ -45,7 +45,7 @@ export function test_mark_skeleton(): void {
           ),
         ]),
       ),
-    }) as unknown as AutoMoviePhysicsCache.IFrame;
+    }) as unknown as IAutoMoviePhysicalFrame;
   const shape = (mark: IAutoMovieMark): unknown[] => [
     mark.path,
     mark.kind,

@@ -1,11 +1,13 @@
 import {
-  type IAutoMovieMeshTopology,
-  type ITessellation,
   extrudeAutoMovieProfile,
   inspectAutoMovieMeshTopology,
   tessellate,
 } from "@automovie/engine";
-import { type IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshTopology,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
@@ -84,7 +86,7 @@ export function test_geometry_procedural_architecture(): void {
       extrusion,
     ),
   );
-  const box: ITessellation = tessellate({
+  const box: IAutoMovieTessellation = tessellate({
     type: "box",
     width: 2,
     height: 2,

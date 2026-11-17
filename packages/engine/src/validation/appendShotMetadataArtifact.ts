@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  type IAutoMovieAppendShotMetadataArtifact,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 
 import { appendCameraClearanceArtifact } from "./appendCameraClearanceArtifact";
 import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
@@ -17,14 +20,7 @@ import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains appended violations and offending values; per-field sets/paths/sample grids are local, and no camera, event player or renderer task is acquired.
  */
 export const appendShotMetadataArtifact: (
-  shot: {
-    duration?: unknown;
-    camera?: unknown;
-    events?: unknown;
-    cameraIntent?: unknown;
-    coverage?: unknown;
-    cameraClearance?: unknown;
-  },
+  shot: IAutoMovieAppendShotMetadataArtifact.IShot,
   path: string,
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
@@ -34,14 +30,7 @@ export const appendShotMetadataArtifact: (
    * without a cast: the submitted artifact arrives already narrowed to a
    * record, the stored slice arrives as the typed shot.
    */
-  shot: {
-    duration?: unknown;
-    camera?: unknown;
-    events?: unknown;
-    cameraIntent?: unknown;
-    coverage?: unknown;
-    cameraClearance?: unknown;
-  },
+  shot: IAutoMovieAppendShotMetadataArtifact.IShot,
   path: string,
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],

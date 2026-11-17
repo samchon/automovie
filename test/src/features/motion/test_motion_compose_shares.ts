@@ -1,10 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanHand,
   AutoMovieMotionHumanHead,
   AutoMovieMotionHumanRoot,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,11 +50,11 @@ export function test_motion_compose_shares(): void {
     close(g.x, x) && close(g.y, y) && close(g.z, z);
 
   // 1. A share of a displacement.
-  const offset: AutoMovieMotionHumanRoot.IOffset = {
+  const offset: IAutoMovieMotionHumanRoot.IOffset = {
     point: { x: 0.2, y: -0.1, z: 0.4 },
     yaw: 30,
   };
-  const scaled = (share: number): AutoMovieMotionHumanRoot.IOffset =>
+  const scaled = (share: number): IAutoMovieMotionHumanRoot.IOffset =>
     AutoMovieMotionHumanRoot.scale(offset, share);
   TestValidator.predicate(
     "a share scales the move and the turn alike",
@@ -66,7 +69,7 @@ export function test_motion_compose_shares(): void {
   );
 
   // 2. The travelling root.
-  const standing = (yaw: number): IHumanPosture => ({
+  const standing = (yaw: number): IAutoMovieMotionHumanPosture => ({
     root: { x: 1, y: 0.9, z: 2 },
     yaw,
     pitch: 5,
@@ -81,13 +84,13 @@ export function test_motion_compose_shares(): void {
     AutoMovieMotionHumanRoot.travel({
       from: 0.5,
       to: 2,
-      offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => {
+      offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset => {
         asked.push(seconds);
         return { point: { x: 0.1, y: 0.2, z: seconds }, yaw: 20 };
       },
     });
-  const ahead: IHumanPosture = travel.write(standing(0), 1);
-  const turned: IHumanPosture = travel.write(standing(90), 1.5);
+  const ahead: IAutoMovieMotionHumanPosture = travel.write(standing(0), 1);
+  const turned: IAutoMovieMotionHumanPosture = travel.write(standing(90), 1.5);
   TestValidator.equals(
     "a travel claims the root over its span",
     [travel.channels, travel.from, travel.to],
@@ -109,10 +112,10 @@ export function test_motion_compose_shares(): void {
       ahead.joints.neck?.[0] === 10 &&
       ahead.limbs.rightArm?.point.x === 9,
   );
-  const twice: IHumanPosture = AutoMovieMotionHumanRoot.travel({
+  const twice: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanRoot.travel({
     from: 0,
     to: 1,
-    offset: (): AutoMovieMotionHumanRoot.IOffset => ({
+    offset: (): IAutoMovieMotionHumanRoot.IOffset => ({
       point: { x: 0, y: 0, z: 1 },
       yaw: 90,
     }),
@@ -120,7 +123,7 @@ export function test_motion_compose_shares(): void {
     AutoMovieMotionHumanRoot.travel({
       from: 0,
       to: 1,
-      offset: (): AutoMovieMotionHumanRoot.IOffset => ({
+      offset: (): IAutoMovieMotionHumanRoot.IOffset => ({
         point: { x: 0, y: 0, z: 1 },
         yaw: 90,
       }),
@@ -156,7 +159,7 @@ export function test_motion_compose_shares(): void {
   );
 
   // 4. A shaped hand.
-  type Joints = IHumanPosture["joints"];
+  type Joints = IAutoMovieMotionHumanPosture["joints"];
   const hand = (
     shape: "flat" | "fist",
     weight: number,

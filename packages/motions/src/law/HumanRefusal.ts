@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
+
 /**
  * A composition the vocabulary refuses to perform, as a value its author can
  * act on: who was to act, which action, which axis of it is at fault, the
@@ -31,7 +33,7 @@
  */
 export class HumanRefusal extends Error {
   /** The class of refusal. */
-  public readonly kind: HumanRefusal.Kind;
+  public readonly kind: IAutoMovieMotionHumanRefusal.Kind;
 
   /** The performer who was to act; empty until the performance locates the refusal. */
   public readonly performer: string;
@@ -49,7 +51,7 @@ export class HumanRefusal extends Error {
   public readonly value: unknown;
 
   /** What the axis accepts here: a range, the alternatives, or null when neither applies. */
-  public readonly feasible: HumanRefusal.Feasible | null;
+  public readonly feasible: IAutoMovieMotionHumanRefusal.Feasible | null;
 
   /** Why it is refused, with the measured numbers. */
   public readonly reason: string;
@@ -62,7 +64,7 @@ export class HumanRefusal extends Error {
    *
    * @param props Its facts; the message is composed from them.
    */
-  public constructor(props: HumanRefusal.IProps) {
+  public constructor(props: IAutoMovieMotionHumanRefusal.IProps) {
     super(HumanRefusal.message(props));
     this.name = "HumanRefusal";
     this.kind = props.kind;
@@ -83,7 +85,9 @@ export class HumanRefusal extends Error {
    * @param where The performer, the action and the occurrence.
    * @returns The located refusal; this one when it is located already.
    */
-  public locate(where: HumanRefusal.IWhere): HumanRefusal {
+  public locate(
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+  ): IAutoMovieMotionHumanRefusal {
     if (this.performer !== "" && this.act !== "" && this.instance !== 0)
       return this;
     return new HumanRefusal({
@@ -106,14 +110,15 @@ export class HumanRefusal extends Error {
    * @param props The refusal's facts.
    * @returns The message.
    */
-  public static message(props: HumanRefusal.IProps): string {
+  public static message(props: IAutoMovieMotionHumanRefusal.IProps): string {
     const place: string =
       (props.performer ?? "") === "" && (props.act ?? "") === ""
         ? ""
         : `${props.performer ?? ""}${props.performer && props.act ? "." : ""}${props.act ?? ""}${
             (props.instance ?? 0) === 0 ? "" : `#${props.instance}`
           } `;
-    const feasible: HumanRefusal.Feasible | null = props.feasible ?? null;
+    const feasible: IAutoMovieMotionHumanRefusal.Feasible | null =
+      props.feasible ?? null;
     return `${place}${props.axis}: ${props.reason}${
       feasible === null ? "" : `; feasible: ${HumanRefusal.describe(feasible)}`
     }; fix: ${props.fix}`;
@@ -126,7 +131,9 @@ export class HumanRefusal extends Error {
    * @param feasible The set.
    * @returns The text.
    */
-  public static describe(feasible: HumanRefusal.Feasible): string {
+  public static describe(
+    feasible: IAutoMovieMotionHumanRefusal.Feasible,
+  ): string {
     if (feasible.kind === "alternatives")
       return feasible.values.length === 0 ? "none" : feasible.values.join(", ");
     const unit: string = feasible.unit === "" ? "" : ` ${feasible.unit}`;
@@ -154,26 +161,6 @@ export class HumanRefusal extends Error {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No free-form bag of details: every fact has a named member.
  */
 export namespace HumanRefusal {
-  /**
-   * The classes of refusal, each repaired at a different place:
-   *
-   * - `parameter`: a value outside what the action accepts; change the value.
-   * - `reach`: a target, site or support the body cannot reach from where it
-   *   is; move the target, come nearer, or let the body lean or step.
-   * - `affordance`: a prop, a point or a grip that is missing or already
-   *   held; name one that exists or release the hand.
-   * - `channel`: two movements claim one body part at one time; give one of
-   *   them another part or another time.
-   * - `cut`: an action is cut where its law declares no window; cut inside a
-   *   declared window.
-   * - `participant`: a performer, a partner's action or an anchor the action
-   *   reads is absent; add it or place it earlier.
-   * - `base`: the state the action is entered from does not allow it (the
-   *   feet, the seat, the heading); change what precedes it.
-   * - `rule`: the placed performance breaks a production rule it was given.
-   */
-  export type Kind = (typeof KINDS)[number];
-
   /** The classes of refusal as data, from which {@link Kind} is derived: what a page and a test generator list. */
   export const KINDS = [
     "parameter",
@@ -184,71 +171,5 @@ export namespace HumanRefusal {
     "participant",
     "base",
     "rule",
-  ] as const;
-
-  /** What an axis accepts: a numeric range or a list of alternatives. */
-  export type Feasible = IRange | IAlternatives;
-
-  /** A numeric range; an open end is null. */
-  export interface IRange {
-    /** The discriminator. */
-    kind: "range";
-
-    /** The least accepted value, or null when unbounded below. */
-    minimum: number | null;
-
-    /** The greatest accepted value, or null when unbounded above. */
-    maximum: number | null;
-
-    /** The unit of both ends (`m`, `s`, `degrees`), or empty for a pure number. */
-    unit: string;
-
-    /** Whether only whole numbers are accepted. */
-    whole?: boolean;
-
-    /** Which ends are excluded from the range; both are included when absent. */
-    open?: "minimum" | "maximum" | "both";
-  }
-
-  /** The values that would have been accepted, as the author writes them. */
-  export interface IAlternatives {
-    /** The discriminator. */
-    kind: "alternatives";
-
-    /** The accepted values. */
-    values: readonly string[];
-  }
-
-  /** A place in the film. */
-  export interface IWhere {
-    /** The performer. */
-    performer: string;
-
-    /** The action. */
-    act: string;
-
-    /** The occurrence of the action in the performer's chain, from 1. */
-    instance: number;
-  }
-
-  /** The facts of a refusal. */
-  export interface IProps extends Partial<IWhere> {
-    /** The class. */
-    kind: Kind;
-
-    /** The axis at fault. */
-    axis: string;
-
-    /** The value given or measured. */
-    value: unknown;
-
-    /** What the axis accepts; null or absent when neither a range nor alternatives apply. */
-    feasible?: Feasible | null;
-
-    /** Why it is refused, with the measured numbers. */
-    reason: string;
-
-    /** One sentence naming what to change. */
-    fix: string;
-  }
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanRefusal.Kind>[];
 }

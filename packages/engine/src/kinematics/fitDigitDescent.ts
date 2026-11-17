@@ -1,3 +1,5 @@
+import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 
 /**
@@ -40,8 +42,15 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the caller keeps the result.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
-  const { primary, secondary, project, step }: fitDigitDescent.IProps = props;
+export function fitDigitDescent(
+  props: IAutoMovieFitDigitDescent.IProps,
+): number[] {
+  const {
+    primary,
+    secondary,
+    project,
+    step,
+  }: IAutoMovieFitDigitDescent.IProps = props;
   const n: number = props.start.length;
   const jacobian = (
     f: (x: readonly number[]) => number[],
@@ -213,40 +222,6 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     }
   }
   return x;
-}
-
-/**
- * Companion of {@link fitDigitDescent}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The two tasks as residual functions of the variables, the projection into the range, the resolution and the primary's tolerance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What one descent reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain functions of number arrays; no rig type leaks in.
- */
-export namespace fitDigitDescent {
-  /** What one descent reads. */
-  export interface IProps {
-    /** The start, the variables' values. */
-    start: readonly number[];
-
-    /** The primary residual, metres. */
-    primary: (x: readonly number[]) => number[];
-
-    /** The secondary residual, metres; empty when there is none. */
-    secondary: (x: readonly number[]) => number[];
-
-    /** The variables projected into their range. */
-    project: (x: readonly number[]) => number[];
-
-    /** The variables' resolution: the finite-difference step and the stop. */
-    step: number;
-
-    /** The primary residual's length at which the primary counts as met, at `x` with its Jacobian. */
-    tolerance: (
-      x: readonly number[],
-      J1: readonly (readonly number[])[],
-    ) => number;
-  }
 }
 
 /** The damping start of Levenberg-Marquardt relative to the largest diagonal entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2, tau = 1e-3 for a start believed close). */

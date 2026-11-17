@@ -1,4 +1,3 @@
-import type { IAutoMovieRenderSubject } from "@automovie/engine";
 import {
   AutoMovieRenderMetric,
   IAutoMovieRenderBudget,
@@ -6,6 +5,7 @@ import {
   IAutoMovieRenderInventory,
   IAutoMovieRenderOwnerCost,
   IAutoMovieRenderReport,
+  type IAutoMovieRenderSubject,
   IAutoMovieRenderTarget,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

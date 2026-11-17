@@ -1,23 +1,25 @@
 import {
-  type IAutoMovieResolvedBone,
-  physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
+  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMountRider,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
@@ -67,12 +69,12 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function ankled(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    goal: IHumanPosture.IGoal,
+    goal: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const reach: number =
       (body.measure.thigh + body.measure.shank) *
       Math.cos((KNEE * Math.PI) / 360);
@@ -90,7 +92,7 @@ export namespace HumanMountRider {
       y: 0,
       z: 0,
     });
-    const turnedBy = (degrees: number): IHumanPosture.IGoal => {
+    const turnedBy = (degrees: number): IAutoMovieHumanLimbGoal => {
       const pitched: IAutoMovieQuaternion = Quaternion.multiply(
         Quaternion.fromAxisAngle(across, degrees),
         rotation,
@@ -157,19 +159,13 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hold(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    posture: IHumanPosture,
-    grip: {
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-      axis?: IAutoMovieVector3;
-      radius?: number;
-      across?: 1 | -1;
-    },
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
-    closed: IHumanPosture["joints"],
-  ): { arm: IHumanPosture.IGoal; fingers: IHumanPosture["joints"] } {
+    closed: IAutoMovieMotionHumanPosture["joints"],
+  ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(posture),
@@ -204,7 +200,7 @@ export namespace HumanMountRider {
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       delete limbs.leftArm;
       delete limbs.rightArm;
       const hand: IAutoMovieResolvedBone = poseBones(
@@ -214,8 +210,11 @@ export namespace HumanMountRider {
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const closing: IHumanPosture["joints"] = {};
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
       const from: readonly [number, number, number] = relaxed[bone] ?? [
         0, 0, 0,
@@ -267,25 +266,28 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    posture: IHumanPosture,
-    grip: Parameters<typeof hold>[3],
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[],
-    frame: IHumanProp.IFrame,
-  ): IHumanPosture["joints"] {
-    const arm: IHumanPosture.IGoal = hold(body, side, posture, grip, 1, {}).arm;
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    shapes: readonly IAutoMoviePhysicalShape[],
+    frame: IAutoMovieRigidTransform,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const arm: IAutoMovieHumanLimbGoal = hold(
+      body,
+      side,
+      posture,
+      grip,
+      1,
+      {},
+    ).arm;
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
-    const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
+    const near = (shape: IAutoMoviePhysicalShape): number =>
       physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
-    const handle: IAutoMoviePhysicalProfile.IShape | undefined = [
-      ...shapes,
-    ].sort(
-      (
-        a: IAutoMoviePhysicalProfile.IShape,
-        b: IAutoMoviePhysicalProfile.IShape,
-      ): number => near(a) - near(b),
+    const handle: IAutoMoviePhysicalShape | undefined = [...shapes].sort(
+      (a: IAutoMoviePhysicalShape, b: IAutoMoviePhysicalShape): number =>
+        near(a) - near(b),
     )[0];
     if (handle === undefined) return {};
     return HumanGrip.close(
@@ -314,9 +316,9 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leant(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     degrees: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];
@@ -328,7 +330,6 @@ export namespace HumanMountRider {
       },
     };
   }
-
 
   /**
    * How far a seated rider leans the trunk forward to reach what the hands
@@ -349,13 +350,15 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
   ): number {
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => points[side] !== undefined,
     );
-    return sides.length === 0 ? 0 : HumanMountReach.reach(body, seated, sides)(points);
+    return sides.length === 0
+      ? 0
+      : HumanMountReach.reach(body, seated, sides)(points);
   }
 }

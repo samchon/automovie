@@ -1,33 +1,17 @@
+import type {
+  IAutoMovieRecoverySlabConnectivityGroup,
+  IAutoMovieRecoverySlabGraph,
+} from "@automovie/interface";
+
 /**
  * Source observation graph for explicit continuation between adjacent plane cuts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Inputs distinguish private transient triangle support from source-independent curve-graph output.
- * @evidence contracts/development/design.md#principled-representation Represents Source observation graph for explicit continuation between adjacent plane cuts: companion namespace of 3 members (`Group`, `observe`, `prepare`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoverySlabGraph` in packages/recovery/src/internal/RecoverySlabGraph.ts; its surface is the 3 members listed and the text shows 4 other files naming it, mostly packages/recovery (4), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Source triangle incidence and complete scalar-overlap candidates define clipped-sheet components whose boundary ordinals remain distinct from original face IDs.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared source closure supplies repeated slab queries and their IAutoMovieRecoverySlabConnectivityGroup results.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Open defects, hidden components and ambiguous support remain unsupported; source orientation and generated-surface fidelity are not inferred.
  */
 export namespace RecoverySlabGraph {
-  /**
-   * Local curve indices in one observed source-preimage component.
-   *
-   * @evidence contracts/development/design.md#principled-representation Disjoint index sets state indexed-source continuation under the supplied binary64 scalar comparisons instead of a geometric-nearest guess.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Support and a reason distinguish displayable matched loops from missing or ambiguous source sheets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Source triangle, vertex and edge addresses are absent from this record.
-   * @evidence contracts/development/common.md#meaningful-documentation Before/after are local boundary-support indices, used as saved curve numbers by publication; optional observation probes have a distinct ordinal list. Unsupported groups remain open.
-   */
-  export interface Group {
-    /** Local boundary-support indices at the lower cut. */
-    before: number[];
-    /** Local boundary-support indices at the upper cut. */
-    after: number[];
-    /** False identifies an open, ambiguous or unsupported source preimage. */
-    supported: boolean;
-    /** Null for supported continuation; otherwise a local omission reason. */
-    reason: string | null;
-    /** Private observation-probe ordinals, present only when requested; never curve indices. */
-    probes?: number[];
-  }
-
   /**
    * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity.
    * Triangle and edge addresses are transient observation evidence and never leave the result.
@@ -40,18 +24,9 @@ export namespace RecoverySlabGraph {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Active triangle roots are reused for both boundary cuts and defect supports within one slab; no mutable source cache survives.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Union-find, edge owners and support-root maps expire on return; only curve indices and reason strings escape.
    */
-  export function observe(input: {
-    triangles: readonly [number, number, number][];
-    canon: Int32Array;
-    heights: readonly number[];
-    beforeMm: number;
-    afterMm: number;
-    before: readonly ReadonlySet<number>[];
-    after: readonly ReadonlySet<number>[];
-    defects: readonly ReadonlySet<number>[];
-    candidates?: readonly number[];
-    probes?: readonly ReadonlySet<number>[];
-  }): Group[] {
+  export function observe(
+    input: Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
+  ): ReturnType<IAutoMovieRecoverySlabGraph.Observe> {
     return prepare(input)(input);
   }
 
@@ -71,16 +46,9 @@ export namespace RecoverySlabGraph {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Finite scalar and address checks are reused by queries on the same immutable source. Each query reuses its roots for both boundary cuts and defects, then releases all query maps.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The extraction owns the closure and source references until finished. Compact union-find and support maps expire per query, and only curve index arrays and reason strings escape.
    */
-  export function prepare(source: {
-    triangles: readonly [number, number, number][];
-    canon: Int32Array;
-    heights: readonly number[];
-  }): (
-    input: Omit<
-      Parameters<typeof observe>[0],
-      "triangles" | "canon" | "heights"
-    >,
-  ) => Group[] {
+  export function prepare(
+    source: Parameters<IAutoMovieRecoverySlabGraph.Prepare>[0],
+  ): ReturnType<IAutoMovieRecoverySlabGraph.Prepare> {
     const count: number = source.triangles.length;
     if (source.canon.length !== source.heights.length)
       throw new Error("A finite aligned scalar chart is required");
@@ -104,10 +72,10 @@ export namespace RecoverySlabGraph {
         );
     return (
       input: Omit<
-        Parameters<typeof observe>[0],
+        Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
         "triangles" | "canon" | "heights"
       >,
-    ): Group[] => {
+    ): IAutoMovieRecoverySlabConnectivityGroup[] => {
       if (
         !Number.isFinite(input.beforeMm) ||
         !Number.isFinite(input.afterMm) ||
@@ -195,7 +163,8 @@ export namespace RecoverySlabGraph {
           }
         }
       }
-      const groups: Map<number, Group> = new Map();
+      const groups: Map<number, IAutoMovieRecoverySlabConnectivityGroup> =
+        new Map();
       const roots: (support: ReadonlySet<number>) => Set<number> = (
         support: ReadonlySet<number>,
       ): Set<number> => {
@@ -214,7 +183,9 @@ export namespace RecoverySlabGraph {
         }
         return result;
       };
-      const ensure: (id: number) => Group = (id: number): Group => {
+      const ensure: (id: number) => IAutoMovieRecoverySlabConnectivityGroup = (
+        id: number,
+      ): IAutoMovieRecoverySlabConnectivityGroup => {
         if (!groups.has(id))
           groups.set(id, {
             before: [],
@@ -230,13 +201,16 @@ export namespace RecoverySlabGraph {
           const found: Set<number> = roots(input[side][i]!);
           if (found.size === 1) ensure([...found][0]!)[side].push(i);
           else {
-            const group: Group = ensure(orphan--);
+            const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+              orphan--,
+            );
             group[side].push(i);
             group.supported = false;
             group.reason =
               "Boundary support has no unique clipped-slab component";
             for (const id of found) {
-              const affected: Group = ensure(id);
+              const affected: IAutoMovieRecoverySlabConnectivityGroup =
+                ensure(id);
               affected.supported = false;
               affected.reason =
                 "A boundary touches multiple clipped-slab components";
@@ -247,12 +221,14 @@ export namespace RecoverySlabGraph {
       for (let i: number = 0; i < (input.probes?.length ?? 0); i++) {
         const found: Set<number> = roots(input.probes![i]!);
         if (found.size === 1) {
-          const group: Group = ensure([...found][0]!);
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+            [...found][0]!,
+          );
           (group.probes ??= []).push(i);
         } else {
           const affected: number[] = found.size ? [...found] : [orphan--];
           for (const id of affected) {
-            const group: Group = ensure(id);
+            const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(id);
             (group.probes ??= []).push(i);
             group.supported = false;
             group.reason =
@@ -262,13 +238,15 @@ export namespace RecoverySlabGraph {
       }
       for (const support of input.defects)
         for (const id of roots(support)) {
-          const group: Group = ensure(id);
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(id);
           group.supported = false;
           group.reason =
             "Open, isolated or unrepresented source contour in this slab component";
         }
       for (const triangle of invalid) {
-        const group: Group = ensure(root(triangle));
+        const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+          root(triangle),
+        );
         group.supported = false;
         group.reason =
           "Degenerate or nonmanifold source incidence in this slab component";
@@ -277,7 +255,9 @@ export namespace RecoverySlabGraph {
       // Retain its omission instead of silently deleting it from the observation.
       for (let ti: number = 0; ti < capacity; ti++)
         if (parent[ti] !== -1) {
-          const group: Group = ensure(root(ti));
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+            root(ti),
+          );
           if (group.before.length === 0 && group.after.length === 0) {
             group.supported = false;
             group.reason ??=

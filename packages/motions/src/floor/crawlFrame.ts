@@ -1,16 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -83,8 +84,8 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wrists(
-    body: IHumanBody,
-    standing: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
     forward: IAutoMovieVector3,
   ): Record<"left" | "right", IAutoMovieVector3> {
     const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
@@ -125,12 +126,12 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function laid(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     palm: (side: "left" | "right") => IAutoMovieVector3,
     forward: IAutoMovieVector3,
-  ): IHumanPosture {
-    let out: IHumanPosture = posture;
+  ): IAutoMovieMotionHumanPosture {
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const side of ["left", "right"] as const)
       out = {
         ...out,
@@ -174,25 +175,30 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function armed(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
-    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
-  ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
-      const from: AutoMovieMotionHumanArm.IAngles = held[side];
-      const to: AutoMovieMotionHumanArm.IAngles = toward[side];
+      const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
+      const to: IAutoMovieMotionHumanArmAngles.IAngles = toward[side];
       for (const [bone, key] of [
         [`${side}UpperArm`, "upper"],
         [`${side}LowerArm`, "lower"],
         [`${side}Hand`, "hand"],
       ] as const)
         joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
-      const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
-      const was: IHumanPosture["joints"] = {};
+      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+        side,
+        "flat",
+      );
+      const was: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
         const held: readonly [number, number, number] | undefined =
           from.fingers?.[bone] ?? posture.joints[bone];
@@ -226,13 +232,13 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     yaw: number,
     share: number,
     degrees: number,
     hike: number,
     neck: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw,
@@ -318,8 +324,8 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function rootFor(
-    body: IHumanBody,
-    tilted: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    tilted: IAutoMovieMotionHumanPosture,
     hips: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const joints = hipJoints(

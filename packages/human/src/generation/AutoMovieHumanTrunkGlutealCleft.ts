@@ -1,4 +1,6 @@
-﻿import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
+import type { IAutoMovieHumanTrunkGlutealCleft } from "@automovie/interface";
+
+import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
 /**
  * The gluteal cleft: between the buttocks the back midline stands forward,
@@ -32,8 +34,8 @@ export namespace AutoMovieHumanTrunkGlutealCleft {
   export function at(
     rise: number,
     depth: number,
-    cut: readonly [number, number],
-  ): (z: number) => [number, number, number] {
+    cut: IAutoMovieHumanTrunkGlutealCleft.AtCut,
+  ): IAutoMovieHumanTrunkGlutealCleft.AtResult {
     const up: number = Math.max(0, rise);
 
     return AutoMovieHumanTrunkSolve.jet(

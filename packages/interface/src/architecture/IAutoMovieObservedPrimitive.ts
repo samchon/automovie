@@ -1,4 +1,4 @@
-import { IAutoMovieDesignPoint } from "./IAutoMovieDesignPoint";
+import type { IAutoMovieDesignPoint } from "./IAutoMovieDesignPoint";
 
 /**
  * One raw mark read from a frame, before any interpretation.

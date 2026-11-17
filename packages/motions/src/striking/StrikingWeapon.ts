@@ -1,16 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
@@ -36,7 +34,7 @@ export namespace StrikingWeapon {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  export type Course = (seconds: number) => IHumanPosture;
+  export type Course = (seconds: number) => IAutoMovieMotionHumanPosture;
 
   /**
    * A striking arm at a film second, fitted on its action's free course:
@@ -51,7 +49,7 @@ export namespace StrikingWeapon {
    * @returns The four axis ends, world metres.
    */
   export function arm(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
@@ -69,7 +67,7 @@ export namespace StrikingWeapon {
    * @returns The four axis ends, world metres.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): IAutoMovieVector3[] {
@@ -106,7 +104,7 @@ export namespace StrikingWeapon {
    * @returns The four axis ends, world metres.
    */
   export function leg(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
@@ -130,7 +128,7 @@ export namespace StrikingWeapon {
 
   /** The bones of a course's posture at a film second, its limbs fitted to their goals. */
   function fitted(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     course: Course,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
@@ -143,7 +141,7 @@ export namespace StrikingWeapon {
     ids: readonly string[];
 
     /** The limb that carries them. */
-    limb: IHumanActionPlan.IWeapon["limb"];
+    limb: IAutoMovieMotionWeaponPath["limb"];
 
     /**
      * One radius per capsule, metres: one number for a capsule of one
@@ -175,11 +173,11 @@ export namespace StrikingWeapon {
    * @returns One weapon per id.
    * @throws {Error} When the radii do not match the ids.
    */
-  export function capsules(chain: IChain): IHumanActionPlan.IWeapon[] {
+  export function capsules(chain: IChain): IAutoMovieMotionWeaponPath[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
     return chain.ids.map(
-      (id: string, i: number): IHumanActionPlan.IWeapon => ({
+      (id: string, i: number): IAutoMovieMotionWeaponPath => ({
         id,
         limb: chain.limb,
         ...radius(chain.radii[i]!),
@@ -203,9 +201,9 @@ export namespace StrikingWeapon {
    * @returns The thigh's, the shank's and the foot's radii.
    */
   export function legRadii(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): [readonly [number, number], readonly [number, number], number] {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const foot: number = KickForm.FOOT_RADIUS_SHARE * m.ankleHeight;
     return [[m.thighRadius, m.shankRadius], [m.shankRadius, foot], foot];
   }
@@ -221,9 +219,9 @@ export namespace StrikingWeapon {
    * @returns The upper arm's, the forearm's and the fist's radii.
    */
   export function armRadii(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): [readonly [number, number], number, number] {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return [
       [m.upperArmRadius, m.forearmRadius],
       m.forearmRadius,
@@ -250,7 +248,7 @@ export namespace StrikingWeapon {
   /** A capsule's radius members as a weapon carries them. */
   function radius(
     radii: number | readonly [number, number],
-  ): Pick<IHumanActionPlan.IWeapon, "radius" | "tailRadius"> {
+  ): Pick<IAutoMovieMotionWeaponPath, "radius" | "tailRadius"> {
     return typeof radii === "number"
       ? { radius: radii }
       : { radius: radii[0], tailRadius: radii[1] };
@@ -263,9 +261,9 @@ export namespace StrikingWeapon {
    * @returns The earliest, or null when the weapons met nothing.
    */
   export function first(
-    events: readonly IHumanActionPlan.IContactEvent[],
-  ): IHumanActionPlan.IContactEvent | null {
-    let best: IHumanActionPlan.IContactEvent | null = null;
+    events: readonly IAutoMovieMotionWeaponContact[],
+  ): IAutoMovieMotionWeaponContact | null {
+    let best: IAutoMovieMotionWeaponContact | null = null;
     for (const e of events)
       if (best === null || e.seconds < best.seconds) best = e;
     return best;

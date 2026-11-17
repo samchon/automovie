@@ -1,14 +1,12 @@
-import {
-  type IAutoMovieEnvelopeAssembly,
-  type IAutoMovieEnvelopeRequest,
-  analyzeAutoMovieEnvelope,
-} from "@automovie/engine";
+import { analyzeAutoMovieEnvelope } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
   IAutoMovieAnalysisSample,
   IAutoMovieAnalysisWarning,
+  IAutoMovieEnvelopeAssembly,
+  IAutoMovieEnvelopeRequest,
   IAutoMovieEnvironmentContext,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

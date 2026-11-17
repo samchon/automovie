@@ -1,18 +1,18 @@
 import type {
   IAutoMovieActionTarget,
+  IAutoMovieActorContext,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
 /**
  * Resolve a bone action target to world metres using its actor rig and sampled motion, or the rest pose when motion is absent. Non-bone targets, unknown actors/rigs or absent resolved bones return null. Staged heading/position are applied after pose-root FK exactly once.

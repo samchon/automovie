@@ -1,7 +1,13 @@
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanApertureSpan,
+  IAutoMovieHumanBodyApertures,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
  * The chains an opening is trimmed from, and its trim loop in each of their
@@ -34,33 +40,6 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * one-sided at its ends, so no read leaves the chain.
  */
 export namespace AutoMovieHumanApertureSpan {
-  /** A rim point on its chain, with its chart on the neighbour where it lies on their shared ring. */
-  export interface IPoint {
-    /** The chain the point is evaluated on. */
-    chain: string;
-
-    /** Station, mm. */
-    s: number;
-
-    /** Phase, radians, on the branch the loop runs on. */
-    t: number;
-
-    /** The same point in the neighbour's chart, for a point on the shared ring. */
-    also?: { chain: string; s: number; t: number };
-  }
-
-  /** An opening's trim on one or two chains. */
-  export interface ISpan {
-    /** The chains, the one holding the most points first. */
-    chains: string[];
-
-    /** The rim: the feet of the kept margin points, in margin order. */
-    points: IPoint[];
-
-    /** Each chain's polygon `[station, phase]` for the cells it leaves out, closed past the shared ring. */
-    loops: Map<string, [number, number][]>;
-  }
-
   /**
    * The key of the one hole the chains of a spanning opening leave their
    * cells in, apart from the holes keyed by chain name.
@@ -80,10 +59,10 @@ export namespace AutoMovieHumanApertureSpan {
    * @param events The calibration's events, which name the owner of a shared ring.
    */
   export function of(
-    prepared: AutoMovieHumanBodyApertures.IPrepared,
+    prepared: IAutoMovieHumanBodyApertures.IPrepared,
     chains: readonly IAutoMovieLoftChain[],
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
-  ): ISpan | string {
+    events: readonly IAutoMovieHumanBranchEvent[],
+  ): IAutoMovieHumanApertureSpan.ISpan | string {
     const margin: readonly [number, number, number][] = prepared.edge;
     const range: [number, number] = AutoMovieHumanLoftAperture.range(margin);
     const tolerance: number = prepared.aperture.depth;
@@ -94,9 +73,16 @@ export namespace AutoMovieHumanApertureSpan {
     // front-down), so a station is no height.
     const feet: Map<string, IFoot[]> = new Map();
     for (const chain of chains) {
-      const reach: [number, number] | null = window(chain, margin, tolerance + REACH);
+      const reach: [number, number] | null = window(
+        chain,
+        margin,
+        tolerance + REACH,
+      );
       if (reach === null) continue;
-      feet.set(chain.name, footing(chain, margin, prepared.outline.forward, reach));
+      feet.set(
+        chain.name,
+        footing(chain, margin, prepared.outline.forward, reach),
+      );
     }
 
     // Each margin point on the chain whose foot inside it lies on its line of
@@ -104,18 +90,20 @@ export namespace AutoMovieHumanApertureSpan {
     // between the lips, or past the silhouette where a nostril's outer end
     // overhangs the turning base) has no foot and is left out, so the loop
     // runs through the feet that exist, in margin order.
-    const owners: (string | null)[] = margin.map((_: [number, number, number], i: number): string | null => {
-      let best: string | null = null;
-      let least: number = SOLVED;
-      for (const [name, list] of feet) {
-        const f: IFoot = list[i]!;
-        if (!f.past && f.distance <= least) {
-          least = f.distance;
-          best = name;
+    const owners: (string | null)[] = margin.map(
+      (_: [number, number, number], i: number): string | null => {
+        let best: string | null = null;
+        let least: number = SOLVED;
+        for (const [name, list] of feet) {
+          const f: IFoot = list[i]!;
+          if (!f.past && f.distance <= least) {
+            least = f.distance;
+            best = name;
+          }
         }
-      }
-      return best;
-    });
+        return best;
+      },
+    );
     const kept: number[] = owners
       .map((o: string | null, i: number): number => (o === null ? -1 : i))
       .filter((i: number): boolean => i >= 0);
@@ -123,35 +111,58 @@ export namespace AutoMovieHumanApertureSpan {
       const reading: string = [...feet]
         .map(([name, list]: [string, IFoot[]]): string => {
           const inside: IFoot[] = list.filter((f: IFoot): boolean => !f.past);
-          const worst: number = inside.reduce((a: number, f: IFoot): number => Math.max(a, f.distance), 0);
+          const worst: number = inside.reduce(
+            (a: number, f: IFoot): number => Math.max(a, f.distance),
+            0,
+          );
           return `${name}: ${inside.length} inside, worst ${worst.toFixed(3)} mm`;
         })
         .join("; ");
       return `${kept.length} of ${owners.length} margin points have a foot over heights ${range[0].toFixed(1)} to ${range[1].toFixed(1)} (${reading})`;
     }
-    const names: string[] = [...new Set(kept.map((i: number): string => owners[i]!))].sort(
+    const names: string[] = [
+      ...new Set(kept.map((i: number): string => owners[i]!)),
+    ].sort(
       (a: string, b: string): number => count(owners, b) - count(owners, a),
     );
     const byName: Map<string, IAutoMovieLoftChain> = new Map(
-      chains.map((c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [c.name, c]),
+      chains.map((c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
+        c.name,
+        c,
+      ]),
     );
-    const at = (i: number): IPoint => {
+    const at = (i: number): IAutoMovieHumanApertureSpan.IPoint => {
       const name: string = owners[i]!;
       const f: IFoot = feet.get(name)![i]!;
       return { chain: name, s: f.s, t: f.t };
     };
     if (names.length === 1) {
-      const points: IPoint[] = kept.map(at);
+      const points: IAutoMovieHumanApertureSpan.IPoint[] = kept.map(at);
       return {
         chains: names,
         points,
-        loops: new Map([[names[0]!, points.map((p: IPoint): [number, number] => [p.s, p.t])]]),
+        loops: new Map([
+          [
+            names[0]!,
+            points.map(
+              (p: IAutoMovieHumanApertureSpan.IPoint): [number, number] => [
+                p.s,
+                p.t,
+              ],
+            ),
+          ],
+        ]),
       };
     }
-    if (names.length !== 2) return `margin on ${names.length} chains: ${names.join(", ")}`;
+    if (names.length !== 2)
+      return `margin on ${names.length} chains: ${names.join(", ")}`;
 
     // The two chains must meet at one ring; its owner is the event's parent.
-    const ring: IRing | null = shared(byName.get(names[0]!)!, byName.get(names[1]!)!, events);
+    const ring: IRing | null = shared(
+      byName.get(names[0]!)!,
+      byName.get(names[1]!)!,
+      events,
+    );
     if (ring === null) return `chains ${names.join(" and ")} share no ring`;
     const owner: IAutoMovieLoftChain = byName.get(ring.owner)!;
     const neighbour: IAutoMovieLoftChain = byName.get(ring.neighbour)!;
@@ -159,19 +170,33 @@ export namespace AutoMovieHumanApertureSpan {
     // The loop with a crossing on the ring between every two kept points on
     // different chains: the owner's ring point nearest the margin's chord
     // there, copied by the neighbour.
-    const sequence: IPoint[] = [];
+    const sequence: IAutoMovieHumanApertureSpan.IPoint[] = [];
     for (let k: number = 0; k < kept.length; k++) {
       const i: number = kept[k]!;
       const j: number = kept[(k + 1) % kept.length]!;
-      const p: IPoint = at(i);
+      const p: IAutoMovieHumanApertureSpan.IPoint = at(i);
       sequence.push(p);
       if (owners[j] === owners[i]) continue;
-      const q: IPoint = at(j);
+      const q: IAutoMovieHumanApertureSpan.IPoint = at(j);
       const a: [number, number, number] = margin[i]!;
       const b: [number, number, number] = margin[j]!;
-      const t: number = nearest(owner, ring.station, (x: readonly number[]): number => chord(x, a, b), (p.chain === ring.owner ? p : q).t);
-      const point: [number, number, number] = AutoMovieLoftChain.point(owner, ring.station, t);
-      const other: number = phaseOf(neighbour, ring.station, point, (p.chain === ring.neighbour ? p : q).t);
+      const t: number = nearest(
+        owner,
+        ring.station,
+        (x: readonly number[]): number => chord(x, a, b),
+        (p.chain === ring.owner ? p : q).t,
+      );
+      const point: [number, number, number] = AutoMovieLoftChain.point(
+        owner,
+        ring.station,
+        t,
+      );
+      const other: number = phaseOf(
+        neighbour,
+        ring.station,
+        point,
+        (p.chain === ring.neighbour ? p : q).t,
+      );
       sequence.push({
         chain: ring.owner,
         s: ring.station,
@@ -186,18 +211,32 @@ export namespace AutoMovieHumanApertureSpan {
     for (const name of names) {
       const away: number = name === ring.lower ? 1 : -1;
       const polygon: [number, number][] = [];
-      const chart = (p: IPoint): [number, number] | null =>
-        p.chain === name ? [p.s, p.t] : p.also?.chain === name ? [p.also.s, p.also.t] : null;
-      const start: number = sequence.findIndex((p: IPoint): boolean => p.chain === name && p.also === undefined);
+      const chart = (
+        p: IAutoMovieHumanApertureSpan.IPoint,
+      ): [number, number] | null =>
+        p.chain === name
+          ? [p.s, p.t]
+          : p.also?.chain === name
+            ? [p.also.s, p.also.t]
+            : null;
+      const start: number = sequence.findIndex(
+        (p: IAutoMovieHumanApertureSpan.IPoint): boolean =>
+          p.chain === name && p.also === undefined,
+      );
       for (let k: number = 0; k < sequence.length; k++) {
-        const p: IPoint = sequence[(start + k) % sequence.length]!;
+        const p: IAutoMovieHumanApertureSpan.IPoint =
+          sequence[(start + k) % sequence.length]!;
         const c: [number, number] | null = chart(p);
         if (c === null) continue;
-        const before: IPoint = sequence[(start + k - 1 + sequence.length) % sequence.length]!;
-        const after: IPoint = sequence[(start + k + 1) % sequence.length]!;
-        if (p.also !== undefined && chart(before) === null) polygon.push([ring.station + away * PAST, c[1]]);
+        const before: IAutoMovieHumanApertureSpan.IPoint =
+          sequence[(start + k - 1 + sequence.length) % sequence.length]!;
+        const after: IAutoMovieHumanApertureSpan.IPoint =
+          sequence[(start + k + 1) % sequence.length]!;
+        if (p.also !== undefined && chart(before) === null)
+          polygon.push([ring.station + away * PAST, c[1]]);
         polygon.push(c);
-        if (p.also !== undefined && chart(after) === null) polygon.push([ring.station + away * PAST, c[1]]);
+        if (p.also !== undefined && chart(after) === null)
+          polygon.push([ring.station + away * PAST, c[1]]);
       }
       loops.set(name, polygon);
     }
@@ -213,11 +252,19 @@ export namespace AutoMovieHumanApertureSpan {
    * @param point The point, mm.
    * @param guess A phase near the answer.
    */
-  export function phaseOf(chain: IAutoMovieLoftChain, s: number, point: readonly number[], guess: number): number {
+  export function phaseOf(
+    chain: IAutoMovieLoftChain,
+    s: number,
+    point: readonly number[],
+    guess: number,
+  ): number {
     return nearest(
       chain,
       s,
-      (x: readonly number[]): number => (x[0]! - point[0]!) ** 2 + (x[1]! - point[1]!) ** 2 + (x[2]! - point[2]!) ** 2,
+      (x: readonly number[]): number =>
+        (x[0]! - point[0]!) ** 2 +
+        (x[1]! - point[1]!) ** 2 +
+        (x[2]! - point[2]!) ** 2,
       guess,
     );
   }
@@ -233,7 +280,8 @@ export namespace AutoMovieHumanApertureSpan {
     cost: (x: readonly number[]) => number,
     guess: number,
   ): number {
-    const gap = (t: number): number => cost(AutoMovieLoftChain.point(chain, s, t));
+    const gap = (t: number): number =>
+      cost(AutoMovieLoftChain.point(chain, s, t));
     let t: number = guess;
     let least: number = gap(t);
     for (let k: number = -256; k < 256; k++) {
@@ -259,12 +307,31 @@ export namespace AutoMovieHumanApertureSpan {
   }
 
   /** Squared distance of a point from the segment between two margin points. */
-  function chord(x: readonly number[], a: readonly number[], b: readonly number[]): number {
+  function chord(
+    x: readonly number[],
+    a: readonly number[],
+    b: readonly number[],
+  ): number {
     const d: number[] = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
     const l: number = d[0]! ** 2 + d[1]! ** 2 + d[2]! ** 2;
     const u: number =
-      l > 0 ? Math.min(1, Math.max(0, ((x[0]! - a[0]!) * d[0]! + (x[1]! - a[1]!) * d[1]! + (x[2]! - a[2]!) * d[2]!) / l)) : 0;
-    return (a[0]! + u * d[0]! - x[0]!) ** 2 + (a[1]! + u * d[1]! - x[1]!) ** 2 + (a[2]! + u * d[2]! - x[2]!) ** 2;
+      l > 0
+        ? Math.min(
+            1,
+            Math.max(
+              0,
+              ((x[0]! - a[0]!) * d[0]! +
+                (x[1]! - a[1]!) * d[1]! +
+                (x[2]! - a[2]!) * d[2]!) /
+                l,
+            ),
+          )
+        : 0;
+    return (
+      (a[0]! + u * d[0]! - x[0]!) ** 2 +
+      (a[1]! + u * d[1]! - x[1]!) ** 2 +
+      (a[2]! + u * d[2]! - x[2]!) ** 2
+    );
   }
 
   /**
@@ -274,17 +341,21 @@ export namespace AutoMovieHumanApertureSpan {
   function shared(
     a: IAutoMovieLoftChain,
     b: IAutoMovieLoftChain,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    events: readonly IAutoMovieHumanBranchEvent[],
   ): IRing | null {
     for (const e of events) {
       const child: string | undefined = e.splits.find(
-        (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean => sp.child === a.name || sp.child === b.name,
+        (sp: IAutoMovieHumanBranchSplit): boolean =>
+          sp.child === a.name || sp.child === b.name,
       )?.child;
       if (child === undefined) continue;
       const parentName: string = child === a.name ? b.name : a.name;
       if (e.parent !== parentName) continue;
       const parent: IAutoMovieLoftChain = parentName === a.name ? a : b;
-      const station: number = e.direction === "down" ? parent.layers[0]!.y : parent.layers[parent.layers.length - 1]!.y;
+      const station: number =
+        e.direction === "down"
+          ? parent.layers[0]!.y
+          : parent.layers[parent.layers.length - 1]!.y;
       return {
         owner: parentName,
         neighbour: child,
@@ -319,7 +390,11 @@ export namespace AutoMovieHumanApertureSpan {
     // The part of a vector square to the line of sight.
     const square = (v: readonly number[]): number[] => {
       const along: number = dot(v, forward);
-      return [v[0]! - along * forward[0]!, v[1]! - along * forward[1]!, v[2]! - along * forward[2]!];
+      return [
+        v[0]! - along * forward[0]!,
+        v[1]! - along * forward[1]!,
+        v[2]! - along * forward[2]!,
+      ];
     };
     // The coarse search's grid, its points read once for every margin point
     // (a solve that stalls searches again): every half millimetre of the
@@ -328,21 +403,36 @@ export namespace AutoMovieHumanApertureSpan {
     const points = (): Float64Array => {
       if (grid !== null) return grid;
       const rows: number[] = [];
-      for (let s: number = Math.max(y0, stations[0] - REACH); s <= Math.min(y1, stations[1] + REACH); s += 0.5)
+      for (
+        let s: number = Math.max(y0, stations[0] - REACH);
+        s <= Math.min(y1, stations[1] + REACH);
+        s += 0.5
+      )
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
-          const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
+          const p: [number, number, number] = AutoMovieLoftChain.point(
+            chain,
+            s,
+            t,
+          );
           rows.push(s, t, p[0], p[1], p[2]);
         }
       return (grid = Float64Array.from(rows));
     };
     // A coarse search of the front-most skin nearest a margin point's line.
     const seed = (target: readonly number[]): [number, number] => {
-      let found: [number, number] = [Math.min(y1, Math.max(y0, (stations[0] + stations[1]) / 2)), 0];
+      let found: [number, number] = [
+        Math.min(y1, Math.max(y0, (stations[0] + stations[1]) / 2)),
+        0,
+      ];
       let best: number = Infinity;
       const g: Float64Array = points();
       for (let k: number = 0; k < g.length; k += 5) {
-        const off: number[] = [g[k + 2]! - target[0]!, g[k + 3]! - target[1]!, g[k + 4]! - target[2]!];
+        const off: number[] = [
+          g[k + 2]! - target[0]!,
+          g[k + 3]! - target[1]!,
+          g[k + 4]! - target[2]!,
+        ];
 
         // Front-most skin only: the opening's own side of the head.
         const d: number = Math.hypot(...square(off)) - 1e-3 * dot(off, forward);
@@ -359,13 +449,37 @@ export namespace AutoMovieHumanApertureSpan {
       let [s, t] = start;
       let past: boolean = false;
       for (let iteration: number = 0; iteration < 30; iteration++) {
-        const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
-        const r: number[] = square([p[0] - target[0]!, p[1] - target[1]!, p[2] - target[2]!]);
+        const p: [number, number, number] = AutoMovieLoftChain.point(
+          chain,
+          s,
+          t,
+        );
+        const r: number[] = square([
+          p[0] - target[0]!,
+          p[1] - target[1]!,
+          p[2] - target[2]!,
+        ]);
         const h: number = s + STEP <= y1 ? STEP : -STEP;
-        const ps: [number, number, number] = AutoMovieLoftChain.point(chain, s + h, t);
-        const pt: [number, number, number] = AutoMovieLoftChain.point(chain, s, t + TURN);
-        const du: number[] = square([(ps[0] - p[0]) / h, (ps[1] - p[1]) / h, (ps[2] - p[2]) / h]);
-        const dv: number[] = square([(pt[0] - p[0]) / TURN, (pt[1] - p[1]) / TURN, (pt[2] - p[2]) / TURN]);
+        const ps: [number, number, number] = AutoMovieLoftChain.point(
+          chain,
+          s + h,
+          t,
+        );
+        const pt: [number, number, number] = AutoMovieLoftChain.point(
+          chain,
+          s,
+          t + TURN,
+        );
+        const du: number[] = square([
+          (ps[0] - p[0]) / h,
+          (ps[1] - p[1]) / h,
+          (ps[2] - p[2]) / h,
+        ]);
+        const dv: number[] = square([
+          (pt[0] - p[0]) / TURN,
+          (pt[1] - p[1]) / TURN,
+          (pt[2] - p[2]) / TURN,
+        ]);
         const a11: number = dot(du, du);
         const a12: number = dot(du, dv);
         const a22: number = dot(dv, dv);
@@ -389,7 +503,14 @@ export namespace AutoMovieHumanApertureSpan {
         t += dt;
       }
       const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
-      return { s, t, distance: Math.hypot(...square([p[0] - target[0]!, p[1] - target[1]!, p[2] - target[2]!])), past };
+      return {
+        s,
+        t,
+        distance: Math.hypot(
+          ...square([p[0] - target[0]!, p[1] - target[1]!, p[2] - target[2]!]),
+        ),
+        past,
+      };
     }
 
     // Each foot from the previous one; a solve that stops off the line of
@@ -430,8 +551,16 @@ export namespace AutoMovieHumanApertureSpan {
     let last: number = -1;
     layers.forEach((layer: IAutoMovieLoftChain.ILayer, k: number): void => {
       for (let i: number = 0; i < PHASES; i++) {
-        const p: [number, number, number] = AutoMovieLoftChain.point(chain, layer.y, (2 * Math.PI * i) / PHASES);
-        if (p.every((v: number, c: number): boolean => low[c]! <= v && v <= high[c]!)) {
+        const p: [number, number, number] = AutoMovieLoftChain.point(
+          chain,
+          layer.y,
+          (2 * Math.PI * i) / PHASES,
+        );
+        if (
+          p.every(
+            (v: number, c: number): boolean => low[c]! <= v && v <= high[c]!,
+          )
+        ) {
           if (first < 0) first = k;
           last = k;
           return;
@@ -439,7 +568,10 @@ export namespace AutoMovieHumanApertureSpan {
       }
     });
     if (first < 0) return null;
-    return [layers[Math.max(0, first - 1)]!.y, layers[Math.min(layers.length - 1, last + 1)]!.y];
+    return [
+      layers[Math.max(0, first - 1)]!.y,
+      layers[Math.min(layers.length - 1, last + 1)]!.y,
+    ];
   }
 
   /** Dot product. */

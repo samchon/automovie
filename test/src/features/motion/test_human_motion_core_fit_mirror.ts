@@ -1,14 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,17 +57,19 @@ export function test_human_motion_core_fit_mirror(): void {
       : name.startsWith("right")
         ? `left${name.slice(5)}`
         : name;
-  const mirror = (p: IHumanPosture): IHumanPosture => {
+  const mirror = (
+    p: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture => {
     const joints: Record<string, readonly [number, number, number]> = {};
     for (const [bone, v] of Object.entries(p.joints ?? {}) as [
       string,
       readonly [number, number, number],
     ][])
       joints[swap(bone)] = swap(bone) === bone ? [v[0], -v[1], -v[2]] : v;
-    const limbs: Record<string, IHumanPosture.IGoal> = {};
+    const limbs: Record<string, IAutoMovieHumanLimbGoal> = {};
     for (const [limb, g] of Object.entries(p.limbs ?? {}) as [
       string,
-      IHumanPosture.IGoal,
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[swap(limb)] = {
         ...g,
@@ -86,12 +85,12 @@ export function test_human_motion_core_fit_mirror(): void {
       roll: -p.roll,
       joints,
       limbs,
-    } as IHumanPosture;
+    } as IAutoMovieMotionHumanPosture;
   };
   const compare = (
     label: string,
     body: ReturnType<typeof motionHumanBody>,
-    p: IHumanPosture,
+    p: IAutoMovieMotionHumanPosture,
   ): void => {
     const a = poseBones(body, resolveHumanPosture(body, p));
     const b = poseBones(body, resolveHumanPosture(body, mirror(p)));
@@ -118,7 +117,7 @@ export function test_human_motion_core_fit_mirror(): void {
   };
   for (const name of motionHumanBody.EXTREMES) {
     const body = motionHumanBody(name);
-    const quiet: IHumanPosture = stand.posture(
+    const quiet: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0.13, y: 0, z: -0.21 },
       17,
@@ -151,14 +150,18 @@ export function test_human_motion_core_fit_mirror(): void {
     });
 
     // 3. Both hands reaching forward, apart, the right a little higher.
-    const level: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const level: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const chest: number = body.measure.shoulderHeight - 0.2;
     const hand = (
       x: number,
       y: number,
       z: number,
       out: number,
-    ): IHumanPosture.IGoal => ({
+    ): IAutoMovieHumanLimbGoal => ({
       point: { x, y, z },
       bend: { x: out, y: chest - 0.25, z: 0 },
     });

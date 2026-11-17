@@ -1,9 +1,10 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { IAutoMovieSkeletonTopology, reachableBoneNames } from "../kinematics";
+import { reachableBoneNames } from "../kinematics";
 
 /**
  * Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.

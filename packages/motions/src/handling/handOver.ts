@@ -1,22 +1,31 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionMeeting,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -35,7 +44,7 @@ import { handshake } from "./handshake";
  * (`HumanHandover`), holds it there while the receiver's hand arrives and
  * closes, holds on through the transfer time, and only then opens the
  * fingers and returns the hand to where it hangs; inverse kinematics solves
- * the arm, whose reference (`IHumanPosture.IGoal.reference`) passes from the
+ * the arm, whose reference (`HumanPosture.IGoal.reference`) passes from the
  * configuration it carried the prop in to the offer's own solution with the
  * transport's progress and back on the way home; on the way out the prop is
  * turned about the vertical where the arm keeps it upright so, back to the
@@ -59,10 +68,10 @@ import { handshake } from "./handshake";
  */
 export namespace handOver {
   /** The action's name. */
-  export const name: HumanActionName = "handOver";
+  export const name: AutoMovieMotionHumanActionName = "handOver";
 
   /** Cancel table: after the release the hand is free. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -70,30 +79,6 @@ export namespace handOver {
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The held prop's subject id. */
-    prop: string;
-
-    /** The receiver's subject id. */
-    to: string;
-
-    /** The prop's grip affordance the receiver takes. */
-    handle: string;
-
-    /** The giver's holding hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** The receiver's taking hand; `right` when absent. */
-    receiverHand?: HumanHand.Side;
-
-    /** The prop's mass, kilograms; 0.09 when absent. */
-    mass?: number;
-
-    /** How the handover ends; `transfer` when absent. */
-    outcome?: HumanHandover.Outcome;
-  }
 
   /** Time the fingers take to open at the release, seconds; provisional. */
   export const OPEN: number = 0.2;
@@ -105,21 +90,24 @@ export namespace handOver {
    * @returns The plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const side: HumanHand.Side = context.params.hand ?? "right";
-    const body: IHumanBody = context.body;
-    const held: IHumanPosture = context.entry.posture;
-    const receiver: IHumanActionContext.IPerformer = context.performer(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandoverAction.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const held: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const receiver: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.to,
     );
-    const receiverSide: HumanHand.Side = context.params.receiverHand ?? "right";
-    const prop: IHumanProp = context.prop(context.params.prop).prop;
-    const frame: IHumanProp.IFrame = context
+    const receiverSide: AutoMovieHumanSide =
+      context.params.receiverHand ?? "right";
+    const prop: IAutoMovieMotionHumanProp = context.prop(
+      context.params.prop,
+    ).prop;
+    const frame: IAutoMovieRigidTransform = context
       .prop(context.params.prop)
       .frame(context.start);
     // The place both partners read from one meeting record.
-    const met: AutoMovieMotionMeeting.IMeeting = context.meeting(
+    const met: IAutoMovieMotionMeeting = context.meeting(
       HumanHandoverMeeting.kind({
         giver: side,
         receiver: receiverSide,
@@ -131,7 +119,7 @@ export namespace handOver {
       HumanHandoverMeeting.GIVER,
       { role: HumanHandoverMeeting.RECEIVER, subject: context.params.to },
     );
-    const shared: HumanHandover.IPlan = HumanHandover.plan({
+    const shared: IAutoMovieMotionHumanHandover.IPlan = HumanHandover.plan({
       giver: {
         body,
         side,
@@ -164,34 +152,38 @@ export namespace handOver {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
-      HumanSeatedReach.need(
-        {
-          name: HumanHandoverMeeting.GIVER,
-          subject: context.subject,
-          body,
-          posture: held,
-          bones: entered,
-          seated: context.entry.supports.some(
-            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
-          ),
-        },
-        shoulder,
-        shared.giverAt.point,
-        handshake.arm(body, side, shoulder).limit,
-      );
-    const leaned = (share: number): IHumanPosture =>
+    const lean: {
+      share: number;
+      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+    } = HumanSeatedReach.need(
+      {
+        name: HumanHandoverMeeting.GIVER,
+        subject: context.subject,
+        body,
+        posture: held,
+        bones: entered,
+        seated: context.entry.supports.some(
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+            s.kind === "seat",
+        ),
+      },
+      shoulder,
+      shared.giverAt.point,
+      handshake.arm(body, side, shoulder).limit,
+    );
+    const leaned = (share: number): IAutoMovieMotionHumanPosture =>
       HumanSeatedReach.posed(body, held, lean.joints, lean.share * share);
 
     // The giver's path: out to the offer, a hold, then home or back.
-    const out: HumanPrehension.ITransport = HumanPrehension.transport(
-      shared.giverFrom.point,
-      shared.giverAt.point,
-      { x: 0, y: 0, z: 0 },
-      0,
-      { from: shared.giverFrom.rotation, to: shared.giverAt.rotation },
-      shared.offer,
-    );
+    const out: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        shared.giverFrom.point,
+        shared.giverAt.point,
+        { x: 0, y: 0, z: 0 },
+        0,
+        { from: shared.giverFrom.rotation, to: shared.giverAt.rotation },
+        shared.offer,
+      );
     const pullback: number =
       shared.outcome === "transfer"
         ? shared.release
@@ -199,23 +191,30 @@ export namespace handOver {
           ? Math.max(shared.offer, shared.gripClosed - 0.5 * shared.reach)
           : shared.release;
     const back: number = shared.offer;
-    const home: HumanPrehension.ITransport = HumanPrehension.transport(
-      shared.giverAt.point,
-      shared.giverFrom.point,
-      { x: 0, y: 0, z: 0 },
-      0,
-      { from: shared.giverAt.rotation, to: shared.giverFrom.rotation },
-      back,
-    );
+    const home: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        shared.giverAt.point,
+        shared.giverFrom.point,
+        { x: 0, y: 0, z: 0 },
+        0,
+        { from: shared.giverAt.rotation, to: shared.giverFrom.rotation },
+        back,
+      );
     const opens: boolean = shared.outcome === "transfer";
     const duration: number = pullback + (opens ? OPEN : 0) + back;
-    const closed: IHumanPosture["joints"] = HumanGrip.fingers(
+    const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
     );
-    const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       body,
       held,
@@ -226,11 +225,11 @@ export namespace handOver {
     // solved once on its own. The offer at a small giver's shoulder height
     // needs another elbow than the carry, so a reference of the carry alone
     // left the wrist to make up the forearm's pitch and tilted the prop.
-    const carried: IHumanPosture.IReference = resolveHumanPosture.reference(
+    const carried: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
       context.entry.pose,
       limb,
     );
-    const offered: IHumanPosture.IReference = resolveHumanPosture.reference(
+    const offered: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
       resolveHumanPosture(body, {
         ...leaned(1),
         limbs: {
@@ -246,7 +245,7 @@ export namespace handOver {
     );
     // Blended as rotations: the two solutions may be written in different
     // charts of the shoulder.
-    const between = (share: number): IHumanPosture.IReference => ({
+    const between = (share: number): IAutoMovieHumanLimbReference => ({
       upper: blendHumanJoint(
         body,
         `${side}UpperArm`,
@@ -267,11 +266,14 @@ export namespace handOver {
     // receiver's grip, so the way out keeps it at both ends and chooses the
     // turn between them its arm meets with the prop upright
     // (`HumanHandover.upright`).
-    const pose = (seconds: number, yaw: number): IHumanPosture => {
+    const pose = (
+      seconds: number,
+      yaw: number,
+    ): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
-      let digits: IHumanPosture["joints"] = closed;
+      let digits: IAutoMovieMotionHumanPosture["joints"] = closed;
       let share: number = 1;
       if (t <= shared.offer) {
         wrist = out.wrist(t);
@@ -303,7 +305,7 @@ export namespace handOver {
             r / back,
           );
       }
-      const base: IHumanPosture = leaned(share);
+      const base: IAutoMovieMotionHumanPosture = leaned(share);
       return {
         ...base,
         joints: { ...base.joints, ...digits },
@@ -334,7 +336,7 @@ export namespace handOver {
       shared.offer,
       [0, 0],
     );
-    const part: IHumanContactWindow["part"] =
+    const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
@@ -366,7 +368,8 @@ export namespace handOver {
         },
       ],
       contact: shared.offer,
-      posture: (seconds: number): IHumanPosture => pose(seconds, turn(seconds)),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        pose(seconds, turn(seconds)),
     };
   }
 }

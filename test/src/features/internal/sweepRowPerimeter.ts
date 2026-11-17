@@ -1,13 +1,15 @@
 import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieSubdivisionSurface,
-  type IAutoMovieSurfaceCage,
-  type IAutoMovieSurfaceLocation,
-  type IAutoMovieSurfaceNetwork,
   locateAutoMovieSurfaceVertices,
   sampleAutoMovieSurfaceNetwork,
   subdivideAutoMovieSurface,
 } from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieSubdivisionSurface,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceLocation,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/interface";
 
 /**
  * The limit perimeter of a network's whole-turn row at patch coordinate `t`,

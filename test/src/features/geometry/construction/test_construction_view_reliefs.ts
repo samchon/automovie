@@ -1,14 +1,16 @@
 import {
-  type AutoMovieConstructionRealization,
   AutoMovieLoftChain,
   AutoMovieViewAxis,
   AutoMovieViewLoft,
   AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -44,7 +46,7 @@ export function test_construction_view_reliefs(): void {
   if (!(lift > 1))
     failures.push(`proof: the relief lifts the window centre only ${lift} mm`);
 
-  const realized: AutoMovieConstructionRealization.IWithoutSkin =
+  const realized: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       {
         name: "relief-tree",

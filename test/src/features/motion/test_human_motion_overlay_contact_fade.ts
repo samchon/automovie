@@ -1,4 +1,9 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
 import {
   HumanCarried,
   HumanCarriedCoupling,
@@ -6,7 +11,6 @@ import {
   HumanPerformance,
   HumanSignature,
   HumanVerdicts,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -47,7 +51,7 @@ export function test_human_motion_overlay_contact_fade(): void {
         HumanCarried.CARRIES[carry],
         carry,
       );
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "overlay-contact-fade",
         laws: [HumanCarried.bearing, HumanCarried.borne],
         performers: (["a", "b"] as const).map((subject) => ({
@@ -68,15 +72,15 @@ export function test_human_motion_overlay_contact_fade(): void {
             }),
           ).node,
       });
-      const windows: readonly IHumanContactWindow[] =
+      const windows: readonly IAutoMovieMotionHumanContactWindow[] =
         film.overlays("a")[0]!.plan.contacts;
-      const a: HumanSignature.IReader = HumanSignature.of(
+      const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         bodies.a,
         0,
       );
-      const b: HumanSignature.IReader = HumanSignature.of(
+      const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "b",
         bodies.b,

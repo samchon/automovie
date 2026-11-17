@@ -1,6 +1,12 @@
 import { Transform } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -8,11 +14,6 @@ import {
   HumanChain,
   HumanFrame,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type IHumanEntryState,
-  type IHumanPosture,
   jump,
   poseBones,
 } from "@automovie/motions";
@@ -44,8 +45,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_jump_takeoff(): void {
   const findings: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const performance: HumanPerformance = new HumanPerformance({
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "takeoff",
       performers: [
         {
@@ -59,7 +60,7 @@ export function test_human_motion_jump_takeoff(): void {
       composition: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 })
         .node,
     });
-    const initial: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const initial: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     for (const leading of [null, "left", "right"] as const) {
       const angle = (side: "left" | "right"): number =>
         leading === null ? 0 : leading === side ? 20 : -20;
@@ -100,14 +101,14 @@ export function test_human_motion_jump_takeoff(): void {
           root: Transform.of(at, HumanFrame.turn(yaw)),
         };
         const bones: ReturnType<typeof poseBones> = poseBones(body, pose);
-        const posture: IHumanPosture = {
+        const posture: IAutoMovieMotionHumanPosture = {
           ...initial.context.entry.posture,
           root: at,
           yaw,
           pitch: 0,
           roll: 0,
         };
-        const entry: IHumanEntryState = {
+        const entry: IAutoMovieMotionHumanEntryState = {
           ...initial.context.entry,
           pose,
           posture,
@@ -142,10 +143,13 @@ export function test_human_motion_jump_takeoff(): void {
           });
           const parts: string[] = plan.contacts
             .filter(
-              (contact: IHumanContactWindow): boolean =>
+              (contact: IAutoMovieMotionHumanContactWindow): boolean =>
                 contact.from === 0 && contact.kind === "plant",
             )
-            .map((contact: IHumanContactWindow): string => contact.part);
+            .map(
+              (contact: IAutoMovieMotionHumanContactWindow): string =>
+                contact.part,
+            );
           const expected: string = `${leading ?? "left"}Foot`;
           if (parts.length !== 1 || parts[0] !== expected)
             findings.push(
@@ -153,7 +157,7 @@ export function test_human_motion_jump_takeoff(): void {
             );
         }
         if (leading === "left") {
-          const sole: IHumanEntryState = {
+          const sole: IAutoMovieMotionHumanEntryState = {
             ...entry,
             feet: {
               ...entry.feet,
@@ -171,7 +175,7 @@ export function test_human_motion_jump_takeoff(): void {
           });
           if (
             !plan.contacts.some(
-              (contact: IHumanContactWindow): boolean =>
+              (contact: IAutoMovieMotionHumanContactWindow): boolean =>
                 contact.from === 0 && contact.part === "rightFoot",
             )
           )

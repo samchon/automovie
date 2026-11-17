@@ -1,5 +1,5 @@
-import { IAutoMovieAnalysisDomainRollup } from "./IAutoMovieAnalysisDomainRollup";
-import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
+import type { IAutoMovieAnalysisDomainRollup } from "./IAutoMovieAnalysisDomainRollup";
+import type { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
 
 /**
  * A bounded verdict over every analysis run of one design revision.

@@ -1,10 +1,12 @@
 import {
-  type advancePhysicalBalance as Balance,
-  type AutoMoviePhysicalSimulation as Simulation,
   physicalContactSupportGoals,
   physicalSupportPoint,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -27,16 +29,18 @@ import { vclose } from "../internal/vclose";
  */
 export function test_physical_support_intent(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 1 / 120);
-  const pattern: NonNullable<Simulation.IBody["balance"]>["pattern"] =
-    body.balance!.pattern;
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(profile, 1 / 120);
+  const pattern: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  >["pattern"] = body.balance!.pattern;
   const limb: (typeof pattern.limbs)[number] = pattern.limbs[0]!;
-  const state: Balance.IState = {
+  const state: IAutoMoviePhysicalRecoveryState = {
     last: "supported",
     steps: [],
     offsets: { [limb.bone]: { x: 0.02, y: 0, z: 0 } },
   };
-  const target: Simulation.ITarget = body.targets[1]!;
+  const target: IAutoMoviePhysicalSimulationInput.ITarget = body.targets[1]!;
   const original: string = JSON.stringify({ body, state });
   const goals: ReturnType<typeof physicalContactSupportGoals> =
     physicalContactSupportGoals(

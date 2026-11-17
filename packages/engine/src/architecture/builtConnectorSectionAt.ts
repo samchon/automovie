@@ -1,9 +1,9 @@
 import {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieConnectorSectionAt,
 } from "@automovie/interface";
 
-import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
 import { builtConnectorSection } from "./builtConnectorSection";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 

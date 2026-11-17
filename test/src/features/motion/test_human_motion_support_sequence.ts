@@ -1,8 +1,12 @@
+import type {
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRefusal,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type IHumanContactWindow,
   crawl,
   support,
 } from "@automovie/motions";
@@ -75,7 +79,7 @@ export function test_human_motion_support_sequence(): void {
     { part: "leftHand", kind: "bear" },
     { part: "rightHand", kind: "bear" },
   ] as const;
-  const perform = (stances: unknown): HumanPerformance =>
+  const perform = (stances: unknown): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "support",
       performers: [
@@ -92,15 +96,15 @@ export function test_human_motion_support_sequence(): void {
     });
 
   // 1. and 2. The landing and the order of its windows.
-  const landing: HumanPerformance = perform([
+  const landing: IAutoMovieMotionHumanPerformance = perform([
     { contacts: feet },
     { contacts: [...feet, ...hands] },
     { contacts: feet },
   ]);
   const plan = landing.segments("a")[0]!.plan;
-  const windows: readonly IHumanContactWindow[] = plan.contacts;
-  const palm = windows.filter((w: IHumanContactWindow): boolean =>
-    w.part.endsWith("Hand"),
+  const windows: readonly IAutoMovieMotionHumanContactWindow[] = plan.contacts;
+  const palm = windows.filter(
+    (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Hand"),
   );
   all.check(`two palm windows, read ${palm.length}`, palm.length === 2);
   for (const w of palm)
@@ -108,14 +112,15 @@ export function test_human_motion_support_sequence(): void {
       `the ${w.part} bears inside the move, ${w.from.toFixed(3)} to ${w.to.toFixed(3)}`,
       w.from > 0 && w.to < 1 && w.to > w.from,
     );
-  const feetWindows = windows.filter((w: IHumanContactWindow): boolean =>
-    w.part.endsWith("Foot"),
+  const feetWindows = windows.filter(
+    (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Foot"),
   );
   all.check(
     `each foot bears throughout, read ${feetWindows.map((w) => `${w.part} ${w.from}-${w.to}`).join(", ")}`,
     feetWindows.length === 2 &&
       feetWindows.every(
-        (w: IHumanContactWindow): boolean => w.from === 0 && w.to === 1,
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.from === 0 && w.to === 1,
       ),
   );
 
@@ -126,7 +131,7 @@ export function test_human_motion_support_sequence(): void {
   // foot lets go before the knee bears.
   const windowsOf = (
     stances: unknown,
-  ): readonly IHumanContactWindow[] | null => {
+  ): readonly IAutoMovieMotionHumanContactWindow[] | null => {
     try {
       return perform(stances).segments("a")[0]!.plan.contacts;
     } catch (error) {
@@ -135,22 +140,30 @@ export function test_human_motion_support_sequence(): void {
     }
   };
   const part = (
-    w: readonly IHumanContactWindow[],
+    w: readonly IAutoMovieMotionHumanContactWindow[],
     name: string,
-  ): IHumanContactWindow | undefined =>
-    w.find((x: IHumanContactWindow): boolean => x.part === name);
-  const reach: readonly IHumanContactWindow[] | null = windowsOf([
-    { contacts: feet },
-    {
-      contacts: [
-        { part: "leftFoot", kind: "bear" },
-        { part: "rightHand", kind: "bear" },
-      ],
-    },
-  ]);
+  ): IAutoMovieMotionHumanContactWindow | undefined =>
+    w.find((x: IAutoMovieMotionHumanContactWindow): boolean => x.part === name);
+  const reach: readonly IAutoMovieMotionHumanContactWindow[] | null = windowsOf(
+    [
+      { contacts: feet },
+      {
+        contacts: [
+          { part: "leftFoot", kind: "bear" },
+          { part: "rightHand", kind: "bear" },
+        ],
+      },
+    ],
+  );
   if (reach !== null) {
-    const hand: IHumanContactWindow | undefined = part(reach, "rightHand");
-    const foot: IHumanContactWindow | undefined = part(reach, "rightFoot");
+    const hand: IAutoMovieMotionHumanContactWindow | undefined = part(
+      reach,
+      "rightHand",
+    );
+    const foot: IAutoMovieMotionHumanContactWindow | undefined = part(
+      reach,
+      "rightFoot",
+    );
     all.check(
       `the right hand bears (from ${hand?.from.toFixed(3)}) no later than the right foot lets go (at ${foot?.to.toFixed(3)}), the foot before the end`,
       hand !== undefined &&
@@ -159,18 +172,26 @@ export function test_human_motion_support_sequence(): void {
         foot.to < 1,
     );
   }
-  const kneel: readonly IHumanContactWindow[] | null = windowsOf([
-    { contacts: feet },
-    {
-      contacts: [
-        { part: "leftFoot", kind: "bear" },
-        { part: "rightKnee", kind: "bear" },
-      ],
-    },
-  ]);
+  const kneel: readonly IAutoMovieMotionHumanContactWindow[] | null = windowsOf(
+    [
+      { contacts: feet },
+      {
+        contacts: [
+          { part: "leftFoot", kind: "bear" },
+          { part: "rightKnee", kind: "bear" },
+        ],
+      },
+    ],
+  );
   if (kneel !== null) {
-    const knee: IHumanContactWindow | undefined = part(kneel, "rightLowerLeg");
-    const foot: IHumanContactWindow | undefined = part(kneel, "rightFoot");
+    const knee: IAutoMovieMotionHumanContactWindow | undefined = part(
+      kneel,
+      "rightLowerLeg",
+    );
+    const foot: IAutoMovieMotionHumanContactWindow | undefined = part(
+      kneel,
+      "rightFoot",
+    );
     all.check(
       `the right foot lets go (at ${foot?.to.toFixed(3)}) no later than its knee bears (from ${knee?.from.toFixed(3)})`,
       knee !== undefined && foot !== undefined && foot.to <= knee.from,
@@ -193,7 +214,7 @@ export function test_human_motion_support_sequence(): void {
 
   // 3. A palm past the arm's span is refused, naming the hand.
   const span: number = body.measure.upperArm + body.measure.forearm;
-  let refusal: HumanRefusal | null = null;
+  let refusal: IAutoMovieMotionHumanRefusal | null = null;
   try {
     perform([
       { contacts: planted },
@@ -235,7 +256,7 @@ export function test_human_motion_support_sequence(): void {
     kind: "bear",
     target: on(toes("right").x, toes("right").z),
   };
-  let stepped: HumanPerformance | null = null;
+  let stepped: IAutoMovieMotionHumanPerformance | null = null;
   try {
     stepped = perform([
       {
@@ -281,10 +302,11 @@ export function test_human_motion_support_sequence(): void {
     // 5. The left foot bears twice, its first window closing at the lift and
     // its second opening as it is set down; the right bears throughout.
     const left = step.plan.contacts.filter(
-      (w: IHumanContactWindow): boolean => w.part === "leftFoot",
+      (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === "leftFoot",
     );
     const rightWindows = step.plan.contacts.filter(
-      (w: IHumanContactWindow): boolean => w.part === "rightFoot",
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
+        w.part === "rightFoot",
     );
     const share = (t: number | undefined): number =>
       t === undefined ? NaN : (t - step.start) / step.plan.duration;

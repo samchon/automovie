@@ -1,6 +1,11 @@
 import type {
+  IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMovieSolvePhysicalArticulationTargets,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -32,49 +37,35 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 30 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function fitPhysicalWholeBodyTarget(input: {
-  /** Admitted fixed-pivot tree. */ profile: P;
-  /** Current world pose of every segment. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** The held support and its bounded turn about the contact normal. */ support: {
-    /** Held segment. */ bone: string;
-    /** World contact point, metres. */ point: IAutoMovieVector3;
-    /** Unit world contact normal the support may turn about. */ normal: IAutoMovieVector3;
-    /** Lower turn, radians. */ minimum: number;
-    /** Upper turn, radians. */ maximum: number;
-  };
-  /** Segments whose joint toward the old root may move: the support chain, the trunk and the reaching chain. */ bones: readonly string[];
-  /** The endpoint goal. */ goal: {
-    /** Segment carrying the endpoint. */ bone: string;
-    /** Endpoint in that segment's frame, metres. */ localPoint: IAutoMovieVector3;
-    /** World goal point, metres. */ point: IAutoMovieVector3;
-    /** Optional arrival direction: the segment's local direction should point along it. */ approach?: {
-      /** Unit direction in the segment's frame. */ localDirection: IAutoMovieVector3;
-      /** Unit world direction. */ direction: IAutoMovieVector3;
-      /** Metres of residual per unit of direction difference; positive. */ weight: number;
-    };
-  };
-  /** Positive update budget, at most 64. */ iterations: number;
-  /** Positive residual early-out, metres. */ tolerance: number;
-}): fitPhysicalWholeBodyTarget.IResult {
+export function fitPhysicalWholeBodyTarget(
+  input: IAutoMovieFitPhysicalWholeBodyTarget.IInput,
+): IAutoMovieFitPhysicalWholeBodyTarget.IResult {
   const pivot: string = `${input.support.bone}:pivot`;
-  if (input.profile.segments.some((s: P.ISegment): boolean => s.bone === pivot))
+  if (
+    input.profile.segments.some(
+      (s: IAutoMoviePhysicalSegment): boolean => s.bone === pivot,
+    )
+  )
     throw new Error(`Physical pivot name ${pivot} is taken`);
-  const held: P.ITransform = input.targets[input.support.bone]!;
-  const frame: P.ITransform["rotation"] = along(input.support.normal);
-  const rerooted: P = rerootPhysicalProfile(input.profile, input.support.bone);
+  const held: IAutoMovieRigidTransform = input.targets[input.support.bone]!;
+  const frame: IAutoMovieRigidTransform["rotation"] = along(
+    input.support.normal,
+  );
+  const rerooted: IAutoMoviePhysicalProfile = rerootPhysicalProfile(
+    input.profile,
+    input.support.bone,
+  );
   const inverted: Set<string> = new Set(
     rerooted.joints
       .filter(
-        (joint: P.IJoint, k: number): boolean =>
+        (joint: IAutoMoviePhysicalJoint, k: number): boolean =>
           joint !== input.profile.joints[k],
       )
-      .map((joint: P.IJoint): string => joint.id),
+      .map((joint: IAutoMoviePhysicalJoint): string => joint.id),
   );
 
   // A virtual base hinged onto the support at its contact, about its normal.
-  const profile: P = {
+  const profile: IAutoMoviePhysicalProfile = {
     ...rerooted,
     segments: [
       ...rerooted.segments,
@@ -128,13 +119,17 @@ export function fitPhysicalWholeBodyTarget(input: {
   const moving: string[] = [
     input.support.bone,
     ...input.profile.joints
-      .filter((joint: P.IJoint): boolean => input.bones.includes(joint.child))
-      .map((joint: P.IJoint): string =>
+      .filter((joint: IAutoMoviePhysicalJoint): boolean =>
+        input.bones.includes(joint.child),
+      )
+      .map((joint: IAutoMoviePhysicalJoint): string =>
         inverted.has(joint.id) ? joint.parent : joint.child,
       ),
   ];
-  const measure = (poses: Readonly<Record<string, P.ITransform>>): number[] => {
-    const pose: P.ITransform = poses[input.goal.bone]!;
+  const measure = (
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  ): number[] => {
+    const pose: IAutoMovieRigidTransform = poses[input.goal.bone]!;
     const error: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(
         pose.position,
@@ -154,7 +149,7 @@ export function fitPhysicalWholeBodyTarget(input: {
       : { x: 0, y: 0, z: 0 };
     return [error.x, error.y, error.z, turned.x, turned.y, turned.z];
   };
-  const solved: ReturnType<typeof solvePhysicalArticulationTargets> =
+  const solved: IAutoMovieSolvePhysicalArticulationTargets.IResult =
     solvePhysicalArticulationTargets({
       profile,
       bones: [...new Set(moving)],
@@ -167,7 +162,9 @@ export function fitPhysicalWholeBodyTarget(input: {
       tolerance: input.tolerance,
     });
   const rows: number[] = measure(solved.targets);
-  const targets: Record<string, P.ITransform> = { ...solved.targets };
+  const targets: Record<string, IAutoMovieRigidTransform> = {
+    ...solved.targets,
+  };
   delete targets[pivot];
   return {
     targets,
@@ -176,33 +173,11 @@ export function fitPhysicalWholeBodyTarget(input: {
     approach: Math.hypot(rows[3]!, rows[4]!, rows[5]!),
   };
 }
-/**
- * Result shapes of {@link fitPhysicalWholeBodyTarget}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Result shapes of ) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Result shapes of : companion namespace of 1 member (`IResult`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `fitPhysicalWholeBodyTarget` in packages/engine/src/physics/fitPhysicalWholeBodyTarget.ts; its surface is the 1 member listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace fitPhysicalWholeBodyTarget {
-  /** A whole-body fit and its residual report. */
-  export interface IResult {
-    /** World pose of every original segment. */
-    targets: Record<string, P.ITransform>;
-
-    /** Total residual norm, metres. */
-    residual: number;
-
-    /** Endpoint point error, metres. */
-    position: number;
-
-    /** Weighted approach direction error, metres; zero without an approach. */
-    approach: number;
-  }
-}
 
 /** The rotation taking +x to a unit direction by the shortest arc. */
-function along(direction: IAutoMovieVector3): P.ITransform["rotation"] {
+function along(
+  direction: IAutoMovieVector3,
+): IAutoMovieRigidTransform["rotation"] {
   const d: IAutoMovieVector3 = Vector3.normalize(direction);
   if (d.x < -1 + 1e-12) return { x: 0, y: 0, z: 1, w: 0 };
   const half: number = Math.sqrt((1 + d.x) / 2);

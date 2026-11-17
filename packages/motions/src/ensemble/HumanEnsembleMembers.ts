@@ -1,15 +1,18 @@
+import type {
+  IAutoMovieMotionHumanAttribute,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanEnsemblePreset,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieProficiency,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HUMAN_ENSEMBLE_PRESETS } from "./HUMAN_ENSEMBLE_PRESETS";
-import type { HumanEnsemble } from "./HumanEnsemble";
 import { HumanAttribute } from "./HumanAttribute";
 import { HumanFormation } from "./HumanFormation";
-import type { IHumanEnsemble } from "./IHumanEnsemble";
-import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
-import type { IHumanFormation } from "./IHumanFormation";
 
 /**
  * How an ensemble's members are resolved from its input (`HumanEnsemble.of`):
@@ -34,15 +37,15 @@ export namespace HumanEnsembleMembers {
    * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
    */
   export function resolve(
-    input: IHumanEnsemble,
-    read?: HumanFormation.Reader,
-  ): HumanEnsemble.IEnsemble {
+    input: IAutoMovieMotionHumanEnsemble,
+    read?: IAutoMovieMotionHumanFormation.Reader,
+  ): IAutoMovieMotionHumanEnsemble.IEnsemble {
     const refuse = (
       axis: string,
       value: unknown,
       reason: string,
       fix: string,
-      feasible?: HumanRefusal.Feasible,
+      feasible?: IAutoMovieMotionHumanRefusal.Feasible,
     ): never => {
       throw new HumanRefusal({
         kind: "parameter",
@@ -67,7 +70,7 @@ export namespace HumanEnsembleMembers {
         "an ensemble's body pool is empty",
         "give at least one body",
       );
-    const formation: IHumanFormation | undefined =
+    const formation: IAutoMovieMotionHumanFormation | undefined =
       input.formation === undefined
         ? undefined
         : HumanFormation.of(input.formation);
@@ -91,26 +94,33 @@ export namespace HumanEnsembleMembers {
       );
 
     // The distributions: the preset's rows, overridden by the input's.
-    const preset: IHumanEnsemblePreset | undefined =
+    const preset: IAutoMovieMotionHumanEnsemblePreset | undefined =
       input.preset === undefined
         ? undefined
         : HUMAN_ENSEMBLE_PRESETS[input.preset];
     const distributions: Partial<
-      Record<HumanAttribute.Name, HumanAttribute.IDistribution>
+      Record<
+        IAutoMovieMotionHumanAttribute.Name,
+        IAutoMovieMotionHumanAttribute.IDistribution
+      >
     > = {
       ...(preset?.attributes ?? {}),
       ...(input.attributes ?? {}),
     };
-    const proficiency: HumanAttribute.IDistribution = input.proficiency ??
-      preset?.proficiency ?? { mean: HumanSkill.LEVELS.trained, spread: 0 };
+    const proficiency: IAutoMovieMotionHumanAttribute.IDistribution =
+      input.proficiency ??
+        preset?.proficiency ?? { mean: HumanSkill.LEVELS.trained, spread: 0 };
 
     // Each member's own draws, keyed by its index.
-    const members: HumanEnsemble.IMember[] = [];
+    const members: IAutoMovieMotionHumanEnsemble.IMember[] = [];
     for (let index: number = 0; index < input.count; ++index) {
       const subject: string = `${input.id}.${index}`;
-      const attributes: Partial<Record<HumanAttribute.Name, number>> = {};
+      const attributes: Partial<
+        Record<IAutoMovieMotionHumanAttribute.Name, number>
+      > = {};
       for (const name of HumanAttribute.NAMES) {
-        const d: HumanAttribute.IDistribution | undefined = distributions[name];
+        const d: IAutoMovieMotionHumanAttribute.IDistribution | undefined =
+          distributions[name];
         if (d !== undefined)
           attributes[name] = HumanAttribute.draw(
             input.seed,
@@ -138,9 +148,9 @@ export namespace HumanEnsembleMembers {
             input.bodies.length,
         ),
       );
-      const slot: HumanFormation.ILocal | null =
+      const slot: IAutoMovieMotionHumanFormation.ILocal | null =
         formation === undefined ? null : HumanFormation.local(formation, index);
-      const place: IHumanEnsemble.IPlace =
+      const place: IAutoMovieMotionHumanEnsemble.IPlace =
         formation !== undefined
           ? placeOf(HumanFormation.slot(formation, index, 0, read))
           : typeof input.places === "function"
@@ -169,13 +179,13 @@ export namespace HumanEnsembleMembers {
 
     // Roles in the order given, each from the members its pick names that no earlier role took.
     for (const [role, spec] of Object.entries(input.roles ?? {})) {
-      const free: HumanEnsemble.IMember[] = members.filter(
-        (m: HumanEnsemble.IMember): boolean => m.role === null,
+      const free: IAutoMovieMotionHumanEnsemble.IMember[] = members.filter(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.role === null,
       );
-      const candidates: HumanEnsemble.IMember[] =
+      const candidates: IAutoMovieMotionHumanEnsemble.IMember[] =
         spec.pick !== undefined && typeof spec.pick !== "string"
           ? spec.pick.map(
-              (i: number): HumanEnsemble.IMember =>
+              (i: number): IAutoMovieMotionHumanEnsemble.IMember =>
                 members[i] !== undefined && members[i]!.role === null
                   ? members[i]!
                   : refuse(
@@ -187,12 +197,13 @@ export namespace HumanEnsembleMembers {
             )
           : spec.pick === "front"
             ? free.filter(
-                (m: HumanEnsemble.IMember): boolean => m.slot === null || m.slot.rank === 0,
+                (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+                  m.slot === null || m.slot.rank === 0,
               )
             : spec.pick === "rear"
               ? free
                   .filter(
-                    (m: HumanEnsemble.IMember): boolean =>
+                    (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
                       m.slot === null ||
                       m.slot.rank === rearRank(formation, m.slot.block),
                   )
@@ -228,13 +239,15 @@ export namespace HumanEnsembleMembers {
 }
 
 /** A slot as a starting place. */
-function placeOf(slot: IHumanFormation.ISlot): IHumanEnsemble.IPlace {
+function placeOf(
+  slot: IAutoMovieMotionHumanFormation.ISlot,
+): IAutoMovieMotionHumanEnsemble.IPlace {
   return { at: slot.at, yaw: slot.heading };
 }
 
 /** The last rank of a block, or 0 without a formation. */
 function rearRank(
-  formation: IHumanFormation | undefined,
+  formation: IAutoMovieMotionHumanFormation | undefined,
   block: number,
 ): number {
   if (formation === undefined) return 0;
@@ -248,19 +261,23 @@ function rearRank(
 
 /** The free members on a flank: file 0 first, then the last file of each block; without a formation, the first and the last. */
 function flank(
-  free: readonly HumanEnsemble.IMember[],
-  formation: IHumanFormation | undefined,
-): HumanEnsemble.IMember[] {
+  free: readonly IAutoMovieMotionHumanEnsemble.IMember[],
+  formation: IAutoMovieMotionHumanFormation | undefined,
+): IAutoMovieMotionHumanEnsemble.IMember[] {
   if (formation === undefined)
     return free.length < 2 ? [...free] : [free[0]!, free[free.length - 1]!];
   const last: number = Math.max(
     0,
-    ...free.map((m: HumanEnsemble.IMember): number => m.slot?.file ?? 0),
+    ...free.map(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number => m.slot?.file ?? 0,
+    ),
   );
   return [
-    ...free.filter((m: HumanEnsemble.IMember): boolean => m.slot?.file === 0),
     ...free.filter(
-      (m: HumanEnsemble.IMember): boolean =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.slot?.file === 0,
+    ),
+    ...free.filter(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
         m.slot?.file === last && last !== 0,
     ),
   ];

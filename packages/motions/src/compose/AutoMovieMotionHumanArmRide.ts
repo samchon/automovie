@@ -1,21 +1,22 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -94,9 +95,9 @@ export namespace AutoMovieMotionHumanArmRide {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function riding(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
@@ -114,10 +115,11 @@ export namespace AutoMovieMotionHumanArmRide {
       `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`,
     )!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
-    const segment: HumanColliders.IPlaced | undefined = HumanColliders.placed(
-      body,
-      bones,
-    ).find((s: HumanColliders.IPlaced): boolean => s.bone === by.bone);
+    const segment: IAutoMovieMotionHumanColliders.IPlaced | undefined =
+      HumanColliders.placed(body, bones).find(
+        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          s.bone === by.bone,
+      );
     let normal: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(point, by.worldPosition),
     );

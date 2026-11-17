@@ -1,6 +1,6 @@
-import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
-import { IAutoMovieAnalysisOutcome } from "./IAutoMovieAnalysisOutcome";
-import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
+import type { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
+import type { IAutoMovieAnalysisOutcome } from "./IAutoMovieAnalysisOutcome";
+import type { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
 
 /**
  * One analysis run: what was asked, of which design revision, by which solver, and what came back.

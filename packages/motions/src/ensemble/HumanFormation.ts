@@ -4,13 +4,13 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFormationLayout,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFormationPath } from "./HumanFormationPath";
-import type { IHumanFormation } from "./IHumanFormation";
 
 /**
  * Formations: validating one, and reading where each member's slot stands at
@@ -45,12 +45,6 @@ export namespace HumanFormation {
   /** Seconds between two samples of a slot's way when the caller asks no other (provisional: a few samples a step, as `walkFollowed.STEP`). */
   export const SAMPLE: number = 0.25;
 
-  /** Reads a performer's placed root at a film second, for a guide frame: `IHumanActionContext.IPerformer.root` of the guide. */
-  export type Reader = (
-    subject: string,
-    seconds: number,
-  ) => IHumanActionContext.IRoot;
-
   /**
    * A formation checked: every block's count within its layout's capacity,
    * every size finite and positive.
@@ -59,7 +53,9 @@ export namespace HumanFormation {
    * @returns The same formation.
    * @throws {HumanRefusal} A `parameter` refusal naming the block and the value at fault.
    */
-  export function of(formation: IHumanFormation): IHumanFormation {
+  export function of(
+    formation: IAutoMovieMotionHumanFormation,
+  ): IAutoMovieMotionHumanFormation {
     if (formation.blocks.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -69,7 +65,7 @@ export namespace HumanFormation {
         fix: "give the formation at least one block",
       });
     formation.blocks.forEach(
-      (block: IHumanFormation.IBlock, b: number): void => {
+      (block: IAutoMovieMotionHumanFormation.IBlock, b: number): void => {
         const capacity: number = HumanFormation.capacity(block.layout);
         if (
           !(
@@ -130,9 +126,10 @@ export namespace HumanFormation {
    * @param formation The formation.
    * @returns The sum of its blocks' counts.
    */
-  export function count(formation: IHumanFormation): number {
+  export function count(formation: IAutoMovieMotionHumanFormation): number {
     return formation.blocks.reduce(
-      (sum: number, block: IHumanFormation.IBlock): number => sum + block.count,
+      (sum: number, block: IAutoMovieMotionHumanFormation.IBlock): number =>
+        sum + block.count,
       0,
     );
   }
@@ -147,7 +144,10 @@ export namespace HumanFormation {
    * @returns The slot's local place.
    * @throws {RangeError} When the slot lies outside the formation.
    */
-  export function local(formation: IHumanFormation, index: number): ILocal {
+  export function local(
+    formation: IAutoMovieMotionHumanFormation,
+    index: number,
+  ): IAutoMovieMotionHumanFormation.ILocal {
     let b: number = 0;
     let within: number = index;
     while (
@@ -164,7 +164,7 @@ export namespace HumanFormation {
       throw new RangeError(
         `Slot ${index} lies outside a formation of ${count(formation)}`,
       );
-    const block: IHumanFormation.IBlock = formation.blocks[b]!;
+    const block: IAutoMovieMotionHumanFormation.IBlock = formation.blocks[b]!;
 
     // The block's own point: the engine's x is lateral, and its z, which grows rank by rank, is read as the depth toward the rear, so rank 0 is the front.
     const point: IAutoMovieVector3 = formationSlotPosition(
@@ -221,11 +221,11 @@ export namespace HumanFormation {
    * @throws {HumanRefusal} When a guide frame is read without a reader.
    */
   export function frame(
-    formation: IHumanFormation,
+    formation: IAutoMovieMotionHumanFormation,
     seconds: number,
-    read?: Reader,
-  ): { at: IAutoMovieVector3; heading: number } {
-    const f: IHumanFormation.Frame = formation.frame;
+    read?: IAutoMovieMotionHumanFormation.Reader,
+  ): IAutoMovieMotionHumanFormation.IFrameResult {
+    const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
     if (f.kind === "fixed") return { at: f.at, heading: f.heading };
     if (f.kind === "path") return laid(f).at(seconds);
     if (f.kind === "course") return coursed(f, seconds);
@@ -237,7 +237,10 @@ export namespace HumanFormation {
         reason: `the formation follows ${f.subject}, whose placed path is read only while the performance places its members`,
         fix: "read the slot from a law's context, or give the formation a fixed or path frame",
       });
-    const root: IHumanActionContext.IRoot = read(f.subject, seconds);
+    const root: IAutoMovieMotionHumanActionContext.IRoot = read(
+      f.subject,
+      seconds,
+    );
     return {
       at: { x: root.position.x, y: 0, z: root.position.z },
       heading: root.yaw,
@@ -252,8 +255,10 @@ export namespace HumanFormation {
    * @param formation The formation.
    * @returns The second, or null.
    */
-  export function end(formation: IHumanFormation): number | null {
-    const f: IHumanFormation.Frame = formation.frame;
+  export function end(
+    formation: IAutoMovieMotionHumanFormation,
+  ): number | null {
+    const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
     if (f.kind === "path") return laid(f).end;
     if (f.kind === "course")
       return f.samples[f.samples.length - 1]?.seconds ?? null;
@@ -270,12 +275,15 @@ export namespace HumanFormation {
    * @returns The slot.
    */
   export function slot(
-    formation: IHumanFormation,
+    formation: IAutoMovieMotionHumanFormation,
     index: number,
     seconds: number,
-    read?: Reader,
-  ): IHumanFormation.ISlot {
-    const place: ILocal = local(formation, index);
+    read?: IAutoMovieMotionHumanFormation.Reader,
+  ): IAutoMovieMotionHumanFormation.ISlot {
+    const place: IAutoMovieMotionHumanFormation.ILocal = local(
+      formation,
+      index,
+    );
     const origin: { at: IAutoMovieVector3; heading: number } = frame(
       formation,
       seconds,
@@ -304,20 +312,23 @@ export namespace HumanFormation {
    * @returns The samples in time order.
    */
   export function path(
-    formation: IHumanFormation,
+    formation: IAutoMovieMotionHumanFormation,
     index: number,
     from: number,
     to: number,
     step: number = SAMPLE,
-    read?: Reader,
-  ): IHumanFormation.ISample[] {
+    read?: IAutoMovieMotionHumanFormation.Reader,
+  ): IAutoMovieMotionHumanFormation.ISample[] {
     if (!(to > from && step > 0))
       throw new RangeError(
         `A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`,
       );
-    const place: ILocal = local(formation, index);
+    const place: IAutoMovieMotionHumanFormation.ILocal = local(
+      formation,
+      index,
+    );
     const count: number = Math.ceil((to - from) / step - 1e-9);
-    const samples: IHumanFormation.ISample[] = [];
+    const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
     for (let k: number = 0; k <= count; ++k) {
       const seconds: number = k === count ? to : from + k * step;
       const at: IAutoMovieVector3 = place_(
@@ -343,11 +354,11 @@ export namespace HumanFormation {
    * @throws {HumanRefusal} When there are more members than slots.
    */
   export function assign(
-    formation: IHumanFormation,
+    formation: IAutoMovieMotionHumanFormation,
     members: readonly IAutoMovieVector3[],
     rule: "order" | "nearest",
     seconds: number,
-    read?: Reader,
+    read?: IAutoMovieMotionHumanFormation.Reader,
   ): number[] {
     const slots: number = count(formation);
     if (members.length > slots)
@@ -382,40 +393,23 @@ export namespace HumanFormation {
    * @returns The floor point, world metres.
    */
   export function place(
-    origin: { at: IAutoMovieVector3; heading: number },
-    place: { lateral: number; depth: number },
+    origin: IAutoMovieMotionHumanFormation.IPlaceOrigin,
+    place: IAutoMovieMotionHumanFormation.IPlacePlace,
   ): IAutoMovieVector3 {
     return place_(origin, place);
-  }
-
-  /** A slot's place in the formation's own frame. */
-  export interface ILocal {
-    /** Metres along the frame's lateral axis. */
-    lateral: number;
-
-    /** Metres toward the frame's rear. */
-    depth: number;
-
-    /** Degrees relative to the frame's heading. */
-    facing: number;
-
-    /** Its block. */
-    block: number;
-
-    /** Its rank, from 0 at the front. */
-    rank: number;
-
-    /** Its file, from 0. */
-    file: number;
   }
 }
 
 /** Every laid path frame, by its record, so a formation's frame is laid once. */
-const LAID: WeakMap<IHumanFormation.IPath, HumanFormationPath.ILaid> =
-  new WeakMap();
+const LAID: WeakMap<
+  IAutoMovieMotionHumanFormation.IPath,
+  HumanFormationPath.ILaid
+> = new WeakMap();
 
 /** The laid path frame of a record. */
-function laid(frame: IHumanFormation.IPath): HumanFormationPath.ILaid {
+function laid(
+  frame: IAutoMovieMotionHumanFormation.IPath,
+): HumanFormationPath.ILaid {
   let out: HumanFormationPath.ILaid | undefined = LAID.get(frame);
   if (out === undefined) {
     out = HumanFormationPath.lay(
@@ -430,15 +424,16 @@ function laid(frame: IHumanFormation.IPath): HumanFormationPath.ILaid {
 
 /** A course frame at a second: linear between its samples, heading the way it moves, kept while it stands (the first way it moves before it sets off), or the samples' own headings when they carry them. */
 function coursed(
-  frame: IHumanFormation.ICourse,
+  frame: IAutoMovieMotionHumanFormation.ICourse,
   seconds: number,
 ): { at: IAutoMovieVector3; heading: number } {
-  const s: readonly IHumanFormation.ISample[] = frame.samples;
+  const s: readonly IAutoMovieMotionHumanFormation.ISample[] = frame.samples;
   if (s.length === 0) throw new RangeError("A course frame has no samples");
   let i: number = 0;
   while (i + 2 < s.length && s[i + 1]!.seconds <= seconds) ++i;
-  const a: IHumanFormation.ISample = s[i]!;
-  const b: IHumanFormation.ISample = s[Math.min(i + 1, s.length - 1)]!;
+  const a: IAutoMovieMotionHumanFormation.ISample = s[i]!;
+  const b: IAutoMovieMotionHumanFormation.ISample =
+    s[Math.min(i + 1, s.length - 1)]!;
   const span: number = b.seconds - a.seconds;
   const u: number =
     span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
@@ -453,8 +448,8 @@ function coursed(
       heading: a.heading + (b.heading - a.heading) * u,
     };
   const heading = (k: number): number | null => {
-    const p: IHumanFormation.ISample = s[k]!;
-    const q: IHumanFormation.ISample = s[k + 1]!;
+    const p: IAutoMovieMotionHumanFormation.ISample = s[k]!;
+    const q: IAutoMovieMotionHumanFormation.ISample = s[k + 1]!;
     return Math.hypot(q.x - p.x, q.z - p.z) < 1e-9
       ? null
       : (Math.atan2(q.x - p.x, q.z - p.z) * 180) / Math.PI;

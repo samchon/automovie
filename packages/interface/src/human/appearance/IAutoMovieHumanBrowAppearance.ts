@@ -1,0 +1,25 @@
+import type { AutoMovieHumanHairColor } from "../AutoMovieHumanHairColor";
+
+/**
+ * Eyebrows; their position follows the brow ridge of the identity. A brow is
+ * colour painted into the skin's texture over the brow region, not hair
+ * geometry.
+ *
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Eyebrows; their position follows the brow ridge of the identity.
+ * @evidence contracts/development/design.md#principled-representation `color`: Brow hair colour. `thickness`: Factor on the brow's width across its length (Park 2017's widths: 9 mm above the medial canthus, 2 mm at the tail); omitted, 1. `density`: Coverage of the skin by brow hair at the brow's full body, from bare skin (0) to solid colour (1); it thins toward the head and the tail as hair does.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBrowAppearance is the canonical exchange used by IAutoMovieHumanBrowAppearanceSchema, IAutoMovieHumanAppearance.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `thickness`: Factor on the brow's width across its length (Park 2017's widths: 9 mm above the medial canthus, 2 mm at the tail); omitted, 1. `density`: Coverage of the skin by brow hair at the brow's full body, from bare skin (0) to solid colour (1); it thins toward the head and the tail as hair does.
+ */
+export interface IAutoMovieHumanBrowAppearance {
+  /** Brow hair colour. */
+  color: AutoMovieHumanHairColor;
+
+  /**
+   * Factor on the brow's width across its length (Park 2017's widths: 9 mm above the medial canthus, 2 mm at the tail); omitted, 1. Schema constraints: Minimum: 0.3; Maximum: 2; retained by Human's schema refinement. */
+  thickness?: number;
+
+  /**
+   * Coverage of the skin by brow hair at the brow's full body, from bare skin (0) to solid colour (1); it thins toward the head and the tail as hair does. Omitted, 0.85. Schema constraints: Minimum: 0; Maximum: 1; retained by Human's schema refinement. */
+  density?: number;
+}

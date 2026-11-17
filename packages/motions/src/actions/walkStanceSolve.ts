@@ -1,11 +1,16 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieMotionHumanWalkStanceSolve,
+} from "@automovie/interface";
 
-
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceModel } from "./walkStanceModel";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * A stance course's problem and its solve (`walkStanceCourse`): the problem
@@ -37,11 +42,11 @@ export namespace walkStanceSolve {
    * @returns The course.
    */
   export function solve(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
-    start?: walkStanceCourse.ICourse,
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start?: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     from: number = 0,
-  ): walkStanceCourse.ICourse {
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     return optimise(body, problem(body, knots, start, from));
   }
 
@@ -63,16 +68,13 @@ export namespace walkStanceSolve {
    * @returns The course at the last iterate taken, its largest excess as `unmet`.
    */
   export function optimise(
-    body: IHumanBody,
-    shape: walkStanceCourse.IProblem,
-    at: (
-      x: Float64Array,
-      model: boolean,
-    ) => { problem: walkStanceCourse.IProblem; rows: Q.IRow[] } = (): {
-      problem: walkStanceCourse.IProblem;
-      rows: Q.IRow[];
+    body: IAutoMovieMotionHumanBody,
+    shape: IAutoMovieMotionHumanWalkStanceCourse.IProblem,
+    at: IAutoMovieMotionHumanWalkStanceSolve.IOptimiseAt = (): {
+      problem: IAutoMovieMotionHumanWalkStanceCourse.IProblem;
+      rows: IAutoMovieMotionHumanQuadraticProgram.IRow[];
     } => ({ problem: shape, rows: [] }),
-  ): walkStanceCourse.ICourse {
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     // The multipliers of the last step taken, which the next subproblem
     // starts from.
     let duals: Map<string, number> | undefined;
@@ -81,37 +83,49 @@ export namespace walkStanceSolve {
     let last:
       | {
           x: Float64Array;
-          model: Q.IProblem;
+          model: IAutoMovieMotionHumanQuadraticProgram.IProblem;
           rows: number;
           mu: number;
           radius: number;
           step: Float64Array;
         }
       | undefined;
-    const problem: SCO.IProblem<Float64Array, walkStanceCourse.IEvaluation> = {
-      evaluate: (x: Float64Array): walkStanceCourse.IEvaluation => {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
+      Float64Array,
+      IAutoMovieMotionHumanWalkStanceCourse.IEvaluation
+    > = {
+      evaluate: (
+        x: Float64Array,
+      ): IAutoMovieMotionHumanWalkStanceCourse.IEvaluation => {
         return at(x, false).problem.evaluate(x);
       },
-      feasible: (evaluation: walkStanceCourse.IEvaluation): boolean =>
-        evaluation.worst <= shape.tolerance,
+      feasible: (
+        evaluation: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation,
+      ): boolean => evaluation.worst <= shape.tolerance,
       convexify: (
         x: Float64Array,
-        _evaluation: walkStanceCourse.IEvaluation,
+        _evaluation: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation,
         mu: number,
         _radius: number,
         objective: boolean,
-      ): SCO.IModel<Float64Array> => {
-        const about: { problem: walkStanceCourse.IProblem; rows: Q.IRow[] } = at(x, true);
-        const convex: Q.IProblem = about.problem.convexify(x, mu, objective);
-        const model: Q.IProblem = {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+        const about: {
+          problem: IAutoMovieMotionHumanWalkStanceCourse.IProblem;
+          rows: IAutoMovieMotionHumanQuadraticProgram.IRow[];
+        } = at(x, true);
+        const convex: IAutoMovieMotionHumanQuadraticProgram.IProblem =
+          about.problem.convexify(x, mu, objective);
+        const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
           ...convex,
           rows: [...convex.rows, ...about.rows],
         };
         const zero: number = Q.value(model, new Float64Array(model.n));
-        let trusted: Q.IProblem | undefined;
-        let warm: Q.IState | undefined;
+        let trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem | undefined;
+        let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
         return {
-          solve: (radius: number): SCO.IStep<Float64Array> => {
+          solve: (
+            radius: number,
+          ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
             trusted = {
               ...model,
               rows: [...model.rows, ...shape.region(x, radius)],
@@ -167,51 +181,56 @@ export namespace walkStanceSolve {
       // row bounded on neither side has no error to correct.
       correct: (
         x: Float64Array,
-        step: SCO.IStep<Float64Array>,
+        step: IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array>,
       ): Float64Array | null => {
         if (last === undefined || last.x !== x) return null;
-        const there: Q.IProblem = at(step.trial, true).problem.convexify(
+        const there: IAutoMovieMotionHumanQuadraticProgram.IProblem = at(
           step.trial,
-          last.mu,
           true,
-        );
+        ).problem.convexify(step.trial, last.mu, true);
         // The same constraints in the same order, or no correction.
         if (there.rows.length !== last.rows) return null;
         const d: Float64Array = last.step;
-        const rows: Q.IRow[] = last.model.rows.map(
-          (row: Q.IRow, i: number): Q.IRow => {
-            if (i >= there.rows.length) return row;
-            let predicted: number = 0;
-            for (let r: number = 0; r < row.index.length; r++)
-              predicted += row.coef[r]! * d[row.index[r]!]!;
-            const linearised: Q.IRow = there.rows[i]!;
-            const moved: number | null = Number.isFinite(row.l)
-              ? row.l - linearised.l
-              : Number.isFinite(row.u)
-                ? row.u - linearised.u
-                : null;
-            if (moved === null) return row;
-            const error: number = moved - predicted;
-            return { ...row, l: row.l - error, u: row.u - error };
+        const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] =
+          last.model.rows.map(
+            (
+              row: IAutoMovieMotionHumanQuadraticProgram.IRow,
+              i: number,
+            ): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+              if (i >= there.rows.length) return row;
+              let predicted: number = 0;
+              for (let r: number = 0; r < row.index.length; r++)
+                predicted += row.coef[r]! * d[row.index[r]!]!;
+              const linearised: IAutoMovieMotionHumanQuadraticProgram.IRow =
+                there.rows[i]!;
+              const moved: number | null = Number.isFinite(row.l)
+                ? row.l - linearised.l
+                : Number.isFinite(row.u)
+                  ? row.u - linearised.u
+                  : null;
+              if (moved === null) return row;
+              const error: number = moved - predicted;
+              return { ...row, l: row.l - error, u: row.u - error };
+            },
+          );
+        const corrected: IAutoMovieMotionHumanQuadraticProgram.IState = Q.solve(
+          {
+            ...last.model,
+            rows: [...rows, ...shape.region(x, last.radius)],
           },
         );
-        const corrected: Q.IState = Q.solve({
-          ...last.model,
-          rows: [...rows, ...shape.region(x, last.radius)],
-        });
         return shape.stepped(x, corrected.x);
       },
     };
-    const solved: SCO.IResult<Float64Array, walkStanceCourse.IEvaluation> = SCO.minimise(
-      problem,
-      shape.start,
-      {
-        schedule: walkStanceTerms.schedule(body),
-        penalties: [walkStanceTerms.PENALTY],
-        rounds: walkStanceTerms.ROUNDS,
-        steer: true,
-      },
-    );
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
+      Float64Array,
+      IAutoMovieMotionHumanWalkStanceCourse.IEvaluation
+    > = SCO.minimise(problem, shape.start, {
+      schedule: walkStanceTerms.schedule(body),
+      penalties: [walkStanceTerms.PENALTY],
+      rounds: walkStanceTerms.ROUNDS,
+      steer: true,
+    });
     return at(solved.x, false).problem.course(
       solved.x,
       solved.evaluation.worst,
@@ -219,7 +238,10 @@ export namespace walkStanceSolve {
   }
 
   /** A course's knots from `join` on. */
-  function cut(start: walkStanceCourse.ICourse, join: number): walkStanceCourse.ICourse {
+  function cut(
+    start: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
+    join: number,
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const rest = (series: Float64Array): Float64Array => series.slice(join);
     return {
       knots: start.knots.slice(join),
@@ -238,11 +260,11 @@ export namespace walkStanceSolve {
 
   /** A course's first `join` knots followed by a tail solved from there. */
   function joined(
-    knots: readonly walkStanceCourse.IKnot[],
-    start: walkStanceCourse.ICourse,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     join: number,
-    tail: walkStanceCourse.ICourse,
-  ): walkStanceCourse.ICourse {
+    tail: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const series = (head: Float64Array, rest: Float64Array): Float64Array => {
       const out: Float64Array = new Float64Array(knots.length);
       out.set(head.subarray(0, join));
@@ -281,12 +303,12 @@ export namespace walkStanceSolve {
 
   /** A course's record at its variables. */
   export function record(
-    knots: readonly walkStanceCourse.IKnot[],
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
     n: number,
     x: Float64Array,
     unmet: number,
-    read: (x: Float64Array, k: number, j: number) => { planted: walkStanceCourse.IPlanted },
-  ): walkStanceCourse.ICourse {
+    read: IAutoMovieMotionHumanWalkStanceSolve.IRecordRead,
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const series = (slot: number): Float64Array =>
       Float64Array.from(
         { length: n },
@@ -303,10 +325,18 @@ export namespace walkStanceSolve {
         right: { x: series(9), z: series(10) },
       },
       unmet,
-      planted: knots.map((knot: walkStanceCourse.IKnot, k: number): walkStanceCourse.IPlanted[] =>
-        knot.stances.map(
-          (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted => read(x, k, j).planted,
-        ),
+      planted: knots.map(
+        (
+          knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot,
+          k: number,
+        ): IAutoMovieMotionHumanWalkStanceCourse.IPlanted[] =>
+          knot.stances.map(
+            (
+              _: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+              j: number,
+            ): IAutoMovieMotionHumanWalkStanceCourse.IPlanted =>
+              read(x, k, j).planted,
+          ),
       ),
     };
   }
@@ -329,15 +359,16 @@ export namespace walkStanceSolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the build in its closures only.
    */
   export function problem(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
-    start?: walkStanceCourse.ICourse,
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start?: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     from: number = 0,
-  ): walkStanceCourse.IProblem {
+  ): IAutoMovieMotionHumanWalkStanceCourse.IProblem {
     const windowed: boolean =
       start !== undefined && from >= 2 && from <= start.knots.length;
     const join: number = windowed ? from - 2 : 0;
-    const tail: readonly walkStanceCourse.IKnot[] = windowed ? knots.slice(join) : knots;
+    const tail: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[] =
+      windowed ? knots.slice(join) : knots;
     const built = walkStanceModel.of(
       body,
       tail,
@@ -347,7 +378,9 @@ export namespace walkStanceSolve {
     const size: number = built.size;
     return {
       start: Float64Array.from(built.x),
-      evaluate: (x: Float64Array): walkStanceCourse.IEvaluation => {
+      evaluate: (
+        x: Float64Array,
+      ): IAutoMovieMotionHumanWalkStanceCourse.IEvaluation => {
         let objective: number = 0;
         let violation: number = 0;
         let worst: number = 0;
@@ -368,13 +401,13 @@ export namespace walkStanceSolve {
         x: Float64Array,
         mu: number,
         objective: boolean = true,
-      ): Q.IProblem => {
+      ): IAutoMovieMotionHumanQuadraticProgram.IProblem => {
         const p: Float64Array[] = Array.from(
           { length: size },
           (): Float64Array => new Float64Array(walkStanceTerms.BAND + 1),
         );
         const q: Float64Array = new Float64Array(size);
-        const rows: Q.IRow[] = [];
+        const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
         built.sweep(
           x,
           true,
@@ -409,26 +442,48 @@ export namespace walkStanceSolve {
           rows,
         };
       },
-      region: (x: Float64Array, radius: number): Q.IRow[] =>
+      region: (
+        x: Float64Array,
+        radius: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow[] =>
         built.bounds(x, radius),
       length: (step: Float64Array): number => {
         let longest: number = 0;
         for (let i: number = 0; i < step.length; i++)
-          longest = Math.max(longest, Math.abs(step[i]!) / walkStanceTerms.UNIT[i % walkStanceTerms.WIDTH]!);
+          longest = Math.max(
+            longest,
+            Math.abs(step[i]!) /
+              walkStanceTerms.UNIT[i % walkStanceTerms.WIDTH]!,
+          );
         return longest;
       },
       stepped: (x: Float64Array, step: Float64Array): Float64Array =>
         x.map((v: number, i: number): number => v + step[i]!),
       tolerance: walkStanceCourse.MET,
-      course: (x: Float64Array, unmet: number): walkStanceCourse.ICourse => {
-        const solved: walkStanceCourse.ICourse = record(tail, built.n, x, unmet, built.read);
+      course: (
+        x: Float64Array,
+        unmet: number,
+      ): IAutoMovieMotionHumanWalkStanceCourse.ICourse => {
+        const solved: IAutoMovieMotionHumanWalkStanceCourse.ICourse = record(
+          tail,
+          built.n,
+          x,
+          unmet,
+          built.read,
+        );
         return windowed ? joined(knots, start!, join, solved) : solved;
       },
-      planted: (x: Float64Array, knot: number): walkStanceCourse.IPlanted[] =>
+      planted: (
+        x: Float64Array,
+        knot: number,
+      ): IAutoMovieMotionHumanWalkStanceCourse.IPlanted[] =>
         knot < join + (windowed ? 2 : 0)
           ? []
           : tail[knot - join]!.stances.map(
-              (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted =>
+              (
+                _: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+                j: number,
+              ): IAutoMovieMotionHumanWalkStanceCourse.IPlanted =>
                 built.read(x, knot - join, j).planted,
             ),
       variables: (knot: number, side: "left" | "right"): number[] =>
@@ -436,5 +491,4 @@ export namespace walkStanceSolve {
       first: join + (windowed ? 2 : 0),
     };
   }
-
 }

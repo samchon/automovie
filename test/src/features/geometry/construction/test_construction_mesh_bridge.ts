@@ -1,7 +1,8 @@
-import {
-  type AutoMovieSolidMeshConstraints,
-  AutoMovieSolidMeshPlan,
-} from "@automovie/engine";
+import { AutoMovieSolidMeshPlan } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 
 /**
  * The face planner bridges a periodic band's two winding cycles where they stand closest, whatever their vertex numbering.
@@ -31,7 +32,7 @@ export function test_construction_mesh_bridge(): void {
         points.set(k, [0, (period * ((k + offset) % n)) / n]);
       for (let k: number = 0; k < n; ++k)
         points.set(n + k, [1, (period * k) / n]);
-      const constraints: AutoMovieSolidMeshConstraints.ISegment[] = [];
+      const constraints: IAutoMovieSolidMeshConstraints.ISegment[] = [];
       for (const base of [0, n])
         for (let k: number = 0; k < n; ++k) {
           const a: number = base + k;
@@ -42,7 +43,7 @@ export function test_construction_mesh_bridge(): void {
             turn: Math.round((points.get(a)![1] - points.get(b)![1]) / period),
           });
         }
-      const plan: AutoMovieSolidMeshPlan.IPlan | string =
+      const plan: IAutoMovieSolidMeshPlan.IPlan | string =
         AutoMovieSolidMeshPlan.triangulate(
           points,
           constraints,

@@ -7,13 +7,17 @@ import {
   resolveBoneMap,
   skeletonJointAxes,
 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
-import type { HumanColliders } from "../posture/HumanColliders";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
  * An arm chain prepared on a posture's trunk for the elbow search of
@@ -49,7 +53,7 @@ export namespace AutoMovieMotionHumanBendChain {
     axes: ReturnType<typeof skeletonJointAxes>;
 
     /** The trunk's placed colliders, world metres. */
-    shapes: HumanColliders.IPlaced[];
+    shapes: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
   /**
@@ -69,9 +73,9 @@ export namespace AutoMovieMotionHumanBendChain {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function of(
-    body: IHumanBody,
-    posture: AutoMovieMotionHumanBend.ISolve["posture"],
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
+    side: AutoMovieHumanSide,
   ): IChain | null {
     const axes: ReturnType<typeof skeletonJointAxes> = skeletonJointAxes(
       body.skeleton,
@@ -79,11 +83,14 @@ export namespace AutoMovieMotionHumanBendChain {
     );
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
-      root: Transform.of(posture.root, resolveHumanPosture.heading({
+      root: Transform.of(
+        posture.root,
+        resolveHumanPosture.heading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,
           roll: posture.roll ?? 0,
-        })),
+        }),
+      ),
       joints: [],
     };
     const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant({

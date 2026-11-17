@@ -1,11 +1,11 @@
 import type {
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Compile one interval's motion coefficients. Scalar checks retain direct callers' mutable-transform semantics; returned vectors are independently owned.
@@ -19,16 +19,16 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function preparePhysicalTargetSampler(
-  before: P.ITransform,
-  after: P.ITransform,
+  before: IAutoMovieRigidTransform,
+  after: IAutoMovieRigidTransform,
   rate: number,
-): (fraction: number) => ReturnType<typeof samplePhysicalTarget> {
-  let first: P.ITransform | undefined;
-  let last: P.ITransform | undefined;
+): (fraction: number) => IAutoMovieSamplePhysicalTarget.IResult {
+  let first: IAutoMovieRigidTransform | undefined;
+  let last: IAutoMovieRigidTransform | undefined;
   let displacement: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let angularVelocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  return (fraction: number): ReturnType<typeof samplePhysicalTarget> => {
+  return (fraction: number): IAutoMovieSamplePhysicalTarget.IResult => {
     if (!same(before, first) || !same(after, last)) {
       first = {
         position: { ...before.position },
@@ -40,7 +40,7 @@ export function preparePhysicalTargetSampler(
       };
       displacement = Vector3.subtract(last.position, first.position);
       velocity = Vector3.scale(displacement, rate);
-      const delta: P.ITransform["rotation"] = Quaternion.multiply(
+      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
         last.rotation,
         Quaternion.inverse(first.rotation),
       );
@@ -72,8 +72,8 @@ export function preparePhysicalTargetSampler(
 
 /** Compare numeric values so in-place receiver or target edits invalidate coefficients too. */
 function same(
-  actual: P.ITransform,
-  previous: P.ITransform | undefined,
+  actual: IAutoMovieRigidTransform,
+  previous: IAutoMovieRigidTransform | undefined,
 ): boolean {
   return (
     previous !== undefined &&

@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedJointAngles,
   Quaternion,
   decomposeJointRotation,
   getConstraint,
@@ -14,10 +13,10 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * A joint's clinical angles part of the way between two readings of them,
@@ -78,7 +77,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function blendHumanJoint(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],

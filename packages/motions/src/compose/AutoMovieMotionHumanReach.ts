@@ -1,10 +1,13 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
@@ -36,69 +39,20 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Policies are a closed union; the lean limit is a named provisional constant; an unreachable contact throws with its numbers and is never bent to fit silently.
  */
 export namespace AutoMovieMotionHumanReach {
-  /**
-   * What a law does with a goal out of reach; the namespace states each.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Says what the union decides and where each member is described.
-   * @evidence contracts/development/design.md#principled-representation The three answers to an unreachable goal: give up, move the body, or move the goal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by `fit`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed literal union instead of flags that could combine into a contradiction.
-   */
-  export type Policy = (typeof POLICIES)[number];
-
   /** The policies of {@link Policy}, as data. */
-  export const POLICIES = ["refuse", "lean", "clamp"] as const;
-
-  /**
-   * A limb that reaches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four limbs a reach is measured for.
-   * @evidence contracts/development/design.md#principled-representation The posture's own limb keys, so a check names the goal it guards.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, used by every function here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
-   */
-  export type Limb = (typeof LIMBS)[number];
+  export const POLICIES = [
+    "refuse",
+    "lean",
+    "clamp",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
 
   /** The limbs of {@link Limb}, as data. */
-  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const;
-
-  /**
-   * A limb's reach toward one point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record measures; each member gives its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The centre and the radius of the reachable ball with the goal's distance from the centre, the three numbers the comparison is made of.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members; `shortfall` is kept beside the two it follows from because every reader branches on it and an error prints it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts All members required and in metres; reach is not reduced to a boolean that would hide by how much.
-   */
-  export interface ICheck {
-    /** The limb's root joint (the shoulder or the hip), world metres. */
-    root: IAutoMovieVector3;
-
-    /** The length of the limb's two segments laid straight, metres. */
-    length: number;
-
-    /** The distance from the root to the point, metres. */
-    distance: number;
-
-    /** How far the point is beyond reach, metres; 0 when it is within reach. */
-    shortfall: number;
-  }
-
-  /**
-   * A goal made reachable.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member says what a policy may have changed.
-   * @evidence contracts/development/design.md#principled-representation A policy changes the posture (a lean) or the point (a clamp), so the result carries both as they are after it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, returned by `fit` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both members are always present, so a caller never asks which policy ran before reading them.
-   */
-  export interface IFit {
-    /** The posture, tipped forward when the policy leaned. */
-    posture: IHumanPosture;
-
-    /** The limb's end point, moved when the policy clamped; world metres. */
-    point: IAutoMovieVector3;
-  }
+  export const LIMBS = [
+    "leftArm",
+    "rightArm",
+    "leftLeg",
+    "rightLeg",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
 
   /**
    * The most a `lean` adds to the trunk's forward pitch, degrees
@@ -127,7 +81,7 @@ export namespace AutoMovieMotionHumanReach {
     root: IAutoMovieVector3,
     length: number,
     point: IAutoMovieVector3,
-  ): ICheck {
+  ): IAutoMovieMotionHumanReach.ICheck {
     const distance: number = Vector3.length(Vector3.subtract(point, root));
     return {
       root,
@@ -153,7 +107,7 @@ export namespace AutoMovieMotionHumanReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function clamp(
-    check: ICheck,
+    check: IAutoMovieMotionHumanReach.ICheck,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (check.shortfall <= 0) return point;
@@ -183,8 +137,8 @@ export namespace AutoMovieMotionHumanReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function refuse(
-    limb: Limb,
-    check: ICheck,
+    limb: IAutoMovieMotionHumanReach.Limb,
+    check: IAutoMovieMotionHumanReach.ICheck,
     point: IAutoMovieVector3,
   ): void {
     if (check.shortfall <= 0) return;
@@ -217,11 +171,11 @@ export namespace AutoMovieMotionHumanReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function check(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    limb: Limb,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    limb: IAutoMovieMotionHumanReach.Limb,
     point: IAutoMovieVector3,
-  ): ICheck {
+  ): IAutoMovieMotionHumanReach.ICheck {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     if (limb.endsWith("Leg"))
       return measure(
@@ -265,13 +219,13 @@ export namespace AutoMovieMotionHumanReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lean(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     limb: "leftArm" | "rightArm",
     point: IAutoMovieVector3,
     limit: number = LEAN_LIMIT,
   ): number {
-    const at = (pitch: number): ICheck =>
+    const at = (pitch: number): IAutoMovieMotionHumanReach.ICheck =>
       check(
         body,
         AutoMovieMotionHumanLean.tip(body, posture, pitch, 0),
@@ -310,13 +264,18 @@ export namespace AutoMovieMotionHumanReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fit(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    limb: Limb,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    limb: IAutoMovieMotionHumanReach.Limb,
     point: IAutoMovieVector3,
-    policy: Policy,
-  ): IFit {
-    const reach: ICheck = check(body, posture, limb, point);
+    policy: IAutoMovieMotionHumanReach.Policy,
+  ): IAutoMovieMotionHumanReach.IFit {
+    const reach: IAutoMovieMotionHumanReach.ICheck = check(
+      body,
+      posture,
+      limb,
+      point,
+    );
     if (reach.shortfall <= 0) return { posture, point };
     if (policy === "clamp") return { posture, point: clamp(reach, point) };
     if (policy === "lean" && (limb === "leftArm" || limb === "rightArm"))

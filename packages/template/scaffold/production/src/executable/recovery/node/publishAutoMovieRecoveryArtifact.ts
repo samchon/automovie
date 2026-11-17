@@ -1,16 +1,17 @@
-import {
-  type IAutoMovieRecoveryPublication,
-  type IAutoMovieRecoveryPublicationOptions,
-  type IAutoMovieRecoveryResult,
-} from "@automovie/recovery";
+import type {
+  IAutoMovieFilePublicationOptions,
+  IAutoMovieFileReceipt,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { writeAutoMovieRecoveryArtifact } from "./artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Publish one plain data artifact atomically without replacing an existing file.
  * Publication identity is the exact emitted UTF-8 byte hash, independent of model
- * identity. Cancellation is checked before synchronous serialization begins; this
- * operation cannot observe an event-loop abort while blocked in synchronous I/O.
+ * identity. The optional cancellation predicate runs before serialization; this
+ * operation cannot observe event-loop changes while blocked in synchronous I/O.
+ * A thrown predicate or nonboolean result fails without publishing an artifact.
  * Failed serialization leaves the target unpublished and removes its temporary
  * file. A process crash can leave an unpublished temporary file, as documented by
  * the writer. Cancellation does not delete a completed immutable publication.
@@ -26,23 +27,38 @@ import { writeAutoMovieRecoveryArtifact } from "./artifact/writeAutoMovieRecover
 export function publishAutoMovieRecoveryArtifact(
   output: string,
   artifact: object,
-  options: IAutoMovieRecoveryPublicationOptions = {},
-): IAutoMovieRecoveryResult<IAutoMovieRecoveryPublication> {
+  options: IAutoMovieFilePublicationOptions = {},
+): IAutoMovieRecoveryResult<IAutoMovieFileReceipt> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "json-publication-v1";
-  if (options.signal?.aborted)
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before publication"],
-    };
-  if (!output || artifact === null || typeof artifact !== "object")
-    return {
-      operator,
-      status: "refused",
-      diagnostics: ["An output path and plain data artifact are required"],
-    };
   try {
+    if (
+      options === null ||
+      typeof options !== "object" ||
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation must be an optional synchronous predicate"],
+      };
+    const cancelled: boolean =
+      options.cancelled === undefined ? false : options.cancelled();
+    if (typeof cancelled !== "boolean")
+      throw new Error("Cancellation predicate must return a boolean");
+    if (cancelled)
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before publication"],
+      };
+    if (!output || artifact === null || typeof artifact !== "object")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["An output path and plain data artifact are required"],
+      };
     const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
       writeAutoMovieRecoveryArtifact(output, artifact);
     return {

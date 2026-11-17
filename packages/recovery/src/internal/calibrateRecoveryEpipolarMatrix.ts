@@ -3,9 +3,10 @@ import {
   Vector3,
   decomposeAutoMovieSingularMatrix,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+import type {
+  IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Project a pixel fundamental matrix onto the supplied-calibration essential
@@ -24,16 +25,11 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local factors expire on return or throw; only owned fixed-size matrices, translations and a scalar discrepancy escape, with no cache or handle.
  */
 export function calibrateRecoveryEpipolarMatrix(
-  fundamental: readonly number[],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  maxSweeps: number,
-): {
-  essential: number[];
-  fundamental: number[];
-  relativeProjectionDiscrepancy: number;
-  poses: { rotation: number[]; translation: [number, number, number] }[];
-} {
+  fundamental: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[0],
+  first: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[1],
+  second: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[2],
+  maxSweeps: Parameters<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation> {
   const raw: number[] = AutoMovieMatrix3.multiply(
     AutoMovieMatrix3.transpose(second.matrix),
     AutoMovieMatrix3.multiply(fundamental, first.matrix),

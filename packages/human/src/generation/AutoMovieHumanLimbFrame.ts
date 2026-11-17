@@ -1,4 +1,10 @@
-import { type AutoMovieLoftFrame, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieSplineCurve } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLimbFrame,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+} from "@automovie/interface";
 
 /**
  * Section frames of a limb lofted on its bones, and the layers they carry.
@@ -19,35 +25,24 @@ import { type AutoMovieLoftFrame, AutoMovieSplineCurve, type IAutoMovieLoftChain
  * from.
  */
 export namespace AutoMovieHumanLimbFrame {
-  /** A point or direction. */
-  export type Vec3 = [number, number, number];
-
-  /** One section sampled at a station: its frame and its ring of world points. */
-  export interface ISample {
-    /** Station along the chain, mm, increasing toward the parent. */
-    station: number;
-
-    /** The section's plane. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** One world point per control point, in phase order. */
-    ring: Vec3[];
-  }
-
   /**
    * The in-plane axis carried from a plane of normal `from` to one of normal
    * `to`: the least rotation between the normals, about their cross product.
    */
-  export function carry(u: Vec3, from: Vec3, to: Vec3): Vec3 {
-    const a: Vec3 = unit(from);
-    const b: Vec3 = unit(to);
-    const k: Vec3 = cross(a, b);
+  export function carry(
+    u: AutoMovieVector3Tuple,
+    from: AutoMovieVector3Tuple,
+    to: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    const a: AutoMovieVector3Tuple = unit(from);
+    const b: AutoMovieVector3Tuple = unit(to);
+    const k: AutoMovieVector3Tuple = cross(a, b);
     const c: number = dot(a, b);
     const s: number = norm(k);
     if (s < 1e-12) return orthogonal(u, b);
     // Rodrigues' rotation by the angle between the normals about k / |k|.
-    const axis: Vec3 = scale(k, 1 / s);
-    const turned: Vec3 = add(
+    const axis: AutoMovieVector3Tuple = scale(k, 1 / s);
+    const turned: AutoMovieVector3Tuple = add(
       add(scale(u, c), scale(cross(axis, u), s)),
       scale(axis, dot(axis, u) * (1 - c)),
     );
@@ -58,14 +53,18 @@ export namespace AutoMovieHumanLimbFrame {
    * A frame from an origin, a normal toward increasing station and an
    * in-plane axis, completed so that the normal is `v x u`.
    */
-  export function frame(origin: Vec3, normal: Vec3, u: Vec3): AutoMovieLoftFrame.IFrame {
-    const n: Vec3 = unit(normal);
-    const a: Vec3 = orthogonal(u, n);
+  export function frame(
+    origin: AutoMovieVector3Tuple,
+    normal: AutoMovieVector3Tuple,
+    u: AutoMovieVector3Tuple,
+  ): IAutoMovieLoftSectionFrame {
+    const n: AutoMovieVector3Tuple = unit(normal);
+    const a: AutoMovieVector3Tuple = orthogonal(u, n);
     return { origin, u: a, v: cross(a, n) };
   }
 
   /** The frame's normal `v x u`, toward increasing station. */
-  export function normal(f: AutoMovieLoftFrame.IFrame): Vec3 {
+  export function normal(f: IAutoMovieLoftSectionFrame): AutoMovieVector3Tuple {
     return cross(f.v, f.u);
   }
 
@@ -73,7 +72,9 @@ export namespace AutoMovieHumanLimbFrame {
    * The mirror image of a left-side frame across the midline (z to -z), with
    * `v` turned over so its normal still points up the chain.
    */
-  export function mirror(f: AutoMovieLoftFrame.IFrame): AutoMovieLoftFrame.IFrame {
+  export function mirror(
+    f: IAutoMovieLoftSectionFrame,
+  ): IAutoMovieLoftSectionFrame {
     return {
       origin: [f.origin[0], f.origin[1], -f.origin[2]],
       u: [f.u[0], f.u[1], -f.u[2]],
@@ -83,21 +84,23 @@ export namespace AutoMovieHumanLimbFrame {
 
   /** Spline controls and lift of a ring in its frame. */
   export function controls(
-    sample: ISample,
+    sample: IAutoMovieHumanLimbFrame.ISample,
     order: number,
-  ): { coefficients: number[]; lift: number[] } {
-    const f: AutoMovieLoftFrame.IFrame = sample.frame;
-    const n: Vec3 = normal(f);
-    const local: Vec3[] = sample.ring.map((p: Vec3): Vec3 => {
-      const d: Vec3 = sub(p, f.origin);
-      return [dot(d, f.u), dot(d, f.v), dot(d, n)];
-    });
+  ): IAutoMovieHumanLimbFrame.IControlsResult {
+    const f: IAutoMovieLoftSectionFrame = sample.frame;
+    const n: AutoMovieVector3Tuple = normal(f);
+    const local: AutoMovieVector3Tuple[] = sample.ring.map(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
+        const d: AutoMovieVector3Tuple = sub(p, f.origin);
+        return [dot(d, f.u), dot(d, f.v), dot(d, n)];
+      },
+    );
     return {
       coefficients: AutoMovieSplineCurve.interpolate(
-        local.map((q: Vec3): [number, number] => [q[0], q[1]]),
+        local.map((q: AutoMovieVector3Tuple): [number, number] => [q[0], q[1]]),
       ),
       lift: AutoMovieSplineCurve.interpolate(
-        local.map((q: Vec3): [number, number] => [q[2], 0]),
+        local.map((q: AutoMovieVector3Tuple): [number, number] => [q[2], 0]),
       ).slice(0, order),
     };
   }
@@ -109,9 +112,9 @@ export namespace AutoMovieHumanLimbFrame {
    * read in its own frame.
    */
   export function layer(
-    here: ISample,
-    before: ISample,
-    after: ISample,
+    here: IAutoMovieHumanLimbFrame.ISample,
+    before: IAutoMovieHumanLimbFrame.ISample,
+    after: IAutoMovieHumanLimbFrame.ISample,
     order: number,
   ): IAutoMovieLoftChain.ILayer {
     const h: ReturnType<typeof controls> = controls(here, order);
@@ -120,7 +123,11 @@ export namespace AutoMovieHumanLimbFrame {
     const span: number = after.station - before.station;
     const slope = (lo: readonly number[], hi: readonly number[]): number[] =>
       lo.map((v: number, i: number): number => (hi[i]! - v) / span);
-    const flat = (f: AutoMovieLoftFrame.IFrame): number[] => [...f.origin, ...f.u, ...f.v];
+    const flat = (f: IAutoMovieLoftSectionFrame): number[] => [
+      ...f.origin,
+      ...f.u,
+      ...f.v,
+    ];
     const d: number[] = slope(flat(before.frame), flat(after.frame));
     return {
       y: here.station,
@@ -143,78 +150,129 @@ export namespace AutoMovieHumanLimbFrame {
    * ends), for a chain whose sections exist only at its layers.
    */
   export function layers(
-    samples: readonly ISample[],
+    samples: readonly IAutoMovieHumanLimbFrame.ISample[],
     order: number,
   ): IAutoMovieLoftChain.ILayer[] {
-    const values = samples.map((s: ISample): number[] => {
-      const c = controls(s, order);
-      return [...c.coefficients, ...c.lift, ...s.frame.origin, ...s.frame.u, ...s.frame.v];
-    });
-    const stations: number[] = samples.map((s: ISample): number => s.station);
+    const values = samples.map(
+      (s: IAutoMovieHumanLimbFrame.ISample): number[] => {
+        const c = controls(s, order);
+        return [
+          ...c.coefficients,
+          ...c.lift,
+          ...s.frame.origin,
+          ...s.frame.u,
+          ...s.frame.v,
+        ];
+      },
+    );
+    const stations: number[] = samples.map(
+      (s: IAutoMovieHumanLimbFrame.ISample): number => s.station,
+    );
     const width: number = 2 * order;
-    return samples.map((s: ISample, k: number): IAutoMovieLoftChain.ILayer => {
-      const d: number[] = derivative(stations, values, k);
-      const own: number[] = values[k]!;
-      return {
-        y: s.station,
-        frame: s.frame,
-        frameSlopes: {
-          origin: [d[width + order]!, d[width + order + 1]!, d[width + order + 2]!],
-          u: [d[width + order + 3]!, d[width + order + 4]!, d[width + order + 5]!],
-          v: [d[width + order + 6]!, d[width + order + 7]!, d[width + order + 8]!],
-        },
-        coefficients: own.slice(0, width),
-        slopes: d.slice(0, width),
-        lift: own.slice(width, width + order),
-        liftSlopes: d.slice(width, width + order),
-      };
-    });
+    return samples.map(
+      (
+        s: IAutoMovieHumanLimbFrame.ISample,
+        k: number,
+      ): IAutoMovieLoftChain.ILayer => {
+        const d: number[] = derivative(stations, values, k);
+        const own: number[] = values[k]!;
+        return {
+          y: s.station,
+          frame: s.frame,
+          frameSlopes: {
+            origin: [
+              d[width + order]!,
+              d[width + order + 1]!,
+              d[width + order + 2]!,
+            ],
+            u: [
+              d[width + order + 3]!,
+              d[width + order + 4]!,
+              d[width + order + 5]!,
+            ],
+            v: [
+              d[width + order + 6]!,
+              d[width + order + 7]!,
+              d[width + order + 8]!,
+            ],
+          },
+          coefficients: own.slice(0, width),
+          slopes: d.slice(0, width),
+          lift: own.slice(width, width + order),
+          liftSlopes: d.slice(width, width + order),
+        };
+      },
+    );
   }
 
   /** Three-point derivative of a list of arrays over unequal stations. */
-  function derivative(s: readonly number[], values: readonly (readonly number[])[], k: number): number[] {
+  function derivative(
+    s: readonly number[],
+    values: readonly (readonly number[])[],
+    k: number,
+  ): number[] {
     const a: number = Math.max(0, k - 1);
     const b: number = Math.min(s.length - 1, k + 1);
     if (a === k || b === k)
-      return values[k]!.map((_: number, i: number): number => (values[b]![i]! - values[a]![i]!) / (s[b]! - s[a]!));
+      return values[k]!.map(
+        (_: number, i: number): number =>
+          (values[b]![i]! - values[a]![i]!) / (s[b]! - s[a]!),
+      );
     const h0: number = s[k]! - s[a]!;
     const h1: number = s[b]! - s[k]!;
     return values[k]!.map(
       (v: number, i: number): number =>
-        ((values[b]![i]! - v) * h0 * h0 + (v - values[a]![i]!) * h1 * h1) / (h0 * h1 * (h0 + h1)),
+        ((values[b]![i]! - v) * h0 * h0 + (v - values[a]![i]!) * h1 * h1) /
+        (h0 * h1 * (h0 + h1)),
     );
   }
 
   /** The part of u square to a unit normal, as a unit vector. */
-  function orthogonal(u: Vec3, n: Vec3): Vec3 {
+  function orthogonal(
+    u: AutoMovieVector3Tuple,
+    n: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return unit(sub(u, scale(n, dot(u, n))));
   }
 
-  function add(a: Vec3, b: Vec3): Vec3 {
+  function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  function sub(a: Vec3, b: Vec3): Vec3 {
+  function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  function scale(a: Vec3, s: number): Vec3 {
+  function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
-  function dot(a: Vec3, b: Vec3): number {
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  function norm(a: Vec3): number {
+  function norm(a: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0], a[1], a[2]);
   }
 
-  function unit(a: Vec3): Vec3 {
+  function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return scale(a, 1 / (norm(a) || 1));
   }
 
-  function cross(a: Vec3, b: Vec3): Vec3 {
-    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
   }
 }

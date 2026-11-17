@@ -1,6 +1,8 @@
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -18,13 +20,13 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalJointPoint(
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
   bone: string,
-  targets: Readonly<Record<string, P.ITransform>>,
+  targets: Readonly<Record<string, IAutoMovieRigidTransform>>,
 ): IAutoMovieVector3 {
-  const pose: P.ITransform | undefined = targets[bone];
+  const pose: IAutoMovieRigidTransform | undefined = targets[bone];
   if (!pose) throw new Error(`Physical joint point missing segment ${bone}`);
-  const joint: P.IJoint | undefined = profile.joints.find(
+  const joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
     (candidate: (typeof profile.joints)[number]): boolean =>
       candidate.child === bone,
   );

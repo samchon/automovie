@@ -1,9 +1,12 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanTouchContacts,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanHand } from "../posture/HumanHand";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
 /**
  * A touch's contact windows from `ready` to `relax`: the hand's grip on
@@ -15,47 +18,9 @@ import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
  * @evidence contracts/development/common.md#meaningful-documentation States what a rest is, the two forms it takes and the window it becomes.
  * @evidence contracts/development/design.md#principled-representation A segment on a segment: the arm's segment and the bone it lies along, which a region's point and frame would not locate.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The row's declaration, an arm's rest, the reading of one into the other and the windows; the touch law and the touch stroke read them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The window is the contact window's own `lie` on a person's segment (`IHumanContactWindow.Support`).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The window is the contact window's own `lie` on a person's segment (`HumanContactWindow.Support`).
  */
 export namespace AutoMovieMotionHumanTouchContacts {
-  /**
-   * A rest as a touch row declares it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and how a side is read.
-   * @evidence contracts/development/design.md#principled-representation The hand whose arm it is, its segment and the bone, so a row reads the same whichever hand leads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, each read by `sided`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The bone is the rig's own name, mirrored with the leading hand rather than restated per side.
-   */
-  export interface IDeclared {
-    /** Whose arm: the leading hand's or the other's. */
-    hand: "first" | "other";
-
-    /** The arm's segment. */
-    part: "upperArm" | "lowerArm";
-
-    /** The bone it lies along, named as for the right hand leading; its side is exchanged when the left hand leads. */
-    on: AutoMovieHumanoidBone;
-  }
-
-  /**
-   * One arm's rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The arm's segment, the bone it lies along and whose bone it is.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all written into the window.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The arm's own side is the touch's, so only its segment is named.
-   */
-  export interface IRest {
-    /** The touching arm's segment. */
-    part: "upperArm" | "lowerArm";
-
-    /** The bone it lies along. */
-    on: AutoMovieHumanoidBone;
-
-    /** The person whose bone it is. */
-    subject: string;
-  }
-
   /**
    * Each arm's rests of a row's declaration.
    *
@@ -75,15 +40,21 @@ export namespace AutoMovieMotionHumanTouchContacts {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Closes over its arguments only.
    */
   export function sided(
-    declared: readonly IDeclared[] | undefined,
-    first: HumanHand.Side,
+    declared:
+      | readonly IAutoMovieMotionHumanTouchContacts.IDeclared[]
+      | undefined,
+    first: AutoMovieHumanSide,
     both: boolean,
     subject: string,
-  ): (side: HumanHand.Side) => IRest[] {
-    const rests: readonly IDeclared[] = declared ?? [];
+  ): (side: AutoMovieHumanSide) => IAutoMovieMotionHumanTouchContacts.IRest[] {
+    const rests: readonly IAutoMovieMotionHumanTouchContacts.IDeclared[] =
+      declared ?? [];
     if (
       !both &&
-      rests.some((rest: IDeclared): boolean => rest.hand === "other")
+      rests.some(
+        (rest: IAutoMovieMotionHumanTouchContacts.IDeclared): boolean =>
+          rest.hand === "other",
+      )
     )
       throw new HumanRefusal({
         kind: "parameter",
@@ -101,14 +72,18 @@ export namespace AutoMovieMotionHumanTouchContacts {
           : bone.startsWith("right")
             ? (`left${bone.slice(5)}` as AutoMovieHumanoidBone)
             : bone;
-    return (side: HumanHand.Side): IRest[] =>
+    return (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanTouchContacts.IRest[] =>
       rests
         .filter(
-          (rest: IDeclared): boolean =>
+          (rest: IAutoMovieMotionHumanTouchContacts.IDeclared): boolean =>
             (rest.hand === "first") === (side === first),
         )
         .map(
-          (rest: IDeclared): IRest => ({
+          (
+            rest: IAutoMovieMotionHumanTouchContacts.IDeclared,
+          ): IAutoMovieMotionHumanTouchContacts.IRest => ({
             part: rest.part,
             on: mirror(rest.on),
             subject,
@@ -136,11 +111,11 @@ export namespace AutoMovieMotionHumanTouchContacts {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function windows(
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
-    hand: IHumanContactWindow.Support | undefined,
-    rests: readonly IRest[],
-  ): IHumanContactWindow[] {
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
+    hand: IAutoMovieMotionHumanContactWindow.Support | undefined,
+    rests: readonly IAutoMovieMotionHumanTouchContacts.IRest[],
+  ): IAutoMovieMotionHumanContactWindow[] {
     const from: number = clock.at("ready") / clock.duration;
     const to: number = clock.at("relax") / clock.duration;
     return [
@@ -156,7 +131,9 @@ export namespace AutoMovieMotionHumanTouchContacts {
             },
           ]),
       ...rests.map(
-        (rest: IRest): IHumanContactWindow => ({
+        (
+          rest: IAutoMovieMotionHumanTouchContacts.IRest,
+        ): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}${rest.part === "upperArm" ? "UpperArm" : "LowerArm"}`,
           kind: "lie",
           from,

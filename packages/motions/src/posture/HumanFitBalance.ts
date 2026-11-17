@@ -1,15 +1,17 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
@@ -53,7 +55,7 @@ export namespace HumanFitBalance {
    * @returns The reading.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
   ): IReading {
@@ -102,9 +104,9 @@ export namespace HumanFitBalance {
    * @returns One slope row per edge, one entry per variable.
    */
   export function slopes(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    motions: readonly HumanJacobian.IMotion[],
+    motions: readonly IAutoMovieMotionHumanJacobian.IMotion[],
     reading: IReading,
   ): number[][] {
     const columns: IAutoMovieVector3[] = velocities(body, bones, motions);
@@ -134,7 +136,7 @@ export namespace HumanFitBalance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no new state.
    */
   export function centre(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
     return resolveAutoMovieCenterOfMass.place(model(body), bones);
@@ -157,27 +159,29 @@ export namespace HumanFitBalance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function velocities(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    motions: readonly HumanJacobian.IMotion[],
+    motions: readonly IAutoMovieMotionHumanJacobian.IMotion[],
   ): IAutoMovieVector3[] {
-    const m: resolveAutoMovieCenterOfMass.IModel = model(body);
-    return motions.map((motion: HumanJacobian.IMotion): IAutoMovieVector3 => {
-      let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const s of m.segments) {
-        const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
-        if (b === undefined) continue;
-        const at: IAutoMovieVector3 = Vector3.add(
-          b.worldPosition,
-          Quaternion.rotateVector(b.worldRotation, s.point),
-        );
-        sum = Vector3.add(
-          sum,
-          Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
-        );
-      }
-      return Vector3.scale(sum, 1 / m.mass);
-    });
+    const m: IAutoMovieResolveCenterOfMass.IModel = model(body);
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieVector3 => {
+        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        for (const s of m.segments) {
+          const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
+          if (b === undefined) continue;
+          const at: IAutoMovieVector3 = Vector3.add(
+            b.worldPosition,
+            Quaternion.rotateVector(b.worldRotation, s.point),
+          );
+          sum = Vector3.add(
+            sum,
+            Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
+          );
+        }
+        return Vector3.scale(sum, 1 / m.mass);
+      },
+    );
   }
 
   /** The unit inward normal of an outline's edge from corner `k` to the next. */
@@ -241,12 +245,17 @@ export namespace HumanFitBalance {
   }
 
   /** The mass models made, by body. */
-  const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
-    new WeakMap();
+  const MODELS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieResolveCenterOfMass.IModel
+  > = new WeakMap();
 
   /** A body's mass model, made once. */
-  function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
-    let out: resolveAutoMovieCenterOfMass.IModel | undefined = MODELS.get(body);
+  function model(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
+    let out: IAutoMovieResolveCenterOfMass.IModel | undefined =
+      MODELS.get(body);
     if (out === undefined) {
       out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
       MODELS.set(body, out);

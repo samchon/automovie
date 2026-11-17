@@ -1,12 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,8 +56,8 @@ export function test_human_motion_seam_stand_walk(): void {
   ];
   const complaints: string[] = [];
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
-    const performance: HumanPerformance = new HumanPerformance({
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "seam",
       performers: [
         {
@@ -71,7 +73,7 @@ export function test_human_motion_seam_stand_walk(): void {
         .walk({ to: { x: 0, y: 0, z: 3 } })
         .stand({ seconds: 0.5 }).node,
     });
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

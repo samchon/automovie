@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieMeshGeometry,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -78,7 +79,7 @@ export namespace ArchetypeConvexCell {
         return { ...point };
       },
     );
-    const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
     const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(points);
     if (
       !(Number.isFinite(mass.volume) && mass.volume > 0) ||
@@ -98,8 +99,9 @@ export namespace ArchetypeConvexCell {
         type: "mesh",
         mesh: buildAutoMoviePolyhedron(
           hull.faces.map(
-            (face: physicalHullFaces.IFace): readonly IAutoMovieVector3[] =>
-              face.loop,
+            (
+              face: IAutoMoviePhysicalHullFaces.IFace,
+            ): readonly IAutoMovieVector3[] => face.loop,
           ),
         ),
       },

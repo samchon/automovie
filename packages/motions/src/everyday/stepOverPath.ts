@@ -1,12 +1,18 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClearance,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanObstacle } from "./HumanObstacle";
@@ -31,8 +37,10 @@ export namespace stepOverPath {
    * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the landing, the footprints, the timing and the feet at a second.
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    */
-  export function of(context: IHumanActionContext<stepOver.IParams>) {
-    const body: IHumanBody = context.body;
+  export function of(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
+  ) {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const obstacle: HumanObstacle.IObstacle = HumanObstacle.of(
       context,
@@ -51,7 +59,7 @@ export namespace stepOverPath {
       y: (feet.left.y + feet.right.y) / 2 - m.ankleHeight,
       z: (feet.left.z + feet.right.z) / 2,
     };
-    const frame: HumanFrame.IFrame = { origin, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin, yaw };
     const near: number = HumanFrame.local(frame, obstacle.at).z;
     const leg: number = m.thigh + m.shank;
 
@@ -126,7 +134,7 @@ export namespace stepOverPath {
     const flat = (
       side: "left" | "right",
       ankle: IAutoMovieVector3,
-    ): HumanFoot.IPlacement => ({
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle,
       rotation: HumanFoot.rotation(heading(side), 0),
     });
@@ -153,7 +161,7 @@ export namespace stepOverPath {
       side: "left" | "right",
       ankle: IAutoMovieVector3,
       pitch: number,
-    ): HumanFoot.IPlacement =>
+    ): IAutoMovieMotionHumanFoot.IPlacement =>
       pitch === 0
         ? flat(side, ankle)
         : HumanFoot.pivot(
@@ -168,7 +176,7 @@ export namespace stepOverPath {
     const sole = (
       side: "left" | "right",
       pitch: number,
-    ): AutoMovieMotionHumanClearance.IPoint[] =>
+    ): IAutoMovieMotionHumanClearance.IPoint[] =>
       (["heel", "ball", "toe"] as const).map((point) => {
         const at: IAutoMovieVector3 = HumanFrame.local(
           frame,
@@ -190,7 +198,7 @@ export namespace stepOverPath {
       start: number,
       from: number,
     ): ((z: number) => number) => {
-      const level: AutoMovieMotionHumanClearance.IPoint[] = sole(side, 0);
+      const level: IAutoMovieMotionHumanClearance.IPoint[] = sole(side, 0);
       const toe: number = near - level[2]!.z;
       const heel: number = near - level[0]!.z;
       return (z: number): number =>
@@ -202,7 +210,7 @@ export namespace stepOverPath {
     const path = (
       side: "left" | "right",
       start: number,
-    ): ((u: number) => HumanFoot.IPlacement) => {
+    ): ((u: number) => IAutoMovieMotionHumanFoot.IPlacement) => {
       const a: IAutoMovieVector3 = HumanFrame.local(
         frame,
         heeled(side, feet[side], start).ankle,
@@ -215,7 +223,7 @@ export namespace stepOverPath {
         (z: number): number =>
           Math.max(...sole(side, pitch(z)).map((p) => surface(z + p.z) - p.y)),
       );
-      return (u: number): HumanFoot.IPlacement => {
+      return (u: number): IAutoMovieMotionHumanFoot.IPlacement => {
         const at = line(minimumJerk(Math.min(1, Math.max(0, u))).s);
         return {
           ankle: HumanFrame.point(frame, {
@@ -229,11 +237,14 @@ export namespace stepOverPath {
     };
     const swings: Record<
       "left" | "right",
-      (u: number) => HumanFoot.IPlacement
+      (u: number) => IAutoMovieMotionHumanFoot.IPlacement
     > = {
       [lead]: path(lead, 0),
       [trail]: path(trail, -stepOver.PUSH),
-    } as Record<"left" | "right", (u: number) => HumanFoot.IPlacement>;
+    } as Record<
+      "left" | "right",
+      (u: number) => IAutoMovieMotionHumanFoot.IPlacement
+    >;
     // The trail foot rises on its ball as the pelvis leaves it during the
     // lead swing, the forefoot rocker of a stance foot the body passes over.
     const rising = (t: number): number =>
@@ -245,7 +256,10 @@ export namespace stepOverPath {
     const footAt = (
       side: "left" | "right",
       t: number,
-    ): { placement: HumanFoot.IPlacement; planted: boolean } => {
+    ): {
+      placement: IAutoMovieMotionHumanFoot.IPlacement;
+      planted: boolean;
+    } => {
       const [a, b] = windows[side];
       if (t <= a)
         return {

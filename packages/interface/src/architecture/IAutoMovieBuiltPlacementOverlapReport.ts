@@ -1,5 +1,5 @@
-import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
-import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementOverlapPair";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
+import type { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementOverlapPair";
 
 /**
  * What one whole-building overlap sweep measured, and what it cost.
@@ -27,5 +27,5 @@ export interface IAutoMovieBuiltPlacementOverlapReport {
    * Bodies whose extent the record does not resolve, so nothing compared them;
    * elements in record order, then populations.
    */
-  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+  unresolved: IAutoMovieBuiltPlacementBodyLocator[];
 }

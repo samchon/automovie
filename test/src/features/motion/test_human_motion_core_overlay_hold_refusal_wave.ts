@@ -1,10 +1,10 @@
 import { createDrinkware } from "@automovie/archetypes";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_overlay_hold_refusal_wave(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     let thrown: unknown = null;
     try {
       new HumanPerformance({

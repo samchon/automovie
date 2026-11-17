@@ -1,12 +1,10 @@
-import {
-  type IAutoMovieRandom,
-  createAutoMovieRandom,
-} from "@automovie/engine";
-import {
-  AutoMovieMotionHumanSite,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import { createAutoMovieRandom } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSite,
+  IAutoMovieRandom,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanSite, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -50,7 +48,7 @@ export function test_human_motion_core_site(): void {
   };
 
   // 1. Weighted draws.
-  const sites: AutoMovieMotionHumanSite.IWeighted[] = [
+  const sites: IAutoMovieMotionHumanSite.IWeighted[] = [
     { id: "a", weight: 1 },
     { id: "b", weight: 2 },
     { id: "c", weight: 1 },
@@ -100,10 +98,10 @@ export function test_human_motion_core_site(): void {
       complaints.push(`an ${label} set was not refused on sites`);
 
   // 3. End-state comfort on four bodies.
-  const band: AutoMovieMotionHumanSite.IBand = { low: 0.2, high: 0.8 };
+  const band: IAutoMovieMotionHumanSite.IBand = { low: 0.2, high: 0.8 };
   const comfort: Record<string, number> = {};
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const c: number = AutoMovieMotionHumanSite.comfortable(body);
     comfort[name] = c;
     let previous: number = Infinity;

@@ -1,9 +1,17 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceReader,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -11,9 +19,6 @@ import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { physicalShapeNormal } from "../physics/physicalShapeNormal";
-import type { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -30,8 +35,8 @@ import { resolvePose } from "./resolvePose";
 export namespace AutoMovieHumanoidSurfaceRays {
   /** The farthest distance along a unit ray at which it is still inside a shape, or -Infinity on a miss. */
   function shapeExit(
-    frame: P.ITransform,
-    shape: P.IShape,
+    frame: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
     origin: IAutoMovieVector3,
     d: IAutoMovieVector3,
   ): number {
@@ -138,23 +143,6 @@ export namespace AutoMovieHumanoidSurfaceRays {
   }
 
   /**
-   * A point where a ray leaves a segment's colliders, with their outward
-   * normal there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the point and the normal are and in which frame.
-   * @evidence contracts/development/design.md#principled-representation A surface sample: a world point and the collider's outward unit normal at it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members a region frame is built from.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the normal is the exited collider's own, not the ray's direction.
-   */
-  export interface ISurfacePoint {
-    /** The point, world metres in the rest pose. */
-    point: IAutoMovieVector3;
-
-    /** The outward unit normal there. */
-    normal: IAutoMovieVector3;
-  }
-
-  /**
    * The rest pose readers every surface is resolved with: bones, segments,
    * collider bounds, bone-local frames, stations and ray exits of one body.
    *
@@ -166,7 +154,10 @@ export namespace AutoMovieHumanoidSurfaceRays {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every reader shares the one resolved rest pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The closures retain only the one body's rest pose, released with them.
    */
-  export function tools(skeleton: IAutoMovieSkeleton, profile: P) {
+  export function tools(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+  ): IAutoMovieHumanoidSurfaceReader {
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
       resolvePose(
         { skeleton: skeleton.id, root: null, joints: [] },
@@ -183,9 +174,11 @@ export namespace AutoMovieHumanoidSurfaceRays {
         throw new Error(`Surfaces need the rig bone ${bone}`);
       return r;
     };
-    const segment = (bone: AutoMovieHumanoidBone): P.ISegment => {
-      const s: P.ISegment | undefined = profile.segments.find(
-        (x: P.ISegment): boolean => x.bone === bone,
+    const segment = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMoviePhysicalSegment => {
+      const s: IAutoMoviePhysicalSegment | undefined = profile.segments.find(
+        (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
       );
       if (s === undefined)
         throw new Error(`Surfaces need the profile segment ${bone}`);
@@ -194,7 +187,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const bounds = (
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-      const s: P.ISegment = segment(bone);
+      const s: IAutoMoviePhysicalSegment = segment(bone);
       const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
       const max: IAutoMovieVector3 = {
         x: -Infinity,
@@ -216,7 +209,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       world: IAutoMovieVector3,
       direction: IAutoMovieVector3,
       forward?: IAutoMovieVector3,
-    ): resolveAutoMovieHumanoidSurfaces.IFrame => {
+    ): IAutoMovieHumanoidSurfaces.IFrame => {
       const r: IAutoMovieResolvedBone = at(bone);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
       return {
@@ -237,7 +230,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       };
     };
     const station = (
-      s: AutoMovieHumanoidSurfaceRegions.IStation,
+      s: IAutoMovieHumanoidSurfaceRegions.IStation,
     ): IAutoMovieVector3 => {
       if (s.toward === "centre") {
         const b = bounds(s.bone);
@@ -253,11 +246,11 @@ export namespace AutoMovieHumanoidSurfaceRays {
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
-    ): ISurfacePoint => {
+    ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint => {
       const d: IAutoMovieVector3 = Vector3.normalize(direction);
-      const s: P.ISegment = segment(bone);
+      const s: IAutoMoviePhysicalSegment = segment(bone);
       let far: number = -Infinity;
-      let left: P.IShape | undefined;
+      let left: IAutoMoviePhysicalShape | undefined;
       for (const shape of s.shapes) {
         const t: number = shapeExit(s.neutral, shape, origin, d);
         if (t > far) {

@@ -1,18 +1,33 @@
-import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootBones,
+  IAutoMovieHumanFootConstruction,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootPrior,
+  IAutoMovieHumanFootToeSpan,
+  IAutoMovieHumanFootWebLine,
+  IAutoMovieHumanFootWebRing,
+  IAutoMovieHumanNailWindow,
+  IAutoMovieHumanSurfacePole,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
+
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanFootBody } from "./foot/AutoMovieHumanFootBody";
 import { AutoMovieHumanFootBodyChain } from "./foot/AutoMovieHumanFootBodyChain";
 import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
 import { AutoMovieHumanFootCrestForefoot } from "./foot/AutoMovieHumanFootCrestForefoot";
-import { AutoMovieHumanFootKnots } from "./foot/AutoMovieHumanFootKnots";
-import type { AutoMovieHumanFootFrame } from "./foot/AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./foot/AutoMovieHumanFootGeometry";
-import { AutoMovieHumanFootWebLine } from "./foot/AutoMovieHumanFootWebLine";
+import { AutoMovieHumanFootKnots } from "./foot/AutoMovieHumanFootKnots";
 import { AutoMovieHumanFootMalleolus } from "./foot/AutoMovieHumanFootMalleolus";
 import { AutoMovieHumanFootReflection } from "./foot/AutoMovieHumanFootReflection";
 import { AutoMovieHumanFootToeChain } from "./foot/AutoMovieHumanFootToeChain";
 import { AutoMovieHumanFootToeSpan } from "./foot/AutoMovieHumanFootToeSpan";
+import { AutoMovieHumanFootWebLine } from "./foot/AutoMovieHumanFootWebLine";
 import { AutoMovieHumanFootWebRing } from "./foot/AutoMovieHumanFootWebRing";
 
 /**
@@ -41,37 +56,14 @@ import { AutoMovieHumanFootWebRing } from "./foot/AutoMovieHumanFootWebRing";
  * `AutoMovieHumanLegConstruction.stand`.
  */
 export namespace AutoMovieHumanFootConstruction {
-  /** One foot's public dimensions, in the same millimetres as the calibration. */
-  export type IDimensions = AutoMovieHumanFootBones.IDimensions;
-
-  /** One side's anatomical centres, before the stance moves the foot. */
-  export type IBones = AutoMovieHumanFootBones.IBones;
-
-  /** What a foot reads. */
-  export interface IInputs {
-    /** Left foot. */
-    left: IDimensions;
-
-    /** Right foot. */
-    right: IDimensions;
-
-    /** Fat control; the foot's form takes no published relation to it. */
-    fat: number;
-
-    /** Muscularity control; likewise unread by the form. */
-    muscularity: number;
-
-    /** Calibration millimetres per world millimetre. */
-    scale: number;
-  }
-
   /** Calibration with both feet, their events and their poles added. */
   export function add(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
+    inputs: IAutoMovieHumanFootConstruction.IInputs,
   ): IAutoMovieHumanBodyCalibration {
     const feet: IFoot[] = (["left", "right"] as const).map(
-      (side: "left" | "right"): IFoot => foot(inputs[side], side, calibration.diagnostics ?? []),
+      (side: "left" | "right"): IFoot =>
+        foot(inputs[side], side, calibration.diagnostics ?? []),
     );
     return {
       ...calibration,
@@ -81,15 +73,15 @@ export namespace AutoMovieHumanFootConstruction {
       ],
       events: [
         ...calibration.events,
-        ...feet.flatMap((f: IFoot): IAutoMovieHumanBodyCalibration.IEvent[] => f.events),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanBranchEvent[] => f.events),
       ],
       poles: [
         ...calibration.poles,
-        ...feet.flatMap((f: IFoot): IAutoMovieHumanBodyCalibration.IPole[] => f.poles),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanSurfacePole[] => f.poles),
       ],
       nails: [
         ...(calibration.nails ?? []),
-        ...feet.flatMap((f: IFoot): IAutoMovieHumanBodyCalibration.INail[] => f.nails),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanNailWindow[] => f.nails),
       ],
     };
   }
@@ -99,7 +91,9 @@ export namespace AutoMovieHumanFootConstruction {
    *
    * @param inputs Dimensions in calibration millimetres.
    */
-  export function bones(inputs: IInputs): Record<"left" | "right", IBones> {
+  export function bones(
+    inputs: IAutoMovieHumanFootConstruction.IInputs,
+  ): Record<"left" | "right", IAutoMovieHumanFootBones.IBones> {
     return {
       left: AutoMovieHumanFootBones.of(inputs.left, 1).bones,
       right: AutoMovieHumanFootBones.of(inputs.right, -1).bones,
@@ -115,15 +109,24 @@ export namespace AutoMovieHumanFootConstruction {
    * @param sex Masculine-feminine control.
    * @param scale Calibration millimetres per world millimetre.
    */
-  export function expected(stature: number, sex: number, scale: number): IDimensions {
+  export function expected(
+    stature: number,
+    sex: number,
+    scale: number,
+  ): IAutoMovieHumanFootFrame.IDimensions {
     const e = AutoMovieHumanFootPrior.PRIOR.expected;
     const men: number = Math.min(1, Math.max(0, (1 - sex) / 2));
-    const mix = (pair: readonly [number, number]): number => pair[0] + (pair[1] - pair[0]) * men;
+    const mix = (pair: readonly [number, number]): number =>
+      pair[0] + (pair[1] - pair[0]) * men;
     const length: number = mix(e.length) * stature;
     return {
       length: length * scale,
       breadth: mix(e.breadth) * length * scale,
-      ankle: mix([e.ankle[0][0] + e.ankle[0][1] * stature, e.ankle[1][0] + e.ankle[1][1] * stature]) * scale,
+      ankle:
+        mix([
+          e.ankle[0][0] + e.ankle[0][1] * stature,
+          e.ankle[1][0] + e.ankle[1][1] * stature,
+        ]) * scale,
     };
   }
 
@@ -135,9 +138,9 @@ export namespace AutoMovieHumanFootConstruction {
   /** One side's chains, events and poles. */
   interface IFoot {
     chains: IAutoMovieLoftChain[];
-    events: IAutoMovieHumanBodyCalibration.IEvent[];
-    poles: IAutoMovieHumanBodyCalibration.IPole[];
-    nails: IAutoMovieHumanBodyCalibration.INail[];
+    events: IAutoMovieHumanBranchEvent[];
+    poles: IAutoMovieHumanSurfacePole[];
+    nails: IAutoMovieHumanNailWindow[];
   }
 
   /**
@@ -147,25 +150,50 @@ export namespace AutoMovieHumanFootConstruction {
    * @param side Which side.
    * @param diagnostics The list a degraded piece records into.
    */
-  function foot(d: IDimensions, side: "left" | "right", diagnostics: AutoMovieLoftContract.IDiagnostic[]): IFoot {
+  function foot(
+    d: IAutoMovieHumanFootFrame.IDimensions,
+    side: "left" | "right",
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IFoot {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
-    const centres: AutoMovieHumanFootBones.ICentres = AutoMovieHumanFootBones.of(d, 1);
-    const k: AutoMovieHumanFootFrame.IFrame = centres.frame;
-    const line: AutoMovieHumanFootWebLine.IWebLine = AutoMovieHumanFootWebLine.of({
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
+    const centres: IAutoMovieHumanFootBones.ICentres =
+      AutoMovieHumanFootBones.of(d, 1);
+    const k: IAutoMovieHumanFootFrame.IFrame = centres.frame;
+    const line: IAutoMovieHumanFootWebLine.IWebLine =
+      AutoMovieHumanFootWebLine.of({
+        frame: k,
+        depth: AutoMovieHumanFootCrestForefoot.depth,
+      });
+    const guides: IAutoMovieHumanFootBody.IGuides =
+      AutoMovieHumanFootKnots.guides(k, line);
+    const body: IAutoMovieHumanFootBody.IBody = AutoMovieHumanFootBody.of({
       frame: k,
-      depth: AutoMovieHumanFootCrestForefoot.depth,
+      line,
+      guides,
+      diagnostics,
+      producer: `foot.${side}`,
     });
-    const guides: AutoMovieHumanFootBody.IGuides = AutoMovieHumanFootKnots.guides(k, line);
-    const body: AutoMovieHumanFootBody.IBody = AutoMovieHumanFootBody.of({ frame: k, line, guides, diagnostics, producer: `foot.${side}` });
-    const web: AutoMovieHumanFootWebRing.IWebRing = AutoMovieHumanFootWebRing.of(k, body);
-    const toes: AutoMovieHumanFootToeSpan.IToe[] = prior.toes.map(
-      (_: AutoMovieHumanFootPrior.IToe, i: number): AutoMovieHumanFootToeSpan.IToe =>
-        AutoMovieHumanFootToeSpan.of({ frame: k, lines: centres.lines, index: i }),
+    const web: IAutoMovieHumanFootWebRing.IWebRing =
+      AutoMovieHumanFootWebRing.of(k, body);
+    const toes: IAutoMovieHumanFootToeSpan.IToe[] = prior.toes.map(
+      (
+        _: IAutoMovieHumanFootPrior.IToe,
+        i: number,
+      ): IAutoMovieHumanFootToeSpan.IToe =>
+        AutoMovieHumanFootToeSpan.of({
+          frame: k,
+          lines: centres.lines,
+          index: i,
+        }),
     );
     const name = (n: string): string => n.replace("{side}", side);
-    const splits: IAutoMovieHumanBodyCalibration.ISplit[] = prior.toes.map(
-      (t: AutoMovieHumanFootPrior.IToe, i: number): IAutoMovieHumanBodyCalibration.ISplit => ({
+    const splits: IAutoMovieHumanBranchSplit[] = prior.toes.map(
+      (
+        t: IAutoMovieHumanFootPrior.IToe,
+        i: number,
+      ): IAutoMovieHumanBranchSplit => ({
         child: name(t.name),
         arcs: AutoMovieHumanFootReflection.arcs(web.arcs[i]!, sign),
       }),
@@ -176,7 +204,10 @@ export namespace AutoMovieHumanFootConstruction {
           AutoMovieHumanFootMalleolus.of("lateral", k, body, sign, side),
           AutoMovieHumanFootMalleolus.of("medial", k, body, sign, side),
         ]),
-        ...toes.map((t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieLoftChain => AutoMovieHumanFootToeChain.of(t, name(t.name), sign)),
+        ...toes.map(
+          (t: IAutoMovieHumanFootToeSpan.IToe): IAutoMovieLoftChain =>
+            AutoMovieHumanFootToeChain.of(t, name(t.name), sign),
+        ),
       ],
       events: [
         {
@@ -192,14 +223,17 @@ export namespace AutoMovieHumanFootConstruction {
         },
       ],
       poles: toes.map(
-        (t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanBodyCalibration.IPole => ({
+        (t: IAutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanSurfacePole => ({
           chain: name(t.name),
           end: "bottom",
           critical: true,
           point: G.sided(t.pole, sign),
         }),
       ),
-      nails: toes.map((t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanBodyCalibration.INail => AutoMovieHumanFootToeChain.nail(t, name(t.name), sign)),
+      nails: toes.map(
+        (t: IAutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanNailWindow =>
+          AutoMovieHumanFootToeChain.nail(t, name(t.name), sign),
+      ),
     };
   }
 }

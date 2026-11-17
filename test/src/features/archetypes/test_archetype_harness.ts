@@ -16,7 +16,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +25,7 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
 /** The model's own frame, in which its colliders are measured. */
-const ORIGIN: IAutoMoviePhysicalProfile.ITransform = {
+const ORIGIN: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
@@ -89,7 +90,9 @@ export function test_archetype_harness(): void {
         rump.transform.scale.y !== 1 ||
         rump.transform.scale.z !== 1
       )
-        findings.push(`${label}: the actual unit-scale hindquarters capsule is missing`);
+        findings.push(
+          `${label}: the actual unit-scale hindquarters capsule is missing`,
+        );
       else {
         const axis: IAutoMovieVector3 = Quaternion.rotateVector(
           rump.transform.rotation,
@@ -174,10 +177,10 @@ export function test_archetype_harness(): void {
           Math.min(
             ...horse
               .shapes()
-              .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+              .filter((shape: IAutoMoviePhysicalShape): boolean =>
                 shape.id.startsWith("breeching-"),
               )
-              .map((shape: IAutoMoviePhysicalProfile.IShape): number =>
+              .map((shape: IAutoMoviePhysicalShape): number =>
                 physicalShapeSegmentDistance(ORIGIN, shape, quarters, quarters),
               ),
           ) - rig.barrel;

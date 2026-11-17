@@ -1,7 +1,5 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -27,26 +25,26 @@ export function test_construction_nesting(): void {
   const realize: (
     k: number,
     nested: "left" | "right",
-  ) => AutoMovieConstructionRealization.IRealization = (
+  ) => IAutoMovieConstructionRealization.IRealization = (
     k: number,
     nested: "left" | "right",
-  ): AutoMovieConstructionRealization.IRealization =>
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction(
       { name: `made.${nested}`, root: ConstructionShapes.assembly(k, nested) },
       { chord: 1e-4 * k },
     );
-  const left: AutoMovieConstructionRealization.IRealization = realize(
+  const left: IAutoMovieConstructionRealization.IRealization = realize(
     1,
     "left",
   );
-  const right: AutoMovieConstructionRealization.IRealization = realize(
+  const right: IAutoMovieConstructionRealization.IRealization = realize(
     1,
     "right",
   );
   for (const [name, r] of [
     ["left", left],
     ["right", right],
-  ] as [string, AutoMovieConstructionRealization.IRealization][])
+  ] as [string, IAutoMovieConstructionRealization.IRealization][])
     if (r.diagnostics.length !== 0)
       failures.push(`${name}: diagnostics ${ConstructionRead.diagnostics(r)}`);
   const tol: number = 1e-9 * 0.03;

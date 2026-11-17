@@ -1,4 +1,11 @@
-import type { AutoMovieLoftContract, IAutoMovieLoftRelief } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLegReliefWindow,
+  IAutoMovieHumanLegReliefs,
+  IAutoMovieHumanLegStations,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
 import { AutoMovieHumanLegReliefWindows } from "./AutoMovieHumanLegReliefWindows";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
@@ -25,36 +32,53 @@ export namespace AutoMovieHumanLegReliefs {
    * @param furrow The person's gluteal furrow height, mm: a window anchored at the crotch stands there when it lies inside the leg, the fold being where the furrow is.
    */
   export function of(
-    bones: AutoMovieHumanLegStations.IBones,
-    girth: (s: number) => number,
-    span: readonly [number, number],
+    bones: IAutoMovieHumanLegStations.IBones,
+    girth: IAutoMovieHumanLegReliefs.OfGirth,
+    span: IAutoMovieHumanLegReliefs.OfSpan,
     crotchReach?: number,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
     furrow?: number,
   ): IAutoMovieLoftRelief[] {
-    const centre: (w: AutoMovieHumanLegReliefWindow.IWindow) => number = (w: AutoMovieHumanLegReliefWindow.IWindow): number =>
-      w.anchor === "crotch" && furrow !== undefined && furrow > span[0] && furrow < span[1]
+    const centre: (w: IAutoMovieHumanLegReliefWindow.IWindow) => number = (
+      w: IAutoMovieHumanLegReliefWindow.IWindow,
+    ): number =>
+      w.anchor === "crotch" &&
+      furrow !== undefined &&
+      furrow > span[0] &&
+      furrow < span[1]
         ? furrow
         : w.anchor === "crotch" && crotchReach !== undefined
-        ? span[1] - crotchReach
-        : AutoMovieHumanLegStations.heightAt(bones, w.segment, w.share);
-    return AutoMovieHumanLegReliefWindows.ALL.filter((w: AutoMovieHumanLegReliefWindow.IWindow): boolean => {
-      const at: number = centre(w);
-      return at > span[0] && at < span[1];
-    }).flatMap((w: AutoMovieHumanLegReliefWindow.IWindow): IAutoMovieLoftRelief[] => {
-      const at: number = centre(w);
-      try {
-        return [AutoMovieHumanLegReliefWindow.create(w, { bones, radius: girth(at) / (2 * Math.PI), at })];
-      } catch (error) {
-        const inward: boolean = w.axis[0] * Math.cos(w.angle) + w.axis[2] * Math.sin(w.angle) < 0;
-        diagnostics.push({
-          producer: w.name,
-          level: inward ? 4 : 3,
-          contract: "a relief window has a positive local radius at its centre",
-          detail: error instanceof Error ? error.message : String(error),
-        });
-        return [];
-      }
-    });
+          ? span[1] - crotchReach
+          : AutoMovieHumanLegStations.heightAt(bones, w.segment, w.share);
+    return AutoMovieHumanLegReliefWindows.ALL.filter(
+      (w: IAutoMovieHumanLegReliefWindow.IWindow): boolean => {
+        const at: number = centre(w);
+        return at > span[0] && at < span[1];
+      },
+    ).flatMap(
+      (w: IAutoMovieHumanLegReliefWindow.IWindow): IAutoMovieLoftRelief[] => {
+        const at: number = centre(w);
+        try {
+          return [
+            AutoMovieHumanLegReliefWindow.create(w, {
+              bones,
+              radius: girth(at) / (2 * Math.PI),
+              at,
+            }),
+          ];
+        } catch (error) {
+          const inward: boolean =
+            w.axis[0] * Math.cos(w.angle) + w.axis[2] * Math.sin(w.angle) < 0;
+          diagnostics.push({
+            producer: w.name,
+            level: inward ? 4 : 3,
+            contract:
+              "a relief window has a positive local radius at its centre",
+            detail: error instanceof Error ? error.message : String(error),
+          });
+          return [];
+        }
+      },
+    );
   }
 }

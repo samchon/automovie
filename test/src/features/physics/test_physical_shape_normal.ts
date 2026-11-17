@@ -1,7 +1,8 @@
 import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,11 +22,11 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with the input and the behaviour each pins.
  */
 export async function test_physical_shape_normal(): Promise<void> {
-  const still: P.ITransform = {
+  const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const turned: P.ITransform = {
+  const turned: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
@@ -48,7 +49,7 @@ export async function test_physical_shape_normal(): Promise<void> {
   };
 
   // 1. The sphere and the capsule, under a turned pose.
-  const sphere: P.IShape = {
+  const sphere: IAutoMoviePhysicalShape = {
     id: "sphere",
     material: "solid",
     kind: "sphere",
@@ -67,7 +68,7 @@ export async function test_physical_shape_normal(): Promise<void> {
     radial,
     1e-3,
   );
-  const capsule: P.IShape = {
+  const capsule: IAutoMoviePhysicalShape = {
     id: "capsule",
     material: "solid",
     kind: "capsule",
@@ -109,14 +110,14 @@ export async function test_physical_shape_normal(): Promise<void> {
   );
 
   // 2. A face's middle, on a box and on a cube hull.
-  const box: P.IShape = {
+  const box: IAutoMoviePhysicalShape = {
     id: "box",
     material: "solid",
     kind: "box",
     halfExtents: { x: 0.1, y: 0.1, z: 0.1 },
     transform: still,
   };
-  const hull: P.IShape = {
+  const hull: IAutoMoviePhysicalShape = {
     id: "hull",
     material: "solid",
     kind: "hull",

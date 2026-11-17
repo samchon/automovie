@@ -1,8 +1,11 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftEmission64,
+  IAutoMovieContourLoftSink64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import type { IAutoMovieContourLoft64 as L } from "./IAutoMovieContourLoft64";
-import type { IAutoMovieContourLoftEmission64 } from "./IAutoMovieContourLoftEmission64";
-import type { IAutoMovieContourLoftSink64 } from "./IAutoMovieContourLoftSink64";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { computeAutoMovieContourNormals64 } from "./computeAutoMovieContourNormals64";
 import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64";
 
@@ -19,12 +22,18 @@ import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One kernel invocation supplies indexed geometry, construction and actual qualification metadata.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This memory API deliberately retains complete vertex/triangle channels. Borrowed construction-point references and paid phase arrays survive until normal reduction and final construction conversion; no file or cache is acquired.
  */
-export function tessellateAutoMovieContourLoft64(input: L): L.IResult {
-  const vertices: C.Vector[] = [],
+export function tessellateAutoMovieContourLoft64(
+  input: IAutoMovieContourLoft64,
+): IAutoMovieContourLoft64.IResult {
+  const vertices: Readonly<AutoMovieVector3Tuple>[] = [],
     triangles: [number, number, number][] = [];
-  const sources: [string, readonly C.Vector[], number[]][] = [];
+  const sources: [
+    string,
+    readonly Readonly<AutoMovieVector3Tuple>[],
+    number[],
+  ][] = [];
   const sink: IAutoMovieContourLoftSink64 = {
-    vertex: (index: number, pointMm: C.Vector): void => {
+    vertex: (index: number, pointMm: Readonly<AutoMovieVector3Tuple>): void => {
       if (index !== vertices.length)
         throw new Error("Contour vertex order differs from its memory sink");
       vertices.push(pointMm);
@@ -34,8 +43,8 @@ export function tessellateAutoMovieContourLoft64(input: L): L.IResult {
     },
     construction: (
       id: string,
-      pointsMm: readonly C.Vector[],
-      phase: (pointMm: C.Vector) => number,
+      pointsMm: readonly Readonly<AutoMovieVector3Tuple>[],
+      phase: (pointMm: Readonly<AutoMovieVector3Tuple>) => number,
     ): void => {
       sources.push([id, pointsMm, pointsMm.map(phase)]);
     },
@@ -52,7 +61,8 @@ export function tessellateAutoMovieContourLoft64(input: L): L.IResult {
     stripObservations: generated.stripObservations,
     mesh: {
       positions: vertices.flatMap(
-        (point: C.Vector): M.V => M.scale(point, 0.001),
+        (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+          M.scale(point, 0.001),
       ),
       indices: triangles.flat(),
       normals,
@@ -62,12 +72,15 @@ export function tessellateAutoMovieContourLoft64(input: L): L.IResult {
     construction: sources.map(
       ([id, points, phases]: [
         string,
-        readonly C.Vector[],
+        readonly Readonly<AutoMovieVector3Tuple>[],
         number[],
-      ]): L.IResult["construction"][number] => ({
+      ]): IAutoMovieContourLoft64.IResult["construction"][number] => ({
         id,
         closed: true,
-        points: points.map((point: C.Vector): M.V => M.scale(point, 0.001)),
+        points: points.map(
+          (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+            M.scale(point, 0.001),
+        ),
         phases,
       }),
     ),

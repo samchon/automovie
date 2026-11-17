@@ -1,14 +1,14 @@
 import {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieConnectorGeometry,
   IAutoMovieConnectorSection,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieConnectorGeometry } from "./IAutoMovieConnectorGeometry";
 import { builtConnectorGeometry } from "./builtConnectorGeometry";
 
 /** Shortest distance, in metres, two consecutive route stations may sit apart. */
@@ -57,13 +57,13 @@ export const validateBuiltConnectorShape: (
   connector: IAutoMovieBuiltConnector,
   path: string,
   measured: boolean,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   connector: IAutoMovieBuiltConnector,
   path: string,
   measured: boolean,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const finite: boolean =
     connector.route.length >= 2 &&
@@ -208,11 +208,11 @@ export const validateBuiltConnectorShape: (
 const validateSections: (
   sections: readonly IAutoMovieConnectorSection[],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   sections: readonly IAutoMovieConnectorSection[],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (sections.length < 2) {
     collector.push(

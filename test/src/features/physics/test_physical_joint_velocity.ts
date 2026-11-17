@@ -4,9 +4,9 @@ import {
   projectPhysicalJointVelocity,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJointAxis,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +23,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bend at a transverse limit rejects outward coupled velocity, including quaternion sign equivalence.).
  */
 export function test_physical_joint_velocity(): void {
-  const axis: P.IAxis = {
+  const axis: IAutoMoviePhysicalJointAxis = {
     axis: "y",
     minimum: -0.7,
     maximum: 0.7,
@@ -47,10 +47,10 @@ export function test_physical_joint_velocity(): void {
   };
   const requested: IAutoMovieVector3 = { x: 5, y: 0, z: 0 };
   const dt: number = 1e-5;
-  const axes: P.IAxis[] = [
+  const axes: IAutoMoviePhysicalJointAxis[] = [
     axis,
     ...(["x", "z"] as const).map(
-      (coordinate: "x" | "z"): P.IAxis => ({
+      (coordinate: "x" | "z"): IAutoMoviePhysicalJointAxis => ({
         ...axis,
         axis: coordinate,
         minimum: -Math.PI,

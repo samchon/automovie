@@ -16,14 +16,14 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanArmClearance } from "./HumanArmClearance";
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -52,135 +52,12 @@ export namespace HumanArmGeometry {
   /** The first of the arm's collider probes among a placed arm's probes, after its eight axis spheres. */
   export const SURFACE: number = 8;
 
-  /** A shape in an arm's way, placed, with its bounding sphere. */
-  export interface IShape {
-    /** The bone the shape's segment rides on. */
-    bone: AutoMovieHumanoidBone;
-    /** The frame's collider part: the body's audit indices first, then the external placed segments in their order in the base. */
-    part: number;
-    /** The segment's world pose. */
-    pose: HumanColliders.IPlaced["pose"];
-    /** The shape in the segment's frame. */
-    shape: HumanColliders.IPlaced["shapes"][number];
-    /** Its bounding sphere's world centre. */
-    centre: IAutoMovieVector3;
-    /** Its bounding sphere's radius, metres. */
-    radius: number;
-  }
-
-  /** What an arm's coordinates are read with, built once per body and side. */
-  export interface ISetup {
-    /** The body. */
-    body: IHumanBody;
-    /** The arm's three bones. */
-    bones: {
-      /** The upper arm. */
-      upper: AutoMovieHumanoidBone;
-      /** The forearm. */
-      lower: AutoMovieHumanoidBone;
-      /** The hand. */
-      hand: AutoMovieHumanoidBone;
-    };
-    /** Each joint's range; the elbow's and the wrist's may be absent. */
-    constraint: {
-      /** The shoulder's, with its swing-twist record. */
-      upper: IAutoMovieJointConstraint;
-      /** The elbow's. */
-      lower: IAutoMovieJointConstraint | null;
-      /** The wrist's. */
-      hand: IAutoMovieJointConstraint | null;
-    };
-    /** The shoulder's swing-twist frame. */
-    joint: swingTwistRange.IJoint;
-    /** The skeleton's joint axes. */
-    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-    /** Each bone's rest transform from its parent. */
-    rest: {
-      /** The upper arm's. */
-      upper: IAutoMovieBone["rest"];
-      /** The forearm's. */
-      lower: IAutoMovieBone["rest"];
-      /** The hand's. */
-      hand: IAutoMovieBone["rest"];
-    };
-    /** Whether each coordinate is a freedom of its joint. */
-    free: boolean[];
-  }
-
-  /** What the arm is read against at one instant (`HumanArmFrame.of`). */
-  export interface IFrame {
-    /** The shoulder's parent's world rotation and position. */
-    parent: {
-      /** Its world rotation. */
-      rotation: IAutoMovieQuaternion;
-      /** Its world position. */
-      position: IAutoMovieVector3;
-    };
-    /** The middle fingertip in the hand's frame from the wrist. */
-    tip: IAutoMovieVector3;
-    /** The arm's collider probes (the tangle audit's corners), each in the frame of the arm's segment it rides on (`owners`). */
-    surface: IAutoMovieVector3[];
-    /** The segment of the arm each surface probe rides on. */
-    owners: ("upper" | "lower" | "hand")[];
-    /** A sphere about each segment's surface probes, in that segment's frame: the broad phase that spares the probes of a segment far from a shape. */
-    bounds: Record<
-      "upper" | "lower" | "hand",
-      { centre: IAutoMovieVector3; radius: number }
-    >;
-    /** The tangle audit's part each surface probe belongs to, by the order the colliders are placed. */
-    segments: number[];
-    /** Each surface probe's index among its part's own probes, for the audit's reference depth of it. */
-    corners: number[];
-    /** Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. */
-    related: boolean[][];
-    /** The arm's own collider segments, each in the frame of the arm's segment it rides on: what another moving arm keeps clear of. */
-    colliders: {
-      /** The arm's segment it rides on. */
-      owner: "upper" | "lower" | "hand";
-      /** Its bone. */
-      bone: AutoMovieHumanoidBone;
-      /** The tangle audit's part it is. */
-      part: number;
-      /** Its pose in the riding segment's frame. */
-      pose: HumanColliders.IPlaced["pose"];
-      /** Its shapes. */
-      shapes: HumanColliders.IPlaced["shapes"];
-    }[];
-    /** The shapes in the arm's way. */
-    shapes: IShape[];
-    /** The collider probes in the arm's way (the tangle audit's corners), in the world, the solved arms left out: each one's point, frame part, index among that part's probes, and bone. Includes external bodies, whose frame parts follow the body's audit parts and have no own-body reference depth. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
-    body: {
-      point: IAutoMovieVector3;
-      part: number;
-      corner: number;
-      bone: AutoMovieHumanoidBone;
-    }[];
-  }
-
-  /** The arm placed: its probes and its segments' world frames. */
-  export interface IPlaced {
-    /** Each probe's world point and radius: eight axis spheres (two on the upper arm, four on the forearm to the wrist, two on the hand), then the collider probes with radius 0. */
-    probes: readonly (readonly [IAutoMovieVector3, number])[];
-    /** The shoulder's world point. */
-    shoulder: IAutoMovieVector3;
-    /** The elbow's world point. */
-    elbow: IAutoMovieVector3;
-    /** The upper arm's world rotation. */
-    upper: IAutoMovieQuaternion;
-    /** The forearm's world rotation. */
-    lower: IAutoMovieQuaternion;
-    /** The wrist's world point. */
-    wrist: IAutoMovieVector3;
-    /** The hand's world rotation. */
-    hand: IAutoMovieQuaternion;
-  }
-
   /** The pose an arm is read in and another body's colliders in its way. */
   export interface IBase {
     /** The pose, the arms of the problem in it ignored. */
     pose: IAutoMoviePose;
     /** Another body's placed colliders. */
-    others: readonly HumanColliders.IPlaced[];
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
   /**
@@ -190,8 +67,11 @@ export namespace HumanArmGeometry {
    * @param side The arm.
    * @returns The setup.
    */
-  export function prepare(body: IHumanBody, side: "left" | "right"): ISetup {
-    const bones: ISetup["bones"] = {
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): IAutoMovieMotionHumanArmGeometry.ISetup {
+    const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = {
       upper: `${side}UpperArm`,
       lower: `${side}LowerArm`,
       hand: `${side}Hand`,
@@ -246,7 +126,7 @@ export namespace HumanArmGeometry {
    * @returns Its parent bone.
    */
   export function parent(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
   ): AutoMovieHumanoidBone {
     return find(body, bone).parent as AutoMovieHumanoidBone;
@@ -263,7 +143,7 @@ export namespace HumanArmGeometry {
    * @returns The rotation from the bone's rest.
    */
   export function rotation(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     of: readonly [number, number, number],
   ): IAutoMovieQuaternion {
@@ -291,7 +171,7 @@ export namespace HumanArmGeometry {
    * @returns The clamped triple.
    */
   export function clamped(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     of: readonly [number, number, number],
   ): [number, number, number] {
@@ -309,7 +189,10 @@ export namespace HumanArmGeometry {
    * @param arm Its clinical triples.
    * @returns The coordinates.
    */
-  export function encode(setup: ISetup, arm: HumanArmClearance.IArm): number[] {
+  export function encode(
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+  ): number[] {
     const place: { x: number; y: number; twist: number } =
       swingTwistRange.chart(
         rotation(setup, setup.bones.upper, arm.upper),
@@ -339,7 +222,7 @@ export namespace HumanArmGeometry {
    * @returns The shoulder's rotation from its rest.
    */
   export function shoulder(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     c: readonly number[],
   ): IAutoMovieQuaternion {
     const k: number = Math.hypot(c[0]!, c[1]!) / SCALE;
@@ -366,9 +249,9 @@ export namespace HumanArmGeometry {
    * @returns The triples.
    */
   export function arm(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     c: readonly number[],
-  ): HumanArmClearance.IArm {
+  ): IAutoMovieMotionHumanArmClearance.IArm {
     const read: { flexion: number; abduction: number; twist: number } =
       decomposeJointRotation(
         shoulder(setup, c),
@@ -396,13 +279,13 @@ export namespace HumanArmGeometry {
    * @returns The arm placed.
    */
   export function placed(
-    setup: ISetup,
-    at: IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     c: readonly number[],
     surface: boolean = true,
-  ): IPlaced {
-    const rest: ISetup["rest"] = setup.rest;
-    const parent: IFrame["parent"] = at.parent;
+  ): IAutoMovieMotionHumanArmGeometry.IPlaced {
+    const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] = setup.rest;
+    const parent: IAutoMovieMotionHumanArmGeometry.IFrame["parent"] = at.parent;
     const wu: IAutoMovieQuaternion = Quaternion.multiply(
       parent.rotation,
       Quaternion.multiply(rest.upper.rotation, shoulder(setup, c)),
@@ -437,7 +320,7 @@ export namespace HumanArmGeometry {
       ph,
       Quaternion.rotateVector(wh, at.tip),
     );
-    const m: IHumanBody["measure"] = setup.body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = setup.body.measure;
     return {
       probes: [
         [Vector3.lerp(pu, pl, 0.5), m.upperArmRadius],
@@ -481,7 +364,10 @@ const AXES: WeakMap<
 > = new WeakMap();
 
 /** A bone of the body's skeleton. */
-function find(body: IHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {
+function find(
+  body: IAutoMovieMotionHumanBody,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieBone {
   return body.skeleton.bones.find(
     (b: IAutoMovieBone): boolean => b.bone === bone,
   )!;

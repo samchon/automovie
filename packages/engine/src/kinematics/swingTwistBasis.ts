@@ -1,5 +1,6 @@
 import type {
   IAutoMovieJointAxes,
+  IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -29,32 +30,6 @@ export namespace swingTwistBasis {
   export const RAYS: number = 360;
 
   /**
-   * A joint's unit axes and the two axes of the great circles through its
-   * rest direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each axis and the circles' two axes.
-   * @evidence contracts/development/design.md#principled-representation The clinical axes with the plane the circles lie in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five axes, all read by the reading, the region and the projection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named.
-   */
-  export interface IBasis {
-    /** The limb's rest direction, the twist axis. */
-    u: IAutoMovieVector3;
-
-    /** The flexion axis. */
-    f: IAutoMovieVector3;
-
-    /** The abduction axis. */
-    a: IAutoMovieVector3;
-
-    /** The first axis of the great circles, the flexion axis again. */
-    e1: IAutoMovieVector3;
-
-    /** The second axis of the great circles, the rest direction turned by `e1`. */
-    e2: IAutoMovieVector3;
-  }
-
-  /**
    * The frame of a joint's axes.
    *
    * @param axes The joint's clinical axes.
@@ -68,7 +43,9 @@ export namespace swingTwistBasis {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `normalizeJointAxes`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(axes: IAutoMovieJointAxes): IBasis {
+  export function of(
+    axes: IAutoMovieJointAxes,
+  ): IAutoMovieSwingTwistBasis.IBasis {
     const normal: IAutoMovieJointAxes = normalizeJointAxes(
       axes,
       "swingTwistRange axes",
@@ -99,7 +76,10 @@ export namespace swingTwistBasis {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function azimuth(basis: IBasis, direction: IAutoMovieVector3): number {
+  export function azimuth(
+    basis: IAutoMovieSwingTwistBasis.IBasis,
+    direction: IAutoMovieVector3,
+  ): number {
     return (
       Math.atan2(
         Vector3.dot(direction, basis.e2),
@@ -125,7 +105,7 @@ export namespace swingTwistBasis {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function direction(
-    basis: IBasis,
+    basis: IAutoMovieSwingTwistBasis.IBasis,
     swing: number,
     azimuthDegrees: number,
   ): IAutoMovieVector3 {

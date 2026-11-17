@@ -1,16 +1,18 @@
 import {
-  AutoMovieConstructionProfile,
   AutoMovieConstructionProfileBody,
-  type AutoMovieConstructionRealization,
   AutoMovieSolidBody,
   AutoMovieSolidMesh,
-  type IAutoMovieConstructionProfileSource,
-  type IAutoMovieSolidSurface,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieConstructionRealization,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +80,7 @@ function collect(label: string, failures: string[], run: () => void): void {
 /** The author supplies one pure declaration and the corresponding complete original function owner. */
 function realize(
   source: IAutoMovieConstructionProfileSource,
-): AutoMovieConstructionRealization.IRealization {
+): IAutoMovieConstructionRealization.IRealization {
   return realizeAutoMovieConstruction(
     {
       name: "analytic",
@@ -91,7 +93,8 @@ function realize(
 /** Exact polyhedral geometry supplies per-face area and native shared-edge oracles. */
 function prism(failures: string[]): void {
   const source: IAutoMovieConstructionProfileSource = Made.prism();
-  const result: AutoMovieConstructionRealization.IRealization = realize(source);
+  const result: IAutoMovieConstructionRealization.IRealization =
+    realize(source);
   clean(result, failures);
   if (
     result.chains.length !== 0 ||
@@ -156,8 +159,9 @@ function prism(failures: string[]): void {
         "Neighboring original faces lost their actual common boundary.",
       );
   }
-  const prepared: AutoMovieConstructionProfile.IPrepared = result.profiles![0]!;
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
+    result.profiles![0]!;
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     "actual atlas",
     [],
   );
@@ -208,7 +212,7 @@ function prism(failures: string[]): void {
 
 /** Both period-one and bounded quarter charts consume identical original collapsed topology. */
 function cone(count: number, direction: 1 | -1, failures: string[]): void {
-  const result: AutoMovieConstructionRealization.IRealization = realize(
+  const result: IAutoMovieConstructionRealization.IRealization = realize(
     Made.cone(count, direction),
   );
   clean(result, failures);
@@ -257,9 +261,10 @@ function cone(count: number, direction: 1 | -1, failures: string[]): void {
     )
   )
     failures.push("Regular top was capped or actual bottom tip omitted.");
-  const profile: AutoMovieConstructionProfile.IPrepared = result.profiles![0]!;
+  const profile: IAutoMoviePreparedConstructionProfile.IPrepared =
+    result.profiles![0]!;
   const original: IAutoMovieSolidSurface = profile.originals.get("piece.0")!;
-  const piece: IAutoMovieConstructionProfile.IPiece =
+  const piece: IAutoMovieConstructionProfilePiece =
     profile.definition.loops[0]!.pieces[0]!;
   const angle: number =
     ((2 * Math.PI) / 3) *
@@ -287,7 +292,7 @@ function cone(count: number, direction: 1 | -1, failures: string[]): void {
 
 /** Every publication and emitted vertex retains its genuine original owner coordinates. */
 function clean(
-  result: AutoMovieConstructionRealization.IRealization,
+  result: IAutoMovieConstructionRealization.IRealization,
   failures: string[],
 ): void {
   if (result.diagnostics.length !== 0 || result.mesh.indices.length === 0)
@@ -325,7 +330,7 @@ function refused(failures: string[]): void {
   Made.cutCap(failures);
   const source: IAutoMovieConstructionProfileSource = Made.prism();
   const branch: IAutoMovieConstructionProfileSource = Made.cone(1, 1);
-  const rolled: AutoMovieConstructionRealization.IRealization =
+  const rolled: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction(
       { name: "rollback", root: Made.rollbackTree(branch.definition) },
       {
@@ -350,11 +355,11 @@ function refused(failures: string[]): void {
     failures.push(
       "Outer join rollback retained profile geometry, original owners or records.",
     );
-  const root: AutoMovieConstructionNode = {
+  const root: IAutoMovieConstructionNode = {
     type: "profile",
     ...structuredClone(source.definition),
   };
-  const absent: AutoMovieConstructionRealization.IRealization =
+  const absent: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "absent", root }, { chord: 0.00002 });
   atomic(absent, failures);
   source.definition.revisions.source = "changed";
@@ -383,7 +388,7 @@ function refused(failures: string[]): void {
       throw new Error("actual original failure");
     },
   });
-  const failed: AutoMovieConstructionRealization.IRealization =
+  const failed: IAutoMovieConstructionRealization.IRealization =
     realize(foreign);
   atomic(failed, failures);
   if (
@@ -399,7 +404,7 @@ function refused(failures: string[]): void {
 
 /** A refused original leaf publishes no fallback geometry or retained source record. */
 function atomic(
-  result: AutoMovieConstructionRealization.IRealization,
+  result: IAutoMovieConstructionRealization.IRealization,
   failures: string[],
 ): void {
   if (
@@ -415,7 +420,7 @@ function atomic(
 
 /** World mm coordinates are independent of unchanged native chart units. */
 function point(
-  result: AutoMovieConstructionRealization.IRealization,
+  result: IAutoMovieConstructionRealization.IRealization,
   id: number,
 ): [number, number, number] {
   return result.mesh.positions
@@ -447,7 +452,7 @@ function add(edges: Map<string, number>, a: number, b: number): void {
 /** Domain authorities preserve actual open rims, reject interior cuts and leave all mesh buffers unchanged on refusal. */
 function authorities(failures: string[]): void {
   const good: ReturnType<typeof Made.authorities> = Made.authorities(true);
-  const open: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
+  const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
     good.mesh,
     good.input,
   );
@@ -470,7 +475,7 @@ function authorities(failures: string[]): void {
     );
   for (const mode of ["diagonal", "outside", "role", "missing"]) {
     const made: ReturnType<typeof Made.authorities> = Made.authorities();
-    const loop: AutoMovieSolidMesh.ILoop = made.input.domainLoops![0]!;
+    const loop: IAutoMovieSolidMesh.ILoop = made.input.domainLoops![0]!;
     if (mode === "diagonal") {
       loop.vertices = [0, 2, 1, 3];
       loop.chart = [

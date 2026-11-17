@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryRegularizationUpdate } from "../structures/image/IAutoMovieRecoveryRegularizationUpdate";
+import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
 
 /**
  * React to one selected increment using its undamped computed agreement.

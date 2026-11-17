@@ -1,7 +1,8 @@
-import { type IAutoMovieSweep, meshAutoMovieSweep } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
+import { meshAutoMovieSweep } from "@automovie/engine";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieSweep,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**

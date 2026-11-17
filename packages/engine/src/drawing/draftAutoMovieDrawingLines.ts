@@ -2,19 +2,18 @@ import {
   AutoMovieDrawingRole,
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
+  type IAutoMovieDraftDrawingLines,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingEdge,
   IAutoMovieDrawingFrame,
   IAutoMovieDrawingLine,
   IAutoMovieDrawingPoint,
-  IAutoMovieDrawingView,
+  type IAutoMovieDrawingTriangle,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
-import { IAutoMovieDrawingEdge } from "./IAutoMovieDrawingEdge";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
 import { autoMovieDrawingCutEdges } from "./autoMovieDrawingCutEdges";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
@@ -72,14 +71,9 @@ interface IDrawable {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Element geometry comes from the design index, so a model placed many times is tessellated once per derivation; each drawable's triangles are computed once and shared by its classification, cut and silhouette passes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawable list, drafted strokes and deduplication map live for the call and are released on return; the retained population is bounded by the drawn triangles, and only the returned lines, owned by the caller, survive.
  */
-export const draftAutoMovieDrawingLines = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  view: IAutoMovieDrawingView;
-  frame: IAutoMovieDrawingFrame;
-  design: IAutoMovieDrawingDesignIndex;
-  cut: boolean;
-  drawn: (kind: string, space: string | null) => boolean;
-}): { lines: IAutoMovieDrawingLine[]; unresolvedModels: number } => {
+export const draftAutoMovieDrawingLines = (
+  props: IAutoMovieDraftDrawingLines.IProps,
+): IAutoMovieDraftDrawingLines.IResult => {
   const { environment, view, frame, design, cut, drawn } = props;
   const drawables: IDrawable[] = [];
   let unresolvedModels: number = 0;

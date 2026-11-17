@@ -1,9 +1,11 @@
 import {
-  type IAutoMovieAcousticRequest,
   applyAutoMovieInteriorAcousticResponse,
   deriveAutoMovieInteriorAcousticResponse,
 } from "@automovie/engine";
-import type { IAutoMovieAcousticResponseProfile } from "@automovie/interface";
+import type {
+  IAutoMovieAcousticRequest,
+  IAutoMovieAcousticResponseProfile,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";

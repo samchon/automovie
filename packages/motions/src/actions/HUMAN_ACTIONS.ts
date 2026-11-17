@@ -1,4 +1,8 @@
-import type { HumanActionName } from "../HumanActionName";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionLaw,
+} from "@automovie/interface";
+
 import { operate } from "../affordance/operate";
 import { kickBall } from "../ballStrike/kickBall";
 import { carry } from "../carrying/carry";
@@ -31,7 +35,6 @@ import { pickUp } from "../handling/pickUp";
 import { pushPull } from "../handling/pushPull";
 import { putDown } from "../handling/putDown";
 import { receive } from "../handling/receive";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { perturb } from "../reaction/perturb";
@@ -72,7 +75,7 @@ import { walk } from "./walk";
  * action is what supplies its parameters.
  */
 export const HUMAN_ACTIONS: Readonly<
-  Record<HumanActionName, IHumanActionLaw<never>>
+  Record<AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionLaw<never>>
 > = {
   stand,
   walk,

@@ -1,11 +1,15 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanAirborneShape,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -44,15 +48,12 @@ export namespace HumanAirborneShape {
     "straddle",
     "armsIn",
     "armsUp",
-  ] as const;
-
-  /** One shape. */
-  export type Shape = (typeof SHAPES)[number];
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanAirborneShape.Shape>[];
 
   /** Each shape's clinical joint angles, degrees `[flexion, abduction, twist]` (provisional). */
   export const ANGLES: Readonly<
     Record<
-      Shape,
+      IAutoMovieMotionHumanAirborneShape.Shape,
       Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
     >
   > = {
@@ -108,33 +109,37 @@ export namespace HumanAirborneShape {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one table entry.
    */
-  export function layer(shape: Shape): IHumanLayer {
+  export function layer(
+    shape: IAutoMovieMotionHumanAirborneShape.Shape,
+  ): IAutoMovieMotionHumanLayer {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = ANGLES[shape];
     const legs: boolean = Object.keys(joints).some((b: string): boolean =>
       b.endsWith("Leg"),
     );
-    const claimed: readonly IHumanPosture.Limb[] = legs
+    const claimed: readonly AutoMovieHumanLimb[] = legs
       ? ["leftLeg", "rightLeg"]
       : ["leftArm", "rightArm"];
     return {
       name: shape,
       channels: [...claimed],
       apply: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         _seconds: number,
-        context: IHumanLayer.IContext,
-      ): IHumanPosture => {
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture => {
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         for (const limb of claimed) delete limbs[limb];
-        const shaped: IHumanPosture = {
+        const shaped: IAutoMovieMotionHumanPosture = {
           ...posture,
           joints: { ...posture.joints, ...joints },
           limbs,
         };
-        const held: IHumanPosture.Limb[] = claimed.filter(
-          (limb: IHumanPosture.Limb): boolean =>
+        const held: AutoMovieHumanLimb[] = claimed.filter(
+          (limb: AutoMovieHumanLimb): boolean =>
             posture.limbs[limb] !== undefined,
         );
         if (held.length === 0) return shaped;
@@ -142,7 +147,7 @@ export namespace HumanAirborneShape {
         // A held goal goes where the shape's joints put the end joint, posed
         // before the whole-body turn the goals are stated under, so a
         // fading layer moves the goal there and never drops it mid-air.
-        const still: IHumanPosture = { ...shaped };
+        const still: IAutoMovieMotionHumanPosture = { ...shaped };
         delete still.rotation;
         const bones: ReadonlyMap<
           AutoMovieHumanoidBone,
@@ -161,7 +166,7 @@ export namespace HumanAirborneShape {
             at(middle),
             Vector3.add(top, Vector3.scale(axis, along)),
           );
-          const goal: IHumanPosture.IGoal = posture.limbs[limb]!;
+          const goal: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
           limbs[limb] = {
             ...goal,
             point: at(end),
@@ -180,7 +185,7 @@ export namespace HumanAirborneShape {
   /** Each limb's upper, middle and end joints' bones. */
   const CHAIN: Readonly<
     Record<
-      IHumanPosture.Limb,
+      AutoMovieHumanLimb,
       readonly [
         AutoMovieHumanoidBone,
         AutoMovieHumanoidBone,

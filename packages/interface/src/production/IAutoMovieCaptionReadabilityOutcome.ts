@@ -1,4 +1,4 @@
-import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
+import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
 
 /**
  * Profile-backed verdict or explicit measure-only outcome for one caption cue. Missing profiles and segmentation mismatches retain measurements without a verdict.

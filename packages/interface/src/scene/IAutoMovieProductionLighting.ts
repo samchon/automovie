@@ -1,5 +1,5 @@
-import { IAutoMovieClip } from "../core/IAutoMovieClip";
-import { IAutoMovieLight } from "./IAutoMovieLight";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieLight } from "./IAutoMovieLight";
 
 /**
  * Production light sources and tracks evaluated on the declared story clock.

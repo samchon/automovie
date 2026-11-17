@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoveryImageObservation } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryImageChartAssertOperation,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+} from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
 
@@ -17,15 +21,9 @@ import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only call-owned direction/station/support arrays transfer synchronously; borrowed observations remain unchanged and no image, task, handle or global cache survives.
  */
 export function prepareRecoveryImageSupports(
-  observation: IAutoMovieRecoveryImageObservation,
-  limits: { maxViews: number; maxRows: number },
-): {
-  lower: number;
-  upper: number;
-  directions: { c: number; s: number }[];
-  stations: number[];
-  supports: { lowerMm: number; upperMm: number }[][];
-} {
+  observation: Parameters<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation>[0],
+  limits: Parameters<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation> {
   if (
     !observation ||
     observation.method !== "fixed-background-channel-distance-v1" ||
@@ -87,7 +85,7 @@ export function prepareRecoveryImageSupports(
     if (!Number.isSafeInteger(rowCount) || rowCount > limits.maxRows)
       throw new Error("budget-exhausted: observed rows exceed maxRows");
     names.add(view.id);
-    const chart: ReturnType<typeof assertRecoveryImageChart> =
+    const chart: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> =
       assertRecoveryImageChart(view);
     for (let row: number = 0; row < view.rows.length; row++) {
       const current: (typeof view.rows)[number] = view.rows[row];

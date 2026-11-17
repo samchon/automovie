@@ -1,17 +1,13 @@
-import type { IAutoMovieConstructionKnownPort } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConstructionKnownPort,
+  IAutoMovieConstructionKnownPortSide,
+  IAutoMovieConstructionKnownPortSource,
+  IAutoMoviePreparedConstructionKnownPort,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieConstructionKnownPortSource } from "./IAutoMovieConstructionKnownPortSource";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-
-/** One resolved immutable original neighboring field and its actual chart map. */
-interface Side {
-  /** Same immutable original field used by the band, in kernel world millimetres. */
-  field: IAutoMovieSolidSurface;
-
-  /** Same original-clock/transverse map used for this field's exact pullback. */
-  map: IAutoMovieConstructionKnownPortSource.IMap;
-}
 
 /** Kernel world vector, in millimetres per the indicated band derivatives. */
 type Vector = [number, number, number];
@@ -43,7 +39,7 @@ type Vector = [number, number, number];
  */
 export function AutoMovieConstructionKnownPort(
   source: IAutoMovieConstructionKnownPortSource,
-): AutoMovieConstructionKnownPort.IPrepared {
+): IAutoMoviePreparedConstructionKnownPort.IPrepared {
   const definition: IAutoMovieConstructionKnownPort = structuredClone(
     source.definition,
   );
@@ -62,8 +58,14 @@ export function AutoMovieConstructionKnownPort(
     definition.domain[1] !== definition.domain[0] + definition.period
   )
     fail("A periodic known port must own one complete original clock period.");
-  const parent: Side = side(source, definition.parent);
-  const child: Side = side(source, definition.child);
+  const parent: IAutoMovieConstructionKnownPortSide = side(
+    source,
+    definition.parent,
+  );
+  const child: IAutoMovieConstructionKnownPortSide = side(
+    source,
+    definition.child,
+  );
   for (const current of [parent, child])
     if (
       !interval(current.map.domain) ||
@@ -141,30 +143,6 @@ export function AutoMovieConstructionKnownPort(
   };
 }
 
-/**
- * The emitted kernel surface keeps its original rail owners and addresses.
- *
- * The descriptor is copied; each field/map is the same immutable original
- * selected at preparation. Binding and material strings remain addresses
- * for the actual downstream owners, not evaluated weights or a certificate
- * that two independently supplied fields have compatible bindings.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States detached metadata, borrowed immutable original functions and the unverified downstream binding obligations.
- * @evidence contracts/development/design.md#principled-representation Represents The emitted kernel surface keeps its original rail owners and addresses: companion namespace of 1 member (`IPrepared`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionKnownPort` in packages/engine/src/geometry/construction/AutoMovieConstructionKnownPort.ts; its surface is the 1 member listed and the text shows 5 other files naming it, mostly packages/human (2), test (2), packages/engine (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace AutoMovieConstructionKnownPort {
-  /** Actual kernel chart and its same original authored rail/material/binding addresses. */
-  export interface IPrepared extends IAutoMovieSolidSurface {
-    /** Detached descriptor retains original clock bounds and authored outward convention. */
-    definition: IAutoMovieConstructionKnownPort;
-
-    /** Actual immutable field/map owners of both rails; labels alone certify no weights. */
-    rails: { parent: Side; child: Side };
-  }
-}
-
 /** Existing kernel consumers make the second coordinate periodic; all mixed orders stay exact. */
 function transpose(
   value: IAutoMovieSolidSurface.IJet,
@@ -183,7 +161,7 @@ function transpose(
 function side(
   source: IAutoMovieConstructionKnownPortSource,
   input: IAutoMovieConstructionKnownPort.ISide,
-): Side {
+): IAutoMovieConstructionKnownPortSide {
   const field: IAutoMovieSolidSurface | undefined = source.fields.get(
     input.field,
   );
@@ -203,11 +181,12 @@ function side(
 }
 
 /** Read one actual chart and preserve original field Point0 separately from its total2. */
-function point(side: Side, u: number, v: number): Vector {
-  const chart: IAutoMovieConstructionKnownPortSource.Vector = side.map.point(
-    u,
-    v,
-  );
+function point(
+  side: IAutoMovieConstructionKnownPortSide,
+  u: number,
+  v: number,
+): Vector {
+  const chart: AutoMovieVector2Tuple = side.map.point(u, v);
   chartPoint(side.field, chart);
   const value: Vector =
     side.field.point?.(chart[0], chart[1]) ??
@@ -218,7 +197,7 @@ function point(side: Side, u: number, v: number): Vector {
 
 /** Full second-order chain rule of the actual neighboring function with its own C2 map. */
 function pullback(
-  side: Side,
+  side: IAutoMovieConstructionKnownPortSide,
   u: number,
   v: number,
 ): IAutoMovieSolidSurface.IJet {

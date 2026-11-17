@@ -1,4 +1,4 @@
-import { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
+import type { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
 
 /**
  * Parser-observed MP4 audio track and presentation facts.

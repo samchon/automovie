@@ -1,0 +1,17 @@
+export type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+export type { IAutoMovieMotionHumanExercise } from "./IAutoMovieMotionHumanExercise";
+export type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanExerciseKey";
+export type { IAutoMovieMotionHumanStretch } from "./IAutoMovieMotionHumanStretch";
+export type { IAutoMovieMotionHumanWorkout } from "./IAutoMovieMotionHumanWorkout";
+export type { IAutoMovieMotionHumanWorkoutBodyweight } from "./IAutoMovieMotionHumanWorkoutBodyweight";
+export type { IAutoMovieMotionHumanWorkoutEquipment } from "./IAutoMovieMotionHumanWorkoutEquipment";
+export type { IAutoMovieMotionHumanWorkoutFloor } from "./IAutoMovieMotionHumanWorkoutFloor";
+export type { IAutoMovieMotionHumanWorkoutGym } from "./IAutoMovieMotionHumanWorkoutGym";
+export type { IAutoMovieMotionHumanWorkoutHanging } from "./IAutoMovieMotionHumanWorkoutHanging";
+export type { IAutoMovieMotionHumanWorkoutKind } from "./IAutoMovieMotionHumanWorkoutKind";
+export type { IAutoMovieMotionHumanWorkoutLoad } from "./IAutoMovieMotionHumanWorkoutLoad";
+export type { IAutoMovieMotionHumanWorkoutLying } from "./IAutoMovieMotionHumanWorkoutLying";
+export type { IAutoMovieMotionHumanWorkoutPlace } from "./IAutoMovieMotionHumanWorkoutPlace";
+export type { IAutoMovieMotionHumanWorkoutPoses } from "./IAutoMovieMotionHumanWorkoutPoses";
+export type { IAutoMovieMotionHumanWorkoutStanding } from "./IAutoMovieMotionHumanWorkoutStanding";
+export type { IAutoMovieMotionHumanWorkoutSupport } from "./IAutoMovieMotionHumanWorkoutSupport";

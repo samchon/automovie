@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegion";
-import { AutoMovieInteractionEventKind } from "./AutoMovieInteractionEventKind";
-import { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSource";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegion";
+import type { AutoMovieInteractionEventKind } from "./AutoMovieInteractionEventKind";
+import type { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSource";
 
 /**
  * One engine-visible interaction on a shot-local clock.

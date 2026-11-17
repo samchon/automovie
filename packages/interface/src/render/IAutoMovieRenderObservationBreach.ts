@@ -1,4 +1,4 @@
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
  * One observed metric that exceeds its preflight inventory bound.

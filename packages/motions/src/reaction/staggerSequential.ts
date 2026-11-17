@@ -1,18 +1,17 @@
-import {
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  hingedArmSwivel,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { hingedArmSwivel } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { walkStanceCourse } from "../actions/walkStanceCourse";
 import { walkStanceSolve } from "../actions/walkStanceSolve";
 import { walkStanceTerms } from "../actions/walkStanceTerms";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanLegChain } from "../posture/HumanLegChain";
-import type {
-  HumanQuadraticProgram as QP,
-} from "../posture/HumanQuadraticProgram";
 import { staggerKnots } from "./staggerKnots";
 
 /**
@@ -57,34 +56,46 @@ export namespace staggerSequential {
    * @returns The course at the last iterate taken, its largest excess as `unmet`.
    */
   export function solve(
-    body: IHumanActionContext["body"],
+    body: IAutoMovieMotionHumanActionContext["body"],
     knots: readonly staggerKnots.IKnot[],
-    parent?: walkStanceCourse.ICourse,
+    parent?: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     from: number = 0,
-  ): walkStanceCourse.ICourse {
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     // The parent's swivels, kept on the knots it settles.
     const kept = (
       k: number,
       side: "left" | "right",
-    ): walkStanceCourse.ISwivel | undefined =>
+    ): IAutoMovieMotionHumanWalkStanceCourse.ISwivel | undefined =>
       parent === undefined || k >= from || k >= parent.knots.length
         ? undefined
         : parent.knots[k]!.stances.find(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
+            (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean =>
+              s.side === side,
           )?.swivel;
     const holding = (
       swivels: readonly (
-        | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
+        | Partial<
+            Record<
+              "left" | "right",
+              IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+            >
+          >
         | undefined
       )[],
-    ): walkStanceCourse.IKnot[] =>
+    ): IAutoMovieMotionHumanWalkStanceCourse.IKnot[] =>
       knots.map(
-        (knot: staggerKnots.IKnot, k: number): walkStanceCourse.IKnot => ({
+        (
+          knot: staggerKnots.IKnot,
+          k: number,
+        ): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
           ...knot,
           stances: knot.stances.map(
-            (s: walkStanceCourse.IStance): walkStanceCourse.IStance => {
-              const swivel: walkStanceCourse.ISwivel | undefined =
-                swivels[k]?.[s.side] ?? kept(k, s.side);
+            (
+              s: IAutoMovieMotionHumanWalkStanceCourse.IStance,
+            ): IAutoMovieMotionHumanWalkStanceCourse.IStance => {
+              const swivel:
+                | IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+                | undefined = swivels[k]?.[s.side] ?? kept(k, s.side);
               return swivel === undefined ? s : { ...s, swivel };
             },
           ),
@@ -92,21 +103,26 @@ export namespace staggerSequential {
       );
     const problemOf = (
       swivels: readonly (
-        | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
+        | Partial<
+            Record<
+              "left" | "right",
+              IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+            >
+          >
         | undefined
       )[],
-    ): walkStanceCourse.IProblem =>
+    ): IAutoMovieMotionHumanWalkStanceCourse.IProblem =>
       walkStanceSolve.problem(body, holding(swivels), parent, from);
 
     // The problem's shape, its knots without swivels: the swivels change
     // only the readings, never the variables or the rows' order.
-    const shape: walkStanceCourse.IProblem = problemOf([]);
+    const shape: IAutoMovieMotionHumanWalkStanceCourse.IProblem = problemOf([]);
 
     // The posture's fit of a planted leg at a course, continuing a nearby fit
     // of the same leg when one is given (`HumanLegChain.seeded`).
     const fitOf = (
       k: number,
-      p: walkStanceCourse.IPlanted,
+      p: IAutoMovieMotionHumanWalkStanceCourse.IPlanted,
       x: Float64Array,
       near?: IAutoMovieSwivelNear,
     ): ISeeded => {
@@ -132,7 +148,7 @@ export namespace staggerSequential {
       );
       return { ...fitted.swivel, seed: fitted.seed };
     };
-    type ISeeded = HumanLegChain.ISwivel & {
+    type ISeeded = IAutoMovieMotionHumanLegChain.ISwivel & {
       seed: IAutoMovieSwivelSeed | null;
     };
     type Fitted = (Partial<Record<"left" | "right", ISeeded>> | undefined)[];
@@ -168,7 +184,12 @@ export namespace staggerSequential {
       x: Float64Array,
     ): {
       swivels: (
-        | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
+        | Partial<
+            Record<
+              "left" | "right",
+              IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+            >
+          >
         | undefined
       )[];
       edges: Map<number, number>;
@@ -178,10 +199,21 @@ export namespace staggerSequential {
         (
           fit: Partial<Record<"left" | "right", ISeeded>> | undefined,
           k: number,
-        ): Partial<Record<"left" | "right", walkStanceCourse.ISwivel>> | undefined => {
+        ):
+          | Partial<
+              Record<
+                "left" | "right",
+                IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+              >
+            >
+          | undefined => {
           if (fit === undefined) return undefined;
-          const out: Partial<Record<"left" | "right", walkStanceCourse.ISwivel>> =
-            {};
+          const out: Partial<
+            Record<
+              "left" | "right",
+              IAutoMovieMotionHumanWalkStanceCourse.ISwivel
+            >
+          > = {};
           for (const side of ["left", "right"] as const) {
             const seededBase: ISeeded | undefined = fit[side];
             if (seededBase === undefined) continue;
@@ -195,31 +227,42 @@ export namespace staggerSequential {
                 ? undefined
                 : { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
             const indices: number[] = shape.variables(k, side);
-            const slope: number[] = indices.map((i: number, v: number): number => {
-              const h: number =
-                Math.sqrt(hingedArmSwivel.RESOLUTION / hingedArmSwivel.STEP) *
-                walkStanceTerms.SCALE[v]!;
-              const read = (sign: number): HumanLegChain.ISwivel | undefined => {
-                const moved: Float64Array = Float64Array.from(x);
-                moved[i] = moved[i]! + sign * h;
-                const p: walkStanceCourse.IPlanted | undefined = shape
-                  .planted(moved, k)
-                  .find(
-                    (q: walkStanceCourse.IPlanted): boolean => q.side === side,
-                  );
-                return p === undefined ? undefined : fitOf(k, p, moved, near);
-              };
-              const turned = (a: number, b: number): number =>
-                ((((a - b + 180) % 360) + 360) % 360) - 180;
-              const ahead: HumanLegChain.ISwivel | undefined = read(1);
-              if (ahead !== undefined && ahead.branch === base.branch)
-                return turned(ahead.swivel, base.swivel) / h;
-              const behind: HumanLegChain.ISwivel | undefined = read(-1);
-              if (behind !== undefined && behind.branch === base.branch)
-                return turned(base.swivel, behind.swivel) / h;
-              edges.set(i, h);
-              return 0;
-            });
+            const slope: number[] = indices.map(
+              (i: number, v: number): number => {
+                const h: number =
+                  Math.sqrt(hingedArmSwivel.RESOLUTION / hingedArmSwivel.STEP) *
+                  walkStanceTerms.SCALE[v]!;
+                const read = (
+                  sign: number,
+                ): IAutoMovieMotionHumanLegChain.ISwivel | undefined => {
+                  const moved: Float64Array = Float64Array.from(x);
+                  moved[i] = moved[i]! + sign * h;
+                  const p:
+                    | IAutoMovieMotionHumanWalkStanceCourse.IPlanted
+                    | undefined = shape
+                    .planted(moved, k)
+                    .find(
+                      (
+                        q: IAutoMovieMotionHumanWalkStanceCourse.IPlanted,
+                      ): boolean => q.side === side,
+                    );
+                  return p === undefined ? undefined : fitOf(k, p, moved, near);
+                };
+                const turned = (a: number, b: number): number =>
+                  ((((a - b + 180) % 360) + 360) % 360) - 180;
+                const ahead: IAutoMovieMotionHumanLegChain.ISwivel | undefined =
+                  read(1);
+                if (ahead !== undefined && ahead.branch === base.branch)
+                  return turned(ahead.swivel, base.swivel) / h;
+                const behind:
+                  | IAutoMovieMotionHumanLegChain.ISwivel
+                  | undefined = read(-1);
+                if (behind !== undefined && behind.branch === base.branch)
+                  return turned(base.swivel, behind.swivel) / h;
+                edges.set(i, h);
+                return 0;
+              },
+            );
             out[side] = {
               ...base,
               slope,
@@ -238,13 +281,19 @@ export namespace staggerSequential {
       (
         x: Float64Array,
         model: boolean,
-      ): { problem: walkStanceCourse.IProblem; rows: QP.IRow[] } => {
+      ): {
+        problem: IAutoMovieMotionHumanWalkStanceCourse.IProblem;
+        rows: IAutoMovieMotionHumanQuadraticProgram.IRow[];
+      } => {
         if (!model) return { problem: problemOf(fitted(x)), rows: [] };
         const { swivels, edges } = pieces(x);
         return {
           problem: problemOf(swivels),
           rows: [...edges].map(
-            ([i, h]: [number, number]): QP.IRow => ({
+            ([i, h]: [
+              number,
+              number,
+            ]): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
               index: [i],
               coef: [1],
               l: -h,

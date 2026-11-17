@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 
 /**
  * One component-layout owner for source uploads and framebuffer attachments.

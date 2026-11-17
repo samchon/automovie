@@ -1,4 +1,4 @@
-import type { IAutoMovieInstanceSetPlacement } from "@automovie/engine";
+import type { IAutoMovieInstanceSetPlacement } from "@automovie/interface";
 
 /**
  * Preserve the original six-member, quarter-turned grid placement input.

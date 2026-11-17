@@ -1,13 +1,11 @@
 import type {
-  IAutoMovieCameraClearanceRuntime,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-} from "@automovie/engine";
-import type {
   IAutoMovieCamera,
+  IAutoMovieCameraClearanceRuntime,
   IAutoMovieClip,
   IAutoMovieModel,
+  IAutoMoviePerformedShot,
   IAutoMovieSceneNode,
+  IAutoMovieStagedSet,
   IAutoMovieTransform,
 } from "@automovie/interface";
 

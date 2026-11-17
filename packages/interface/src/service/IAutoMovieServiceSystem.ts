@@ -1,7 +1,7 @@
-import { AutoMovieServiceDiscipline } from "./AutoMovieServiceDiscipline";
-import { AutoMovieServiceFlow } from "./AutoMovieServiceFlow";
-import { AutoMovieServiceMedium } from "./AutoMovieServiceMedium";
-import { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
+import type { AutoMovieServiceDiscipline } from "./AutoMovieServiceDiscipline";
+import type { AutoMovieServiceFlow } from "./AutoMovieServiceFlow";
+import type { AutoMovieServiceMedium } from "./AutoMovieServiceMedium";
+import type { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
 
 /**
  * One rooted distribution system: a medium, the unit it is measured in, and the direction reachability is asked in.

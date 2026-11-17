@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
+
 /**
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
@@ -87,7 +89,10 @@ export class WalkPace {
    *   the realised period for a planned one.
    */
   public constructor(
-    props: WalkPace.IProps & { steps: number; longest: number },
+    props: IAutoMovieMotionHumanWalkPace.IProps & {
+      steps: number;
+      longest: number;
+    },
   ) {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
@@ -165,7 +170,10 @@ export class WalkPace {
    * @param longest The longest step, metres.
    * @returns The timing.
    */
-  public static fit(props: WalkPace.IProps, longest: number): WalkPace {
+  public static fit(
+    props: IAutoMovieMotionHumanWalkPace.IProps,
+    longest: number,
+  ): WalkPace {
     if (props.travel !== undefined && props.distance >= 1e-6)
       return WalkPace.travelled(props, props.travel, longest);
     const least: number = Math.max(
@@ -218,7 +226,7 @@ export class WalkPace {
    * which never falls.
    */
   private static travelled(
-    props: WalkPace.IProps,
+    props: IAutoMovieMotionHumanWalkPace.IProps,
     travel: (seconds: number) => number,
     longest: number,
   ): WalkPace {
@@ -241,27 +249,5 @@ export class WalkPace {
   /** The integral of the smooth step `10 u^3 - 15 u^4 + 6 u^5` from 0 to `u`. */
   private static integral(u: number): number {
     return 2.5 * u ** 4 - 3 * u ** 5 + u ** 6;
-  }
-}
-export namespace WalkPace {
-  /** What a timing is planned from. */
-  export interface IProps {
-    /** The path's length, metres. */
-    distance: number;
-
-    /** The asked cruising speed, m/s. */
-    speed: number;
-
-    /** The swing's duration in step periods. */
-    share: number;
-
-    /** The realised step period for a planned one, seconds. */
-    period(seconds: number): number;
-
-    /** How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent. */
-    lead?: number;
-
-    /** The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent. */
-    travel?: (seconds: number) => number;
   }
 }

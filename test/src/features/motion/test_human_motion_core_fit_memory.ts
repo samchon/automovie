@@ -1,10 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
-  type IHumanBody,
   resolveHumanPosture,
   seated,
 } from "@automovie/motions";
@@ -42,12 +46,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_fit_memory(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const height: number = seated.popliteal(body);
   const aside: number = body.measure.chestBreadth / 2 + 0.08;
   const perform = (
-    composition: HumanPerformance.IInput["composition"],
-  ): HumanPerformance =>
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "fit-memory",
       laws: [...HUMAN_LEXICON.pose!],
@@ -64,18 +68,18 @@ export function test_human_motion_core_fit_memory(): void {
     });
   const films: readonly (readonly [
     string,
-    () => HumanPerformance.IInput["composition"],
+    () => IAutoMovieMotionHumanPerformance.IInput["composition"],
   ])[] = [
     [
       "a brief kneel",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a")
           .stand({ seconds: 0.3 })
           .registered("kneelBriefly").node,
     ],
     [
       "sitting into an armchair",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a").sit({
           seat: {
             at: { x: 0, y: height, z: -0.1 },
@@ -91,16 +95,21 @@ export function test_human_motion_core_fit_memory(): void {
     ],
     [
       "a walk with a wave",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a")
           .walk({ to: { x: 0, y: 0, z: 2 } })
-          .over((o: HumanChain): HumanChain => o.gesture({ kind: "wave" }))
-          .node,
+          .over(
+            (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              o.gesture({ kind: "wave" }),
+          ).node,
     ],
   ];
 
   // Every bone's world position and rotation, as text that differs when any number does.
-  const shown = (performance: HumanPerformance, t: number): string =>
+  const shown = (
+    performance: IAutoMovieMotionHumanPerformance,
+    t: number,
+  ): string =>
     JSON.stringify(
       [...performance.bones("a", t).entries()].map(
         ([bone, at]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [
@@ -113,7 +122,7 @@ export function test_human_motion_core_fit_memory(): void {
   for (const [label, compose] of films)
     try {
       resolveHumanPosture.memory(false);
-      const solved: HumanPerformance = perform(compose());
+      const solved: IAutoMovieMotionHumanPerformance = perform(compose());
       const end: number = solved.segments("a").at(-1)!.end;
       const instants: number[] = [0.1, 0.3, 0.5, 0.7, 0.9].map(
         (share: number): number => share * end,
@@ -122,7 +131,7 @@ export function test_human_motion_core_fit_memory(): void {
         shown(solved, t),
       );
       resolveHumanPosture.memory(true);
-      const remembered: HumanPerformance = perform(compose());
+      const remembered: IAutoMovieMotionHumanPerformance = perform(compose());
       for (let i: number = instants.length - 1; i >= 0; --i)
         if (shown(remembered, instants[i]!) !== afresh[i])
           complaints.push(

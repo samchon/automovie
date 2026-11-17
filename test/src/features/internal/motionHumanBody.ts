@@ -1,8 +1,9 @@
-import {
-  AutoMovieHumanCanonicalBody,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
-import { type IHumanBody, createHumanBody } from "@automovie/motions";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieHumanParameters,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
+import { createHumanBody } from "@automovie/motions";
 
 import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
 import { motionHumanBodyCache } from "./motionHumanBodyCache";
@@ -25,8 +26,10 @@ import { motionHumanBodyCache } from "./motionHumanBodyCache";
  * @param name The person.
  * @returns The body.
  */
-export function motionHumanBody(name: motionHumanBody.Name): IHumanBody {
-  const known: IHumanBody | undefined = BODIES.get(name);
+export function motionHumanBody(
+  name: motionHumanBody.Name,
+): IAutoMovieMotionHumanBody {
+  const known: IAutoMovieMotionHumanBody | undefined = BODIES.get(name);
   if (known !== undefined) return known;
   const person: { mass: number; params: unknown } = PEOPLE[name];
   const params: IAutoMovieHumanParameters =
@@ -40,7 +43,10 @@ export function motionHumanBody(name: motionHumanBody.Name): IHumanBody {
         id: name,
       }),
   );
-  const body: IHumanBody = createHumanBody(prepared.skeleton, prepared.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    prepared.skeleton,
+    prepared.profile,
+  );
   BODIES.set(name, body);
   return body;
 }
@@ -85,4 +91,4 @@ export namespace motionHumanBody {
   ];
 }
 
-const BODIES: Map<motionHumanBody.Name, IHumanBody> = new Map();
+const BODIES: Map<motionHumanBody.Name, IAutoMovieMotionHumanBody> = new Map();

@@ -1,5 +1,5 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
-import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
  * Travel across the ground on one of the actor's own gaits.

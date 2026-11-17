@@ -1,13 +1,18 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionParams,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionManner,
+  IAutoMovieScheduleCue,
+} from "@automovie/interface";
 import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanActionParams,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,10 +56,10 @@ export function test_human_motion_recompose_exercise(): void {
   const findings: string[] = [];
   const START: number = 0.5;
   const perform = (
-    body: IHumanBody,
-    act: (chain: HumanChain) => HumanChain,
-    cues?: Readonly<Record<string, readonly resolveAutoMovieSchedule.ICue[]>>,
-  ): HumanPerformance =>
+    body: IAutoMovieMotionHumanBody,
+    act: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
+    cues?: Readonly<Record<string, readonly IAutoMovieScheduleCue[]>>,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "recompose-exercise",
       performers: [
@@ -69,8 +74,8 @@ export function test_human_motion_recompose_exercise(): void {
       composition: act(HumanChain.subject("a").stand({ seconds: START })).node,
       ...(cues === undefined ? {} : { cues }),
     });
-  const events = (p: HumanPerformance): Map<string, number> => {
-    const s: HumanSegment.ISegment = p.segments("a")[1]!;
+  const events = (p: IAutoMovieMotionHumanPerformance): Map<string, number> => {
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     return new Map(
       s.plan.events.map((e: IAutoMovieMotionEvent): [string, number] => [
         e.name,
@@ -78,7 +83,7 @@ export function test_human_motion_recompose_exercise(): void {
       ]),
     );
   };
-  const kinds: IHumanActionParams["dance"]["kind"][] = [
+  const kinds: IAutoMovieMotionHumanActionParams["dance"]["kind"][] = [
     "bounce",
     "sway",
     "stepTouch",
@@ -86,13 +91,13 @@ export function test_human_motion_recompose_exercise(): void {
   ];
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     for (const bpm of [96, 128]) {
       const period: number = 60 / bpm;
-      const track: resolveAutoMovieSchedule.ICue[] = Array.from(
+      const track: IAutoMovieScheduleCue[] = Array.from(
         { length: 12 },
-        (_: unknown, k: number): resolveAutoMovieSchedule.ICue => ({
+        (_: unknown, k: number): IAutoMovieScheduleCue => ({
           name: "beat",
           seconds: START + 0.37 + k * period,
         }),
@@ -105,7 +110,7 @@ export function test_human_motion_recompose_exercise(): void {
           const locked: Map<string, number> = events(
             perform(
               body,
-              (c: HumanChain): HumanChain =>
+              (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
                 c.dance({ kind, beats: 8, lock: { of: "music" } }),
               { music: track },
             ),
@@ -131,7 +136,8 @@ export function test_human_motion_recompose_exercise(): void {
           const free: Map<string, number> = events(
             perform(
               body,
-              (c: HumanChain): HumanChain => c.dance({ kind, beats: 8, bpm }),
+              (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                c.dance({ kind, beats: 8, bpm }),
             ),
           );
           for (let k: number = 1; k <= 8; k++)
@@ -158,7 +164,7 @@ export function test_human_motion_recompose_exercise(): void {
         try {
           perform(
             body,
-            (c: HumanChain): HumanChain =>
+            (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               c.dance({ kind: "bounce", lock: { of: "music" } }),
             { music: [{ name: "beat", seconds: 0.1 }] },
           );
@@ -171,14 +177,14 @@ export function test_human_motion_recompose_exercise(): void {
     );
 
     // 4. The manner matrix.
-    const preset: AutoMovieMotionManner.Preset =
+    const preset: IAutoMovieMotionManner.Preset =
       AutoMovieMotionManner.PRESET_NAMES[0]!;
     for (const kind of kinds)
       for (const manner of [undefined, AutoMovieMotionManner.PRESETS[preset]])
         try {
           perform(
             body,
-            (c: HumanChain): HumanChain =>
+            (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               c.dance({
                 kind,
                 beats: 4,
@@ -202,8 +208,11 @@ export function test_human_motion_recompose_exercise(): void {
           const placed: Map<string, number> = events(
             perform(
               body,
-              (c: HumanChain): HumanChain =>
-                c.exercise({ kind, reps } as IHumanActionParams["exercise"]),
+              (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                c.exercise({
+                  kind,
+                  reps,
+                } as IAutoMovieMotionHumanActionParams["exercise"]),
             ),
           );
           const bottoms: number = [...placed.keys()].filter(
@@ -228,15 +237,18 @@ export function test_human_motion_recompose_exercise(): void {
       "tree",
     ] as const)
       try {
-        const held: HumanPerformance = perform(
+        const held: IAutoMovieMotionHumanPerformance = perform(
           body,
-          (c: HumanChain): HumanChain =>
-            c.stretch({ kind } as IHumanActionParams["stretch"]),
+          (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            c.stretch({ kind } as IAutoMovieMotionHumanActionParams["stretch"]),
         );
-        const short: HumanPerformance = perform(
+        const short: IAutoMovieMotionHumanPerformance = perform(
           body,
-          (c: HumanChain): HumanChain =>
-            c.stretch({ kind, seconds: 5 } as IHumanActionParams["stretch"]),
+          (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            c.stretch({
+              kind,
+              seconds: 5,
+            } as IAutoMovieMotionHumanActionParams["stretch"]),
         );
         const long: number = held.segments("a")[1]!.plan.duration;
         const brief: number = short.segments("a")[1]!.plan.duration;
@@ -257,7 +269,7 @@ export function test_human_motion_recompose_exercise(): void {
 
   // 7. The crawl's index of coordination follows skill.
   const crawl = (level: "novice" | "trained" | "elite"): number => {
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "recompose-exercise",
       performers: [
         {
@@ -273,7 +285,7 @@ export function test_human_motion_recompose_exercise(): void {
         .swim({ kind: "frontCrawl", cycles: 2 }).node,
     });
     const placed: Map<string, number> = events(p);
-    const s: HumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     const period: number =
       placed.get("entryRight2")! - placed.get("entryRight1")! ||
       s.plan.duration / 2;

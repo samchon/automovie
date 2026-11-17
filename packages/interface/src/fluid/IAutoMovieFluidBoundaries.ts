@@ -1,4 +1,4 @@
-import { AutoMovieFluidBoundaryKind } from "./AutoMovieFluidBoundaryKind";
+import type { AutoMovieFluidBoundaryKind } from "./AutoMovieFluidBoundaryKind";
 
 /**
  * Which lattice edge reflects and which lets water leave the domain.

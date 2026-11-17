@@ -3,11 +3,10 @@ import type {
   IAutoMovieBicubicAtlasGeometry,
   IAutoMovieEllipticLoft,
   IAutoMovieRecoveryImageLoft,
+  IAutoMovieRecoveryImageLoftBudget,
+  IAutoMovieRecoveryImageRealization,
+  IAutoMovieRecoveryResult,
 } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryImageLoftBudget } from "../structures/image/IAutoMovieRecoveryImageLoftBudget";
-import type { IAutoMovieRecoveryImageRealization } from "../structures/image/IAutoMovieRecoveryImageRealization";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from

@@ -1,6 +1,10 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -8,8 +12,6 @@ import {
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -40,12 +42,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, how the touching hand is read and the 4 scenarios.
  */
 export function test_human_motion_touch_hand_choice(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(touch.EFFECTORS.palm, "squeeze");
   const complaints: string[] = [];
   type IRegionTarget = Extract<
-    AutoMovieMotionTarget,
+    IAutoMovieMotionTarget,
     { kind: "person" | "self" }
   >;
   const cases: readonly (readonly [
@@ -80,7 +82,7 @@ export function test_human_motion_touch_hand_choice(): void {
     ],
   ];
   for (const [label, target, side, expected] of cases) {
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "hand",
       performers: [
         {
@@ -107,7 +109,7 @@ export function test_human_motion_touch_hand_choice(): void {
         })
         .with(HumanChain.subject("b").stand({ seconds: 6 })).node,
     });
-    const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find(

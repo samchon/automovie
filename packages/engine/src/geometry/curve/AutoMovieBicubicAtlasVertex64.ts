@@ -1,20 +1,20 @@
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlas64,
+  IAutoMovieBicubicAtlasPlan64,
+  IAutoMovieBicubicAtlasRegistry64,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieBicubicAtlasVertex64,
+  IAutoMovieCanonicalBoundaryPhase64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
-import type { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
-import type { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
-import type { AutoMovieBicubicAtlasTypes64 } from "./AutoMovieBicubicAtlasTypes64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
-type Patch = AutoMovieBicubicAtlasTypes64["Patch"];
-type AtlasInput = AutoMovieBicubicAtlasTypes64["AtlasInput"];
-
-type AtlasChunk = AutoMovieBicubicAtlasTypes64["AtlasChunk"];
-
-type Occurrence = AutoMovieBicubicAtlasTypes64["Occurrence"];
-type Vertex = AutoMovieBicubicAtlasTypes64["Vertex"];
-type Phase = AutoMovieBicubicAtlasTypes64["Phase"];
-type Sample = AutoMovieBicubicAtlasTypes64["Sample"];
-type Edge = AutoMovieBicubicAtlasTypes64["Edge"];
-type Corner = AutoMovieBicubicAtlasTypes64["Corner"];
+type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
+type Edge = IAutoMovieBicubicAtlas64.Edge;
+type Corner = IAutoMovieBicubicAtlas64.Corner;
 /**
  * Create the current patch vertex owner while reading the live generator chunk for each allocation.
  *
@@ -27,40 +27,39 @@ type Corner = AutoMovieBicubicAtlasTypes64["Corner"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The factory borrows generator state and retains no external resource; its patch-local closure expires after that patch.
  */
 export function AutoMovieBicubicAtlasVertex64(
-  input: AtlasInput,
-  prepared: ReturnType<typeof AutoMovieBicubicAtlasPlan64>,
-  registered: ReturnType<typeof AutoMovieBicubicAtlasRegistry64>,
+  input: IAutoMovieBicubicAtlasTessellation64.Input,
+  prepared: IAutoMovieBicubicAtlasPlan64.IResult,
+  registered: IAutoMovieBicubicAtlasRegistry64.IResult,
   p: number,
-  patch: Patch,
-  phaseMaps: Map<number, Phase[]>[],
-  local: Map<string, Vertex>,
-  cursor: { nextIndex: number },
-  currentChunk: () => AtlasChunk,
-  jet: (
-    p: number,
-    u: number,
-    v: number,
-  ) => { position: B.Vec; normal: B.Vec; regular: boolean },
+  patch: IAutoMovieBicubicAtlas64.Patch,
+  phaseMaps: Map<number, IAutoMovieCanonicalBoundaryPhase64[]>[],
+  local: Map<string, IAutoMovieBicubicAtlas64.Vertex>,
+  cursor: IAutoMovieBicubicAtlasVertex64.ICursor,
+  currentChunk: () => IAutoMovieBicubicAtlasTessellation64.Chunk,
+  jet: IAutoMovieBicubicAtlasVertex64.IJet,
   edgeUV: (side: number, t: number) => [number, number],
   SIDES: readonly (readonly number[])[],
-): (sample: Sample) => Vertex {
-  const {
-    plans,
-    boundary,
-    fanVertices,
-  }: ReturnType<typeof AutoMovieBicubicAtlasPlan64> = prepared;
+): (
+  sample: IAutoMovieBicubicAtlas64.Sample,
+) => IAutoMovieBicubicAtlas64.Vertex {
+  const { plans, boundary, fanVertices }: IAutoMovieBicubicAtlasPlan64.IResult =
+    prepared;
   const { root, canonicalPoint }: typeof boundary = boundary;
   const {
     corners,
     patchEdges,
     occurrences,
     summary,
-  }: ReturnType<typeof AutoMovieBicubicAtlasRegistry64> = registered;
-  const vertex: (sample: Sample) => Vertex = (sample: Sample): Vertex => {
-    const chunk: AtlasChunk = currentChunk();
-    const { u, v }: Sample = sample;
+  }: IAutoMovieBicubicAtlasRegistry64.IResult = registered;
+  const vertex: (
+    sample: IAutoMovieBicubicAtlas64.Sample,
+  ) => IAutoMovieBicubicAtlas64.Vertex = (
+    sample: IAutoMovieBicubicAtlas64.Sample,
+  ): IAutoMovieBicubicAtlas64.Vertex => {
+    const chunk: IAutoMovieBicubicAtlasTessellation64.Chunk = currentChunk();
+    const { u, v }: IAutoMovieBicubicAtlas64.Sample = sample;
     const key: string = `${u}:${v}:${sample.phase?.key ?? "interior"}`,
-      previous: Vertex | undefined = local.get(key);
+      previous: IAutoMovieBicubicAtlas64.Vertex | undefined = local.get(key);
     if (previous) return previous;
     const isCorner: boolean = (u === 0 || u === 1) && (v === 0 || v === 1);
     const touchingSides: number[] = [
@@ -84,7 +83,7 @@ export function AutoMovieBicubicAtlasVertex64(
       ? corners.get(root(`control:${cornerId}`))
       : undefined;
     const edge: Edge | undefined = side >= 0 ? patchEdges[p]![side] : undefined;
-    const requested: Phase | undefined =
+    const requested: IAutoMovieCanonicalBoundaryPhase64 | undefined =
       sample.phase ??
       (side >= 0
         ? phaseMaps[side]!.get(side % 2 === 0 ? u : v)?.[0]
@@ -97,27 +96,31 @@ export function AutoMovieBicubicAtlasVertex64(
     const declared: Occurrence["binding"] =
       side >= 0 ? occurrences[p]![side]?.binding : undefined;
     if (declared && edge) {
-      const phase: Phase = requested!,
+      const phase: IAutoMovieCanonicalBoundaryPhase64 = requested!,
         identity: string = root(`authority:${declared.authority}:${phase.key}`);
-      const fans: Map<string, Vertex> = fanVertices.get(identity) ?? new Map();
+      const fans: Map<string, IAutoMovieBicubicAtlas64.Vertex> =
+        fanVertices.get(identity) ?? new Map();
       fanVertices.set(identity, fans);
       const fan: string =
         declared.legacy === undefined
           ? `explicit:${declared.normalFan}`
           : `legacy:${declared.legacy}`;
-      const shared: Vertex | undefined = fans.get(fan);
+      const shared: IAutoMovieBicubicAtlas64.Vertex | undefined = fans.get(fan);
       if (shared) {
         local.set(key, shared);
         return shared;
       }
-      const position: B.Vec = canonicalPoint(declared.authority, phase),
+      const position: AutoMovieVector3Tuple = canonicalPoint(
+          declared.authority,
+          phase,
+        ),
         value: ReturnType<typeof jet> = jet(p, u, v);
       if (
         !position.every(Number.isFinite) ||
         !Number.isSafeInteger(cursor.nextIndex + 1)
       )
         throw new Error("Unrepresentable canonical boundary vertex");
-      const result: Vertex = {
+      const result: IAutoMovieBicubicAtlas64.Vertex = {
         index: cursor.nextIndex++,
         position: V.scale(position, 0.001),
       };
@@ -131,7 +134,7 @@ export function AutoMovieBicubicAtlasVertex64(
       local.set(key, result);
       return result;
     }
-    const shared: Vertex | undefined =
+    const shared: IAutoMovieBicubicAtlas64.Vertex | undefined =
       corner?.vertex ?? (isCorner ? undefined : edge?.vertices.get(q));
     if (shared) {
       local.set(key, shared);
@@ -139,7 +142,7 @@ export function AutoMovieBicubicAtlasVertex64(
     }
     let owner: { patch: number; u: number; v: number } = { patch: p, u, v };
     let identity: string = `${input.topologyDomain}:patch:${patch.id}:u:${u}:v:${v}`;
-    let position: B.Vec | undefined;
+    let position: AutoMovieVector3Tuple | undefined;
     if (corner) {
       owner = corner.owner;
       identity = `${input.topologyDomain}:${root(`control:${cornerId}`)}`;
@@ -151,8 +154,8 @@ export function AutoMovieBicubicAtlasVertex64(
       );
       owner = { patch: edge.owner.patch, u: uv[0], v: uv[1] };
       identity = `${input.topologyDomain}:edge:${edge.key}:phase:${q}`;
-      const net: B.Poly = SIDES[edge.owner.side]!.map(
-        (slot: number): B.Vec =>
+      const net: AutoMovieBernsteinPolynomial64 = SIDES[edge.owner.side]!.map(
+        (slot: number): AutoMovieVector3Tuple =>
           plans[edge.owner.patch]!.grid[Math.floor(slot / 4)]![slot % 4]!,
       );
       position = B.value(edge.owner.reverse ? [...net].reverse() : net, q);
@@ -163,7 +166,7 @@ export function AutoMovieBicubicAtlasVertex64(
       throw new Error("nonfinite generated position");
     if (!Number.isSafeInteger(cursor.nextIndex + 1))
       throw new Error("resource-unprocessed: global vertex index exhausted");
-    const result: Vertex = {
+    const result: IAutoMovieBicubicAtlas64.Vertex = {
       index: cursor.nextIndex++,
       position: V.scale(position, 0.001),
     };

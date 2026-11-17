@@ -1,1 +1,1 @@
-export * from "./IAutoMovieColor";
+export type { IAutoMovieColor } from "./IAutoMovieColor";

@@ -1,7 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
-import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieSolveHalfPlaneProgram,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
@@ -268,7 +269,7 @@ export namespace steerAutoMovieCrowdGeometry {
     step: number,
     top: number,
     other: number,
-  ): solveAutoMovieHalfPlaneProgram.ILine {
+  ): IAutoMovieSolveHalfPlaneProgram.ILine {
     const rx: number = qx - px;
     const rz: number = qz - pz;
     const ux: number = vx - wx;
@@ -407,9 +408,7 @@ export namespace steerAutoMovieCrowdGeometry {
     const c: number = dx * dx + dz * dz - R * R;
     if (c <= 0) {
       const d: number = Math.hypot(dx, dz);
-      return d < 1e-12
-        ? null
-        : { time: 0, nx: -dx / d, nz: -dz / d, ux, uz };
+      return d < 1e-12 ? null : { time: 0, nx: -dx / d, nz: -dz / d, ux, uz };
     }
     if (a < 1e-12 || b <= 0) return null;
     const disc: number = b * b - a * c;

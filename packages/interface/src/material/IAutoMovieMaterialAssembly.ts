@@ -1,4 +1,4 @@
-import { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
+import type { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
 
 /**
  * An ordered layer build-up applied to one host element.

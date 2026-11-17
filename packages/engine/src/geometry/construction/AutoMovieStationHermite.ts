@@ -1,5 +1,8 @@
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
 
 /**
  * Interpolation of a chain's values between two principal layers from their
@@ -27,25 +30,6 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieStationHermite {
-  /**
-   * A layer's value, station slope and optional station curvature for one equally sized array.
-   *
-   * @evidence contracts/development/design.md#principled-representation Endpoint value/first jet and optional second jet determine the cubic or quintic station interpolant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record serves section, lift and flattened plane arrays without per-field interpolators.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional curvature marks available data; equal widths and finite entries are caller premises, not guaranteed by this structure.
-   * @evidence contracts/development/common.md#meaningful-documentation Names per-station derivative units and the absent-curvature meaning.
-   */
-  export interface IEnd {
-    /** Values at the layer. */
-    value: readonly number[];
-
-    /** Station derivatives at the layer, per mm of station. */
-    slope: readonly number[];
-
-    /** Second station derivatives at the layer; absent for a cubic end. */
-    curvature?: readonly number[];
-  }
-
   /**
    * Weights of `[f_a, f'_a, f''_a, f''_b, f'_b, f_b]` for the value or a
    * station derivative at unit parameter u of an interval of width H.
@@ -153,7 +137,11 @@ export namespace AutoMovieStationHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every output component uses the supplied common weights instead of recomputing basis polynomials.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh W-entry array; no endpoint or weight reference is retained by the module.
    */
-  export function combine(a: IEnd, b: IEnd, w: readonly number[]): number[] {
+  export function combine(
+    a: IAutoMovieStationHermite.IEnd,
+    b: IAutoMovieStationHermite.IEnd,
+    w: readonly number[],
+  ): number[] {
     return a.value.map(
       (v: number, k: number): number =>
         w[0]! * v +
@@ -192,8 +180,10 @@ export namespace AutoMovieStationHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned endpoint can serve multiple station derivative orders with their shared interval weights; this adapter owns no cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new endpoint owns its flattened arrays without retaining the original layer or its tuples.
    */
-  export function frameEnd(layer: IAutoMovieLoftChain.ILayer): IEnd {
-    const flat = (f: AutoMovieLoftFrame.IFrame): number[] => [
+  export function frameEnd(
+    layer: IAutoMovieLoftChain.ILayer,
+  ): IAutoMovieStationHermite.IEnd {
+    const flat = (f: IAutoMovieLoftSectionFrame): number[] => [
       ...f.origin,
       ...f.u,
       ...f.v,
@@ -218,7 +208,7 @@ export namespace AutoMovieStationHermite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This one record conversion owns no coordinated or cached work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh tuples; no reference to the input component array survives.
    */
-  export function unflat(x: readonly number[]): AutoMovieLoftFrame.IFrame {
+  export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
       u: [x[3]!, x[4]!, x[5]!],

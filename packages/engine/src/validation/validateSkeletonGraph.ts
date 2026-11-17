@@ -2,9 +2,8 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieSkeleton,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
-
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.
@@ -20,11 +19,11 @@ import { ViolationCollector } from "./ViolationCollector";
 export const validateSkeletonGraph: (
   skeleton: IAutoMovieSkeleton,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   skeleton: IAutoMovieSkeleton,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const names: Set<AutoMovieHumanoidBone> = new Set(
     skeleton.bones.map(

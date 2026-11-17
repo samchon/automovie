@@ -1,22 +1,22 @@
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSeededChainFit,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import { prepareChainPlant } from "./prepareChainPlant";
@@ -45,13 +45,13 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sweep's arrays hold at most 32 entries and every temporary pose is released with the call.
  */
 export const fitChainBend: (
-  input: IFitChainToTargetProps,
+  input: IAutoMovieFitChainToTargetProps,
 ) => IAutoMovieSeededChainFit = (
-  input: IFitChainToTargetProps,
+  input: IAutoMovieFitChainToTargetProps,
 ): IAutoMovieSeededChainFit => {
   // Declared bone axes take precedence over the host table, once, so the
   // preparation, the analytic solve and the candidate FK read one basis.
-  const props: IFitChainToTargetProps = {
+  const props: IAutoMovieFitChainToTargetProps = {
     ...input,
     jointAxes: skeletonJointAxes(input.skeleton, input.jointAxes),
   };

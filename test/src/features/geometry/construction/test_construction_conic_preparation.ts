@@ -4,6 +4,11 @@ import {
   AutoMovieViewConic,
   AutoMovieViewSectionField,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
@@ -12,10 +17,10 @@ import { ConstructionConicFieldOracle } from "../../internal/construction/Constr
 import { nclose } from "../../internal/nclose";
 
 /** Actual regular station value and its first two derivatives. */
-type Scalar = AutoMovieViewSectionField.IStationJet;
+type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /** Caller-owned successful field preparation. */
-type Prepared = AutoMovieViewSectionField.IPrepared;
+type Prepared = IAutoMovieViewSectionField.IPrepared;
 
 /**
  * One station preparation reuses its own endpoint curvatures without changing its field.
@@ -140,13 +145,13 @@ function same(a: unknown, b: unknown): boolean {
 function equivalent(scale: number, ellipse: boolean): void {
   const { e, r }: ReturnType<typeof inputs> = inputs(scale, ellipse);
   const at: Prepared = made(e, r);
-  const ee: AutoMovieConicFieldJet.IJet[] = e.map(
+  const ee: IAutoMovieConicFieldJet.IJet[] = e.map(
     AutoMovieConicFieldJet.fromStation,
   );
-  const rr: AutoMovieConicFieldJet.IJet[] = r.map(
+  const rr: IAutoMovieConicFieldJet.IJet[] = r.map(
     AutoMovieConicFieldJet.fromStation,
   );
-  const expected: AutoMovieViewConic.ICurve<AutoMovieConicFieldJet.IJet> =
+  const expected: IAutoMovieViewConic.ICurve<IAutoMovieConicFieldJet.IJet> =
     AutoMovieViewConic.prepareGeometry(
       AutoMovieConicFieldJet.AD,
       ee,
@@ -165,7 +170,7 @@ function equivalent(scale: number, ellipse: boolean): void {
     !ellipse &&
     !at.source.quarters.some(
       (
-        quarter: AutoMovieViewConic.IQuarter<AutoMovieConicFieldJet.IJet>,
+        quarter: IAutoMovieViewConic.IQuarter<IAutoMovieConicFieldJet.IJet>,
       ): boolean => quarter.start !== null || quarter.end !== null,
     )
   )
@@ -219,7 +224,7 @@ function equivalent(scale: number, ellipse: boolean): void {
 /** Generic callers can observe values and errors; the optimized fixed-AD caller must not change them. */
 function effects(): void {
   const values: number[] = [];
-  const ops: AutoMovieConicFieldJet.IAlgebra<number> = {
+  const ops: IAutoMovieConicFieldJet.IAlgebra<number> = {
     ...AutoMovieConicFieldJet.NUMBER,
     value: (value: number): number => {
       values.push(value);
@@ -253,7 +258,7 @@ function effects(): void {
   ];
   for (const original of originals) {
     let seen: boolean = false;
-    const throwing: AutoMovieConicFieldJet.IAlgebra<number> = {
+    const throwing: IAutoMovieConicFieldJet.IAlgebra<number> = {
       ...ops,
       value: (_value: number): number => {
         throw original;
@@ -272,7 +277,7 @@ function effects(): void {
     }
     if (!seen) throw new Error("The callback failure was swallowed");
   }
-  const refuseArithmetic: AutoMovieConicFieldJet.IAlgebra<number> = {
+  const refuseArithmetic: IAutoMovieConicFieldJet.IAlgebra<number> = {
     ...ops,
     divide: (_a: number, _b: number): number => {
       throw new Error("End arithmetic must not precede admission");
@@ -292,19 +297,20 @@ function effects(): void {
 
   // Public generic assembly evaluates both ends before reporting the first failure.
   let divisions: number = 0;
-  const counted: AutoMovieConicFieldJet.IAlgebra<number> = {
+  const counted: IAutoMovieConicFieldJet.IAlgebra<number> = {
     ...ops,
     divide: (a: number, b: number): number => {
       divisions++;
       return a / b;
     },
   };
-  const refused: AutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    counted,
-    [1, 2, 3, 4],
-    [0.5, 0.5, 0.5, 0.5],
-    [1000, 1000, 1000, 1000],
-  );
+  const refused: IAutoMovieViewConic.ICurve =
+    AutoMovieViewConic.prepareGeometry(
+      counted,
+      [1, 2, 3, 4],
+      [0.5, 0.5, 0.5, 0.5],
+      [1000, 1000, 1000, 1000],
+    );
   if (
     divisions !== 4 ||
     !refused.failure?.startsWith("quarter 0: G2 conic end needs")

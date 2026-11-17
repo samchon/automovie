@@ -1,5 +1,5 @@
-import { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import type { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
  * Compiler-owned film-global effect runtime consumed by preview and capture.

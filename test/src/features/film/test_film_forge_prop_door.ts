@@ -1,13 +1,10 @@
-import {
-  IAutoMovieForgedProp,
-  IAutoMovieResolveOutput,
-  IAutoMovieResolveViolation,
-  forgeProp,
-  resolveFrame,
-} from "@automovie/engine";
+import { forgeProp, resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieClip,
+  type IAutoMovieForgedProp,
   IAutoMoviePropArticulation,
+  type IAutoMovieResolveOutput,
+  type IAutoMovieResolveViolation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

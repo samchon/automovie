@@ -25,6 +25,8 @@ Annotate the type of every variable and parameter and the return type of every f
 
 A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
+Canonical interface object contracts and object unions use `IAutoMovie*`; scalar, literal, tuple and utility aliases use `AutoMovie*`. Qualify a name by meaning, not by the package it came from. Related members may keep concise names inside a canonical type-only namespace. Reuse an existing concept after comparing units, frames, invariants and ownership. Interface enums must be `const enum`; verify their actual consumer and emit behavior, since the keyword alone does not establish an empty runtime artifact.
+
 ### Comments and layout
 
 Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, including in a package that selects no checklist.
@@ -37,7 +39,7 @@ A comment gives the intent, premise or reason the code cannot show, never a para
 
 Respect the [package boundaries](../project/SKILL.md#packages); review reads every new import and dependency against them. A public producer lands with its consumer, because test-only reach is not wiring.
 
-`interface` is pure types with no runtime dependency. It uses plain `string` and `number` without wrapper aliases or `typia` tags, states units and ranges in JSDoc for `engine` validators to enforce, and constrains structure only through closed `AutoMovie*` unions.
+`interface` has no runtime dependency and owns the public contracts described by the project skill. Use plain `string` and `number`, with units, frames, ranges and the actual runtime admission owner in JSDoc; validator metadata such as `typia` tags stays with that implementation. Export types explicitly. Importing implementation packages, copying dependency types or adding opaque generics does not make a contract pure.
 
 ## Specification
 
@@ -47,7 +49,7 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ### Tracked code
 
-Write every helper script in TypeScript as a tracked file and run it with `ttsx`. A build configuration that must start without compiling the project, such as the test package's esbuild configuration, is a tracked `.mts` file run by Node itself.
+Write every helper script in TypeScript as a tracked file. Use `ttsx` when its checking is part of the authorized validation. A build configuration or syntax-only helper that must run without another compiler is a tracked `.mts` file run by Node itself; this does not establish type correctness.
 
 Keep all program code, tests and tools in tracked paths, and use gitignored paths only for captured evidence and data, because an ignored file escapes review and cannot be recovered. Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check.
 

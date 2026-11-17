@@ -1,11 +1,8 @@
-import {
-  IAutoMovieActorContext,
-  makeActorSynthesizer,
-  validatePoseResult,
-} from "@automovie/engine";
+import { makeActorSynthesizer, validatePoseResult } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  type IAutoMovieActorContext,
   IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieGait,

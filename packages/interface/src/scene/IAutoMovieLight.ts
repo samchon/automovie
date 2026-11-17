@@ -1,7 +1,7 @@
-import { IAutoMovieAreaLight } from "./IAutoMovieAreaLight";
-import { IAutoMovieDirectionalLight } from "./IAutoMovieDirectionalLight";
-import { IAutoMoviePointLight } from "./IAutoMoviePointLight";
-import { IAutoMovieSpotLight } from "./IAutoMovieSpotLight";
+import type { IAutoMovieAreaLight } from "./IAutoMovieAreaLight";
+import type { IAutoMovieDirectionalLight } from "./IAutoMovieDirectionalLight";
+import type { IAutoMoviePointLight } from "./IAutoMoviePointLight";
+import type { IAutoMovieSpotLight } from "./IAutoMovieSpotLight";
 
 /**
  * A scene light. Discriminated on `type` so each light kind carries exactly the parameters it needs and no others: directional light has no position-derived falloff, point/spot do.

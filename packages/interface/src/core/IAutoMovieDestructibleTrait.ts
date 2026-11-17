@@ -1,4 +1,4 @@
-import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
+import type { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
 
 /**
  * Profile trait declaring durability and impact-material coefficients.

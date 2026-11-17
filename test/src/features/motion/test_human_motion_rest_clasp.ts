@@ -1,6 +1,10 @@
 import { physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRest,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -8,7 +12,6 @@ import {
   HumanColliders,
   HumanHand,
   HumanPerformance,
-  type IHumanBody,
   rest,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -43,40 +46,40 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_rest_clasp(): void {
   const complaints: string[] = [];
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [place, shape] of [
       ["claspedBehind", "flat"],
       ["claspedFront", "relaxed"],
     ] as const) {
-      const performance: HumanPerformance = new HumanPerformance({
-        seed: "clasp",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a").rest({
-          left: place,
-          right: place,
-          seconds: 1.5,
-        }).node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "clasp",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a").rest({
+            left: place,
+            right: place,
+            seconds: 1.5,
+          }).node,
+        });
       const t: number = performance.duration - 0.05;
-      const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
-        "a",
-        t,
-      );
-      const goals: Partial<Record<HumanHand.Side, rest.IGoal>> = rest.goals(
-        body,
-        performance.posture("a", t),
-        { left: place, right: place },
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        performance.bones("a", t);
+      const goals: Partial<
+        Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
+      > = rest.goals(body, performance.posture("a", t), {
+        left: place,
+        right: place,
+      });
       for (const side of ["left", "right"] as const) {
-        const goal: rest.IGoal = goals[side]!;
+        const goal: IAutoMovieMotionHumanRest.IGoal = goals[side]!;
         if (goal.shape !== shape)
           complaints.push(
             `${name} ${place} ${side}: the hand is ${goal.shape}, not ${shape}`,

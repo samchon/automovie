@@ -1,0 +1,61 @@
+/**
+ * One skin opening in world millimetres; see {@link AutoMovieHumanLoftAperture}.
+ *
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation One skin opening in world millimetres; see {@link AutoMovieHumanLoftAperture}.
+ * @evidence contracts/development/design.md#principled-representation `name`: Name, e.g. `order`: Highest harmonic of each coordinate series. `coefficients`: Coefficients of x, y and z in turn, each `[a0, a1, b1, ..., aK, bK]`, mm.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadEyeMargin.margin, AutoMovieHumanMouth.aperture. Read by AutoMovieHumanAperturePocket.loop, AutoMovieHumanApertureSeam.drawn, AutoMovieHumanBodyApertures.prepare. Also types AutoMovieHumanHeadAnchors.margin.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `pocket`: Depth of the closed pocket behind an opening with no globe, such as a nostril, mm: the margin is pushed this far back along `forward` and closed. `base`: Chain whose skin the opening lies on. `seam`: The line a slit opening closes on at rest.
+ */
+export interface IAutoMovieHumanLoftAperture {
+  /** Name, e.g. `eye.left`. */
+  name: string;
+
+  /** Highest harmonic of each coordinate series. */
+  order: number;
+
+  /**
+   * Coefficients of x, y and z in turn, each `[a0, a1, b1, ..., aK, bK]`, mm.
+   */
+  coefficients: number[];
+
+  /** Unit direction the opening faces, e.g. the eye's line of sight. */
+  forward: [number, number, number];
+
+  /** Depth tolerance of the inside test beyond the margin's own depth, mm. */
+  depth: number;
+
+  /**
+   * Depth of the closed pocket behind an opening with no globe, such as a
+   * nostril, mm: the margin is pushed this far back along `forward` and
+   * closed. Absent or zero leaves the opening as an open hole; an opening
+   * with a globe behind it takes its depth from the globe instead.
+   */
+  pocket?: number;
+
+  /**
+   * Chain whose skin the opening lies on. Given, the opening is a trim
+   * loop in that chain's chart (the outline projected onto its surface
+   * along `forward`): the chain leaves the cells inside unlofted and the
+   * closure starts from the loop with the surface's own derivatives.
+   * Absent, the opening is cut from the finished mesh by position.
+   */
+  base?: string;
+
+  /**
+   * The line a slit opening closes on at rest. After the cut every vertex
+   * of its rim moves onto that line, kept `closed` off it on its own side,
+   * so the opening is a seam whose two lips meet and stay apart by place.
+   * Absent leaves the rim where the cut put it.
+   */
+  seam?: {
+    /** Height of the line at shares 0, 1/n .. 1 of `width` from the midline, mm. */
+    contact: number[];
+
+    /** Half-width of the slit, mm; the line is level past it. */
+    width: number;
+
+    /** Distance each side of the rim keeps from the line, mm. */
+    closed: number;
+  };
+}

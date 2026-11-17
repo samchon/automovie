@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieActorContext,
   Vector3,
   compileDefinedShot,
   defineShot,
@@ -7,6 +6,7 @@ import {
   sampleMotion,
 } from "@automovie/engine";
 import type {
+  IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   IAutoMovieSceneNode,

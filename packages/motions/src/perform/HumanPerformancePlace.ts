@@ -1,24 +1,32 @@
-import {
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPlacedAction,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanForce } from "./HumanForce";
-import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
@@ -27,10 +35,8 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * One intent placed in the performance: its law found, its entry state
@@ -48,19 +54,18 @@ export namespace HumanPerformancePlace {
    * in. A trial plans and returns the timing without placing anything.
    */
   export function place(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
     start: number,
-    entries: readonly IAutoMovieSchedule.IEntry[],
-    where: HumanRefusal.IWhere,
+    entries: readonly IAutoMovieScheduleEntry[],
+    where: IAutoMovieMotionHumanRefusal.IWhere,
     trial: boolean = false,
   ) {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
-    const name: HumanActionKey = intent.capability;
-    const law: IHumanActionLaw<never> | undefined = self.laws.get(name);
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
+    const name: AutoMovieMotionHumanActionKey = intent.capability;
+    const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+      self.laws.get(name);
     if (law === undefined)
       throw new HumanRefusal({
         kind: "parameter",
@@ -97,19 +102,27 @@ export namespace HumanPerformancePlace {
           kind: "alternatives",
           values: [...self.laws]
             .filter(
-              ([, each]: [string, IHumanActionLaw<never>]): boolean =>
-                each.overlay === true,
+              ([, each]: [
+                string,
+                IAutoMovieMotionHumanActionLaw<never>,
+              ]): boolean => each.overlay === true,
             )
-            .map(([key]: [string, IHumanActionLaw<never>]): string => key),
+            .map(
+              ([key]: [
+                string,
+                IAutoMovieMotionHumanActionLaw<never>,
+              ]): string => key,
+            ),
         },
         reason: `${name} moves the whole body, so it cannot be performed over another action`,
         fix: `perform ${name} as an action of its own, or put one of the listed actions over the carrier`,
       });
-    const previous: HumanSegment.ISegment | undefined = over
+    const previous: IAutoMovieMotionHumanSegment | undefined = over
       ? [...person.segments]
           .reverse()
           .find(
-            (s: HumanSegment.ISegment): boolean => s.entryTime <= start + 1e-9,
+            (s: IAutoMovieMotionHumanSegment): boolean =>
+              s.entryTime <= start + 1e-9,
           )
       : person.segments.at(-1);
     if (over && previous === undefined)
@@ -120,10 +133,10 @@ export namespace HumanPerformancePlace {
         reason: `${name} is performed over an action, and ${intent.subject} performs none at ${start.toFixed(2)} s`,
         fix: "append the action that carries the body first, then put self one over it",
       });
-    const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
+    const before: IAutoMovieScheduleEntry | undefined = [...entries]
       .reverse()
       .find(
-        (e: IAutoMovieSchedule.IEntry): boolean =>
+        (e: IAutoMovieScheduleEntry): boolean =>
           e.subject === intent.subject && !self.riding.has(e.index),
       );
     if (!over && previous !== undefined && before !== undefined)
@@ -163,11 +176,12 @@ export namespace HumanPerformancePlace {
     const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
     const entry = HumanSegment.entry(person, previous, start, blend);
     const instance: number = [...person.segments, ...person.overlays].filter(
-      (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
+      (s: IAutoMovieMotionHumanSegment): boolean =>
+        s.id === (intent.anchor ?? name),
     ).length;
     const body = person.performer.body;
-    const carried: Map<number, IHumanPosture> = new Map();
-    const context: IHumanActionContext<never> = {
+    const carried: Map<number, IAutoMovieMotionHumanPosture> = new Map();
+    const context: IAutoMovieMotionHumanActionContext<never> = {
       subject: intent.subject,
       body,
       params: params as never,
@@ -181,7 +195,7 @@ export namespace HumanPerformancePlace {
         ? {
             carrier: {
               name: previous.name,
-              posture: (seconds: number): IHumanPosture => {
+              posture: (seconds: number): IAutoMovieMotionHumanPosture => {
                 // The overlay's primitives and the display each ask for the
                 // carrier at the same few instants, and a gait's posture is
                 // costly, so the latest ones are kept.
@@ -189,7 +203,8 @@ export namespace HumanPerformancePlace {
                   previous.plan.duration,
                   Math.max(0, start + seconds - previous.start),
                 );
-                let posture: IHumanPosture | undefined = carried.get(at);
+                let posture: IAutoMovieMotionHumanPosture | undefined =
+                  carried.get(at);
                 if (posture === undefined) {
                   posture = previous.plan.posture(at);
                   if (carried.size >= 64)
@@ -199,10 +214,12 @@ export namespace HumanPerformancePlace {
                 return posture;
               },
               // The prop the carrier plants on, the support the overlay rides.
-              ...((): { support?: IHumanContactWindow.Support } => {
-                const plant: IHumanContactWindow | undefined =
+              ...((): {
+                support?: IAutoMovieMotionHumanContactWindow.Support;
+              } => {
+                const plant: IAutoMovieMotionHumanContactWindow | undefined =
                   previous.plan.contacts.find(
-                    (c: IHumanContactWindow): boolean =>
+                    (c: IAutoMovieMotionHumanContactWindow): boolean =>
                       c.kind === "plant" && c.support.kind !== "ground",
                   );
                 return plant === undefined ? {} : { support: plant.support };
@@ -210,7 +227,7 @@ export namespace HumanPerformancePlace {
             },
           }
         : {}),
-      aim: (target: AutoMovieMotionTarget, seconds: number) =>
+      aim: (target: IAutoMovieMotionTarget, seconds: number) =>
         HumanPerformanceAim.aim(
           self,
           target,
@@ -222,7 +239,10 @@ export namespace HumanPerformancePlace {
             intent.subject,
           ),
         ),
-      forces: (from: number, to: number): readonly HumanForce.IForce[] =>
+      forces: (
+        from: number,
+        to: number,
+      ): readonly IAutoMovieMotionHumanForce[] =>
         HumanForce.within(
           self.forces,
           intent.subject,
@@ -237,7 +257,9 @@ export namespace HumanPerformancePlace {
           instance,
           channel,
         ),
-      series: (channel: string): IHumanActionContext.ISeries => ({
+      series: (
+        channel: string,
+      ): IAutoMovieMotionHumanActionContext.ISeries => ({
         random: HumanSkill.series(
           person.skill,
           intent.subject,
@@ -246,8 +268,8 @@ export namespace HumanPerformancePlace {
         ),
         index: instance,
       }),
-      cue: (track: string): readonly resolveAutoMovieSchedule.ICue[] => {
-        const cues: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+      cue: (track: string): readonly IAutoMovieScheduleCue[] => {
+        const cues: readonly IAutoMovieScheduleCue[] | undefined =
           self.cues[track];
         if (cues === undefined)
           throw new HumanRefusal({
@@ -263,8 +285,8 @@ export namespace HumanPerformancePlace {
           });
         return cues;
       },
-      obstacles: (): readonly HumanObstacle.IObstacle[] => self.obstacles,
-      performer: (subject: string): IHumanActionContext.IPerformer => {
+      obstacles: (): readonly IAutoMovieMotionHumanObstacle[] => self.obstacles,
+      performer: (subject: string): IAutoMovieMotionHumanPerformerReader => {
         if (!self.people.has(subject))
           throw HumanPerformanceRead.missing(
             "performer",
@@ -281,14 +303,14 @@ export namespace HumanPerformancePlace {
             subject === intent.subject
               ? poseBones(body, entry.pose)
               : HumanPerformanceRead.bones(self, subject, seconds),
-          root: (seconds: number): IHumanActionContext.IRoot =>
+          root: (seconds: number): IAutoMovieMotionHumanActionContext.IRoot =>
             HumanPerformanceRead.root(
               self,
               subject,
               seconds,
               named(subject, "performer"),
             ),
-          posture: (seconds: number): IHumanPosture => {
+          posture: (seconds: number): IAutoMovieMotionHumanPosture => {
             // The same rule as the root's: refused beyond what is placed.
             HumanPerformanceRead.root(
               self,
@@ -300,8 +322,9 @@ export namespace HumanPerformancePlace {
           },
         };
       },
-      prop: (subject: string): IHumanActionContext.IProp => {
-        const prop: IHumanProp | undefined = self.props.get(subject);
+      prop: (subject: string): IAutoMovieMotionHumanPropReader => {
+        const prop: IAutoMovieMotionHumanProp | undefined =
+          self.props.get(subject);
         if (prop === undefined)
           throw HumanPerformanceRead.missing(
             "prop",
@@ -311,7 +334,7 @@ export namespace HumanPerformancePlace {
           );
         return {
           prop,
-          frame: (seconds: number): IHumanProp.IFrame =>
+          frame: (seconds: number): IAutoMovieRigidTransform =>
             HumanPerformanceRead.prop(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
@@ -324,7 +347,7 @@ export namespace HumanPerformancePlace {
         entry,
         start,
       ),
-      action: (anchor: string): IHumanActionContext.IPlaced => {
+      action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
         const placed = self.anchors.get(anchor);
         if (placed === undefined)
           throw new HumanRefusal({
@@ -373,7 +396,7 @@ export namespace HumanPerformancePlace {
     // share it enters at, its contact and events on that part. A trial
     // reads the same timing the placed action gives.
     const active: number = (1 - share) * plan.duration;
-    const timing: resolveAutoMovieSchedule.ITiming = {
+    const timing: IAutoMovieIntentTiming = {
       duration: active,
       ...(plan.contact === undefined || plan.contact < share * plan.duration
         ? {}
@@ -399,8 +422,8 @@ export namespace HumanPerformancePlace {
     // A law may refuse only once a posture is asked of it (a goal that turns
     // out beyond reach at some second), long after it was placed; that
     // refusal is located here, where the action's place in the film is known.
-    const posture: IHumanActionPlan["posture"] = plan.posture;
-    plan.posture = (seconds: number): IHumanPosture => {
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = plan.posture;
+    plan.posture = (seconds: number): IAutoMovieMotionHumanPosture => {
       try {
         return posture(seconds);
       } catch (error) {
@@ -423,7 +446,7 @@ export namespace HumanPerformancePlace {
           start,
         },
       );
-    const segment: HumanSegment.ISegment = {
+    const segment: IAutoMovieMotionHumanSegment = {
       index: person.segments.length,
       entry: entries.length,
       id: intent.anchor ?? name,

@@ -1,16 +1,16 @@
 import {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawingDesignIndex,
   IAutoMovieDrawingFeature,
+  type IAutoMovieDrawingFeatureResolution,
+  type IAutoMovieDrawingTriangle,
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
-import { IAutoMovieDrawingFeatureResolution } from "./IAutoMovieDrawingFeatureResolution";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
 import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";

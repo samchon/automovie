@@ -1,4 +1,7 @@
-import { ViolationCollector } from "./ViolationCollector";
+import type {
+  IAutoMovieAppendGraphCycles,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Report every link that closes a cycle in a graph of declared ids.
@@ -30,14 +33,9 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id index, color map and stack are local and released on return, each bounded by the node count; one violation per back edge is appended to the caller's collector.
  */
 export const appendGraphCycles = (
-  nodes: readonly {
-    id: string;
-    links: readonly string[];
-    path: string;
-    value: unknown;
-  }[],
+  nodes: IAutoMovieAppendGraphCycles.INodes,
   message: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   type Node = (typeof nodes)[number];
   const byId: Map<string, Node> = new Map(

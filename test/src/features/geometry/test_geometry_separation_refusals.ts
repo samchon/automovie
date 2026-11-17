@@ -1,7 +1,4 @@
 import {
-  IAutoMovieMeshQueryBudget,
-  IAutoMovieMeshSeparationQuery,
-  IAutoMovieMeshSeparationResult,
   boundAutoMovieConvexSeparation,
   boundAutoMovieProjectionSeparation,
   createAutoMovieMeshSeparationQuery,
@@ -9,6 +6,9 @@ import {
 import {
   IAutoMovieMesh,
   IAutoMovieMeshPhysicalVertices,
+  type IAutoMovieMeshQueryBudget,
+  type IAutoMovieMeshSeparationQuery,
+  type IAutoMovieMeshSeparationResult,
   IAutoMovieMeshSkin,
   IAutoMovieVector3,
 } from "@automovie/interface";

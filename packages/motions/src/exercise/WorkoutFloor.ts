@@ -1,9 +1,14 @@
 import { physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWorkoutFloor,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
@@ -48,7 +53,10 @@ export namespace WorkoutFloor {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function plank(body: IHumanBody, height: number): number {
+  export function plank(
+    body: IAutoMovieMotionHumanBody,
+    height: number,
+  ): number {
     const length: number =
       body.measure.shoulderHeight - body.measure.ankleHeight;
     return 90 - (Math.asin(Math.min(1, height / length)) * 180) / Math.PI;
@@ -72,12 +80,15 @@ export namespace WorkoutFloor {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pitched(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     height: number,
-    key: (pitch: number) => ExerciseKey.IKey,
-  ): ExerciseKey.IKey {
+    key: (pitch: number) => IAutoMovieMotionHumanExerciseKey.IKey,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     const above = (pitch: number): number => {
-      const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
+      const posed: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+        key(pitch),
+        0,
+      );
       return (
         ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"]).y -
         ExerciseKey.mean(body, posed, ["leftToes", "rightToes"]).y
@@ -113,13 +124,16 @@ export namespace WorkoutFloor {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rolled(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     on: RegExp,
-    key: (roll: number) => ExerciseKey.IKey,
-  ): ExerciseKey.IKey {
+    key: (roll: number) => IAutoMovieMotionHumanExerciseKey.IKey,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     // How far the bearing bones' lowest point lies above the feet's.
     const above = (roll: number): number => {
-      const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
+      const posed: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+        key(roll),
+        0,
+      );
       let bearing: number = Infinity;
       let feet: number = Infinity;
       for (const segment of HumanColliders.placed(
@@ -145,13 +159,13 @@ export namespace WorkoutFloor {
 
   /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out, the relaxed arm's abduction when unstated (`stand.abduction`). */
   const top = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     raise: number = stand.abduction(body),
-  ): ExerciseKey.IKey =>
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
     pitched(
       body,
       REACH * (body.measure.upperArm + body.measure.forearm),
-      (pitch: number): ExerciseKey.IKey =>
+      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
         ExerciseKey.from(
           body,
           { pitch, neck: -20 },
@@ -161,13 +175,13 @@ export namespace WorkoutFloor {
 
   /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position); the hands `raise` degrees out as at the top. */
   const bottom = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     raise: number = stand.abduction(body),
-  ): ExerciseKey.IKey =>
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
     pitched(
       body,
       body.measure.forearm,
-      (pitch: number): ExerciseKey.IKey =>
+      (pitch: number): IAutoMovieMotionHumanExerciseKey.IKey =>
         ExerciseKey.from(
           body,
           { pitch, neck: -25 },
@@ -176,25 +190,20 @@ export namespace WorkoutFloor {
     );
 
   /** The hands and the toes bear. */
-  const PRONE: readonly WorkoutKind.ISupport[] = [
+  const PRONE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "leftHand", kind: "plant" },
     { part: "rightHand", kind: "plant" },
     { part: "leftFoot", kind: "plant" },
     { part: "rightFoot", kind: "plant" },
   ];
 
-  /** The exercises' names. */
-  export type Name =
-    | "pushUp"
-    | "widePushUp"
-    | "plank"
-    | "mountainClimber"
-    | "burpee"
-    | "downwardDog"
-    | "cobra";
-
   /** The exercises. */
-  export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutFloor.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A push-up: 1 s down, 1 s up (provisional). */
     pushUp: {
       base: "leaning",
@@ -204,7 +213,9 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body), 1, "press", "top"),
         WorkoutKind.step(bottom(body), 1, "lower", "bottom"),
       ],
@@ -219,7 +230,9 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body, 30), 1, "press", "top"),
         WorkoutKind.step(bottom(body, 30), 1, "lower", "bottom"),
       ],
@@ -234,7 +247,9 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(top(body), 0, 30),
       ],
     },
@@ -252,8 +267,10 @@ export namespace WorkoutFloor {
       alternate: true,
       enter: 1.5,
       reps: 8,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => {
-        const up: ExerciseKey.IKey = top(body);
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+        const up: IAutoMovieMotionHumanExerciseKey.IKey = top(body);
         return [
           WorkoutKind.step(up, 0.3, "back", "extended"),
           WorkoutKind.step(
@@ -284,7 +301,9 @@ export namespace WorkoutFloor {
       ],
       enter: 0.8,
       reps: 3,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -316,7 +335,9 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 2,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -341,7 +362,9 @@ export namespace WorkoutFloor {
       ],
       enter: 2.4,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,

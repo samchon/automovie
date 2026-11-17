@@ -1,6 +1,4 @@
 import {
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
   materializeCompiledFormation,
   performShot,
   stageScene,
@@ -10,7 +8,9 @@ import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationMotion,
   IAutoMovieModel,
+  type IAutoMoviePerformedShot,
   IAutoMovieScript,
+  type IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

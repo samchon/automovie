@@ -1,7 +1,6 @@
 import {
-  IAutoMovieCompiledFormation,
   IAutoMovieFormationBounds,
-  IAutoMovieFormationMotion,
+  type IAutoMovieFormationSubjectBox,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
@@ -23,19 +22,9 @@ import { transformFormationBounds } from "../transformFormationBounds";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one unit at one instant; the framing passes that sample a unit repeatedly own any reuse.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned box.
  */
-export function formationSubjectBox(props: {
-  /** The unit being framed. */
-  formation: IAutoMovieCompiledFormation;
-
-  /** Every compact cue in the shot; those of other units are ignored. */
-  motions: readonly IAutoMovieFormationMotion[];
-
-  /** One member's vertical extent above its slot ({@link formationMemberExtent}). */
-  member: { min: number; max: number };
-
-  /** Shot-local seconds at which the cue is sampled. */
-  seconds: number;
-}): IAutoMovieSubjectBox {
+export function formationSubjectBox(
+  props: IAutoMovieFormationSubjectBox.IProps,
+): IAutoMovieSubjectBox {
   const moved: IAutoMovieFormationBounds = transformFormationBounds(
     props.formation.bounds,
     props.formation.anchor,

@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourStrip64,
-} from "@automovie/engine";
+import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -9,7 +7,7 @@ import { nclose } from "../internal/nclose.ts";
 
 /** Strip metadata before its enclosing loft adds a slab address. */
 type Observation = Omit<
-  NonNullable<L.IResult["stripObservations"]>[number],
+  NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number],
   "beforeMm" | "afterMm" | "group"
 >;
 
@@ -79,7 +77,9 @@ export function test_geometry_contour_strip_minimum(): void {
         );
         const emitted: O.Triangle[] = [];
         let record:
-          | NonNullable<L.IResult["stripObservations"]>[number]
+          | NonNullable<
+              IAutoMovieContourLoft64.IResult["stripObservations"]
+            >[number]
           | undefined;
         tessellateAutoMovieContourStrip64(
           a,

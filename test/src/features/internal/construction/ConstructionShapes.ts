@@ -1,10 +1,10 @@
 import type {
-  AutoMovieConstructionNode,
-  AutoMovieConstructionParameter,
-  AutoMovieConstructionWidth,
   IAutoMovieConstructionKnot,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionOutline,
+  IAutoMovieConstructionParameter,
   IAutoMovieConstructionView,
+  IAutoMovieConstructionWidth,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -146,8 +146,8 @@ export namespace ConstructionShapes {
   export function join(
     kind: "merge" | "diff",
     name: string,
-    host: AutoMovieConstructionNode,
-    part: AutoMovieConstructionNode,
+    host: IAutoMovieConstructionNode,
+    part: IAutoMovieConstructionNode,
     seed: {
       partFace: string;
       hostFace: string;
@@ -155,11 +155,11 @@ export namespace ConstructionShapes {
       host: [number, number];
     },
     widths: {
-      part: AutoMovieConstructionWidth;
-      host: AutoMovieConstructionWidth;
+      part: IAutoMovieConstructionWidth;
+      host: IAutoMovieConstructionWidth;
     },
-    parameter: AutoMovieConstructionParameter = { type: "phase" },
-  ): AutoMovieConstructionNode {
+    parameter: IAutoMovieConstructionParameter = { type: "phase" },
+  ): IAutoMovieConstructionNode {
     return {
       type: "join",
       kind,
@@ -193,7 +193,7 @@ export namespace ConstructionShapes {
   export function assembly(
     k: number,
     nested: "left" | "right",
-  ): AutoMovieConstructionNode {
+  ): IAutoMovieConstructionNode {
     const beam: IAutoMovieConstructionView = cylinder(
       "beam",
       {
@@ -235,13 +235,13 @@ export namespace ConstructionShapes {
       0.02 * k,
     );
     const chord: (r: number) => {
-      part: AutoMovieConstructionWidth;
-      host: AutoMovieConstructionWidth;
+      part: IAutoMovieConstructionWidth;
+      host: IAutoMovieConstructionWidth;
     } = (
       r: number,
     ): {
-      part: AutoMovieConstructionWidth;
-      host: AutoMovieConstructionWidth;
+      part: IAutoMovieConstructionWidth;
+      host: IAutoMovieConstructionWidth;
     } => ({
       part: { type: "chord", value: (r / 3) * k },
       host: { type: "chord", value: (r / 3) * k },
@@ -268,17 +268,17 @@ export namespace ConstructionShapes {
     };
     const merge: (
       name: string,
-      host: AutoMovieConstructionNode,
-      part: AutoMovieConstructionNode,
+      host: IAutoMovieConstructionNode,
+      part: IAutoMovieConstructionNode,
       face: "post" | "finger" | "nail",
       r: number,
-    ) => AutoMovieConstructionNode = (
+    ) => IAutoMovieConstructionNode = (
       name: string,
-      host: AutoMovieConstructionNode,
-      part: AutoMovieConstructionNode,
+      host: IAutoMovieConstructionNode,
+      part: IAutoMovieConstructionNode,
       face: "post" | "finger" | "nail",
       r: number,
-    ): AutoMovieConstructionNode =>
+    ): IAutoMovieConstructionNode =>
       join(
         "merge",
         name,

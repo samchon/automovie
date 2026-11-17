@@ -1,11 +1,11 @@
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * The steppers of {@link integrateMotionTrajectory} on the exponential map:
@@ -227,14 +227,14 @@ export namespace MotionTrajectoryStepper {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Trial arrays die after rejection or acceptance; the returned reader retains accepted steps and endpoint state for its lifetime. Retention grows with accepted-step count and has no fixed byte bound; the operation acquires no external handle or task.
    */
   export function dormandPrince(
-    props: integrateMotionTrajectory.IProps,
+    props: IAutoMovieIntegrateMotionTrajectory.IProps,
     rate: (
       t: number,
       x: readonly number[],
       q: IAutoMovieQuaternion | null,
-    ) => integrateMotionTrajectory.IRate,
+    ) => IAutoMovieIntegrateMotionTrajectory.IRate,
     step: number,
-  ): integrateMotionTrajectory.ITrajectory {
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const { t0, t1 } = props;
     const { relative, absolute } = props.tolerance!;
     const oriented: boolean = props.q0 !== undefined;
@@ -246,7 +246,7 @@ export namespace MotionTrajectoryStepper {
     let q: IAutoMovieQuaternion | null = oriented
       ? Quaternion.normalize(props.q0!)
       : null;
-    let k1: integrateMotionTrajectory.IRate = rate(t, x, q);
+    let k1: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t, x, q);
     let h: number = first;
     let rejected: boolean = false;
     let previous: number = CONTROL.previous;
@@ -259,7 +259,7 @@ export namespace MotionTrajectoryStepper {
           `integrateMotionTrajectory: the step shrank below the resolution of ${t} s`,
         );
       // The stages, the orientation's in the algebra from the step's start.
-      const ks: integrateMotionTrajectory.IRate[] = [k1];
+      const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [k1];
       const us: (IAutoMovieVector3 | undefined)[] = [k1.w];
       const vs: (IAutoMovieVector3 | undefined)[] = [undefined];
       for (let i: number = 1; i < 7; i++) {
@@ -277,7 +277,7 @@ export namespace MotionTrajectoryStepper {
         const vi: IAutoMovieVector3 | undefined = oriented
           ? sum(row, us, h)
           : undefined;
-        const ki: integrateMotionTrajectory.IRate = rate(
+        const ki: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
           t + C[i]! * h,
           xi,
           turn(q, vi),
@@ -335,7 +335,7 @@ export namespace MotionTrajectoryStepper {
       previous = Math.max(norm, CONTROL.previous);
 
       // Accepted: keep the continuous extension and step on from the last stage.
-      const k7: integrateMotionTrajectory.IRate = ks[6]!;
+      const k7: IAutoMovieIntegrateMotionTrajectory.IRate = ks[6]!;
       const terms: number[][] = x.map((v: number, c: number): number[] => {
         const diff: number = xn[c]! - v;
         const spline: number = h * ks[0]!.dx[c]! - diff;
@@ -378,14 +378,14 @@ export namespace MotionTrajectoryStepper {
     }
 
     const times: number[] = [...steps.map((s: IStep): number => s.t), t1];
-    const end: integrateMotionTrajectory.IState = { x, q };
+    const end: IAutoMovieIntegrateMotionTrajectory.IState = { x, q };
     return {
       t0,
       t1,
       h: first,
       knots: times.length,
       times,
-      at: (time: number): integrateMotionTrajectory.IState => {
+      at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState => {
         if (!(time < t1)) return { x: [...end.x], q: end.q };
         const at: number = Math.max(t0, time);
         let lo: number = 0;

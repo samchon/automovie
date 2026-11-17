@@ -1,16 +1,13 @@
 import type {
-  IAutoMovieRecoveryCameraMapPolicy,
-  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneLandmarksGrowthOperation,
+  IAutoMovieRecoverySceneTrackTriangulationOperation,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoverySceneGrowth } from "../structures/internal/IAutoMovieRecoverySceneGrowth";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
-import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
@@ -29,15 +26,15 @@ import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A bounded detached point/measurement proposal returns; local maps and rejected point scratch expire. Work counters remain owned by the enclosing scene even when geometry rolls back.
  */
 export function growRecoverySceneLandmarks(
-  tracks: ReturnType<typeof linkRecoveryCameraTracks>["tracks"],
-  initial: readonly IAutoMovieRecoveryMapLandmark[],
-  poses: readonly (IAutoMovieRecoveryMapPose | null)[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraSceneBudget,
-  work: IAutoMovieRecoverySceneWork,
-  checkpoint: () => void,
-): IAutoMovieRecoverySceneGrowth {
+  tracks: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[0],
+  initial: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[1],
+  poses: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[2],
+  charts: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[4],
+  budget: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[5],
+  work: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[6],
+  checkpoint: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[7],
+): ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> {
   const activeCount: number = poses.reduce(
     (sum: number, pose: IAutoMovieRecoveryMapPose | null): number =>
       sum + (pose === null ? 0 : 1),
@@ -100,7 +97,7 @@ export function growRecoverySceneLandmarks(
       );
       for (const observation of observations) {
         if (retained.has(observation.viewIndex)) continue;
-        const projected: ReturnType<typeof projectRecoveryMapPoint> =
+        const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
           projectRecoveryMapPoint(
             poses[observation.viewIndex]!,
             existing.point,
@@ -148,7 +145,7 @@ export function growRecoverySceneLandmarks(
       (2 * observations.length + 4) * 16 * (budget.maxSingularSweeps + 1) +
         observations.length * observations.length,
     );
-    const candidate: ReturnType<typeof triangulateRecoverySceneTrack> =
+    const candidate: ReturnType<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation> =
       triangulateRecoverySceneTrack(
         observations,
         poses,

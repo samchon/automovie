@@ -1,5 +1,5 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
 import type { IAutoMovieConstructionFill } from "./IAutoMovieConstructionFill";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * A solid built by construction: parts drawn from their orthographic views, joined into groups by merges and cut by diffs and trims, recursively, down to the smallest part a form needs (a figure's trunk, limbs, digits, nose and lids; a vase's body, handle and spout).
@@ -16,7 +16,7 @@ export interface IAutoMovieConstruction {
   name: string;
 
   /** The whole solid: one node whose children are its parts and groups. */
-  root: AutoMovieConstructionNode;
+  root: IAutoMovieConstructionNode;
 
   /** Discs of the realized skin faired into G1 patches once it is drawn (`IAutoMovieConstructionFill`); absent, none. */
   fills?: IAutoMovieConstructionFill[];

@@ -1,4 +1,4 @@
-import type { IAutoMovieAffordance } from "@automovie/interface";
+import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 
 /**
  * A follower's travel at its leader's travel, by the rule its `follows` declares: the leader's travel times `ratio`, or the piecewise-linear interpolation of `table`.
@@ -18,7 +18,7 @@ import type { IAutoMovieAffordance } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function affordanceFollowedTravel(
-  follows: IAutoMovieAffordance.Follows,
+  follows: IAutoMovieAffordanceCoupling,
   leader: number,
 ): number {
   if (follows.table === undefined) return follows.ratio * leader;

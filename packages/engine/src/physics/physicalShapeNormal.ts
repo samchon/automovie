@@ -1,7 +1,8 @@
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -33,8 +34,8 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function physicalShapeNormal(
-  frame: P.ITransform,
-  shape: P.IShape,
+  frame: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   point: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 {

@@ -1,8 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
@@ -52,17 +54,24 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function holds six vectors and two lengths per hand.
    */
   export function reach(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
-    const angles: readonly [number, number, number] = [0, HumanMountRider.LEAN / 2, HumanMountRider.LEAN];
+    const angles: readonly [number, number, number] = [
+      0,
+      HumanMountRider.LEAN / 2,
+      HumanMountRider.LEAN,
+    ];
     const read: ReturnType<typeof poseBones>[] = angles.map(
       (degrees: number): ReturnType<typeof poseBones> =>
         poseBones(
           body,
-          resolveHumanPosture(body, { ...HumanMountRider.leant(seated, degrees), limbs: {} }),
+          resolveHumanPosture(body, {
+            ...HumanMountRider.leant(seated, degrees),
+            limbs: {},
+          }),
         ),
     );
     const circles: Map<"left" | "right", ICircle> = new Map(

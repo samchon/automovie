@@ -2,9 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieHingedArticulation,
-  type IAutoMovieResolvedJointAngles,
-  type IAutoMovieRestFrame,
   Quaternion,
   boxExcludedSwivels,
   clinicalDeviation,
@@ -16,9 +13,12 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHingedArticulation,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

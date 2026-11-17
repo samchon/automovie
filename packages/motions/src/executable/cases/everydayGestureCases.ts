@@ -1,10 +1,13 @@
-﻿import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { gestureStroke } from "../../everyday/gestureStroke";
 import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
-import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
@@ -34,10 +37,11 @@ export function everydayGestureCases(
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
   const { figure, event, angle } = everydayCaseKit;
-  const one = (chain: HumanChain): HumanPerformance =>
-    everydayCaseKit.one(c, chain);
+  const one = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain);
   const goal: IAutoMovieVector3 = { x: 1.5, y: 2.2, z: 3 };
-  const kinds: gestureStroke.Kind[] = [
+  const kinds: IAutoMovieMotionHumanGestureStroke.Kind[] = [
     "wave",
     "raiseHand",
     "cheer",
@@ -59,7 +63,7 @@ export function everydayGestureCases(
     "slump",
   ];
   for (const kind of kinds) {
-    const performance: HumanPerformance = one(
+    const performance: IAutoMovieMotionHumanPerformance = one(
       HumanChain.subject("a").gesture({
         kind,
         ...(kind === "point"

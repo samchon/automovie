@@ -1,5 +1,7 @@
-import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 
 import { PhysicalFixtures } from "./PhysicalFixtures";
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
@@ -10,11 +12,9 @@ export function createPhysicalBalanceInput(
   actuation: "world" | "internal",
   impulse: number,
   duration: number,
-): Simulation.IInput {
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(
-    profile,
-    duration,
-  );
+): IAutoMoviePhysicalSimulationInput.IInput {
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(profile, duration);
   if (actuation === "internal") {
     body.actuation = "internal";
     body.compensateGravity = true;
@@ -34,7 +34,8 @@ export function createPhysicalBalanceInput(
         ),
       );
   }
-  const input: Simulation.IInput = PhysicalFixtures.input([body], duration);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], duration);
   Object.assign(input, {
     gravity: { x: 0, y: -9.81, z: 0 },
     floor: 0,

@@ -11,16 +11,17 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
@@ -39,8 +40,8 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
 export namespace AutoMovieMotionHumanBendSearch {
   /** The hanging arm's shoulder angles by body and side, clinical degrees. */
   const NEUTRAL: WeakMap<
-    IHumanBody,
-    Partial<Record<AutoMovieMotionHumanBend.Side, IAngles>>
+    IAutoMovieMotionHumanBody,
+    Partial<Record<AutoMovieHumanSide, IAngles>>
   > = new WeakMap();
 
   /**
@@ -190,12 +191,12 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain, its ranges and the hanging arm's angles.
    */
   export function strainOf(
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion | undefined,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ):
     | ((
@@ -257,8 +258,8 @@ export namespace AutoMovieMotionHumanBendSearch {
    */
   function best(
     chain: AutoMovieMotionHumanBendChain.IChain,
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     neutral: IAngles | null,
@@ -384,11 +385,11 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @returns The angles, or null when the rig has no arm chain.
    */
   function neutralOf(
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): IAngles | null {
     const known: IAngles | undefined = NEUTRAL.get(body)?.[side];
@@ -435,13 +436,13 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only those angles, in a weak map keyed by the body.
    */
   export function search(
-    props: AutoMovieMotionHumanBend.ISolve,
+    props: IAutoMovieMotionHumanBend.ISolve,
     rank: (
       chain: AutoMovieMotionHumanBendChain.IChain,
     ) => (candidate: ICandidate) => IScore,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =

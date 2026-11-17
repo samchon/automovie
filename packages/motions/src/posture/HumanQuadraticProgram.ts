@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
 /**
@@ -36,50 +38,6 @@ export namespace HumanQuadraticProgram {
   /** The relative accuracy a solve's iterates and multipliers are known to: the residual tests' relative tolerance (OSQP's eps_rel). */
   export const TOLERANCE: number = 1e-3;
 
-  /** One row: `l <= Σ coef·x[index] <= u`. */
-  export interface IRow {
-    /** The constraint the row linearises, so a later solve of the next convexification starts from its multiplier. */
-    key?: string;
-    /** The variables the row reads. */
-    index: readonly number[];
-    /** Each variable's coefficient, in `index`'s order. */
-    coef: readonly number[];
-    /** The interval's lower end; `-Infinity` for none. */
-    l: number;
-    /** The interval's upper end; `Infinity` for none. */
-    u: number;
-    /** The l1 penalty weight; absent for a hard row. */
-    weight?: number;
-  }
-
-  /** The problem. */
-  export interface IProblem {
-    /** The number of variables. */
-    n: number;
-    /** Half-bandwidth of the curvature and of every row's coupling. */
-    band: number;
-    /** The curvature's band, `p[i][j]` the entry `(i, i + j)`. */
-    p: Float64Array[];
-    /** The linear term. */
-    q: Float64Array;
-    /** The rows, hard or soft. */
-    rows: readonly IRow[];
-  }
-
-  /** A solve's iterates, to warm-start another solve of the same rows, and how the solve ended. */
-  export interface IState {
-    /** The variables. */
-    x: Float64Array;
-    /** Each row's value as the splitting holds it, inside or penalised toward its interval. */
-    z: Float64Array;
-    /** Each row's multiplier. */
-    y: Float64Array;
-    /** Why the solve stopped: its residuals met (`solved`, and `polished` when the active set's solve was kept), the hard rows certified infeasible, or the guard reached. */
-    status?: "solved" | "polished" | "infeasible" | "unfinished";
-    /** The unscaled primal and dual residuals the solve ended at, their infinity norms. */
-    residual?: { primal: number; dual: number };
-  }
-
   /**
    * A solve's multipliers by its rows' keys, for the next convexification to
    * start from.
@@ -89,13 +47,15 @@ export namespace HumanQuadraticProgram {
    * @returns Each keyed row's multiplier.
    */
   export function multipliers(
-    problem: IProblem,
-    state: IState,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    state: IAutoMovieMotionHumanQuadraticProgram.IState,
   ): Map<string, number> {
     const out: Map<string, number> = new Map();
-    problem.rows.forEach((row: IRow, r: number): void => {
-      if (row.key !== undefined) out.set(row.key, state.y[r]!);
-    });
+    problem.rows.forEach(
+      (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
+        if (row.key !== undefined) out.set(row.key, state.y[r]!);
+      },
+    );
     return out;
   }
 
@@ -108,10 +68,10 @@ export namespace HumanQuadraticProgram {
    * @returns The iterates, unscaled; `x` is the minimiser.
    */
   export function solve(
-    problem: IProblem,
-    warm?: IState,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
     duals?: ReadonlyMap<string, number>,
-  ): IState {
+  ): IAutoMovieMotionHumanQuadraticProgram.IState {
     const s: B.IScaled = B.scaled(problem);
     const { n, m, start, cols, vals, lo, hi, weight, d, e } = s;
     const c: number = s.c;
@@ -142,22 +102,25 @@ export namespace HumanQuadraticProgram {
         y[r] = (c * warm.y[r]!) / e[r]!;
       }
     } else
-      problem.rows.forEach((row: IRow, r: number): void => {
-        // A solve of new rows starts from the multipliers of the rows they
-        // linearise again (`IRow.key`), the primal at the iterate itself.
-        const known: number | undefined =
-          row.key === undefined || duals === undefined
-            ? undefined
-            : duals.get(row.key);
-        if (known !== undefined) y[r] = (c * known) / e[r]!;
-        z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
-      });
+      problem.rows.forEach(
+        (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
+          // A solve of new rows starts from the multipliers of the rows they
+          // linearise again (`IRow.key`), the primal at the iterate itself.
+          const known: number | undefined =
+            row.key === undefined || duals === undefined
+              ? undefined
+              : duals.get(row.key);
+          if (known !== undefined) y[r] = (c * known) / e[r]!;
+          z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
+        },
+      );
 
     const rhs: Float64Array = new Float64Array(n);
     const xt: Float64Array = new Float64Array(n);
     const tilde: Float64Array = new Float64Array(m);
     const before: Float64Array = new Float64Array(m);
-    let status: IState["status"] = "unfinished";
+    let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] =
+      "unfinished";
     let residual: { primal: number; dual: number } = {
       primal: Infinity,
       dual: Infinity,
@@ -255,7 +218,7 @@ export namespace HumanQuadraticProgram {
     }
 
     // The unscaled iterates: x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
-    const out: IState = {
+    const out: IAutoMovieMotionHumanQuadraticProgram.IState = {
       x: new Float64Array(n),
       z: new Float64Array(m),
       y: new Float64Array(m),
@@ -278,7 +241,10 @@ export namespace HumanQuadraticProgram {
    * @param x The variables.
    * @returns The value.
    */
-  export function value(problem: IProblem, x: Float64Array): number {
+  export function value(
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    x: Float64Array,
+  ): number {
     let v: number = 0;
     for (let i: number = 0; i < problem.n; ++i) {
       v += problem.q[i]! * x[i]!;

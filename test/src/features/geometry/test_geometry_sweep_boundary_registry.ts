@@ -1,10 +1,12 @@
 import {
-  type IAutoMovieSurfaceRegistry,
-  type IAutoMovieSweep,
-  type IAutoMovieSweepRig,
   registerAutoMovieSurfaceVertices,
   rigAutoMovieSweep,
 } from "@automovie/engine";
+import type {
+  IAutoMovieSurfaceRegistry,
+  IAutoMovieSweep,
+  IAutoMovieSweepRig,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

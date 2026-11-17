@@ -1,26 +1,30 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanPutDown,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -49,7 +53,7 @@ import { putDownTarget } from "./putDownTarget";
  * rested: its resting rotation is the one it was
  * declared with, turned about the vertical to the asked heading, so a bottle
  * carried at a tilt still lands upright. The arm keeps the configuration it
- * carried the prop in (`IHumanPosture.IGoal.reference`). Inverse kinematics solves the arm; the rest of the body holds the posture
+ * carried the prop in (`HumanPosture.IGoal.reference`). Inverse kinematics solves the arm; the rest of the body holds the posture
  * it was entered in.
  *
  * Phases: a transport of the hand to the placing frame, timed by the
@@ -67,10 +71,10 @@ import { putDownTarget } from "./putDownTarget";
  */
 export namespace putDown {
   /** The action's name. */
-  export const name: HumanActionName = "putDown";
+  export const name: AutoMovieMotionHumanActionName = "putDown";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -78,39 +82,6 @@ export namespace putDown {
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The held prop's subject id. */
-    prop: string;
-
-    /** Where the prop's origin goes, world metres; required unless `on` or `onto` is given. */
-    at?: IAutoMovieVector3;
-
-    /** The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. */
-    on?: {
-      /** The bone. */
-      bone: AutoMovieHumanoidBone;
-
-      /** The prop's frame in the bone's posed frame, metres. */
-      offset: IHumanProp.IFrame;
-    };
-
-    /**
-     * The other prop's socket the prop is set on, riding it from `placed`
-     * as that prop's articulations pose it (an arrow nocked by its `nock` on
-     * a bow's string, drawn back with it, `IHumanActionPlan.mounts`): the
-     * prop's own socket `via` laid on the other's `point`, the prop's origin
-     * when `via` is absent.
-     */
-    onto?: { prop: string; point: string; via?: string };
-
-    /** The prop's heading about +Y at rest, degrees; its current heading when absent. */
-    yaw?: number;
-
-    /** The holding hand; `right` when absent. */
-    hand?: HumanHand.Side;
-  }
 
   /** The final vertical stretch of the placing transport, metres; provisional. */
   export const SETBACK: number = 0.05;
@@ -126,24 +97,24 @@ export namespace putDown {
    * @throws {Error} When the placing frame lies beyond the arm's reach.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const side: HumanHand.Side = context.params.hand ?? "right";
-    const body: IHumanBody = context.body;
-    const held: IHumanPosture = context.entry.posture;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const held: IAutoMovieMotionHumanPosture = context.entry.posture;
 
     // The hand-to-prop offset the grip keeps, from the displayed frames now.
     const hand: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
     ).get(`${side}Hand`)!;
-    const prop: IHumanProp.IFrame = context
+    const prop: IAutoMovieRigidTransform = context
       .prop(context.params.prop)
       .frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
     );
-    const offset: IHumanProp.IFrame = {
+    const offset: IAutoMovieRigidTransform = {
       position: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(prop.position, hand.worldPosition),
@@ -165,7 +136,7 @@ export namespace putDown {
     // happens to give it now.
     const authored: IAutoMovieQuaternion = context.prop(context.params.prop)
       .prop.frame.rotation;
-    const holding = (yaw: number): HumanHand.IWrist => {
+    const holding = (yaw: number): IAutoMovieMotionHumanHand.IWrist => {
       const rest: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(
           Quaternion.fromAxisAngle(
@@ -195,8 +166,9 @@ export namespace putDown {
       side,
     );
     const on = context.params.on;
-    const onto: IParams["onto"] = context.params.onto;
-    const wearing: IHumanProp.IFrame | undefined = putDownTarget.of(
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
+    const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
       context,
       context.entry.pose,
     );
@@ -210,9 +182,9 @@ export namespace putDown {
           "a put down names where the prop goes: a place, a bone or another prop's socket",
         fix: "give `at`, a world point, `on`, a bone of the performer and the prop's frame on it, or `onto`, another prop's socket",
       });
-    const chosen: HumanHand.IWrist =
+    const chosen: IAutoMovieMotionHumanHand.IWrist =
       wearing !== undefined
-        ? ((): HumanHand.IWrist => {
+        ? ((): IAutoMovieMotionHumanHand.IWrist => {
             const r: IAutoMovieQuaternion = Quaternion.normalize(
               Quaternion.multiply(
                 wearing.rotation,
@@ -233,7 +205,7 @@ export namespace putDown {
               held,
               side,
               bend,
-              (turn: number): HumanHand.IWrist =>
+              (turn: number): IAutoMovieMotionHumanHand.IWrist =>
                 holding(heading(prop.rotation) + turn),
               undefined,
               undefined,
@@ -246,22 +218,23 @@ export namespace putDown {
           : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
-    const reference: IHumanPosture.IReference = resolveHumanPosture.reference(
-      context.entry.pose,
-      side === "left" ? "leftArm" : "rightArm",
-    );
+    const reference: IAutoMovieHumanLimbReference =
+      resolveHumanPosture.reference(
+        context.entry.pose,
+        side === "left" ? "leftArm" : "rightArm",
+      );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
 
     // A socket placement is a contact task: the source socket must remain
     // on the receiver when the wrist cannot retain the whole attitude.
-    const tool: StrikingHeld.ITool | undefined =
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool | undefined =
       onto?.via === undefined
         ? undefined
         : StrikingHeld.of(context, side, context.params.prop, {
             tip: onto.via,
           });
-    const frame: StrikingHeld.IHandFrame = {
+    const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
       point: Vector3.add(
         place,
         Quaternion.rotateVector(
@@ -280,14 +253,14 @@ export namespace putDown {
         held,
         "take the prop by a grasp that places its socket on the receiver",
       );
-    const constraint: IHumanPosture.IGoal | undefined =
+    const constraint: IAutoMovieHumanLimbGoal | undefined =
       tool === undefined
         ? undefined
         : StrikingHeld.goal(context, tool, frame, 0, bend);
     pickUp.reachable(context, side, place);
 
     // Timing: carry down, open, return.
-    const hanging: IHumanPosture["limbs"] = { ...held.limbs };
+    const hanging: IAutoMovieMotionHumanPosture["limbs"] = { ...held.limbs };
     delete hanging[side === "left" ? "leftArm" : "rightArm"];
     const home: IAutoMovieResolvedBone = poseBones(
       body,
@@ -304,33 +277,41 @@ export namespace putDown {
       0,
     );
     const duration: number = down + OPEN + back;
-    const carry: HumanPrehension.ITransport = HumanPrehension.transport(
-      hand.worldPosition,
-      place,
-      { x: 0, y: -1, z: 0 },
-      SETBACK,
-      { from: hand.worldRotation, to: rotation },
-      down,
-    );
+    const carry: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        hand.worldPosition,
+        place,
+        { x: 0, y: -1, z: 0 },
+        SETBACK,
+        { from: hand.worldRotation, to: rotation },
+        down,
+      );
 
     // The return is a placing transport played backwards: it leaves straight
     // up for the setback and ends at rest where the arm hangs.
-    const retreat: HumanPrehension.ITransport = HumanPrehension.transport(
-      home.worldPosition,
-      place,
-      { x: 0, y: -1, z: 0 },
-      SETBACK,
-      { from: home.worldRotation, to: rotation },
-      back,
-    );
-    const closed: IHumanPosture["joints"] = HumanGrip.fingers(
+    const retreat: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        home.worldPosition,
+        place,
+        { x: 0, y: -1, z: 0 },
+        SETBACK,
+        { from: home.worldRotation, to: rotation },
+        back,
+      );
+    const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
     );
-    const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const part: IHumanContactWindow["part"] =
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+    const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
@@ -385,11 +366,11 @@ export namespace putDown {
             ],
           }),
       contact: down,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         let wrist: IAutoMovieVector3;
         let turned: IAutoMovieQuaternion;
-        let digits: IHumanPosture["joints"];
+        let digits: IAutoMovieMotionHumanPosture["joints"];
         if (t <= down) {
           wrist = carry.wrist(t);
           turned = carry.turn(t);
@@ -454,8 +435,8 @@ export namespace putDown {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one immutable demand and retains nothing.
    */
   export function demands(
-    ahead: IHumanActionLaw.IAhead<IParams>,
-  ): readonly IHumanActionLaw.IDemand[] {
+    ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanPutDown.IParams>,
+  ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
     const via: string | undefined = ahead.params.onto?.via;
     if (
       via === undefined ||
@@ -463,12 +444,14 @@ export namespace putDown {
       ahead.grip.side !== (ahead.params.hand ?? "right")
     )
       return [];
-    const destination: IHumanProp.IFrame = putDownTarget.of(
+    const destination: IAutoMovieRigidTransform = putDownTarget.of(
       ahead,
       resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
-    const tool: StrikingHeld.ITool = ahead.grip.tool({ tip: via });
-    const frame: IHumanProp.IFrame = HumanPropFrame.parent(
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({
+      tip: via,
+    });
+    const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
       destination,
       tool.held!.frame,
     );

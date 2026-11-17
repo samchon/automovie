@@ -1,5 +1,8 @@
-import { type IAutoMovieRandom, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingQuality,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 
@@ -27,16 +30,6 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill and random types and the interface vector.
  */
 export namespace StrikingQuality {
-  /**
-   * A declared accuracy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states each case's meaning.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the named cases, or an explicit world offset in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The cases the strikes' parameters accept.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
-   */
-  export type Accuracy = "hit" | "graze" | "miss" | IAutoMovieVector3;
-
   /**
    * Half the width of a closed fist, metres: hand breadth is about 0.46 of
    * hand length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
@@ -71,7 +64,9 @@ export namespace StrikingQuality {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function stops(accuracy: Accuracy | undefined): boolean {
+  export function stops(
+    accuracy: IAutoMovieMotionHumanStrikingQuality.Accuracy | undefined,
+  ): boolean {
     return accuracy !== "graze" && accuracy !== "miss";
   }
 
@@ -89,22 +84,9 @@ export namespace StrikingQuality {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function offset(input: {
-    /** The performer's skill. */
-    skill: HumanSkill.ISkill;
-    /** The strike's scatter stream. */
-    random: IAutoMovieRandom;
-    /** The declared accuracy; `hit` when absent. */
-    accuracy?: Accuracy;
-    /** The weapon's travel direction at contact, unit. */
-    direction: IAutoMovieVector3;
-    /** The weapon's half width, metres. */
-    radius: number;
-    /** The distance the weapon travels, metres. */
-    distance: number;
-    /** The delivery time, seconds. */
-    seconds: number;
-  }): IAutoMovieVector3 {
+  export function offset(
+    input: IAutoMovieMotionHumanStrikingQuality.IOffsetInput,
+  ): IAutoMovieVector3 {
     const d: IAutoMovieVector3 = Vector3.normalize(input.direction);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const sideways: IAutoMovieVector3 =
@@ -112,7 +94,8 @@ export namespace StrikingQuality {
         ? { x: 1, y: 0, z: 0 }
         : Vector3.normalize(Vector3.cross(up, d));
     const lift: IAutoMovieVector3 = Vector3.cross(d, sideways);
-    const accuracy: Accuracy = input.accuracy ?? "hit";
+    const accuracy: IAutoMovieMotionHumanStrikingQuality.Accuracy =
+      input.accuracy ?? "hit";
     const declared: IAutoMovieVector3 =
       accuracy === "hit"
         ? { x: 0, y: 0, z: 0 }

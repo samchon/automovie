@@ -1,6 +1,9 @@
 import {
   IAutoMovieSoftAnchor,
+  type IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
+  type IAutoMovieSoftBodyObserver,
+  type IAutoMovieSoftBodyResolvedAnchor,
   IAutoMovieSoftBodyState,
   IAutoMovieSoftCompliance,
   IAutoMovieSoftContact,
@@ -8,9 +11,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
-import { IAutoMovieSoftBodyObserver } from "./IAutoMovieSoftBodyObserver";
-import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAnchor";
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { applySoftBodyFriction } from "./applySoftBodyFriction";
 import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";

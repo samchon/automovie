@@ -1,13 +1,15 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePlanPhysicalBalanceTargets,
+  IAutoMoviePlanPhysicalFloorSupportTargets,
+  IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalSupportRootDrop } from "./physicalSupportRootDrop";
 import { planPhysicalFloorSupportTargets } from "./planPhysicalFloorSupportTargets";
-import type { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
 /**
@@ -21,35 +23,16 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalBalanceTargets(input: {
-  /** Actual provider and bounded balance IK policy. */ profile: P;
-  /** Owned endpoint chains, independent of species. */ pattern: IAutoMovieFootfallPattern;
-  /** Coherent motor intent before balance fitting. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Actual simultaneous root pose. */ root: {
-    bone: string;
-    pose: P.ITransform;
-  };
-  /** Previous correction carried through current authored coordinates; original goals and root intent remain authoritative. */ seed?: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Independent authored/recovery root intent used only to derive its lowering request. */ intent?: P.ITransform;
-  /** Recovery and planted world endpoint goals. */ goals: Readonly<
-    Record<string, IAutoMovieVector3>
-  >;
-  /** Actual stance owners; swinging/reserved endpoints are omitted. */ planted: readonly string[];
-  /** World floor height. */ floor: number;
-  /** Root-position intent budget, metres. */ maximumRootDrop: number;
-  /** Existing balance update budget. */ iterations: number;
-  /** Existing endpoint/floor tolerance, metres. */ tolerance: number;
-}): ReturnType<typeof planPhysicalSupportTargets> {
-  const original: P.ITransform = input.targets[input.root.bone]!;
-  const targets: Record<string, P.ITransform> = rebasePhysicalTargets(
-    input.seed ?? input.targets,
-    input.root.bone,
-    input.root.pose,
-  );
+export function planPhysicalBalanceTargets(
+  input: IAutoMoviePlanPhysicalBalanceTargets.IInput,
+): IAutoMoviePlanPhysicalSupportTargets.IResult {
+  const original: IAutoMovieRigidTransform = input.targets[input.root.bone]!;
+  const targets: Record<string, IAutoMovieRigidTransform> =
+    rebasePhysicalTargets(
+      input.seed ?? input.targets,
+      input.root.bone,
+      input.root.pose,
+    );
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
       (
@@ -70,7 +53,7 @@ export function planPhysicalBalanceTargets(input: {
     ),
     goals,
   });
-  const fitted: ReturnType<typeof planPhysicalFloorSupportTargets> =
+  const fitted: IAutoMoviePlanPhysicalFloorSupportTargets.IResult =
     planPhysicalFloorSupportTargets({
       ...input,
       targets,

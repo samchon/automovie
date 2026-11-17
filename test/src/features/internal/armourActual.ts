@@ -7,7 +7,9 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -127,14 +129,16 @@ export namespace armourActual {
     const gauges: number[] = [];
     for (const shape of piece.shapes()) {
       if (!shape.id.startsWith(prefix) || shape.kind !== "hull") continue;
-      const faces: physicalHullFaces.IFace[] = physicalHullFaces(
+      const faces: IAutoMoviePhysicalHullFaces.IFace[] = physicalHullFaces(
         shape.points,
       ).faces.filter(
-        (face: physicalHullFaces.IFace): boolean =>
+        (face: IAutoMoviePhysicalHullFaces.IFace): boolean =>
           helmet || Math.abs(face.normal.y) < 1e-12,
       );
       const inside: number = Math.min(
-        ...faces.map((face: physicalHullFaces.IFace): number => face.offset),
+        ...faces.map(
+          (face: IAutoMoviePhysicalHullFaces.IFace): number => face.offset,
+        ),
       );
       if (Math.abs(inside + radius) > 1e-12)
         throw new Error(
@@ -142,7 +146,9 @@ export namespace armourActual {
         );
       gauges.push(
         Math.max(
-          ...faces.map((face: physicalHullFaces.IFace): number => face.offset),
+          ...faces.map(
+            (face: IAutoMoviePhysicalHullFaces.IFace): number => face.offset,
+          ),
         ) + inside,
       );
     }
@@ -167,21 +173,21 @@ export namespace armourActual {
     point: IAutoMovieVector3,
     prefix?: string,
   ): number {
-    const pose: IAutoMoviePhysicalProfile.ITransform = {
+    const pose: IAutoMovieRigidTransform = {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = piece
+    const shapes: IAutoMoviePhysicalShape[] = piece
       .shapes()
       .filter(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+        (shape: IAutoMoviePhysicalShape): boolean =>
           prefix === undefined || shape.id.startsWith(prefix),
       );
     if (shapes.length === 0)
       throw new Error("Armour has no actual wall colliders");
     return Math.min(
       ...shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): number =>
+        (shape: IAutoMoviePhysicalShape): number =>
           physicalShapeNearest(pose, shape, point, point).distance,
       ),
     );

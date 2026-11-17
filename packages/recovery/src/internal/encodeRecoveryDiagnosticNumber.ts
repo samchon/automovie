@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryDiagnosticNumber } from "../structures/image/IAutoMovieRecoveryDiagnosticNumber";
+import type { AutoMovieDiagnosticNumber } from "@automovie/interface";
 
 /**
  * Encode an already computed number without changing its numerical owner.
@@ -13,7 +13,7 @@ import type { IAutoMovieRecoveryDiagnosticNumber } from "../structures/image/IAu
  */
 export function encodeRecoveryDiagnosticNumber(
   value: number,
-): IAutoMovieRecoveryDiagnosticNumber {
+): AutoMovieDiagnosticNumber {
   if (Number.isFinite(value)) return value;
   if (Number.isNaN(value)) return "NaN";
   return value > 0 ? "+Infinity" : "-Infinity";

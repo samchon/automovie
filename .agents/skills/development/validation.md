@@ -4,20 +4,15 @@ The checks to run on a change, and how to run them beside other agents.
 
 ## Type checking
 
-Read type errors from the log of the running watch of the program that compiles the code, and start a watch only where none runs, because a second one competes for the plugin cache and CPU and finds nothing more.
+Use one shared `pnpm ttsc --watch` process in `test/` and read its completed cycles from the same log. Start it only when none runs, because duplicate checkers compete for the plugin cache and CPU without extending coverage. In a coordinated task, its owner starts the process and gives every worker the log path.
 
-`pnpm ttsc --noEmit --watch` in `test/` checks every package the tests import. Code outside that program, such as a page or subject module a package builds only for the shared inspection instrument, has its own watch under its own tsconfig, documented beside that code.
+The test tsconfig already disables emit. This watch checks the sources its program reaches; report a page or subject module outside that program as unchecked unless the task authorizes its separate validation. Do not start another compiler, build or checking helper to repeat the shared check.
 
-### Saving under a shared watch
+### Shared verification rounds
 
-Each save must compile on its own, because the watch checks every intermediate save and a red build blocks every other agent's tests and captures.
+Finish the inspection round before fixing findings: collect the completed watch cycle, relevant tests and any renders or logs, then group every finding by cause and contributing factors. Apply the whole coordinated batch before reading the next complete round, because reacting to intermediate saves repeats checks on an unfinished migration.
 
-- Save a new module before the files that import it.
-- Write a structural rewrite as one complete file.
-- Update every reader of a changed export in the same batch.
-- Before a save that removes or renames an identifier, search the file and its importers for every remaining use.
-- Before a save that adds one, search the target scope for a name it would collide with.
-- After every save, read the next watch cycle before editing or running anything else.
+Coordinate changed exports and their readers in the same batch, checking remaining uses and name collisions before writing. Keep dependent tests and captures paused while that batch is incomplete; an intermediate diagnostic is not a new review round.
 
 ## Tests
 

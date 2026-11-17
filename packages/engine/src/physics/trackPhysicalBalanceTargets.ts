@@ -1,20 +1,26 @@
 import type {
+  IAutoMoviePhysicalBalanceReference,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
-import type { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
 import { physicalBalanceReference } from "./physicalBalanceReference";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
 import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
 
 /**
@@ -29,29 +35,33 @@ import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 16 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalBalanceTargets(input: {
-  /** Admitted settings and provider. */ settings: Simulation.IInput;
-  /** Body with an active balance policy. */ body: Simulation.IBody;
+  /** Admitted settings and provider. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
+  /** Body with an active balance policy. */ body: IAutoMoviePhysicalSimulationInput.IBody;
   /** Native wrappers and transient interval plans. */ bound: Bound;
   /** Enclosing interval and native substep clock. */ step: number;
   /** Current exact native tick time. */ seconds: number;
-  /** Actual root selector. */ root: P.ISegment;
+  /** Actual root selector. */ root: IAutoMoviePhysicalSegment;
   /** Full sampled motor references, updated together. */ goals: Record<
     string,
-    ReturnType<typeof samplePhysicalTarget>
+    IAutoMovieSamplePhysicalTarget.IResult
   >;
-  /** Current declared ownership and effort. */ target: Simulation.ITarget;
+  /** Current declared ownership and effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Measured stance owners. */ planted: readonly string[];
-  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: AdvanceBalance.IState;
-}): { rootDrop: number; rootDropVelocity: number } {
+  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMoviePhysicalRecoveryState;
+}): IAutoMovieTrackPhysicalBalanceTargets.IResult {
   const { body, bound, goals }: typeof input = input;
-  const policy: NonNullable<Simulation.IBody["balance"]> = body.balance!;
+  const policy: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  > = body.balance!;
   let planned: ReturnType<typeof bound.planned.get> = bound.planned.get(
     body.id,
   );
   const revision: number = input.state.revision ?? 0;
   if (planned?.step !== input.step || planned.revision !== revision) {
     const previous: typeof planned = planned;
-    const targets: Record<string, P.ITransform> = { ...input.target.segments };
+    const targets: Record<string, IAutoMovieRigidTransform> = {
+      ...input.target.segments,
+    };
     if (input.state.rootOffset)
       for (const [bone, pose] of Object.entries(targets))
         targets[bone] = {
@@ -67,14 +77,14 @@ export function trackPhysicalBalanceTargets(input: {
         input.step / input.settings.rate,
       );
     const base: RigidBody = bound.segments.get(body.id)!.get(input.root.bone)!;
-    const root: { bone: string; pose: P.ITransform } = {
+    const root: { bone: string; pose: IAutoMovieRigidTransform } = {
       bone: input.root.bone,
       pose: { position: base.translation(), rotation: base.rotation() },
     };
     // A fresh fit restarts from the authored posture; a warm fit continues
     // the completed reference. The fit's own contract chooses between them.
     const nativeRate: number = input.settings.rate * input.settings.substeps!;
-    const reference: ReturnType<typeof physicalBalanceReference> =
+    const reference: IAutoMoviePhysicalBalanceReference.IResult =
       physicalBalanceReference({
         body,
         target: input.target,
@@ -89,10 +99,10 @@ export function trackPhysicalBalanceTargets(input: {
     );
     const tolerance: number = policy.targetTolerance ?? 0.001;
     const fit: (
-      seed?: Record<string, P.ITransform>,
-    ) => ReturnType<typeof planPhysicalBalanceTargets> = (
-      seed?: Record<string, P.ITransform>,
-    ): ReturnType<typeof planPhysicalBalanceTargets> =>
+      seed?: Record<string, IAutoMovieRigidTransform>,
+    ) => IAutoMoviePlanPhysicalSupportTargets.IResult = (
+      seed?: Record<string, IAutoMovieRigidTransform>,
+    ): IAutoMoviePlanPhysicalSupportTargets.IResult =>
       planPhysicalBalanceTargets({
         profile: body.profile,
         pattern: policy.pattern,
@@ -108,10 +118,9 @@ export function trackPhysicalBalanceTargets(input: {
         tolerance,
       });
     const posture: ReadonlySet<string> = bound.posture.get(body.id)!;
-    const joints: ReadonlyMap<string, P.IJoint> = bound.jointByChild.get(
-      body.id,
-    )!;
-    const result: ReturnType<typeof planPhysicalBalanceTargets> =
+    const joints: ReadonlyMap<string, IAutoMoviePhysicalJoint> =
+      bound.jointByChild.get(body.id)!;
+    const result: IAutoMoviePlanPhysicalSupportTargets.IResult =
       choosePhysicalSupportFit({
         candidates: [
           fit(),
@@ -137,10 +146,16 @@ export function trackPhysicalBalanceTargets(input: {
         tolerance,
         reference: reference?.completed,
         joints: [...posture]
-          .map((bone: string): P.IJoint | undefined => joints.get(bone))
-          .filter((joint: P.IJoint | undefined): joint is P.IJoint => !!joint),
+          .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
+            joints.get(bone),
+          )
+          .filter(
+            (
+              joint: IAutoMoviePhysicalJoint | undefined,
+            ): joint is IAutoMoviePhysicalJoint => !!joint,
+          ),
       });
-    const interval: Interval.IPlan = Interval.plan({
+    const interval: IAutoMoviePhysicalTargetInterval.IPlan = Interval.plan({
       step: input.step,
       revision,
       seconds: input.seconds,

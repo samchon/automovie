@@ -1,4 +1,4 @@
-import type { IRecoveryChartLeafControls } from "./IRecoveryChartLeafControls";
+import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
 
 /**
  * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics.
@@ -30,8 +30,8 @@ import type { IRecoveryChartLeafControls } from "./IRecoveryChartLeafControls";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local line, identity, restriction and relation registries expire on return or refusal. maxControls bounds actual allocated IDs; returned arrays transfer to the caller and retain no source observations or handles.
  */
 export function RecoveryChartLeafControls(
-  input: IRecoveryChartLeafControls.Input,
-): IRecoveryChartLeafControls.Result {
+  input: Parameters<IAutoMovieRecoveryChartLeafControls.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartLeafControls.Operation> {
   if (
     !input ||
     !Array.isArray(input.leaves) ||
@@ -207,7 +207,8 @@ export function RecoveryChartLeafControls(
   for (const leaf of input.leaves)
     for (const u of [leaf.bounds[0], leaf.bounds[1]])
       for (const v of [leaf.bounds[2], leaf.bounds[3]]) corner(u, v);
-  const edges: ReturnType<typeof RecoveryChartLeafControls>["edges"] = [];
+  const edges: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["edges"] =
+    [];
   const masterEdges: Map<string, (typeof edges)[number]> = new Map();
   const relationMap: Map<number, { id: number; weight: number }[]> = new Map();
   const register: (
@@ -405,8 +406,10 @@ export function RecoveryChartLeafControls(
         register(target[k]!, matrix[k]!, edge.controlIds);
       intervalControls.set(fullKey, target);
     }
-  const patches: ReturnType<typeof RecoveryChartLeafControls>["patches"] = [],
-    bindings: ReturnType<typeof RecoveryChartLeafControls>["bindings"] = [];
+  const patches: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["patches"] =
+      [],
+    bindings: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"] =
+      [];
   const sideSlots: readonly (readonly number[])[] = [
     [0, 1, 2, 3],
     [3, 7, 11, 15],

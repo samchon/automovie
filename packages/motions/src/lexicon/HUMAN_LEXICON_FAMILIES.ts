@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanLexiconFamilies } from "@automovie/interface";
+
 import { HumanBlade } from "./HumanBlade";
 import { HumanCarried } from "./HumanCarried";
 import { HumanDressRows } from "./HumanDressRows";
@@ -54,7 +56,7 @@ import { HumanWeaponMelee } from "./HumanWeaponMelee";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family table; the families own their rows.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is named here: a family lists namespaces, and their rows are read from them.
  */
-export const HUMAN_LEXICON_FAMILIES = {
+export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   emblem: [HumanEmblem],
   habit: [HumanHabit],
   stance: [HumanStance],

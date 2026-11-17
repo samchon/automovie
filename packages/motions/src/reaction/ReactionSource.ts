@@ -1,8 +1,12 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -43,12 +47,15 @@ export namespace ReactionSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    context: Pick<IHumanActionContext, "aim" | "body" | "performer">,
-    from: AutoMovieMotionTarget | undefined,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "aim" | "body" | "performer"
+    >,
+    from: IAutoMovieMotionTarget | undefined,
     seconds: number,
-    posture: IHumanPosture,
-    place: AutoMovieMotionHumanTarget.IDefault,
-  ): AutoMovieMotionHumanTarget.IPlace {
+    posture: IAutoMovieMotionHumanPosture,
+    place: IAutoMovieMotionHumanTarget.IDefault,
+  ): IAutoMovieMotionHumanTarget.IPlace {
     if (from?.kind !== "person")
       return AutoMovieMotionHumanTarget.resolve(
         context,
@@ -57,7 +64,7 @@ export namespace ReactionSource {
         posture,
         place,
       );
-    const other: IHumanActionContext.IPerformer = context.performer(
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       from.subject,
     );
     return {

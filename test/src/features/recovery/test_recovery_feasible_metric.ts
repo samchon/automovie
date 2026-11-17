@@ -1,6 +1,8 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapLandmark,
   createRecoveryCameraChart,
   factorRecoveryMapDesign,
   factorRecoveryMapMetric,

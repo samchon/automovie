@@ -1,13 +1,13 @@
-import { IAutoMovieProfile } from "../core/IAutoMovieProfile";
-import { IAutoMovieImage } from "../material/IAutoMovieImage";
-import { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
-import { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
-import { AutoMovieAssetOrigin } from "./AutoMovieAssetOrigin";
-import { IAutoMovieAffordance } from "./IAutoMovieAffordance";
-import { IAutoMovieBody } from "./IAutoMovieBody";
+import type { IAutoMovieProfile } from "../core/IAutoMovieProfile";
+import type { IAutoMovieImage } from "../material/IAutoMovieImage";
+import type { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { AutoMovieAssetOrigin } from "./AutoMovieAssetOrigin";
+import type { IAutoMovieAffordance } from "./IAutoMovieAffordance";
+import type { IAutoMovieBody } from "./IAutoMovieBody";
 import type { IAutoMovieImportedModel } from "./IAutoMovieImportedModel";
-import { IAutoMovieLookAt } from "./IAutoMovieLookAt";
-import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
+import type { IAutoMovieLookAt } from "./IAutoMovieLookAt";
+import type { IAutoMovieModelPart } from "./IAutoMovieModelPart";
 
 /**
  * A 3D model: the riggable subject that poses, motions, and expressions drive.

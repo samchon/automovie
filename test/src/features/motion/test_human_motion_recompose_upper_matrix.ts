@@ -1,10 +1,15 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
-  type IHumanBody,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -46,8 +51,8 @@ const MANNERS: readonly (string | null)[] = [null, "press", "flick"];
  */
 export function test_human_motion_recompose_upper_matrix(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const seat: seated.ISeat = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
       y: seated.popliteal(body),
@@ -56,7 +61,7 @@ export function test_human_motion_recompose_upper_matrix(): void {
     yaw: 0,
     depth: 0.45,
   };
-  const base = (name: string): HumanChain =>
+  const base = (name: string): IAutoMovieMotionHumanChain =>
     name === "seated"
       ? HumanChain.subject("a").sit({ seat, seconds: 0.2 })
       : name === "kneeling"
@@ -65,10 +70,10 @@ export function test_human_motion_recompose_upper_matrix(): void {
   const classify = (
     label: string,
     row: string,
-    build: () => HumanPerformance,
+    build: () => IAutoMovieMotionHumanPerformance,
   ): void => {
     try {
-      const performance: HumanPerformance = build();
+      const performance: IAutoMovieMotionHumanPerformance = build();
       const placed: readonly string[] = [
         ...performance.segments("a").map((s) => s.name),
         ...performance.overlays("a").map((o) => o.name),
@@ -83,15 +88,16 @@ export function test_human_motion_recompose_upper_matrix(): void {
     }
   };
   for (const family of FAMILIES) {
-    const rows: readonly IHumanActionLaw<never>[] = HUMAN_LEXICON[family] ?? [];
+    const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+      HUMAN_LEXICON[family] ?? [];
     if (rows.length === 0) complaints.push(`the family ${family} holds no row`);
     for (const law of rows) {
       const given: object = LexiconRowNet.given(law.name) ?? {};
       for (const manner of MANNERS) {
         const params: object = manner === null ? given : { ...given, manner };
         const perform = (
-          composition: HumanPerformance.IInput["composition"],
-        ): HumanPerformance =>
+          composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+        ): IAutoMovieMotionHumanPerformance =>
           new HumanPerformance({
             seed: "matrix",
             laws: [...rows],

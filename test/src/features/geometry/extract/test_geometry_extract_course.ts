@@ -1,12 +1,18 @@
-import {
-  AutoMovieMeshCourse as C,
-  type AutoMovieMeshExtract as X,
-} from "@automovie/engine";
+import { AutoMovieMeshCourse as C } from "@automovie/engine";
+import type {
+  IAutoMovieMeshCourse,
+  IAutoMovieMillimeterMesh,
+} from "@automovie/interface";
 
 type V3 = [number, number, number];
 
 /** A made torus about +Y: major radius R in the XZ plane, minor radius r, `m` meridian rings around the core and `k` vertices around each ring. */
-function torus(R: number, r: number, m: number, k: number): X.IMesh {
+function torus(
+  R: number,
+  r: number,
+  m: number,
+  k: number,
+): IAutoMovieMillimeterMesh {
   const positions: number[] = [];
   for (let i: number = 0; i < m; ++i)
     for (let j: number = 0; j < k; ++j) {
@@ -35,7 +41,7 @@ function torus(R: number, r: number, m: number, k: number): X.IMesh {
  * rings every 10 mm from y = 0 to 100 mm; optionally ring `spike`'s vertex at
  * side 0 pushed 10 mm outward along +X.
  */
-function cylinder(cx: number, spike?: number): X.IMesh {
+function cylinder(cx: number, spike?: number): IAutoMovieMillimeterMesh {
   const n: number = 64;
   const positions: number[] = [];
   for (let r: number = 0; r <= 10; ++r)
@@ -58,7 +64,10 @@ function cylinder(cx: number, spike?: number): X.IMesh {
 }
 
 /** Two meshes as one. */
-function merge(a: X.IMesh, b: X.IMesh): X.IMesh {
+function merge(
+  a: IAutoMovieMillimeterMesh,
+  b: IAutoMovieMillimeterMesh,
+): IAutoMovieMillimeterMesh {
   const base: number = a.positions.length / 3;
   return {
     positions: [...Array.from(a.positions), ...Array.from(b.positions)],
@@ -70,9 +79,9 @@ function merge(a: X.IMesh, b: X.IMesh): X.IMesh {
 }
 
 /** Level planes of the cylinders at the given heights: u = +X, v = +Z so the normal v x u is +Y, origin on the first cylinder's axis. */
-function level(ys: readonly number[]): C.IPlane[] {
+function level(ys: readonly number[]): IAutoMovieMeshCourse.IPlane[] {
   return ys.map(
-    (y: number): C.IPlane => ({
+    (y: number): IAutoMovieMeshCourse.IPlane => ({
       station: y,
       origin: [0, y, 0],
       u: [1, 0, 0],
@@ -162,22 +171,22 @@ export function test_geometry_extract_course(): void {
   const DELTA: number = 1e-5;
   const polygon: number = (k / 2) * r * r * Math.sin((2 * Math.PI) / k);
   const perimeter: number = 2 * k * r * Math.sin(Math.PI / k);
-  const planes: C.IPlane[] = [5, 30, 77, 128, 150, 201, 240].map(
-    (i: number): C.IPlane => {
-      const a: number = (2 * Math.PI * i) / m;
-      const tangent: V3 = [-Math.sin(a), 0, Math.cos(a)];
-      return {
-        station: R * a,
-        origin: [
-          R * Math.cos(a) + EPS * tangent[0],
-          0,
-          R * Math.sin(a) + EPS * tangent[2],
-        ],
-        u: [Math.cos(a), 0, Math.sin(a)],
-        v: [0, -1, 0],
-      };
-    },
-  );
+  const planes: IAutoMovieMeshCourse.IPlane[] = [
+    5, 30, 77, 128, 150, 201, 240,
+  ].map((i: number): IAutoMovieMeshCourse.IPlane => {
+    const a: number = (2 * Math.PI * i) / m;
+    const tangent: V3 = [-Math.sin(a), 0, Math.cos(a)];
+    return {
+      station: R * a,
+      origin: [
+        R * Math.cos(a) + EPS * tangent[0],
+        0,
+        R * Math.sin(a) + EPS * tangent[2],
+      ],
+      u: [Math.cos(a), 0, Math.sin(a)],
+      v: [0, -1, 0],
+    };
+  });
   for (const section of C.cut(torus(R, r, m, k), planes)) {
     const at: string = `torus at ${section.plane.station.toFixed(1)}`;
     const tangent: V3 = [-section.plane.u[2], 0, section.plane.u[0]];
@@ -231,12 +240,17 @@ export function test_geometry_extract_course(): void {
       if (!near(Math.abs(e), r, DELTA))
         failures.push(`${at}: extent ${j} ${e}, expected magnitude ${r}`);
     });
-    section.reading.quarters.forEach((q: C.IQuarter, j: number): void => {
-      if (q.rho === null || !near(q.rho, Math.SQRT2 - 1, (3 * DELTA) / q.reach))
-        failures.push(
-          `${at}: quarter ${j} shoulder ${q.rho}, expected sqrt(2) - 1`,
-        );
-    });
+    section.reading.quarters.forEach(
+      (q: IAutoMovieMeshCourse.IQuarter, j: number): void => {
+        if (
+          q.rho === null ||
+          !near(q.rho, Math.SQRT2 - 1, (3 * DELTA) / q.reach)
+        )
+          failures.push(
+            `${at}: quarter ${j} shoulder ${q.rho}, expected sqrt(2) - 1`,
+          );
+      },
+    );
     if (section.checks.length !== 0)
       failures.push(
         `${at}: checks ${section.checks.join("; ")} on a smooth tube`,
@@ -245,7 +259,10 @@ export function test_geometry_extract_course(): void {
 
   // 3. Jumps on the holding loop only.
   const ys: number[] = [45, 50, 55];
-  const spiked: C.ISection[] = C.cut(cylinder(0, 5), level(ys));
+  const spiked: IAutoMovieMeshCourse.ISection[] = C.cut(
+    cylinder(0, 5),
+    level(ys),
+  );
   if (!spiked[1]!.checks.some((x: string): boolean => x.startsWith("jump +u")))
     failures.push(
       `spiked cylinder: the middle station flags [${spiked[1]!.checks.join("; ")}], expected a jump +u`,
@@ -254,18 +271,26 @@ export function test_geometry_extract_course(): void {
     failures.push(
       `spiked cylinder: end stations flag [${spiked[0]!.checks.join("; ")}] and [${spiked[2]!.checks.join("; ")}]`,
     );
-  const sound: C.ISection[] = C.cut(cylinder(0), level(ys));
-  if (sound.some((x: C.ISection): boolean => x.checks.length !== 0))
+  const sound: IAutoMovieMeshCourse.ISection[] = C.cut(cylinder(0), level(ys));
+  if (
+    sound.some(
+      (x: IAutoMovieMeshCourse.ISection): boolean => x.checks.length !== 0,
+    )
+  )
     failures.push(
-      `sound cylinder: checks ${sound.map((x: C.ISection): string => x.checks.join("; ")).join(" | ")}`,
+      `sound cylinder: checks ${sound.map((x: IAutoMovieMeshCourse.ISection): string => x.checks.join("; ")).join(" | ")}`,
     );
-  const beside: C.ISection[] = C.cut(
+  const beside: IAutoMovieMeshCourse.ISection[] = C.cut(
     merge(cylinder(0), cylinder(100, 5)),
     level(ys),
   );
-  if (beside.some((x: C.ISection): boolean => x.checks.length !== 0))
+  if (
+    beside.some(
+      (x: IAutoMovieMeshCourse.ISection): boolean => x.checks.length !== 0,
+    )
+  )
     failures.push(
-      `sound cylinder beside a spiked one: checks ${beside.map((x: C.ISection): string => x.checks.join("; ")).join(" | ")}`,
+      `sound cylinder beside a spiked one: checks ${beside.map((x: IAutoMovieMeshCourse.ISection): string => x.checks.join("; ")).join(" | ")}`,
     );
   if (beside[1]!.pieces !== 2)
     failures.push(

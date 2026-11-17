@@ -1,6 +1,11 @@
 import { physicalHullFaces, physicalHullNearest } from "@automovie/engine";
 import { AutoMovieHumanCanonicalSolids } from "@automovie/human";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanCanonicalSolids,
+  IAutoMovieHumanSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
@@ -33,20 +38,21 @@ import { createHumanPolygonFixture } from "../internal/createHumanPolygonFixture
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_human_canonical_solids_surface(): void {
-  const input: AutoMovieHumanPolygon.IInput = createHumanPolygonFixture();
+  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> =
+    createHumanPolygonFixture();
   // Human's frame and the canonical frame differ by (x, y, z) -> (z, y, x).
   const reflect = (p: readonly number[]): IAutoMovieVector3 => ({
     x: p[2]!,
     y: p[1]!,
     z: p[0]!,
   });
-  const solids: AutoMovieHumanCanonicalSolids.ISolid[] =
+  const solids: IAutoMovieHumanCanonicalSolids.ISolid[] =
     AutoMovieHumanCanonicalSolids.build(
       new Map(
         input.bones.map(
           (
-            bone: AutoMovieHumanPolygon.IBone,
-          ): [string, AutoMovieHumanCanonicalSolids.IJoint] => [
+            bone: IAutoMovieHumanBindBone,
+          ): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
             bone.bone,
             {
               parent: bone.parent,
@@ -59,13 +65,13 @@ export function test_human_canonical_solids_surface(): void {
         ),
       ),
     );
-  const of = (bone: string): AutoMovieHumanCanonicalSolids.ISolid[] =>
+  const of = (bone: string): IAutoMovieHumanCanonicalSolids.ISolid[] =>
     solids.filter(
-      (solid: AutoMovieHumanCanonicalSolids.ISolid): boolean =>
+      (solid: IAutoMovieHumanCanonicalSolids.ISolid): boolean =>
         solid.id === bone || solid.id.startsWith(`${bone}.`),
     );
   const signed = (
-    solid: AutoMovieHumanCanonicalSolids.ISolid,
+    solid: IAutoMovieHumanCanonicalSolids.ISolid,
     p: IAutoMovieVector3,
   ): number =>
     physicalHullNearest(solid.points, {
@@ -85,7 +91,7 @@ export function test_human_canonical_solids_surface(): void {
   let solidWhere: string = "none";
   for (const bone of input.bones) {
     const part: THREE.Mesh | undefined = drawing.parts.get(bone.bone);
-    const own: AutoMovieHumanCanonicalSolids.ISolid[] = of(bone.bone);
+    const own: IAutoMovieHumanCanonicalSolids.ISolid[] = of(bone.bone);
     claimed += own.length;
     if (part === undefined) {
       if (own.length > 0) defects.push(`${bone.bone}: solid without a mesh`);
@@ -130,7 +136,7 @@ export function test_human_canonical_solids_surface(): void {
         triangle.getMidpoint(new THREE.Vector3()),
       ]) {
         const each: number[] = own.map(
-          (solid: AutoMovieHumanCanonicalSolids.ISolid): number =>
+          (solid: IAutoMovieHumanCanonicalSolids.ISolid): number =>
             signed(solid, p),
         );
         if (p === triangle.a || p === triangle.b || p === triangle.c) {
@@ -173,7 +179,7 @@ export function test_human_canonical_solids_surface(): void {
         for (const p of samples) {
           if (
             own.some(
-              (other: AutoMovieHumanCanonicalSolids.ISolid): boolean =>
+              (other: IAutoMovieHumanCanonicalSolids.ISolid): boolean =>
                 other !== solid && signed(other, p) <= ALLOWANCE,
             )
           )

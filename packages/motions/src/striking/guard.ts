@@ -1,17 +1,19 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanGuard,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingStance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -41,35 +43,16 @@ import { StrikingTarget } from "./StrikingTarget";
  */
 export namespace guard {
   /** The action's name. */
-  export const name: HumanActionName = "guard";
+  export const name: AutoMovieMotionHumanActionName = "guard";
 
   /** Cancel table: from a guard every striking action may start at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
     punch: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     kick: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, minimum or default.
-   * @evidence contracts/development/design.md#principled-representation A duration in seconds (raised to the setting time when planning), a closed union of stances, and the interface's motion target to face.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   */
-  export interface IParams {
-    /** How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. */
-    seconds?: number;
-
-    /** Which side leads; the entry's leading side when absent. */
-    stance?: "orthodox" | "southpaw";
-
-    /** What to face; the entry's line when absent. */
-    facing?: AutoMovieMotionTarget;
-  }
 
   /** Seconds to step into the stance. */
   export const SET: number = 0.6;
@@ -92,8 +75,8 @@ export namespace guard {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle and released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const duration: number = Math.max(SET, context.params.seconds ?? 1);
     let built: IGeometry | undefined;
     const geometry = (): IGeometry => (built ??= build(context, duration));
@@ -103,10 +86,10 @@ export namespace guard {
     return {
       duration,
       events,
-      get contacts(): IHumanContactWindow[] {
+      get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
-      posture: (seconds: number): IHumanPosture =>
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         geometry().posture(Math.min(duration, Math.max(0, seconds))),
       settle: (): void => {
         built = undefined;
@@ -117,18 +100,18 @@ export namespace guard {
   /** A built guard. */
   interface IGeometry {
     /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
+    posture(seconds: number): IAutoMovieMotionHumanPosture;
     /** The feet's contact windows. */
-    contacts: IHumanContactWindow[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
   /** Build the stance from the entry and the line. */
   function build(
-    context: IHumanActionContext<IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
     duration: number,
   ): IGeometry {
     const body = context.body;
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const lead: "left" | "right" =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
@@ -161,15 +144,15 @@ export namespace guard {
           ? entry.yaw +
             (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN)
           : entry.yaw;
-    const stance: StrikingStance.IStance = { lead, line };
-    const from: Record<"left" | "right", HumanFoot.IPlacement> =
+    const stance: IAutoMovieMotionHumanStrikingStance.IStance = { lead, line };
+    const from: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const centre: IAutoMovieVector3 = {
       x: (from.left.ankle.x + from.right.ankle.x) / 2,
       y: 0,
       z: (from.left.ankle.z + from.right.ankle.z) / 2,
     };
-    const to: Record<"left" | "right", HumanFoot.IPlacement> =
+    const to: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
     // The pelvis over the stance centre, the feet being symmetric about it on
@@ -190,7 +173,10 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
-    const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
+    const foot = (
+      side: "left" | "right",
+      t: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       if (!moves(side)) return from[side];
       const [a, b] = window[side];
       const s: number = minimumJerk((t - a) / (b - a)).s;
@@ -204,9 +190,9 @@ export namespace guard {
         rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s),
       };
     };
-    const contacts: IHumanContactWindow[] = (
+    const contacts: IAutoMovieMotionHumanContactWindow[] = (
       ["left", "right"] as const
-    ).flatMap((side): IHumanContactWindow[] => {
+    ).flatMap((side): IAutoMovieMotionHumanContactWindow[] => {
       if (!moves(side))
         return [
           {
@@ -238,7 +224,7 @@ export namespace guard {
     const bounce: number = Math.abs(sunk) / 3;
     return {
       contacts,
-      posture: (t: number): IHumanPosture => {
+      posture: (t: number): IAutoMovieMotionHumanPosture => {
         const s: number = minimumJerk(t / SET).s;
         const fade: number =
           s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
@@ -247,7 +233,7 @@ export namespace guard {
           fade *
           0.5 *
           (1 - Math.cos(2 * Math.PI * BOUNCE_RATE * Math.max(0, t - SET)));
-        const posture: IHumanPosture = {
+        const posture: IAutoMovieMotionHumanPosture = {
           root: {
             x: entry.root.x + (rootAt.x - entry.root.x) * s,
             y: entry.root.y + (sunk - entry.root.y) * s - hop,
@@ -259,7 +245,10 @@ export namespace guard {
           joints: { ...entry.joints, ...StrikingStance.joints() },
           limbs: {},
         };
-        const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: foot("left", t),
           right: foot("right", t),
         };
@@ -272,7 +261,7 @@ export namespace guard {
 
         // The root lowered until each planted leg reaches its foot, as the
         // stance turns and travels over feet that have not moved yet.
-        const lowered: IHumanPosture = resolveHumanPosture.lower(
+        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           { ...posture, limbs: legs },
           5,
@@ -288,14 +277,17 @@ export namespace guard {
 
   /** The entry's arms blended toward the guard by a share: from the hands' entry goals, or the guard alone when the entry wrote none. */
   function blendArms(
-    context: IHumanActionContext<IParams>,
-    hands: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm">,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
+    hands: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm">,
     s: number,
-  ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+    const out: Pick<
+      IAutoMovieMotionHumanPosture["limbs"],
+      "leftArm" | "rightArm"
+    > = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
-      const to: IHumanPosture.IGoal = hands[arm]!;
-      const from: IHumanPosture.IGoal | undefined =
+      const to: IAutoMovieHumanLimbGoal = hands[arm]!;
+      const from: IAutoMovieHumanLimbGoal | undefined =
         context.entry.posture.limbs[arm];
       out[arm] =
         from === undefined

@@ -1,3 +1,4 @@
+import type { IAutoMovieConstructionPolyline } from "@automovie/interface";
 import * as THREE from "three";
 
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
@@ -19,11 +20,7 @@ import { createAutoMovieResourceRetirement } from "./createAutoMovieResourceReti
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction rollback immediately owns every native allocation; successful output transfers geometries/material and one shared retirement promise to the caller, with no renderer, RAF, listener or global registry acquired.
  */
 export function buildAutoMovieConstruction(
-  lines: readonly {
-    id: string;
-    closed: boolean;
-    points: readonly [number, number, number][];
-  }[],
+  lines: readonly IAutoMovieConstructionPolyline[],
   options: { color: number; maxPoints: number },
 ): { object: THREE.Group; dispose: () => Promise<void> } {
   if (

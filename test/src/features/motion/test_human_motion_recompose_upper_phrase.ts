@@ -5,17 +5,16 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanHand,
-  type HumanPerformance,
-  type HumanSegment,
-  HumanVerdicts,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { HumanHand, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -63,20 +62,22 @@ import { motionUpperPhrase } from "../internal/motionUpperPhrase";
  */
 export function test_human_motion_recompose_upper_phrase(): void {
   const complaints: string[] = [];
-  const rows: IHumanActionLaw<never>[] = motionUpperPhrase.ROWS;
+  const rows: IAutoMovieMotionHumanActionLaw<never>[] = motionUpperPhrase.ROWS;
   const open: Record<string, AutoMovieHumanoidRegion> = motionUpperPhrase.OPEN;
   const held: readonly string[] = motionUpperPhrase.HELD;
   const end: IAutoMovieVector3 = motionUpperPhrase.END;
   const perform: typeof motionUpperPhrase.perform = motionUpperPhrase.perform;
-  const touches: Record<string, [AutoMovieHumanoidRegion, HumanHand.Surface]> =
-    {
-      handOnHip: ["hipRight", "palm"],
-      chinOnFist: ["chin", "fist"],
-      pressOn: ["chestRight", "palm"],
-      holdOn: ["upperArmLeft", "palm"],
-    };
+  const touches: Record<
+    string,
+    [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+  > = {
+    handOnHip: ["hipRight", "palm"],
+    chinOnFist: ["chin", "fist"],
+    pressOn: ["chestRight", "palm"],
+    holdOn: ["upperArmLeft", "palm"],
+  };
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number =
       body.measure.upperArm + body.measure.forearm + body.measure.hand;
     for (const row of rows) {
@@ -94,13 +95,13 @@ export function test_human_motion_recompose_upper_phrase(): void {
           }
         : given;
       try {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           body,
           row.name,
           params,
           held.includes(row.name),
         );
-        const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
+        const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} ${row.name}: placed as ${s.name}`);
           continue;
@@ -125,12 +126,13 @@ export function test_human_motion_recompose_upper_phrase(): void {
           complaints.push(
             `${name} ${row.name}: the phrase's instants are missing or out of order`,
           );
-        const touch: [AutoMovieHumanoidRegion, HumanHand.Surface] | undefined =
-          touches[row.name];
+        const touch:
+          | [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+          | undefined = touches[row.name];
         if (touch !== undefined) {
           const t: number = at("stroke");
           const bones = p.bones("a", t);
-          const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+          const region: IAutoMovieHumanoidSurfaces.IFrame =
             body.surfaces.regions[touch[0]];
           const goal: IAutoMovieVector3 =
             resolveAutoMovieHumanoidSurfaces.place(
@@ -171,7 +173,7 @@ export function test_human_motion_recompose_upper_phrase(): void {
               `${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
             );
           if (row.name === "handsClaspedBehind") {
-            const back: resolveAutoMovieHumanoidSurfaces.IFrame =
+            const back: IAutoMovieHumanoidSurfaces.IFrame =
               body.surfaces.regions.lowerBack;
             const surface: IAutoMovieVector3 =
               resolveAutoMovieHumanoidSurfaces.place(
@@ -192,7 +194,7 @@ export function test_human_motion_recompose_upper_phrase(): void {
         if (row.name === "cheerHands") {
           const t: number = at("stroke");
           const [left, right] = palms(t);
-          const crown: resolveAutoMovieHumanoidSurfaces.IFrame =
+          const crown: IAutoMovieHumanoidSurfaces.IFrame =
             body.surfaces.regions.crown;
           const top: number = resolveAutoMovieHumanoidSurfaces.place(
             crown,
@@ -216,14 +218,14 @@ export function test_human_motion_recompose_upper_phrase(): void {
         }
         if (row.name === "drinkFrom" || row.name === "eatWith") {
           const t: number = at("stroke");
-          const mouth: resolveAutoMovieHumanoidSurfaces.IFrame =
+          const mouth: IAutoMovieHumanoidSurfaces.IFrame =
             body.surfaces.regions.mouth;
           const lips: IAutoMovieVector3 =
             resolveAutoMovieHumanoidSurfaces.place(
               mouth,
               p.bones("a", t).get(mouth.bone)!,
             ).point;
-          const f: IHumanProp.IFrame = p.prop("stick", t);
+          const f: IAutoMovieRigidTransform = p.prop("stick", t);
           const tip: IAutoMovieVector3 = Vector3.add(
             f.position,
             Quaternion.rotateVector(f.rotation, end),

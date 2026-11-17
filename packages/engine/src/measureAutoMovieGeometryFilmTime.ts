@@ -1,9 +1,8 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
-
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 
 /**
  * Resolve an exact film-global frame or frame-grid second to its latest owning canonical segment and source-shot frame; missing timeline, off-grid time and gaps throw.
@@ -18,7 +17,7 @@ import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurem
  */
 export function measureAutoMovieGeometryFilmTime(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "film-time" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "film-time" }>,
 ): IAutoMovieGeometryResult {
   const timeline: IAutoMovieGeometryMeasurementInput["timeline"] =
     props.timeline;

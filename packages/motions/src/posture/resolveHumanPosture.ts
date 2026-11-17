@@ -1,24 +1,24 @@
-import {
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  Quaternion,
-  Transform,
-  clampPose,
-} from "@automovie/engine";
+import { Quaternion, Transform, clampPose } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
-import type { IHumanPosture } from "./IHumanPosture";
 import { lowerHumanPosture } from "./lowerHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { turnHumanPosture } from "./turnHumanPosture";
@@ -57,10 +57,10 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 4,096 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
  */
 export function resolveHumanPosture(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   base?: IAutoMoviePose,
-  near?: resolveHumanPosture.INear,
+  near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
 ): IAutoMoviePose {
   return resolveHumanPosture.seeded(body, posture, base, near).pose;
 }
@@ -75,25 +75,6 @@ export namespace resolveHumanPosture {
   /** The least knee flexion of a planted leg, degrees: the knee's greatest extension in stance, about 5 degrees at initial contact and through terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and Pathological Function, ch. 7; provisional, read through secondary summaries, the primary not read). Every planted leg's lowering (`lower`) and every stance course (`walkStanceCourse`) keeps it. */
   export const KNEE: number = 5;
 
-  /** Each limb's nearby fit to continue (`IAutoMovieSwivelNear`). */
-  export type INear = Readonly<
-    Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelNear>>
-  >;
-
-  /** A resolved pose with the seed each limb's fit was chosen at; null where a limb's fit has none. */
-  export interface ISeeded {
-    /** The canonical pose. */
-    pose: IAutoMoviePose;
-
-    /** Each fitted limb's seed. */
-    seeds: Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelSeed | null>>;
-
-    /** Each fitted limb's fit value (`IAutoMovieSeededChainFit.value`), where its fit reports one. */
-    values: Partial<
-      Record<IHumanPosture.Limb, IAutoMovieSeededChainFit["value"]>
-    >;
-  }
-
   /**
    * {@link resolveHumanPosture} with each limb's fit continued from a nearby
    * one where `near` names it (`IAutoMovieSwivelNear`), reporting the seed
@@ -107,11 +88,11 @@ export namespace resolveHumanPosture {
    * @returns The canonical pose and each fitted limb's seed.
    */
   export function seeded(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     base?: IAutoMoviePose,
-    near: INear = {},
-  ): ISeeded {
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
       (base?.joints ?? []).map(
         (
@@ -142,7 +123,8 @@ export namespace resolveHumanPosture {
     );
     // A whole-body rotation turns the root and the world goals before any fit
     // (`turnHumanPosture`), so the limbs are fitted on the turned body.
-    const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
+    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+      turnHumanPosture(posture);
     posture = { ...posture, limbs: turned.limbs };
 
     // The set joints are clamped first and the limbs fitted last, so the clamp
@@ -155,7 +137,12 @@ export namespace resolveHumanPosture {
       },
       body.skeleton,
     );
-    const fitted: ISeeded = refit(body, pose, posture.limbs, near);
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(
+      body,
+      pose,
+      posture.limbs,
+      near,
+    );
     // The digits reach from the hands the arms placed (`HumanDigitFit`).
     return {
       ...fitted,
@@ -184,13 +171,14 @@ export namespace resolveHumanPosture {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure operation that retains nothing.
    */
   export function refit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limbs: IHumanPosture["limbs"],
-    near: INear = {},
-  ): ISeeded {
-    const seeds: ISeeded["seeds"] = {};
-    const values: ISeeded["values"] = {};
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
+    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] =
+      {};
     // An arm with no goal hangs or rests where its joints put it, so its own
     // colliders keep its room from the first fit on.
     const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
@@ -198,12 +186,13 @@ export namespace resolveHumanPosture {
     );
     // Two arms with goals, neither riding the other, are one coupled problem
     // (`HumanLimbPair`), fitted when the first of them is reached.
-    const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
-      left: limbs.leftArm,
-      right: limbs.rightArm,
-    };
+    const arms: Record<"left" | "right", IAutoMovieHumanLimbGoal | undefined> =
+      {
+        left: limbs.leftArm,
+        right: limbs.rightArm,
+      };
     const riding = (
-      goal: IHumanPosture.IGoal | undefined,
+      goal: IAutoMovieHumanLimbGoal | undefined,
       other: "left" | "right",
     ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
     const paired: boolean =
@@ -212,7 +201,7 @@ export namespace resolveHumanPosture {
       !riding(arms.left, "right") &&
       !riding(arms.right, "left");
     for (const limb of resolveHumanPosture.order(limbs)) {
-      const goal: IHumanPosture.IGoal | undefined = limbs[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
       if (goal === undefined) continue;
       if (paired && (limb === "leftArm" || limb === "rightArm")) {
         if (placed.length === 0) {
@@ -236,13 +225,13 @@ export namespace resolveHumanPosture {
       }
       // The other arm's goal, while that arm is still to be fitted: where its
       // wrist will be, for the room the clearance keeps it.
-      const other: IHumanPosture.Limb | undefined =
+      const other: AutoMovieHumanLimb | undefined =
         limb === "leftArm"
           ? "rightArm"
           : limb === "rightArm"
             ? "leftArm"
             : undefined;
-      const coming: IHumanPosture.IGoal | undefined =
+      const coming: IAutoMovieHumanLimbGoal | undefined =
         other === undefined ||
         placed.includes(other === "leftArm" ? "left" : "right")
           ? undefined
@@ -290,7 +279,7 @@ export namespace resolveHumanPosture {
    * @returns The rotation.
    */
   export function heading(
-    posture: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
   ): IAutoMovieQuaternion {
     return Quaternion.normalize(
       Quaternion.multiply(
@@ -319,7 +308,7 @@ export namespace resolveHumanPosture {
    */
   export function angles(
     rotation: IAutoMovieQuaternion,
-  ): Pick<IHumanPosture, "yaw" | "pitch" | "roll"> {
+  ): Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
@@ -345,16 +334,16 @@ export namespace resolveHumanPosture {
 
   /** The posture's root lowered so every planted leg keeps at least `knee` degrees of knee flexion, `KNEE` when absent ({@link lowerHumanPosture}). */
   export function lower(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     knee: number = KNEE,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return lowerHumanPosture(body, posture, knee);
   }
 
   /** The lowering one leg asks of the root, metres; `-Infinity` beyond the leg's reach ({@link lowerHumanPosture.short}). */
   export function short(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     knee: number,
@@ -374,10 +363,10 @@ export namespace resolveHumanPosture {
    * @returns The pose with the limb fitted.
    */
   export function limb(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     near?: IAutoMovieSwivelNear,
   ): IAutoMoviePose {
     return limbSeeded(body, pose, limb, goal, near).pose;
@@ -394,10 +383,10 @@ export namespace resolveHumanPosture {
    * @returns The pose with the limb fitted, and its seed.
    */
   export function limbSeeded(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {
     return HumanLimbFit.fit(
@@ -415,7 +404,7 @@ export namespace resolveHumanPosture {
    * A limb's reference solution read off a pose: the clinical angles of its
    * upper and lower bones. A law solves the limb once at the instant its
    * action is about (the grasp, the clasp, the placement) and hands the
-   * result to every goal of the stroke as `IHumanPosture.IGoal.reference`.
+   * result to every goal of the stroke as `HumanPosture.IGoal.reference`.
    *
    * @param pose The pose the limb was solved in.
    * @param limb The limb.
@@ -423,8 +412,8 @@ export namespace resolveHumanPosture {
    */
   export function reference(
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-  ): IHumanPosture.IReference {
+    limb: AutoMovieHumanLimb,
+  ): IAutoMovieHumanLimbReference {
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
     const read = (
       bone: AutoMovieHumanoidBone,
@@ -438,7 +427,9 @@ export namespace resolveHumanPosture {
   }
 
   /** The order to fit a posture's limbs in ({@link orderHumanLimbs}). */
-  export function order(limbs: IHumanPosture["limbs"]): IHumanPosture.Limb[] {
+  export function order(
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+  ): AutoMovieHumanLimb[] {
     return orderHumanLimbs(limbs);
   }
 
@@ -459,11 +450,11 @@ export namespace resolveHumanPosture {
    * @throws {Error} When the goal is attached to a bone of its own limb's chain, or to a bone the rig lacks.
    */
   export function world(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
-  ): IHumanPosture.IGoal {
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     return HumanLimbFit.world(body, pose, limb, goal);
   }
 }

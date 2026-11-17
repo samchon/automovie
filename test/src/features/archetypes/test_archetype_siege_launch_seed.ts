@@ -1,8 +1,6 @@
 import { type Archetype, createSiegeEngine } from "@automovie/archetypes";
-import {
-  type IAutoMovieProjectileState,
-  projectileAt,
-} from "@automovie/engine";
+import { projectileAt } from "@automovie/engine";
+import type { IAutoMovieProjectileState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Standard gravity, metres per second squared. */

@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieModel,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -35,7 +36,9 @@ export function test_physical_model_provider(): void {
     vclose(profile.centerOfMass, deriveCenterOfMass(model)!, 1e-10) &&
       profile.joints.length === model.skeleton!.bones.length - 1,
   );
-  const replacement: P.ISegment = structuredClone(profile.segments[0]!);
+  const replacement: IAutoMoviePhysicalSegment = structuredClone(
+    profile.segments[0]!,
+  );
   replacement.mass += 1;
   const overridden: P = derivePhysicalProfile(model, {
     density: 1000,

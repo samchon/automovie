@@ -1,10 +1,10 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
-import { IAutoMovieCompiledInstancePrototype } from "./IAutoMovieCompiledInstancePrototype";
-import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
-import { IAutoMovieInstanceChunk } from "./IAutoMovieInstanceChunk";
-import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
+import type { IAutoMovieCompiledInstancePrototype } from "./IAutoMovieCompiledInstancePrototype";
+import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
+import type { IAutoMovieInstanceChunk } from "./IAutoMovieInstanceChunk";
+import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
+import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compact generated runtime for a non-formation instance set. Bounds summarize slot positions; radius estimates and slot scale feed viewer culling without guaranteeing enclosure of every visible model.

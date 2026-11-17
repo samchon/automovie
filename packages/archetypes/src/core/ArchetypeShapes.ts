@@ -1,7 +1,8 @@
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -43,13 +44,13 @@ export namespace ArchetypeShapes {
   export function of(
     parts: readonly IAutoMovieModelPart[],
     cells: ArchetypeConvexCell.Table = new Map(),
-  ): IAutoMoviePhysicalProfile.IShape[] {
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = [];
+  ): IAutoMoviePhysicalShape[] {
+    const shapes: IAutoMoviePhysicalShape[] = [];
     for (const part of parts) {
       const base: {
         id: string;
         material: string;
-        transform: IAutoMoviePhysicalProfile.ITransform;
+        transform: IAutoMovieRigidTransform;
       } = {
         id: part.id,
         material: MATERIAL,
@@ -74,7 +75,7 @@ export namespace ArchetypeShapes {
         continue;
       }
       if (part.geometry.type !== "primitive") continue;
-      const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+      const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
       switch (shape.type) {
         case "box":
           shapes.push({

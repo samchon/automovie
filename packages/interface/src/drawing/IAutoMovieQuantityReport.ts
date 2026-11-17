@@ -1,5 +1,5 @@
-import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
-import { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
+import type { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
+import type { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
 
 /**
  * The current seven measured quantity subjects and their declared gaps.

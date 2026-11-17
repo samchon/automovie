@@ -1,11 +1,14 @@
 import { createDrinkware } from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,8 +41,8 @@ export function test_human_motion_prop_drop(): void {
     kind: "mug",
   });
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "drop",

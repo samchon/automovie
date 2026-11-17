@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -22,12 +23,11 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export function test_physical_support_feedback(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
     profile.segments.map(
-      (segment: (typeof profile.segments)[number]): [string, P.ITransform] => [
-        segment.bone,
-        segment.neutral,
-      ],
+      (
+        segment: (typeof profile.segments)[number],
+      ): [string, IAutoMovieRigidTransform] => [segment.bone, segment.neutral],
     ),
   );
   const pattern: IAutoMovieFootfallPattern = {
@@ -61,7 +61,7 @@ export function test_physical_support_feedback(): void {
       }),
     ),
   };
-  const goal: P.ITransform["position"] = {
+  const goal: IAutoMovieRigidTransform["position"] = {
     ...targets["support-0"]!.position,
     x: targets["support-0"]!.position.x + 0.2,
   };
@@ -89,13 +89,13 @@ export function test_physical_support_feedback(): void {
     if (error > 0.005) failures.push(`${limb.bone}: endpoint ${error} m`);
   }
   for (const joint of profile.joints) {
-    const parent: P.ITransform = result.targets[joint.parent]!;
-    const child: P.ITransform = result.targets[joint.child]!;
-    const a: P.ITransform["position"] = Vector3.add(
+    const parent: IAutoMovieRigidTransform = result.targets[joint.parent]!;
+    const child: IAutoMovieRigidTransform = result.targets[joint.child]!;
+    const a: IAutoMovieRigidTransform["position"] = Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
     );
-    const b: P.ITransform["position"] = Vector3.add(
+    const b: IAutoMovieRigidTransform["position"] = Vector3.add(
       child.position,
       Quaternion.rotateVector(child.rotation, joint.childFrame.position),
     );

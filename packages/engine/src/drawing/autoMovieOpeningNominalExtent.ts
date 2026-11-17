@@ -1,12 +1,13 @@
 import {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltOpening,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingTriangle,
   IAutoMovieModel,
+  type IAutoMovieOpeningNominalExtent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
 import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
@@ -38,7 +39,7 @@ import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
 export const autoMovieOpeningNominalExtent = (
   design: IAutoMovieDrawingDesignIndex,
   opening: IAutoMovieBuiltOpening,
-): { basis: "profile" | "fill"; width: number; height: number } | null => {
+): IAutoMovieOpeningNominalExtent.IResult => {
   if (opening.profile !== undefined)
     return { basis: "profile", ...autoMovieOpeningExtent(opening.profile) };
   const element: IAutoMovieBuiltElement | undefined =

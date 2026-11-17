@@ -1,4 +1,7 @@
-import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
+import type {
+  IAutoMovieProductionFrameRate,
+  IAutoMovieResolveProductionFrameRate,
+} from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
@@ -19,13 +22,9 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one record per call; callers that sample many frames resolve it per frame, which is constant work on two integers.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the returned pair only and retains nothing.
  */
-export function resolveProductionFrameRate(props: {
-  /** Display frames per second; must equal the exact rate when one is given. */
-  fps: number;
-
-  /** Exact rate; omitted for an integer `fps`. */
-  frameRate?: IAutoMovieProductionFrameRate;
-}): IAutoMovieProductionFrameRate {
+export function resolveProductionFrameRate(
+  props: IAutoMovieResolveProductionFrameRate.IProps,
+): IAutoMovieProductionFrameRate {
   const rate: IAutoMovieProductionFrameRate = canonicalProductionFrameRate(
     props.frameRate ?? props.fps,
   );

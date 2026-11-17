@@ -1,21 +1,25 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -90,10 +94,10 @@ import { seated } from "./seated";
  */
 export namespace rise {
   /** The action's name. */
-  export const name: HumanActionName = "rise";
+  export const name: AutoMovieMotionHumanActionName = "rise";
 
   /** Cancel table: a rise cut before seat-off returns to sitting; after standing it may become anything a stand can. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     sit: [
       { window: [0, "seatOff"], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -112,22 +116,6 @@ export namespace rise {
   /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees (12 provisional, Shepherd and Koh 1996; 20 the ankle's dorsiflexion range). */
   export const SHANK: readonly number[] = [12, 14, 16, 18, 20];
 
-  /** Parameters; the rise starts from the seated entry. */
-  export interface IParams {
-    /**
-     * Where the body gets off a high seat: ahead of it, or to one side of a
-     * seat sat astride. When absent, the left of a seat the entry's base
-     * names as sat astride (the side horses and cycles are mounted from, a
-     * provisional convention) and ahead of any other. Read only where the
-     * feet are off the floor; a seat inside the band is risen from over the
-     * planted feet.
-     */
-    to?: "front" | "left" | "right";
-
-    /** How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /**
    * Plan a rise.
    *
@@ -136,9 +124,9 @@ export namespace rise {
    * @throws {HumanRefusal} When the feet stand too far ahead to rise over them.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const under: number = seated.floor(body, context.entry);
     const r: number = (start.y - under) / seated.popliteal(body);
@@ -159,7 +147,7 @@ export namespace rise {
       (1 + 0.6 * (1 - r)) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
-    const rests: HumanBase.ISeat["armrests"] =
+    const rests: IAutoMovieMotionHumanBase.ISeat["armrests"] =
       context.entry.base.kind === "seated"
         ? context.entry.base.seat?.armrests
         : undefined;
@@ -192,7 +180,7 @@ export namespace rise {
     const from = context.entry.from;
     const sat =
       from !== undefined && from.family === "sit"
-        ? (from.params as { seat?: seated.ISeat }).seat
+        ? (from.params as { seat?: IAutoMovieMotionHumanSeated.ISeat }).seat
         : undefined;
     if (sat !== undefined)
       scoot = Math.min(
@@ -248,7 +236,7 @@ export namespace rise {
       pitch0 + (peak - pitch0) * minimumJerk(t / flex).s;
     const seatedAt =
       (peak: number, feetAt: Record<"left" | "right", IAutoMovieVector3>) =>
-      (t: number): IHumanPosture => {
+      (t: number): IAutoMovieMotionHumanPosture => {
         const tilt = HumanTrunk.incline(
           { ...stand.relaxed(body), ...upright },
           pitchAt(t, peak),
@@ -337,11 +325,16 @@ export namespace rise {
     const legsAt = (
       root: IAutoMovieVector3,
       t: number,
-    ): IHumanPosture["limbs"] => {
-      const legs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: footAt("left", t).ankle,
-        right: footAt("right", t).ankle,
-      });
+    ): IAutoMovieMotionHumanPosture["limbs"] => {
+      const legs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
+        body,
+        root,
+        yaw,
+        {
+          left: footAt("left", t).ankle,
+          right: footAt("right", t).ankle,
+        },
+      );
       for (const side of ["left", "right"] as const) {
         const limb: "leftLeg" | "rightLeg" =
           side === "left" ? "leftLeg" : "rightLeg";
@@ -365,7 +358,7 @@ export namespace rise {
     const seatOff: number = prepared + away;
     const duration: number = prepared + rising;
     const share = (t: number): number => t / duration;
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "seat",
         kind: "seat",
@@ -376,7 +369,11 @@ export namespace rise {
     ];
     for (const side of ["left", "right"] as const) {
       const swing: [number, number] | undefined = swings[side];
-      const windows: [IHumanContactWindow["part"], number, number][] =
+      const windows: [
+        IAutoMovieMotionHumanContactWindow["part"],
+        number,
+        number,
+      ][] =
         swing === undefined
           ? [[`${side}Foot`, 0, 1]]
           : [
@@ -405,9 +402,9 @@ export namespace rise {
       ],
       contacts,
       base: { kind: "standing" },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const joints: IHumanPosture["joints"] = {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...stand.relaxed(body),
           ...upright,
         };
@@ -467,14 +464,17 @@ export namespace rise {
           pitch: tilt.pitch,
           roll: 0,
         });
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, {
-          root,
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          limbs: stand.legs(body, root, yaw, drawn),
-        });
+        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+          body,
+          {
+            root,
+            yaw,
+            pitch: tilt.pitch,
+            roll: 0,
+            joints: tilt.joints,
+            limbs: stand.legs(body, root, yaw, drawn),
+          },
+        );
         return seated.rested(
           body,
           posture,

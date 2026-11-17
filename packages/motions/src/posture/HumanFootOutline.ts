@@ -6,12 +6,13 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * A foot's outline on its sole: the corners of the outline of the foot's
@@ -49,11 +50,11 @@ export namespace HumanFootOutline {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held per live body in a weak map.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-  ): readonly resolveAutoMovieHumanoidSurfaces.IFrame[] {
+  ): readonly IAutoMovieHumanoidSurfaces.IFrame[] {
     let found:
-      | Record<"left" | "right", resolveAutoMovieHumanoidSurfaces.IFrame[]>
+      | Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
       | undefined = OUTLINES.get(body);
     if (found === undefined) {
       const tools = AutoMovieHumanoidSurfaceRays.tools(
@@ -62,15 +63,15 @@ export namespace HumanFootOutline {
       );
       const read = (
         s: "left" | "right",
-      ): resolveAutoMovieHumanoidSurfaces.IFrame[] => {
+      ): IAutoMovieHumanoidSurfaces.IFrame[] => {
         const Side: "Left" | "Right" = s === "left" ? "Left" : "Right";
-        const heel: resolveAutoMovieHumanoidSurfaces.IFrame =
+        const heel: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.sockets[`heel${Side}`];
         const floor: number = resolveAutoMovieHumanoidSurfaces.place(
           heel,
           tools.at(heel.bone),
         ).point.y;
-        const out: resolveAutoMovieHumanoidSurfaces.IFrame[] = [];
+        const out: IAutoMovieHumanoidSurfaces.IFrame[] = [];
         for (const bone of [`${s}Foot`, `${s}Toes`] as const) {
           const segment = body.profile.segments.find(
             (x): boolean => x.bone === bone,
@@ -106,8 +107,8 @@ export namespace HumanFootOutline {
 
 /** Each body's sole outlines, made once. */
 const OUTLINES: WeakMap<
-  IHumanBody,
-  Record<"left" | "right", resolveAutoMovieHumanoidSurfaces.IFrame[]>
+  IAutoMovieMotionHumanBody,
+  Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
 > = new WeakMap();
 
 /** The horizontal directions a round collider's outline is read along, every 22.5 degrees. */
@@ -126,8 +127,8 @@ const ROUND: readonly IAutoMovieVector3[] = Array.from(
  * a capsule's two end spheres.
  */
 function shapePoints(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
 ): IAutoMovieVector3[] {
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(
     pose.rotation,

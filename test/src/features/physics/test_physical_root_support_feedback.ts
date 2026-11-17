@@ -1,5 +1,8 @@
 import { Vector3, planPhysicalRootSupportTargets } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -26,9 +29,10 @@ export function test_physical_root_support_feedback(): void {
     iterations: 48,
     tolerance: 0.0001,
   };
-  const targets: Record<string, P.ITransform> = body.targets[0]!.segments;
+  const targets: Record<string, IAutoMovieRigidTransform> =
+    body.targets[0]!.segments;
   const before: string = JSON.stringify(targets);
-  const actual: P.ITransform = structuredClone(targets.body!);
+  const actual: IAutoMovieRigidTransform = structuredClone(targets.body!);
   actual.position.x += 0.03;
   const planned: ReturnType<typeof planPhysicalRootSupportTargets> =
     planPhysicalRootSupportTargets({

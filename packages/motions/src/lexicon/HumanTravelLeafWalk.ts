@@ -1,11 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanWalkFacing,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walk } from "../actions/walk";
-import type { walkFacing } from "../actions/walkFacing";
 import { walkPaced } from "../actions/walkPaced";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 
 /**
  * The walk a person takes with a door they pull open, the hand on its
@@ -36,7 +39,7 @@ export namespace HumanTravelLeafWalk {
   /** What the walk is planned from. */
   export interface IProps {
     /** The door law's context; its entry is where the walk starts. */
-    context: IHumanActionContext<object>;
+    context: IAutoMovieMotionHumanActionContext<object>;
 
     /** The action's length, seconds. */
     seconds: number;
@@ -76,9 +79,9 @@ export namespace HumanTravelLeafWalk {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per opening.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and retains nothing.
    */
-  export function plan(props: IProps): IHumanActionPlan | null {
+  export function plan(props: IProps): IAutoMovieMotionHumanActionPlan | null {
     const { context, seconds, take } = props;
-    const entry: IHumanActionContext["entry"] = context.entry;
+    const entry: IAutoMovieMotionHumanActionContext["entry"] = context.entry;
     const yaw0: number = entry.posture.yaw;
     const mid0: IAutoMovieVector3 = {
       x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
@@ -145,11 +148,11 @@ export namespace HumanTravelLeafWalk {
       y: 0,
       z: (-s * bx + (1 - c) * bz) / det,
     };
-    const facing: walkFacing.IFacing = {
+    const facing: IAutoMovieMotionHumanWalkFacing.IFacing = {
       toward: hinge,
       turn: turned(heading(Vector3.subtract(hinge, mid0)), yaw0),
     };
-    const walked: IHumanActionPlan = walk.plan({
+    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
       ...context,
       params: {
         to: last.mid,
@@ -157,7 +160,7 @@ export namespace HumanTravelLeafWalk {
         facing,
         armSwing: 0,
       },
-    } as IHumanActionContext<walk.IParams>);
+    } as IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>);
     // The person drives the door, so the walk keeps pace with it, not
     // behind it: at each second the body has gone the share of its way the
     // stance it asks has gone of its own, and once the leaf rests the walk

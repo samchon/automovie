@@ -1,16 +1,18 @@
-﻿import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanBalance } from "../../everyday/HumanBalance";
 import { HumanProxemics } from "../../everyday/HumanProxemics";
 import { rest } from "../../everyday/rest";
-import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -99,20 +101,21 @@ export function everydayCases(
   const within = everydayVerdicts.within;
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     const c: everydayCaseKit.IContext = { id, man, body, suffix };
-    const one = (chain: HumanChain): HumanPerformance =>
-      everydayCaseKit.one(c, chain);
+    const one = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain);
 
     if (wants("approach")) {
       const partner: humanPolygonMan.IPolygonMan = MotionBodies.population(
         id === "f-small" ? "m-tall" : "f-small",
       );
-      const performance: HumanPerformance = perform(
+      const performance: IAutoMovieMotionHumanPerformance = perform(
         [
           [man, { x: 0, y: 0, z: 0 }, 0],
           [partner, { x: 0.4, y: 0, z: 3.2 }, 180],
@@ -180,14 +183,14 @@ export function everydayCases(
         },
         { x: 0, y: 0, z: 1.2 },
       ];
-      const targets: AutoMovieMotionTarget[] = points.map(
-        (at: IAutoMovieVector3): AutoMovieMotionTarget => ({
+      const targets: IAutoMovieMotionTarget[] = points.map(
+        (at: IAutoMovieVector3): IAutoMovieMotionTarget => ({
           kind: "point",
           at,
           frame: "world",
         }),
       );
-      const performance: HumanPerformance = one(
+      const performance: IAutoMovieMotionHumanPerformance = one(
         HumanChain.subject("a")
           .look({ target: targets[0]!, seconds: 1.2 })
           .look({ target: targets[1]!, seconds: 1.2 }),
@@ -237,7 +240,10 @@ export function everydayCases(
     if (wants("gesture")) out.push(...everydayGestureCases(c));
 
     if (wants("rest")) {
-      const places: [rest.Place, rest.Place][] = [
+      const places: [
+        IAutoMovieMotionHumanRest.Place,
+        IAutoMovieMotionHumanRest.Place,
+      ][] = [
         ["pocket", "pocket"],
         ["hip", "hip"],
         ["crossed", "crossed"],
@@ -246,10 +252,10 @@ export function everydayCases(
         ["behindHead", "behindHead"],
         ["side", "chinRest"],
       ];
-      let chain: HumanChain = HumanChain.subject("a");
+      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
       for (const [left, right] of places)
         chain = chain.rest({ left, right, seconds: 1.5 });
-      const performance: HumanPerformance = one(chain);
+      const performance: IAutoMovieMotionHumanPerformance = one(chain);
       const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
         performance,
         "a",
@@ -296,7 +302,7 @@ export function everydayCases(
     out.push(...everydayPostureCases(c, wants));
 
     if (wants("brace")) {
-      const performance: HumanPerformance = one(
+      const performance: IAutoMovieMotionHumanPerformance = one(
         HumanChain.subject("a").brace({
           toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
           kind: "push",

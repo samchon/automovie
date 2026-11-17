@@ -1,14 +1,18 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmDifferential } from "../posture/HumanArmDifferential";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
@@ -58,16 +62,14 @@ export namespace AutoMovieMotionHumanArmFollow {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function keeps the grid's corrections, one per frame of the hold and its release.
    */
   export function follower(
-    body: IHumanBody,
-    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
-    span: AutoMovieMotionHumanArmPlanned.ISpan,
-    plan: HumanArmTrajectory.Trajectory,
-    before: (seconds: number) => IHumanPosture,
-  ): (seconds: number) => HumanArmClearance.IArm {
-    const setup: HumanArmGeometry.ISetup = HumanArmGeometry.prepare(
-      body,
-      carry.side,
-    );
+    body: IAutoMovieMotionHumanBody,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    plan: IAutoMovieMotionHumanArmTrajectory.Trajectory,
+    before: (seconds: number) => IAutoMovieMotionHumanPosture,
+  ): (seconds: number) => IAutoMovieMotionHumanArmClearance.IArm {
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup =
+      HumanArmGeometry.prepare(body, carry.side);
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
     const corrections: number[][] = [zero];
     let settled: boolean = false;
@@ -85,7 +87,7 @@ export namespace AutoMovieMotionHumanArmFollow {
       const j: number = corrections.length;
       const t: number = at(j);
       const previous: number[] = corrections[j - 1]!;
-      const posture: IHumanPosture = before(t);
+      const posture: IAutoMovieMotionHumanPosture = before(t);
       const here: number[] = HumanArmGeometry.encode(setup, plan(t));
       const there: number[] = HumanArmGeometry.encode(setup, plan(at(j - 1)));
       const read:
@@ -117,17 +119,20 @@ export namespace AutoMovieMotionHumanArmFollow {
           ],
           arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
         });
-      const frame: HumanArmGeometry.IFrame = context.frames[0]![0]!;
-      const placed = (q: readonly number[]): HumanArmGeometry.IPlaced =>
+      const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+        context.frames[0]![0]!;
+      const placed = (
+        q: readonly number[],
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         HumanArmGeometry.placed(setup, frame, q, false);
       const contact = (
-        p: HumanArmGeometry.IPlaced,
+        p: IAutoMovieMotionHumanArmGeometry.IPlaced,
         offset: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
         Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, offset));
       const travel = (a: readonly number[], b: readonly number[]): number => {
-        const p: HumanArmGeometry.IPlaced = placed(a);
-        const q: HumanArmGeometry.IPlaced = placed(b);
+        const p: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(a);
+        const q: IAutoMovieMotionHumanArmGeometry.IPlaced = placed(b);
         let most: number = 0;
         for (const i of [
           HumanArmGeometry.ELBOW,
@@ -189,7 +194,7 @@ export namespace AutoMovieMotionHumanArmFollow {
       )
         settled = true;
     };
-    return (seconds: number): HumanArmClearance.IArm => {
+    return (seconds: number): IAutoMovieMotionHumanArmClearance.IArm => {
       if (seconds <= span.ready) return plan(seconds);
       while (
         !settled &&

@@ -1,9 +1,10 @@
 import { Quaternion, physicalShapeBounds } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePrimitiveShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,7 +29,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
     part.transform === undefined
   )
     throw new RangeError(`Rest requires a transformed primitive: ${part.id}`);
-  const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+  const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
   if (shape.type === "plane") return Infinity;
   const dimensions: readonly number[] =
     shape.type === "box"
@@ -59,10 +60,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
   );
   if (!(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON))
     throw new RangeError(`Rest requires a unit rotation: ${part.id}`);
-  const base: Pick<
-    IAutoMoviePhysicalProfile.IShape,
-    "id" | "material" | "transform"
-  > = {
+  const base: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
     id: part.id,
     material: "rest-bound",
     transform: {
@@ -70,7 +68,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
       rotation: Quaternion.normalize(part.transform.rotation),
     },
   };
-  const placement: IAutoMoviePhysicalProfile.ITransform = {
+  const placement: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };

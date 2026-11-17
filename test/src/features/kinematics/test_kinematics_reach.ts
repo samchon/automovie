@@ -1,13 +1,13 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  IAutoMovieResolvedBone,
   reachPose,
   resolvePose,
 } from "@automovie/engine";
 import {
   IAutoMovieBone,
   IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,

@@ -2,10 +2,10 @@ import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieProductionFrameRate,
+  type IAutoMovieProductionRenderFrame,
+  type IAutoMovieProductionRenderLayer,
 } from "@automovie/interface";
 
-import { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
-import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLayer";
 import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 
 /**

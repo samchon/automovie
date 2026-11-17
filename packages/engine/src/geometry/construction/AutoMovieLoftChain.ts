@@ -1,3 +1,10 @@
+import type {
+  IAutoMovieLoftCapSource,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftSectionFrame,
+} from "@automovie/interface";
+
 import { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
@@ -6,7 +13,6 @@ import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftPoint } from "./AutoMovieLoftPoint";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * Read a chain from its immutable principal values and explicit interpolation/source data.
@@ -156,7 +162,7 @@ export namespace AutoMovieLoftChain {
     const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
     const [lo, hi]: [number, number] = bracket(chain, y);
     if (pick === sectionArrays) {
-      const source: AutoMovieLoftCoefficientSource.IControls | null =
+      const source: IAutoMovieLoftCoefficientSource.IControls | null =
         AutoMovieLoftCoefficientSource.controls(chain, y);
       if (source !== null)
         return AutoMovieStationHermite.combine(
@@ -223,8 +229,8 @@ export namespace AutoMovieLoftChain {
   export function frame(
     chain: IAutoMovieLoftChain,
     s: number,
-  ): AutoMovieLoftFrame.IFrame {
-    const cap: AutoMovieLoftCapSource.ISource | null =
+  ): IAutoMovieLoftSectionFrame {
+    const cap: IAutoMovieLoftCapSource.ISource | null =
       AutoMovieLoftCapSource.at(chain, s);
     if (cap !== null) return cap.axis.at(s);
     const [lo, hi]: [number, number] = bracket(chain, s);
@@ -247,7 +253,7 @@ export namespace AutoMovieLoftChain {
     s: number,
   ): [number, number, number] {
     const [x, z]: [number, number] = center(chain, coefficients(chain, s));
-    const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = frame(chain, s);
     const p: [number, number, number] = AutoMovieLoftFrame.place(f, x, z);
 
     // The mean lift over uniform phase is the control-value mean, as for
@@ -337,7 +343,7 @@ export namespace AutoMovieLoftChain {
     s: number,
     points: readonly (readonly [number, number, number])[],
   ): [number, number][] {
-    const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = frame(chain, s);
     return points.map(
       (p: readonly [number, number, number]): [number, number] =>
         AutoMovieLoftFrame.local(f, p),
@@ -403,10 +409,7 @@ export namespace AutoMovieLoftChain {
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
     s: number,
-  ): (t: number) => {
-    p: [number, number, number];
-    t: [number, number, number];
-  } {
+  ): IAutoMovieLoftChain.IPhaseSamplerResult {
     return AutoMovieLoftPoint.phaseSampler(chain, s);
   }
 
@@ -434,7 +437,7 @@ export namespace AutoMovieLoftChain {
   }
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
-  function normal(f: AutoMovieLoftFrame.IFrame): [number, number, number] {
+  function normal(f: IAutoMovieLoftSectionFrame): [number, number, number] {
     return [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],

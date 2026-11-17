@@ -1,6 +1,6 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate";
 
 /**
  * One page, sheet, or image of a design reference and how its own coordinates

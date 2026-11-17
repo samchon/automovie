@@ -1,7 +1,16 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshPlaneCut,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOrderedContour,
+  IAutoMovieRecoveryOrderedCuts,
+  IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
-import type { AutoMovieRecoveryOrderedLineage } from "../observation/AutoMovieRecoveryOrderedLineage";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
 import { RecoveryScalarIndex } from "./RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
 import { cutExact } from "./mesh-observations/cutExact";
@@ -25,16 +34,13 @@ import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call borrows source arrays and owns O(V+T) preparation plus active cut/binding data; its output grows with all requested contour points, witnesses and face addresses. Temporary references expire on return or throw and copied results transfer to the caller. There is no independent aggregate output-byte limit, handle, background task or cancellation listener.
  */
 export function observeRecoveryOrderedCuts(
-  input: AutoMovieRecoveryOrderedLineage.Input,
-): AutoMovieRecoveryOrderedLineage.Cuts {
-  const prepared: ReturnType<typeof prepareRecoveryMeshIncidence> =
+  input: IAutoMovieRecoveryOrderedLineage.Input,
+): IAutoMovieRecoveryOrderedCuts {
+  const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
-  const frame: ReturnType<typeof planeFrame> = planeFrame(
-    [0, 0, 0],
-    input.axis,
-    input.reference,
-  );
-  const physicalFrame: AutoMovieRecoveryOrderedLineage.Cuts["frame"] = {
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+    planeFrame([0, 0, 0], input.axis, input.reference);
+  const physicalFrame: IAutoMovieRecoveryOrderedCuts["frame"] = {
     originMm: [...frame.origin],
     n: [...frame.n],
     u: [...frame.u],
@@ -42,7 +48,7 @@ export function observeRecoveryOrderedCuts(
   };
   if (
     ![frame.n, frame.u, frame.v].every(
-      (v: C.Vector): boolean =>
+      (v: Readonly<AutoMovieVector3Tuple>): boolean =>
         v.every(Number.isFinite) && Math.abs(Math.hypot(...v) - 1) < 1e-10,
     )
   )
@@ -73,18 +79,18 @@ export function observeRecoveryOrderedCuts(
       return value;
     });
   const heights: number[] = input.verticesMm.map(
-    (p: C.Vector): number =>
+    (p: Readonly<AutoMovieVector3Tuple>): number =>
       p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2],
   );
-  const index: ReturnType<typeof RecoveryScalarIndex.create> =
+  const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
     RecoveryScalarIndex.create(input.triangles, heights);
-  const cut: ReturnType<typeof cutExact.prepare> = cutExact.prepare(
+  const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
     prepared.mesh,
     heights,
     true,
     true,
   );
-  const sections: AutoMovieRecoveryOrderedLineage.Cuts["sections"] = [];
+  const sections: IAutoMovieRecoveryOrderedCuts["sections"] = [];
   const seen: Set<number> = new Set();
   for (const saved of input.savedSections) {
     if (
@@ -99,7 +105,7 @@ export function observeRecoveryOrderedCuts(
         "Saved ordered cut has a duplicate plane or foreign source/frame binding",
       );
     seen.add(saved.coordinateMm);
-    const plane: ReturnType<typeof planeFrame> = {
+    const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
       ...frame,
       origin: [
         frame.n[0] * saved.coordinateMm,
@@ -112,7 +118,7 @@ export function observeRecoveryOrderedCuts(
       saved.coordinateMm,
       index.cut(saved.coordinateMm),
     );
-    const bound: ReturnType<typeof bindRecoverySavedSectionCuts> =
+    const bound: ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> =
       bindRecoverySavedSectionCuts({
         saved: {
           ...saved,
@@ -133,11 +139,11 @@ export function observeRecoveryOrderedCuts(
         checkpoint: (): void => {},
       });
     if (bound.status !== "bound") throw new Error(bound.diagnostic);
-    const contours: AutoMovieRecoveryOrderedLineage.Contour[] = raw.map(
+    const contours: IAutoMovieRecoveryOrderedContour[] = raw.map(
       (
         c: (typeof raw)[number],
         contourIndex: number,
-      ): AutoMovieRecoveryOrderedLineage.Contour => {
+      ): IAutoMovieRecoveryOrderedContour => {
         const cumulative: number[] = [0];
         for (let i: number = 1; i < c.pts.length; i++)
           cumulative.push(
@@ -150,13 +156,13 @@ export function observeRecoveryOrderedCuts(
           throw new Error(
             "The official cutter omitted an ordered source segment",
           );
-        const segments: AutoMovieRecoveryOrderedLineage.Contour["segments"] = (
+        const segments: IAutoMovieRecoveryOrderedContour["segments"] = (
           c.orderedSegments ?? []
         ).map(
           (
             s: NonNullable<typeof c.orderedSegments>[number],
             i: number,
-          ): AutoMovieRecoveryOrderedLineage.Contour["segments"][number] => {
+          ): IAutoMovieRecoveryOrderedContour["segments"][number] => {
             const to: number = (i + 1) % c.pts.length;
             const startMm: number = cumulative[i]!;
             const endMm: number =
@@ -190,7 +196,7 @@ export function observeRecoveryOrderedCuts(
           points: c.pts.map(
             (
               p: (typeof c.pts)[number],
-            ): AutoMovieRecoveryOrderedLineage.Contour["points"][number] => ({
+            ): IAutoMovieRecoveryOrderedContour["points"][number] => ({
               p: [...p.p],
               a: p.a,
               b: p.b,
@@ -202,7 +208,7 @@ export function observeRecoveryOrderedCuts(
                       (
                         e: NonNullable<typeof p.sourceEdges>[number],
                       ): NonNullable<
-                        AutoMovieRecoveryOrderedLineage.Contour["points"][number]["sourceEdges"]
+                        IAutoMovieRecoveryOrderedContour["points"][number]["sourceEdges"]
                       >[number] => ({ ...e, pointMm: [...e.pointMm] }),
                     ),
                   }),
@@ -234,6 +240,9 @@ export function observeRecoveryOrderedCuts(
  * not independently refuse. No approximation or coordinate correction occurs.
  *
  */
-function distance(a: C.Vector, b: C.Vector): number {
+function distance(
+  a: Readonly<AutoMovieVector3Tuple>,
+  b: Readonly<AutoMovieVector3Tuple>,
+): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }

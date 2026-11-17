@@ -1,4 +1,4 @@
-import { IAutoMovieCameraClearanceFinding } from "./IAutoMovieCameraClearanceFinding";
+import type { IAutoMovieCameraClearanceFinding } from "./IAutoMovieCameraClearanceFinding";
 
 /**
  * Reproducible physical-clearance result for one realized camera take.

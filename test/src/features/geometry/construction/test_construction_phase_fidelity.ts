@@ -4,11 +4,17 @@ import {
   AutoMovieLoftPhaseSource,
   AutoMovieSplineCurve,
   AutoMovieViewAxis,
-  type AutoMovieViewConic,
   AutoMovieViewLoft,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftPhaseSource,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { ConstructionLoftSectionAdapters } from "../../internal/construction/ConstructionLoftSectionAdapters";
 import { ConstructionLoftSectionBoundary } from "../../internal/construction/ConstructionLoftSectionBoundary";
@@ -42,8 +48,8 @@ export function test_construction_phase_fidelity(): void {
         try {
           const a: number = scale * (swap ? aspect : 1);
           const b: number = scale * (swap ? 1 : aspect);
-          const original: AutoMovieViewSection.ISection = ellipse(a, b);
-          const prepared: AutoMovieLoftPhaseSource.ISource | string =
+          const original: IAutoMovieViewSection.ISection = ellipse(a, b);
+          const prepared: IAutoMovieLoftPhaseSource.ISource | string =
             AutoMovieLoftPhaseSource.prepare(
               [0, 1],
               [original.conics, original.conics],
@@ -52,9 +58,9 @@ export function test_construction_phase_fidelity(): void {
             failures.push(prepared);
             continue;
           }
-          const candidate: AutoMovieLoftPhaseSource.IStation =
+          const candidate: IAutoMovieLoftPhaseSource.IStation =
             AutoMovieLoftPhaseSource.station(prepared, 0.37);
-          const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+          const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
             part(a, b),
           );
           if (result.chain === null || result.surface === null) {
@@ -109,7 +115,7 @@ export function test_construction_phase_fidelity(): void {
             const legacy: number[] = AutoMovieSplineCurve.jet(old, 32, phi);
             if (outside(legacy, a, b)) oldOutside++;
             if (inward(legacy)) oldInward++;
-            const final: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+            const final: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
               result.chain,
               0.37,
               phi,
@@ -209,7 +215,7 @@ export function test_construction_phase_fidelity(): void {
 }
 
 /** An unchanged source ellipse, prepared without girth quadrature. */
-function ellipse(a: number, b: number): AutoMovieViewSection.ISection {
+function ellipse(a: number, b: number): IAutoMovieViewSection.ISection {
   return AutoMovieViewSection.bare({ extents: [a, b, a, b] }, [
     Math.SQRT2 - 1,
     Math.SQRT2 - 1,
@@ -282,26 +288,26 @@ function part(a: number, b: number): IAutoMovieViewPart {
 
 /** Independent natural-spline values, copying, chain rules and an off-layer failure witness. */
 function interpolation(failures: string[]): void {
-  const curves: AutoMovieViewConic.ICurve[] = [1, 2, 1].map(
-    (scale: number): AutoMovieViewConic.ICurve =>
+  const curves: IAutoMovieViewConic.ICurve[] = [1, 2, 1].map(
+    (scale: number): IAutoMovieViewConic.ICurve =>
       ellipse(scale, 2 * scale).conics,
   );
-  const made: AutoMovieLoftPhaseSource.ISource | string =
+  const made: IAutoMovieLoftPhaseSource.ISource | string =
     AutoMovieLoftPhaseSource.prepare([0, 1, 2], curves);
   if (typeof made === "string") {
     failures.push(made);
     return;
   }
-  const jsonCopy: AutoMovieLoftPhaseSource.ISource = JSON.parse(
+  const jsonCopy: IAutoMovieLoftPhaseSource.ISource = JSON.parse(
     JSON.stringify(made),
-  ) as AutoMovieLoftPhaseSource.ISource;
-  const regular: AutoMovieLoftPhaseSource.IStation =
+  ) as IAutoMovieLoftPhaseSource.ISource;
+  const regular: IAutoMovieLoftPhaseSource.IStation =
     AutoMovieLoftPhaseSource.station(made, 0.5);
-  const badWeights: AutoMovieLoftPhaseSource.IStation = {
+  const badWeights: IAutoMovieLoftPhaseSource.IStation = {
     ...regular,
     weights: [[NaN, 0, 0], regular.weights[1]!, regular.weights[2]!],
   };
-  const badSource: AutoMovieLoftPhaseSource.IStation = {
+  const badSource: IAutoMovieLoftPhaseSource.IStation = {
     ...regular,
     source: {
       ...made,
@@ -397,11 +403,11 @@ function interpolation(failures: string[]): void {
     ) !== "string"
   )
     failures.push("failed native source selected fallback geometry");
-  const danger: AutoMovieLoftPhaseSource.ISource | string =
+  const danger: IAutoMovieLoftPhaseSource.ISource | string =
     AutoMovieLoftPhaseSource.prepare(
       [0, 1, 2, 3],
       [1, 1, 10, 1].map(
-        (r: number): AutoMovieViewConic.ICurve => ellipse(r, r).conics,
+        (r: number): IAutoMovieViewConic.ICurve => ellipse(r, r).conics,
       ),
     );
   if (typeof danger === "string") failures.push(danger);

@@ -1,17 +1,20 @@
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionWeaponContact,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";
 import { KickRedirect } from "./KickRedirect";
@@ -63,43 +66,12 @@ import { StrikingWeapon } from "./StrikingWeapon";
  */
 export namespace kick {
   /** The action's name. */
-  export const name: HumanActionName = "kick";
+  export const name: AutoMovieMotionHumanActionName = "kick";
 
   /** Cancel table: a round kick redirects into another until its chamber key. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     kick: [{ window: [0, "chamber"], kind: "redirect", entry: 0 }],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the leg, the interface's motion target, the accuracy union and a feint flag.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
-   */
-  export interface IParams {
-    /** The technique: the round kick with the shin, or the push kick (teep) with the ball of the foot. */
-    technique: "round" | "push";
-
-    /** Which leg: the stance's lead or rear; rear for a round kick and lead for a push kick when absent. */
-    leg?: "lead" | "rear";
-
-    /** What it strikes. */
-    at: AutoMovieMotionTarget;
-
-    /** Declared accuracy; `hit` when absent. */
-    accuracy?: StrikingQuality.Accuracy;
-
-    /** A feint: the kick shows its chamber and returns without extending. */
-    feint?: boolean;
-  }
-
-  /** A kick's plan: a strike's plan that another kick may continue from. */
-  export interface IPlan extends StrikingRecord.IPlan {
-    /** What a redirect continues. */
-    source: IKickGeometry.ISource;
-  }
 
   /**
    * The leg a kick's parameters resolve to.
@@ -115,7 +87,9 @@ export namespace kick {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function leg(params: IParams): "lead" | "rear" {
+  export function leg(
+    params: IAutoMovieMotionHumanKick.IParams,
+  ): "lead" | "rear" {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
@@ -134,13 +108,17 @@ export namespace kick {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and its source's, released with the plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IPlan {
-    const p: IParams = context.params;
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+  ): IAutoMovieMotionHumanKick.IPlan {
+    const p: IAutoMovieMotionHumanKick.IParams = context.params;
 
     // A redirect continues its source's clock: the kick's own time zero is
     // the source's, and this instance shows it from the cut on.
-    const source: IKickGeometry.ISource | undefined = redirected(context);
-    const timing: IKickGeometry.ITiming = source?.timing ?? measure(context);
+    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined =
+      redirected(context);
+    const timing: IAutoMovieMotionHumanKickGeometry.ITiming =
+      source?.timing ?? measure(context);
     const t0: number = source?.start ?? context.start;
     const offset: number = context.start - t0;
     const duration: number = timing.duration - offset;
@@ -187,7 +165,7 @@ export namespace kick {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number): IHumanPosture =>
+          (at: number): IAutoMovieMotionHumanPosture =>
             geometry().posture(Math.min(timing.duration, Math.max(0, at - t0))),
           timing.side,
           seconds,
@@ -196,16 +174,16 @@ export namespace kick {
 
     // The contact the performance committed, and the stopped leg's ride on
     // the body it met ({@link StrikingRide}), built on first use.
-    let met: IHumanActionPlan.IContactEvent | null = null;
+    let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       if (met === null) return posture;
-      const event: IHumanActionPlan.IContactEvent = met;
+      const event: IAutoMovieMotionWeaponContact = met;
       ride ??= StrikingRide.create({
-        other: (): IHumanActionContext.IPerformer =>
+        other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
@@ -215,9 +193,9 @@ export namespace kick {
       });
       return ride.carry(posture, limb, t0 + seconds);
     };
-    let built: IKickGeometry | undefined;
+    let built: IAutoMovieMotionHumanKickGeometry | undefined;
     let building: boolean = false;
-    const geometry = (): IKickGeometry => {
+    const geometry = (): IAutoMovieMotionHumanKickGeometry => {
       if (built !== undefined) return built;
       if (building)
         throw new Error(
@@ -237,17 +215,20 @@ export namespace kick {
     return {
       duration,
       events,
-      get contacts(): IHumanContactWindow[] {
+      get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry()
           .contacts.map(
-            (c: IHumanContactWindow): IHumanContactWindow => ({
+            (
+              c: IAutoMovieMotionHumanContactWindow,
+            ): IAutoMovieMotionHumanContactWindow => ({
               ...c,
               from: share(c.from * timing.duration),
               to: share(c.to * timing.duration),
             }),
           )
           .filter(
-            (c: IHumanContactWindow): boolean => c.to > c.from || c.to === 1,
+            (c: IAutoMovieMotionHumanContactWindow): boolean =>
+              c.to > c.from || c.to === 1,
           );
       },
       // A feint's chamber is the committed kick's, so the contact it
@@ -261,7 +242,7 @@ export namespace kick {
               offset,
           }
         : { contact: timing.impact - offset }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(
           timing.duration,
           Math.max(0, seconds + offset),
@@ -275,14 +256,15 @@ export namespace kick {
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
+            stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
             },
           }
         : {}),
-      record: (): StrikingRecord.IRecord => geometry().record,
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
+        geometry().record,
       source: {
         timing,
         geometry,
@@ -294,14 +276,16 @@ export namespace kick {
   }
 
   /** Whether a plan is a kick's, carrying what a redirect continues. */
-  function continues(plan: IHumanActionPlan): plan is IPlan {
+  function continues(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): plan is IAutoMovieMotionHumanKick.IPlan {
     return StrikingRecord.carries(plan) && "source" in plan;
   }
 
   /** The kick a redirect continues, when this instance is one. */
   function redirected(
-    context: IHumanActionContext<IParams>,
-  ): IKickGeometry.ISource | undefined {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+  ): IAutoMovieMotionHumanKickGeometry.ISource | undefined {
     const from = context.entry.from;
 
     // Only a cut before the source's chamber key is a redirect: the cancel
@@ -314,7 +298,7 @@ export namespace kick {
       return undefined;
     if (!continues(from.plan))
       throw new Error("A kick redirect needs its source kick's plan");
-    const source: IKickGeometry.ISource = from.plan.source;
+    const source: IAutoMovieMotionHumanKickGeometry.ISource = from.plan.source;
     if (from.share * source.timing.duration > source.timing.chamber + 1e-9)
       return undefined;
     if (
@@ -327,8 +311,8 @@ export namespace kick {
 
   /** A fresh kick's timing (Gavagan and Sayers 2017 phases, scaled and jittered by skill). */
   function measure(
-    context: IHumanActionContext<IParams>,
-  ): IKickGeometry.ITiming {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+  ): IAutoMovieMotionHumanKickGeometry.ITiming {
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const side: "left" | "right" =
       leg(context.params) === "lead" ? lead : StrikingStance.rear({ lead });

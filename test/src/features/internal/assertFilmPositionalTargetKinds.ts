@@ -1,4 +1,4 @@
-import type { IAutoMoviePerformedShot } from "@automovie/engine";
+import type { IAutoMoviePerformedShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";

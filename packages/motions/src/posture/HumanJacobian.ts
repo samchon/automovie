@@ -2,8 +2,6 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
   Quaternion,
   Vector3,
   clampJointToSkeleton,
@@ -15,12 +13,15 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -54,33 +55,6 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The axes, rest frames, ranges and composition orders are the engine's own, the ones forward kinematics reads.
  */
 export namespace HumanJacobian {
-  /** A variable of a posture, per its own unit: the root's place per metre, its heading's angles and a joint's angles per degree. */
-  export type IVariable =
-    | { kind: "place"; axis: "x" | "y" | "z" }
-    | { kind: "heading"; axis: "yaw" | "pitch" | "roll" }
-    | { kind: "angle"; bone: AutoMovieHumanoidBone; axis: 0 | 1 | 2 };
-
-  /** How one variable moves the body, per its unit. */
-  export interface IMotion {
-    /** The angular velocity of the bones it moves, radians; nought for a place. */
-    angular: IAutoMovieVector3;
-
-    /** The linear velocity it gives the world origin, metres; a place's direction, or the turn's at the origin. */
-    linear: IAutoMovieVector3;
-
-    /** The bones moved; null for every bone. */
-    moves: ReadonlySet<AutoMovieHumanoidBone> | null;
-  }
-
-  /** A segment's twist under a motion: its angular velocity and its origin's linear velocity, per the variable's unit. */
-  export interface ITwist {
-    /** Radians. */
-    angular: IAutoMovieVector3;
-
-    /** Metres, at the bone's origin. */
-    linear: IAutoMovieVector3;
-  }
-
   /**
    * The motions of variables on a posed body.
    *
@@ -99,11 +73,11 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept tables are weakly held by the body and released with it.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    variables: readonly IVariable[],
-  ): IMotion[] {
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+  ): IAutoMovieMotionHumanJacobian.IMotion[] {
     const rig: IRig = rigOf(body);
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
@@ -118,75 +92,80 @@ export namespace HumanJacobian {
       axis: IAutoMovieVector3,
       pivot: IAutoMovieVector3,
       moves: ReadonlySet<AutoMovieHumanoidBone> | null,
-    ): IMotion => ({
+    ): IAutoMovieMotionHumanJacobian.IMotion => ({
       angular: axis,
       linear: Vector3.cross(axis, Vector3.scale(pivot, -1)),
       moves,
     });
-    return variables.map((variable: IVariable): IMotion => {
-      if (variable.kind === "place")
-        return {
-          angular: ZERO,
-          linear: {
-            x: variable.axis === "x" ? 1 : 0,
-            y: variable.axis === "y" ? 1 : 0,
-            z: variable.axis === "z" ? 1 : 0,
-          },
-          moves: null,
-        };
-      if (variable.kind === "heading")
+    return variables.map(
+      (
+        variable: IAutoMovieMotionHumanJacobian.IVariable,
+      ): IAutoMovieMotionHumanJacobian.IMotion => {
+        if (variable.kind === "place")
+          return {
+            angular: ZERO,
+            linear: {
+              x: variable.axis === "x" ? 1 : 0,
+              y: variable.axis === "y" ? 1 : 0,
+              z: variable.axis === "z" ? 1 : 0,
+            },
+            moves: null,
+          };
+        if (variable.kind === "heading")
+          return turning(
+            Vector3.scale(
+              variable.axis === "yaw"
+                ? { x: 0, y: 1, z: 0 }
+                : variable.axis === "pitch"
+                  ? Quaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
+                  : Quaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
+              RADIAN,
+            ),
+            posture.root,
+            null,
+          );
+        const bone: AutoMovieHumanoidBone = variable.bone;
+        const def: IAutoMovieBone = rig.bones.get(bone)!;
+        const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
+        const set: readonly [number, number, number] = posture.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        const joint: IAutoMovieJointPose = clampJointToSkeleton(
+          { bone, flexion: set[0], abduction: set[1], twist: set[2] },
+          body.skeleton,
+        );
+        const frame: IAutoMovieRestFrame | undefined =
+          HUMANOID_REST_FRAME[bone];
+        const factor = (name: Name): IAutoMovieQuaternion =>
+          Quaternion.fromAxisAngle(
+            basis[name],
+            ((joint[name] ?? 0) - (frame?.[name]?.neutral ?? 0)) /
+              (frame?.[name]?.sign ?? 1),
+          );
+        const parent: IAutoMovieQuaternion =
+          def.parent === null ? heading : bones.get(def.parent)!.worldRotation;
+        const name: Name = NAMES[variable.axis];
+        // The factors composed before this angle's own, in the joint's order.
+        const order: readonly Name[] =
+          basis.twistPlacement === "distal"
+            ? ["abduction", "flexion", "twist"]
+            : ["twist", "abduction", "flexion"];
+        let turned: IAutoMovieQuaternion = Quaternion.multiply(
+          parent,
+          def.rest.rotation,
+        );
+        for (const earlier of order.slice(0, order.indexOf(name)))
+          turned = Quaternion.multiply(turned, factor(earlier));
         return turning(
           Vector3.scale(
-            variable.axis === "yaw"
-              ? { x: 0, y: 1, z: 0 }
-              : variable.axis === "pitch"
-                ? Quaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
-                : Quaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
-            RADIAN,
+            Quaternion.rotateVector(turned, basis[name]),
+            RADIAN / (frame?.[name]?.sign ?? 1),
           ),
-          posture.root,
-          null,
+          bones.get(bone)!.worldPosition,
+          rig.carried.get(bone)!,
         );
-      const bone: AutoMovieHumanoidBone = variable.bone;
-      const def: IAutoMovieBone = rig.bones.get(bone)!;
-      const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
-      const set: readonly [number, number, number] = posture.joints[bone] ?? [
-        0, 0, 0,
-      ];
-      const joint: IAutoMovieJointPose = clampJointToSkeleton(
-        { bone, flexion: set[0], abduction: set[1], twist: set[2] },
-        body.skeleton,
-      );
-      const frame: IAutoMovieRestFrame | undefined = HUMANOID_REST_FRAME[bone];
-      const factor = (name: Name): IAutoMovieQuaternion =>
-        Quaternion.fromAxisAngle(
-          basis[name],
-          ((joint[name] ?? 0) - (frame?.[name]?.neutral ?? 0)) /
-            (frame?.[name]?.sign ?? 1),
-        );
-      const parent: IAutoMovieQuaternion =
-        def.parent === null ? heading : bones.get(def.parent)!.worldRotation;
-      const name: Name = NAMES[variable.axis];
-      // The factors composed before this angle's own, in the joint's order.
-      const order: readonly Name[] =
-        basis.twistPlacement === "distal"
-          ? ["abduction", "flexion", "twist"]
-          : ["twist", "abduction", "flexion"];
-      let turned: IAutoMovieQuaternion = Quaternion.multiply(
-        parent,
-        def.rest.rotation,
-      );
-      for (const earlier of order.slice(0, order.indexOf(name)))
-        turned = Quaternion.multiply(turned, factor(earlier));
-      return turning(
-        Vector3.scale(
-          Quaternion.rotateVector(turned, basis[name]),
-          RADIAN / (frame?.[name]?.sign ?? 1),
-        ),
-        bones.get(bone)!.worldPosition,
-        rig.carried.get(bone)!,
-      );
-    });
+      },
+    );
   }
 
   /**
@@ -198,10 +177,10 @@ export namespace HumanJacobian {
    * @returns The segment's angular velocity and its origin's linear velocity; nought when the motion does not move the bone.
    */
   export function twist(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanJacobian.IMotion,
     bone: AutoMovieHumanoidBone,
     origin: IAutoMovieVector3,
-  ): ITwist {
+  ): IAutoMovieMotionHumanJacobian.ITwist {
     if (motion.moves !== null && !motion.moves.has(bone))
       return { angular: ZERO, linear: ZERO };
     return {
@@ -219,7 +198,7 @@ export namespace HumanJacobian {
    * @returns Metres per the variable's unit; nought when the motion does not move the bone.
    */
   export function velocity(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanJacobian.IMotion,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
@@ -243,10 +222,10 @@ export namespace HumanJacobian {
   }
 
   /** The rigs read, by body. */
-  const RIGS: WeakMap<IHumanBody, IRig> = new WeakMap();
+  const RIGS: WeakMap<IAutoMovieMotionHumanBody, IRig> = new WeakMap();
 
   /** A body's rig, read once. */
-  function rigOf(body: IHumanBody): IRig {
+  function rigOf(body: IAutoMovieMotionHumanBody): IRig {
     const known: IRig | undefined = RIGS.get(body);
     if (known !== undefined) return known;
     const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =

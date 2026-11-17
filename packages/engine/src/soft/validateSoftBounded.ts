@@ -1,4 +1,4 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /**
  * Report a declared collection of a soft body that is larger than its
@@ -19,13 +19,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's collector.
  */
 export const validateSoftBounded: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
   budget: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,

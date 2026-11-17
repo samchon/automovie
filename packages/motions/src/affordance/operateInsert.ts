@@ -1,14 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
@@ -36,27 +39,6 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The socket's axis and mouth are the target's own; no place is typed by the law.
  */
 export namespace operateInsert {
-  /** A held prop inserted into a socket. */
-  export interface IMechanism {
-    /** The discriminator. */
-    kind: "insert";
-
-    /** The held prop's subject. */
-    prop: string;
-
-    /** The held prop's working point that leads into the socket; `tip` when absent. */
-    tip?: string;
-
-    /** The socket: its mouth, its normal pointing out along the axis. */
-    into: AutoMovieMotionTarget;
-
-    /** How far the working point goes in, metres; positive. */
-    depth: number;
-
-    /** Whether the prop is drawn back out over the stroke's second half. */
-    withdraw?: boolean;
-  }
-
   /**
    * How far the working point is in at a progress of the stroke.
    *
@@ -64,7 +46,10 @@ export namespace operateInsert {
    * @param progress 0 at the stroke's start, 1 at its end.
    * @returns Metres along the axis from the mouth.
    */
-  export function depth(mechanism: IMechanism, progress: number): number {
+  export function depth(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    progress: number,
+  ): number {
     return mechanism.withdraw === true
       ? (mechanism.depth * (1 - Math.cos(2 * Math.PI * progress))) / 2
       : mechanism.depth * progress;
@@ -77,7 +62,9 @@ export namespace operateInsert {
    * @param mechanism The insertion.
    * @returns Metres.
    */
-  export function travel(mechanism: IMechanism): number {
+  export function travel(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+  ): number {
     return mechanism.depth * (mechanism.withdraw === true ? 2 : 1);
   }
 
@@ -91,10 +78,10 @@ export namespace operateInsert {
    * @returns The held tool.
    */
   export function tool(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    side: HumanHand.Side,
-  ): StrikingHeld.ITool {
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeld.of(context, side, mechanism.prop, {
       tip: mechanism.tip ?? "tip",
     });
@@ -113,31 +100,32 @@ export namespace operateInsert {
    * @returns The goal.
    */
   export function target(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    tool: StrikingHeld.ITool,
-    socket: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    posture: IHumanPosture,
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
+    posture: IAutoMovieMotionHumanPosture,
     progress: number,
-  ): AutoMovieMotionHumanArm.ITarget {
-    const side: HumanHand.Side = tool.side;
+  ): IAutoMovieMotionHumanArmTarget.ITarget {
+    const side: AutoMovieHumanSide = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
       -1,
     );
-    const hand: StrikingHeld.IHandFrame = StrikingRoll.hand(
-      context,
-      tool,
-      0,
-      Vector3.add(
-        socket.point,
-        Vector3.scale(inward, depth(mechanism, progress)),
-      ),
-      inward,
-      0,
-      posture,
-    );
-    const wrist: HumanHand.IWrist = HumanHand.place(
+    const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+      StrikingRoll.hand(
+        context,
+        tool,
+        0,
+        Vector3.add(
+          socket.point,
+          Vector3.scale(inward, depth(mechanism, progress)),
+        ),
+        inward,
+        0,
+        posture,
+      );
+    const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
       context.body,
       side,
       "grip",

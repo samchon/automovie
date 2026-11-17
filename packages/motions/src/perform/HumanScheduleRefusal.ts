@@ -1,4 +1,5 @@
 import type { AutoMovieScheduleError } from "@automovie/engine";
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -37,7 +38,7 @@ export namespace HumanScheduleRefusal {
     error: AutoMovieScheduleError,
     instance: (subject: string, capability: string) => number,
   ): Error {
-    const where: Partial<HumanRefusal.IWhere> =
+    const where: Partial<IAutoMovieMotionHumanRefusal.IWhere> =
       error.subject === undefined || error.capability === undefined
         ? {}
         : {
@@ -45,7 +46,7 @@ export namespace HumanScheduleRefusal {
             act: error.capability,
             instance: instance(error.subject, error.capability),
           };
-    const alternatives: HumanRefusal.IAlternatives = {
+    const alternatives: IAutoMovieMotionHumanRefusal.IAlternatives = {
       kind: "alternatives",
       values: error.alternatives,
     };

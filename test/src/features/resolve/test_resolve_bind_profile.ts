@@ -1,6 +1,7 @@
-import { type IAutoMovieBoundProfile, bindProfile } from "@automovie/engine";
+import { bindProfile } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
+  type IAutoMovieBoundProfile,
   IAutoMovieChannel,
   IAutoMovieCopyDriver,
   IAutoMovieDrivenDriver,

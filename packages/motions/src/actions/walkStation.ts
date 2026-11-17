@@ -1,18 +1,18 @@
-import {
-  type IAutoMovieRandom,
-  createAutoMovieRandom,
-  seededSmoothNoise,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { createAutoMovieRandom, seededSmoothNoise } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkPace,
+  IAutoMovieMotionHumanWalkStation,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFormation } from "../ensemble/HumanFormation";
-import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { IWalkGait } from "./IWalkGait";
-import type { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { walkPaced } from "./walkPaced";
 
@@ -60,11 +60,11 @@ import { walkPaced } from "./walkPaced";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
  */
 export function walkStation(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
   rests: number,
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   // The point's speed between readings.
   const count: number = Math.ceil((rests - from) / walkStation.STEP);
   if (count < 1) return plan;
@@ -83,10 +83,10 @@ export function walkStation(
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
   const lengths: number[] = [0];
-  let root: IHumanPosture["root"] = plan.posture(0).root;
+  let root: IAutoMovieMotionHumanPosture["root"] = plan.posture(0).root;
   for (let i: number = 1; i <= walkStation.SAMPLES; ++i) {
     const t: number = (i / walkStation.SAMPLES) * plan.duration;
-    const now: IHumanPosture["root"] = plan.posture(t).root;
+    const now: IAutoMovieMotionHumanPosture["root"] = plan.posture(t).root;
     seconds.push(t);
     lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
     root = now;
@@ -197,18 +197,6 @@ export namespace walkStation {
   /** Metres between two kept corners of a slot's way handed to the stepping plan (provisional: about a stride, so no corner falls within one step of the last). */
   export const SPACING: number = 1;
 
-  /** What a walk keeping station reads of its parameters. */
-  export interface IStationed {
-    /** The floor point to stop at. */
-    to: IAutoMovieVector3;
-
-    /** Points passed in order before `to`. */
-    via?: IAutoMovieVector3[];
-
-    /** The station, when the walk keeps one. */
-    station?: IHumanFormation.IStation;
-  }
-
   /**
    * A walk's context with a station resolved into its way: `to` the slot
    * where the frame comes to rest and `via` the slot's way from the action's
@@ -219,17 +207,19 @@ export namespace walkStation {
    * @returns The context the stepping plan reads.
    * @throws {HumanRefusal} When the station ends before the action starts, or a guide frame's station names no end.
    */
-  export function resolve<P extends IStationed>(
-    context: IHumanActionContext<P>,
-  ): IHumanActionContext<P> {
-    const station: IHumanFormation.IStation | undefined =
+  export function resolve<
+    P extends IAutoMovieMotionHumanWalkStation.IStationed,
+  >(
+    context: IAutoMovieMotionHumanActionContext<P>,
+  ): IAutoMovieMotionHumanActionContext<P> {
+    const station: IAutoMovieMotionHumanFormation.IStation | undefined =
       context.params.station;
     if (station === undefined) return context;
     const from: number = context.start;
     const until: number = rests(context, station);
     // The slot's way at the formation's sampling, each point the member's dressed place there.
     const at: (seconds: number) => IAutoMovieVector3 = point(context, station);
-    const samples: IHumanFormation.ISample[] = [];
+    const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
     const count: number =
       until > from
         ? Math.ceil((until - from) / HumanFormation.SAMPLE - 1e-9)
@@ -239,7 +229,8 @@ export namespace walkStation {
         k === count ? Math.max(from, until) : from + k * HumanFormation.SAMPLE;
       samples.push({ seconds, ...at(seconds) });
     }
-    const last: IHumanFormation.ISample = samples[samples.length - 1]!;
+    const last: IAutoMovieMotionHumanFormation.ISample =
+      samples[samples.length - 1]!;
     const via: IAutoMovieVector3[] = [];
     let kept: IAutoMovieVector3 = context.entry.posture.root;
     for (const s of samples.slice(0, -1))
@@ -269,8 +260,8 @@ export namespace walkStation {
    * @throws {HumanRefusal} When a fixed or guide frame's station names no end, or it ends before the action starts.
    */
   export function rests(
-    context: IHumanActionContext<IStationed>,
-    station: IHumanFormation.IStation,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
+    station: IAutoMovieMotionHumanFormation.IStation,
   ): number {
     const until: number | null =
       station.until ?? HumanFormation.end(station.formation);
@@ -330,11 +321,11 @@ export namespace walkStation {
    * @returns The way to hand to the stepping plan, or nothing.
    */
   export function cadenced(
-    context: IHumanActionContext<IStationed>,
-    gait: Pick<IWalkGait, "called">,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
+    gait: Pick<IAutoMovieMotionHumanWalkGait, "called">,
     cruise: number,
-  ): Pick<WalkPace.IProps, "travel"> {
-    const station: IHumanFormation.IStation | undefined =
+  ): Pick<IAutoMovieMotionHumanWalkPace.IProps, "travel"> {
+    const station: IAutoMovieMotionHumanFormation.IStation | undefined =
       context.params.station;
     if (station === undefined || gait.called !== true) return {};
     const from: number = context.start;
@@ -342,7 +333,8 @@ export namespace walkStation {
     if (!(span > 0)) return {};
 
     // The plan's own way, as the stepping plan lays it: from the feet's midpoint through `via` to `to`.
-    const feet: IHumanActionContext["entry"]["feet"] = context.entry.feet;
+    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
+      context.entry.feet;
     const way: WalkPath = new WalkPath(
       [
         {
@@ -400,20 +392,21 @@ export namespace walkStation {
    * @returns The slot's floor point at a second.
    */
   export function point(
-    context: IHumanActionContext<IStationed>,
-    station: IHumanFormation.IStation,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
+    station: IAutoMovieMotionHumanFormation.IStation,
   ): (seconds: number) => IAutoMovieVector3 {
-    const read: HumanFormation.Reader = (
+    const read: IAutoMovieMotionHumanFormation.Reader = (
       subject: string,
       t: number,
-    ): IHumanActionContext.IRoot => context.performer(subject).root(t);
+    ): IAutoMovieMotionHumanActionContext.IRoot =>
+      context.performer(subject).root(t);
     const dress: { bound: number; seed: string } | undefined = station.dress;
     if (dress === undefined || !(dress.bound > 0))
       return (seconds: number): IAutoMovieVector3 =>
         HumanFormation.slot(station.formation, station.slot, seconds, read).at;
 
     // A slow deviation from the slot along each of the frame's axes, smooth and zero where the station begins and ends (`seededSmoothNoise`), swinging at most `DRESS_FREQUENCY` hertz.
-    const local: HumanFormation.ILocal = HumanFormation.local(
+    const local: IAutoMovieMotionHumanFormation.ILocal = HumanFormation.local(
       station.formation,
       station.slot,
     );

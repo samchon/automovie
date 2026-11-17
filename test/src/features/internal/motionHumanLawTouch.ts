@@ -1,24 +1,28 @@
 import {
   AutoMovieChain,
-  type IAutoMovieResolvedBone,
   Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanColliders,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 
@@ -88,18 +92,21 @@ import { motionHumanLaw } from "./motionHumanLaw";
  */
 export function motionHumanLawTouch(
   label: string,
-  params: touch.IParams,
+  params: IAutoMovieMotionHumanTouch.IParams,
   part: motionHumanLaw.AuditPart | "film" | "mirror",
   partner?: { facing: boolean; gap: number },
   name: motionHumanBody.Name = "m-average",
 ): string[] {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   // The partner stands still for a mirror (8), with its own sway otherwise.
   const perform = (
-    row: touch.IParams,
+    row: IAutoMovieMotionHumanTouch.IParams,
     still: boolean = false,
   ): motionHumanLaw.IFilm => {
-    const a: HumanChain = HumanChain.subject("a").act("touch", row);
+    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
+      "touch",
+      row,
+    );
     return partner === undefined
       ? motionHumanLaw.perform(label, [{ subject: "a", body }], a)
       : motionHumanLaw.perform(
@@ -125,11 +132,11 @@ export function motionHumanLawTouch(
         );
   };
   const film: motionHumanLaw.IFilm = perform(params, part === "mirror");
-  const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
-  const form: AutoMovieMotionHumanTouchForm.IForm =
+  const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
+  const form: IAutoMovieMotionHumanTouchForm.IForm =
     AutoMovieMotionHumanTouchForm.FORMS[kind];
   // The effector as the law reads it: curled as the kind curls the fingers.
-  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+  const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(
       touch.EFFECTORS[params.with ?? "palm"],
       kind,
@@ -145,10 +152,10 @@ export function motionHumanLawTouch(
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   const wrist = (side: "left" | "right", t: number): IAutoMovieVector3 =>
     film.bones("a", t).get(`${side}Hand`)!.worldPosition;
-  const owner = (target: AutoMovieMotionTarget): string =>
+  const owner = (target: IAutoMovieMotionTarget): string =>
     target.kind === "person" ? target.subject : "a";
   const region = (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 => {
     const frame =
@@ -171,7 +178,7 @@ export function motionHumanLawTouch(
     );
   const gap = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): number =>
     Math.abs(
@@ -180,7 +187,7 @@ export function motionHumanLawTouch(
     );
   const offset = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 =>
     minus(
@@ -195,7 +202,7 @@ export function motionHumanLawTouch(
   const ready: number = motionHumanLaw.event(film, "ready");
   const strokeStart: number = motionHumanLaw.event(film, "strokeStart");
   const relax: number = motionHumanLaw.event(film, "relax");
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,
@@ -216,14 +223,14 @@ export function motionHumanLawTouch(
     ];
   if (part === "mirror") {
     if (params.other !== undefined) return out;
-    const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
+    const flip = (target: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
       ({
         ...target,
         region: (target as { region: string }).region.replace(
           /Left|Right/,
           (found: string): string => (found === "Left" ? "Right" : "Left"),
         ),
-      }) as AutoMovieMotionTarget;
+      }) as IAutoMovieMotionTarget;
     const left: motionHumanLaw.IFilm = perform(
       {
         ...params,
@@ -290,11 +297,11 @@ export function motionHumanLawTouch(
     );
   }
 
-  const hands: ["left" | "right", AutoMovieMotionTarget][] = [
+  const hands: ["left" | "right", IAutoMovieMotionTarget][] = [
     ["right", params.target],
     ...(params.other === undefined
       ? []
-      : [["left", params.other] as ["left", AutoMovieMotionTarget]]),
+      : [["left", params.other] as ["left", IAutoMovieMotionTarget]]),
   ];
   for (const [side, target] of hands) {
     for (const [event, t] of [

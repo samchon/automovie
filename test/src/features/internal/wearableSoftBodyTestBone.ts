@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/interface";
 
 /**
  * Construct the original identity-rotated bone snapshot at the supplied world x/y.

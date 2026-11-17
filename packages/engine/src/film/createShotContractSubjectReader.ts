@@ -3,7 +3,10 @@ import {
   IAutoMovieModel,
   IAutoMovieMotion,
   IAutoMoviePose,
+  type IAutoMovieRealizeShotContractProps,
+  type IAutoMovieSampledChannel,
   IAutoMovieSceneNode,
+  type IAutoMovieShotContractSubjectReader,
   IAutoMovieShotPerformance,
   IAutoMovieShotSpatialSelector,
   IAutoMovieSkeleton,
@@ -14,13 +17,10 @@ import {
 } from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationPoint } from "../transformFormationPoint";
-import { IRealizeShotContractProps } from "./IRealizeShotContractProps";
-import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
 import { foldRoot } from "./foldRoot";
@@ -57,9 +57,10 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns six index maps, sized by the compiled artifacts, and three caches grown by distinct grading instants, distinct required node subjects and distinct formation subjects, all named by the contract; nothing else is retained, and everything is released when `realizeShotContract` returns and drops the reader.
  */
 export function createShotContractSubjectReader(
-  props: IRealizeShotContractProps,
-): IShotContractSubjectReader {
-  const compiled: IRealizeShotContractProps["compiled"] = props.compiled;
+  props: IAutoMovieRealizeShotContractProps,
+): IAutoMovieShotContractSubjectReader {
+  const compiled: IAutoMovieRealizeShotContractProps["compiled"] =
+    props.compiled;
   const nodes: ReadonlyMap<string, IAutoMovieSceneNode> = indexFirst(
     compiled.scene.nodes,
     (node: IAutoMovieSceneNode): string => node.id,

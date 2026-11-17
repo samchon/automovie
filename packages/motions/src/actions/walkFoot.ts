@@ -1,11 +1,13 @@
 import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
@@ -37,26 +39,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * landing's flexion over the second.
  */
 export namespace walkFoot {
-  /** A foot's placement and toes at an instant. */
-  export interface IFoot {
-    /** Its placement. */
-    placement: HumanFoot.IPlacement;
-
-    /** The toes' flexion from the foot, degrees, positive lifting them. */
-    toes: number;
-  }
-
-  /**
-   * A foot as its schedule has it at an instant: the stance it stands in, or
-   * for a swinging foot the stance that claims the pelvis, the one it left at
-   * its toe-off over the first half of the swing and the one it lands in at
-   * its heel strike over the second.
-   */
-  export interface IScheduled extends IFoot {
-    /** A swinging foot's share of its swing and the swing's two ends, seconds. */
-    swing?: { u: number; off: number; on: number };
-  }
-
   /** What a stance ends or begins with, which a swing joins. */
   export interface IEnd {
     /** The ankle, world metres. */
@@ -81,13 +63,13 @@ export namespace walkFoot {
    * @returns The pitched placement.
    */
   export function rocked(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     degrees: number,
     about: "heel" | "mtp",
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(
       body,
       side,
@@ -115,9 +97,9 @@ export namespace walkFoot {
    * @returns The planted foot.
    */
   export function stance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     strike: number,
     toeOff: number,
@@ -125,7 +107,7 @@ export namespace walkFoot {
     push: number,
     raised: number = 0,
     backward: boolean = false,
-  ): IFoot {
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     const length: number =
       Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
     if (backward && !(raised > 0)) {
@@ -223,7 +205,7 @@ export namespace walkFoot {
    * @returns The swinging foot.
    */
   export function swing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     props: {
       from: IEnd;
@@ -236,7 +218,7 @@ export namespace walkFoot {
       stiff?: boolean;
       settles?: boolean;
     },
-  ): IFoot {
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
     const stiff: boolean = props.stiff === true;
 
@@ -291,7 +273,7 @@ export namespace walkFoot {
     // A foot that leaves or lands on its edge rolls between the two as its
     // pitch does.
     const rolled: number = HumanFoot.roll(props.from.rotation);
-    const placement: HumanFoot.IPlacement = {
+    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle,
       rotation: HumanFoot.rotation(
         heading,

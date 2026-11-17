@@ -1,3 +1,10 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
@@ -6,8 +13,6 @@ import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A lofted chain read as a solid surface: `u` its station in mm, `v` its phase
@@ -121,7 +126,7 @@ export namespace AutoMovieSolidChain {
     const last: number = chain.layers[chain.layers.length - 1]!.y;
     const domain: [number, number] = AutoMovieLoftCapSource.bounds(chain);
     const middle: number = (first + last) / 2;
-    let j: AutoMovieLoftJet.IJet;
+    let j: IAutoMovieLoftSurfaceJet;
     try {
       j = AutoMovieLoftJet.at(chain, middle, 0);
     } catch (error: unknown) {
@@ -134,10 +139,7 @@ export namespace AutoMovieSolidChain {
       )
     )
       return null;
-    const normal: AutoMovieSolidVector.Vec3 = AutoMovieSolidVector.cross(
-      j.s,
-      j.t,
-    );
+    const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(j.s, j.t);
     const size: number = Math.hypot(...normal);
     if (!(Number.isFinite(size) && size > 0)) return null;
     let sign: 1 | -1;
@@ -145,7 +147,7 @@ export namespace AutoMovieSolidChain {
       if (chain.orientation !== 1 && chain.orientation !== -1) return null;
       sign = chain.orientation;
     } else {
-      const out: AutoMovieSolidVector.Vec3 = AutoMovieSolidVector.sub(
+      const out: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
         j.p,
         AutoMovieLoftChain.axis(chain, middle),
       );
@@ -159,7 +161,7 @@ export namespace AutoMovieSolidChain {
       period: 2 * Math.PI,
       domain,
       orientation: sign,
-      point: (u: number, v: number): AutoMovieSolidVector.Vec3 => {
+      point: (u: number, v: number): AutoMovieVector3Tuple => {
         if (
           !(
             Number.isFinite(u) &&
@@ -185,7 +187,7 @@ export namespace AutoMovieSolidChain {
           throw new AutoMovieLoftAdmissionError(
             "The requested jet is outside the loft's owned original domain.",
           );
-        const q: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, u, v);
+        const q: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, u, v);
         return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
       },
     };

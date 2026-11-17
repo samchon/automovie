@@ -1,7 +1,9 @@
-import { AutoMovieGuidePass } from "@automovie/interface";
+import {
+  AutoMovieGuidePass,
+  type IAutoMovieGuidePassOutput,
+} from "@automovie/interface";
 import {
   AUTOMOVIE_GUIDE_PASSES,
-  IAutoMovieGuidePassOutput,
   guidePassFrameName,
   guidePassFramePattern,
   isGuidePass,

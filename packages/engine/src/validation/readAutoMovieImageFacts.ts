@@ -1,4 +1,4 @@
-import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
+import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
 
 /**
  * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.

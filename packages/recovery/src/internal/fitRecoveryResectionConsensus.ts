@@ -1,13 +1,13 @@
 import type {
-  IAutoMovieRecoveryCameraMapBudget,
-  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionConsensusFittingOperation,
+  IAutoMovieRecoveryResectionDesignTrace,
+  IAutoMovieRecoveryResectionRefinementOperation,
+  IAutoMovieRecoveryResectionScore,
+  IAutoMovieRecoveryResectionTrace,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryResectionConsensus } from "../structures/internal/IAutoMovieRecoveryResectionConsensus";
-import type { IAutoMovieRecoveryResectionDesignTrace } from "../structures/internal/IAutoMovieRecoveryResectionDesignTrace";
-import type { IAutoMovieRecoveryResectionScore } from "../structures/internal/IAutoMovieRecoveryResectionScore";
-import type { IAutoMovieRecoveryResectionTrace } from "../structures/internal/IAutoMovieRecoveryResectionTrace";
 import { fitRecoveryResectionDesign } from "./fitRecoveryResectionDesign";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryResection } from "./refineRecoveryResection";
@@ -33,16 +33,16 @@ import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owned accepted pose or null, index list and scalar counters return; proposal scratch and callbacks expire without cache, file or external process.
  */
 export function fitRecoveryResectionConsensus(
-  points: readonly (readonly [number, number, number])[],
-  pixels: readonly (readonly [number, number])[],
-  intrinsic: readonly number[],
-  inverse: readonly number[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-  checkpoint: () => void,
-  onProposal: () => void = (): void => {},
-  onTrace?: (event: IAutoMovieRecoveryResectionTrace) => void,
-): IAutoMovieRecoveryResectionConsensus {
+  points: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[0],
+  pixels: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[1],
+  intrinsic: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[2],
+  inverse: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[4],
+  budget: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[5],
+  checkpoint: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[6],
+  onProposal: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[7] = (): void => {},
+  onTrace?: Parameters<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation>[8],
+): ReturnType<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation> {
   if (points.length !== pixels.length)
     throw new Error("camera-map: paired resection population required");
   const emit: ((event: IAutoMovieRecoveryResectionTrace) => void) | undefined =
@@ -58,7 +58,7 @@ export function fitRecoveryResectionConsensus(
     const indices: number[] = [];
     let cost: number = 0;
     for (let at: number = 0; at < points.length; at++) {
-      const projection: ReturnType<typeof projectRecoveryMapPoint> =
+      const projection: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
         projectRecoveryMapPoint(pose, points[at]!, intrinsic);
       const error: number =
         projection === null
@@ -84,7 +84,8 @@ export function fitRecoveryResectionConsensus(
     finalRefits: number = 0,
     required: number = Infinity;
   let stable: boolean = false;
-  let refinement: ReturnType<typeof refineRecoveryResection> | null = null;
+  let refinement: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+    null;
   while (
     points.length >= 6 &&
     trials < budget.maxResectionTrials &&
@@ -139,7 +140,8 @@ export function fitRecoveryResectionConsensus(
     let measured: ReturnType<typeof score> = score(candidate);
     const beforePose: IAutoMovieRecoveryMapPose = candidate;
     const before: IAutoMovieRecoveryResectionScore = measured;
-    let local: ReturnType<typeof refineRecoveryResection> | null = null;
+    let local: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+      null;
     let localError: string | null = null;
     let refinementAttempted: boolean = false;
     if (
@@ -216,7 +218,8 @@ export function fitRecoveryResectionConsensus(
     const beforePose: IAutoMovieRecoveryMapPose = pose;
     const before: IAutoMovieRecoveryResectionScore = best;
     let finalError: string | null = null;
-    let finalFit: ReturnType<typeof refineRecoveryResection> | null = null;
+    let finalFit: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+      null;
     try {
       finalFit = refineRecoveryResection(
         pose,

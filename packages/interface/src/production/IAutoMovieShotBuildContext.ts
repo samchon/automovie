@@ -1,12 +1,12 @@
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { IAutoMovieProductionLighting } from "../scene/IAutoMovieProductionLighting";
-import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieProductionLighting } from "../scene/IAutoMovieProductionLighting";
+import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import type { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
 import type { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSource";
-import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
-import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
-import { IAutoMovieSourceOracle } from "./IAutoMovieSourceOracle";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
+import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
+import type { IAutoMovieShotContract } from "./IAutoMovieShotContract";
+import type { IAutoMovieSourceOracle } from "./IAutoMovieSourceOracle";
+import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Host-supplied design and compact runtime inputs read by subject render methods; readonly maps are a TypeScript contract, not a deep runtime freeze.

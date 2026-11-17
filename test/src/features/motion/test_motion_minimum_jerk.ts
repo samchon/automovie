@@ -1,5 +1,9 @@
 import { minimumJerk, superposeMinimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMinimumJerk,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,9 +33,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_motion_minimum_jerk(): void {
   const close = (a: number, b: number, e: number = 1e-12): boolean =>
     Math.abs(a - b) <= e;
-  const p0: minimumJerk.IProfile = minimumJerk(0);
-  const p1: minimumJerk.IProfile = minimumJerk(1);
-  const mid: minimumJerk.IProfile = minimumJerk(0.5);
+  const p0: IAutoMovieMinimumJerk.IProfile = minimumJerk(0);
+  const p1: IAutoMovieMinimumJerk.IProfile = minimumJerk(1);
+  const mid: IAutoMovieMinimumJerk.IProfile = minimumJerk(0.5);
   TestValidator.predicate(
     "ends at rest",
     p0.s === 0 &&
@@ -47,17 +51,17 @@ export function test_motion_minimum_jerk(): void {
   );
 
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const first: superposeMinimumJerk.IUnit = {
+  const first: IAutoMovieSuperposeMinimumJerk.IUnit = {
     displacement: { x: 0.4, y: 0.2, z: 0 },
     start: 0,
     duration: 0.5,
   };
-  const second: superposeMinimumJerk.IUnit = {
+  const second: IAutoMovieSuperposeMinimumJerk.IUnit = {
     displacement: { x: 0, y: 0.3, z: 0.1 },
     start: 0.2,
     duration: 0.4,
   };
-  const end: superposeMinimumJerk.IState = superposeMinimumJerk(
+  const end: IAutoMovieSuperposeMinimumJerk.IState = superposeMinimumJerk(
     origin,
     [first, second],
     0.6,
@@ -72,17 +76,17 @@ export function test_motion_minimum_jerk(): void {
           close(v.x, 0) && close(v.y, 0) && close(v.z, 0),
       ),
   );
-  const still: superposeMinimumJerk.IUnit = {
+  const still: IAutoMovieSuperposeMinimumJerk.IUnit = {
     ...second,
     displacement: { x: 0, y: 0, z: 0 },
   };
   for (let t: number = 0; t <= 0.6; t += 0.01) {
-    const a: superposeMinimumJerk.IState = superposeMinimumJerk(
+    const a: IAutoMovieSuperposeMinimumJerk.IState = superposeMinimumJerk(
       origin,
       [first, still],
       t,
     );
-    const b: superposeMinimumJerk.IState = superposeMinimumJerk(
+    const b: IAutoMovieSuperposeMinimumJerk.IState = superposeMinimumJerk(
       origin,
       [first],
       t,
@@ -94,12 +98,12 @@ export function test_motion_minimum_jerk(): void {
   }
   const h: number = 1e-6;
   for (const seam of [0.2, 0.5, 0.6]) {
-    const l: superposeMinimumJerk.IState = superposeMinimumJerk(
+    const l: IAutoMovieSuperposeMinimumJerk.IState = superposeMinimumJerk(
       origin,
       [first, second],
       seam - h,
     );
-    const r: superposeMinimumJerk.IState = superposeMinimumJerk(
+    const r: IAutoMovieSuperposeMinimumJerk.IState = superposeMinimumJerk(
       origin,
       [first, second],
       seam + h,

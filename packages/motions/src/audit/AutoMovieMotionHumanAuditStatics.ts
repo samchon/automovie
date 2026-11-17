@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   convexHull2D,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieHumanoidSurfaces,
@@ -7,14 +6,19 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether the loads a motion declares on its contacts can hold the body
@@ -30,7 +34,7 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * A foot's patch is the outline of its sole where it bears (`HumanFoot.base`,
  * the base of support's own owner); every other contact's patch is its
  * point, the engine's point of its `region` or of its part's default region
- * (`IHumanContactWindow.REGIONS`), on the displayed bones. An instant is
+ * (`HumanContactWindow.REGIONS`), on the displayed bones. An instant is
  * read when at least one bearing window is open, every open bearing window
  * declares its `load` and one load is positive, since an undeclared share
  * has no weight to check, and when the body is held: its extrapolated
@@ -64,12 +68,12 @@ export namespace AutoMovieMotionHumanAuditStatics {
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      IAutoMovieMotionHumanAuditMotion.windows(motion, subject);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+      HumanAuditMotion.windows(motion, subject);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const lead: number =
       1 /
@@ -77,11 +81,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       );
     const bound: number = SHARE * body.measure.stature;
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     const centre = (t: number): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
     let worst: IAutoMovieMotionHumanAuditMeasure = {
@@ -142,7 +142,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
 
   /**
    * The bearing windows open at an instant: those of a kind that bears the
-   * body (`IHumanContactWindow.BEARING`), or of any kind with a declared
+   * body (`HumanContactWindow.BEARING`), or of any kind with a declared
    * load.
    *
    * @param windows The person's windows, film seconds.
@@ -157,7 +157,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
       (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
         seconds >= w.from &&
         seconds <= w.to &&
-        (IHumanContactWindow.BEARING.includes(w.contact.kind) ||
+        (HumanContactWindow.BEARING.includes(w.contact.kind) ||
           w.contact.load !== undefined),
     );
   }
@@ -172,13 +172,13 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @returns World metres.
    */
   export function point(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    contact: IHumanContactWindow,
+    contact: IAutoMovieMotionHumanContactWindow,
   ): IAutoMovieVector3 {
     const named: AutoMovieHumanoidRegion =
-      contact.region ?? IHumanContactWindow.REGIONS[contact.part];
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      contact.region ?? HumanContactWindow.REGIONS[contact.part];
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[named];
     return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
       .point;
@@ -194,9 +194,9 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @returns World metres.
    */
   export function patch(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    contact: IHumanContactWindow,
+    contact: IAutoMovieMotionHumanContactWindow,
   ): IAutoMovieVector3[] {
     if (
       contact.region === undefined &&
@@ -219,7 +219,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @returns The region's corners, world metres.
    */
   function region(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     open: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
   ): IAutoMovieVector3[] {

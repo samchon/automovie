@@ -1,6 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieSectionPlane } from "./IAutoMovieSectionPlane";
+import {
+  type IAutoMovieSectionPlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Signed distance in metres from a section plane to a world point,

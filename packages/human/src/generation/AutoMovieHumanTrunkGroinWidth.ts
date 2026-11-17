@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanTrunkGroinWidth } from "@automovie/interface";
+
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
 import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
 
@@ -13,31 +15,21 @@ import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
  * references' median ratio, `AutoMovieHumanTrunkShapes.CROTCH_WIDTH`.
  */
 export namespace AutoMovieHumanTrunkGroinWidth {
-  /** What the width reads. */
-  export interface IInput {
-    /** The buttock's half width, mm. */
-    buttock: number;
-
-    /** The thigh tape, mm; absent, the references' median ratio is used. */
-    thigh?: number;
-
-    /** The ring's half girth over the thigh tape, as the leg reports it; absent, the references' median ratio is used. */
-    ratio?: number;
-
-    /** The ring's girth at a trial half width, mm: the hull of its own section. */
-    girth: (width: number) => number;
-  }
-
   /**
    * The crotch's half width.
    *
    * @param input The buttock's width, the tape, the ratio and the ring's girth.
    * @returns The half width, mm.
    */
-  export function width(input: IInput): number {
-    const guess: number = AutoMovieHumanTrunkShapes.CROTCH_WIDTH * input.buttock;
+  export function width(input: IAutoMovieHumanTrunkGroinWidth.IInput): number {
+    const guess: number =
+      AutoMovieHumanTrunkShapes.CROTCH_WIDTH * input.buttock;
     if (input.thigh === undefined || input.ratio === undefined) return guess;
 
-    return AutoMovieHumanTrunkTapes.solve(2 * input.ratio * input.thigh, input.girth, guess);
+    return AutoMovieHumanTrunkTapes.solve(
+      2 * input.ratio * input.thigh,
+      input.girth,
+      guess,
+    );
   }
 }

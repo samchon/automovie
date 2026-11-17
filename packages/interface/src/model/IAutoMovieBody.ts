@@ -1,6 +1,6 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieBodyContact } from "./IAutoMovieBodyContact";
-import { IAutoMovieBodyDrag } from "./IAutoMovieBodyDrag";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieBodyContact } from "./IAutoMovieBodyContact";
+import type { IAutoMovieBodyDrag } from "./IAutoMovieBodyDrag";
 
 /**
  * Authored model mass and contact properties available to physical-analysis helpers.

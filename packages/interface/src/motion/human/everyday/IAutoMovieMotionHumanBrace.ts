@@ -1,0 +1,62 @@
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+
+/**
+ * Bracing for an expected impact, push or a falling body: the stance
+ * widens and staggers along the line of the coming force, the body lowers
+ * and leans into it, and the hands come up in front, all set before the
+ * force arrives.
+ *
+ * People preparing for a predictable perturbation adjust their posture in
+ * advance, anticipatory postural adjustments (Massion 1992, Prog Neurobiol
+ * 38:35): they enlarge the base of support along the expected force, lower
+ * the centre of mass and lean against the force, keeping the feet in place
+ * once set (Horak and Nashner 1986, J Neurophysiol 55:1369; Maki and
+ * McIlroy 1997, Phys Ther 77:488, on changing the base of support). The
+ * goals: the foot on the side away from the force steps back along the
+ * force's line by `STAGGER` leg lengths and out until the feet stand a
+ * shoulder width apart (a staggered, wider base); the pelvis drops until
+ * the knees flex `KNEE` degrees and is then moved so the engine's
+ * whole-body centre of mass stands over the middle of the new base's hull,
+ * found on the solved posture; the trunk inclines 10 degrees toward the
+ * force; and both palms come up ahead of the chest's front surface (its
+ * sternum region) along the force, facing it for an `impact` or a `push`,
+ * turned up and lower to receive a `catchBody`. The arms rise from the
+ * entry's and hold the palms there as one trajectory planned clear of the
+ * body (`AutoMovieMotionHumanArmPlanned`, through `gestureHands.planned`),
+ * so no forearm passes through the trunk on the way. Step size, drop, lean and
+ * timing are provisional (Massion describes the adjustments, not these
+ * magnitudes). The stepping foot swings over 0.4 s with a 3 cm lift, the
+ * set is reached at `set`, 0.6 s after the start (provisional lead time),
+ * and held for the rest of the action.
+ *
+ * The force comes from `toward` (a person, prop or point the force comes
+ * from) or from straight ahead when absent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation toward: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. seconds: How long the brace lasts, seconds; 1.5 when absent.
+ * @evidence contracts/development/design.md#principled-representation toward: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. seconds: How long the brace lasts, seconds; 1.5 when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.brace, params); everyday/brace.ts (brace.plan, context); everyday/brace.ts (brace.plan).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanBrace {
+  /**
+   * Parameters of a brace: where the force comes from, what is braced for
+   * and how long the brace lasts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes.
+   * @evidence contracts/development/design.md#principled-representation The source is the shared motion target union, read once at the start and projected to the floor; the kind is a closed union selecting the palms' facing; the duration is seconds, raised to at least the set time plus 0.2 s by the plan rather than refused.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target type is imported from the interface package.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination is meaningful.
+   *
+   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   */
+  export interface IParams {
+    /** Where the force comes from; straight ahead when absent. */
+    toward?: IAutoMovieMotionTarget;
+
+    /** What is braced for; `impact` when absent. */
+    kind?: "impact" | "push" | "catchBody";
+
+    /** How long the brace lasts, seconds; 1.5 when absent. */
+    seconds?: number;
+  }
+}

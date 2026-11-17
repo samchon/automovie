@@ -1,9 +1,10 @@
 import type {
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
   IAutoMovieCaptureSubject,
-} from "@automovie/render";
+} from "@automovie/interface";
 import { AutoMovieCaptureHost, readAutoMovieRevision } from "automovie";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -128,7 +129,11 @@ export async function captureArchetypeRound(manifest: string): Promise<void> {
         prepared.push({
           job,
           request,
-          plan: host.render.planAutoMovieCapture({ request, subject, cuts: [] }),
+          plan: host.render.planAutoMovieCapture({
+            request,
+            subject,
+            cuts: [],
+          }),
         });
       } catch (error) {
         results.push({
@@ -166,15 +171,15 @@ export async function captureArchetypeRound(manifest: string): Promise<void> {
           failures: record.rows
             .filter(
               (
-                row: IAutoMovieCaptureRecord.Row,
+                row: IAutoMovieCaptureCellRecord,
               ): row is Extract<
-                IAutoMovieCaptureRecord.Row,
+                IAutoMovieCaptureCellRecord,
                 { state: "failed" }
               > => row.state === "failed",
             )
             .map(
               (
-                row: Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }>,
+                row: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>,
               ): string => row.cause,
             ),
         });

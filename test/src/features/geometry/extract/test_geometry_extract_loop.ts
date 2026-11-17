@@ -1,4 +1,8 @@
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
+import type {
+  IAutoMoviePlanarHermiteKnot,
+  IAutoMovieStationHermiteLoop,
+} from "@automovie/interface";
 
 /** An independent cubic Hermite, written here from its factored basis functions. */
 function hermite(
@@ -23,7 +27,7 @@ function hermite(
 /** The largest distance of a dense loop from its knots' spans, on the loop's own chord-length parameter. */
 function deviation(
   dense: [number, number][],
-  loop: { knots: X.ILoopKnot[]; length: number },
+  loop: { knots: IAutoMoviePlanarHermiteKnot[]; length: number },
 ): number {
   const t: number[] = [0];
   for (let j: number = 1; j < dense.length; ++j)
@@ -36,8 +40,9 @@ function deviation(
     );
   let worst: number = 0;
   for (let k: number = 0; k < loop.knots.length; ++k) {
-    const a: X.ILoopKnot = loop.knots[k]!;
-    const b: X.ILoopKnot = loop.knots[(k + 1) % loop.knots.length]!;
+    const a: IAutoMoviePlanarHermiteKnot = loop.knots[k]!;
+    const b: IAutoMoviePlanarHermiteKnot =
+      loop.knots[(k + 1) % loop.knots.length]!;
     const tb: number = b.t > a.t ? b.t : b.t + loop.length;
     for (let i: number = a.index; i !== b.index; i = (i + 1) % dense.length) {
       const ti: number = t[i]! < a.t ? t[i]! + loop.length : t[i]!;
@@ -114,10 +119,17 @@ export function test_geometry_extract_loop(): void {
       20 * Math.sin((2 * Math.PI * i) / 360),
     ],
   );
-  const loop: { knots: X.ILoopKnot[]; length: number; error: number } =
-    X.reduceLoop(ellipse, 0.5);
+  const loop: {
+    knots: IAutoMoviePlanarHermiteKnot[];
+    length: number;
+    error: number;
+  } = X.reduceLoop(ellipse, 0.5);
   for (const i of [0, 90, 180, 270])
-    if (!loop.knots.some((k: X.ILoopKnot): boolean => k.index === i))
+    if (
+      !loop.knots.some(
+        (k: IAutoMoviePlanarHermiteKnot): boolean => k.index === i,
+      )
+    )
       failures.push(`the ellipse's axis extreme ${i} was removed`);
   if (!(deviation(ellipse, loop) <= 0.5))
     failures.push(
@@ -129,7 +141,7 @@ export function test_geometry_extract_loop(): void {
     failures.push("a tighter loop tolerance does not keep more knots");
   if (
     !X.reduceLoop(ellipse, 0.5, [45]).knots.some(
-      (k: X.ILoopKnot): boolean => k.index === 45,
+      (k: IAutoMoviePlanarHermiteKnot): boolean => k.index === 45,
     )
   )
     failures.push("a pinned loop landmark was removed");
@@ -151,8 +163,11 @@ export function test_geometry_extract_loop(): void {
       }),
     ],
   ] as const) {
-    const faceted: { knots: X.ILoopKnot[]; length: number; error: number } =
-      X.reduceLoop(dense, 0.5);
+    const faceted: {
+      knots: IAutoMoviePlanarHermiteKnot[];
+      length: number;
+      error: number;
+    } = X.reduceLoop(dense, 0.5);
     if (!(faceted.knots.length < 10 && deviation(dense, faceted) <= 0.5))
       failures.push(
         `the ${label} rippled 64-gon keeps ${faceted.knots.length} knots, deviation ${deviation(dense, faceted)}`,
@@ -176,7 +191,7 @@ export function test_geometry_extract_loop(): void {
       [50, 4.1, -1],
       [100, 2.2, 1],
     ].map(
-      ([station, start, sign]: number[]): X.IStationLoop => ({
+      ([station, start, sign]: number[]): IAutoMovieStationHermiteLoop => ({
         station: station!,
         loop: X.reduceLoop(circle(20 + station! / 10, start!, sign!), 0.05),
       }),

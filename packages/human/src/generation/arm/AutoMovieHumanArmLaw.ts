@@ -1,22 +1,44 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmAxis,
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmLaw,
+  IAutoMovieHumanArmLawInputs,
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanArmScye,
+  IAutoMovieHumanArmTube,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanLimbRootStrip,
+} from "@automovie/interface";
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandHeel } from "../hand/AutoMovieHumanHandHeel";
 import { AutoMovieHumanHandMap } from "../hand/AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandForm } from "../hand/IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandScales } from "../hand/IAutoMovieHumanHandScales";
 import { AutoMovieHumanArmAxis } from "./AutoMovieHumanArmAxis";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmGirth } from "./AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 import { AutoMovieHumanArmPieces } from "./AutoMovieHumanArmPieces";
-import type { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
 import { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
-import type { IAutoMovieHumanArmLaw } from "./IAutoMovieHumanArmLaw";
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
-const { across, cross, dot, hull, mean, norm, scale, smooth, smoother, sub, unit, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  across,
+  cross,
+  dot,
+  hull,
+  mean,
+  norm,
+  scale,
+  smooth,
+  smoother,
+  sub,
+  unit,
+  TWO_PI,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 
 /**
@@ -39,32 +61,6 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * chord.
  */
 export namespace AutoMovieHumanArmLaw {
-  /** The lengths and tapes the law reads, calibration mm. */
-  export interface IInputs {
-    /** Acromion-radiale length. */
-    upper: number;
-    /** Actual downward acromion-to-GH projection, calibration mm. */
-    acromionProjection: number;
-
-    /** Radiale-stylion length. */
-    lower: number;
-
-    /** Biceps tape. */
-    bicep: number;
-
-    /** Elbow tape. */
-    elbow: number;
-
-    /** Forearm tape. */
-    forearm: number;
-
-    /** Wrist tape. */
-    wrist: number;
-
-    /** Calibration millimetres per world millimetre. */
-    scale: number;
-  }
-
   /** Length of the walk past the wrist, world mm: beyond the heel's last cut. */
   const RUN_ON: number = 120;
 
@@ -118,11 +114,23 @@ export namespace AutoMovieHumanArmLaw {
    * @param elbow The skeleton's elbow, if any.
    * @returns The placed centre.
    */
-  export function centreOf(centre: Vec3, inputs: IInputs, elbow?: Vec3): Vec3 {
+  export function centreOf(
+    centre: AutoMovieVector3Tuple,
+    inputs: IAutoMovieHumanArmLawInputs.IInputs,
+    elbow?: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     if (elbow === undefined) return centre;
-    const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-    const placed: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(centre, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower, inputs.acromionProjection);
-    const shift: Vec3 = sub(elbow, placed.elbow);
+    const prior: IAutoMovieHumanArmPrior.IArm =
+      AutoMovieHumanArmPrior.PRIOR.arm;
+    const placed: IAutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(
+      centre,
+      direction(prior.upper),
+      direction(prior.lower),
+      inputs.upper,
+      inputs.lower,
+      inputs.acromionProjection,
+    );
+    const shift: AutoMovieVector3Tuple = sub(elbow, placed.elbow);
 
     return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
   }
@@ -133,7 +141,7 @@ export namespace AutoMovieHumanArmLaw {
    * @param v The direction's three numbers.
    * @returns The unit direction.
    */
-  function direction(v: readonly number[]): Vec3 {
+  function direction(v: readonly number[]): AutoMovieVector3Tuple {
     return unit([v[0]!, v[1]!, v[2]!]);
   }
 
@@ -149,36 +157,62 @@ export namespace AutoMovieHumanArmLaw {
    * @returns The law.
    */
   export function of(
-    ring: AutoMovieHumanArmScye.IRing,
-    inputs: IInputs,
+    ring: IAutoMovieHumanArmScye.IRing,
+    inputs: IAutoMovieHumanArmLawInputs.IInputs,
     hand: IAutoMovieHumanHandScales,
     shape: IAutoMovieHumanHandForm,
-    centre: Vec3,
-    elbow?: Vec3,
+    centre: AutoMovieVector3Tuple,
+    elbow?: AutoMovieVector3Tuple,
   ): IAutoMovieHumanArmLaw {
-    const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-    if (!(inputs.upper > 0) || !(inputs.lower > 0) || !(inputs.bicep > 0) || !(inputs.elbow > 0) || !(inputs.forearm > 0) || !(inputs.wrist > 0))
+    const prior: IAutoMovieHumanArmPrior.IArm =
+      AutoMovieHumanArmPrior.PRIOR.arm;
+    if (
+      !(inputs.upper > 0) ||
+      !(inputs.lower > 0) ||
+      !(inputs.bicep > 0) ||
+      !(inputs.elbow > 0) ||
+      !(inputs.forearm > 0) ||
+      !(inputs.wrist > 0)
+    )
       throw new Error("An arm needs positive lengths and tapes");
 
     // The bones from the placed glenohumeral centre, their lengths and directions kept.
-    const at: Vec3 = centreOf(centre, inputs, elbow);
-    const bones: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(at, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower, inputs.acromionProjection);
+    const at: AutoMovieVector3Tuple = centreOf(centre, inputs, elbow);
+    const bones: IAutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(
+      at,
+      direction(prior.upper),
+      direction(prior.lower),
+      inputs.upper,
+      inputs.lower,
+      inputs.acromionProjection,
+    );
 
     // The walk on the bones and the tube of the spans about it.
     const soft: number = (prior.softness * inputs.elbow) / TWO_PI;
-    const axis: AutoMovieHumanArmAxis.IAxis = AutoMovieHumanArmAxis.walk(bones, soft);
-    const pieceInputs: IAutoMovieHumanArmPiece.IInputs = AutoMovieHumanArmPieces.inputs(bones, axis, {
-      bicep: inputs.bicep,
-      elbow: inputs.elbow,
-      forearm: inputs.forearm,
-      wrist: inputs.wrist * hand.wrist,
-    });
-    const pieces: IAutoMovieHumanArmPiece[] = AutoMovieHumanArmPieces.build(pieceInputs);
+    const axis: IAutoMovieHumanArmAxis.IAxis = AutoMovieHumanArmAxis.walk(
+      bones,
+      soft,
+    );
+    const pieceInputs: IAutoMovieHumanArmPiece.IInputs =
+      AutoMovieHumanArmPieces.inputs(bones, axis, {
+        bicep: inputs.bicep,
+        elbow: inputs.elbow,
+        forearm: inputs.forearm,
+        wrist: inputs.wrist * hand.wrist,
+      });
+    const pieces: IAutoMovieHumanArmPiece[] =
+      AutoMovieHumanArmPieces.build(pieceInputs);
     const knots: [number, number][] = AutoMovieHumanArmGirth.knots(pieces);
-    const hullKey: string = JSON.stringify([at, inputs.upper, inputs.lower, inputs.elbow, inputs.acromionProjection]);
+    const hullKey: string = JSON.stringify([
+      at,
+      inputs.upper,
+      inputs.lower,
+      inputs.elbow,
+      inputs.acromionProjection,
+    ]);
     let hulls: Map<number, number> | undefined = HULLS.get(hullKey);
     if (hulls === undefined) HULLS.set(hullKey, (hulls = new Map()));
-    const tube: AutoMovieHumanArmTube.ITube = AutoMovieHumanArmTube.build(
+    const tube: IAutoMovieHumanArmTube.ITube = AutoMovieHumanArmTube.build(
       axis,
       AutoMovieHumanArmGuides.shape(pieces),
       [],
@@ -202,20 +236,40 @@ export namespace AutoMovieHumanArmLaw {
     // from where the walk crosses its plane than the scye's diameter, so a
     // secant root beyond that is another crossing of a bent tube.
     const reach: number = 2 * ring.radius;
-    const off = (s: number, point: Vec3, normal: Vec3, theta: number): number => dot(sub(tube.surface(s, theta), point), normal);
-    const cut = (point: Vec3, normal: Vec3, theta: number, guess: number): Vec3 => {
+    const off = (
+      s: number,
+      point: AutoMovieVector3Tuple,
+      normal: AutoMovieVector3Tuple,
+      theta: number,
+    ): number => dot(sub(tube.surface(s, theta), point), normal);
+    const cut = (
+      point: AutoMovieVector3Tuple,
+      normal: AutoMovieVector3Tuple,
+      theta: number,
+      guess: number,
+    ): AutoMovieVector3Tuple => {
       let s0: number = guess;
       let f0: number = off(s0, point, normal, theta);
       let s1: number = guess + CUT_PROBE * inputs.scale;
       let f1: number = off(s1, point, normal, theta);
-      for (let i: number = 0; i < CUT_STEPS && Math.abs(f1) > tolerance && f1 !== f0; i++) {
+      for (
+        let i: number = 0;
+        i < CUT_STEPS && Math.abs(f1) > tolerance && f1 !== f0;
+        i++
+      ) {
         const s2: number = s1 - (f1 * (s1 - s0)) / (f1 - f0);
         s0 = s1;
         f0 = f1;
         s1 = s2;
         f1 = off(s1, point, normal, theta);
       }
-      if (Math.abs(f1) <= tolerance && Math.abs(s1 - guess) <= reach && s1 >= low && s1 <= end) return tube.surface(s1, theta);
+      if (
+        Math.abs(f1) <= tolerance &&
+        Math.abs(s1 - guess) <= reach &&
+        s1 >= low &&
+        s1 <= end
+      )
+        return tube.surface(s1, theta);
 
       let lo: number = low;
       let hi: number = end;
@@ -226,11 +280,14 @@ export namespace AutoMovieHumanArmLaw {
       }
       return tube.surface((lo + hi) / 2, theta);
     };
-    const wrist: Vec3 = axis.at(stylion);
+    const wrist: AutoMovieVector3Tuple = axis.at(stylion);
     const angle = (t: number): number => prior.phase + prior.sense * t;
 
     // The walk's distance at which it crosses a plane.
-    const crossing = (point: Vec3, normal: Vec3): number => {
+    const crossing = (
+      point: AutoMovieVector3Tuple,
+      normal: AutoMovieVector3Tuple,
+    ): number => {
       let lo: number = 0;
       let hi: number = end;
       for (let i: number = 0; i < BISECTIONS; i++) {
@@ -244,26 +301,46 @@ export namespace AutoMovieHumanArmLaw {
     // The hand's map: the centre of the form's section at the crease stands on
     // the tube's wrist, so the heel grows out of the forearm about its own axis
     // whatever the hand's scales.
-    const handPrior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
-    const origin: Vec3 = sub(wrist, handPoint(shape.creaseCentre, hand, [0, 0, 0]));
-    const square: Vec3 = [-handPrior.along[0], -handPrior.along[1], -handPrior.along[2]];
-    const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, hand, origin);
+    const handPrior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
+    const origin: AutoMovieVector3Tuple = sub(
+      wrist,
+      handPoint(shape.creaseCentre, hand, [0, 0, 0]),
+    );
+    const square: AutoMovieVector3Tuple = [
+      -handPrior.along[0],
+      -handPrior.along[1],
+      -handPrior.along[2],
+    ];
+    const map = (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
+      handPoint(q, hand, origin);
     const creaseAt: number = handPrior.crease;
 
     // A heel station's plane is crossed by the walk once, kept for every phase.
     const heelWalks: Map<number, number> = new Map();
     const heelWalk = (b: number): number => {
       let s: number | undefined = heelWalks.get(b);
-      if (s === undefined) heelWalks.set(b, (s = crossing(map([b, 0, 0]), square)));
+      if (s === undefined)
+        heelWalks.set(b, (s = crossing(map([b, 0, 0]), square)));
       return s;
     };
-    const heel = (a: number, t: number): Vec3 =>
-      AutoMovieHumanHandHeel.point({ form: shape, map, bone: (b: number, u: number): Vec3 => cut(map([b, 0, 0]), square, angle(u), heelWalk(b)) }, a, t);
+    const heel = (a: number, t: number): AutoMovieVector3Tuple =>
+      AutoMovieHumanHandHeel.point(
+        {
+          form: shape,
+          map,
+          bone: (b: number, u: number): AutoMovieVector3Tuple =>
+            cut(map([b, 0, 0]), square, angle(u), heelWalk(b)),
+        },
+        a,
+        t,
+      );
 
     // Above the crease the planes leave the hand's axis and follow the walk.
     const join: number = -creaseAt;
     const joinWalk: number = crossing(map([creaseAt, 0, 0]), square);
-    const walkOf: (q: number) => number = (q: number): number => joinWalk - (q - join);
+    const walkOf: (q: number) => number = (q: number): number =>
+      joinWalk - (q - join);
 
     // The arm's own sections stop one scye radius down the walk from where it
     // crosses the ring's lowest point, square to the walk; from there the
@@ -273,60 +350,109 @@ export namespace AutoMovieHumanArmLaw {
     // level: its arm arc dips on the lateral side, and an own section placed
     // under the ring's mean height stood above that side, where the strip
     // folded back up into a lip.
-    const lowest: number = Math.min(...ring.points.map((p: Vec3): number => p[1]));
+    const lowest: number = Math.min(
+      ...ring.points.map((p: AutoMovieVector3Tuple): number => p[1]),
+    );
     const ownWalk: number = crossing([0, lowest, 0], [0, 1, 0]) + ring.radius;
     const qOwn: number = join + (joinWalk - ownWalk);
-    const phases: number[] = Array.from({ length: prior.order }, (_: unknown, m: number): number => (TWO_PI * m) / prior.order);
-    const ends: AutoMovieHumanLimbRootStrip.IJet[] = phases.map(
-      (t: number): AutoMovieHumanLimbRootStrip.IJet =>
-        AutoMovieHumanLimbRootStrip.jet((s: number): Vec3 => tube.surface(s, angle(t)), ownWalk, JET_READ * inputs.scale),
+    const phases: number[] = Array.from(
+      { length: prior.order },
+      (_: unknown, m: number): number => (TWO_PI * m) / prior.order,
     );
-    const starts: AutoMovieHumanLimbRootStrip.IJet[] = ends.map(
-      (e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.under(ring.centre, ring.jets, e.point),
+    const ends: IAutoMovieHumanLimbRootStrip.IJet[] = phases.map(
+      (t: number): IAutoMovieHumanLimbRootStrip.IJet =>
+        AutoMovieHumanLimbRootStrip.jet(
+          (s: number): AutoMovieVector3Tuple => tube.surface(s, angle(t)),
+          ownWalk,
+          JET_READ * inputs.scale,
+        ),
+    );
+    const starts: IAutoMovieHumanLimbRootStrip.IJet[] = ends.map(
+      (
+        e: IAutoMovieHumanLimbRootStrip.IJet,
+      ): IAutoMovieHumanLimbRootStrip.IJet =>
+        AutoMovieHumanLimbRootStrip.under(ring.centre, ring.jets, e.point),
     );
 
     // The strip's parameter runs as its mean chord, so its layers are spaced
     // in millimetres like the tube's: w is 1 at the arm's own section, 0 at
     // the ring.
-    const chord: number = mean(starts.map((c: AutoMovieHumanLimbRootStrip.IJet, m: number): Vec3 => [norm(sub(ends[m]!.point, c.point)), 0, 0]), 0);
-    const strip: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({ start: starts, end: ends });
+    const chord: number = mean(
+      starts.map(
+        (
+          c: IAutoMovieHumanLimbRootStrip.IJet,
+          m: number,
+        ): AutoMovieVector3Tuple => [norm(sub(ends[m]!.point, c.point)), 0, 0],
+      ),
+      0,
+    );
+    const strip: IAutoMovieHumanLimbRootStrip.IStrip =
+      AutoMovieHumanLimbRootStrip.strip({ start: starts, end: ends });
 
     // The strip's layer planes turn from the ring's level plane to the arm's
     // square plane by the quintic smoothstep, with no step in their slope or
     // curvature at either end.
-    const level: Vec3 = [0, 1, 0];
-    const squareOwn: Vec3 = scale(axis.heading(ownWalk), -1);
-    const stripNormal: (w: number) => Vec3 = (w: number): Vec3 => {
+    const level: AutoMovieVector3Tuple = [0, 1, 0];
+    const squareOwn: AutoMovieVector3Tuple = scale(axis.heading(ownWalk), -1);
+    const stripNormal: (w: number) => AutoMovieVector3Tuple = (
+      w: number,
+    ): AutoMovieVector3Tuple => {
       const x: number = smoother(w);
-      return unit([level[0] + x * (squareOwn[0] - level[0]), level[1] + x * (squareOwn[1] - level[1]), level[2] + x * (squareOwn[2] - level[2])]);
+      return unit([
+        level[0] + x * (squareOwn[0] - level[0]),
+        level[1] + x * (squareOwn[1] - level[1]),
+        level[2] + x * (squareOwn[2] - level[2]),
+      ]);
     };
     const qTop: number = qOwn + chord;
-    const wOf: (q: number) => number = (q: number): number => (qTop - q) / chord;
-    const rings: Map<number, Vec3[]> = new Map<number, Vec3[]>();
-    const stripRing: (q: number) => Vec3[] = (q: number): Vec3[] => {
-      let found: Vec3[] | undefined = rings.get(q);
+    const wOf: (q: number) => number = (q: number): number =>
+      (qTop - q) / chord;
+    const rings: Map<number, AutoMovieVector3Tuple[]> = new Map<
+      number,
+      AutoMovieVector3Tuple[]
+    >();
+    const stripRing: (q: number) => AutoMovieVector3Tuple[] = (
+      q: number,
+    ): AutoMovieVector3Tuple[] => {
+      let found: AutoMovieVector3Tuple[] | undefined = rings.get(q);
       if (found === undefined) rings.set(q, (found = strip.ring(wOf(q))));
       return found;
     };
-    const normal: (q: number) => Vec3 = (q: number): Vec3 => {
+    const normal: (q: number) => AutoMovieVector3Tuple = (
+      q: number,
+    ): AutoMovieVector3Tuple => {
       if (q <= join) return square;
       if (q > qOwn) return stripNormal(wOf(q));
       const s: number = walkOf(q);
-      const bone: Vec3 = scale(axis.heading(s), -1);
+      const bone: AutoMovieVector3Tuple = scale(axis.heading(s), -1);
       const w: number = smooth((q - join) / (WRIST_TURN * inputs.scale));
-      return unit([square[0] + w * (bone[0] - square[0]), square[1] + w * (bone[1] - square[1]), square[2] + w * (bone[2] - square[2])]);
+      return unit([
+        square[0] + w * (bone[0] - square[0]),
+        square[1] + w * (bone[1] - square[1]),
+        square[2] + w * (bone[2] - square[2]),
+      ]);
     };
-    const anchor: (q: number) => Vec3 = (q: number): Vec3 => {
+    const anchor: (q: number) => AutoMovieVector3Tuple = (
+      q: number,
+    ): AutoMovieVector3Tuple => {
       if (q <= join) return map([-q, 0, 0]);
       if (q > qOwn) {
-        const r: Vec3[] = stripRing(q);
+        const r: AutoMovieVector3Tuple[] = stripRing(q);
         return [mean(r, 0), mean(r, 1), mean(r, 2)];
       }
       return axis.at(walkOf(q));
     };
-    const point: (q: number, t: number) => Vec3 = (q: number, t: number): Vec3 => {
+    const point: (q: number, t: number) => AutoMovieVector3Tuple = (
+      q: number,
+      t: number,
+    ): AutoMovieVector3Tuple => {
       if (q <= join) return heel(-q, t);
-      if (q > qOwn) return stripRing(q)[((Math.round((t / TWO_PI) * prior.order) % prior.order) + prior.order) % prior.order]!;
+      if (q > qOwn)
+        return stripRing(q)[
+          ((Math.round((t / TWO_PI) * prior.order) % prior.order) +
+            prior.order) %
+            prior.order
+        ]!;
       return cut(axis.at(walkOf(q)), normal(q), angle(t), walkOf(q));
     };
 
@@ -337,23 +463,44 @@ export namespace AutoMovieHumanArmLaw {
       .filter((a: number): boolean => a > creaseAt)
       .map((a: number): number => -a)
       .sort((p: number, q: number): number => p - q);
-    const steps: number = Math.max(1, Math.ceil((qOwn - join) / (LAYER_STEP * inputs.scale)));
-    for (let i: number = 1; i <= steps; i++) layers.push(join + ((qOwn - join) * i) / steps);
-    const rootSteps: number = Math.max(1, Math.ceil(chord / (LAYER_STEP * inputs.scale)));
-    for (let i: number = 1; i <= rootSteps; i++) layers.push(qOwn + (chord * i) / rootSteps);
+    const steps: number = Math.max(
+      1,
+      Math.ceil((qOwn - join) / (LAYER_STEP * inputs.scale)),
+    );
+    for (let i: number = 1; i <= steps; i++)
+      layers.push(join + ((qOwn - join) * i) / steps);
+    const rootSteps: number = Math.max(
+      1,
+      Math.ceil(chord / (LAYER_STEP * inputs.scale)),
+    );
+    for (let i: number = 1; i <= rootSteps; i++)
+      layers.push(qOwn + (chord * i) / rootSteps);
 
-    const creaseRing: Vec3[] = Array.from({ length: CREASE_PHASES }, (_: unknown, i: number): Vec3 => heel(creaseAt, (TWO_PI * i) / CREASE_PHASES));
+    const creaseRing: AutoMovieVector3Tuple[] = Array.from(
+      { length: CREASE_PHASES },
+      (_: unknown, i: number): AutoMovieVector3Tuple =>
+        heel(creaseAt, (TWO_PI * i) / CREASE_PHASES),
+    );
 
     // A section of the tube by a plane: its hull's perimeter, the tape.
-    const girth = (at: Vec3, n: Vec3): number => {
-      const u: Vec3 = across([1, 0, 0], n);
-      const v: Vec3 = cross(n, u);
+    const girth = (
+      at: AutoMovieVector3Tuple,
+      n: AutoMovieVector3Tuple,
+    ): number => {
+      const u: AutoMovieVector3Tuple = across([1, 0, 0], n);
+      const v: AutoMovieVector3Tuple = cross(n, u);
       const walk: number = crossing(at, n);
       return hull(
-        Array.from({ length: GIRTH_PHASES }, (_: unknown, i: number): [number, number] => {
-          const p: Vec3 = sub(cut(at, n, (TWO_PI * i) / GIRTH_PHASES, walk), at);
-          return [dot(p, u), dot(p, v)];
-        }),
+        Array.from(
+          { length: GIRTH_PHASES },
+          (_: unknown, i: number): [number, number] => {
+            const p: AutoMovieVector3Tuple = sub(
+              cut(at, n, (TWO_PI * i) / GIRTH_PHASES, walk),
+              at,
+            );
+            return [dot(p, u), dot(p, v)];
+          },
+        ),
       );
     };
 

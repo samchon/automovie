@@ -1,5 +1,5 @@
-import { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionConsumer";
-import { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
+import type { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionConsumer";
+import type { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 
 /**
  * Typed production consumer address for one asset-ledger use. Actual consumers decide which address kinds they admit.

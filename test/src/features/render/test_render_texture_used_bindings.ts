@@ -1,12 +1,12 @@
 import {
-  type IAutoMovieRenderSubject,
-  type IAutoMovieRenderTextureSource,
   deriveAutoMovieSemanticMask,
   measureAutoMovieRenderInventory,
 } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieModel,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTextureSource,
   IAutoMovieScene,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

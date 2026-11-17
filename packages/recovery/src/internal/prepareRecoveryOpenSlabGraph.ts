@@ -1,14 +1,20 @@
-import type { RecoveryOpenSlabGraph as O } from "./RecoveryOpenSlabGraph";
+import type {
+  IAutoMovieRecoveryOpenArcIncidence,
+  IAutoMovieRecoveryOpenSlabGraph,
+  IAutoMovieRecoverySlabConnectivityGroup,
+  IAutoMovieRecoverySlabGraph,
+} from "@automovie/interface";
+
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
 /** Private source admission record shared structurally with the public observer. */
-type Source = O.Source;
+type Source = IAutoMovieRecoveryOpenSlabGraph.Source;
 /** Private query record; original face ownership stays observation-only. */
-type Query = O.Query;
+type Query = IAutoMovieRecoveryOpenSlabGraph.Query;
 /** Local saved-arc continuation result. */
-type Result = O.Result;
+type Result = IAutoMovieRecoveryOpenSlabGraph.Result;
 /** One private saved-arc support. */
-type Arc = O.Arc;
+type Arc = IAutoMovieRecoveryOpenArcIncidence;
 
 /**
  * Prepare ordinary open-slab observations without exposing original mesh addresses.
@@ -54,7 +60,8 @@ export function prepareRecoveryOpenSlabGraph(
         "Open slab aliases must have identical positions and scalar heights",
       );
   }
-  const sheet: ReturnType<typeof G.prepare> = G.prepare(source);
+  const sheet: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> =
+    G.prepare(source);
   const invalid: Set<number> = new Set();
   const invalidVertices: Set<number> = new Set();
   const invalidEdges: Set<string> = new Set();
@@ -339,7 +346,7 @@ export function prepareRecoveryOpenSlabGraph(
       );
       return found.size === 1 ? found.values().next().value : undefined;
     };
-    const groups: G.Group[] = sheet({
+    const groups: IAutoMovieRecoverySlabConnectivityGroup[] = sheet({
       beforeMm: input.beforeMm,
       afterMm: input.afterMm,
       before: input.before.map((arc: Arc): ReadonlySet<number> => arc.faces),

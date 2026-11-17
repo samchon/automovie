@@ -2,7 +2,7 @@ import type {
   IAutoMovieHumanBodyAnatomy,
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanParameters,
-} from "@automovie/human";
+} from "@automovie/interface";
 
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";

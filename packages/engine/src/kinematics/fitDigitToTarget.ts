@@ -2,22 +2,20 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
-  IAutoMovieJointAxes,
+  IAutoMovieFitDigitToTarget,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMoviePose,
-  IAutoMovieSkeleton,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { fitDigitDescent } from "./fitDigitDescent";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { resolvePose } from "./resolvePose";
@@ -94,8 +92,8 @@ import { resolvePose } from "./resolvePose";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned joints belong to the caller.
  */
 export function fitDigitToTarget(
-  input: fitDigitToTarget.IInput,
-): fitDigitToTarget.IResult {
+  input: IAutoMovieFitDigitToTarget.IInput,
+): IAutoMovieFitDigitToTarget.IResult {
   if (input.bones.length === 0)
     throw new Error("A digit fit needs the digit's joints");
   if (
@@ -282,71 +280,6 @@ export function fitDigitToTarget(
 }
 
 /**
- * Companion types of {@link fitDigitToTarget}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation A posed rig, the digit's joints proximal to distal, a bone-local effector frame and a world target point with an optional normal.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the fit reads and what its caller needs back: the joints, where the effector ended and how far from the target.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's poses, bones and vectors; the effector is the region frame `resolveAutoMovieHumanoidSurfaces` already gives.
- */
-export namespace fitDigitToTarget {
-  /** What a digit fit reads. */
-  export interface IInput {
-    /** The rig. */
-    skeleton: IAutoMovieSkeleton;
-
-    /** The posed body: its root, arm and hand place the digit's base; its own entries for the digit's joints are the fit's start. */
-    pose: IAutoMoviePose;
-
-    /** The digit's joints, proximal to distal: a finger's three, or the thumb's metacarpal, proximal and distal. */
-    bones: readonly AutoMovieHumanoidBone[];
-
-    /** The point brought to the target, in its bone's rest frame relative to the bone's joint, metres, with the outward unit normal there: a region frame of the digit's tip or pad. */
-    effector: {
-      bone: AutoMovieHumanoidBone;
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    };
-
-    /** The target, world metres. */
-    target: IAutoMovieVector3;
-
-    /** The world direction the effector's normal is turned onto, when the contact needs one (a pad laid on a key faces against the key's normal); none when absent. */
-    normal?: IAutoMovieVector3;
-
-    /** The ratio of the distal joint's flexion to the middle joint's that a finger keeps as its second task, after the point; no coupling when absent (the thumb). */
-    coupling?: number;
-
-    /** The joint axes the pose is read with, as `resolvePose` takes them; the skeleton's own when absent. */
-    jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-    /** The rest frames the pose's clinical angles are lifted by, as `resolvePose` takes them; none when absent. */
-    restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-    /** The rig's topology, when the caller has it. */
-    topology?: IAutoMovieSkeletonTopology;
-
-    /** Desired radial extension rate near full reach, positive finite degrees per metre. Derives a soft-IK band from the chain's smallest full-extension hinge curvature; targets in that band are eased short of full reach, and `residual` still measures the original target. Other constrained-IK basin changes are not bounded by this value. No softening when absent. */
-    rate?: number;
-  }
-
-  /** What a digit fit returns. */
-  export interface IResult {
-    /** The digit's joints, inside their range, clinical degrees. */
-    joints: IAutoMovieJointPose[];
-
-    /** Where the effector ended, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The effector's outward unit normal there, world frame. */
-    normal: IAutoMovieVector3;
-
-    /** The distance from the effector to the target, metres; zero within rounding when the target is reached. */
-    residual: number;
-  }
-}
-
-/**
  * Exponential soft IK in the radial coordinate: identity below L-s and
  * L-s exp(-(d-(L-s))/s) above it. For a hinge dividing the straight chain
  * into lengths a and b, the cosine rule gives L-d = k theta² + O(theta⁴),
@@ -360,7 +293,7 @@ export namespace fitDigitToTarget {
  * invariant under the pose; only the base's world place follows it.
  */
 const softTarget = (
-  input: fitDigitToTarget.IInput,
+  input: IAutoMovieFitDigitToTarget.IInput,
   topology: IAutoMovieSkeletonTopology,
 ): IAutoMovieVector3 => {
   if (input.rate === undefined) return input.target;

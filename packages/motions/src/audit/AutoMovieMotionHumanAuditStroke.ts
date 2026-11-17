@@ -1,4 +1,6 @@
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import type { IAutoMovieMotionHumanAuditStroke } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * How many times a repeated movement really goes out and back, and how far
@@ -18,42 +20,10 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass that tracks the running extreme of the current direction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Counts what the scalar does, never what a plan says it repeats; no smoothing hides a missing or an extra swing.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in samples, constant memory beside the result.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the scalar handed in; the grid is `IAutoMovieMotionHumanAuditMotion.grid`.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the scalar handed in; the grid is `AutoMovieMotionHumanAuditMotion.grid`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditStroke {
-  /**
-   * One turning point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation When and how far, the two facts a repetition is checked by.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the audit's test and by law tests.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IExtreme {
-    /** When the scalar turns, film seconds. */
-    seconds: number;
-
-    /** The scalar there, in its own unit. */
-    value: number;
-  }
-
-  /**
-   * The turning points of a span.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it lists and in which order.
-   * @evidence contracts/development/design.md#principled-representation Peaks and troughs apart, since a law names one of them as its repetition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two lists; counts and excursions are read off them by the caller.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No derived member that could disagree with the lists.
-   */
-  export interface IResult {
-    /** The confirmed maxima, in film order. */
-    peaks: IExtreme[];
-
-    /** The confirmed minima, in film order. */
-    troughs: IExtreme[];
-  }
-
   /**
    * Read a scalar's turning points between two film seconds.
    *
@@ -79,21 +49,33 @@ export namespace AutoMovieMotionHumanAuditStroke {
     to: number,
     prominence: number,
     rate: number = 120,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditStroke.IResult {
     if (!(prominence > 0))
       throw new Error("A stroke reading needs a positive prominence");
-    const out: IResult = { peaks: [], troughs: [] };
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+    const out: IAutoMovieMotionHumanAuditStroke.IResult = {
+      peaks: [],
+      troughs: [],
+    };
+    const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
       from,
       to,
       rate,
     );
     const first: number = signal(times[0]!);
-    let high: IExtreme = { seconds: times[0]!, value: first };
-    let low: IExtreme = { seconds: times[0]!, value: first };
+    let high: IAutoMovieMotionHumanAuditStroke.IExtreme = {
+      seconds: times[0]!,
+      value: first,
+    };
+    let low: IAutoMovieMotionHumanAuditStroke.IExtreme = {
+      seconds: times[0]!,
+      value: first,
+    };
     let direction: "up" | "down" | null = null;
     for (let i: number = 1; i < times.length; i++) {
-      const now: IExtreme = { seconds: times[i]!, value: signal(times[i]!) };
+      const now: IAutoMovieMotionHumanAuditStroke.IExtreme = {
+        seconds: times[i]!,
+        value: signal(times[i]!),
+      };
       if (now.value > high.value) high = now;
       if (now.value < low.value) low = now;
       if (direction !== "down" && now.value <= high.value - prominence) {

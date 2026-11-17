@@ -9,9 +9,10 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { type IHumanBody, blendHumanJoint } from "@automovie/motions";
+import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,7 +46,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the invariant, the defect it guards and the 3 scenarios.
  */
 export function test_human_motion_core_shoulder_blend(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bone: AutoMovieHumanoidBone = "rightUpperArm";
   const axes: IAutoMovieJointAxes | undefined = skeletonJointAxes(
     body.skeleton,

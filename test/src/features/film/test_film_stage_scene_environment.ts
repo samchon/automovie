@@ -1,14 +1,11 @@
-import {
-  IAutoMovieStagedSet,
-  stageScene,
-  validateSceneEnvironment,
-} from "@automovie/engine";
+import { stageScene, validateSceneEnvironment } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieConstraintViolation,
   IAutoMovieSceneEnvironment,
   IAutoMovieStage,
   IAutoMovieStageLight,
+  IAutoMovieStagedSet,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

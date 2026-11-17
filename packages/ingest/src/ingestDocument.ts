@@ -2,6 +2,7 @@ import type {
   AutoMovieInterpolation,
   AutoMovieNodeKind,
   IAutoMovieClip,
+  IAutoMovieIngestResult,
   IAutoMovieNode,
   IAutoMovieTrack,
 } from "@automovie/interface";
@@ -20,7 +21,6 @@ import type {
   vec4,
 } from "@gltf-transform/core";
 
-import type { IAutoMovieIngestResult } from "./IAutoMovieIngestResult";
 import { accessorValues } from "./internal/accessorValues";
 
 /**

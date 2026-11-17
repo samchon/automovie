@@ -4,6 +4,7 @@ import {
   IAutoMovieBuiltOpening,
   IAutoMovieBuiltSpace,
   IAutoMoviePlanarPoint,
+  type IAutoMovieSpaceObservationStation,
   IAutoMovieSubjectBox,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,7 +12,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieSpaceObservationStation } from "./IAutoMovieSpaceObservationStation";
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";

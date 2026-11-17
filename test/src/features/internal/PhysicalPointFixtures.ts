@@ -1,5 +1,9 @@
 import type {
   IAutoMoviePhysicalPointBound as Bound,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
@@ -10,13 +14,15 @@ export namespace PhysicalPointFixtures {
   /** Four unit-mass spheres: a fixed root, rotating carrier and two unit-offset branches. */
   export function profile(): P {
     const source: P = PhysicalFixtures.sphere(0.01);
-    const segments: P.ISegment[] = [
+    const segments: IAutoMoviePhysicalSegment[] = [
       "root",
       "carrier",
       "source",
       "reference",
-    ].map((bone: string): P.ISegment => {
-      const segment: P.ISegment = structuredClone(source.segments[0]!);
+    ].map((bone: string): IAutoMoviePhysicalSegment => {
+      const segment: IAutoMoviePhysicalSegment = structuredClone(
+        source.segments[0]!,
+      );
       segment.bone = bone;
       if (bone === "source") segment.neutral.position.x = 1;
       if (bone === "reference") segment.neutral.position.y = 2;
@@ -24,13 +30,13 @@ export namespace PhysicalPointFixtures {
     });
     const joint: (
       child: string,
-      position: P.ITransform["position"],
-      axes: P.IAxis[],
-    ) => P.IJoint = (
+      position: IAutoMovieRigidTransform["position"],
+      axes: IAutoMoviePhysicalJointAxis[],
+    ) => IAutoMoviePhysicalJoint = (
       child: string,
-      position: P.ITransform["position"],
-      axes: P.IAxis[],
-    ): P.IJoint => ({
+      position: IAutoMovieRigidTransform["position"],
+      axes: IAutoMoviePhysicalJointAxis[],
+    ): IAutoMoviePhysicalJoint => ({
       id: child,
       parent: child === "carrier" ? "root" : "carrier",
       child,

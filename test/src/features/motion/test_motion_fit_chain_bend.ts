@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   fitChainToTarget,
   indexSkeletonTopology,
@@ -11,6 +10,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

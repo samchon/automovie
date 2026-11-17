@@ -1,7 +1,5 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryMapProjection } from "../structures/internal/IAutoMovieRecoveryMapProjection";
+import type { IAutoMovieRecoveryMapPointProjectionOperation } from "@automovie/interface";
 
 /**
  * Project a finite world point and differentiate the calibrated pixel chart.
@@ -18,10 +16,10 @@ import type { IAutoMovieRecoveryMapProjection } from "../structures/internal/IAu
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owned fixed-size derivative rows transfer to the caller; no point array, image, cache or external handle remains.
  */
 export function projectRecoveryMapPoint(
-  pose: IAutoMovieRecoveryMapPose,
-  point: readonly [number, number, number],
-  intrinsic: readonly number[],
-): IAutoMovieRecoveryMapProjection | null {
+  pose: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[0],
+  point: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[1],
+  intrinsic: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> {
   const rotated: [number, number, number] = AutoMovieMatrix3.apply(
     pose.rotation,
     point,

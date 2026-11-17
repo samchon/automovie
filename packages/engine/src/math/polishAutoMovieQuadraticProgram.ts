@@ -1,14 +1,14 @@
-import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
-import { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
-import { IAutoMovieQuadraticRefinementOptions } from "./IAutoMovieQuadraticRefinementOptions";
-import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import { IAutoMovieQuadraticWorkingSetStep } from "./IAutoMovieQuadraticWorkingSetStep";
-import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
-import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
+import type {
+  IAutoMovieQuadraticPolishingResult,
+  IAutoMovieQuadraticRefinementInterval,
+  IAutoMovieQuadraticRefinementOptions,
+  IAutoMovieQuadraticRow,
+  IAutoMovieQuadraticWorkingSetStep,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
 
-type Problem = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
-type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
+import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
+import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
 
 /**
  * Prepare a correction near an unchanged native primal and signed dual.
@@ -77,10 +77,10 @@ type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Current/trial vectors and bounded traces transfer to the result or become unreachable; this owner creates no native instance or task.
  */
 export function polishAutoMovieQuadraticProgram(
-  input: Problem,
-  native: Native,
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+  native: IAutoMovieSolveQuadraticProgram.IResult,
   options: IAutoMovieQuadraticRefinementOptions,
-  groups: readonly Group[],
+  groups: readonly IAutoMovieQuadraticRefinementInterval[],
   readMerit: (primal: readonly number[], dual: readonly number[]) => number,
   readGradient: (
     primal: readonly number[],
@@ -251,7 +251,7 @@ export function polishAutoMovieQuadraticProgram(
     row: IAutoMovieQuadraticRow,
     values: readonly number[],
   ) => number = (
-    row: Problem["rows"][number],
+    row: IAutoMovieSolveQuadraticProgram.IInput["rows"][number],
     values: readonly number[],
   ): number => {
     let value: number = 0;
@@ -274,7 +274,7 @@ export function polishAutoMovieQuadraticProgram(
     reason = "working-set-native-start-not-practically-feasible";
     return result();
   }
-  const selected: Group[] = [],
+  const selected: IAutoMovieQuadraticRefinementInterval[] = [],
     bounds: number[] = [],
     owners: number[] = [];
   const free: boolean[] = [];
@@ -321,7 +321,7 @@ export function polishAutoMovieQuadraticProgram(
   ): number[] => {
     const restored: number[] = new Array<number>(input.rows.length).fill(0);
     for (let at: number = 0; at < selected.length; at++) {
-      const group: Group = selected[at];
+      const group: IAutoMovieQuadraticRefinementInterval = selected[at];
       const multiplier: number = multipliers[at];
       const owner: number = free[at]
         ? multiplier >= 0
@@ -398,7 +398,7 @@ export function polishAutoMovieQuadraticProgram(
       return result();
     }
     let step: number = flat === null ? 1 : Infinity;
-    let blocking: Group | null = null,
+    let blocking: IAutoMovieQuadraticRefinementInterval | null = null,
       endpoint: number = 0,
       blockingOwner: number = -1;
     // Working endpoints are enforced by the affine solve; every other endpoint

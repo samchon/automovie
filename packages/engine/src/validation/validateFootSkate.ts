@@ -1,23 +1,22 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  type IAutoMovieFootContactWindow,
   type IAutoMovieJointAxes,
   IAutoMovieMotion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateFootSkate,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import {
-  IAutoMovieSkeletonTopology,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
+import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieFootContactWindow } from "./IAutoMovieFootContactWindow";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 
@@ -36,46 +35,12 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Topology/reachability are computed once for the invocation, not again for every window.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sample arrays release per contact; returned warnings grow with violations and retain no playback or solver handle.
  */
-export const validateFootSkate: (props: {
-  motion: IAutoMovieMotion;
-  skeleton: IAutoMovieSkeleton;
-  contacts: readonly IAutoMovieFootContactWindow[];
-  sampleRate?: number;
-  path?: string;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  physicsIntent?: string;
-}) => IAutoMovieValidation = (props: {
-  /** Motion clip to sample. */
-  motion: IAutoMovieMotion;
-
-  /** Skeleton used for forward kinematics. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Declared planted-foot windows to test. */
-  contacts: readonly IAutoMovieFootContactWindow[];
-
-  /** Samples per second used by the validator. Defaults to `24`. */
-  sampleRate?: number;
-
-  /** JSON path of the contact annotation being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** Optional clinical-axis remap for rigs authored in semantic axes. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional rest-frame remap for clinical authoring. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /**
-   * Marker that opts the clip out of the foot-plant expectation. Foot skate is
-   * a physical-plausibility warning, not a gate: a deliberate slide (a
-   * moonwalk, a skate, a comedic scoot) sets this and the matching warnings are
-   * suppressed. Malformed annotations (bad bone, window, rate) stay errors.
-   */
-  physicsIntent?: string;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateFootSkate: (
+  props: IAutoMovieValidateFootSkate.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateFootSkate.IProps,
+): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
   const path: string = props.path ?? "$input";

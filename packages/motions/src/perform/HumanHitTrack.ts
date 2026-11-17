@@ -1,9 +1,10 @@
-import {
-  resolveAutoMovieContactEvents,
-  type resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { resolveAutoMovieContactEvents } from "@automovie/engine";
 import type {
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanHitTrack,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -11,7 +12,6 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * A struck subject's hits as a track of named instants, so an action is
@@ -34,18 +34,6 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hits are the record's; the provisional sweep uses the one contact resolver.
  */
 export namespace HumanHitTrack {
-  /** A hit to sync to. */
-  export interface IHit {
-    /** The struck subject, a performer or a prop. */
-    on: string;
-
-    /** The striking prop, or the striker's subject; any striker when absent. */
-    by?: string;
-
-    /** Which of the matching hits, from 0; the first when absent. */
-    index?: number;
-  }
-
   /** The instant name of every hit on a track. */
   export const EVENT: string = "hit";
 
@@ -58,7 +46,7 @@ export namespace HumanHitTrack {
    * @param hit The hit.
    * @returns `hit:<on>` or `hit:<on>:<by>`.
    */
-  export function name(hit: IHit): string {
+  export function name(hit: IAutoMovieMotionHumanHitTrack.IHit): string {
     return hit.by === undefined
       ? `${PREFIX}${hit.on}`
       : `${PREFIX}${hit.on}:${hit.by}`;
@@ -72,9 +60,9 @@ export namespace HumanHitTrack {
    * @returns The instants.
    */
   export function instants(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     of: string,
-  ): readonly resolveAutoMovieSchedule.ICue[] | undefined {
+  ): readonly IAutoMovieScheduleCue[] | undefined {
     if (!of.startsWith(PREFIX)) return undefined;
     const [on, by] = of.slice(PREFIX.length).split(":") as [
       string,
@@ -90,20 +78,20 @@ export namespace HumanHitTrack {
           (by === undefined || h.actor === by || h.object === by),
       )
       .map(
-        (h: IAutoMovieInteractionEvent): resolveAutoMovieSchedule.ICue => ({
+        (h: IAutoMovieInteractionEvent): IAutoMovieScheduleCue => ({
           name: EVENT,
           seconds: h.time,
         }),
       )
       .sort(
-        (a: resolveAutoMovieSchedule.ICue, b: resolveAutoMovieSchedule.ICue) =>
+        (a: IAutoMovieScheduleCue, b: IAutoMovieScheduleCue) =>
           a.seconds - b.seconds,
       );
   }
 
   /** The melee hits on a person while placing: each placed weapon of another person swept against them alone. */
   function provisional(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     on: string,
   ): IAutoMovieInteractionEvent[] {
     const struck = self.people.get(on);
@@ -117,7 +105,7 @@ export namespace HumanHitTrack {
           const to: number = Math.min(w.to, segment.end);
           if (!(to > from)) continue;
           const tail = w.tail;
-          const events: resolveAutoMovieContactEvents.IEvent[] =
+          const events: IAutoMovieResolveContactEvents.IEvent[] =
             resolveAutoMovieContactEvents({
               weapons: [
                 {
@@ -148,7 +136,7 @@ export namespace HumanHitTrack {
                     a: IAutoMovieVector3,
                     b: IAutoMovieVector3,
                     t: number,
-                    _: resolveAutoMovieContactEvents.IStops,
+                    _: IAutoMovieResolveContactEvents.IStops,
                     taper?: readonly [number, number],
                   ): number =>
                     HumanColliders.distanceToSegment(

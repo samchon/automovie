@@ -1,14 +1,14 @@
 import {
   AutoMovieGrammarStyleIntent,
+  type IAutoMovieGrammarCameraObservation,
+  type IAutoMovieGrammarShotObservation,
+  type IAutoMovieGrammarSubjectObservation,
+  type IAutoMovieNormalizedGrammarShot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieGrammarCameraObservation } from "./IAutoMovieGrammarCameraObservation";
-import { IAutoMovieGrammarShotObservation } from "./IAutoMovieGrammarShotObservation";
-import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectObservation";
-import { IAutoMovieNormalizedGrammarShot } from "./IAutoMovieNormalizedGrammarShot";
 import { assertGrammarPositive } from "./assertGrammarPositive";
 
 /**

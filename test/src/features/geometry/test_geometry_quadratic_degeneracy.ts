@@ -4,10 +4,8 @@
  * the weakly observed coordinate must still reach the known constrained answer.
  * No portrait data, reference image or previous solver output supplies it.
  */
-import {
-  type IAutoMovieQuadraticRow,
-  solveAutoMovieQuadraticProgram,
-} from "@automovie/engine";
+import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

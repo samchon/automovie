@@ -1,10 +1,10 @@
+import type { AutoMovieInspectionShade } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../overrideAutoMovieRenderModeMaterials.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
 
 /** Vertex stage of the faces shade: three.js's own deformation, projection and clipping chunks, with no lighting. */
 const VERTEX: string = `
@@ -55,7 +55,7 @@ void main() {
  */
 export function applyAutoMovieInspectionShade(
   scene: THREE.Scene,
-  shade: IAutoMovieInspectionRequest.Shade,
+  shade: AutoMovieInspectionShade,
 ): {
   /** Bring the shade to the scene as it stands now; call it after every change of the scene and before drawing. */
   update: () => void;

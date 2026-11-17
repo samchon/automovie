@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
@@ -38,8 +41,8 @@ export namespace HumanArmDifferential {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function step(
-    setup: G.ISetup,
-    frame: G.IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    frame: IAutoMovieMotionHumanArmGeometry.IFrame,
     q: readonly number[],
     contact: IAutoMovieVector3,
     r: IAutoMovieVector3,
@@ -47,7 +50,12 @@ export namespace HumanArmDifferential {
     const out: number[] = new Array(q.length).fill(0);
     if (Vector3.length(r) === 0) return out;
     const point = (c: readonly number[]): IAutoMovieVector3 => {
-      const p: G.IPlaced = G.placed(setup, frame, c, false);
+      const p: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
+        setup,
+        frame,
+        c,
+        false,
+      );
       return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, contact));
     };
     const free: number[] = [];

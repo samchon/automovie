@@ -1,13 +1,15 @@
 import {
-  type AutoMoviePhysicsCache,
-  type IAutoMovieMark,
   markAutoMovieRomOvershoot,
   markAutoMovieSkeleton,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMovieInspectionTrail,
+  IAutoMovieMark,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionTrail,
   applyAutoMovieInspection,
   markAutoMovieInspectionTrails,
   planAutoMovieInspectionTrailTimes,
@@ -148,7 +150,7 @@ export async function test_inspection_motion(): Promise<void> {
             },
           },
         },
-      } as unknown as AutoMoviePhysicsCache.IFrame,
+      } as unknown as IAutoMoviePhysicalFrame,
     });
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,

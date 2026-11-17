@@ -1,8 +1,9 @@
+import { playbackFrameSamples } from "@automovie/engine";
 import {
-  IAutoMoviePlaybackSample,
-  playbackFrameSamples,
-} from "@automovie/engine";
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+  type IAutoMoviePlaybackSample,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

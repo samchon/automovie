@@ -1,10 +1,10 @@
 import {
   AUTOMOVIE_SABINE_CONSTANT,
-  type IAutoMovieAcousticRequest,
   analyzeAutoMovieAcoustics,
 } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
+  IAutoMovieAcousticRequest,
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
   IAutoMovieAnalysisSample,

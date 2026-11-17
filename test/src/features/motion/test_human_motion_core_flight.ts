@@ -9,7 +9,15 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAuditSpin,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -18,10 +26,6 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanLayer,
-  type jump,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,17 +79,17 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  */
 export function test_human_motion_core_flight(): void {
   const findings: string[] = [];
-  const tuck: IHumanLayer.IScheduled = {
+  const tuck: IAutoMovieMotionHumanLayer.IScheduled = {
     layer: HumanAirborneShape.layer("tuck"),
     from: { of: "leap", event: "takeoff" },
     to: { of: "leap", event: "touchdown" },
     fade: 0.05,
   };
   const perform = (
-    body: IHumanBody,
-    rotation: jump.IParams["rotation"] | undefined,
+    body: IAutoMovieMotionHumanBody,
+    rotation: IAutoMovieMotionHumanJump.IParams["rotation"] | undefined,
     tucked: boolean,
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "flight",
       performers: [
@@ -109,8 +113,8 @@ export function test_human_motion_core_flight(): void {
         ).node,
       ...(tucked ? { layers: { a: [tuck] } } : {}),
     });
-  const span = (p: HumanPerformance): [number, number] => {
-    const s: HumanSegment.ISegment = p.segments("a")[1]!;
+  const span = (p: IAutoMovieMotionHumanPerformance): [number, number] => {
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     const at = (n: string): number =>
       s.start +
       s.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === n)!
@@ -120,18 +124,21 @@ export function test_human_motion_core_flight(): void {
   };
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const momentum = (p: HumanPerformance, t: number): IAutoMovieVector3 =>
+    const momentum = (
+      p: IAutoMovieMotionHumanPerformance,
+      t: number,
+    ): IAutoMovieVector3 =>
       resolveAutoMovieMomentum(
         model,
         p.bones("a", t - 1e-3),
         p.bones("a", t + 1e-3),
         2e-3,
       ).angular;
-    let layout: HumanPerformance;
-    let tucked: HumanPerformance;
+    let layout: IAutoMovieMotionHumanPerformance;
+    let tucked: IAutoMovieMotionHumanPerformance;
     try {
       layout = perform(body, { somersault: 1 }, false);
       tucked = perform(body, { somersault: 1 }, true);
@@ -145,7 +152,10 @@ export function test_human_motion_core_flight(): void {
     // 1. The solver's contract: the landing meets the request within its
     // tolerance, by a momentum under the take-off's ceiling.
     const [t0, t1] = span(layout);
-    const centre = (p: HumanPerformance, t: number): IAutoMovieVector3 =>
+    const centre = (
+      p: IAutoMovieMotionHumanPerformance,
+      t: number,
+    ): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(model, p.bones("a", t));
     for (const [label, p] of [
       ["layout", layout],
@@ -154,10 +164,8 @@ export function test_human_motion_core_flight(): void {
       const [a, b] = span(p);
       const root = (t: number): IAutoMovieQuaternion =>
         p.pose("a", t).root!.rotation;
-      const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
-        root(a),
-        root(b - 1e-6),
-      );
+      const off: IAutoMovieSolveAirborneTakeoff.IAngles =
+        solveAirborneTakeoff.angles(root(a), root(b - 1e-6));
       const last: number = Quaternion.angle(root(b - 2e-6), root(b - 1e-6));
       const worst: number = Math.max(
         Math.abs(off.somersault),
@@ -212,7 +220,11 @@ export function test_human_motion_core_flight(): void {
     const ordered: Map<number, string> = new Map();
     for (let t: number = 0; t <= layout.duration; t += 1 / 60)
       ordered.set(Math.round(t * 600), JSON.stringify(layout.pose("a", t)));
-    const cold: HumanPerformance = perform(body, { somersault: 1 }, false);
+    const cold: IAutoMovieMotionHumanPerformance = perform(
+      body,
+      { somersault: 1 },
+      false,
+    );
     const instants: number[] = Array.from(
       { length: 30 },
       (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
@@ -239,7 +251,7 @@ export function test_human_motion_core_flight(): void {
     });
 
     // 5. No snap at the landing.
-    const spin: AutoMovieMotionHumanAuditSpin.IResult =
+    const spin: IAutoMovieMotionHumanAuditSpin.IResult =
       AutoMovieMotionHumanAuditSpin.measure(motionHumanLaw.film(layout), "a");
     if (spin.turn.value > 5)
       findings.push(
@@ -247,7 +259,11 @@ export function test_human_motion_core_flight(): void {
       );
 
     // 6. The centre stays where the unturned jump puts it.
-    const plain: HumanPerformance = perform(body, undefined, false);
+    const plain: IAutoMovieMotionHumanPerformance = perform(
+      body,
+      undefined,
+      false,
+    );
     for (let k: number = 1; k < 20; k++) {
       const t: number = t0 + ((t1 - t0) * k) / 20;
       const gap: number = Vector3.length(

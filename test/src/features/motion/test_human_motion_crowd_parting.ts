@@ -1,13 +1,17 @@
 import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_ATTRIBUTE_EFFECTS,
   HumanCrowd,
   HumanEnsemble,
   HumanFormation,
-  type HumanObstacle,
-  type IHumanBody,
-  type IHumanFormation,
   walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_crowd_parting(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
@@ -53,7 +57,7 @@ export function test_human_motion_crowd_parting(): void {
   // The pass's span, derived from the law: the course at the slowest desired speed the population can draw (the walk's normal Froude speed at the shortest hip, the draw's floor `HumanCrowd.SLOWEST` and fatigue's heaviest factor), plus the driving term's start, one relaxation time, and its arrival, whose speed falls linearly within `ARRIVAL` relaxation times of travel and so closes on the goal exponentially, `tau ARRIVAL ln(near / radius)` to come within the agent's radius.
   const slowest: number =
     Math.min(
-      ...pool.map((b: IHumanBody): number =>
+      ...pool.map((b: IAutoMovieMotionHumanBody): number =>
         Math.sqrt(
           walk.FROUDE.normal * AutoMovieGravity.STANDARD * b.measure.hipHeight,
         ),
@@ -66,14 +70,14 @@ export function test_human_motion_crowd_parting(): void {
     );
   const tau: number = steerAutoMovieCrowd.RELAXATION;
   const near: number = slowest * tau * steerAutoMovieCrowd.ARRIVAL;
-  const spanOf = (e: HumanEnsemble.IEnsemble): number =>
+  const spanOf = (e: IAutoMovieMotionHumanEnsemble.IEnsemble): number =>
     (COURSE - near) / slowest +
     tau +
     tau *
       steerAutoMovieCrowd.ARRIVAL *
       Math.log(near / Math.min(...e.members.map(HumanCrowd.half)));
   const scene = (dx: number, dz: number): IScene => {
-    const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: "street",
       seed: "parting",
       count: 40,
@@ -92,7 +96,7 @@ export function test_human_motion_crowd_parting(): void {
         yaw: index % 2 === 0 ? 0 : 180,
       }),
     });
-    const carriage: HumanObstacle.IObstacle = {
+    const carriage: IAutoMovieMotionHumanObstacle = {
       subject: "carriage",
       footprint: [
         { x: -0.8, y: 0, z: -1.2 },
@@ -109,27 +113,35 @@ export function test_human_motion_crowd_parting(): void {
         yaw: 90,
       }),
     };
-    const result: HumanCrowd.IResult = HumanCrowd.steer(ensemble, {
-      goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
-        x: m.place.at.x,
-        y: 0,
-        z: m.place.at.z + (m.index % 2 === 0 ? COURSE : -COURSE),
-      }),
-      gait: "walk",
-      start: 0,
-      until: spanOf(ensemble),
-      obstacles: [carriage],
-    });
+    const result: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(
+      ensemble,
+      {
+        goals: (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): IAutoMovieVector3 => ({
+          x: m.place.at.x,
+          y: 0,
+          z: m.place.at.z + (m.index % 2 === 0 ? COURSE : -COURSE),
+        }),
+        gait: "walk",
+        start: 0,
+        until: spanOf(ensemble),
+        obstacles: [carriage],
+      },
+    );
     return { result, ensemble, carriage };
   };
   const { result, ensemble, carriage }: IScene = scene(0, 0);
   const SPAN: number = spanOf(ensemble);
-  const at = (frame: IHumanFormation.ICourse, t: number): IAutoMovieVector3 =>
-    HumanFormation.frame({ blocks: [], frame }, t).at;
+  const at = (
+    frame: IAutoMovieMotionHumanFormation.ICourse,
+    t: number,
+  ): IAutoMovieVector3 => HumanFormation.frame({ blocks: [], frame }, t).at;
   for (let t: number = 0; t <= SPAN; t += 1 / 24) {
     const c: IAutoMovieVector3 = carriage.motion!(t).position;
     const points: IAutoMovieVector3[] = result.frames.map(
-      (f: IHumanFormation.ICourse): IAutoMovieVector3 => at(f, t),
+      (f: IAutoMovieMotionHumanFormation.ICourse): IAutoMovieVector3 =>
+        at(f, t),
     );
     for (const [i, p] of points.entries()) {
       const half: number = HumanCrowd.half(ensemble.members[i]!);
@@ -201,11 +213,11 @@ const COURSE: number = 30;
 /** A steered street: the crowd's courses, its ensemble and the carriage. */
 interface IScene {
   /** The courses. */
-  result: HumanCrowd.IResult;
+  result: IAutoMovieMotionHumanCrowd.IResult;
 
   /** The ensemble. */
-  ensemble: HumanEnsemble.IEnsemble;
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
 
   /** The carriage. */
-  carriage: HumanObstacle.IObstacle;
+  carriage: IAutoMovieMotionHumanObstacle;
 }

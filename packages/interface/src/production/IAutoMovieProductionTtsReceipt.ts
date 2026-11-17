@@ -1,6 +1,6 @@
-import { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
-import { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
-import { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
+import type { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
+import type { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
+import type { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
 
 /**
  * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; the schema retains generation claims without a repository synthesis writer or receipt-byte validator.

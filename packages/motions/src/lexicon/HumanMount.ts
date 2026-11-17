@@ -1,11 +1,13 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The shapes of getting onto and off a high seat (`HumanMountOn`,
@@ -93,8 +95,10 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function span(body: IHumanBody): readonly [number, number] {
-    const m: IHumanBody["measure"] = body.measure;
+  export function span(
+    body: IAutoMovieMotionHumanBody,
+  ): readonly [number, number] {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return [
       Math.sqrt(
         m.thigh * m.thigh +
@@ -123,8 +127,8 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function grounded(
-    body: IHumanBody,
-    foot: IHumanEntryState.IFoot,
+    body: IAutoMovieMotionHumanBody,
+    foot: IAutoMovieMotionHumanEntryState.IFoot,
   ): boolean {
     return (
       foot.planted &&
@@ -150,8 +154,11 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function held(entry: IHumanEntryState, side: "left" | "right"): IFoot {
-    const limb: IHumanPosture.IGoal | undefined =
+  export function held(
+    entry: IAutoMovieMotionHumanEntryState,
+    side: "left" | "right",
+  ): IFoot {
+    const limb: IAutoMovieHumanLimbGoal | undefined =
       entry.posture.limbs[`${side}Leg`];
     const ankle: IAutoMovieVector3 = entry.feet[side].ankle;
     return {
@@ -185,11 +192,11 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     foot: IFoot,
     planted: boolean,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return {
       point: foot.ankle,
       bend: foot.bend,

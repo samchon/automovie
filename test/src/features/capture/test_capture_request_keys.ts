@@ -1,7 +1,7 @@
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
   AUTO_MOVIE_CAPTURE_PLAN_KEYS,
   AUTO_MOVIE_INSPECTION_KEYS,
-  type IAutoMovieCapturePlanRequest,
   parseAutoMovieCapturePlanRequest,
   readAutoMovieCaptureArguments,
 } from "@automovie/render";

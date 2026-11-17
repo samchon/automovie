@@ -1,11 +1,9 @@
-import {
-  IAutoMovieActionSynthesizer,
-  IAutoMovieActorContext,
-  makeActorSynthesizer,
-} from "@automovie/engine";
+import { makeActorSynthesizer } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
   IAutoMovieActionTarget,
+  type IAutoMovieActorContext,
   IAutoMovieGait,
   IAutoMovieJointPose,
   IAutoMovieMotion,

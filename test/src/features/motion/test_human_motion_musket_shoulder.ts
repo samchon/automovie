@@ -4,14 +4,17 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanMusketDrill,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,8 +53,8 @@ export function test_human_motion_musket_shoulder(): void {
   );
   const bound: number =
     (Math.atan((2 * HumanVerdicts.SKIN) / length) * 180) / Math.PI;
-  const body: IHumanBody = motionHumanBody("m-average");
-  let drill: HumanPerformance;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  let drill: IAutoMovieMotionHumanPerformance;
   try {
     drill = new HumanPerformance({
       seed: "recover-drill",

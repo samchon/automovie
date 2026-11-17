@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -21,7 +22,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-node adjacent acyclic declaration is accepted through the same profile.).
  */
 export function test_ingest_external_model_hierarchy_deep_cycle(): void {
-  const accepted: import("@automovie/ingest").IAutoMovieExternalModelInspection =
+  const accepted: IAutoMovieExternalModelInspection =
     inspectExternalModelHierarchyFixture(
       createExternalModelHierarchyChain(2),
       "gltf-motion-v1",
@@ -45,7 +46,7 @@ export function test_ingest_external_model_hierarchy_deep_cycle(): void {
   TestValidator.predicate(
     "deep motion cycle retains its cause",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+      (): IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

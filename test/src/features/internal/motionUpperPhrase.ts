@@ -1,17 +1,18 @@
 import { Quaternion, Transform } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
-  type HumanHand,
   HumanPerformance,
   HumanUpperRows,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 
 import { motionHandleShapes } from "./motionHandleShapes";
@@ -29,10 +30,10 @@ import { motionHandleShapes } from "./motionHandleShapes";
  */
 export namespace motionUpperPhrase {
   /** The rows of `HumanUpperRows`, the phrase law among them. */
-  export const ROWS: IHumanActionLaw<never>[] = Object.values(
+  export const ROWS: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(
     HumanUpperRows,
   ).filter(
-    (v: unknown): v is IHumanActionLaw<never> =>
+    (v: unknown): v is IAutoMovieMotionHumanActionLaw<never> =>
       typeof v === "object" && v !== null && "plan" in v,
   );
 
@@ -81,13 +82,13 @@ export namespace motionUpperPhrase {
    * @returns The performance.
    */
   export function perform(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     law: string,
     params: object,
     pick: boolean,
-    hand: HumanHand.Side = "right",
-  ): HumanPerformance {
-    const m: IHumanBody["measure"] = body.measure;
+    hand: AutoMovieHumanSide = "right",
+  ): IAutoMovieMotionHumanPerformance {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const affordances: IAutoMovieAffordance[] = [
       {
         id: "handle",
@@ -103,7 +104,7 @@ export namespace motionUpperPhrase {
         extent: null,
       })),
     ];
-    const stick: IHumanProp = {
+    const stick: IAutoMovieMotionHumanProp = {
       subject: "stick",
       frame: {
         position: {

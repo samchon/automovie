@@ -1,11 +1,11 @@
 import { tessellate } from "@automovie/engine";
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * Origin-centered shapes whose tessellation encloses a positive volume.
  */
-const SOLIDS: AutoMoviePrimitiveShape[] = [
+const SOLIDS: IAutoMoviePrimitiveShape[] = [
   { type: "box", width: 0.4, height: 0.6, depth: 0.2 },
   { type: "sphere", radius: 0.5 },
   { type: "cylinder", radius: 0.3, height: 1 },
@@ -110,7 +110,7 @@ export function test_geometry_tessellate_winding(): void {
     );
   for (const shape of [
     ...SOLIDS,
-    { type: "plane", width: 2, depth: 3 } as AutoMoviePrimitiveShape,
+    { type: "plane", width: 2, depth: 3 } as IAutoMoviePrimitiveShape,
   ])
     TestValidator.predicate(
       `${shape.type}: winding agrees with authored normals`,

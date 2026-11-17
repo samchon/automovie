@@ -1,13 +1,10 @@
-import {
-  IAutoMovieRestFrame,
-  resolveMorphTargetWeights,
-  resolvePose,
-} from "@automovie/engine";
+import { resolveMorphTargetWeights, resolvePose } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   type IAutoMovieJointAxes,
   IAutoMovieMeshMorphTarget,
   IAutoMoviePose,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";

@@ -1,6 +1,17 @@
 import type {
-  AutoMovieConstructionNode,
+  AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
+  IAutoMovieConstructionBandProfile,
+  IAutoMovieConstructionBandProfile64,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionState,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
@@ -8,16 +19,12 @@ import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World vector, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out of its face as a hole, a band from that curve to the part's rail (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the monotone ribbon scale), all sharing their boundary vertices.
@@ -36,9 +43,9 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  */
 export function AutoMovieConstructionPortRealize(
   node: IAutoMovieConstructionPort,
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
-  walk: (node: AutoMovieConstructionNode) => void,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
+  walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   walk(node.host);
@@ -49,7 +56,7 @@ export function AutoMovieConstructionPortRealize(
       "host face",
       `the host face ${node.hostFace} was not realized`,
     );
-  const snapshot: AutoMovieConstructionState.ISnapshot =
+  const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
 
   /** Keep the diagnostic while discarding every post-checkpoint effect. */
@@ -68,7 +75,7 @@ export function AutoMovieConstructionPortRealize(
     const kind: "start" | "end" = node.partEnd === "bottom" ? "start" : "end";
     if (
       body.faces[index]!.cycles.some(
-        (c: AutoMovieSolidCycle.ICycle): boolean => c.kind === kind,
+        (c: IAutoMovieSolidCycle.ICycle): boolean => c.kind === kind,
       )
     )
       return fail(
@@ -86,7 +93,9 @@ export function AutoMovieConstructionPortRealize(
     const profile: ((psi: number) => number) | undefined =
       node.rails === undefined
         ? undefined
-        : AutoMovieNaturalSpline.periodic(node.rails.map((x: number): number => end + into * x * S));
+        : AutoMovieNaturalSpline.periodic(
+            node.rails.map((x: number): number => end + into * x * S),
+          );
     const railAt: (psi: number) => number = (psi: number): number =>
       profile === undefined ? rail : profile(psi);
     const [first, last]: [number, number] = part.domain ?? [
@@ -96,8 +105,10 @@ export function AutoMovieConstructionPortRealize(
     const reach: number[] =
       node.rails === undefined
         ? [rail]
-        : Array.from({ length: 8 * node.rails.length }, (_: unknown, j: number): number =>
-            railAt((2 * Math.PI * j) / (8 * node.rails!.length)),
+        : Array.from(
+            { length: 8 * node.rails.length },
+            (_: unknown, j: number): number =>
+              railAt((2 * Math.PI * j) / (8 * node.rails!.length)),
           );
     if (!reach.every((s: number): boolean => s > first && s < last))
       return fail(
@@ -141,13 +152,10 @@ export function AutoMovieConstructionPortRealize(
     const loop: Vec3[] = jets.map(
       (j: IAutoMovieSolidSurface.IJet): Vec3 => [j.p[0], j.p[1], j.p[2]],
     );
-    const near: (
+    const near: (k: number, L: number) => IAutoMovieBlendCrossJet | string = (
       k: number,
       L: number,
-    ) => AutoMovieSolidRibbon.IRibbon | string = (
-      k: number,
-      L: number,
-    ): AutoMovieSolidRibbon.IRibbon | string => {
+    ): IAutoMovieBlendCrossJet | string => {
       const j: IAutoMovieSolidSurface.IJet = jets[k]!;
       const [du, dv]: [number, number] = inward[k]!;
       const speed: number = AutoMovieSolidVector.norm(
@@ -177,22 +185,39 @@ export function AutoMovieConstructionPortRealize(
       return fail(
         "the host's tangent plane at the port's clock origin is degenerate",
       );
-    const band: AutoMovieConstructionSplitBand.IStrip | string =
-      AutoMovieConstructionSplitBand.strip(node.band, loop, near, outward, {
-        surface: part,
-        station: rail,
-        into,
-        ...(profile === undefined ? {} : { along: profile }),
-      }, undefined, node.correspondence ?? "angle", node.ribbons ?? "common", (node.profiles ?? []).map(
-        (p: IAutoMovieConstructionPort.IProfile): IAutoMovieConstructionPort.IProfile => ({
-          ...p,
-          knots: p.knots.map(([t, depth]: [number, number]): [number, number] => [t, depth * S]),
-        }),
-      ));
+    const band: IAutoMovieConstructionSplitBand.IStrip | string =
+      AutoMovieConstructionSplitBand.strip(
+        node.band,
+        loop,
+        near,
+        outward,
+        {
+          surface: part,
+          station: rail,
+          into,
+          ...(profile === undefined ? {} : { along: profile }),
+        },
+        undefined,
+        node.correspondence ?? "angle",
+        node.ribbons ?? "common",
+        (node.profiles ?? []).map(
+          (
+            p: IAutoMovieConstructionBandProfile,
+          ): IAutoMovieConstructionBandProfile64 => ({
+            ...p,
+            knots: p.knots.map(
+              ([t, depth]: [number, number]): [number, number] => [
+                t,
+                depth * S,
+              ],
+            ),
+          }),
+        ),
+      );
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
     // Shared vertices: the port curve on the host, the rail on the part.
-    const mesh: AutoMovieSolidMesh.IMesh = body.mesh;
+    const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
     const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
     const hole: number[] = chart.map((c: [number, number], k: number): number =>
       AutoMovieSolidMesh.vertex(mesh, loop[k]!, hostOwner, c[0], c[1]),
@@ -226,7 +251,7 @@ export function AutoMovieConstructionPortRealize(
       vertices: hole,
       chart: chart.map((c: [number, number]): [number, number] => [c[0], c[1]]),
       neighbours: hole.map(
-        (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
           face,
           from: [0, clock(k)],
           to: [0, clock(k + 1)],
@@ -247,7 +272,7 @@ export function AutoMovieConstructionPortRealize(
           clock(k),
         ]),
         neighbours: hole.map(
-          (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+          (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
             face: hostIndex,
             from: chart[k]!,
             to: chart[(k + 1) % n]!,
@@ -262,7 +287,7 @@ export function AutoMovieConstructionPortRealize(
           clock(k),
         ]),
         neighbours: ring.map(
-          (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+          (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
             face: index,
             from: [railAt(band.childPhases[k]!), band.childPhases[k]!],
             to: [
@@ -295,7 +320,7 @@ export function AutoMovieConstructionPortRealize(
       // to neither face, and the slit cutter's host rail crossed the seam through it. A straight rail's chords are the rail itself.
       ...(profile === undefined ? {} : { along: railAt }),
       neighbours: order.map(
-        (k: number, j: number): AutoMovieSolidCycle.INeighbour => {
+        (k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
           const next: number = order[(j + 1) % n]!;
           return {
             face,

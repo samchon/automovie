@@ -1,5 +1,5 @@
-import { AutoMovieSoftAnalysisKind } from "./AutoMovieSoftAnalysisKind";
-import { AutoMovieSoftAnalysisStatus } from "./AutoMovieSoftAnalysisStatus";
+import type { AutoMovieSoftAnalysisKind } from "./AutoMovieSoftAnalysisKind";
+import type { AutoMovieSoftAnalysisStatus } from "./AutoMovieSoftAnalysisStatus";
 
 /**
  * What a domain's analysis actually did, and what it declined to claim.

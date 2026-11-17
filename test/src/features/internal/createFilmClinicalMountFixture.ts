@@ -1,12 +1,10 @@
 import type {
-  IAutoMovieActionSynthesizer,
-  IAutoMovieRestFrame,
-} from "@automovie/engine";
-import type {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
   IAutoMovieJointAxes,
   IAutoMovieMotion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { validSynthesizer } from "./filmFixtures";

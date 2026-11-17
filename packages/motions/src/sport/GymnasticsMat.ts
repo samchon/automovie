@@ -1,12 +1,15 @@
 import { carriedRate, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsMat,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { lieDown } from "../floor/lieDown";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 
@@ -52,21 +55,17 @@ export namespace GymnasticsMat {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over its inputs.
    */
-  export function lie(props: {
-    body: IHumanBody;
-    model: GymnasticsFlight.Model;
-    from: IHumanPosture;
-    velocity: IAutoMovieVector3;
-    height: number;
-  }): (seconds: number) => IHumanPosture {
-    const body: IHumanBody = props.body;
-    const model: GymnasticsFlight.Model = props.model;
-    const from: IHumanPosture = props.from;
+  export function lie(
+    props: IAutoMovieMotionHumanGymnasticsMat.ILieProps,
+  ): (seconds: number) => IAutoMovieMotionHumanPosture {
+    const body: IAutoMovieMotionHumanBody = props.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel = props.model;
+    const from: IAutoMovieMotionHumanPosture = props.from;
     // The lying tip nearest the landing tip, an odd multiple of 90 degrees:
     // on the back at -90 plus whole turns, on the front at +90.
     const tip: number = 180 * Math.round((from.pitch - 90) / 180) + 90;
     const back: boolean = Math.abs((((tip + 90) % 360) + 360) % 360) < 1;
-    const lain: lieDown.IPose = back
+    const lain: IAutoMovieMotionHumanLieDown.IPose = back
       ? lieDown.POSES.supine
       : lieDown.POSES.prone;
     const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
@@ -74,10 +73,10 @@ export namespace GymnasticsMat {
       model,
       from,
     );
-    return (seconds: number): IHumanPosture => {
+    return (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const u: number = minimumJerk(t / SETTLE).s;
-      const joints: IHumanPosture["joints"] = {};
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(from.joints),
         ...Object.keys(lain.joints),
@@ -94,7 +93,7 @@ export namespace GymnasticsMat {
           a[2] + (b[2] - a[2]) * u,
         ];
       }
-      const posed: IHumanPosture = {
+      const posed: IAutoMovieMotionHumanPosture = {
         ...from,
         pitch: from.pitch + (tip - from.pitch) * u,
         joints,

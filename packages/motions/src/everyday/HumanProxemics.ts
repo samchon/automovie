@@ -1,5 +1,6 @@
 import type {
   IAutoMovieBodyMeasure,
+  IAutoMovieMotionHumanProxemics,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -46,14 +47,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanProxemics {
-  /** A named gap. */
-  export type Band =
-    | "intimate"
-    | "faceToFace"
-    | "personal"
-    | "social"
-    | "handing";
-
   /** Hall's zones, metres. */
   export const ZONES: Readonly<
     Record<"intimate" | "personal" | "social", readonly [number, number]>
@@ -64,7 +57,9 @@ export namespace HumanProxemics {
   };
 
   /** Fixed named gaps, metres. */
-  export const GAPS: Readonly<Record<Exclude<Band, "handing">, number>> = {
+  export const GAPS: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanProxemics.Band, "handing">, number>
+  > = {
     intimate: 0.3,
     faceToFace: 0.6,
     personal: 1.0,
@@ -110,7 +105,7 @@ export namespace HumanProxemics {
    * @throws {HumanRefusal} When a metre request is not positive.
    */
   export function gap(
-    request: Band | number,
+    request: IAutoMovieMotionHumanProxemics.Band | number,
     self: IAutoMovieBodyMeasure,
     other: IAutoMovieBodyMeasure = self,
   ): number {
@@ -143,7 +138,7 @@ export namespace HumanProxemics {
     target: IAutoMovieVector3,
     gap: number,
     chest: number,
-  ): { at: IAutoMovieVector3; yaw: number } {
+  ): IAutoMovieMotionHumanProxemics.IStopResult {
     const dx: number = target.x - from.x;
     const dz: number = target.z - from.z;
     const d: number = Math.hypot(dx, dz);

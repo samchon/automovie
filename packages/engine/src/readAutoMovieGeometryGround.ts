@@ -1,4 +1,9 @@
-import { IAutoMovieWorldDesign } from "@automovie/interface";
+import {
+  type IAutoMovieGroundQueryPoint,
+  type IAutoMovieReadGeometryGround,
+  IAutoMovieWorldDesign,
+  type IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { worldGroundSurface } from "./worldGroundSurface";
 import { worldSurfaceHeight } from "./worldSurfaceHeight";
@@ -16,12 +21,12 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  */
 export const readAutoMovieGeometryGround: (
   world: Pick<IAutoMovieWorldDesign, "surfaces"> | null,
-  point: { x: number; z: number },
-) => { height: number; surface: string | null; walkable: boolean } = (
+  point: IAutoMovieGroundQueryPoint,
+) => IAutoMovieReadGeometryGround.IResult = (
   world: Pick<IAutoMovieWorldDesign, "surfaces"> | null,
-  point: { x: number; z: number },
-): { height: number; surface: string | null; walkable: boolean } => {
-  const surface: ReturnType<typeof worldGroundSurface> = worldGroundSurface(
+  point: IAutoMovieGroundQueryPoint,
+): IAutoMovieReadGeometryGround.IResult => {
+  const surface: IAutoMovieWorldSurface | null = worldGroundSurface(
     world?.surfaces ?? [],
     point,
   );

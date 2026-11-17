@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalHullNearest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalHullFaces } from "./physicalHullFaces";
 
@@ -36,8 +40,8 @@ import { physicalHullFaces } from "./physicalHullFaces";
 export function physicalHullNearest(
   points: readonly IAutoMovieVector3[],
   p: IAutoMovieVector3,
-): { distance: number; point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-  const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+): IAutoMoviePhysicalHullNearest.IResult {
+  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const flat: IFlat = flattened(hull);
   const planes: Float64Array = flat.planes;
@@ -154,55 +158,57 @@ interface IFlat {
 }
 
 /** Each hull's flat form, released with the hull. */
-const FLATS: WeakMap<physicalHullFaces.IHull, IFlat> = new WeakMap();
+const FLATS: WeakMap<IAutoMoviePhysicalHullFaces.IHull, IFlat> = new WeakMap();
 
 /** The plane distances of the current query, reused by every call. */
 let DISTANCES: Float64Array = new Float64Array(64);
 
 /** A hull's flat form, built once. */
-const flattened = (hull: physicalHullFaces.IHull): IFlat => {
+const flattened = (hull: IAutoMoviePhysicalHullFaces.IHull): IFlat => {
   const known: IFlat | undefined = FLATS.get(hull);
   if (known !== undefined) return known;
   const planes: Float64Array = new Float64Array(4 * hull.faces.length);
   const starts: Int32Array = new Int32Array(hull.faces.length + 1);
   const total: number = hull.faces.reduce(
-    (sum: number, face: physicalHullFaces.IFace): number =>
+    (sum: number, face: IAutoMoviePhysicalHullFaces.IFace): number =>
       sum + face.loop.length,
     0,
   );
   const edges: Float64Array = new Float64Array(EDGE * total);
   let e: number = 0;
-  hull.faces.forEach((face: physicalHullFaces.IFace, f: number): void => {
-    const n: IAutoMovieVector3 = face.normal;
-    planes.set([n.x, n.y, n.z, face.offset], 4 * f);
-    starts[f] = e;
-    face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
-      const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
-      const ex: number = to.x - from.x;
-      const ey: number = to.y - from.y;
-      const ez: number = to.z - from.z;
-      const mx: number = n.y * ez - n.z * ey;
-      const my: number = n.z * ex - n.x * ez;
-      const mz: number = n.x * ey - n.y * ex;
-      edges.set(
-        [
-          from.x,
-          from.y,
-          from.z,
-          ex,
-          ey,
-          ez,
-          ex * ex + ey * ey + ez * ez,
-          mx,
-          my,
-          mz,
-          mx * from.x + my * from.y + mz * from.z,
-        ],
-        EDGE * e,
-      );
-      e++;
-    });
-  });
+  hull.faces.forEach(
+    (face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
+      const n: IAutoMovieVector3 = face.normal;
+      planes.set([n.x, n.y, n.z, face.offset], 4 * f);
+      starts[f] = e;
+      face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
+        const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
+        const ex: number = to.x - from.x;
+        const ey: number = to.y - from.y;
+        const ez: number = to.z - from.z;
+        const mx: number = n.y * ez - n.z * ey;
+        const my: number = n.z * ex - n.x * ez;
+        const mz: number = n.x * ey - n.y * ex;
+        edges.set(
+          [
+            from.x,
+            from.y,
+            from.z,
+            ex,
+            ey,
+            ez,
+            ex * ex + ey * ey + ez * ez,
+            mx,
+            my,
+            mz,
+            mx * from.x + my * from.y + mz * from.z,
+          ],
+          EDGE * e,
+        );
+        e++;
+      });
+    },
+  );
   starts[hull.faces.length] = e;
   const flat: IFlat = { planes, starts, edges };
   FLATS.set(hull, flat);

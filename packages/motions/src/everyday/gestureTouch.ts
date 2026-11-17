@@ -1,16 +1,17 @@
 import { Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGestureStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureSignal } from "./gestureSignal";
-import type { gestureStroke } from "./gestureStroke";
 
 /**
  * The hand goals of a gesture that need the posed trunk: pointing along the
@@ -51,9 +52,9 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function point(
-    input: gestureStroke.IInput,
-    side: HumanHand.Side,
-  ): gestureStroke.IHand {
+    input: IAutoMovieMotionHumanGestureStroke.IInput,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
     const { body } = input;
     if (input.target === undefined)
       throw new HumanRefusal({
@@ -123,11 +124,11 @@ export namespace gestureTouch {
    */
   export function touch(
     kind: "touchFace" | "pushGlasses" | "scratchHead",
-    input: gestureStroke.IInput,
-    side: HumanHand.Side,
+    input: IAutoMovieMotionHumanGestureStroke.IInput,
+    side: AutoMovieHumanSide,
     u: number,
     cycles: number,
-  ): gestureStroke.IHand {
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
     const { body } = input;
     const region: AutoMovieHumanoidRegion =
       kind === "pushGlasses"
@@ -173,7 +174,10 @@ export namespace gestureTouch {
    * radius of the sphere a hull holds about its centre), so a fingertip laid
    * on a surface touches it rather than sinking its axis into it.
    */
-  function padding(body: IHumanBody, side: HumanHand.Side): number {
+  function padding(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): number {
     const segment =
       body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
       body.profile.segments.find((s) => s.bone === `${side}Hand`);
@@ -187,7 +191,7 @@ export namespace gestureTouch {
 
   /** A shape's thinnest half extent, metres. */
   function thickness(
-    shape: IHumanBody["profile"]["segments"][number]["shapes"][number],
+    shape: IAutoMovieMotionHumanBody["profile"]["segments"][number]["shapes"][number],
   ): number {
     if (shape.kind === "sphere") return shape.radius;
     if (shape.kind === "capsule") return shape.radius;

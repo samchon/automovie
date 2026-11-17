@@ -1,14 +1,15 @@
-import {
-  AutoMovieLoftChain,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLoftMesh,
+  IAutoMovieHumanSurfaceBoundary,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanSurfacePole,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
   AutoMovieHumanBodySurfaceRead;
@@ -34,14 +35,14 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The existing call-owned mesh owns emitted vertices; point selection introduces no retained resource.
    */
   export function pole(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     end: "top" | "bottom",
     ring: number[],
   ): void {
     const tip: number | null = capHeight(target, end);
     const y: number = tip ?? endHeight(target, end);
-    const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
+    const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
@@ -190,12 +191,12 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * so such an end keeps its fitted layers.
    */
   export function domeBase(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     end: "top" | "bottom",
   ): number | null {
     if (capHeight(target, end) !== null) return null;
-    const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
+    const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
     const layers: readonly IAutoMovieLoftChain.ILayer[] = target.layers;
@@ -261,13 +262,13 @@ export namespace AutoMovieHumanBodySurfacePoles {
 
   /** Each mesh's dome normals, by vertex, oriented when the mesh's are known. */
   export const DOMES: WeakMap<
-    AutoMovieHumanLoftMesh.IContext,
+    IAutoMovieHumanLoftMesh.IContext,
     Map<number, [number, number, number]>
   > = new WeakMap();
 
   /** Normals with the domes' own in place of the faceted mesh's, facing the same way. */
   export function domed(
-    mesh: AutoMovieHumanLoftMesh.IContext,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     normals: number[],
   ): number[] {
     const own: Map<number, [number, number, number]> | undefined =
@@ -299,7 +300,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * recorded for the join.
    */
   export function cells(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     lower: readonly number[],
     upper: readonly number[],
@@ -348,7 +349,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * it.
    */
   export function zipped(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     lower: readonly number[],
     lowerPhases: readonly number[],
@@ -407,7 +408,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * itself when the chain has no loops.
    */
   function holing(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
   ): ((corners: readonly [number, number][]) => string | null) | null {
     const roots = context.roots.get(target.name);
@@ -431,7 +432,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
 
   /** Record a left-out cell in its hole, with its corners' chart points and chain. */
   function leave(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     key: string,
     vertices: readonly number[],
@@ -451,13 +452,12 @@ export namespace AutoMovieHumanBodySurfacePoles {
 
   /** Resolved boundary of a chain end; ends without an event are poles. */
   export function boundary(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     end: "bottom" | "top",
-  ): IBoundary {
-    const resolved: IBoundary | undefined = context.boundaries.get(
-      target.name + ":" + end,
-    );
+  ): IAutoMovieHumanSurfaceBoundary {
+    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
+      context.boundaries.get(target.name + ":" + end);
     if (resolved !== undefined) return resolved;
     for (const roots of context.roots.values())
       if (

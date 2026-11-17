@@ -4,10 +4,10 @@ import {
   validatePose,
 } from "@automovie/engine";
 import type {
-  AutoMovieGeometryQuery,
   IAutoMovieBone,
   IAutoMovieCamera,
   IAutoMovieCompiledShotSource,
+  IAutoMovieGeometryQuery,
   IAutoMovieModel,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
@@ -170,7 +170,7 @@ const measure: (
   target: { x: number; y: number; z: number },
   time?: number,
 ): Record<string, number | string | boolean> => {
-  const request: AutoMovieGeometryQuery = {
+  const request: IAutoMovieGeometryQuery = {
     query: "reach",
     actor,
     shot: "reach",
@@ -280,9 +280,9 @@ export function test_engine_geometry_query_reach(): void {
     },
   };
   const affineAsk: (
-    request: AutoMovieGeometryQuery,
+    request: IAutoMovieGeometryQuery,
   ) => ReturnType<typeof measureAutoMovieGeometry> = (
-    request: AutoMovieGeometryQuery,
+    request: IAutoMovieGeometryQuery,
   ): ReturnType<typeof measureAutoMovieGeometry> =>
     measureAutoMovieGeometry({
       request,

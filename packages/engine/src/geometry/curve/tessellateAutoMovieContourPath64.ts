@@ -1,6 +1,8 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMesh,
+  IAutoMovieTessellateContourPath64,
+} from "@automovie/interface";
 
 /**
  * Generate an indexed surface from saved physical polygon identities and P/Q paths.
@@ -17,36 +19,9 @@ import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Polygon identity shares one newly allocated vertex set between incident pairs and one normal accumulation across emitted faces; no coordinate-based sharing occurs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local registries expire on return and generated arrays transfer to the caller; no global cache, source geometry or file handle is acquired.
  */
-export function tessellateAutoMovieContourPath64(input: {
-  topologyDomain: string;
-  polygons: readonly {
-    id: string;
-    stationMm: number;
-    pointsMm: readonly C.Vector[];
-  }[];
-  pairs: readonly {
-    id: string;
-    pId: string;
-    qId: string;
-    startP: number;
-    startQ: number;
-    steps: string;
-    objectiveAreaMm2: number;
-  }[];
-}): {
-  mesh: IAutoMovieMesh;
-  construction: { id: string; points: [number, number, number][] }[];
-  pairs: {
-    id: string;
-    firstTriangle: number;
-    triangles: number;
-    omittedTriangles: number;
-    areaMm2: number;
-    objectiveDiscrepancyMm2: number;
-    diagnostics: string[];
-  }[];
-  diagnostics: string[];
-} {
+export function tessellateAutoMovieContourPath64(
+  input: IAutoMovieTessellateContourPath64.IInput,
+): IAutoMovieTessellateContourPath64.IResult {
   if (!input.topologyDomain.trim())
     throw new Error("A generated physical identity domain is required");
   const polygons: Map<string, (typeof input.polygons)[number]> = new Map();
@@ -57,17 +32,21 @@ export function tessellateAutoMovieContourPath64(input: {
       !Number.isFinite(polygon.stationMm) ||
       polygon.pointsMm.length < 3 ||
       polygon.pointsMm.some(
-        (point: C.Vector): boolean =>
+        (point: Readonly<AutoMovieVector3Tuple>): boolean =>
           point.length !== 3 ||
           !point.every(Number.isFinite) ||
           point[1] !== polygon.stationMm,
       )
     )
       throw new Error("Unique finite Y-plane polygons are required");
-    const origin: C.Vector = polygon.pointsMm[0]!;
+    const origin: Readonly<AutoMovieVector3Tuple> = polygon.pointsMm[0]!;
     const area: number = polygon.pointsMm.reduce(
-      (sum: number, point: C.Vector, i: number): number => {
-        const next: C.Vector =
+      (
+        sum: number,
+        point: Readonly<AutoMovieVector3Tuple>,
+        i: number,
+      ): number => {
+        const next: Readonly<AutoMovieVector3Tuple> =
           polygon.pointsMm[(i + 1) % polygon.pointsMm.length]!;
         if (point.every((x: number, k: number): boolean => x === next[k]))
           throw new Error("A polygon has a collapsed boundary edge");
@@ -126,7 +105,7 @@ export function tessellateAutoMovieContourPath64(input: {
   for (const polygon of input.polygons) {
     offsets.set(polygon.id, mesh.positions.length / 3);
     const points: [number, number, number][] = polygon.pointsMm.map(
-      (point: C.Vector): [number, number, number] => [
+      (point: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
         point[0] * 0.001,
         point[1] * 0.001,
         point[2] * 0.001,

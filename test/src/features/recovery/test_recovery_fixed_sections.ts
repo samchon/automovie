@@ -1,8 +1,8 @@
-import {
-  type IAutoMovieRecoverySectionsInput,
-  type IAutoMovieRecoverySourceLineage,
-  observeAutoMovieRecoverySections,
-} from "@automovie/recovery";
+import type {
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
+import { observeAutoMovieRecoverySections } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -340,7 +340,7 @@ export function test_recovery_fixed_sections(): void {
     typeof observeAutoMovieRecoverySections<"hermite">
   > = observeAutoMovieRecoverySections(input, {
     curveFormat: "hermite",
-    signal: controller.signal,
+    cancelled: (): boolean => controller.signal.aborted,
     onSourceLineage: (): void => {
       delivered++;
       controller.abort();

@@ -1,6 +1,10 @@
 import { wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
@@ -40,7 +44,7 @@ export namespace walkStepFoot {
     toeOff: number;
 
     /** The foot flat on its footprint. */
-    flat: HumanFoot.IPlacement;
+    flat: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The footprint's heading, degrees. */
     heading: number;
@@ -76,7 +80,7 @@ export namespace walkStepFoot {
    */
   export function pushed(
     steps: readonly IStep[],
-    start: Record<"left" | "right", HumanFoot.IPlacement>,
+    start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     yaw: (seconds: number) => number,
     push: number,
     stiff?: "left" | "right",
@@ -180,14 +184,14 @@ export namespace walkStepFoot {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The schedule holds the footfalls only.
    */
   export function schedule(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    start: HumanFoot.IPlacement,
+    start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
     raised: number,
-  ): (t: number) => walkFoot.IScheduled {
-    return (t: number): walkFoot.IScheduled => {
-      let flat: HumanFoot.IPlacement = start;
+  ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
+    return (t: number): IAutoMovieMotionHumanWalkFoot.IScheduled => {
+      let flat: IAutoMovieMotionHumanFoot.IPlacement = start;
       let facing: number = HumanFoot.heading(flat.rotation);
       let strike: number = -Infinity;
       let back: boolean = false;
@@ -196,7 +200,7 @@ export namespace walkStepFoot {
         const backward: boolean = Number.isFinite(strike)
           ? back
           : step.backward === true;
-        const leave = (at: number): walkFoot.IFoot =>
+        const leave = (at: number): IAutoMovieMotionHumanWalkFoot.IFoot =>
           walkFoot.stance(
             body,
             side,

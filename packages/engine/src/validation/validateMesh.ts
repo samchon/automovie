@@ -5,9 +5,9 @@ import {
   IAutoMovieMeshMorphTarget,
   IAutoMovieMeshSkin,
   IAutoMovieMorphTargetDriver,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
@@ -27,13 +27,13 @@ export const validateMesh: (
   mesh: IAutoMovieMesh,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   /** Typed array/null and skin-record structure; this owner admits entries and cardinality without a total unknown-object schema gate. */
   mesh: IAutoMovieMesh,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   validateTupleBuffer(mesh.positions, 3, `${path}.positions`, collector);
   // An empty buffer is a multiple of 3, so validateTupleBuffer accepts it; a
@@ -171,12 +171,12 @@ const validateTupleBuffer: (
   buffer: number[],
   tupleSize: number,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   buffer: number[],
   tupleSize: number,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (buffer.length % tupleSize !== 0)
     collector.push(
@@ -218,13 +218,13 @@ const validateBufferLength: (
   expected: number,
   path: string,
   message: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   buffer: number[],
   expected: number,
   path: string,
   message: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (buffer.length !== expected)
     collector.push(
@@ -255,13 +255,13 @@ const validateMeshSkin: (
   vertexCount: number,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   skin: IAutoMovieMeshSkin,
   vertexCount: number,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (
     skin.method !== undefined &&
@@ -370,13 +370,13 @@ const validateMeshTargets: (
   vertexCount: number,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   targets: IAutoMovieMeshMorphTarget[],
   vertexCount: number,
   path: string,
   boneNames: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const names: Set<string> = new Set<string>();
   const expressionNames: Set<string> = new Set<string>(

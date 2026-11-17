@@ -1,5 +1,5 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import { AutoMovieEasing } from "./AutoMovieEasing";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieEasing } from "./AutoMovieEasing";
 
 /**
  * One limb's part in a gait cycle ({@link IAutoMovieGait}). The limbs differ only in **when** they swing (`phase`) and **how**: a horse walk is its four legs at phase offsets `0, 0.5, 0.25, 0.75` (lateral sequence), a trot at `0, 0.5, 0.5, 0` (diagonal pairs): same shape, different phases.

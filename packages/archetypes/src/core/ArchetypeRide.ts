@@ -1,6 +1,7 @@
 import { integrateMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieModelPart,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -268,12 +269,12 @@ export namespace ArchetypeRide {
     const yaw: number = Math.atan2(start.x, start.z);
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
-    const heading: integrateMotionTrajectory.ITrajectory =
+    const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],
-        ): integrateMotionTrajectory.IRate => {
+        ): IAutoMovieIntegrateMotionTrajectory.IRate => {
           const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
           const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
           const vx: number = (ahead.x - behind.x) / 1e-3;

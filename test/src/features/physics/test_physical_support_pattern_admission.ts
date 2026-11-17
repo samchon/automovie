@@ -1,5 +1,8 @@
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-import type { IAutoMovieFootfallPattern as Pattern } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieFootfallPattern as Pattern,
+} from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -20,10 +23,8 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One stationary tracking support with minimumSupports=1 remains legal.).
  */
 export function test_physical_support_pattern_admission(): void {
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    1 / 120,
-  );
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
   const pattern: Pattern = structuredClone(body.balance!.pattern);
   pattern.limbs = pattern.limbs.slice(0, 1);
   pattern.minimumSupports = 1;
@@ -34,7 +35,8 @@ export function test_physical_support_pattern_admission(): void {
     damping: 10,
     maximumForce: 100,
   };
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   Simulation.identity(input);
   const mutations: ((limb: Pattern["limbs"][number]) => void)[] = [
     (limb: Pattern["limbs"][number]): void => {
@@ -73,7 +75,8 @@ export function test_physical_support_pattern_admission(): void {
     },
   ];
   for (const mutate of mutations) {
-    const invalid: Simulation.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     mutate(invalid.bodies[0]!.supportTracking!.pattern.limbs[0]!);
     assert.throws((): string => Simulation.identity(invalid));
   }

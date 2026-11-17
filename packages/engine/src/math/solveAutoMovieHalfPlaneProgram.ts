@@ -1,3 +1,5 @@
+import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
+
 /**
  * The point of a disc nearest a preferred point that satisfies a set of
  * half-planes in the plane, or, when no point satisfies them all, the point
@@ -35,13 +37,17 @@
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function solveAutoMovieHalfPlaneProgram(
-  lines: readonly solveAutoMovieHalfPlaneProgram.ILine[],
+  lines: readonly IAutoMovieSolveHalfPlaneProgram.ILine[],
   radius: number,
-  preferred: solveAutoMovieHalfPlaneProgram.IPoint,
-): solveAutoMovieHalfPlaneProgram.IResult {
+  preferred: IAutoMovieSolveHalfPlaneProgram.IPoint,
+): IAutoMovieSolveHalfPlaneProgram.IResult {
   if (!(radius > 0) || !Number.isFinite(radius))
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: the radius ${radius} is not positive and finite`,
+    );
+  if (!Number.isFinite(preferred.x) || !Number.isFinite(preferred.y))
+    throw new Error(
+      "solveAutoMovieHalfPlaneProgram: the preferred point must be finite",
     );
   for (const [i, line] of lines.entries()) {
     const values: number[] = [
@@ -73,45 +79,8 @@ export function solveAutoMovieHalfPlaneProgram(
   };
 }
 
-/**
- * Companion types of {@link solveAutoMovieHalfPlaneProgram}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states its meaning.
- * @evidence contracts/development/design.md#principled-representation A point, a directed line and the result.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the program reads and returns.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
- */
-export namespace solveAutoMovieHalfPlaneProgram {
-  /** A point of the plane. */
-  export interface IPoint {
-    /** The first coordinate. */
-    x: number;
-
-    /** The second coordinate. */
-    y: number;
-  }
-
-  /** A half-plane: the points left of a directed line, the line included. */
-  export interface ILine {
-    /** A point on the line. */
-    point: IPoint;
-
-    /** The line's unit direction. */
-    direction: IPoint;
-  }
-
-  /** What the program found. */
-  export interface IResult {
-    /** The point. */
-    point: IPoint;
-
-    /** Whether every half-plane holds at it; otherwise it violates the worst of them least. */
-    feasible: boolean;
-  }
-}
-
-type IPoint = solveAutoMovieHalfPlaneProgram.IPoint;
-type ILine = solveAutoMovieHalfPlaneProgram.ILine;
+type IPoint = IAutoMovieSolveHalfPlaneProgram.IPoint;
+type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
 
 /** Below this, two directions count as parallel and a determinant as zero. */
 const EPSILON: number = 1e-9;
@@ -196,7 +165,10 @@ function program2(
   let point: IPoint = directional
     ? { x: preferred.x * radius, y: preferred.y * radius }
     : length > radius
-      ? { x: (preferred.x / length) * radius, y: (preferred.y / length) * radius }
+      ? {
+          x: (preferred.x / length) * radius,
+          y: (preferred.y / length) * radius,
+        }
       : { x: preferred.x, y: preferred.y };
   for (let i: number = 0; i < lines.length; ++i) {
     const line: ILine = lines[i]!;

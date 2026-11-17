@@ -1,7 +1,9 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  type IAutoMovieBuildRegionFace,
+  IAutoMovieMesh,
+  type IAutoMovieRegionTriangulation,
+} from "@automovie/interface";
 
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
-import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { triangulateAutoMovieRegion } from "./triangulateAutoMovieRegion";
 
 /**
@@ -32,13 +34,9 @@ import { triangulateAutoMovieRegion } from "./triangulateAutoMovieRegion";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds the mesh for one authored region; callers that place the same region twice can reuse the returned mesh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new position, normal and UV arrays sized by the point count and adopts the triangulation's index array; the triangulation's other arrays are released on return.
  */
-export const buildAutoMovieRegionFace = (props: {
-  /** Boundary of the visible region in local XY metres. */
-  outer: readonly IAutoMovieProfilePoint[];
-
-  /** Optional voids cut out of the visible region. */
-  holes?: ReadonlyArray<readonly IAutoMovieProfilePoint[]>;
-}): IAutoMovieMesh => {
+export const buildAutoMovieRegionFace = (
+  props: IAutoMovieBuildRegionFace.IProps,
+): IAutoMovieMesh => {
   const region: IAutoMovieRegionTriangulation =
     triangulateAutoMovieRegion(props);
   const positions: number[] = [];

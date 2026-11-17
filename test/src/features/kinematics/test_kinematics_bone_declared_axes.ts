@@ -1,7 +1,6 @@
 import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
-  type IAutoMovieResolvedBone,
   resolvePose,
   skeletonJointAxes,
 } from "@automovie/engine";
@@ -11,6 +10,7 @@ import {
   IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

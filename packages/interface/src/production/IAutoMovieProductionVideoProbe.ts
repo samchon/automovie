@@ -1,4 +1,4 @@
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
  * Parser-observed constant-duration H.264 MP4 track, clock and picture facts; delivery-profile acceptance is separate.

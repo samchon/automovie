@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/interface";
+
 /**
  * The instants a motion case's capture draws, each named by the case's own label: one per second written to the millisecond, the resolution a capture names its cells at.
  *
@@ -15,17 +17,23 @@
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
 export function planMotionCaptureInstants(
-  times: readonly { seconds: number; label: string }[],
-): { seconds: number; label: string }[] {
-  const instants: Map<string, { seconds: number; labels: string[] }> = new Map();
+  times: IAutoMovieMotionHumanPlanMotionCaptureInstants.ITimes,
+): IAutoMovieMotionHumanPlanMotionCaptureInstants.IResult {
+  const instants: Map<string, { seconds: number; labels: string[] }> =
+    new Map();
   for (const time of times) {
     const key: string = time.seconds.toFixed(3);
-    const known: { seconds: number; labels: string[] } | undefined = instants.get(key);
-    if (known === undefined) instants.set(key, { seconds: time.seconds, labels: [time.label] });
+    const known: { seconds: number; labels: string[] } | undefined =
+      instants.get(key);
+    if (known === undefined)
+      instants.set(key, { seconds: time.seconds, labels: [time.label] });
     else if (!known.labels.includes(time.label)) known.labels.push(time.label);
   }
   return [...instants.values()].map(
-    (instant: { seconds: number; labels: string[] }): { seconds: number; label: string } => ({
+    (instant: {
+      seconds: number;
+      labels: string[];
+    }): { seconds: number; label: string } => ({
       seconds: instant.seconds,
       label: instant.labels.join(" / "),
     }),

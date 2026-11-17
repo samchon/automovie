@@ -1,9 +1,10 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { HumanJacobian } from "./HumanJacobian";
-import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanQuadraticProgram,
+} from "@automovie/interface";
 
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -54,7 +55,7 @@ export namespace HumanFitVariables {
   ];
 
   /** The whole body's variables, the set a fit moves when none is given: the root's place, its pitch and roll (the heading the law faces kept), then the angles. */
-  export const BODY: readonly HumanJacobian.IVariable[] = [
+  export const BODY: readonly IAutoMovieMotionHumanJacobian.IVariable[] = [
     { kind: "place", axis: "x" },
     { kind: "place", axis: "y" },
     { kind: "place", axis: "z" },
@@ -64,7 +65,7 @@ export namespace HumanFitVariables {
       ([bone, axis]: readonly [
         AutoMovieHumanoidBone,
         0 | 1 | 2,
-      ]): HumanJacobian.IVariable => ({
+      ]): IAutoMovieMotionHumanJacobian.IVariable => ({
         kind: "angle",
         bone,
         axis,
@@ -92,15 +93,17 @@ export namespace HumanFitVariables {
    * @returns Each variable's value, in its own unit.
    */
   export function vector(
-    variables: readonly HumanJacobian.IVariable[],
-    posture: IHumanPosture,
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+    posture: IAutoMovieMotionHumanPosture,
   ): Float64Array {
-    return Float64Array.from(variables, (v: HumanJacobian.IVariable): number =>
-      v.kind === "place"
-        ? posture.root[v.axis]
-        : v.kind === "heading"
-          ? posture[v.axis]
-          : (posture.joints[v.bone]?.[v.axis] ?? 0),
+    return Float64Array.from(
+      variables,
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
+        v.kind === "place"
+          ? posture.root[v.axis]
+          : v.kind === "heading"
+            ? posture[v.axis]
+            : (posture.joints[v.bone]?.[v.axis] ?? 0),
     );
   }
 
@@ -113,29 +116,33 @@ export namespace HumanFitVariables {
    * @returns The posture with the values written, by its joint angles alone.
    */
   export function written(
-    variables: readonly HumanJacobian.IVariable[],
-    posture: IHumanPosture,
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+    posture: IAutoMovieMotionHumanPosture,
     x: Float64Array,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const root: { x: number; y: number; z: number } = { ...posture.root };
     const heading: { yaw: number; pitch: number; roll: number } = {
       yaw: posture.yaw,
       pitch: posture.pitch,
       roll: posture.roll,
     };
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    variables.forEach((v: HumanJacobian.IVariable, i: number): void => {
-      if (v.kind === "place") root[v.axis] = x[i]!;
-      else if (v.kind === "heading") heading[v.axis] = x[i]!;
-      else {
-        const was: readonly [number, number, number] = joints[v.bone] ?? [
-          0, 0, 0,
-        ];
-        const set: [number, number, number] = [was[0], was[1], was[2]];
-        set[v.axis] = x[i]!;
-        joints[v.bone] = set;
-      }
-    });
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    variables.forEach(
+      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
+        if (v.kind === "place") root[v.axis] = x[i]!;
+        else if (v.kind === "heading") heading[v.axis] = x[i]!;
+        else {
+          const was: readonly [number, number, number] = joints[v.bone] ?? [
+            0, 0, 0,
+          ];
+          const set: [number, number, number] = [was[0], was[1], was[2]];
+          set[v.axis] = x[i]!;
+          joints[v.bone] = set;
+        }
+      },
+    );
     return { ...posture, root, ...heading, joints, limbs: {} };
   }
 
@@ -152,12 +159,12 @@ export namespace HumanFitVariables {
    * @returns The moved posture.
    */
   export function shifted(
-    variables: readonly HumanJacobian.IVariable[],
-    posture: IHumanPosture,
-    from: IHumanPosture,
-    to: IHumanPosture,
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+    posture: IAutoMovieMotionHumanPosture,
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const a: Float64Array = vector(variables, from);
     const b: Float64Array = vector(variables, to);
     return written(
@@ -181,12 +188,15 @@ export namespace HumanFitVariables {
    * @returns One row per variable.
    */
   export function bounds(
-    variables: readonly HumanJacobian.IVariable[],
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     x: Float64Array,
     radius: number,
-  ): HumanQuadraticProgram.IRow[] {
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
     return variables.map(
-      (v: HumanJacobian.IVariable, i: number): HumanQuadraticProgram.IRow => {
+      (
+        v: IAutoMovieMotionHumanJacobian.IVariable,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow => {
         const span: readonly [number, number] | null = range(v);
         const step: number = reach(v) * radius;
         const lo: number = span === null ? 0 : Math.max(-step, span[0] - x[i]!);
@@ -211,12 +221,12 @@ export namespace HumanFitVariables {
    * @returns Whether some variable moved to within a hundredth of its reach.
    */
   export function edge(
-    variables: readonly HumanJacobian.IVariable[],
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     moved: Float64Array,
     radius: number,
   ): boolean {
     return variables.some(
-      (v: HumanJacobian.IVariable, i: number): boolean =>
+      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): boolean =>
         Math.abs(moved[i]! * unit(v)) >= 0.99 * reach(v) * radius,
     );
   }
@@ -228,7 +238,7 @@ export namespace HumanFitVariables {
    * @param v The variable.
    * @returns The step, metres or degrees.
    */
-  export function reach(v: HumanJacobian.IVariable): number {
+  export function reach(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place" ? STEP[0] : STEP[1];
   }
 
@@ -238,7 +248,9 @@ export namespace HumanFitVariables {
    * @param v The variable.
    * @returns The resolution, in the variable's own unit.
    */
-  export function resolution(v: HumanJacobian.IVariable): number {
+  export function resolution(
+    v: IAutoMovieMotionHumanJacobian.IVariable,
+  ): number {
     return v.kind === "place" ? RESOLUTION[0] : RESOLUTION[1];
   }
 
@@ -248,7 +260,7 @@ export namespace HumanFitVariables {
    * @param v The variable.
    * @returns The unit, in the variable's own.
    */
-  export function unit(v: HumanJacobian.IVariable): number {
+  export function unit(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place" ? UNIT[0] : UNIT[1];
   }
 
@@ -258,7 +270,7 @@ export namespace HumanFitVariables {
    * @param v The variable.
    * @returns The weight, per square of the variable's own unit.
    */
-  export function weight(v: HumanJacobian.IVariable): number {
+  export function weight(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place"
       ? WEIGHT[0]
       : v.kind === "heading"
@@ -267,7 +279,9 @@ export namespace HumanFitVariables {
   }
 
   /** A variable's range: unbounded for the root, the table's for a joint, null for an axis the table locks. */
-  function range(v: HumanJacobian.IVariable): readonly [number, number] | null {
+  function range(
+    v: IAutoMovieMotionHumanJacobian.IVariable,
+  ): readonly [number, number] | null {
     if (v.kind !== "angle") return [-Infinity, Infinity];
     const joint: (typeof DEFAULT_HUMANOID_ROM)[AutoMovieHumanoidBone] =
       DEFAULT_HUMANOID_ROM[v.bone];

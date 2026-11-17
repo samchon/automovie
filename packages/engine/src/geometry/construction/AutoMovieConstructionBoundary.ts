@@ -1,16 +1,20 @@
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
+
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /** Physical value, first and second derivatives of one actual section frame. */
 type Frames = readonly [
-  AutoMovieLoftFrame.IFrame,
-  AutoMovieLoftFrame.IFrame,
-  AutoMovieLoftFrame.IFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionFrame,
 ];
 
 /** Three world coordinates, in the order retained by the original frame. */
@@ -18,7 +22,7 @@ type Vector = readonly [number, number, number];
 
 /** A captured whole native generating family, independent of compatibility density. */
 type Native = Extract<
-  AutoMovieLoftSectionSource.IEndpoint["field"],
+  IAutoMovieLoftSectionSource.IEndpoint["field"],
   { kind: "native" }
 >;
 
@@ -68,9 +72,9 @@ export function AutoMovieConstructionBoundary(
     return "The native ends have different phase or outward-orientation conventions.";
   const a: IAutoMovieLoftChain.ILayer = end(host, hostEnd);
   const b: IAutoMovieLoftChain.ILayer = end(part, partEnd);
-  const first: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+  const first: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
     AutoMovieLoftSectionConnect.capture(host, a.y, sign);
-  const last: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+  const last: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
     AutoMovieLoftSectionConnect.capture(part, b.y);
   if (typeof first === "string") return first;
   if (typeof last === "string") return last;

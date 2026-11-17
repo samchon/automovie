@@ -5,6 +5,7 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieCompiledInstanceSet,
+  type IAutoMovieRenderSubject,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,
   IAutoMovieSemanticMaskGap,
@@ -12,7 +13,6 @@ import {
   IAutoMovieSpace,
 } from "@automovie/interface";
 
-import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { assertAutoMovieSemanticMaskCapacity } from "./assertAutoMovieSemanticMaskCapacity";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";

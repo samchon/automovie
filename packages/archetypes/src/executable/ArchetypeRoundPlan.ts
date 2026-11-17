@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureSubject,
+} from "@automovie/interface";
 import {
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureSubject,
   type IAutoMovieDrawScene,
   type IAutoMovieInspectionHandle,
   planAutoMovieDrawCall,
@@ -257,17 +259,23 @@ export namespace ArchetypeRoundPlan {
    */
   export function identity(items: readonly unknown[]): string {
     return JSON.stringify(
-      items.flatMap((value: unknown): string[] => {
-        const draft: Record<string, unknown> = object(value);
-        const key: string[] = ["group", "subject", "member", "view", "pass"].map(
-          (name: string): string => text(draft[name]),
-        );
-        return numbers(draft.seconds).map((seconds: number): string =>
-          JSON.stringify([...key, seconds]),
-        );
-      }).sort((left: string, right: string): number =>
-        left < right ? -1 : left > right ? 1 : 0,
-      ),
+      items
+        .flatMap((value: unknown): string[] => {
+          const draft: Record<string, unknown> = object(value);
+          const key: string[] = [
+            "group",
+            "subject",
+            "member",
+            "view",
+            "pass",
+          ].map((name: string): string => text(draft[name]));
+          return numbers(draft.seconds).map((seconds: number): string =>
+            JSON.stringify([...key, seconds]),
+          );
+        })
+        .sort((left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+        ),
     );
   }
 

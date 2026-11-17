@@ -1,6 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
-  type AutoMovieMotionMeeting,
   HumanCarried,
   HumanCarriedCoupling,
   HumanCarriedCouplingLoad,
@@ -66,7 +70,8 @@ export function test_human_motion_coupled_laws(): void {
     const w: number[] = HumanCarriedCouplingLoad.shares(triangle, centre);
     all.check(
       `a centre at ${label}: shares ${w.map((v) => v.toFixed(6)).join(", ")}, ${expected.join(", ")} expected`,
-      w.length === 3 && w.every((v: number, i: number): boolean => close(v, expected[i]!)),
+      w.length === 3 &&
+        w.every((v: number, i: number): boolean => close(v, expected[i]!)),
     );
   }
 
@@ -94,8 +99,10 @@ export function test_human_motion_coupled_laws(): void {
   // 5. The bearer's load is its contacts' share.
   const bearer = motionHumanBody("m-average");
   const borne = motionHumanBody("f-small");
-  for (const carry of Object.keys(HumanCarried.CARRIES) as HumanCarried.Carry[]) {
-    let coupling: AutoMovieMotionMeeting.ICoupling;
+  for (const carry of Object.keys(
+    HumanCarried.CARRIES,
+  ) as IAutoMovieMotionHumanCarried.Carry[]) {
+    let coupling: IAutoMovieMotionCoupling;
     try {
       coupling = HumanCarriedCoupling.couple(
         bearer,
@@ -113,9 +120,7 @@ export function test_human_motion_coupled_laws(): void {
     // Every bearing contact's share, the bearer's and the floor's under a
     // drag, together carry the whole weight.
     const share: number = sum(
-      coupling.contacts
-        .filter((c) => c.kind === "bear")
-        .map((c) => c.load),
+      coupling.contacts.filter((c) => c.kind === "bear").map((c) => c.load),
     );
     all.check(
       `${carry}: the bearing shares on every support sum to ${share}, one expected`,
@@ -137,7 +142,7 @@ export function test_human_motion_coupled_laws(): void {
   const small = motionHumanBody("f-small");
   // The bound is read from a carry the small bearer can hold, the small
   // woman cradling another of her build.
-  const base: AutoMovieMotionMeeting.ICoupling = HumanCarriedCoupling.couple(
+  const base: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
     small,
     small,
     HumanCarried.CARRIES.cradle,
@@ -150,7 +155,7 @@ export function test_human_motion_coupled_laws(): void {
     props.load > capacity || HumanLoad.lean(props) !== null,
   );
   if (capacity > base.mass) {
-    let refusal: HumanRefusal | null = null;
+    let refusal: IAutoMovieMotionHumanRefusal | null = null;
     try {
       HumanCarriedCoupling.couple(
         small,

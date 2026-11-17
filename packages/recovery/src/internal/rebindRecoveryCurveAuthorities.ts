@@ -1,12 +1,12 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieCurveMath64 as M,
-} from "@automovie/engine";
-
-import type { IAutoMovieRecoveryHermiteCurve } from "../structures/curve/IAutoMovieRecoveryHermiteCurve";
-import type { IAutoMovieRecoveryHermiteSpan } from "../structures/curve/IAutoMovieRecoveryHermiteSpan";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
-import type { IRecoveryAuthorityRecord } from "./IRecoveryAuthorityRecord";
+import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieRecoveryCurveFormat,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAuthorityRecord,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryHermiteSpan,
+} from "@automovie/interface";
 
 /**
  * Reissue explicitly bound surface controls from the converted curve authority.
@@ -33,20 +33,23 @@ export function rebindRecoveryCurveAuthorities(
     throw new Error("Curve authority conversion requires a declared basis");
   const visited: WeakSet<object> = new WeakSet();
   const pending: Map<
-    IRecoveryAuthorityRecord,
-    Map<number, C.Vector>
+    IAutoMovieRecoveryAuthorityRecord,
+    Map<number, Readonly<AutoMovieVector3Tuple>>
   > = new Map();
-  const curveCache: WeakMap<object, readonly C.Span[]> = new WeakMap();
-  const record: (value: unknown) => IRecoveryAuthorityRecord | undefined = (
+  const curveCache: WeakMap<object, readonly AutoMovieCubicBezierControls3[]> =
+    new WeakMap();
+  const record: (
     value: unknown,
-  ): IRecoveryAuthorityRecord | undefined =>
+  ) => IAutoMovieRecoveryAuthorityRecord | undefined = (
+    value: unknown,
+  ): IAutoMovieRecoveryAuthorityRecord | undefined =>
     value !== null && typeof value === "object" && !Array.isArray(value)
-      ? (value as IRecoveryAuthorityRecord)
+      ? (value as IAutoMovieRecoveryAuthorityRecord)
       : undefined;
-  const required: (value: unknown) => IRecoveryAuthorityRecord = (
+  const required: (value: unknown) => IAutoMovieRecoveryAuthorityRecord = (
     value: unknown,
-  ): IRecoveryAuthorityRecord => {
-    const row: IRecoveryAuthorityRecord | undefined = record(value);
+  ): IAutoMovieRecoveryAuthorityRecord => {
+    const row: IAutoMovieRecoveryAuthorityRecord | undefined = record(value);
     if (!row)
       throw new Error("A bound curve publication requires plain records");
     return row;
@@ -58,14 +61,19 @@ export function rebindRecoveryCurveAuthorities(
       throw new Error("A bound curve publication requires explicit arrays");
     return value;
   };
-  const canonical: (value: unknown) => readonly C.Span[] = (
+  const canonical: (
     value: unknown,
-  ): readonly C.Span[] => {
-    const row: IRecoveryAuthorityRecord = required(value);
-    const previous: readonly C.Span[] | undefined = curveCache.get(row);
+  ) => readonly AutoMovieCubicBezierControls3[] = (
+    value: unknown,
+  ): readonly AutoMovieCubicBezierControls3[] => {
+    const row: IAutoMovieRecoveryAuthorityRecord = required(value);
+    const previous: readonly AutoMovieCubicBezierControls3[] | undefined =
+      curveCache.get(row);
     if (previous) return previous;
     if (row.type === "cubicBezier") {
-      const spans: readonly C.Span[] = array(row.spans) as readonly C.Span[];
+      const spans: readonly AutoMovieCubicBezierControls3[] = array(
+        row.spans,
+      ) as readonly AutoMovieCubicBezierControls3[];
       curveCache.set(row, spans);
       return spans;
     }
@@ -75,8 +83,11 @@ export function rebindRecoveryCurveAuthorities(
       );
     const curve: IAutoMovieRecoveryHermiteCurve =
       value as IAutoMovieRecoveryHermiteCurve;
-    const spans: readonly C.Span[] = curve.spans.map(
-      (span: IAutoMovieRecoveryHermiteSpan, index: number): C.Span =>
+    const spans: readonly AutoMovieCubicBezierControls3[] = curve.spans.map(
+      (
+        span: IAutoMovieRecoveryHermiteSpan,
+        index: number,
+      ): AutoMovieCubicBezierControls3 =>
         M.hermite(
           M.clone(span.start),
           M.clone(span.end),
@@ -92,25 +103,27 @@ export function rebindRecoveryCurveAuthorities(
     originalGeometry: unknown,
     convertedGeometry: unknown,
     id: unknown,
-    original: C.Vector,
-    converted: C.Vector,
+    original: Readonly<AutoMovieVector3Tuple>,
+    converted: Readonly<AutoMovieVector3Tuple>,
   ) => void = (
     originalGeometry: unknown,
     convertedGeometry: unknown,
     id: unknown,
-    original: C.Vector,
-    converted: C.Vector,
+    original: Readonly<AutoMovieVector3Tuple>,
+    converted: Readonly<AutoMovieVector3Tuple>,
   ): void => {
-    const geometry: IRecoveryAuthorityRecord = required(originalGeometry);
-    const target: IRecoveryAuthorityRecord = required(convertedGeometry);
+    const geometry: IAutoMovieRecoveryAuthorityRecord =
+      required(originalGeometry);
+    const target: IAutoMovieRecoveryAuthorityRecord =
+      required(convertedGeometry);
     if (typeof id !== "number" || !Number.isSafeInteger(id) || id < 0)
       throw new Error(
         "A curve binding requires an in-range integer control ID",
       );
-    const point: IRecoveryAuthorityRecord = required(
+    const point: IAutoMovieRecoveryAuthorityRecord = required(
       array(geometry.controls)[id],
     );
-    const targetPoint: IRecoveryAuthorityRecord = required(
+    const targetPoint: IAutoMovieRecoveryAuthorityRecord = required(
       array(target.controls)[id],
     );
     if (
@@ -121,19 +134,21 @@ export function rebindRecoveryCurveAuthorities(
       throw new Error(
         "Original surface controls do not share their declared curve authority",
       );
-    const next: C.Vector = [
+    const next: Readonly<AutoMovieVector3Tuple> = [
       converted[0] * 0.001,
       converted[1] * 0.001,
       converted[2] * 0.001,
     ];
     if (!next.every(Number.isFinite))
       throw new Error("Converted boundary coefficients must remain finite");
-    let owners: Map<number, C.Vector> | undefined = pending.get(target);
+    let owners: Map<number, Readonly<AutoMovieVector3Tuple>> | undefined =
+      pending.get(target);
     if (!owners) {
       owners = new Map();
       pending.set(target, owners);
     }
-    const previous: C.Vector | undefined = owners.get(id);
+    const previous: Readonly<AutoMovieVector3Tuple> | undefined =
+      owners.get(id);
     if (
       previous &&
       previous.some((x: number, axis: number): boolean => x !== next[axis])
@@ -150,11 +165,11 @@ export function rebindRecoveryCurveAuthorities(
     owners.set(id, next);
   };
   const publication: (
-    original: IRecoveryAuthorityRecord,
-    converted: IRecoveryAuthorityRecord,
+    original: IAutoMovieRecoveryAuthorityRecord,
+    converted: IAutoMovieRecoveryAuthorityRecord,
   ) => void = (
-    original: IRecoveryAuthorityRecord,
-    converted: IRecoveryAuthorityRecord,
+    original: IAutoMovieRecoveryAuthorityRecord,
+    converted: IAutoMovieRecoveryAuthorityRecord,
   ): void => {
     const originals: Map<string, unknown> = new Map();
     const targets: Map<string, unknown> = new Map();
@@ -162,8 +177,8 @@ export function rebindRecoveryCurveAuthorities(
       a: unknown,
       b: unknown,
     ): void => {
-      const curve: IRecoveryAuthorityRecord = required(a);
-      const target: IRecoveryAuthorityRecord = required(b);
+      const curve: IAutoMovieRecoveryAuthorityRecord = required(a);
+      const target: IAutoMovieRecoveryAuthorityRecord = required(b);
       if (
         typeof curve.name !== "string" ||
         !curve.name ||
@@ -216,9 +231,15 @@ export function rebindRecoveryCurveAuthorities(
     }
     const spans: (
       name: unknown,
-    ) => readonly [readonly C.Span[], readonly C.Span[]] = (
+    ) => readonly [
+      readonly AutoMovieCubicBezierControls3[],
+      readonly AutoMovieCubicBezierControls3[],
+    ] = (
       name: unknown,
-    ): readonly [readonly C.Span[], readonly C.Span[]] => {
+    ): readonly [
+      readonly AutoMovieCubicBezierControls3[],
+      readonly AutoMovieCubicBezierControls3[],
+    ] => {
       if (
         typeof name !== "string" ||
         !originals.has(name) ||
@@ -233,15 +254,15 @@ export function rebindRecoveryCurveAuthorities(
         converted.tensorFamilies,
       );
       for (let i: number = 0; i < families.length; i++) {
-        const family: IRecoveryAuthorityRecord = required(families[i]);
-        const targetFamily: IRecoveryAuthorityRecord = required(
+        const family: IAutoMovieRecoveryAuthorityRecord = required(families[i]);
+        const targetFamily: IAutoMovieRecoveryAuthorityRecord = required(
           targetFamilies[i],
         );
         for (const value of array(family.boundaries)) {
-          const boundary: IRecoveryAuthorityRecord = required(value);
+          const boundary: IAutoMovieRecoveryAuthorityRecord = required(value);
           const [before, after]: readonly [
-            readonly C.Span[],
-            readonly C.Span[],
+            readonly AutoMovieCubicBezierControls3[],
+            readonly AutoMovieCubicBezierControls3[],
           ] = spans(boundary.curveName);
           const ids: readonly unknown[] = array(boundary.controlIds);
           if (before.length !== ids.length || after.length !== ids.length)
@@ -270,21 +291,22 @@ export function rebindRecoveryCurveAuthorities(
         converted.analyticDomains,
       );
       for (let i: number = 0; i < domains.length; i++) {
-        const domain: IRecoveryAuthorityRecord = required(domains[i]);
-        const targetDomain: IRecoveryAuthorityRecord = required(
+        const domain: IAutoMovieRecoveryAuthorityRecord = required(domains[i]);
+        const targetDomain: IAutoMovieRecoveryAuthorityRecord = required(
           targetDomains[i],
         );
-        const owners: Map<unknown, IRecoveryAuthorityRecord> = new Map();
+        const owners: Map<unknown, IAutoMovieRecoveryAuthorityRecord> =
+          new Map();
         for (const value of array(
           required(domain.geometry).boundaryAuthorities,
         )) {
-          const owner: IRecoveryAuthorityRecord = required(value);
+          const owner: IAutoMovieRecoveryAuthorityRecord = required(value);
           if (owners.has(owner.id))
             throw new Error("A native boundary authority must be unique");
           owners.set(owner.id, owner);
         }
         for (const value of array(domain.curveBindings)) {
-          const binding: IRecoveryAuthorityRecord = required(value);
+          const binding: IAutoMovieRecoveryAuthorityRecord = required(value);
           // A standalone extension owns only its overrides. Unchanged external
           // curves remain the original bundle's authority and are checked on apply.
           if (
@@ -294,8 +316,8 @@ export function rebindRecoveryCurveAuthorities(
           )
             continue;
           const [before, after]: readonly [
-            readonly C.Span[],
-            readonly C.Span[],
+            readonly AutoMovieCubicBezierControls3[],
+            readonly AutoMovieCubicBezierControls3[],
           ] = spans(binding.curveName);
           if (
             typeof binding.span !== "number" ||
@@ -305,7 +327,7 @@ export function rebindRecoveryCurveAuthorities(
             !after[binding.span]
           )
             throw new Error("A native binding requires a declared curve span");
-          const owner: IRecoveryAuthorityRecord = required(
+          const owner: IAutoMovieRecoveryAuthorityRecord = required(
             owners.get(binding.authority),
           );
           const ids: readonly unknown[] = array(owner.controlIds);
@@ -340,8 +362,8 @@ export function rebindRecoveryCurveAuthorities(
         visit(original[i], target[i]);
       return;
     }
-    const row: IRecoveryAuthorityRecord = required(original);
-    const target: IRecoveryAuthorityRecord = required(converted);
+    const row: IAutoMovieRecoveryAuthorityRecord = required(original);
+    const target: IAutoMovieRecoveryAuthorityRecord = required(converted);
     if (
       (row.tensorFamilies !== undefined || row.analyticDomains !== undefined) &&
       ((row.loft !== undefined && row.reports !== undefined) ||
@@ -361,7 +383,7 @@ export function rebindRecoveryCurveAuthorities(
   for (const [geometry, owners] of pending) {
     const controls: unknown[] = [...array(geometry.controls)];
     for (const [id, value] of owners) {
-      const point: IRecoveryAuthorityRecord = required(controls[id]);
+      const point: IAutoMovieRecoveryAuthorityRecord = required(controls[id]);
       controls[id] = { ...point, x: value[0], y: value[1], z: value[2] };
     }
     geometry.controls = controls;

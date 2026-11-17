@@ -1,4 +1,7 @@
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
+import type {
+  IAutoMovieCaptureLayout,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 /**
  * The font pixel size, in still pixels, at which a capture stamps labels on a still: large enough that one font pixel stays at least one sheet pixel once the still is reduced into its cell, and never below one.
@@ -14,7 +17,7 @@ import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number.
  */
 export function scaleAutoMovieCaptureLabels(
-  raster: { width: number; height: number },
+  raster: Pick<IAutoMovieRasterImage, "width" | "height">,
   layout: Pick<IAutoMovieCaptureLayout, "cell">,
 ): number {
   return Math.max(

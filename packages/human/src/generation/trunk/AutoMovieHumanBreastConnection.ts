@@ -1,40 +1,19 @@
-import {
-  AutoMovieLoftSectionNative,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieLoftSectionNative } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBreastConnection,
+  IAutoMovieHumanGlutealParent,
+  IAutoMovieHumanMassSource,
+} from "@automovie/interface";
 
-import type { AutoMovieHumanMassSource } from "../limb/AutoMovieHumanMassSource";
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
-
-/** Calibration-mm point. */
-type Vec3 = [number, number, number];
 
 /** Derive a breast's internal AP root from actual whole-parent local chords, preserving its separate footprint and public apex. */
 export namespace AutoMovieHumanBreastConnection {
-  /** Same generating trunk and the mass's independent sourced dimensions. */
-  export interface IInput {
-    /** Actual current tape-pass original trunk. */
-    trunk: IAutoMovieViewPart;
-    /** Public AP apex in calibration mm. */
-    target: Vec3;
-    /** Own up/lateral/down/medial footprint, mm. */
-    footprint: [number, number, number, number];
-    /** Own conic fullness, dimensionless. */
-    shoulder: number;
-    /** Anatomical lateral direction's world-Z sign. */
-    lateral: 1 | -1;
-  }
-
-  /** Parent source and numerical root support remain inspectable; this is not a continuous containment certificate. */
-  export interface IConnection extends AutoMovieHumanMassSource.IConnection {
-    /** Identical actual source and its whole local chord reader. */
-    parent: AutoMovieHumanGlutealParent.IParent;
-    /** Finite phase-refinement count, independent of render detail. */
-    phases: number;
-  }
-
   /** Find a common interior root plane using the parent source at every tested footprint phase, with bounded refinement. */
-  export function create(input: IInput): IConnection | string {
+  export function create(
+    input: IAutoMovieHumanBreastConnection.IInput,
+  ): IAutoMovieHumanBreastConnection.IConnection | string {
     if (
       !input.target.every(Number.isFinite) ||
       !input.footprint.every(
@@ -42,17 +21,21 @@ export namespace AutoMovieHumanBreastConnection {
       )
     )
       return "Breast contact needs a finite public apex and positive own footprint";
-    const parent: AutoMovieHumanGlutealParent.IParent | string =
+    const parent: IAutoMovieHumanGlutealParent.IParent | string =
       AutoMovieHumanGlutealParent.trunkOnly(input.trunk);
     if (typeof parent === "string") return parent;
-    const centre: AutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
+    const centre: IAutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
       input.target[1],
       input.target[2],
     );
     if (typeof centre === "string") return centre;
     if (centre.length !== 1)
       return "Breast apex has no unique actual parent AP chord";
-    const wall: Vec3 = [centre[0]!.front.x, input.target[1], input.target[2]];
+    const wall: AutoMovieVector3Tuple = [
+      centre[0]!.front.x,
+      input.target[1],
+      input.target[2],
+    ];
     const amplitude: number = input.target[0] - wall[0];
     if (!(amplitude > 0))
       return "Breast public apex leaves no positive local AP projection";
@@ -75,17 +58,17 @@ export namespace AutoMovieHumanBreastConnection {
     const read: (
       phi: number,
     ) =>
-      | { y: number; z: number; chord: AutoMovieHumanGlutealParent.IChord }
+      | { y: number; z: number; chord: IAutoMovieHumanGlutealParent.IChord }
       | string = (
       phi: number,
     ):
-      | { y: number; z: number; chord: AutoMovieHumanGlutealParent.IChord }
+      | { y: number; z: number; chord: IAutoMovieHumanGlutealParent.IChord }
       | string => {
       if (!Number.isFinite(phi)) return "Breast contact needs a finite phase";
       const local: [number, number] = shape(phi).p;
       const y: number = wall[1] + local[0];
       const z: number = wall[2] - local[1];
-      const chords: AutoMovieHumanGlutealParent.IChord[] | string =
+      const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         parent.chord(y, z);
       return typeof chords === "string"
         ? chords
@@ -114,7 +97,11 @@ export namespace AutoMovieHumanBreastConnection {
           Math.abs(upper - previous[1]),
         ) <= 1e-3
       ) {
-        const root: Vec3 = [(lower + upper) / 2, wall[1], wall[2]];
+        const root: AutoMovieVector3Tuple = [
+          (lower + upper) / 2,
+          wall[1],
+          wall[2],
+        ];
         return {
           parent,
           wall,
@@ -124,7 +111,7 @@ export namespace AutoMovieHumanBreastConnection {
           embed: wall[0] - root[0],
           rootInterval: [lower, upper],
           phases: count,
-          contact(phi: number): AutoMovieHumanMassSource.IContact | string {
+          contact(phi: number): IAutoMovieHumanMassSource.IContact | string {
             const value: ReturnType<typeof read> = read(phi);
             if (typeof value === "string") return value;
             return root[0] >= value.chord.back.x &&

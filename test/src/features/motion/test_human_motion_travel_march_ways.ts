@@ -1,5 +1,11 @@
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -7,10 +13,7 @@ import {
   HumanChain,
   HumanFoot,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -69,7 +72,7 @@ export function test_human_motion_travel_march_ways(): void {
   }
 
   for (const name of ["m-average", "f-small", "m-short-legged"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const drill: number = (0.76 / 0.93) * body.measure.hipHeight;
     const rows: readonly (readonly [string, number])[] = [
       ["march", 3.3],
@@ -80,7 +83,7 @@ export function test_human_motion_travel_march_ways(): void {
     ];
     for (const [row, metres] of rows) {
       const label: string = `${name} ${row} over ${metres} m`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "march",
@@ -104,8 +107,9 @@ export function test_human_motion_travel_march_ways(): void {
         );
         continue;
       }
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const segment: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -170,12 +174,12 @@ export function test_human_motion_travel_march_ways(): void {
       const windows: { side: "left" | "right"; from: number; to: number }[] =
         segment.plan.contacts
           .filter(
-            (c: IHumanContactWindow): boolean =>
+            (c: IAutoMovieMotionHumanContactWindow): boolean =>
               c.kind === "plant" && c.part.endsWith("Foot"),
           )
           .map(
             (
-              c: IHumanContactWindow,
+              c: IAutoMovieMotionHumanContactWindow,
             ): { side: "left" | "right"; from: number; to: number } => ({
               side: c.part === "leftFoot" ? "left" : "right",
               from: Math.max(
@@ -208,7 +212,8 @@ export function test_human_motion_travel_march_ways(): void {
         // The toe's sole point rides the toes, which stay flat on the floor from foot-flat until the foot leaves; the ball's rides the foot, which turns about the toes' joint above it once the heel rises.
         const ball = (t: number): IAutoMovieVector3 =>
           HumanFoot.sockets(body, HumanSignature.bones(reader, t), w.side).find(
-            (s: HumanFoot.ISocket): boolean => s.socket === "toe",
+            (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+              s.socket === "toe",
           )!.point;
         const a: number = w.from + (w.to - w.from) / 3;
         const third: number = (w.to - w.from) / 3;

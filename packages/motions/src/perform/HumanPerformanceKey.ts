@@ -1,5 +1,7 @@
-import type { HumanPerformance } from "./HumanPerformance";
-import type { IHumanPerformer } from "./IHumanPerformer";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+} from "@automovie/interface";
 
 /**
  * A performance input's structural key: two inputs share a key exactly when
@@ -35,13 +37,13 @@ export namespace HumanPerformanceKey {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the input.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The identities are numbered in a weak map, released with their objects.
    */
-  export function of(input: HumanPerformance.IInput): string {
+  export function of(input: IAutoMovieMotionHumanPerformance.IInput): string {
     return walk({
       ...input,
       performers: input.performers.map(
         (
-          p: IHumanPerformer,
-        ): Omit<IHumanPerformer, "body"> & { body: string } => ({
+          p: IAutoMovieMotionHumanPerformer,
+        ): Omit<IAutoMovieMotionHumanPerformer, "body"> & { body: string } => ({
           ...p,
           body: identity(p.body),
         }),

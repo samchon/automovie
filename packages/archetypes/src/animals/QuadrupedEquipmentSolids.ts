@@ -1,7 +1,8 @@
 import { physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { ArchetypeRefusal } from "../core";
@@ -185,11 +186,11 @@ export class QuadrupedEquipmentSolids {
     at: IAutoMovieVector3,
     clearance: number,
   ): void {
-    const pose: P.ITransform = {
+    const pose: IAutoMovieRigidTransform = {
       position: at,
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
-    const shape: P.IShape = {
+    const shape: IAutoMoviePhysicalShape = {
       id,
       material: id,
       kind: "box",

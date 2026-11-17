@@ -1,14 +1,19 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCaptureFolder,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+  IAutoMovieRasterImage,
+  IAutoMovieRunCaptureProps,
+} from "@automovie/interface";
+
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import { stampAutoMovieRasterLabel } from "../picture/stampAutoMovieRasterLabel.js";
-import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
-import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
-import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
 import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
 import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
@@ -35,28 +40,9 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each cell is drawn once; nothing is shared between runs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One drawn still and the sheet being filled are held at a time, plus one record row per cell.
  */
-export async function runAutoMovieCapture(props: {
-  /** The capture, planned by `planAutoMovieCapture`. */
-  plan: IAutoMovieCapturePlan;
-
-  /** The host's draw function, called once per cell in plan order. */
-  draw: (cell: IAutoMovieCaptureCell) => Promise<IAutoMovieCaptureDrawing>;
-
-  /** The capture's folder, opened for the plan's round and compared round. */
-  folder: AutoMovieCaptureFolder;
-
-  /** Source revision the host draws from, such as a commit hash. */
-  revision: string;
-
-  /** How a comparison pairs cells: `cell` for two captures of a drawn subject, `time` for an encoded file against its source. */
-  match: "cell" | "time";
-
-  /** The video file the stills come from, with its detected cuts, recorded as it is; absent for a drawn subject. */
-  video?: IAutoMovieCaptureRecord.IVideo;
-
-  /** The subject owner's own section of the record, such as a motion case's verdicts and metrics, written as it is; absent when the owner has none. */
-  section?: Readonly<Record<string, unknown>>;
-}): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+export async function runAutoMovieCapture(
+  props: IAutoMovieRunCaptureProps,
+): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
   const { plan } = props;
   const { layout, subject, request } = plan;
   const { folder } = props;
@@ -82,18 +68,18 @@ export async function runAutoMovieCapture(props: {
   const labelScale: number = scaleAutoMovieCaptureLabels(subject, layout);
 
   // Draw, stamp, write and lay each cell in plan order.
-  const rows: IAutoMovieCaptureRecord.Row[] = [];
+  const rows: IAutoMovieCaptureCellRecord[] = [];
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   for (const cell of plan.cells) {
-    const place: Pick<IAutoMovieCaptureRecord.Row, "sheet" | "row" | "column"> =
+    const place: Pick<IAutoMovieCaptureCellRecord, "sheet" | "row" | "column"> =
       {
         sheet: sheetNames[Math.floor(cell.index / layout.perSheet)]!,
         row: Math.floor((cell.index % layout.perSheet) / layout.columns),
         column: (cell.index % layout.perSheet) % layout.columns,
       };
     const fixed: Pick<
-      IAutoMovieCaptureRecord.Row,
+      IAutoMovieCaptureCellRecord,
       "index" | "name" | "selection" | "time" | "view" | "pass" | "label"
     > = {
       index: cell.index,
@@ -192,7 +178,7 @@ export async function runAutoMovieCapture(props: {
 async function full(
   sheet: AutoMovieRasterSheet,
   cell: IAutoMovieCaptureCell,
-  folder: AutoMovieCaptureFolder,
+  folder: IAutoMovieCaptureFolder,
   sheets: string[],
   names: readonly string[],
   plan: IAutoMovieCapturePlan,

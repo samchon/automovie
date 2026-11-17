@@ -1,6 +1,7 @@
 import {
   IAutoMovieSoftFurnishing,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -36,7 +37,7 @@ export const validateAutoMovieSoftFurnishingDomainOwnership: (
       byDomain.set(furnishing.domain, owners);
     },
   );
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   for (const domain of [...byDomain.keys()].sort(compareCodeUnits)) {
     const owners: { furnishing: IAutoMovieSoftFurnishing; index: number }[] =
       byDomain

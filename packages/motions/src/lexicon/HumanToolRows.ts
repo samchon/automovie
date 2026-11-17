@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { HumanActionRow } from "../law/HumanActionRow";
 import { useTool } from "../tasks/useTool";
 
@@ -13,20 +18,28 @@ import { useTool } from "../tasks/useTool";
  */
 export namespace HumanToolRows {
   /** `useTool` working with a `hammer`. */
-  export const toolHammer = HumanActionRow.of("toolHammer", useTool, {
+  export const toolHammer: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTool"]["toolHammer"]
+  > = HumanActionRow.of("toolHammer", useTool, {
     tool: "hammer",
   });
 
   /** `useTool` working with a `saw`. */
-  export const toolSaw = HumanActionRow.of("toolSaw", useTool, { tool: "saw" });
+  export const toolSaw: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTool"]["toolSaw"]
+  > = HumanActionRow.of("toolSaw", useTool, { tool: "saw" });
 
   /** `useTool` working with a `stir`. */
-  export const toolStir = HumanActionRow.of("toolStir", useTool, {
+  export const toolStir: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTool"]["toolStir"]
+  > = HumanActionRow.of("toolStir", useTool, {
     tool: "stir",
   });
 
   /** `useTool` working with a `screwdriver`. */
-  export const toolScrewdriver = HumanActionRow.of("toolScrewdriver", useTool, {
+  export const toolScrewdriver: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTool"]["toolScrewdriver"]
+  > = HumanActionRow.of("toolScrewdriver", useTool, {
     tool: "screwdriver",
   });
 }

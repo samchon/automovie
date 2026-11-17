@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * The articulation of a single joint, expressed as semantic clinical angles.

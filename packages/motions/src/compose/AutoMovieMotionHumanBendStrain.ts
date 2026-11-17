@@ -7,15 +7,15 @@ import {
   swingTwist,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
@@ -54,8 +54,8 @@ export namespace AutoMovieMotionHumanBendStrain {
    */
   export function of(
     chain: AutoMovieMotionHumanBendChain.IChain,
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion | undefined,
     neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
     lowerAxes: IAutoMovieJointAxes,

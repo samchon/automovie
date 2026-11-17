@@ -3,11 +3,12 @@ import {
   AutoMovieLoftSectionNative,
   AutoMovieLoftViewRead,
   AutoMovieLoftViewSource,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-/** A source point or anatomical AP direction, calibration mm or unit length. */
-type Vec3 = [number, number, number];
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanTrunkMassPlacement,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A trunk mass's AP axis from the actual original trunk section and its
@@ -23,28 +24,6 @@ type Vec3 = [number, number, number];
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size owned tuples or one failure; no source, host or cache is retained.
  */
 export namespace AutoMovieHumanTrunkMassPlacement {
-  /**
-   * The original wall point, AP direction and distance to the declared apex.
-   *
-   * @evidence contracts/common.md#principled-implementation Separates the source wall point and AP extreme from the host chart used only for embedding.
-   * @evidence contracts/common.md#clear-and-simple-design Three tuples/scalars supply the existing mass builder directly.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no fitted or recovered geometric substitute.
-   * @evidence contracts/common.md#meaningful-documentation Members state calibration units and chart versus world meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record declares no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The placement operation owns sharing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its synchronous caller owns the returned tuples.
-   */
-  export interface IPlacement {
-    /** Original trunk chart station and polar phase, mm and radians. */
-    centre: [number, number];
-    /** Original wall point at the target's Y/Z, calibration mm. */
-    origin: Vec3;
-    /** Anatomical anterior or posterior unit direction. */
-    normal: Vec3;
-    /** Positive AP distance from wall to apex, mm. */
-    amplitude: number;
-  }
-
   /**
    * Place an AP extreme without moving its height or transverse coordinate.
    * The selected front/back branch follows the source owner's convex-section
@@ -62,9 +41,9 @@ export namespace AutoMovieHumanTrunkMassPlacement {
    */
   export function of(
     part: IAutoMovieViewPart,
-    target: Vec3,
+    target: AutoMovieVector3Tuple,
     facing: 1 | -1,
-  ): IPlacement | string {
+  ): IAutoMovieHumanTrunkMassPlacement.IPlacement | string {
     const y: number = target[1];
     const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> = part.axis.at(y);
     if (
@@ -106,7 +85,11 @@ export namespace AutoMovieHumanTrunkMassPlacement {
     )
       return "mass wall across query has no admitted source root";
     const local: [number, number] = point(phase);
-    const origin: Vec3 = [frame.origin[0] + local[0], y, target[2]];
+    const origin: AutoMovieVector3Tuple = [
+      frame.origin[0] + local[0],
+      y,
+      target[2],
+    ];
     const amplitude: number = facing * (target[0] - origin[0]);
     if (!(Number.isFinite(amplitude) && amplitude > 0))
       return `mass apex leaves no positive AP projection above its source wall: ${amplitude} mm`;

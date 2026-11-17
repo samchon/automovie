@@ -6,12 +6,13 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import type { HumanColliders } from "./HumanColliders";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
@@ -44,7 +45,7 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function segment(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     probe: number,
   ): "upperArm" | "lowerArm" | "hand" {
     if (probe >= G.SURFACE) {
@@ -79,8 +80,8 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function nearby(
-    at: G.IFrame,
-    placed: G.IPlaced,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     probe: number,
     reach: number,
     screened?: IScreen,
@@ -126,8 +127,8 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function screen(
-    at: G.IFrame,
-    placed: G.IPlaced,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     reach: number,
   ): IScreen {
     const of = (
@@ -163,8 +164,11 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shape's sphere is `bounded`'s.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function colliders(at: G.IFrame, placed: G.IPlaced): G.IShape[] {
-    const out: G.IShape[] = [];
+  export function colliders(
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  ): IAutoMovieMotionHumanArmGeometry.IShape[] {
+    const out: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const c of at.colliders) {
       const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
         c.owner === "upper"
@@ -172,7 +176,7 @@ export namespace HumanArmShapes {
           : c.owner === "lower"
             ? [placed.elbow, placed.lower]
             : [placed.wrist, placed.hand];
-      const pose: HumanColliders.IPlaced["pose"] = {
+      const pose: IAutoMovieMotionHumanColliders.IPlaced["pose"] = {
         ...c.pose,
         position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
         rotation: Quaternion.multiply(w, c.pose.rotation),
@@ -203,9 +207,9 @@ export namespace HumanArmShapes {
   export function bounded(
     bone: AutoMovieHumanoidBone,
     part: number,
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
-  ): G.IShape {
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+  ): IAutoMovieMotionHumanArmGeometry.IShape {
     // Its bounding sphere is the clearance reading's own (`HumanShapeFraming.sphere`).
     return {
       bone,
@@ -233,18 +237,20 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function near(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     p: IAutoMovieVector3,
     reach: number,
   ): number[] {
     const out: number[] = [];
-    at.shapes.forEach((shape: G.IShape, i: number): void => {
-      if (
-        Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
-        reach
-      )
-        out.push(i);
-    });
+    at.shapes.forEach(
+      (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+        if (
+          Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
+          reach
+        )
+          out.push(i);
+      },
+    );
     return out;
   }
 
@@ -266,11 +272,11 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function normal(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const s: G.IShape = at.shapes[shape]!;
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
     return physicalShapeNormal(
       s.pose,
       s.shape,
@@ -297,12 +303,12 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): number {
-    const s: G.IShape = at.shapes[shape]!;
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
   }
 
@@ -317,8 +323,8 @@ export namespace HumanArmShapes {
    * @returns The point at `now`, world metres, and the rotation carrying a direction with it.
    */
   export function relative(
-    now: G.IShape,
-    next: G.IShape,
+    now: IAutoMovieMotionHumanArmGeometry.IShape,
+    next: IAutoMovieMotionHumanArmGeometry.IShape,
     point: IAutoMovieVector3,
   ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(

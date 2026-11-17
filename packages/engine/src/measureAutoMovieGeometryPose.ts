@@ -1,9 +1,10 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 
 /**
@@ -19,9 +20,9 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
  */
 export function measureAutoMovieGeometryPose(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "pose" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "pose" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
 
   const sampled: ReturnType<typeof reader.pose> = reader.pose(

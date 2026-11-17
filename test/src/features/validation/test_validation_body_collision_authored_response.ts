@@ -1,9 +1,7 @@
-import {
-  type IAutoMovieBodyCollisionResult,
-  type IAutoMovieCollisionActor,
-  detectBodyCollision,
-} from "@automovie/engine";
+import { detectBodyCollision } from "@automovie/engine";
 import type {
+  IAutoMovieBodyCollisionResult,
+  IAutoMovieCollisionActor,
   IAutoMovieKeyframe,
   IAutoMovieTransform,
 } from "@automovie/interface";

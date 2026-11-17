@@ -1,10 +1,11 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { Vector3 } from "./math/Vector3";
 
@@ -21,9 +22,9 @@ import { Vector3 } from "./math/Vector3";
  */
 export function measureAutoMovieGeometryDistance(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "distance" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "distance" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
 
   if (

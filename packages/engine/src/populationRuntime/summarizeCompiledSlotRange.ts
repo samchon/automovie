@@ -1,5 +1,6 @@
-import {
-  IAutoMovieFormationBounds,
+import type {
+  IAutoMovieCreateCompiledSlotSummary,
+  IAutoMoviePlacementSummary,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -30,12 +31,12 @@ export const summarizeCompiledSlotRange: (
   start: number,
   count: number,
   position: (slot: number) => IAutoMovieVector3,
-) => { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } = (
+) => IAutoMoviePlacementSummary = (
   start: number,
   count: number,
   position: (slot: number) => IAutoMovieVector3,
-): { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } => {
-  const summary: ReturnType<typeof createCompiledSlotSummary> =
+): IAutoMoviePlacementSummary => {
+  const summary: IAutoMovieCreateCompiledSlotSummary.IResult =
     createCompiledSlotSummary();
   for (let slot: number = start; slot < start + count; ++slot) {
     const point: IAutoMovieVector3 = position(slot);

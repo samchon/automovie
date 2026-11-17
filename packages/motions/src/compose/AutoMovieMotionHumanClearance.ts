@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
+
 /**
  * The path of a swinging foot over a profile it must clear: the shortest
  * path from where it leaves to where it lands that stays on or above a
@@ -28,22 +30,6 @@ export namespace AutoMovieMotionHumanClearance {
   export const SPACING: number = 0.001;
 
   /**
-   * A point of the step's vertical plane.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its axis and unit.
-   * @evidence contracts/development/design.md#principled-representation Two coordinates of the plane the foot moves in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `path`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers.
-   */
-  export interface IPoint {
-    /** Distance along the step, metres. */
-    z: number;
-
-    /** Height, metres. */
-    y: number;
-  }
-
-  /**
    * The clearing path between two points.
    *
    * @param from Where the path starts.
@@ -60,32 +46,33 @@ export namespace AutoMovieMotionHumanClearance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rounded polyline and its lengths, a few dozen points.
    */
   export function path(
-    from: IPoint,
-    to: IPoint,
+    from: IAutoMovieMotionHumanClearance.IPoint,
+    to: IAutoMovieMotionHumanClearance.IPoint,
     required: (z: number) => number,
-  ): (share: number) => IPoint {
+  ): (share: number) => IAutoMovieMotionHumanClearance.IPoint {
     const span: number = to.z - from.z;
     if (!(span > 1e-6))
-      return (share: number): IPoint => ({
+      return (share: number): IAutoMovieMotionHumanClearance.IPoint => ({
         z: from.z + span * share,
         y: from.y + (to.y - from.y) * share,
       });
 
     // The upper hull of the ends and the profile between them.
     const count: number = Math.ceil(span / SPACING);
-    const hull: IPoint[] = [];
+    const hull: IAutoMovieMotionHumanClearance.IPoint[] = [];
     for (let i: number = 0; i <= count; i++) {
-      const p: IPoint =
+      const p: IAutoMovieMotionHumanClearance.IPoint =
         i === 0
           ? from
           : i === count
             ? to
-            : ((z: number): IPoint => ({ z, y: required(z) }))(
-                from.z + (span * i) / count,
-              );
+            : ((z: number): IAutoMovieMotionHumanClearance.IPoint => ({
+                z,
+                y: required(z),
+              }))(from.z + (span * i) / count);
       while (hull.length >= 2) {
-        const a: IPoint = hull[hull.length - 2]!;
-        const b: IPoint = hull[hull.length - 1]!;
+        const a: IAutoMovieMotionHumanClearance.IPoint = hull[hull.length - 2]!;
+        const b: IAutoMovieMotionHumanClearance.IPoint = hull[hull.length - 1]!;
         if ((b.z - a.z) * (p.y - a.y) - (b.y - a.y) * (p.z - a.z) < 0) break;
         hull.pop();
       }
@@ -93,16 +80,24 @@ export namespace AutoMovieMotionHumanClearance {
     }
 
     // Each corner cut back along its two sides and bridged by an arc.
-    const line: IPoint[] = [hull[0]!];
+    const line: IAutoMovieMotionHumanClearance.IPoint[] = [hull[0]!];
     for (let i: number = 1; i + 1 < hull.length; i++) {
-      const v: IPoint = hull[i]!;
-      const back: IPoint = hull[i - 1]!;
-      const ahead: IPoint = hull[i + 1]!;
+      const v: IAutoMovieMotionHumanClearance.IPoint = hull[i]!;
+      const back: IAutoMovieMotionHumanClearance.IPoint = hull[i - 1]!;
+      const ahead: IAutoMovieMotionHumanClearance.IPoint = hull[i + 1]!;
       const before: number = Math.hypot(v.z - back.z, v.y - back.y);
       const after: number = Math.hypot(ahead.z - v.z, ahead.y - v.y);
       const r: number = Math.min(RADIUS, before / 2, after / 2);
-      const p0: IPoint = toward(v, back, r / before);
-      const p2: IPoint = toward(v, ahead, r / after);
+      const p0: IAutoMovieMotionHumanClearance.IPoint = toward(
+        v,
+        back,
+        r / before,
+      );
+      const p2: IAutoMovieMotionHumanClearance.IPoint = toward(
+        v,
+        ahead,
+        r / after,
+      );
       for (let k: number = 0; k <= ARC; k++) {
         const t: number = k / ARC;
         line.push({
@@ -117,13 +112,10 @@ export namespace AutoMovieMotionHumanClearance {
     for (let i: number = 1; i < line.length; i++)
       lengths.push(
         lengths[i - 1]! +
-          Math.hypot(
-            line[i]!.z - line[i - 1]!.z,
-            line[i]!.y - line[i - 1]!.y,
-          ),
+          Math.hypot(line[i]!.z - line[i - 1]!.z, line[i]!.y - line[i - 1]!.y),
       );
     const total: number = lengths[lengths.length - 1]!;
-    return (share: number): IPoint => {
+    return (share: number): IAutoMovieMotionHumanClearance.IPoint => {
       const s: number = Math.max(0, Math.min(1, share)) * total;
       let lo: number = 0;
       let hi: number = line.length - 1;
@@ -145,7 +137,11 @@ export namespace AutoMovieMotionHumanClearance {
   const ARC: number = 8;
 
   /** A point a share of the way from one point to another. */
-  const toward = (a: IPoint, b: IPoint, share: number): IPoint => ({
+  const toward = (
+    a: IAutoMovieMotionHumanClearance.IPoint,
+    b: IAutoMovieMotionHumanClearance.IPoint,
+    share: number,
+  ): IAutoMovieMotionHumanClearance.IPoint => ({
     z: a.z + (b.z - a.z) * share,
     y: a.y + (b.y - a.y) * share,
   });

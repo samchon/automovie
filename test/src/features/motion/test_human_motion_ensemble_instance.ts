@@ -1,16 +1,21 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
-  HumanChain,
   HumanEnsemble,
   HumanFormation,
   HumanLimbFitFrame,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanFormation,
-  type IHumanPosture,
   instance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -46,8 +51,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_ensemble_instance(): void {
   const findings: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const formation: IHumanFormation = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const formation: IAutoMovieMotionHumanFormation = {
     blocks: [
       {
         layout: {
@@ -64,8 +69,11 @@ export function test_human_motion_ensemble_instance(): void {
   const perform = (
     instanced: boolean,
     turn: boolean = false,
-  ): { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } => {
-    const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  ): {
+    performance: IAutoMovieMotionHumanPerformance;
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
+  } => {
+    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: "l",
       seed: "instance",
       count: 10,
@@ -79,13 +87,16 @@ export function test_human_motion_ensemble_instance(): void {
           }
         : {}),
     });
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "instance",
       laws: [...HUMAN_LEXICON.gait!, instance],
       performers: HumanEnsemble.performers(ensemble),
       composition: HumanEnsemble.chains(
         ensemble,
-        (m: HumanEnsemble.IMember, chain: HumanChain) =>
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          chain: IAutoMovieMotionHumanChain,
+        ) =>
           chain.registered("march", {
             to: turn
               ? { x: m.place.at.x + 3, y: 0, z: m.place.at.z + 0.01 }
@@ -99,16 +110,22 @@ export function test_human_motion_ensemble_instance(): void {
   const {
     performance,
     ensemble,
-  }: { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } =
-    perform(true);
+  }: {
+    performance: IAutoMovieMotionHumanPerformance;
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
+  } = perform(true);
   for (const m of ensemble.members.filter(
-    (m: HumanEnsemble.IMember): boolean => m.detail === "instanced",
+    (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+      m.detail === "instanced",
   )) {
-    const template: HumanEnsemble.IMember = ensemble.members.find(
-      (f: HumanEnsemble.IMember): boolean =>
-        f.detail === "full" && f.slot?.block === m.slot?.block,
-    )!;
-    const segment: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
+    const template: IAutoMovieMotionHumanEnsemble.IMember =
+      ensemble.members.find(
+        (f: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+          f.detail === "full" && f.slot?.block === m.slot?.block,
+      )!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments(
+      m.subject,
+    )[0]!;
     const shift: number = (segment.params as { shift: number }).shift;
     if (
       !Number.isInteger(shift) ||
@@ -122,8 +139,11 @@ export function test_human_motion_ensemble_instance(): void {
       z: m.place.at.z - template.place.at.z,
     };
     for (let t: number = 1 / 24; t < 2.9; t += 1 / 24) {
-      const own: IHumanPosture = performance.posture(m.subject, t);
-      const lead: IHumanPosture = performance.posture(
+      const own: IAutoMovieMotionHumanPosture = performance.posture(
+        m.subject,
+        t,
+      );
+      const lead: IAutoMovieMotionHumanPosture = performance.posture(
         template.subject,
         t - shift / instance.RATE,
       );
@@ -153,9 +173,10 @@ export function test_human_motion_ensemble_instance(): void {
   }
 
   // 3. The front rank is untouched by its instances.
-  const full: { performance: HumanPerformance } = perform(false);
+  const full: { performance: IAutoMovieMotionHumanPerformance } =
+    perform(false);
   for (const m of ensemble.members.filter(
-    (m: HumanEnsemble.IMember): boolean => m.detail === "full",
+    (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "full",
   ))
     for (let t: number = 0; t < 3; t += 0.25)
       if (
@@ -170,19 +191,22 @@ export function test_human_motion_ensemble_instance(): void {
 
   // 5. An instanced member's display reuses its template's fits.
   for (const m of ensemble.members.filter(
-    (m: HumanEnsemble.IMember): boolean => m.detail === "instanced",
+    (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+      m.detail === "instanced",
   )) {
-    const segment: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments(
+      m.subject,
+    )[0]!;
     const params: { of: string; shift: number } = segment.params as {
       of: string;
       shift: number;
     };
     const t: number = 1 + params.shift / instance.RATE;
     performance.pose(params.of, t - params.shift / instance.RATE);
-    const before: HumanLimbFitFrame.IStatistics =
+    const before: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
       HumanLimbFitFrame.statistics(body);
     performance.pose(m.subject, t);
-    const after: HumanLimbFitFrame.IStatistics =
+    const after: IAutoMovieMotionHumanLimbFitFrame.IStatistics =
       HumanLimbFitFrame.statistics(body);
     if (after.misses !== before.misses)
       findings.push(

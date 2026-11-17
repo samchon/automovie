@@ -5,11 +5,11 @@ import {
   smoothMinimum,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -39,7 +39,7 @@ export namespace walkLeg {
    * @returns Degrees, positive leaning forward.
    */
   export function lean(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     heading: number,
@@ -113,7 +113,10 @@ export namespace walkLeg {
    * @param reach The hip-to-ankle distance, metres.
    * @returns Radians.
    */
-  export function behind(body: IHumanBody, reach: number): number {
+  export function behind(
+    body: IAutoMovieMotionHumanBody,
+    reach: number,
+  ): number {
     const a: number = body.measure.thigh;
     const d: number = Math.min(reach, a + body.measure.shank);
     return Math.acos(
@@ -139,7 +142,7 @@ export namespace walkLeg {
    * @returns Degrees, positive trailing.
    */
   export function trailing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     yaw: number,
@@ -169,7 +172,7 @@ export namespace walkLeg {
    * @returns The rotation, its pitch clamped.
    */
   export function ankleRange(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
@@ -204,7 +207,7 @@ export namespace walkLeg {
    * @returns The pitch, no higher than the asked one.
    */
   export function heelRise(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     hip: IAutoMovieVector3,
     pivot: IAutoMovieVector3,
@@ -233,7 +236,7 @@ export namespace walkLeg {
    * @returns Degrees; `-Infinity` where the ankle lies beyond the leg's reach from the hip, a pitch the leg cannot stand on at all, whose lean would be read off a leg stretched past its length.
    */
   export function room(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     hip: IAutoMovieVector3,
     pivot: IAutoMovieVector3,

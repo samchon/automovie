@@ -1,6 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -10,7 +15,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -69,7 +73,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_carried_carries(): void {
   const RESTS: Readonly<
     Record<
-      HumanCarried.Carry,
+      IAutoMovieMotionHumanCarried.Carry,
       readonly [AutoMovieHumanoidRegion, AutoMovieHumanoidRegion]
     >
   > = {
@@ -87,16 +91,19 @@ export function test_human_motion_carried_carries(): void {
   const complaints: string[] = [];
   const stage = (
     names: readonly ["m-average" | "f-small", "m-average" | "f-small"],
-    carry: HumanCarried.Carry | null,
+    carry: IAutoMovieMotionHumanCarried.Carry | null,
     by: string = "a",
     lean: boolean = false,
     phases: { lift?: number; setDown?: number } = {},
-  ): { film: HumanPerformance; bodies: Record<"a" | "b", IHumanBody> } => {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+  ): {
+    film: IAutoMovieMotionHumanPerformance;
+    bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>;
+  } => {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
-    const walk: HumanChain = HumanChain.subject("a")
+    const walk: IAutoMovieMotionHumanChain = HumanChain.subject("a")
       .stand({ seconds: 0.3 })
       .walk({ to: { x: 0, y: 0, z: 2 } });
     return {
@@ -164,13 +171,13 @@ export function test_human_motion_carried_carries(): void {
   ] as const)
     for (const carry of carries) {
       const { film, bodies }: ReturnType<typeof stage> = stage(names, carry);
-      const carrier: HumanSignature.IReader = HumanSignature.of(
+      const carrier: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         bodies.a,
         0,
       );
-      const carried: HumanSignature.IReader = HumanSignature.of(
+      const carried: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "b",
         bodies.b,
@@ -201,7 +208,7 @@ export function test_human_motion_carried_carries(): void {
   const held: ReturnType<typeof stage> = stage(pair, "piggyback");
   const free: ReturnType<typeof stage> = stage(pair, null);
   for (const side of ["left", "right"] as const) {
-    const wrist = (film: HumanPerformance): IAutoMovieVector3 =>
+    const wrist = (film: IAutoMovieMotionHumanPerformance): IAutoMovieVector3 =>
       HumanSignature.joint(
         HumanSignature.of(film, "a", held.bodies.a, 0),
         1.3,
@@ -219,7 +226,7 @@ export function test_human_motion_carried_carries(): void {
   // 5. The lean against the load is summed onto the walk's own trunk.
   const leaned: ReturnType<typeof stage> = stage(pair, "piggyback", "a", true);
   const chest = (
-    film: HumanPerformance,
+    film: IAutoMovieMotionHumanPerformance,
     seconds: number,
     axis: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
@@ -231,13 +238,13 @@ export function test_human_motion_carried_carries(): void {
       axis,
     );
   for (const seconds of [1.3, 1.6, 1.9]) {
-    const tip = (film: HumanPerformance): number => {
+    const tip = (film: IAutoMovieMotionHumanPerformance): number => {
       const up: IAutoMovieVector3 = chest(film, seconds, { x: 0, y: 1, z: 0 });
       return (Math.atan2(up.z, up.y) * 180) / Math.PI;
     };
     // The walk's turn of the chest is read against its hips, so the whole
     // body's pitch, which turns both, leaves it as the walk holds it.
-    const turn = (film: HumanPerformance): number => {
+    const turn = (film: IAutoMovieMotionHumanPerformance): number => {
       const bones = HumanSignature.bones(
         HumanSignature.of(film, "a", held.bodies.a, 0),
         seconds,
@@ -274,7 +281,7 @@ export function test_human_motion_carried_carries(): void {
       setDown: 0.5,
     },
   );
-  const borne: HumanSignature.IReader = HumanSignature.of(
+  const borne: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     lifted.film,
     "b",
     lifted.bodies.b,

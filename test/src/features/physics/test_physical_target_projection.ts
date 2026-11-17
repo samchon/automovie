@@ -10,6 +10,9 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -33,11 +36,15 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export function test_physical_target_projection(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const authored: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const authored: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
   authored["upper-0"]!.rotation = Quaternion.multiply(
     Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 80),
@@ -74,24 +81,27 @@ export function test_physical_target_projection(): void {
     [2, 35],
     [4, -25],
   ] as const) {
-    const initial: Record<string, P.ITransform> = Object.fromEntries(
-      profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-        segment.bone,
-        {
-          position: {
-            ...segment.neutral.position,
-            y: segment.neutral.position.y + 0.08,
-          },
-          rotation: segment.bone.startsWith("support-")
-            ? Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, pitch)
-            : { ...segment.neutral.rotation },
-        },
-      ]),
-    );
-    const targets: Record<string, P.ITransform> = projectPhysicalTargets(
-      profile,
-      initial,
-    ).targets;
+    const initial: Record<string, IAutoMovieRigidTransform> =
+      Object.fromEntries(
+        profile.segments.map(
+          (
+            segment: IAutoMoviePhysicalSegment,
+          ): [string, IAutoMovieRigidTransform] => [
+            segment.bone,
+            {
+              position: {
+                ...segment.neutral.position,
+                y: segment.neutral.position.y + 0.08,
+              },
+              rotation: segment.bone.startsWith("support-")
+                ? Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, pitch)
+                : { ...segment.neutral.rotation },
+            },
+          ],
+        ),
+      );
+    const targets: Record<string, IAutoMovieRigidTransform> =
+      projectPhysicalTargets(profile, initial).targets;
     const pattern: IAutoMovieFootfallPattern = {
       id: "independent-box-patches",
       minimumSupports: 1,
@@ -112,8 +122,9 @@ export function test_physical_target_projection(): void {
       ),
     };
     for (const limb of pattern.limbs) {
-      const shape: P.IShape = profile.segments.find(
-        (segment: P.ISegment): boolean => segment.bone === limb.bone,
+      const shape: IAutoMoviePhysicalShape = profile.segments.find(
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === limb.bone,
       )!.shapes[0]!;
       if (shape.kind !== "box")
         throw new Error("Expected independent primitive box");
@@ -162,12 +173,13 @@ export function test_physical_target_projection(): void {
       });
     inspect(result.targets);
     for (const limb of pattern.limbs) {
-      const segment: P.ISegment = profile.segments.find(
-        (candidate: P.ISegment): boolean => candidate.bone === limb.bone,
+      const segment: IAutoMoviePhysicalSegment = profile.segments.find(
+        (candidate: IAutoMoviePhysicalSegment): boolean =>
+          candidate.bone === limb.bone,
       )!;
       const minimum: number = Math.min(
         ...segment.shapes.map(
-          (shape: P.IShape): number =>
+          (shape: IAutoMoviePhysicalShape): number =>
             physicalShapeBounds(result.targets[limb.bone]!, shape).min.y,
         ),
       );
@@ -231,11 +243,11 @@ export function test_physical_target_projection(): void {
   }
 
   /** Independently measure all anchors and native coordinates after each operation. */
-  function inspect(targets: Record<string, P.ITransform>): void {
+  function inspect(targets: Record<string, IAutoMovieRigidTransform>): void {
     const failures: string[] = [];
     for (const joint of profile.joints) {
-      const parent: P.ITransform = targets[joint.parent]!;
-      const child: P.ITransform = targets[joint.child]!;
+      const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
+      const child: IAutoMovieRigidTransform = targets[joint.child]!;
       const a: IAutoMovieVector3 = Vector3.add(
         parent.position,
         Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),

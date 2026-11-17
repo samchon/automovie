@@ -1,8 +1,10 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoverySceneFeasibleRouting } from "../structures/internal/IAutoMovieRecoverySceneFeasibleRouting";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**

@@ -1,5 +1,5 @@
-import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
-import { IAutoMoviePointerChannel } from "./IAutoMoviePointerChannel";
+import type { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
+import type { IAutoMoviePointerChannel } from "./IAutoMoviePointerChannel";
 
 /**
  * A channel: a typed, addressable animatable value, the universal target that

@@ -1,6 +1,5 @@
 import {
   AutoMovieFilmEffectRuntimeError,
-  type IAutoMovieProductionRenderFrame,
   autoMovieRenderDigest,
   canonicalizeAutoMovieJson,
   compareCodeUnits,
@@ -14,18 +13,18 @@ import {
 import type {
   AutoMovieGuidePass,
   IAutoMovieCompiledFilmEffect,
-  IAutoMovieFilmTimeline,
+  IAutoMoviePlanProductionRenderJobProps,
+  IAutoMovieProductionAudioAssetIdentity,
   IAutoMovieProductionDeliverable,
   IAutoMovieProductionDesign,
   IAutoMovieProductionFrameRate,
+  IAutoMovieProductionRenderChunk,
+  IAutoMovieProductionRenderFrame,
+  IAutoMovieProductionRenderJobPlan,
+  IAutoMovieProductionRenderTier,
 } from "@automovie/interface";
 
 import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt.js";
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
-import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk.js";
-import type { IAutoMovieProductionRenderJobPlan } from "./IAutoMovieProductionRenderJobPlan.js";
-import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
 import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
 import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
@@ -77,47 +76,11 @@ interface IRange {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each range's frame array and sorted source identities are built once and shared across the moving deliverables of this call. There is no cross-call cache or maintained scheduler consuming these ids to reuse completed encodes; any such effect reuse would require a host's currentness and byte checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All F samples are allocated even with no moving deliverable, then become collectable if no range retains them. With moving deliverables the result shares F frame records through D times ceil(F/chunkFrames) chunk records and retains copied audio/effect tracks, asset identities and caption text. Input arrays and output populations have no quota here; local indexes and digest strings become collectable after completion or refusal, with no acquired host handle or task.
  */
-export const planProductionRenderJob: (props: {
-  timeline: IAutoMovieFilmTimeline;
-  effects: readonly IAutoMovieCompiledFilmEffect[];
-  production: IAutoMovieProductionDesign;
-  runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
-  sourceFingerprints: Readonly<Record<string, string>>;
-  audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
-  chunkFrames: number;
-  guidePasses?: readonly Exclude<AutoMovieGuidePass, "beauty">[];
-  tier?: IAutoMovieProductionRenderTier;
-}) => IAutoMovieProductionRenderJobPlan = (props: {
-  /** The builder-owned film edit. */
-  timeline: IAutoMovieFilmTimeline;
-
-  /** The compiled film-global effect runtimes for that edit. */
-  effects: readonly IAutoMovieCompiledFilmEffect[];
-
-  /** The production design the edit was compiled for. */
-  production: IAutoMovieProductionDesign;
-
-  /** Capture and encoder identity every chunk renders under. */
-  runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
-
-  /** SHA-256 source digest of every shot the edit shows, by shot id. */
-  sourceFingerprints: Readonly<Record<string, string>>;
-
-  /** Identity of every audio asset the edit's cues reference. */
-  audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
-
-  /** Maximum output frames per chunk; a positive safe integer. */
-  chunkFrames: number;
-
-  /**
-   * The one pass of a legacy guide deliverable that declares none; omitted is
-   * `pose`.
-   */
-  guidePasses?: readonly Exclude<AutoMovieGuidePass, "beauty">[];
-
-  /** Proxy or final tier; omitted is the exact final tier. */
-  tier?: IAutoMovieProductionRenderTier;
-}): IAutoMovieProductionRenderJobPlan => {
+export const planProductionRenderJob: (
+  props: IAutoMoviePlanProductionRenderJobProps,
+) => IAutoMovieProductionRenderJobPlan = (
+  props: IAutoMoviePlanProductionRenderJobProps,
+): IAutoMovieProductionRenderJobPlan => {
   if (
     Number.isSafeInteger(props.chunkFrames) === false ||
     props.chunkFrames <= 0

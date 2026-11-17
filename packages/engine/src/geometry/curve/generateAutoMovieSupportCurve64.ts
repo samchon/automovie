@@ -1,4 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieGenerateSupportCurve64,
+} from "@automovie/interface";
 
 /**
  * Generate a planar convex curve from a finite Fourier support function.
@@ -21,23 +25,9 @@ import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each endpoint position and tangent in both incident Hermite spans and reuses harmonic amplitudes in both derivative majorants.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most 17 coefficient pairs and 4096 spans are admitted; local samples are discarded and only the generated curve and scalar qualifications transfer to the caller.
  */
-export function generateAutoMovieSupportCurve64(props: {
-  /** Caller-owned identity of the generated curve. */
-  name: string;
-  /** Coefficient pair at harmonic index n; index zero must have sine zero. */
-  harmonics: readonly { cosine: number; sine: number }[];
-  /** Fixed common normal-angle partition; a power of two in [4,4096]. */
-  spans: number;
-}): {
-  /** Polynomial approximation in the local X/Z plane, phase in turns. */
-  curve: C.Cubic;
-  /** Integral of the analytic convex support function, millimetres. */
-  analyticPerimeter: number;
-  /** Estimated positive lower bound on h+h'', millimetres. */
-  minimumRadiusLowerEstimate: number;
-  /** Mathematical Hermite remainder evaluated in binary64, millimetres. */
-  approximationErrorEstimate: number;
-} {
+export function generateAutoMovieSupportCurve64(
+  props: IAutoMovieGenerateSupportCurve64.IProps,
+): IAutoMovieGenerateSupportCurve64.IResult {
   if (
     props.harmonics.length === 0 ||
     props.harmonics.length > 17 ||
@@ -102,8 +92,8 @@ export function generateAutoMovieSupportCurve64(props: {
     throw new Error(
       "Positive curvature radius remains unresolved for this support family",
     );
-  const points: C.Vector[] = [];
-  const tangents: C.Vector[] = [];
+  const points: Readonly<AutoMovieVector3Tuple>[] = [];
+  const tangents: Readonly<AutoMovieVector3Tuple>[] = [];
   for (let i: number = 0; i < props.spans; ++i) {
     const angle: number = width * i;
     let h: number = coefficients[0]!.cosine;
@@ -124,25 +114,33 @@ export function generateAutoMovieSupportCurve64(props: {
     points.push([h * c - derivative * s, 0, h * s + derivative * c]);
     tangents.push([-radius * s, 0, radius * c]);
   }
-  const spans: C.Span[] = points.map((a: C.Vector, i: number): C.Span => {
-    const next: number = (i + 1) % props.spans;
-    const b: C.Vector = points[next]!;
-    const da: C.Vector = tangents[i]!;
-    const db: C.Vector = tangents[next]!;
-    return [
-      a,
-      a.map(
-        (x: number, k: number): number => x + (width * da[k]!) / 3,
-      ) as unknown as C.Vector,
-      b.map(
-        (x: number, k: number): number => x - (width * db[k]!) / 3,
-      ) as unknown as C.Vector,
-      b,
-    ];
-  });
+  const spans: AutoMovieCubicBezierControls3[] = points.map(
+    (
+      a: Readonly<AutoMovieVector3Tuple>,
+      i: number,
+    ): AutoMovieCubicBezierControls3 => {
+      const next: number = (i + 1) % props.spans;
+      const b: Readonly<AutoMovieVector3Tuple> = points[next]!;
+      const da: Readonly<AutoMovieVector3Tuple> = tangents[i]!;
+      const db: Readonly<AutoMovieVector3Tuple> = tangents[next]!;
+      return [
+        a,
+        a.map(
+          (x: number, k: number): number => x + (width * da[k]!) / 3,
+        ) as unknown as Readonly<AutoMovieVector3Tuple>,
+        b.map(
+          (x: number, k: number): number => x - (width * db[k]!) / 3,
+        ) as unknown as Readonly<AutoMovieVector3Tuple>,
+        b,
+      ];
+    },
+  );
   if (
-    spans.some((span: C.Span): boolean =>
-      span.some((p: C.Vector): boolean => !p.every(Number.isFinite)),
+    spans.some((span: AutoMovieCubicBezierControls3): boolean =>
+      span.some(
+        (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+          !p.every(Number.isFinite),
+      ),
     )
   )
     throw new Error("Support-curve arithmetic overflow");

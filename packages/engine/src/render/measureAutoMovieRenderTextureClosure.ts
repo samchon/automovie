@@ -1,12 +1,12 @@
 import type {
   IAutoMovieMaterial,
+  IAutoMovieMeasureRenderTextureClosure,
   IAutoMovieRenderTextureCost,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 
 import { materialTextureSlots } from "../validation/materialTextureSlots";
-import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
-import type { IAutoMovieRenderTextureResident } from "./IAutoMovieRenderTextureResident";
-import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { autoMovieTextureBindingStateKey } from "./autoMovieTextureBindingStateKey";
 import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
@@ -44,19 +44,9 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Equivalent actual Source/upload keys share one raw allocation and equivalent environment Texture objects share derivatives; renderer DFG/scratch are counted once. Asset spelling alone cannot establish equivalence across live scopes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned costs are facts, not native owners; grouping storage is temporary and the host must remove disposed scopes/targets and release retained scratch on real context release, with no disposer or task held here.
  */
-export function measureAutoMovieRenderTextureClosure(props: {
-  materials: Iterable<IAutoMovieMaterial>;
-  sources: readonly IAutoMovieRenderTextureSource[];
-  environment: string | null;
-  /** Drawn default PBR materials without an authored material record. */
-  defaultPbr?: boolean;
-  /** Required current-scope shadow attachments, from the shared policy resolver. */
-  shadowCasters?: readonly { light: string; filterDraws: number }[];
-  /** Current scope's actual declared rectangular-light presence. */
-  areaLights?: boolean;
-  /** Host-owned live scopes and retained context resources, when not fresh. */
-  residency?: IAutoMovieRenderTextureResidency;
-}): IAutoMovieRenderTextureCost[] {
+export function measureAutoMovieRenderTextureClosure(
+  props: IAutoMovieMeasureRenderTextureClosure.IProps,
+): IAutoMovieRenderTextureCost[] {
   const scopes: IAutoMovieRenderTextureResident[] = [
     {
       owner: props.residency?.owner ?? "current",

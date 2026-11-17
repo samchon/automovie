@@ -1,11 +1,13 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieCaptureSubject,
+  IAutoMovieMark,
+} from "@automovie/interface";
+import { markMotionCaptureCase } from "@automovie/motions";
 import {
-  type IAutoMovieCaptureSubject,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
   resolveAutoMovieInspectionColors,
 } from "@automovie/render";
-import { markMotionCaptureCase } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -26,7 +28,11 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_motion_capture_marks(): void {
-  const at: (x: number, y: number, z: number) => { x: number; y: number; z: number } = (
+  const at: (
+    x: number,
+    y: number,
+    z: number,
+  ) => { x: number; y: number; z: number } = (
     x: number,
     y: number,
     z: number,
@@ -34,7 +40,9 @@ export function test_motion_capture_marks(): void {
 
   // 1. One of each.
   const marks: IAutoMovieMark[] = markMotionCaptureCase({
-    trails: [{ color: 0xd04040, points: [at(0, 0, 0), at(0.5, 0, 0), at(1, 0, 0)] }],
+    trails: [
+      { color: 0xd04040, points: [at(0, 0, 0), at(0.5, 0, 0), at(1, 0, 0)] },
+    ],
     targets: [{ at: at(1, 1, 0), radius: 0.03, color: 0x40a040 }],
     drift: [
       {
@@ -48,7 +56,12 @@ export function test_motion_capture_marks(): void {
   });
   TestValidator.equals(
     "shapes, paths and flags",
-    marks.map((mark: IAutoMovieMark): unknown[] => [mark.path, mark.shape.type, mark.flagged, mark.anchor]),
+    marks.map((mark: IAutoMovieMark): unknown[] => [
+      mark.path,
+      mark.shape.type,
+      mark.flagged,
+      mark.anchor,
+    ]),
     [
       ["case/trail/0", "polyline", false, null],
       ["case/target/0", "points", false, null],
@@ -63,14 +76,20 @@ export function test_motion_capture_marks(): void {
   );
 
   // 2. Three kinds, accepted by the colour law.
-  const kinds: Map<string, { label: string; color: number }> = resolveAutoMovieInspectionColors({
-    marks,
-    reserved: [{ use: "the flag", color: 0xff00ff }],
-    recolor: [],
-  });
+  const kinds: Map<string, { label: string; color: number }> =
+    resolveAutoMovieInspectionColors({
+      marks,
+      reserved: [{ use: "the flag", color: 0xff00ff }],
+      recolor: [],
+    });
   TestValidator.equals(
     "three kinds in the legend",
-    [...kinds].map(([kind, entry]: [string, { label: string; color: number }]): unknown[] => [kind, entry.label]),
+    [...kinds].map(
+      ([kind, entry]: [
+        string,
+        { label: string; color: number },
+      ]): unknown[] => [kind, entry.label],
+    ),
     [
       ["case/d04040", "trail d04040"],
       ["case/40a040", "target 40a040"],
@@ -91,7 +110,9 @@ export function test_motion_capture_marks(): void {
   };
   const plans: (marks: string) => number = (pattern: string): number =>
     planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(`at=1&marks=${pattern}`)),
+      request: parseAutoMovieCapturePlanRequest(
+        new URLSearchParams(`at=1&marks=${pattern}`),
+      ),
       subject,
       cuts: [],
     }).cells.length;
@@ -113,7 +134,13 @@ export function test_motion_capture_marks(): void {
   });
   TestValidator.equals(
     "one kind for one colour",
-    [...new Set(shared.map((mark: IAutoMovieMark): string => `${mark.kind} ${mark.label}`))],
+    [
+      ...new Set(
+        shared.map(
+          (mark: IAutoMovieMark): string => `${mark.kind} ${mark.label}`,
+        ),
+      ),
+    ],
     ["case/d04040 trail and target d04040"],
   );
 
@@ -128,7 +155,10 @@ export function test_motion_capture_marks(): void {
   });
   TestValidator.equals(
     "only the one-point trail, as a point",
-    sparse.map((mark: IAutoMovieMark): unknown[] => [mark.path, mark.shape.type]),
+    sparse.map((mark: IAutoMovieMark): unknown[] => [
+      mark.path,
+      mark.shape.type,
+    ]),
     [["case/trail/1", "points"]],
   );
 }

@@ -1,6 +1,7 @@
 import {
   IAutoMovieMesh,
   IAutoMovieModel,
+  type IAutoMovieRealizeGeometry,
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
@@ -56,7 +57,7 @@ export const measure: (
   const materials: Set<string> = new Set<string>();
   for (const part of model.parts) {
     if (part.material !== null) materials.add(part.material);
-    const realized: ReturnType<typeof realizeAutoMovieGeometry> =
+    const realized: IAutoMovieRealizeGeometry.IResult =
       realizeAutoMovieGeometry(part.geometry);
     if (part.geometry.type === "bicubic-atlas") {
       hasRecipe = true;

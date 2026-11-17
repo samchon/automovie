@@ -1,4 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
@@ -17,7 +17,7 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  */
 export function createAutoMoviePhysicalPoseAdapter(
   model: IAutoMovieModelObject,
-): (poses: Readonly<Record<string, P.ITransform>>) => void {
+): (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) => void {
   const bones: Map<string, THREE.Object3D> = new Map(model.bones);
   const owned: Map<THREE.Object3D, string> = new Map(
     [...bones].map(
@@ -41,7 +41,7 @@ export function createAutoMoviePhysicalPoseAdapter(
   const position: THREE.Vector3 = new THREE.Vector3();
   const rotation: THREE.Quaternion = new THREE.Quaternion();
   const scale: THREE.Vector3 = new THREE.Vector3();
-  return (poses: Readonly<Record<string, P.ITransform>>): void => {
+  return (poses: Readonly<Record<string, IAutoMovieRigidTransform>>): void => {
     for (const [bone, pose] of Object.entries(poses))
       if (
         !bones.has(bone) ||
@@ -100,7 +100,7 @@ export function createAutoMoviePhysicalPoseAdapter(
       }
     for (const { name, object } of ordered) {
       if (!Object.hasOwn(poses, name)) continue;
-      const pose: P.ITransform = poses[name]!;
+      const pose: IAutoMovieRigidTransform = poses[name]!;
       const parent: THREE.Object3D | null = object.parent;
       position.set(pose.position.x, pose.position.y, pose.position.z);
       if (parent) {

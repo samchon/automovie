@@ -1,15 +1,13 @@
 import {
   IAutoMovieRenderSpec,
   IAutoMovieSequence,
+  type IAutoMovieSequenceRenderFrame,
+  type IAutoMovieSequenceRenderPlan,
+  type IAutoMovieSequenceRenderShotSpan,
   IAutoMovieShot,
   IAutoMovieTrim,
 } from "@automovie/interface";
-import {
-  IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-  IAutoMovieSequenceRenderShotSpan,
-  planSequenceRender,
-} from "@automovie/render";
+import { planSequenceRender } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

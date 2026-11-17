@@ -1,19 +1,22 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -86,10 +89,10 @@ import { stepOverPath } from "./stepOverPath";
  */
 export namespace stepOver {
   /** The action's name. */
-  export const name: HumanActionName = "stepOver";
+  export const name: AutoMovieMotionHumanActionName = "stepOver";
 
   /** Cancel table: a crossing completes before anything else. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0 }],
     walk: [
       {
@@ -100,18 +103,6 @@ export namespace stepOver {
       },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The obstacle's prop subject: a kerb or a hurdle, whose near edge, height and depth its contacts declare (`HumanObstacle`). */
-    obstacle: string;
-
-    /** The leading foot; `right` when absent. */
-    lead?: "left" | "right";
-
-    /** How it is performed: the manner's tempo scales the whole crossing's time, every phase keeping its share; neutral when absent. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** How far the lead foot lifts its toes as they pass over the obstacle's near side, degrees toes-up (provisional): the toe clears the edge with the ankle lower than a level foot's would be. */
   export const TOE_UP: number = 35;
@@ -130,8 +121,8 @@ export namespace stepOver {
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const {
       body,
       lead,
@@ -240,10 +231,10 @@ export namespace stepOver {
           ),
         },
       ],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
         for (const side of ["left", "right"] as const) {
           const f = footAt(side, t);
@@ -271,7 +262,7 @@ export namespace stepOver {
           standUpright.of(body).joints,
           walk.LEAN,
         );
-        let posture: IHumanPosture = resolveHumanPosture.lower(
+        let posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           AutoMovieMotionHumanLean.pivot(
             body,
@@ -330,12 +321,15 @@ export namespace stepOver {
         > = {};
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
           const bones = poseBones(body, resolveHumanPosture(body, posture));
-          const next: IHumanPosture["limbs"] = { ...posture.limbs };
+          const next: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...posture.limbs,
+          };
           let moved: boolean = false;
           for (const side of lifted) {
             const short: number = Math.max(
               ...HumanFoot.sockets(body, bones, side).map(
-                (s: HumanFoot.ISocket): number => needed(s.point) - s.point.y,
+                (s: IAutoMovieMotionHumanFoot.ISocket): number =>
+                  needed(s.point) - s.point.y,
               ),
             );
             if (short <= 0.002) continue;

@@ -1,6 +1,7 @@
-import { IAutoMovieRecoilPush, impactRecoil } from "@automovie/engine";
+import { impactRecoil } from "@automovie/engine";
 import {
   IAutoMovieBone,
+  type IAutoMovieRecoilPush,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";

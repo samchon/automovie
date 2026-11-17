@@ -1,13 +1,14 @@
+import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
+import type {
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMovieRecoveryLocalBinding,
+  IAutoMovieRecoveryLocalResult,
+  IAutoMovieRecoveryLocalRunReport,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
 import {
-  type IAutoMovieCurve64 as C,
-  tessellateAutoMovieLocalHermite64 as T,
-} from "@automovie/engine";
-import {
-  type IAutoMovieRecoveryLocalBinding,
-  type IAutoMovieRecoveryLocalResult,
-  type IAutoMovieRecoveryOpenContinuation,
-  type IAutoMovieRecoveryTensorFamiliesInput,
-  type RecoveryLocalRunReport,
   describeRecoveryOpenRun,
   normalizeRecoveryCourse,
   prepareRecoveryLocalContinuation,
@@ -121,7 +122,7 @@ export function reconstructAutoMovieRecoveryLocal(
     attachedBone: null,
     transform: null,
   });
-  type RunReport = RecoveryLocalRunReport;
+  type RunReport = IAutoMovieRecoveryLocalRunReport;
   const runs: RunReport[] = [],
     checkpoints: { path: string; sha256: string; bytes: number }[] = [];
   let completedPairs: number = 0,
@@ -311,11 +312,17 @@ export function reconstructAutoMovieRecoveryLocal(
           elapsedMs: performance.now() - started,
         }),
       );
-    let iterator: Generator<T.Chunk, T.Summary, void> | undefined;
+    let iterator:
+      | Generator<
+          IAutoMovieLocalHermiteStream64.Chunk,
+          IAutoMovieLocalHermiteStream64.Summary,
+          void
+        >
+      | undefined;
     let outputOperation: boolean = false;
     try {
-      const courses: C.Cubic[] = nodes.map(
-        (n: Node, i: number): C.Cubic =>
+      const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
+        (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
           normalizeRecoveryCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,
@@ -334,9 +341,12 @@ export function reconstructAutoMovieRecoveryLocal(
         maxVerticesPerChunk: 32_768,
         vertexOffset: spool.counts.vertices,
       });
-      let result: IteratorResult<T.Chunk, T.Summary> = iterator.next();
+      let result: IteratorResult<
+        IAutoMovieLocalHermiteStream64.Chunk,
+        IAutoMovieLocalHermiteStream64.Summary
+      > = iterator.next();
       while (!result.done) {
-        const chunk: T.Chunk = result.value;
+        const chunk: IAutoMovieLocalHermiteStream64.Chunk = result.value;
         outputOperation = true;
         spool.append(chunk, {
           run: id,

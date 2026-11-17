@@ -1,5 +1,8 @@
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -36,23 +39,23 @@ export function test_motion_contact_events_mutual(): void {
   type Path = (t: number) => number;
   const held =
     (id: string, x: Path) =>
-    (t: number, stops: resolveAutoMovieContactEvents.IStops): number =>
+    (t: number, stops: IAutoMovieResolveContactEvents.IStops): number =>
       x(Math.min(t, stops.get(id) ?? Infinity));
   const shin = (
     id: string,
     owner: string,
     x: Path,
-  ): resolveAutoMovieContactEvents.IWeapon => ({
+  ): IAutoMovieResolveContactEvents.IWeapon => ({
     id,
     owner,
     radius: 0.1,
     position: (
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): IAutoMovieVector3 => ({ x: held(id, x)(t, stops), y: 0.3, z: 0 }),
     tail: (
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): IAutoMovieVector3 => ({ x: held(id, x)(t, stops), y: 0.7, z: 0 }),
   });
   const leg = (
@@ -61,18 +64,18 @@ export function test_motion_contact_events_mutual(): void {
     x: Path,
     thickness: number,
     carried: string | undefined,
-  ): resolveAutoMovieContactEvents.IBody => ({
+  ): IAutoMovieResolveContactEvents.IBody => ({
     id,
     distance: (
       p: IAutoMovieVector3,
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): number => Math.abs(p.x - held(weapon, x)(t, stops)) - thickness,
     axis: (
       a: IAutoMovieVector3,
       _b: IAutoMovieVector3,
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): number => Math.abs(a.x - held(weapon, x)(t, stops)) - thickness,
     ...(carried === undefined
       ? {}
@@ -83,8 +86,8 @@ export function test_motion_contact_events_mutual(): void {
   const resolve = (
     mutual: boolean,
     reversed: boolean,
-  ): resolveAutoMovieContactEvents.IEvent[] => {
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [
+  ): IAutoMovieResolveContactEvents.IEvent[] => {
+    const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [
       shin("a", "A", left),
       shin("b", "B", right),
     ];
@@ -100,7 +103,7 @@ export function test_motion_contact_events_mutual(): void {
     });
   };
 
-  const apart: resolveAutoMovieContactEvents.IEvent[] = resolve(false, false);
+  const apart: IAutoMovieResolveContactEvents.IEvent[] = resolve(false, false);
   TestValidator.predicate(
     `without the rule the second shin stops late (${apart.map((e) => e.seconds).join(", ")})`,
     apart.length === 2 &&
@@ -110,28 +113,28 @@ export function test_motion_contact_events_mutual(): void {
       close(apart[1]!.seconds, 0.47),
   );
 
-  const runs: resolveAutoMovieContactEvents.IEvent[][] = [false, true].map(
-    (reversed: boolean): resolveAutoMovieContactEvents.IEvent[] =>
+  const runs: IAutoMovieResolveContactEvents.IEvent[][] = [false, true].map(
+    (reversed: boolean): IAutoMovieResolveContactEvents.IEvent[] =>
       resolve(true, reversed),
   );
   TestValidator.predicate(
     `mutual shins stop together at 0.45 s (${runs[0]!.map((e) => e.seconds).join(", ")})`,
     runs.every(
-      (events: resolveAutoMovieContactEvents.IEvent[]): boolean =>
+      (events: IAutoMovieResolveContactEvents.IEvent[]): boolean =>
         events.length === 2 &&
         events[0]!.seconds === events[1]!.seconds &&
         close(events[0]!.seconds, 0.45) &&
         events.some(
-          (e: resolveAutoMovieContactEvents.IEvent): boolean =>
+          (e: IAutoMovieResolveContactEvents.IEvent): boolean =>
             e.weapon === "a" && e.against === "B",
         ) &&
         events.some(
-          (e: resolveAutoMovieContactEvents.IEvent): boolean =>
+          (e: IAutoMovieResolveContactEvents.IEvent): boolean =>
             e.weapon === "b" && e.against === "A",
         ),
     ) &&
       runs[0]!.every(
-        (e: resolveAutoMovieContactEvents.IEvent, i: number): boolean =>
+        (e: IAutoMovieResolveContactEvents.IEvent, i: number): boolean =>
           e.seconds === runs[1]![i]!.seconds &&
           e.weapon === runs[1]![i]!.weapon &&
           e.against === runs[1]![i]!.against,
@@ -142,7 +145,7 @@ export function test_motion_contact_events_mutual(): void {
   // whose carried shin has already stopped at x = -0.1: at -2 + 2 t = -0.3,
   // t = 0.85 s, and only it stops then.
   const behind: Path = (t: number): number => -2 + 2 * t;
-  const three: resolveAutoMovieContactEvents.IEvent[] =
+  const three: IAutoMovieResolveContactEvents.IEvent[] =
     resolveAutoMovieContactEvents({
       weapons: [
         shin("a", "A", left),

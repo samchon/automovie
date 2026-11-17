@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieResolveHydrodynamicForce,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -43,8 +43,8 @@ import { physicalHullMass } from "../physics/physicalHullMass";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveHydrodynamicForce(
-  props: resolveHydrodynamicForce.IProps,
-): resolveHydrodynamicForce.IForce {
+  props: IAutoMovieResolveHydrodynamicForce.IProps,
+): IAutoMovieResolveHydrodynamicForce.IForce {
   const density: number = props.density ?? resolveHydrodynamicForce.WATER;
   const gravity: number = props.gravity ?? AutoMovieGravity.STANDARD;
   if (!(props.volume > 0 && density > 0))
@@ -84,39 +84,6 @@ export namespace resolveHydrodynamicForce {
   /** The drag coefficient of a sphere at subcritical Reynolds numbers, the textbook value (provisional: no drag study was read for it). */
   export const DRAG: number = 0.47;
 
-  /** One segment in the water. */
-  export interface IProps {
-    /** The segment's volume, m³ (`volume`). */
-    volume: number;
-
-    /** Its centre, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** Its centre's velocity relative to the water, m/s. */
-    velocity: IAutoMovieVector3;
-
-    /** The water plane's height, world metres. */
-    surface: number;
-
-    /** The water's density, kg/m³; `WATER` when absent. */
-    density?: number;
-
-    /** Gravitational acceleration, m/s²; standard when absent. */
-    gravity?: number;
-  }
-
-  /** The water's forces on a segment. */
-  export interface IForce {
-    /** The volume under the plane, m³. */
-    submerged: number;
-
-    /** The buoyant force, world newtons. */
-    buoyancy: IAutoMovieVector3;
-
-    /** The drag, world newtons. */
-    drag: IAutoMovieVector3;
-  }
-
   /**
    * A segment's volume from its colliders: each sphere, capsule, box and
    * hull in closed form, summed, overlaps counted twice as the profile
@@ -125,7 +92,7 @@ export namespace resolveHydrodynamicForce {
    * @param segment The profile's segment.
    * @returns Cubic metres.
    */
-  export function volume(segment: IAutoMoviePhysicalProfile.ISegment): number {
+  export function volume(segment: IAutoMoviePhysicalSegment): number {
     let sum: number = 0;
     for (const shape of segment.shapes) {
       if (shape.kind === "sphere") sum += (4 / 3) * Math.PI * shape.radius ** 3;

@@ -1,15 +1,19 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanInstance,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * An instanced member: a performer that displays a template member's placed
@@ -44,7 +48,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace instance {
   /** The law's name. */
-  export const name: HumanActionKey = "instance";
+  export const name: AutoMovieMotionHumanActionKey = "instance";
 
   /** Degrees the template may turn over the span before the move is no longer rigid (provisional: a degree moves a member a metre out by under 2 cm). */
   export const TURN: number = 1;
@@ -52,20 +56,8 @@ export namespace instance {
   /** The film's frame rate, frames a second, the unit of `shift`. */
   export const RATE: number = 24;
 
-  /** Parameters. */
-  export interface IParams {
-    /** The template performer, composed before the instance. */
-    of: string;
-
-    /** How long the instance lasts, seconds, positive. */
-    seconds: number;
-
-    /** Whole film frames it lags the template by, at least 0; 0 when absent. */
-    shift?: number;
-  }
-
   /** The cuts: any action may follow it at any instant, inertialized. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
@@ -77,9 +69,9 @@ export namespace instance {
    * @throws {HumanRefusal} When the template is on another body, turns over the span, or carries a goal kept clear of world colliders.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanInstance.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanInstance.IParams = context.params;
     const shift: number = p.shift ?? 0;
     if (!(p.seconds > 0) || !(Number.isInteger(shift) && shift >= 0))
       throw new HumanRefusal({
@@ -90,9 +82,12 @@ export namespace instance {
           "an instance lasts a positive time and lags by a whole number of frames",
         fix: "give a positive span and a whole, nonnegative shift",
       });
-    const template: IHumanActionContext.IPerformer = context.performer(p.of);
-    const read: ((seconds: number) => IHumanPosture) | undefined =
-      template.posture?.bind(template);
+    const template: IAutoMovieMotionHumanPerformerReader = context.performer(
+      p.of,
+    );
+    const read:
+      | ((seconds: number) => IAutoMovieMotionHumanPosture)
+      | undefined = template.posture?.bind(template);
     if (template.body !== context.body || read === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -105,10 +100,11 @@ export namespace instance {
         fix: "instance a template of the same body from the same pool",
       });
     const lag: number = shift / RATE;
-    const at = (t: number): IHumanPosture => read(context.start + t - lag);
+    const at = (t: number): IAutoMovieMotionHumanPosture =>
+      read(context.start + t - lag);
 
     // The template keeps its heading over the span, read every film frame.
-    const first: IHumanPosture = at(0);
+    const first: IAutoMovieMotionHumanPosture = at(0);
     for (let k: number = 1; k <= Math.ceil(p.seconds * RATE); ++k) {
       const yaw: number = at(Math.min(p.seconds, k / RATE)).yaw;
       const turned: number = Math.abs(
@@ -145,15 +141,17 @@ export namespace instance {
       duration: p.seconds,
       events: [],
       contacts: [],
-      posture: (seconds: number): IHumanPosture => {
-        const t: IHumanPosture = at(Math.min(p.seconds, Math.max(0, seconds)));
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+        const t: IAutoMovieMotionHumanPosture = at(
+          Math.min(p.seconds, Math.max(0, seconds)),
+        );
         const root: IAutoMovieVector3 = add(t.root, rotate(offset, t.yaw));
         const move = (point: IAutoMovieVector3): IAutoMovieVector3 =>
           add(root, rotate(sub(point, t.root), turn));
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const [limb, goal] of Object.entries(t.limbs) as [
-          IHumanPosture.Limb,
-          IHumanPosture.IGoal,
+          AutoMovieHumanLimb,
+          IAutoMovieHumanLimbGoal,
         ][]) {
           if (goal.clear !== undefined || goal.rests !== undefined)
             throw new HumanRefusal({

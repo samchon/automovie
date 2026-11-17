@@ -1,11 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { HumanGrasp } from "./HumanGrasp";
-import type { pickUp } from "./pickUp";
 import { pickUpAdjust } from "./pickUpAdjust";
 import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";
@@ -67,10 +69,10 @@ export namespace pickUpStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(
-    context: IHumanActionContext<pickUp.IParams>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
+    side: AutoMovieHumanSide,
     lift: number,
-    authored: HumanGrasp.ITarget,
+    authored: IAutoMovieMotionHumanGrasp.ITarget,
   ): IChosen {
     const missed = (found: pickUpSearch.ISearched): boolean =>
       !pickUpPosture.reaches(
@@ -88,8 +90,10 @@ export namespace pickUpStance {
       authored,
       {
         posture: context.entry.posture,
-        at: (): IHumanPosture => context.entry.posture,
-        lower: (posture: IHumanPosture): IHumanPosture => posture,
+        at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
+        lower: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => posture,
       },
     );
     // A standing body no stoop or squat brings to the grip may still turn

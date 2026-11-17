@@ -1,10 +1,14 @@
 import { createBall } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,8 +34,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_flight_unended(): void {
   const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
-  const body: IHumanBody = motionHumanBody("m-average");
-  const perform = (after: number): HumanPerformance => {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const perform = (after: number): IAutoMovieMotionHumanPerformance => {
     const chain = HumanChain.subject("a")
       .pickUp({ prop: "ball", handle: "grip" })
       .throwObject({
@@ -58,7 +62,7 @@ export function test_human_motion_flight_unended(): void {
       composition: (after > 0 ? chain.stand({ seconds: after }) : chain).node,
     });
   };
-  let short: HumanPerformance;
+  let short: IAutoMovieMotionHumanPerformance;
   try {
     short = perform(0);
   } catch (error) {
@@ -73,14 +77,14 @@ export function test_human_motion_flight_unended(): void {
     "the flight is unended",
     flight !== undefined && flight.end === Infinity,
   );
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(short);
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(short);
   TestValidator.predicate(
     `the verdicts report it apart (${(report.unended ?? []).join(", ")})`,
     (report.unended ?? []).length === 1 &&
       (report.unended ?? [])[0]!.startsWith("ball@") &&
       report.findings.every((f) => !f.where.includes("ball")),
   );
-  const long: HumanPerformance = perform(4);
+  const long: IAutoMovieMotionHumanPerformance = perform(4);
   TestValidator.predicate(
     "a film that outlasts the flight reports none unended",
     (HumanVerdicts.of(long).unended ?? []).length === 0,

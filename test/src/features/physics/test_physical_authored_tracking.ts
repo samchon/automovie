@@ -3,6 +3,10 @@ import {
   assertPhysicalReturnPath,
   bindPhysicalWorld,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import assert from "node:assert/strict";
 
@@ -27,7 +31,7 @@ export async function test_physical_authored_tracking(): Promise<void> {
   await strictReturnBoundary();
 
   // A one-segment body isolates root force intent from all joint fitting.
-  const sphere: Simulation.IBody = PhysicalFixtures.body(
+  const sphere: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "root-intent",
     PhysicalFixtures.sphere(),
     0.2,
@@ -40,13 +44,17 @@ export async function test_physical_authored_tracking(): Promise<void> {
     target.strength = 1;
     if (step >= 4) target.segments.root!.position.x = 0.2;
   }
-  const rootInput: Simulation.IInput = PhysicalFixtures.input([sphere], 0.2);
+  const rootInput: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([sphere], 0.2);
   rootInput.substeps = 8;
-  const omitted: Simulation = await Simulation.compute(rootInput);
-  const explicit: Simulation.IInput = structuredClone(rootInput);
+  const omitted: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(rootInput);
+  const explicit: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(rootInput);
   for (const target of explicit.bodies[0]!.targets)
     target.dynamicSegments = ["root"];
-  const selected: Simulation = await Simulation.compute(explicit);
+  const selected: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(explicit);
   assert.ok(omitted.cache.at(0.2).bodies[sphere.id]!.root!.position.x > 0.05);
   assert.equal(
     JSON.stringify(selected.cache.frames),
@@ -56,15 +64,17 @@ export async function test_physical_authored_tracking(): Promise<void> {
 
 /** A known actual native rotation outside a fixed joint's envelope is refused independently of integration noise. */
 async function strictReturnBoundary(): Promise<void> {
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "assembly",
     PhysicalPointFixtures.profile(),
     1 / 120,
   );
   for (const target of body.targets) target.dynamicSegments = [];
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   input.substeps = 8;
-  const defaults: Simulation = await Simulation.compute(input);
+  const defaults: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
   const world: World = new RAPIER.World(input.gravity);
   try {
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(

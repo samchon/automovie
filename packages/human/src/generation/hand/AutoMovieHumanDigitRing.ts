@@ -1,5 +1,11 @@
+import type {
+  IAutoMovieHumanDigitRing,
+  IAutoMovieHumanDigitSection,
+  IAutoMovieHumanDigitSector,
+  IAutoMovieHumanSeamKnot,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKnot";
-import type { AutoMovieHumanDigitSection } from "../AutoMovieHumanDigitSection";
 import { AutoMovieHumanDigitSector } from "./AutoMovieHumanDigitSector";
 
 /**
@@ -30,8 +36,14 @@ export namespace AutoMovieHumanDigitRing {
    * @param shape The section's shape, mm.
    * @param count Control points, a multiple of 4 with at least 16.
    */
-  export function controls(shape: AutoMovieHumanDigitSection.IShape, count: number): [number, number][] {
-    if (count % 4 !== 0 || count < 16) throw new Error(`A four-guide section needs a multiple of 4 of at least 16, not ${count}`);
+  export function controls(
+    shape: IAutoMovieHumanDigitSection.IShape,
+    count: number,
+  ): IAutoMovieHumanDigitRing.ControlsResult {
+    if (count % 4 !== 0 || count < 16)
+      throw new Error(
+        `A four-guide section needs a multiple of 4 of at least 16, not ${count}`,
+      );
 
     const w: number = shape.width;
     const side: number = shape.side / w;
@@ -39,25 +51,68 @@ export namespace AutoMovieHumanDigitRing {
     const dorsal: number = (shape.dorsalApex * shape.dorsal) / (w * w);
     const lambdaSide: number = Math.sqrt(shape.palmar * shape.dorsal);
     const quarter: number = Math.PI / 2;
-    const guides: AutoMovieHumanDigitSector.IGuide[] = [
-      { point: [w, 0], tangent: [0, 1], curvature: [-side, 0], speed: lambdaSide },
-      { point: [0, shape.palmar], tangent: [-1, 0], curvature: [0, -palmar], speed: w },
-      { point: [-w, 0], tangent: [0, -1], curvature: [side, 0], speed: lambdaSide },
-      { point: [0, -shape.dorsal], tangent: [1, 0], curvature: [0, dorsal], speed: w },
+    const guides: IAutoMovieHumanDigitSector.IGuide[] = [
+      {
+        point: [w, 0],
+        tangent: [0, 1],
+        curvature: [-side, 0],
+        speed: lambdaSide,
+      },
+      {
+        point: [0, shape.palmar],
+        tangent: [-1, 0],
+        curvature: [0, -palmar],
+        speed: w,
+      },
+      {
+        point: [-w, 0],
+        tangent: [0, -1],
+        curvature: [side, 0],
+        speed: lambdaSide,
+      },
+      {
+        point: [0, -shape.dorsal],
+        tangent: [1, 0],
+        curvature: [0, dorsal],
+        speed: w,
+      },
     ];
-    const names: string[] = ["palmar-radial", "palmar-ulnar", "dorsal-ulnar", "dorsal-radial"];
+    const names: string[] = [
+      "palmar-radial",
+      "palmar-ulnar",
+      "dorsal-ulnar",
+      "dorsal-radial",
+    ];
     const flat: number[] = AutoMovieHumanSeamKnot.assemble(
       count,
-      guides.map((g: AutoMovieHumanDigitSector.IGuide, j: number): AutoMovieHumanSeamKnot.IGuide => ({
-        knot: (j * count) / 4,
-        jet: { point: g.point, tangent: g.tangent, curvature: g.curvature },
-        speed: g.speed,
-      })),
-      guides.map((g: AutoMovieHumanDigitSector.IGuide, j: number): AutoMovieHumanSeamKnot.ISector => ({
-        name: names[j]!,
-        jet: AutoMovieHumanDigitSector.of(g, guides[(j + 1) % 4]!, quarter, j * quarter),
-      })),
+      guides.map(
+        (
+          g: IAutoMovieHumanDigitSector.IGuide,
+          j: number,
+        ): IAutoMovieHumanSeamKnot.IGuide => ({
+          knot: (j * count) / 4,
+          jet: { point: g.point, tangent: g.tangent, curvature: g.curvature },
+          speed: g.speed,
+        }),
+      ),
+      guides.map(
+        (
+          g: IAutoMovieHumanDigitSector.IGuide,
+          j: number,
+        ): IAutoMovieHumanSeamKnot.ISector => ({
+          name: names[j]!,
+          jet: AutoMovieHumanDigitSector.of(
+            g,
+            guides[(j + 1) % 4]!,
+            quarter,
+            j * quarter,
+          ),
+        }),
+      ),
     );
-    return Array.from({ length: count }, (_: unknown, m: number): [number, number] => [flat[m]!, flat[count + m]!]);
+    return Array.from(
+      { length: count },
+      (_: unknown, m: number): [number, number] => [flat[m]!, flat[count + m]!],
+    );
   }
 }

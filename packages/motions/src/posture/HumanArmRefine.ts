@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -202,17 +205,18 @@ function certified(
   k: number,
   inner: readonly number[],
 ): boolean {
-  const setup: G.ISetup = c.setups[a]!;
-  const inside: G.IPlaced[] = inner.map(
-    (g: number): G.IPlaced =>
+  const setup: IAutoMovieMotionHumanArmGeometry.ISetup = c.setups[a]!;
+  const inside: IAutoMovieMotionHumanArmGeometry.IPlaced[] = inner.map(
+    (g: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
       G.placed(
         setup,
         fine.frames[a]![g]!,
         HumanArmRefine.hermite(c.times, x[a]!, fine.times[g]!),
       ),
   );
-  const ends: G.IPlaced[] = [k, k + 1].map(
-    (j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
+  const ends: IAutoMovieMotionHumanArmGeometry.IPlaced[] = [k, k + 1].map(
+    (j: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
   );
   const screens: S.IScreen[] = [k, k + 1].map(
     (j: number, e: number): S.IScreen =>
@@ -220,8 +224,8 @@ function certified(
   );
   const clear = (end: 0 | 1, probe: number): boolean => {
     const j: number = k + end;
-    const frame: G.IFrame = c.frames[a]![j]!;
-    const placed: G.IPlaced = ends[end]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![j]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = ends[end]!;
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     const part: number = frame.segments[probe - G.SURFACE]!;
     const near: number[] = S.nearby(
@@ -237,7 +241,7 @@ function certified(
     // Far from every collider: the pairs' reach is the probe's clearance.
     if (near.length === 0)
       return inside.every(
-        (q: G.IPlaced): boolean =>
+        (q: IAutoMovieMotionHumanArmGeometry.IPlaced): boolean =>
           Vector3.length(Vector3.subtract(q.probes[probe]![0], p)) <= T.REACH,
       );
     return near.every((shape: number): boolean => {
@@ -246,8 +250,10 @@ function certified(
         (c.allowed(a, j, probe, shape) - (S.gap(frame, shape, p, p) - r));
       const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
       return inner.every((g: number, i: number): boolean => {
-        const there: G.IShape | undefined = fine.frames[a]![g]!.shapes[shape];
-        const here: G.IShape = frame.shapes[shape]!;
+        const there: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+          fine.frames[a]![g]!.shapes[shape];
+        const here: IAutoMovieMotionHumanArmGeometry.IShape =
+          frame.shapes[shape]!;
         if (
           there === undefined ||
           there.bone !== here.bone ||

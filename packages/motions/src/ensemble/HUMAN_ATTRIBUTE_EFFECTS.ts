@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanAttributeEffects } from "@automovie/interface";
+
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
 
 /**
  * What each group attribute moves, as one table every reader takes its
@@ -51,7 +52,7 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  *   morale as high nervousness. The review leaves `eta_max / eta_0` to
  *   calibration; 2 at broken morale is provisional.
  */
-export const HUMAN_ATTRIBUTE_EFFECTS: IHumanAttributeEffects = {
+export const HUMAN_ATTRIBUTE_EFFECTS: IAutoMovieMotionHumanAttributeEffects = {
   discipline: {
     axes: ["timing", "reaction", "anticipation"],
     lock: { low: 0.62, high: 1 },

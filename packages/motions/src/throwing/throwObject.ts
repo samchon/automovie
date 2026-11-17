@@ -1,36 +1,46 @@
 import {
   AutoMovieStationHermite,
-  type IAutoMovieProjectile,
   Quaternion,
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanThrowObject,
+  IAutoMovieMotionHumanThrowObjectForm,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieMotionHumanThrowObjectLever,
+  IAutoMovieMotionHumanThrowObjectParams,
+  IAutoMovieMotionManner,
+  IAutoMovieProjectile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { IThrowObjectParams } from "./IThrowObjectParams";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "./throwObjectLever";
@@ -86,10 +96,10 @@ import { throwObjectRelease } from "./throwObjectRelease";
  */
 export namespace throwObject {
   /** The action's name. */
-  export const name: HumanActionName = "throwObject";
+  export const name: AutoMovieMotionHumanActionName = "throwObject";
 
   /** Cancel table: the thrower stands or walks once the follow-through ends. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
         window: ["followThrough", 1],
@@ -111,15 +121,6 @@ export namespace throwObject {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** How the object is thrown. */
-  export type Style = throwObjectForm.Style;
-
-  /** Parameters (`IThrowObjectParams`). */
-  export type IParams = IThrowObjectParams;
-
-  /** A launch (`throwObjectLaunch.ILaunch`). */
-  export type ILaunch = throwObjectLaunch.ILaunch;
-
   /** Seconds before and after the release through which the hand carries its launch velocity (`throwObjectForm.CARRY`). */
   export const CARRY: number = throwObjectForm.CARRY;
 
@@ -132,14 +133,10 @@ export namespace throwObject {
    * @param plan A plan.
    * @returns Its launch, or undefined when it is not a throw's.
    */
-  export function of(plan: IHumanActionPlan): ILaunch | undefined {
-    return (plan as Partial<IPlan>).launch;
-  }
-
-  /** A throw's plan: an action plan with its launch. */
-  export interface IPlan extends IHumanActionPlan {
-    /** The launch. */
-    launch: ILaunch;
+  export function of(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined {
+    return (plan as Partial<IAutoMovieMotionHumanThrowObject.IPlan>).launch;
   }
 
   /**
@@ -149,20 +146,26 @@ export namespace throwObject {
    * @returns The plan with its launch.
    * @throws {HumanRefusal} When the release angle cannot reach the target.
    */
-  export function plan(context: IHumanActionContext<IParams>): IPlan {
-    const body: IHumanBody = context.body;
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
+  ): IAutoMovieMotionHumanThrowObject.IPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const style: Style = context.params.style ?? "overarm";
-    const side: HumanHand.Side = context.params.hand ?? "right";
+    const style: IAutoMovieMotionHumanThrowObjectForm.Style =
+      context.params.style ?? "overarm";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
     const arm: number = m.upperArm + m.forearm;
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const probe: IHumanPosture = stand
+    const probe: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = probe.yaw;
-    const frame: HumanFrame.IFrame = { origin: probe.root, yaw };
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: probe.root,
+      yaw,
+    };
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
       poseBones(body, resolveHumanPosture(body, probe)).get(`${side}UpperArm`)!
@@ -214,8 +217,9 @@ export namespace throwObject {
     const d: number = Math.hypot(delta.x, delta.z);
     const degrees: number =
       context.params.angle ?? throwObjectForm.ANGLE[style];
-    const implement: throwObjectLever.IImplement | undefined =
-      context.params.implement;
+    const implement:
+      | IAutoMovieMotionHumanThrowObjectLever.IImplement
+      | undefined = context.params.implement;
     const lever: throwObjectLever.ILever | undefined = throwObjectLever.of({
       context,
       side,
@@ -250,7 +254,7 @@ export namespace throwObject {
     const accelerate: number =
       throwObjectForm.CARRY +
       (2 * Vector3.length(Vector3.subtract(before, chamber))) / speed;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "windup", seconds: throwObjectForm.WINDUP[style] },
         { name: "cocked", seconds: accelerate },
@@ -262,10 +266,8 @@ export namespace throwObject {
       { holds: ["followThrough"], fixed: ["cocked", "release"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
 
     // The hand's grip point at a second.
     const hermite = (
@@ -285,7 +287,7 @@ export namespace throwObject {
     };
     const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const restBones = poseBones(body, context.entry.pose);
-    const origin: AutoMovieMotionHumanArm.IOrigin =
+    const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
         restBones,
@@ -306,7 +308,7 @@ export namespace throwObject {
       palm: Vector3.scale(up, -1),
     });
     const grip = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
       const rest: IAutoMovieVector3 = AutoMovieMotionHumanArm.point(
@@ -393,9 +395,12 @@ export namespace throwObject {
         implement === undefined
           ? throwObjectLaunch.held(prop, side, clock.at("release") / duration)
           : throwObjectLaunch.held(implement.prop, side, 1),
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const g = grip(posture, seconds);
-        const wrist: HumanHand.IWrist = HumanHand.place(
+        const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
           body,
           side,
           "grip",
@@ -435,7 +440,10 @@ export namespace throwObject {
       channels: ["trunk"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const degrees: number =
           turn *
             clock.envelope(
@@ -460,19 +468,21 @@ export namespace throwObject {
       },
     };
 
-    const asked: IParams["attitude"] = context.params.attitude;
+    const asked: IAutoMovieMotionHumanThrowObjectParams["attitude"] =
+      context.params.attitude;
     const attitude: IAutoMovieProjectile.Attitude | undefined =
       asked?.kind !== "turns"
         ? asked
         : prop === undefined
           ? undefined
           : throwObjectLever.spin(context, side, prop, lever, target);
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "release",
-      primitives: [trunk, throwing],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "release",
+        primitives: [trunk, throwing],
+      });
     return {
       ...composed,
       launch: {

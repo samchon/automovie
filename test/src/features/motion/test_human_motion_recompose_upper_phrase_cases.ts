@@ -1,17 +1,15 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanHand,
-  type HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanVerdicts,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+import { HumanHand, HumanRefusal, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -41,7 +39,7 @@ import { motionUpperPhrase } from "../internal/motionUpperPhrase";
  */
 export function test_human_motion_recompose_upper_phrase_cases(): void {
   const complaints: string[] = [];
-  const rows: IHumanActionLaw<never>[] = motionUpperPhrase.ROWS;
+  const rows: IAutoMovieMotionHumanActionLaw<never>[] = motionUpperPhrase.ROWS;
   const open: Record<string, AutoMovieHumanoidRegion> = motionUpperPhrase.OPEN;
   const held: readonly string[] = motionUpperPhrase.HELD;
   const perform: typeof motionUpperPhrase.perform = motionUpperPhrase.perform;
@@ -51,7 +49,7 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
   // written for the right hand).
   const mirroredTouches: Record<
     string,
-    [AutoMovieHumanoidRegion, HumanHand.Surface]
+    [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
   > = {
     handOnHip: ["hipLeft", "palm"],
     chinOnFist: ["chin", "fist"],
@@ -69,7 +67,7 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
     motionHumanBody.EXTREMES[0]!,
     motionHumanBody.EXTREMES.at(-1)!,
   ]) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const row of rows) {
       if (both.includes(row.name)) continue;
       const given: object =
@@ -92,27 +90,28 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
           : {}),
       };
       try {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           body,
           row.name,
           params,
           held.includes(row.name),
           "left",
         );
-        const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
+        const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} left ${row.name}: placed as ${s.name}`);
           continue;
         }
-        const touch: [AutoMovieHumanoidRegion, HumanHand.Surface] | undefined =
-          mirroredTouches[row.name];
+        const touch:
+          | [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+          | undefined = mirroredTouches[row.name];
         if (touch === undefined) continue;
         const t: number =
           s.start +
           (s.plan.events.find((e) => e.name === "stroke")?.share ?? NaN) *
             s.plan.duration;
         const bones = p.bones("a", t);
-        const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+        const region: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[touch[0]];
         const goal: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
           region,
@@ -140,7 +139,9 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
 
   // The refusals, on the first body: a working point with no held prop, a
   // held prop named by both hands, and a point the held prop lacks.
-  const first: IHumanBody = motionHumanBody(motionHumanBody.EXTREMES[0]!);
+  const first: IAutoMovieMotionHumanBody = motionHumanBody(
+    motionHumanBody.EXTREMES[0]!,
+  );
   for (const [label, law, params, pick] of [
     [
       "a point with no held prop",

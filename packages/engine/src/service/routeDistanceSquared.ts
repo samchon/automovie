@@ -1,4 +1,4 @@
-import {
+import type {
   IAutoMovieServiceSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -23,10 +23,10 @@ import {
  */
 export const routeDistanceSquared: (
   segment: IAutoMovieServiceSegment,
-  point: { x: number; y: number; z: number },
+  point: IAutoMovieVector3,
 ) => number = (
   segment: IAutoMovieServiceSegment,
-  point: { x: number; y: number; z: number },
+  point: IAutoMovieVector3,
 ): number => {
   let best: number = Number.POSITIVE_INFINITY;
   for (let index: number = 0; index + 1 < segment.route.length; ++index) {

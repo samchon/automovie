@@ -1,12 +1,17 @@
 import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
   projectileAt,
   projectileContinue,
   projectileFirstContact,
   resolveAutoMovieContactEvents,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHit,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileContinue,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -48,17 +53,14 @@ import { nclose } from "../internal/nclose";
 export function test_physics_projectile_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const ground: projectileFirstContact.ICollider = projectileFirstContact.plane(
-    "ground",
-    zero,
-    up,
-  );
+  const ground: IAutoMovieProjectileFirstContact.ICollider =
+    projectileFirstContact.plane("ground", zero, up);
   const outgoing: IAutoMovieProjectile = {
     origin: zero,
     velocity: up,
     gravity: zero,
   };
-  const options: projectileFirstContact.IOptions = {
+  const options: IAutoMovieProjectileFirstContact.IOptions = {
     radius: 0,
     thickness: Number.MAX_VALUE,
     departing: ground.id,
@@ -185,11 +187,8 @@ export function test_physics_projectile_departure(): void {
   });
 
   observe("other initial collider", (): void => {
-    const wall: projectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall",
-      zero,
-      { x: 1, y: 0, z: 0 },
-    );
+    const wall: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.plane("wall", zero, { x: 1, y: 0, z: 0 });
     for (const colliders of [
       [ground, wall],
       [wall, ground],
@@ -208,11 +207,12 @@ export function test_physics_projectile_departure(): void {
   });
 
   observe("other earlier collider", (): void => {
-    const wall: projectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall",
-      { x: 0.25, y: 0, z: 0 },
-      { x: -1, y: 0, z: 0 },
-    );
+    const wall: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.plane(
+        "wall",
+        { x: 0.25, y: 0, z: 0 },
+        { x: -1, y: 0, z: 0 },
+      );
     for (const colliders of [
       [ground, wall],
       [wall, ground],
@@ -249,11 +249,15 @@ export function test_physics_projectile_departure(): void {
       first !== null && nclose(first.time, Math.sqrt(2), 1e-5),
     );
     if (first === null) return;
-    const next: projectileContinue.Segment = projectileContinue(drop, first, {
-      kind: "bounce",
-      restitution: 0.5,
-      friction: 0,
-    });
+    const next: IAutoMovieProjectileContinue.Segment = projectileContinue(
+      drop,
+      first,
+      {
+        kind: "bounce",
+        restitution: 0.5,
+        friction: 0,
+      },
+    );
     check("the resolved impact produces flight", next.kind === "flight");
     if (next.kind !== "flight") return;
     const state: IAutoMovieVector3 = projectileAt(drop, first.time).position;
@@ -295,13 +299,13 @@ export function test_physics_projectile_departure(): void {
   });
 
   observe("opaque collider", (): void => {
-    const moving: projectileFirstContact.ICollider = {
+    const moving: IAutoMovieProjectileFirstContact.ICollider = {
       id: "moving",
       nearest: (
         a: IAutoMovieVector3,
         _b: IAutoMovieVector3,
         seconds: number,
-      ): projectileFirstContact.INearest => ({
+      ): IAutoMovieProjectileFirstContact.INearest => ({
         distance: a.y - 2 * seconds,
         point: { x: a.x, y: 2 * seconds, z: a.z },
         normal: up,
@@ -340,7 +344,7 @@ export function test_physics_projectile_departure(): void {
             {
               id: "surface",
               distance: (): number => 0,
-              departure: (): resolveAutoMovieContactEvents.Departure => ({
+              departure: (): IAutoMovieResolveContactEvents.Departure => ({
                 kind: "clearance",
                 seconds,
               }),
@@ -371,7 +375,7 @@ export function test_physics_projectile_departure(): void {
             id: "surface",
             distance: (_point: IAutoMovieVector3, seconds: number): number =>
               seconds === 0 ? 0 : Infinity,
-            departure: (): resolveAutoMovieContactEvents.Departure => ({
+            departure: (): IAutoMovieResolveContactEvents.Departure => ({
               kind: "clearance",
               seconds: 0.5,
             }),

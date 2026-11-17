@@ -1,10 +1,9 @@
-
-
-import type { IHumanBody } from "../body/IHumanBody";
-import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import type {
-  HumanSequentialConvex as SCO,
-} from "../posture/HumanSequentialConvex";
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSequentialConvex,
+} from "@automovie/interface";
+
+import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import { walkStanceCourse } from "./walkStanceCourse";
 
 /**
@@ -123,8 +122,11 @@ export namespace walkStanceTerms {
    * @param body The body.
    * @returns The schedule.
    */
-  export function schedule(body: IHumanBody): SCO.ISchedule {
-    const length: number = (walkStanceCourse.MET * Math.PI * reachOf(body)) / 180;
+  export function schedule(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanSequentialConvex.ISchedule {
+    const length: number =
+      (walkStanceCourse.MET * Math.PI * reachOf(body)) / 180;
     const least: number = Math.min(
       length / TRUST.drop,
       length / TRUST.slide,
@@ -147,7 +149,7 @@ export namespace walkStanceTerms {
   }
 
   /** A leg's reach at its least knee flexion (`KNEE`), metres: from its hip to its ankle, by the law of cosines over the thigh and the shank. */
-  export function reachOf(body: IHumanBody): number {
+  export function reachOf(body: IAutoMovieMotionHumanBody): number {
     return Math.sqrt(
       body.measure.thigh ** 2 +
         body.measure.shank ** 2 +
@@ -171,7 +173,15 @@ export namespace walkStanceTerms {
     const slide: number = side === "left" ? 7 : 9;
     return (
       o +
-      [0, 3, 4, side === "left" ? 1 : 2, side === "left" ? 5 : 6, slide, slide + 1][v]!
+      [
+        0,
+        3,
+        4,
+        side === "left" ? 1 : 2,
+        side === "left" ? 5 : 6,
+        slide,
+        slide + 1,
+      ][v]!
     );
   }
 

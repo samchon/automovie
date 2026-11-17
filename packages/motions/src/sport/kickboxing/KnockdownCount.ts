@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { KickboxingRing } from "./KickboxingRing";
 
@@ -62,7 +65,7 @@ export namespace KnockdownCount {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function corner(
-    ring: KickboxingRing.IRing,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     fallen: IAutoMovieVector3,
     margin: number = 0,
   ): IAutoMovieVector3 {

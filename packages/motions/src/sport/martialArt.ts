@@ -1,8 +1,22 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanMartialArt,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -12,17 +26,9 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Martial-art forms other than kickboxing (#3252): the karate horse stance
@@ -57,45 +63,20 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace martialArt {
   /** The action's name. */
-  export const name: HumanActionName = "martialArt";
+  export const name: AutoMovieMotionHumanActionName = "martialArt";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       martialArt: ["fromRelax", "smooth"],
     });
-
-  /** The techniques. */
-  export type Kind = "horseStance" | "chokuZuki" | "taiChiPush";
 
   /** A punch's extension and its stay, seconds (VencesBrito et al. 2011: the whole technique in 400 ms). */
   export const PUNCH: number = 0.2;
 
   /** The tai chi push's shift, seconds each way (provisional). */
   export const PUSH: number = 3;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The technique, the punch count and the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IParams {
-    /** The technique. */
-    kind: Kind;
-
-    /** Punches of a choku-zuki series; 4 when absent. */
-    count?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** Seconds the stance is held; 1 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /**
    * Plan a martial-art technique.
@@ -113,18 +94,18 @@ export namespace martialArt {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanMartialArt.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
     HumanBound.whole("count", count);
     HumanBound.least("seconds", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const axes = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
     const forward: IAutoMovieVector3 = HumanFrame.point(axes, {
       x: 0,
@@ -136,7 +117,10 @@ export namespace martialArt {
       y: 0,
       z: 0,
     });
-    const stance: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -150,7 +134,7 @@ export namespace martialArt {
     const step: number = p.kind === "taiChiPush" ? PUSH : 0.6;
     const middle: number =
       p.kind === "chokuZuki" ? count * 2 * PUNCH + PUNCH : hold;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: step,
         attack: p.kind === "taiChiPush" ? PUSH : middle,
@@ -162,7 +146,7 @@ export namespace martialArt {
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
-    const span: AutoMovieMotionHumanArm.ISpan = {
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("start"),
       ready: clock.at("ready"),
       relax: clock.at("relax"),
@@ -174,7 +158,10 @@ export namespace martialArt {
       channels: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IHumanPosture, s: number): IHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(s)),
       }),
@@ -183,7 +170,7 @@ export namespace martialArt {
       side: "left" | "right",
       by: IAutoMovieVector3,
       s: number,
-    ): HumanFoot.IPlacement =>
+    ): IAutoMovieMotionHumanFoot.IPlacement =>
       AutoMovieMotionHumanLeg.arc(
         stance[side],
         {
@@ -203,14 +190,18 @@ export namespace martialArt {
         side,
         from: 0,
         to: clock.duration,
-        placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-          lead(side, by, s),
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => lead(side, by, s),
         planted: bearing,
       });
-    const rest = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
+    const rest = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "rightFoot",
         kind: "plant",
@@ -274,7 +265,7 @@ export namespace martialArt {
             span,
             surface: "fist",
             shape: "fist",
-            place: (posture: IHumanPosture, s: number) => {
+            place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
               const chamber: IAutoMovieVector3 =
                 AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                   height: "waist",
@@ -317,7 +308,7 @@ export namespace martialArt {
           body,
           from: 0,
           to: clock.duration,
-          angles: (): AutoMovieMotionHumanLean.IAngles => ({
+          angles: (): IAutoMovieMotionHumanLean.IAngles => ({
             pitch: 0,
             roll: 0,
           }),
@@ -355,7 +346,7 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
-            place: (posture: IHumanPosture, s: number) => ({
+            place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
               point: Vector3.lerp(
                 AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                   height: "chest",

@@ -1,3 +1,8 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieEvaluateImplicitProjection64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /** Continue an implicit level along one declared constant physical direction.
@@ -20,30 +25,9 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each accepted field jet for the next residual and the final gradient and Hessian for every parameter derivative.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query-local vectors and arrays are bounded by two parameters; no cache, process or external resource survives the call.
  */
-export function evaluateAutoMovieImplicitProjection64(props: {
-  point: M.V;
-  partials: readonly M.V[];
-  seconds?: readonly (readonly M.V[])[];
-  direction: M.V;
-  target: {
-    value: number;
-    partials: readonly number[];
-    seconds?: readonly (readonly number[])[];
-  };
-  field: (point: M.V) => {
-    value: number;
-    gradient: M.V;
-    hessian: readonly M.V[];
-  };
-  maxDistanceMm: number;
-}): {
-  point: M.V;
-  partials: M.V[];
-  seconds: M.V[][];
-  offsetMm: number;
-  residual: number;
-  directionalDerivative: number;
-} {
+export function evaluateAutoMovieImplicitProjection64(
+  props: IAutoMovieEvaluateImplicitProjection64.IProps,
+): IAutoMovieEvaluateImplicitProjection64.IResult {
   const count: number = props.partials.length;
   if (
     count < 1 ||
@@ -53,14 +37,18 @@ export function evaluateAutoMovieImplicitProjection64(props: {
     !Number.isFinite(props.maxDistanceMm) ||
     !Number.isFinite(props.target.value) ||
     !props.point.every(Number.isFinite) ||
-    !props.partials.every((p: M.V): boolean => p.every(Number.isFinite)) ||
+    !props.partials.every((p: AutoMovieVector3Tuple): boolean =>
+      p.every(Number.isFinite),
+    ) ||
     !props.target.partials.every(Number.isFinite) ||
     (props.seconds !== undefined &&
       (props.seconds.length !== count ||
         props.seconds.some(
-          (row: readonly M.V[]): boolean =>
+          (row: readonly AutoMovieVector3Tuple[]): boolean =>
             row.length !== count ||
-            row.some((p: M.V): boolean => !p.every(Number.isFinite)),
+            row.some(
+              (p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite),
+            ),
         ) ||
         props.target.seconds?.length !== count ||
         props.target.seconds.some(
@@ -74,10 +62,10 @@ export function evaluateAutoMovieImplicitProjection64(props: {
   const length: number = Math.hypot(...props.direction);
   if (!(length > 0) || !Number.isFinite(length))
     throw new Error("A finite implicit projection direction is required");
-  const direction: M.V = M.scale(props.direction, 1 / length);
+  const direction: AutoMovieVector3Tuple = M.scale(props.direction, 1 / length);
   type Field = ReturnType<typeof props.field>;
   let offset: number = 0;
-  let point: M.V = M.clone(props.point);
+  let point: AutoMovieVector3Tuple = M.clone(props.point);
   let jet: Field = props.field(point);
   const initial: number = jet.value;
   const tolerance: number = 1e-10;
@@ -120,7 +108,10 @@ export function evaluateAutoMovieImplicitProjection64(props: {
           });
           continue;
         }
-        const position: M.V = M.add(props.point, M.scale(direction, candidate));
+        const position: AutoMovieVector3Tuple = M.add(
+          props.point,
+          M.scale(direction, candidate),
+        );
         const value: Field = props.field(position);
         trials.push({
           offsetMm: candidate,
@@ -147,8 +138,8 @@ export function evaluateAutoMovieImplicitProjection64(props: {
   const denominator: number = dot(jet.gradient, direction);
   if (Math.abs(denominator) <= 1e-12 || !Number.isFinite(denominator))
     fail("singular-final-jet-direction");
-  const partials: M.V[] = props.partials.map(
-    (p: M.V, axis: number): M.V =>
+  const partials: AutoMovieVector3Tuple[] = props.partials.map(
+    (p: AutoMovieVector3Tuple, axis: number): AutoMovieVector3Tuple =>
       M.add(
         p,
         M.scale(
@@ -157,23 +148,29 @@ export function evaluateAutoMovieImplicitProjection64(props: {
         ),
       ),
   );
-  const seconds: M.V[][] =
+  const seconds: AutoMovieVector3Tuple[][] =
     props.seconds === undefined
       ? []
-      : props.seconds.map((row: readonly M.V[], i: number): M.V[] =>
-          row.map((p: M.V, j: number): M.V => {
-            const h: M.V = [
-              dot(jet.hessian[0]!, partials[j]!),
-              dot(jet.hessian[1]!, partials[j]!),
-              dot(jet.hessian[2]!, partials[j]!),
-            ];
-            const value: number =
-              (props.target.seconds![i]![j]! -
-                dot(jet.gradient, p) -
-                dot(partials[i]!, h)) /
-              denominator;
-            return M.add(p, M.scale(direction, value));
-          }),
+      : props.seconds.map(
+          (
+            row: readonly AutoMovieVector3Tuple[],
+            i: number,
+          ): AutoMovieVector3Tuple[] =>
+            row.map(
+              (p: AutoMovieVector3Tuple, j: number): AutoMovieVector3Tuple => {
+                const h: AutoMovieVector3Tuple = [
+                  dot(jet.hessian[0]!, partials[j]!),
+                  dot(jet.hessian[1]!, partials[j]!),
+                  dot(jet.hessian[2]!, partials[j]!),
+                ];
+                const value: number =
+                  (props.target.seconds![i]![j]! -
+                    dot(jet.gradient, p) -
+                    dot(partials[i]!, h)) /
+                  denominator;
+                return M.add(p, M.scale(direction, value));
+              },
+            ),
         );
   return {
     point,
@@ -235,7 +232,7 @@ export function evaluateAutoMovieImplicitProjection64(props: {
   }
 
   /** Physical dot products keep field and parameter dimensions explicit. */
-  function dot(a: M.V, b: M.V): number {
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 }

@@ -1,5 +1,5 @@
-import { IAutoMovieOpeningOperation } from "./IAutoMovieOpeningOperation";
-import { IAutoMovieOpeningProfile } from "./IAutoMovieOpeningProfile";
+import type { IAutoMovieOpeningOperation } from "./IAutoMovieOpeningOperation";
+import type { IAutoMovieOpeningProfile } from "./IAutoMovieOpeningProfile";
 
 /**
  * One traversable or visible opening through a boundary.

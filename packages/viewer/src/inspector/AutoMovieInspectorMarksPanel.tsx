@@ -1,10 +1,5 @@
-import {
-  type IApplyAutoMovieInspectionProps,
-  type IAutoMovieCapturePlanRequest,
-  type IAutoMovieInspectionKind,
-  type IAutoMovieInspectionLegendEntry,
-  listAutoMovieInspectionKinds,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionKind, IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type IApplyAutoMovieInspectionProps, listAutoMovieInspectionKinds } from "@automovie/render";
 import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";

@@ -1,7 +1,10 @@
-import { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 
 /** A facet whose doubled area is this small or smaller bounds nothing. */
@@ -29,11 +32,11 @@ const FACET_AREA_EPSILON: number = 1e-12;
 export const validateBuiltSpaceShell: (
   shell: IAutoMovieSpaceShell,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   shell: IAutoMovieSpaceShell,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   shell.vertices.forEach((vertex: IAutoMovieVector3, index: number): void =>
     collector.finiteVector(

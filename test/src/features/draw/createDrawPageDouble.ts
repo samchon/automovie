@@ -2,9 +2,9 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
-  IAutoMovieDrawPage,
   IAutoMovieDrawResult,
-} from "@automovie/render";
+} from "@automovie/interface";
+import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**
  * A browser page that records every call a draw session makes and answers as a draw page would, without a browser: `describe` returns the given subject and renderer, and `draw` returns what `answer` makes of the call, or never settles when `answer` is null.

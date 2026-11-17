@@ -1,4 +1,7 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 
 /**
  * Read a proximal-to-distal actuator path from an admitted tree. The fixed root has no incoming actuator and is omitted.
@@ -11,20 +14,25 @@ import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalJointChain(profile: P, bone: string): string[] {
+export function physicalJointChain(
+  profile: IAutoMoviePhysicalProfile,
+  bone: string,
+): string[] {
   const chain: string[] = [bone];
-  let joint: P.IJoint | undefined = profile.joints.find(
-    (candidate: P.IJoint): boolean => candidate.child === bone,
+  let joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
+    (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
   );
   while (
     joint &&
     profile.joints.some(
-      (candidate: P.IJoint): boolean => candidate.child === joint!.parent,
+      (candidate: IAutoMoviePhysicalJoint): boolean =>
+        candidate.child === joint!.parent,
     )
   ) {
     chain.unshift(joint.parent);
     joint = profile.joints.find(
-      (candidate: P.IJoint): boolean => candidate.child === joint!.parent,
+      (candidate: IAutoMoviePhysicalJoint): boolean =>
+        candidate.child === joint!.parent,
     );
   }
   return chain;

@@ -1,15 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanJacobian,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmJacobian } from "./HumanArmJacobian";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import type { HumanJacobian } from "./HumanJacobian";
 
 /**
  * The Jacobians an arms' trajectory's convex subproblem
@@ -81,8 +81,10 @@ export namespace HumanArmTrajectoryJacobians {
           };
           if (!M.inner(c, k)) return entry;
           const site: M.ISite | undefined = c.sites[a]![k];
-          const here: G.IPlaced = at.placed[a]![k]!;
-          const frame: G.IFrame = c.frames[a]![k]!;
+          const here: IAutoMovieMotionHumanArmGeometry.IPlaced =
+            at.placed[a]![k]!;
+          const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+            c.frames[a]![k]!;
           entry.probes = here.probes.map((): IAutoMovieVector3[] => []);
           const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
             { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
@@ -103,7 +105,9 @@ export namespace HumanArmTrajectoryJacobians {
             here,
             c.free[a]!,
           )) {
-            const motion = (twist: HumanJacobian.ITwist): IMotion => ({
+            const motion = (
+              twist: IAutoMovieMotionHumanJacobian.ITwist,
+            ): IMotion => ({
               origin: Vector3.scale(twist.linear, 1000),
               omega: twist.angular,
             });
@@ -183,7 +187,7 @@ export namespace HumanArmTrajectoryJacobians {
     owner: "upper" | "lower" | "hand",
     p: IAutoMovieVector3,
   ): IAutoMovieVector3[] {
-    const placed: G.IPlaced = at.placed[b]![k]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[b]![k]!;
     const origin: IAutoMovieVector3 =
       owner === "upper"
         ? placed.shoulder

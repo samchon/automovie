@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderTextureSource,
   autoMovieRenderTextureDigest,
   measureAutoMovieRenderTextureClosure,
   sumAutoMovieRenderTextureAllocations,
@@ -7,11 +6,12 @@ import {
 import {
   IAutoMovieCompiledShotSource,
   IAutoMovieMaterial,
+  type IAutoMovieRenderBudgetAssessment,
   IAutoMovieRenderTextureCost,
+  type IAutoMovieRenderTextureSource,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 import {
-  IAutoMovieRenderBudgetAssessment,
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,
   autoMovieRenderBudgetRefusal,

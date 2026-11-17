@@ -1,9 +1,12 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSignature, type IHumanBody } from "@automovie/motions";
+import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -111,12 +114,12 @@ export function test_human_motion_signature_readings(): void {
   const reader = (
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     yaw: number = 0,
-  ): HumanSignature.IReader =>
+  ): IAutoMovieMotionHumanSignature.IReader =>
     HumanSignature.of(
       { duration: 1, bones: () => bones },
       "a",
       // No reading of this test reads the body.
-      {} as IHumanBody,
+      {} as IAutoMovieMotionHumanBody,
       yaw,
     );
   const base = { trunk: 0, knee: 0, elbow: 0, head: 0 };

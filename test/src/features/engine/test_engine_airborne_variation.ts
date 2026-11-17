@@ -1,13 +1,14 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
-  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -39,14 +40,14 @@ export function test_engine_airborne_variation(): void {
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const segment = (
     bone: AutoMovieHumanoidBone,
-  ): resolveAutoMovieCenterOfMass.ISegment => ({
+  ): IAutoMovieResolveCenterOfMass.ISegment => ({
     bone,
     mass: 1,
     point: origin,
     inertia: { x: 2, y: 2, z: 2 },
     axes: identity,
   });
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: [segment("hips"), segment("head")],
   };
@@ -56,7 +57,7 @@ export function test_engine_airborne_variation(): void {
     new Map(
       model.segments.map(
         (
-          part: resolveAutoMovieCenterOfMass.ISegment,
+          part: IAutoMovieResolveCenterOfMass.ISegment,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
           part.bone,
           {
@@ -70,7 +71,7 @@ export function test_engine_airborne_variation(): void {
       ),
     );
   const span: { from: number; to: number } = { from: 0.5, to: 1 };
-  const history: integrateAirborneRotation.IHistory =
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
     integrateAirborneRotation.history(model, bones, span);
   const delta: number = integrateAirborneRotation.DELTA;
   // For this unit-mass/identity-frame model the momentum's x is exactly
@@ -112,21 +113,22 @@ export function test_engine_airborne_variation(): void {
   }
 
   // 2. A rigid isotropic body's exact forward sensitivities.
-  const rigid: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: (): integrateAirborneRotation.IInstant => ({
-      inertia: { moments: { x: 2, y: 2, z: 2 }, rotation: identity },
-      relative: origin,
-    }),
-    t0: 0,
-    t1: 1,
-    q0: identity,
-    momentum: { x: 3, y: 0, z: 0 },
-    variations: [
-      { x: 1, y: 0, z: 0 },
-      { x: 0, y: 1, z: 0 },
-      { x: 0, y: 0, z: 1 },
-    ],
-  });
+  const rigid: IAutoMovieIntegrateAirborneRotation.IFlight =
+    integrateAirborneRotation({
+      history: (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
+        inertia: { moments: { x: 2, y: 2, z: 2 }, rotation: identity },
+        relative: origin,
+      }),
+      t0: 0,
+      t1: 1,
+      q0: identity,
+      momentum: { x: 3, y: 0, z: 0 },
+      variations: [
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+      ],
+    });
   for (let k: number = 0; k <= 10; k++) {
     const t: number = k / 10;
     const angle: number = 1.5 * t;

@@ -1,7 +1,13 @@
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMovieCubicCriticalParameters,
+  IAutoMoviePlanarCurveSource,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
-  GhoshConicApproximationDisplacement as displacement,
   approximateAutoMovieRecoveryConicsGhosh as approximate,
+  GhoshConicApproximationDisplacement as displacement,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,8 +33,13 @@ import { nclose } from "../internal/nclose";
  */
 export function test_recovery_conics_ghosh_boundaries(): void {
   /** Four Bernstein controls represent one exact source polynomial chart. */
-  type Controls = readonly [C.Point, C.Point, C.Point, C.Point];
-  const options: C.IOptions = {
+  type Controls = readonly [
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+  ];
+  const options: IAutoMovieConicApproximation.IOptions = {
     toleranceMm: 0.001,
     maximumArcs: 128,
     maximumDepth: 16,
@@ -39,15 +50,18 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     controls: Controls,
     u: number,
     order: 0 | 1 | 2 | 3 | 4 | 5,
-  ): C.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     if (order >= 4) return [0, 0];
-    let points: C.Point[] = [...controls];
+    let points: Readonly<AutoMovieVector2Tuple>[] = [...controls];
     for (let i: number = 0; i < order; ++i) {
       const degree: number = points.length - 1;
       points = points
         .slice(1)
         .map(
-          (p: C.Point, index: number): C.Point => [
+          (
+            p: Readonly<AutoMovieVector2Tuple>,
+            index: number,
+          ): Readonly<AutoMovieVector2Tuple> => [
             degree * (p[0] - points[index]![0]),
             degree * (p[1] - points[index]![1]),
           ],
@@ -57,7 +71,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       points = points
         .slice(1)
         .map(
-          (p: C.Point, index: number): C.Point => [
+          (
+            p: Readonly<AutoMovieVector2Tuple>,
+            index: number,
+          ): Readonly<AutoMovieVector2Tuple> => [
             (1 - u) * points[index]![0] + u * p[0],
             (1 - u) * points[index]![1] + u * p[1],
           ],
@@ -65,8 +82,11 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     return points[0]!;
   }
   /** Critical parameters change only the chart partition, not points or jets. */
-  function chart(controls: Controls, partition: boolean = true): C.ICurve {
-    const critical: C.ICubicCriticalParameters =
+  function chart(
+    controls: Controls,
+    partition: boolean = true,
+  ): IAutoMoviePlanarCurveSource {
+    const critical: IAutoMovieCubicCriticalParameters =
       C.cubicCriticalParameters(controls);
     return {
       domain: [7, 11],
@@ -74,17 +94,27 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       breaks: partition
         ? critical.breaks.map((u: number): number => 7 + 4 * u)
         : [],
-      evaluate(t: number): C.Point {
+      evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
         return value(controls, (t - 7) / 4, 0);
       },
-      derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
-        const p: C.Point = value(controls, (t - 7) / 4, order);
+      derivative(
+        t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): Readonly<AutoMovieVector2Tuple> {
+        const p: Readonly<AutoMovieVector2Tuple> = value(
+          controls,
+          (t - 7) / 4,
+          order,
+        );
         return [p[0] / 4 ** order, p[1] / 4 ** order];
       },
     };
   }
   /** Coverage and G1 checks use original source jets; no missing interval is skipped. */
-  function verify(source: C.ICurve, result: C.IResult): void {
+  function verify(
+    source: IAutoMoviePlanarCurveSource,
+    result: IAutoMovieConicApproximation.IResult,
+  ): void {
     TestValidator.equals(
       "partitioned source complete",
       result.status,
@@ -100,22 +130,28 @@ export function test_recovery_conics_ghosh_boundaries(): void {
         "only finite positive coefficients",
         Number.isFinite(arc.weight) &&
           arc.weight > 0 &&
-          arc.controls.every((p: C.Point): boolean => p.every(Number.isFinite)),
+          arc.controls.every((p: Readonly<AutoMovieVector2Tuple>): boolean =>
+            p.every(Number.isFinite),
+          ),
       );
-      const start: C.Point = source.evaluate(arc.domain[0]);
-      const end: C.Point = source.evaluate(arc.domain[1]);
+      const start: Readonly<AutoMovieVector2Tuple> = source.evaluate(
+        arc.domain[0],
+      );
+      const end: Readonly<AutoMovieVector2Tuple> = source.evaluate(
+        arc.domain[1],
+      );
       TestValidator.predicate(
         "exact source endpoints",
         C.distance(start, arc.controls[0]) < 1e-10 &&
           C.distance(end, arc.controls[2]) < 1e-10,
       );
       for (const endpoint of [0, 1] as const) {
-        const tangent: C.Point = source.derivative(
+        const tangent: Readonly<AutoMovieVector2Tuple> = source.derivative(
           arc.domain[endpoint],
           1,
           endpoint === 0 ? "right" : "left",
         );
-        const conic: C.Point =
+        const conic: Readonly<AutoMovieVector2Tuple> =
           endpoint === 0
             ? [
                 arc.controls[1][0] - arc.controls[0][0],
@@ -133,7 +169,7 @@ export function test_recovery_conics_ghosh_boundaries(): void {
         );
       }
       for (let i: number = 1; i < 37; ++i) {
-        const p: C.Point = C.evaluate(arc, i / 37);
+        const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(arc, i / 37);
         let left: number = arc.domain[0];
         let right: number = arc.domain[1];
         for (let iteration: number = 0; iteration < 65; ++iteration) {
@@ -185,12 +221,15 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     [2 / 3, -4 / 27],
     [1, 8 / 27],
   ];
-  const source: C.ICurve = chart(inflection);
+  const source: IAutoMoviePlanarCurveSource = chart(inflection);
   TestValidator.predicate(
     "analytic non-dyadic inflection is registered",
     source.breaks.some((t: number): boolean => nclose(t, 7 + 4 / 3, 1e-10)),
   );
-  const fitted: C.IResult = approximate(source, options);
+  const fitted: IAutoMovieConicApproximation.IResult = approximate(
+    source,
+    options,
+  );
   verify(source, fitted);
   TestValidator.predicate(
     "zero-curvature boundary extension is explicit",
@@ -210,7 +249,7 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     [2 / 3, 0],
     [1, 1],
   ];
-  const endpoint: C.ICurve = chart(cubic);
+  const endpoint: IAutoMoviePlanarCurveSource = chart(cubic);
   verify(endpoint, approximate(endpoint, options));
   const arch: Controls = [
     [-2 / 3, 0.5],
@@ -218,7 +257,7 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     [2 / 3, -1 / 6],
     [2 / 3, 0.5],
   ];
-  const archSource: C.ICurve = chart(arch);
+  const archSource: IAutoMoviePlanarCurveSource = chart(arch);
   TestValidator.predicate(
     "affine-only critical split is registered",
     archSource.breaks.some((t: number): boolean => nclose(t, 9, 1e-10)),
@@ -226,7 +265,9 @@ export function test_recovery_conics_ghosh_boundaries(): void {
   verify(archSource, approximate(archSource, options));
   for (const reflection of [1, -1]) {
     /** A rigid map changes neither geometric fitting tolerance nor criticality. */
-    function transform(p: C.Point): C.Point {
+    function transform(
+      p: Readonly<AutoMovieVector2Tuple>,
+    ): Readonly<AutoMovieVector2Tuple> {
       return [
         1200 + Math.cos(0.73) * p[0] - Math.sin(0.73) * reflection * p[1],
         -800 + Math.sin(0.73) * p[0] + Math.cos(0.73) * reflection * p[1],
@@ -238,7 +279,7 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       transform(inflection[2]),
       transform(inflection[3]),
     ];
-    const movedSource: C.ICurve = chart(moved);
+    const movedSource: IAutoMoviePlanarCurveSource = chart(moved);
     verify(movedSource, approximate(movedSource, options));
   }
   TestValidator.predicate(

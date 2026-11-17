@@ -1,6 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
+import {
+  type IAutoMovieDeliveryCropNdc,
+  type IAutoMovieLocalSegmentMeetsPerspectiveFrustum,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Whether a camera-local segment meets a perspective frustum, its faces included.
@@ -24,15 +26,9 @@ import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure predicate over one segment; the reuse of transformed corners across segments is the caller's, which is why the inputs are camera-local.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains and allocates nothing beyond a few scalars for the call.
  */
-export function localSegmentMeetsPerspectiveFrustum(props: {
-  from: IAutoMovieVector3;
-  to: IAutoMovieVector3;
-  near: number;
-  far: number;
-  halfX: number;
-  halfY: number;
-  crop: IAutoMovieDeliveryCropNdc;
-}): boolean {
+export function localSegmentMeetsPerspectiveFrustum(
+  props: IAutoMovieLocalSegmentMeetsPerspectiveFrustum.IProps,
+): boolean {
   let lower: number = 0;
   let upper: number = 1;
   for (let plane: number = 0; plane < 6; ++plane) {

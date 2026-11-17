@@ -1,3 +1,5 @@
+import type { AutoMovieFilmEffectRuntimeErrorCode } from "@automovie/interface";
+
 /**
  * A refusal at the film-effect ownership and runtime boundary, carrying a
  * closed code.
@@ -30,13 +32,7 @@ export class AutoMovieFilmEffectRuntimeError extends Error {
    */
   public constructor(
     /** Closed refusal class shared by every film-effect consumer. */
-    public readonly code:
-      | "film-effect-input-invalid"
-      | "film-effect-owner-conflict"
-      | "film-effect-recipe-missing"
-      | "film-effect-runtime-invalid"
-      | "film-effect-runtime-stale"
-      | "film-effect-zone-missing",
+    public readonly code: AutoMovieFilmEffectRuntimeErrorCode,
     message: string,
   ) {
     super(message);

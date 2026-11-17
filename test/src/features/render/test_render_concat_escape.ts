@@ -1,10 +1,10 @@
 import {
+  type IAutoMovieRenderChunkPlan,
   IAutoMovieRenderSpec,
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
 import {
-  IAutoMovieRenderChunkPlan,
   planChunkedSequenceRender,
   planSequenceRender,
 } from "@automovie/render";

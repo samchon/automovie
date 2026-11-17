@@ -1,10 +1,9 @@
-import {
-  type IAutoMovieBodyCollisionResult,
-  type IAutoMovieCollisionActor,
-  detectBodyCollision,
-  validateModel,
-} from "@automovie/engine";
-import type { IAutoMovieBody } from "@automovie/interface";
+import { detectBodyCollision, validateModel } from "@automovie/engine";
+import type {
+  IAutoMovieBody,
+  IAutoMovieBodyCollisionResult,
+  IAutoMovieCollisionActor,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";

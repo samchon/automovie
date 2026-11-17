@@ -1,0 +1,81 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+
+/**
+ * The geometry every seat law shares: where on a seat the body's seat
+ * socket rests, the root that puts it there under a trunk pitch, whether a
+ * seat suits the body, and the hands resting on the thighs.
+ *
+ * A seat is given as the sitting surface's frame the way an `IAutoMovieAffordance`
+ * of kind `seat` states it: a world point at the middle of the front edge,
+ * the heading the sitter faces, an optional depth back from the edge and an
+ * optional backrest height. Sitting brings the body's `seat` socket (under
+ * the ischial tuberosities) onto the seat; everything else follows by
+ * inverse kinematics and the trunk's pitch.
+ *
+ * The socket rests `thigh - 0.05 m` behind the edge, corrected by the
+ * socket's own offset from the hip joints, so with a level thigh the knee
+ * stands 5 cm ahead of the front edge and the thigh is supported almost to
+ * the knee (provisional clearance; seating standards keep the seat shorter
+ * than the buttock-to-popliteal length); a shallower seat moves the socket
+ * forward to 2 cm inside its depth.
+ *
+ * A seat is sat on with both feet on the floor when its height above the
+ * floor under the feet (the ground, or the floor of a prop they stand on,
+ * as a boat's) lies within 0.8 to 1.2 of the popliteal height, the ratio
+ * the campaign sets (#3363): a lower
+ * seat needs more trunk flexion and a longer rise (Janssen, Bussmann and
+ * Stam 2002, Phys Ther 82:866) and is refused. A higher one is a high seat:
+ * a bar stool, a saddle, a wall. The feet leave the floor for its rests or
+ * hang, and the body gets onto it by a step up or a swing of a leg. The
+ * popliteal height is the knee joint's height less the thigh's radius, where
+ * the thigh's underside meets a level seat.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
+ * @evidence contracts/development/design.md#principled-representation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/seated.ts (seated.high, seat); everyday/seated.ts (seated.ratio, seat); everyday/seated.ts (seated.check, seat); everyday/seated.ts (seated.point, seat); everyday/sitPlace.ts (sitPlace.reach, seat); lexicon/HumanMountOn.ts (HumanMountOn.plan, seat).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanSeated {
+  /**
+   * Whether a seat is a high one for a body: above the band, so the feet cannot stay on the floor and the body gets onto it by a step up or a swing of a leg, then sits with the feet on its rests or hanging, as on a bar stool, a saddle or a wall. A seat in the world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
+   * @evidence contracts/development/design.md#principled-representation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/seated.ts (seated.high, seat); everyday/seated.ts (seated.ratio, seat); everyday/seated.ts (seated.check, seat); everyday/seated.ts (seated.point, seat); everyday/sitPlace.ts (sitPlace.reach, seat); lexicon/HumanMountOn.ts (HumanMountOn.plan, seat).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface ISeat {
+    /** The middle of the sitting surface's front edge, world metres; its height is the seat height. */
+    at: IAutoMovieVector3;
+
+    /** The heading a sitter faces, degrees about +Y. */
+    yaw: number;
+
+    /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
+    depth?: number;
+
+    /** Backrest height above the surface, metres; backless when absent. */
+    back?: number;
+
+    /** Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent. */
+    astride?: boolean;
+
+    /**
+     * Where a palm rests on each armrest, world metres: the top of the
+     * armrest beside the sitter. A hand with one goes to it while sitting
+     * down and bears on it; a hand with none rests on its thigh.
+     */
+    armrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+
+    /** The side a seat sat astride is got onto and off from, as a horse is mounted from its left; either side when absent or `either`. */
+    mount?: "left" | "right" | "either";
+
+    /**
+     * Where a foot rests while seated, world metres: the tread a foot's ball
+     * bears on (a stool's bar, a pedal, a peg, a stirrup). Read only on a
+     * seat higher than the band, where the feet leave the floor; a foot with
+     * no rest, or whose rest the leg cannot reach, hangs.
+     */
+    footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+  }
+}

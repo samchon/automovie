@@ -1,5 +1,9 @@
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type {
+  IAutoMovieRefineSubdivisionPoints,
+  IAutoMovieSubdivisionTopology,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
@@ -28,9 +32,9 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one packed array of `3 (V + E + F)` numbers and one mask per vertex; nothing else survives the call.
  */
 export const refineSubdivisionPoints = (
-  topology: ISubdivisionTopology,
+  topology: IAutoMovieSubdivisionTopology,
   positions: readonly number[],
-): { points: number[]; masks: ISubdivisionVertexMask[] } => {
+): IAutoMovieRefineSubdivisionPoints.IResult => {
   const vertexCount: number = topology.vertexCount;
   const edgeCount: number = topology.edgeSharpness.length;
   const faceCount: number = topology.faceOffsets.length - 1;
@@ -70,9 +74,8 @@ export const refineSubdivisionPoints = (
     }
   }
 
-  const masks: ISubdivisionVertexMask[] = new Array<ISubdivisionVertexMask>(
-    vertexCount,
-  );
+  const masks: IAutoMovieSubdivisionVertexMask[] =
+    new Array<IAutoMovieSubdivisionVertexMask>(vertexCount);
   for (let v: number = 0; v < vertexCount; ++v) {
     const edges: number[] = topology.fanEdges.slice(
       topology.fanEdgeOffsets[v],
@@ -82,7 +85,7 @@ export const refineSubdivisionPoints = (
       topology.fanCornerOffsets[v],
       topology.fanCornerOffsets[v + 1],
     );
-    const mask: ISubdivisionVertexMask = subdivisionVertexMask(
+    const mask: IAutoMovieSubdivisionVertexMask = subdivisionVertexMask(
       edges.map((e: number): number => topology.edgeSharpness[e]!),
       corners.length,
     );

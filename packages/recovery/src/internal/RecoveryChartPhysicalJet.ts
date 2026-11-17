@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
+
 /**
  * Form two physical tangent observations for one affine source triangle.
  * For physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal
@@ -22,45 +24,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The physical QR frame and parameter conversion are computed once for both tangent rows. Callers can reuse the returned rows for every quadrature point of the same source-triangle and leaf pair; no module cache is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed-size local vectors expire on return or throw. Returned arrays own their values, input arrays are never retained, and the operation owns no handles or growing state.
  */
-export function RecoveryChartPhysicalJet(input: {
-  /** Three private PL observations in millimetres, in triangle order. */
-  pointsMm: readonly [
-    readonly [number, number, number],
-    readonly [number, number, number],
-    readonly [number, number, number],
-  ];
-
-  /** Their dimensionless global UV addresses, with positive signed area. */
-  parameters: readonly [
-    readonly [number, number],
-    readonly [number, number],
-    readonly [number, number],
-  ];
-
-  /** Positive affine leaf rectangle [u0,u1,v0,v1] in the same global UV. */
-  bounds: readonly [number, number, number, number];
-
-  /** Positive physical derivative weight length, in millimetres. */
-  lengthMm: number;
-}): {
-  /** Weights of local leaf phi_s and phi_t; targets multiply the same millimetre coefficients. */
-  directions: [
-    { du: number; dv: number; targetMm: [number, number, number] },
-    { du: number; dv: number; targetMm: [number, number, number] },
-  ];
-
-  /** Original physical triangle area, before any private clipping, square millimetres. */
-  sourceAreaMm2: number;
-
-  /** Twice the positive signed area of the original UV triangle. */
-  determinantUv: number;
-
-  /** Smaller over larger positive QR diagonal magnitude, not a condition number. */
-  tangentScaleRatio: number;
-
-  /** Largest Euclidean edge residual of reconstructed K=Q R, millimetres. */
-  reconstructionErrorMm: number;
-} {
+export function RecoveryChartPhysicalJet(
+  input: Parameters<IAutoMovieRecoveryChartPhysicalJet.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartPhysicalJet.Operation> {
   if (
     input.pointsMm.length !== 3 ||
     input.parameters.length !== 3 ||

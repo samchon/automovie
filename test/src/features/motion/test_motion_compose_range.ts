@@ -1,4 +1,5 @@
-import { AutoMovieMotionHumanRange, type IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { AutoMovieMotionHumanRange } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -63,7 +64,7 @@ export function test_motion_compose_range(): void {
     near(AutoMovieMotionHumanRange.lean("light"), 11.25) &&
       near(
         AutoMovieMotionHumanRange.shift(
-          { measure: { stature: 1.7 } } as unknown as IHumanBody,
+          { measure: { stature: 1.7 } } as unknown as IAutoMovieMotionHumanBody,
           0.018,
         ),
         0.0306,

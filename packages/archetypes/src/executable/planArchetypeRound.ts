@@ -1,16 +1,16 @@
+import type { IAutoMovieCapturePlan } from "@automovie/interface";
 import {
-  type IAutoMovieCapturePlan,
   type IAutoMovieDrawScene,
   type IAutoMovieInspectionHandle,
   type IAutoMovieViewerSubjectBounds,
   applyAutoMovieInspection,
-  formatAutoMovieInspectionCameraView,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
   describeAutoMovieDrawScene,
+  formatAutoMovieInspectionCameraView,
   parseAutoMovieCapturePlanRequest,
+  parseAutoMovieInspectionView,
   planAutoMovieCapture,
   planAutoMovieDrawCall,
+  resolveAutoMovieInspectionView,
 } from "@automovie/render";
 import { readAutoMovieRevision } from "automovie";
 import * as fs from "node:fs/promises";
@@ -89,14 +89,19 @@ export async function planArchetypeRound(round: string): Promise<void> {
   const reuse: Record<string, unknown> = Round.object(plan.cameraReuse);
   const previous: Record<string, unknown> = Round.object(
     JSON.parse(
-      await fs.readFile(path.resolve(root, Round.text(reuse.resolvedPlan)), "utf8"),
+      await fs.readFile(
+        path.resolve(root, Round.text(reuse.resolvedPlan)),
+        "utf8",
+      ),
     ),
   );
   if (previous.revision !== reuse.revision || previous.actualCells !== 496)
     throw new Error(
       "Camera reuse requires the explicitly pinned 496-cell baseline",
     );
-  const previousCameras: Record<string, unknown> = Round.object(previous.cameras);
+  const previousCameras: Record<string, unknown> = Round.object(
+    previous.cameras,
+  );
   const complementary: ReadonlySet<string> = new Set([
     "van-side-passage",
     "armour-opening-complements",
@@ -109,8 +114,9 @@ export async function planArchetypeRound(round: string): Promise<void> {
     } catch (error) {
       failures.push({ group: "catalog", cause: Round.describe(error) });
     }
-    const expanded: Awaited<ReturnType<typeof materializeArchetypeRoundGroups>> =
-      await materializeArchetypeRoundGroups({ plan, groups, get, failures });
+    const expanded: Awaited<
+      ReturnType<typeof materializeArchetypeRoundGroups>
+    > = await materializeArchetypeRoundGroups({ plan, groups, get, failures });
     drafts.push(...expanded.drafts);
     reused.push(...expanded.reused);
     comparisons.push(...expanded.comparisons);
@@ -171,7 +177,10 @@ export async function planArchetypeRound(round: string): Promise<void> {
     try {
       replay.push(...Round.replay(cells));
     } catch (error) {
-      failures.push({ group: "restart-admission", cause: Round.describe(error) });
+      failures.push({
+        group: "restart-admission",
+        cause: Round.describe(error),
+      });
     }
     if (readAutoMovieRevision(root) !== revision)
       failures.push({
@@ -323,7 +332,9 @@ export async function planArchetypeRound(round: string): Promise<void> {
       );
     const fixed: unknown = previousCameras[Round.cameraKey(first)];
     if (fixed !== undefined && complementary.has(first.group))
-      throw new Error("A complementary view must not reuse an original camera key");
+      throw new Error(
+        "A complementary view must not reuse an original camera key",
+      );
     if (fixed === undefined && !complementary.has(first.group))
       throw new Error(
         `The pinned baseline has no camera for ${Round.cameraKey(first)}`,
@@ -333,17 +344,22 @@ export async function planArchetypeRound(round: string): Promise<void> {
       parseAutoMovieInspectionView(Round.text(fixed)).type !== "fixed"
     )
       throw new Error("The baseline camera is not explicit native camera text");
-    const prior: Record<string, unknown> | undefined = Round.list(previous.subjects)
+    const prior: Record<string, unknown> | undefined = Round.list(
+      previous.subjects,
+    )
       .map(Round.object)
-      .find((subject: Record<string, unknown>): boolean =>
-        subject.name === first.subject,
+      .find(
+        (subject: Record<string, unknown>): boolean =>
+          subject.name === first.subject,
       );
     if (
       prior === undefined ||
       Round.object(prior.metadata).width !== item.metadata.width ||
       Round.object(prior.metadata).height !== item.metadata.height
     )
-      throw new Error("Reusing a camera requires the original actual subject raster");
+      throw new Error(
+        "Reusing a camera requires the original actual subject raster",
+      );
     if (first.group === "van-side-passage") {
       item.scene.scene.updateMatrixWorld(true);
       const member: ReturnType<typeof item.scene.scene.getObjectByName> =
@@ -360,7 +376,9 @@ export async function planArchetypeRound(round: string): Promise<void> {
         !Number.isFinite(driver.matrixWorld.elements[12]) ||
         driver.matrixWorld.elements[12] === middle
       )
-        throw new Error("The actual opposite van wall does not define a half-space");
+        throw new Error(
+          "The actual opposite van wall does not define a half-space",
+        );
       const sign: string = driver.matrixWorld.elements[12]! > middle ? "" : "-";
       for (const draft of items)
         draft.inspection = { section: `${sign}x:${middle}` };
@@ -452,4 +470,3 @@ planArchetypeRound(process.argv[2] ?? "").catch((error: unknown): void => {
   console.error(error);
   process.exitCode = 1;
 });
-

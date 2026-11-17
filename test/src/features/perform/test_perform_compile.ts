@@ -1,9 +1,7 @@
-import {
-  IAutoMovieActionSynthesizer,
-  compilePerformance,
-} from "@automovie/engine";
+import { compilePerformance } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
 } from "@automovie/interface";

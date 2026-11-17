@@ -1,11 +1,12 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+  IAutoMovieRecoverySceneRay,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryScenePointEvaluation } from "../structures/internal/IAutoMovieRecoveryScenePointEvaluation";
-import type { IAutoMovieRecoverySceneRay } from "../structures/internal/IAutoMovieRecoverySceneRay";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 
 /**
@@ -22,16 +23,13 @@ import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar diagnostics and two view indices return. This evaluator retains neither observer nor projection history after return; any observer-owned retention belongs to its caller. The camera reduction retains two local scalars and discards them on later refusal. Local directions expire without input mutation or external resources.
  */
 export function evaluateRecoveryScenePoint(
-  point: readonly [number, number, number],
-  observations: readonly IAutoMovieRecoveryMapObservation[],
-  poses: readonly (IAutoMovieRecoveryMapPose | null)[],
-  charts: readonly Pick<
-    ReturnType<typeof createRecoveryCameraChart>,
-    "matrix"
-  >[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  observe?: (norm: number) => void,
-): IAutoMovieRecoveryScenePointEvaluation {
+  point: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[0],
+  observations: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[1],
+  poses: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[2],
+  charts: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[4],
+  observe?: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[5],
+): ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> {
   const reasons: Set<string> = new Set();
   const directions: IAutoMovieRecoverySceneRay[] = [];
   let maximumReprojectionPx: number = 0;
@@ -55,7 +53,7 @@ export function evaluateRecoveryScenePoint(
       reasons.add("unregistered-observation");
       continue;
     }
-    const projected: ReturnType<typeof projectRecoveryMapPoint> =
+    const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
       projectRecoveryMapPoint(pose, point, chart.matrix);
     if (projected === null) {
       reasons.add("nonpositive-depth");

@@ -1,15 +1,14 @@
 import {
+  type AutoMovieClinicalAxis,
+  type IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  type IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
-
-type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
 
 const readAngle: (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,

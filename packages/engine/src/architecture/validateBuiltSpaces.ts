@@ -2,10 +2,10 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
   IAutoMovieConvexSpaceCell,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendGraphCycles } from "../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateBuiltSpaceShell } from "./validateBuiltSpaceShell";
@@ -40,11 +40,11 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
 export const validateBuiltSpaces: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => Set<string> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): Set<string> => {
   const spaceIds: Set<string> = collectDeclaredIds(
     environment.spaces,

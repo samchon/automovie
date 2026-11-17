@@ -1,3 +1,5 @@
+import type { IAutoMovieDrawingRange } from "@automovie/interface";
+
 /**
  * The lowest and highest of a run of numbers, folded in one pass.
  *
@@ -24,7 +26,7 @@
  */
 export const autoMovieDrawingRange = (
   values: Iterable<number>,
-): { min: number; max: number } => {
+): IAutoMovieDrawingRange.IResult => {
   let min: number = Number.POSITIVE_INFINITY;
   let max: number = Number.NEGATIVE_INFINITY;
   for (const value of values) {

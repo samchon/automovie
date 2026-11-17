@@ -2,6 +2,7 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieMovablePanel,
+  type IAutoMovieOpeningPanelPlacement,
   IAutoMovieOperationState,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,7 +10,6 @@ import {
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieOpeningPanelPlacement } from "./IAutoMovieOpeningPanelPlacement";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 

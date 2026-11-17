@@ -1,6 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { advancePhysicalBalance } from "./advancePhysicalBalance";
+import type {
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMovieSamplePhysicalRecoverySupport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Replay a support's actual controller ownership and accepted goal adjustment at one second. Completed future landings cannot alter an earlier sample; authored handoffs end endpoint ownership while retaining the independently adopted body displacement.
@@ -14,14 +16,16 @@ import type { advancePhysicalBalance } from "./advancePhysicalBalance";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalRecoverySupport(
-  state: advancePhysicalBalance.IState | undefined,
+  state: IAutoMoviePhysicalRecoveryState | undefined,
   bone: string,
   seconds: number,
-): { active: boolean; offset: IAutoMovieVector3 } {
-  const landings: NonNullable<advancePhysicalBalance.IState["landings"]> =
+): IAutoMovieSamplePhysicalRecoverySupport.IResult {
+  const landings: NonNullable<IAutoMoviePhysicalRecoveryState["landings"]> =
     state?.landings?.filter(
       (
-        landing: NonNullable<advancePhysicalBalance.IState["landings"]>[number],
+        landing: NonNullable<
+          IAutoMoviePhysicalRecoveryState["landings"]
+        >[number],
       ): boolean => landing.seconds <= seconds,
     ) ?? [];
   const root: IAutoMovieVector3 = landings.at(-1)?.rootOffset ?? {
@@ -37,7 +41,9 @@ export function samplePhysicalRecoverySupport(
   const handed: boolean =
     state?.handoffs?.some(
       (
-        handoff: NonNullable<advancePhysicalBalance.IState["handoffs"]>[number],
+        handoff: NonNullable<
+          IAutoMoviePhysicalRecoveryState["handoffs"]
+        >[number],
       ): boolean =>
         handoff.bone === bone &&
         handoff.seconds <= seconds &&

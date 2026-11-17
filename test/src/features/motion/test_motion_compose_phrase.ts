@@ -1,16 +1,21 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLeg,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanHead,
-  AutoMovieMotionHumanLeg,
   AutoMovieMotionHumanLegPhrase,
   AutoMovieMotionHumanRoot,
   AutoMovieMotionHumanTrunk,
-  type HumanFoot,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -76,7 +81,7 @@ export function test_motion_compose_phrase(): void {
 
   // 1. A pass through an instant.
   const window = ["strokeStart", "stroke", "strokeEnd"] as const;
-  const pass = (clock: AutoMovieMotionClock.IClock, s: number): number =>
+  const pass = (clock: IAutoMovieMotionClock, s: number): number =>
     AutoMovieMotionClock.through(clock, window, s);
   TestValidator.predicate(
     "a free pass crosses 1 with speed and rests at 2",
@@ -108,7 +113,7 @@ export function test_motion_compose_phrase(): void {
     AutoMovieMotionClock.wave(free, ["strokeStart", "strokeEnd"], 0, 0.4),
   );
 
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     rest: new Map<string, IAutoMovieVector3>([
       ["leftLowerLeg", { x: 0.1, y: 0.5, z: 0 }],
       ["leftFoot", { x: 0.1, y: 0.08, z: 0 }],
@@ -127,8 +132,8 @@ export function test_motion_compose_phrase(): void {
         toeLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.2 } },
       },
     },
-  } as unknown as IHumanBody;
-  const posture: IHumanPosture = {
+  } as unknown as IAutoMovieMotionHumanBody;
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -141,15 +146,15 @@ export function test_motion_compose_phrase(): void {
   const identity = { x: 0, y: 0, z: 0, w: 1 };
   const bend: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
   const target =
-    (point: IAutoMovieVector3): AutoMovieMotionHumanArm.Frame =>
-    (): AutoMovieMotionHumanArm.ITarget => ({
+    (point: IAutoMovieVector3): IAutoMovieMotionHumanArmTarget.Frame =>
+    (): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface: "wrist",
       shape: "relaxed",
       point,
       rotation: identity,
       bend,
     });
-  const origin: AutoMovieMotionHumanArm.IOrigin = {
+  const origin: IAutoMovieMotionHumanArmTarget.IOrigin = {
     point: { x: -0.2, y: 0.9, z: 0 },
     rotation: identity,
   };
@@ -212,7 +217,7 @@ export function test_motion_compose_phrase(): void {
 
   // 4. A strike.
   const strike = (
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
   ): IAutoMovieMotionHumanPrimitive =>
     AutoMovieMotionHumanArm.strike({
       ...arm,
@@ -241,7 +246,7 @@ export function test_motion_compose_phrase(): void {
     ...arm,
     clock: free,
     cycles: 2,
-    pose: (_p, _s, swing: number): AutoMovieMotionHumanArm.ITarget => {
+    pose: (_p, _s, swing: number): IAutoMovieMotionHumanArmTarget.ITarget => {
       swings.push(swing);
       return target({ x: 0, y: 1, z: 0.3 })(posture, 0);
     },
@@ -250,7 +255,7 @@ export function test_motion_compose_phrase(): void {
     "an oscillation hands its pose the wave",
     swings.length === 1 && close(swings[0]!, -1),
   );
-  const swung: IHumanPosture = AutoMovieMotionHumanArm.swing(
+  const swung: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanArm.swing(
     "right",
     0,
     1.25,
@@ -267,18 +272,18 @@ export function test_motion_compose_phrase(): void {
   TestValidator.equals("a swing releases the arm's goal", swung.limbs, {});
 
   // 6. The leg.
-  const stance: HumanFoot.IPlacement = {
+  const stance: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: { x: 0.1, y: 0.08, z: 0 },
     rotation: identity,
   };
   const placed =
-    (ankle: IAutoMovieVector3): AutoMovieMotionHumanLeg.Frame =>
-    (): HumanFoot.IPlacement => ({ ankle, rotation: identity });
+    (ankle: IAutoMovieVector3): IAutoMovieMotionHumanLeg.Frame =>
+    (): IAutoMovieMotionHumanFoot.IPlacement => ({ ankle, rotation: identity });
   const leg = { body, side: "left" as const, stance };
   const foot = (
     primitive: IAutoMovieMotionHumanPrimitive,
     s: number,
-  ): IHumanPosture.IGoal => primitive.write(posture, s).limbs.leftLeg!;
+  ): IAutoMovieHumanLimbGoal => primitive.write(posture, s).limbs.leftLeg!;
   const lift = AutoMovieMotionHumanLegPhrase.lift({
     ...leg,
     clock: free,
@@ -366,7 +371,7 @@ export function test_motion_compose_phrase(): void {
   ]);
 
   // 7. The head and the trunk.
-  const bare: IHumanPosture = { ...posture, limbs: {} };
+  const bare: IAutoMovieMotionHumanPosture = { ...posture, limbs: {} };
   const span = ["strokeStart", "strokeEnd"] as const;
   TestValidator.equals(
     "a nod at its quarter cycle",

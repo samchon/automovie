@@ -1,30 +1,31 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrehension,
   IAutoMovieQuaternion,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanClasp } from "./HumanClasp";
@@ -56,7 +57,7 @@ import { handshakeOffer } from "./handshakeOffer";
  * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
  * practice of an effector socket on a world target), and through the clasp
  * and the pump the arm keeps the configuration it clasped in
- * (`IHumanPosture.IGoal.reference`); the feet stay planted as the stand law
+ * (`HumanPosture.IGoal.reference`); the feet stay planted as the stand law
  * places them. Both partners read the point from one meeting record
  * (`handshakeMeeting`), computed once from the two shoulders, so the palms
  * meet without either reading the other's moving hand. A seated pair whose
@@ -105,10 +106,10 @@ import { handshakeOffer } from "./handshakeOffer";
  */
 export namespace handshake {
   /** The action's name. */
-  export const name: HumanActionName = "handshake";
+  export const name: AutoMovieMotionHumanActionName = "handshake";
 
   /** Cancel table: declined before the clasp, or ended after the release. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: [0, "clasp"], kind: "inertialize", entry: 0, blend: 0.3 },
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
@@ -117,18 +118,6 @@ export namespace handshake {
       { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The partner's subject id. */
-    partner: string;
-
-    /** The shaking hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** Pump cycles; 2 when absent. */
-    pumps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-  }
 
   /** Pump frequency, hertz (Tagne et al. 2016, greeting). */
   export const FREQUENCY: number = 2.43;
@@ -144,14 +133,16 @@ export namespace handshake {
    * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const side: HumanHand.Side = context.params.hand ?? "right";
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const pumps: number = context.params.pumps ?? 2;
     HumanBound.whole("pumps", pumps);
-    const body: IHumanBody = context.body;
-    const partner: IHumanBody = context.performer(context.params.partner).body;
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const partner: IAutoMovieMotionHumanBody = context.performer(
+      context.params.partner,
+    ).body;
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
 
     // The meeting point from both acting shoulders at the start, read from
     // the one record both partners share (`handshakeMeeting`).
@@ -169,8 +160,10 @@ export namespace handshake {
       context,
       side,
       { pump: AMPLITUDE, shake },
-      (b: IHumanBody, shoulder: IAutoMovieVector3): resolveAutoMovieMutualGoal.ISide =>
-        arm(b, side, shoulder),
+      (
+        b: IAutoMovieMotionHumanBody,
+        shoulder: IAutoMovieVector3,
+      ): IAutoMovieResolveMutualGoal.ISide => arm(b, side, shoulder),
     );
     const meet: IAutoMovieVector3 = meeting.point;
 
@@ -185,9 +178,10 @@ export namespace handshake {
     // shaking hand's frame, so a left handshake mirrors a right one
     // (`stand.plan`); seated, it holds the seat it was entered on.
     const seated: boolean = context.entry.supports.some(
-      (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind === "seat",
     );
-    const base: IHumanActionPlan = handshakeMeeting.leaned(
+    const base: IAutoMovieMotionHumanActionPlan = handshakeMeeting.leaned(
       body,
       seated
         ? AutoMovieMotionHumanBase.under(context, duration)
@@ -233,8 +227,8 @@ export namespace handshake {
       AMPLITUDE,
       ...hands,
     );
-    const own: HumanGrasp.IReach = choice.mine;
-    const clasp: HumanHand.IWrist = own.wrist;
+    const own: IAutoMovieMotionHumanGrasp.IReach = choice.mine;
+    const clasp: IAutoMovieMotionHumanHand.IWrist = own.wrist;
     const turn: IAutoMovieQuaternion = clasp.rotation;
 
     // Where the hand starts and where it returns to.
@@ -243,28 +237,33 @@ export namespace handshake {
       body,
       resolveHumanPosture(body, base.posture(duration)),
     ).get(`${side}Hand`)!;
-    const out: HumanPrehension.ITransport = HumanPrehension.transport(
-      entry.worldPosition,
-      clasp.point,
-      palm,
-      0,
-      { from: entry.worldRotation, to: turn },
-      reach,
-    );
-    const home: HumanPrehension.ITransport = HumanPrehension.transport(
-      clasp.point,
-      rest.worldPosition,
-      Vector3.scale(palm, -1),
-      0,
-      { from: turn, to: rest.worldRotation },
-      back,
-    );
+    const out: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        entry.worldPosition,
+        clasp.point,
+        palm,
+        0,
+        { from: entry.worldRotation, to: turn },
+        reach,
+      );
+    const home: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        clasp.point,
+        rest.worldPosition,
+        Vector3.scale(palm, -1),
+        0,
+        { from: turn, to: rest.worldRotation },
+        back,
+      );
     const peak: number = HumanPrehension.peak(context.random("peak"));
 
     // The fingers close from the offered hand round the partner's hand as it
     // will lie at the clasp, posed as the partner's arm will be.
-    const offered: IHumanPosture["joints"] = HumanClasp.open(body, side);
-    const fingers: IHumanPosture["joints"] = HumanClasp.close(
+    const offered: IAutoMovieMotionHumanPosture["joints"] = HumanClasp.open(
+      body,
+      side,
+    );
+    const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanClasp.close(
       side,
       choice,
       ...hands,
@@ -302,12 +301,12 @@ export namespace handshake {
         },
       ],
       contact: reach,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
+        const posture: IAutoMovieMotionHumanPosture = base.posture(t);
         let wrist: IAutoMovieVector3;
         let rotation: IAutoMovieQuaternion;
-        let digits: IHumanPosture["joints"];
+        let digits: IAutoMovieMotionHumanPosture["joints"];
         if (t <= reach) {
           wrist = out.wrist(t);
           rotation = out.turn(t);
@@ -366,21 +365,6 @@ export namespace handshake {
     };
   }
 
-  /** Where a standing body's chest and acting shoulder lie from its floor point. */
-  export interface IStance {
-    /** How high the shoulder joint stands above the floor, metres. */
-    height: number;
-
-    /** How far the sternum region lies ahead of the floor point, metres. */
-    sternum: number;
-
-    /** How far the shoulder joint lies ahead of the floor point, metres. */
-    shoulder: number;
-
-    /** How far the shoulder joint lies to the side of the floor point, metres. */
-    across: number;
-  }
-
   /**
    * A body's chest and shoulder offsets in the stand law's own posture, read
    * on the body itself and not estimated from its measures, so a case or an
@@ -391,10 +375,14 @@ export namespace handshake {
    * @returns The offsets.
    */
   export function stance(
-    body: IHumanBody,
-    side: HumanHand.Side = "right",
-  ): IStance {
-    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide = "right",
+  ): IAutoMovieMotionHumanHandshake.IStance {
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -428,18 +416,22 @@ export namespace handshake {
    * @returns Metres.
    */
   export function gap(
-    a: IHumanBody,
-    b: IHumanBody,
-    side: HumanHand.Side = "right",
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide = "right",
   ): number {
-    const sa: IStance = stance(a, side);
-    const sb: IStance = stance(b, side);
+    const sa: IAutoMovieMotionHumanHandshake.IStance = stance(a, side);
+    const sb: IAutoMovieMotionHumanHandshake.IStance = stance(b, side);
     const s: number = (handshakeOffer.SHOULDER * Math.PI) / 180;
-    const elbow = (body: IHumanBody, stood: IStance): number =>
-      stood.height - body.measure.upperArm * Math.cos(s);
+    const elbow = (
+      body: IAutoMovieMotionHumanBody,
+      stood: IAutoMovieMotionHumanHandshake.IStance,
+    ): number => stood.height - body.measure.upperArm * Math.cos(s);
     const drop: number = elbow(a, sa) - elbow(b, sb);
-    const [higher, lower]: [IHumanBody, IHumanBody] =
-      drop >= 0 ? [a, b] : [b, a];
+    const [higher, lower]: [
+      IAutoMovieMotionHumanBody,
+      IAutoMovieMotionHumanBody,
+    ] = drop >= 0 ? [a, b] : [b, a];
     const shaped: handshakeOffer.IShape = handshakeOffer.shape(
       higher.measure.upperArm,
       handshakeOffer.forearm(higher, side),
@@ -447,7 +439,11 @@ export namespace handshake {
       Math.abs(drop),
       AMPLITUDE,
     );
-    const ahead = (body: IHumanBody, lowered: number, down: number): number =>
+    const ahead = (
+      body: IAutoMovieMotionHumanBody,
+      lowered: number,
+      down: number,
+    ): number =>
       body.measure.upperArm *
         Math.sin(((handshakeOffer.SHOULDER - lowered) * Math.PI) / 180) +
       handshakeOffer.forearm(body, side) *
@@ -478,10 +474,10 @@ export namespace handshake {
    * @returns The side.
    */
   export function arm(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     shoulder: IAutoMovieVector3,
-  ): resolveAutoMovieMutualGoal.ISide {
+  ): IAutoMovieResolveMutualGoal.ISide {
     const upper: number = body.measure.upperArm;
     const lower: number = handshakeOffer.forearm(body, side);
     const flexion: number = (handshakeOffer.ELBOW * Math.PI) / 180;

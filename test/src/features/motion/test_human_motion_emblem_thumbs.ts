@@ -1,5 +1,10 @@
 import type {
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -8,10 +13,7 @@ import {
   HumanEmblem,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +45,10 @@ export function test_human_motion_emblem_thumbs(): void {
   // How far the shown hand turns from the rotation its arm goal asks, and
   // the right arm's joints, so a miss says whether the fit or the goal
   // holds the thumb off.
-  const fitted = (performance: HumanPerformance, seconds: number): string => {
+  const fitted = (
+    performance: IAutoMovieMotionHumanPerformance,
+    seconds: number,
+  ): string => {
     const asked: IAutoMovieQuaternion | undefined = performance.posture(
       "a",
       seconds,
@@ -79,7 +84,7 @@ export function test_human_motion_emblem_thumbs(): void {
       .join(", ");
     return `${turn}; ${joints}`;
   };
-  const laws: IHumanActionLaw<never>[] = [
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanEmblem.thumbsUp,
     HumanEmblem.thumbsDown,
   ];
@@ -95,29 +100,31 @@ export function test_human_motion_emblem_thumbs(): void {
       .join(" ");
   };
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [row, sense] of [
       ["thumbsUp", 1],
       ["thumbsDown", -1],
     ] as const)
       try {
-        const performance: HumanPerformance = new HumanPerformance({
-          seed: "thumbs",
-          laws,
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .registered(row, {}).node,
-        });
-        const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "thumbs",
+            laws,
+            performers: [
+              {
+                subject: "a",
+                body,
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
+              },
+            ],
+            composition: HumanChain.subject("a")
+              .stand({ seconds: 0.3 })
+              .registered(row, {}).node,
+          });
+        const placed: IAutoMovieMotionHumanSegment =
+          performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -125,12 +132,8 @@ export function test_human_motion_emblem_thumbs(): void {
             placed.plan.duration;
         const held: number =
           (instant("strokeStart") + instant("strokeEnd")) / 2;
-        const reader: HumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          0,
-        );
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, 0);
         const at = (
           bone:
             | "rightThumbProximal"

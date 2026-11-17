@@ -1,9 +1,12 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieQuaternion,
+  type IAutoMovieTwoBoneArticulation,
+  type IAutoMovieTwoBoneChainArticulation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
-import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
 import { aimRotation } from "./aimRotation";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
@@ -45,34 +48,11 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
  */
-export const twoBoneChainArticulation: (props: {
-  upper: IAutoMovieChainBone;
-  lower: IAutoMovieChainBone;
-  end: IAutoMovieVector3;
-  target: IAutoMovieVector3;
-  bendNormal?: IAutoMovieVector3 | undefined;
-}) => IAutoMovieTwoBoneArticulation | null = (props: {
-  /** Resolved chain-root bone (hip or shoulder) in world space. */
-  upper: IAutoMovieChainBone;
-
-  /** Resolved mid bone (knee or elbow) in world space. */
-  lower: IAutoMovieChainBone;
-
-  /** World position of the end effector (foot or hand) on the resolved chain. */
-  end: IAutoMovieVector3;
-
-  /** World target the end effector should land on. */
-  target: IAutoMovieVector3;
-
-  /**
-   * World normal of the bend plane, overriding the world-down derivation; any
-   * nonzero length. A caller whose mid joint is a hinge passes the hinge axis
-   * so the solve stays in the only plane that joint can bend in. Rotation
-   * follows the right-hand rule about it, so its two signs are the chain's two
-   * bend branches.
-   */
-  bendNormal?: IAutoMovieVector3;
-}): IAutoMovieTwoBoneArticulation | null => {
+export const twoBoneChainArticulation: (
+  props: IAutoMovieTwoBoneChainArticulation.IProps,
+) => IAutoMovieTwoBoneArticulation | null = (
+  props: IAutoMovieTwoBoneChainArticulation.IProps,
+): IAutoMovieTwoBoneArticulation | null => {
   const root: IAutoMovieVector3 = props.upper.worldPosition;
   const mid: IAutoMovieVector3 = props.lower.worldPosition;
 

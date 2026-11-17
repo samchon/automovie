@@ -1,6 +1,8 @@
 import {
   IAutoMovieMaterialSubstance,
+  type IAutoMovieValidateMaterialSubstance,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -33,14 +35,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one record per call that coordinates no shared work across requests.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, at most one finding per field; nothing else outlives the call.
  */
-export const validateAutoMovieMaterialSubstance: (props: {
-  /** Substance record to range-check. */ substance: IAutoMovieMaterialSubstance;
-}) => IAutoMovieValidation = (props: {
-  /** Substance record to range-check. */
-  substance: IAutoMovieMaterialSubstance;
-}): IAutoMovieValidation => {
+export const validateAutoMovieMaterialSubstance: (
+  props: IAutoMovieValidateMaterialSubstance.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateMaterialSubstance.IProps,
+): IAutoMovieValidation => {
   const substance: IAutoMovieMaterialSubstance = props.substance;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
   collector.nonEmpty(`${root}.id`, substance.id, "substance id");
   collector.nonEmpty(
@@ -108,13 +109,13 @@ const above: (
   limit: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number | null,
   limit: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (value !== null && (!Number.isFinite(value) || value <= limit))
     collector.push(
@@ -131,13 +132,13 @@ const atLeast: (
   limit: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number | null,
   limit: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (value !== null && (!Number.isFinite(value) || value < limit))
     collector.push(

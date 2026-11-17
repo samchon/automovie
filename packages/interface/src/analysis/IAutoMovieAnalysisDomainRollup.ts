@@ -1,4 +1,4 @@
-import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
+import type { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 
 /**
  * One domain's tally inside an analysis report.

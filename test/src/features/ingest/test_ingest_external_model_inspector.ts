@@ -1,4 +1,5 @@
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
@@ -23,8 +24,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid motion source returns stable node ids, source indices and names, parent ids, canonical local TRS, and the meter/right-handed/Y-up...).
  */
 export function test_ingest_external_model_inspector(): void {
-  const inspected: import("@automovie/ingest").IAutoMovieExternalModelInspection =
-    inspect(motionFixture());
+  const inspected: IAutoMovieExternalModelInspection = inspect(motionFixture());
   TestValidator.predicate(
     "canonical motion node facts",
     test12ValuesClose(
@@ -221,7 +221,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonRootDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(rootDuplicate, "public/motion/duplicate.gltf"),
               'duplicate member "asset"',
             ),
@@ -230,7 +230,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonSyntax",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource('{"asset":', "public/motion/invalid.gltf"),
               "External model JSON is invalid",
             ),
@@ -246,7 +246,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonEscapedDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(escapedDuplicate, "public/motion/escaped.gltf"),
               'duplicate member "asset"',
             ),
@@ -255,7 +255,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonNestedDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(nestedDuplicate, "public/motion/nested.gltf"),
               'duplicate member "owner"',
             ),
@@ -264,7 +264,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonArrayElementDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(
                   arrayElementDuplicate,
                   "public/motion/array.gltf",
@@ -290,7 +290,7 @@ export function test_ingest_external_model_inspector(): void {
           "jsonDeepDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(deepDuplicate, "public/motion/deep.gltf"),
               'duplicate member "d"',
             ),
@@ -299,7 +299,7 @@ export function test_ingest_external_model_inspector(): void {
           "glbRootDuplicate",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectSource(
                   motionGlb(rootDuplicate),
                   "public/motion/duplicate.glb",
@@ -329,20 +329,20 @@ type MotionNode = Record<string, unknown>;
 
 const inspect: (
   fixture: ReturnType<typeof motionFixture>,
-) => import("@automovie/ingest").IAutoMovieExternalModelInspection = (
+) => IAutoMovieExternalModelInspection = (
   fixture: ReturnType<typeof motionFixture>,
-): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+): IAutoMovieExternalModelInspection =>
   inspectSource(fixture.bytes, "public/motion/grounded.gltf", fixture.payload);
 
 const inspectSource: (
   bytes: Uint8Array | string,
   path: string,
   payload?: Uint8Array,
-) => import("@automovie/ingest").IAutoMovieExternalModelInspection = (
+) => IAutoMovieExternalModelInspection = (
   bytes: Uint8Array | string,
   path: string,
   payload: Uint8Array = motionFixture().payload,
-): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+): IAutoMovieExternalModelInspection =>
   inspectAutoMovieExternalModelBytes({
     path,
     bytes: typeof bytes === "string" ? Buffer.from(bytes, "utf8") : bytes,
@@ -379,8 +379,7 @@ const rejects: (
   const document: ReturnType<typeof motionDocument> = motionDocument();
   mutate(document.nodes as MotionNode[]);
   return throwsError(
-    (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
-      inspect(motionFixture(document)),
+    (): IAutoMovieExternalModelInspection => inspect(motionFixture(document)),
     message,
   );
 };

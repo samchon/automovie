@@ -1,4 +1,11 @@
 import { createBag } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
@@ -6,9 +13,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -55,13 +59,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 10 scenarios.
  */
 export function test_human_motion_core_entry_scenes(): void {
-  const man: IHumanBody = motionHumanBody("m-average");
-  const woman: IHumanBody = motionHumanBody("f-small");
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const outcome = (
-    composition: { node: HumanPerformance.IInput["composition"] },
+    composition: {
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    },
     partner: boolean = false,
-    props: HumanPerformance.IInput["props"] = [],
+    props: IAutoMovieMotionHumanPerformance.IInput["props"] = [],
   ): string => {
     try {
       new HumanPerformance({
@@ -100,7 +107,7 @@ export function test_human_motion_core_entry_scenes(): void {
     }
   };
   let partnerAt: number = 0.5;
-  const stand = (subject: string): HumanChain =>
+  const stand = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
   const complaints: string[] = [];
   const expect = (
@@ -177,7 +184,7 @@ export function test_human_motion_core_entry_scenes(): void {
   );
 
   // 5. Typing at a keyboard with no home row.
-  const bare: IHumanProp = {
+  const bare: IAutoMovieMotionHumanProp = {
     subject: "keyboard",
     frame: {
       position: { x: 0, y: 1, z: 0.4 },
@@ -282,7 +289,7 @@ export function test_human_motion_core_entry_scenes(): void {
 
   // 10. Two hands, each held on the other body.
   partnerAt = 0.5;
-  const held = (subject: string, other: string): HumanChain =>
+  const held = (subject: string, other: string): IAutoMovieMotionHumanChain =>
     stand(subject).touch({
       target: { kind: "person", subject: other, region: "shoulderLeft" },
       with: "palm",

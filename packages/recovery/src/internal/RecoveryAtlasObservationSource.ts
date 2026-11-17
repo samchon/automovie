@@ -1,11 +1,14 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAtlasObservationSource,
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoveryScalarIntervalsSelectionOperation,
+} from "@automovie/interface";
 
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
 import { RecoveryScalarIndex as I } from "./RecoveryScalarIndex";
 import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
-
-type Input = RecoveryAtlasObservationTypes["Input"];
 
 /**
  * Admit the immutable source and prepare the selected scalar interval index.
@@ -18,13 +21,9 @@ type Input = RecoveryAtlasObservationTypes["Input"];
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All later intervals share this prepared region and scalar index.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source metadata lives for this observation call; returned references are private and never become engine geometry.
  */
-export function RecoveryAtlasObservationSource(input: Input): {
-  order: readonly number[];
-  selection: ReturnType<typeof selectRecoveryScalarIntervals>;
-  heights: number[];
-  region: ReturnType<typeof RecoveryEventRegion>;
-  index: ReturnType<typeof I.create>;
-} {
+export function RecoveryAtlasObservationSource(
+  input: Parameters<IAutoMovieRecoveryAtlasObservationSource.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> {
   if (
     !input.topologyDomain ||
     !Number.isSafeInteger(input.maxIntervals) ||
@@ -66,37 +65,44 @@ export function RecoveryAtlasObservationSource(input: Input): {
       { length: input.levelsMm.length - 1 },
       (_: unknown, i: number): number => i,
     );
-  const selection: ReturnType<typeof selectRecoveryScalarIntervals> =
+  const selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation> =
     selectRecoveryScalarIntervals(input.levelsMm, order, input.scalarWindowMm);
   const norm: number = Math.hypot(...input.axis);
   if (!(norm > 0 && Number.isFinite(norm)))
     throw new Error("A finite sweep direction is required");
-  const heights: number[] = input.verticesMm.map((point: C.Vector): number =>
-    point.reduce(
-      (sum: number, x: number, k: number): number =>
-        sum + (x * input.axis[k]!) / norm,
-      0,
-    ),
+  const heights: number[] = input.verticesMm.map(
+    (point: Readonly<AutoMovieVector3Tuple>): number =>
+      point.reduce(
+        (sum: number, x: number, k: number): number =>
+          sum + (x * input.axis[k]!) / norm,
+        0,
+      ),
   );
   const canon: Int32Array = Int32Array.from(
       input.verticesMm,
-      (_: C.Vector, i: number): number => i,
+      (_: Readonly<AutoMovieVector3Tuple>, i: number): number => i,
     ),
     aliases: Map<string, number> = new Map();
   if (input.exactCoordinateAliases)
-    input.verticesMm.forEach((point: C.Vector, i: number): void => {
-      const key: string = point.join(":");
-      if (aliases.has(key)) canon[i] = aliases.get(key)!;
-      else aliases.set(key, i);
+    input.verticesMm.forEach(
+      (point: Readonly<AutoMovieVector3Tuple>, i: number): void => {
+        const key: string = point.join(":");
+        if (aliases.has(key)) canon[i] = aliases.get(key)!;
+        else aliases.set(key, i);
+      },
+    );
+  const region: ReturnType<IAutoMovieRecoveryEventRegion.Operation> =
+    RecoveryEventRegion({
+      verticesMm: input.verticesMm,
+      triangles: input.triangles,
+      canon,
+      heights,
+      incidence: input.exactCoordinateAliases ? "canonical" : "raw",
     });
-  const region: ReturnType<typeof RecoveryEventRegion> = RecoveryEventRegion({
-    verticesMm: input.verticesMm,
-    triangles: input.triangles,
-    canon,
+  const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> = I.create(
+    input.triangles,
     heights,
-    incidence: input.exactCoordinateAliases ? "canonical" : "raw",
-  });
-  const index: ReturnType<typeof I.create> = I.create(input.triangles, heights);
+  );
 
   return { order, selection, heights, region, index };
 }

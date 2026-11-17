@@ -1,16 +1,21 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
-import type { lieDown } from "./lieDown";
 
 /**
  * The inchworm's posture at a placement of its hands and feet, by its
@@ -54,12 +59,12 @@ export namespace crawlInchwormPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     chain: crawlChain.IChain,
-    frame: HumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     feet: Record<"left" | "right", number>,
     wrists: Record<"left" | "right", number>,
-  ): lieDown.IPose {
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const DEG: number = 180 / Math.PI;
     const sides = ["left", "right"] as const;
     const forward: IAutoMovieVector3 = HumanFrame.forward(frame.yaw);
@@ -74,7 +79,7 @@ export namespace crawlInchwormPose {
       ) *
         DEG -
       chain.lean;
-    const target: IHumanPosture = crawlFrame.posed(
+    const target: IAutoMovieMotionHumanPosture = crawlFrame.posed(
       body,
       frame.yaw,
       1,
@@ -82,7 +87,7 @@ export namespace crawlInchwormPose {
       0,
       0,
     );
-    const posture: IHumanPosture = {
+    const posture: IAutoMovieMotionHumanPosture = {
       ...target,
       root: crawlFrame.rootFor(
         body,
@@ -94,7 +99,7 @@ export namespace crawlInchwormPose {
     };
     const knee: number = KNEE * body.measure.shank;
     for (const side of sides) {
-      const placement: HumanFoot.IPlacement = HumanFoot.pivot(
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
         body,
         side,
         "mtp",
@@ -123,7 +128,7 @@ export namespace crawlInchwormPose {
       posture.joints[`${side}Toes`] = [shape.heel, 0, 0];
     }
     for (const side of sides) {
-      const hand: AutoMovieMotionHumanArm.ITarget =
+      const hand: IAutoMovieMotionHumanArmTarget.ITarget =
         AutoMovieMotionHumanTarget.hand(
           body,
           posture,
@@ -145,7 +150,7 @@ export namespace crawlInchwormPose {
         hand,
       );
     }
-    const joints: lieDown.IPose["joints"] = {};
+    const joints: IAutoMovieMotionHumanLieDown.IPose["joints"] = {};
     for (const j of resolveHumanPosture(body, posture).joints)
       joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
     return { pitch: posture.pitch, roll: 0, joints };

@@ -1,11 +1,12 @@
 import {
   IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftFurnishing,
   IAutoMovieSoftNamedState,
+  type IAutoMovieValidateSoftFurnishings,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
@@ -40,20 +41,13 @@ const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Maps and sets share identity resolution within this pass and held particles reuse the canonical rest owner; no configuration cache is retained across changed domain/state/room records.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh maps, reference sets and held buffers leave scope when the pass ends; the returned violation list alone retains offending inputs/points, without simulation history or viewer handles.
  */
-export const validateSoftFurnishings: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  furnishings: IAutoMovieSoftFurnishing[];
-  domains: IAutoMovieSoftBodyDomain[];
-  domainOwnership?: "validate" | "prevalidated" | undefined;
-}) => IAutoMovieValidation = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  furnishings: IAutoMovieSoftFurnishing[];
-  domains: IAutoMovieSoftBodyDomain[];
-  /** Skip the production-wide join only after the caller validated it once. */
-  domainOwnership?: "validate" | "prevalidated";
-}): IAutoMovieValidation => {
+export const validateSoftFurnishings: (
+  props: IAutoMovieValidateSoftFurnishings.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSoftFurnishings.IProps,
+): IAutoMovieValidation => {
   const { environment, furnishings, domains }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   if (props.domainOwnership !== "prevalidated") {

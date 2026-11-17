@@ -1,7 +1,8 @@
 import {
-  AutoMovieBuiltPlacementBodyLocator,
   IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltEnvironmentPlacementOverlapSweep,
+  type IAutoMovieBuiltPlacementBody,
+  type IAutoMovieBuiltPlacementBodyLocator,
   IAutoMovieBuiltPlacementOverlapPair,
   IAutoMovieBuiltPlacementOverlapReport,
   IAutoMovieBuiltPopulation,
@@ -9,7 +10,6 @@ import {
 } from "@automovie/interface";
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
-import { IAutoMovieBuiltPlacementBody } from "./IAutoMovieBuiltPlacementBody";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
@@ -30,19 +30,19 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The part table is built once per call and every body's reported box and solids are read from it, so no element is staged or measured twice; nothing is reused across calls because the record is the caller's and may change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The part table, body list and active list live for one call; the active list holds at most the resolved body count, and the caller owns the returned report, bounded by the admitted pair count.
  */
-export const builtEnvironmentPlacementOverlapSweep: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-}) => IAutoMovieBuiltPlacementOverlapReport = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-}): IAutoMovieBuiltPlacementOverlapReport => {
+export const builtEnvironmentPlacementOverlapSweep: (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
+) => IAutoMovieBuiltPlacementOverlapReport = (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
+): IAutoMovieBuiltPlacementOverlapReport => {
   const boxes: Map<string, IAutoMovieSubjectBox[]> = builtEnvironmentPartBoxes(
     props.environment,
   );
-  const locators: AutoMovieBuiltPlacementBodyLocator[] = [
+  const locators: IAutoMovieBuiltPlacementBodyLocator[] = [
     ...props.environment.elements.map(
       (
         element: IAutoMovieBuiltElement,
-      ): AutoMovieBuiltPlacementBodyLocator => ({
+      ): IAutoMovieBuiltPlacementBodyLocator => ({
         kind: "element",
         id: element.id,
       }),
@@ -50,14 +50,14 @@ export const builtEnvironmentPlacementOverlapSweep: (props: {
     ...(props.environment.populations ?? []).map(
       (
         population: IAutoMovieBuiltPopulation,
-      ): AutoMovieBuiltPlacementBodyLocator => ({
+      ): IAutoMovieBuiltPlacementBodyLocator => ({
         kind: "population",
         id: population.set.id,
       }),
     ),
   ];
   const resolved: ISweptBody[] = [];
-  const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
+  const unresolved: IAutoMovieBuiltPlacementBodyLocator[] = [];
   for (const locator of locators) {
     const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody(
       {
@@ -134,7 +134,7 @@ export const builtEnvironmentPlacementOverlapSweep: (props: {
  */
 interface ISweptBody extends IAutoMovieBuiltPlacementBody {
   /** The locator the body was resolved from. */
-  locator: AutoMovieBuiltPlacementBodyLocator;
+  locator: IAutoMovieBuiltPlacementBodyLocator;
 
   /** Position among resolved bodies, which breaks ties and orders each pair. */
   index: number;

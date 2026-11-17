@@ -1,6 +1,6 @@
 import { physicalHullFaces } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -21,7 +21,7 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the probes and retains no state.
  */
 export function HumanColliderCorners(
-  shape: IAutoMoviePhysicalProfile.IShape,
+  shape: IAutoMoviePhysicalShape,
 ): readonly IAutoMovieVector3[] {
   if (shape.kind === "hull") return physicalHullFaces(shape.points).vertices;
   if (shape.kind === "box") {

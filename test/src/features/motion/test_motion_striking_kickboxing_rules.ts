@@ -1,11 +1,14 @@
 import { createExerciseMat, createRing } from "@automovie/archetypes";
 import {
-  type AutoMovieComposition,
-  type IAutoMovieIntent,
   checkAutoMovieLegality,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanObject,
   KickboxingRing,
@@ -74,7 +77,7 @@ export function test_motion_striking_kickboxing_rules(): void {
     capability: string,
     params: object,
     anchor?: string,
-  ): AutoMovieComposition => ({
+  ): IAutoMovieComposition => ({
     kind: "intent",
     intent: {
       subject,
@@ -90,7 +93,7 @@ export function test_motion_striking_kickboxing_rules(): void {
     guard: 1,
   };
   const verdicts = (strikeAt: number): number => {
-    const composition: AutoMovieComposition = {
+    const composition: IAutoMovieComposition = {
       kind: "parallel",
       parts: [
         {
@@ -129,7 +132,7 @@ export function test_motion_striking_kickboxing_rules(): void {
     verdicts(0.5) === 0 && verdicts(3.5) === 0,
   );
   const knees = (gap: boolean): number => {
-    const parts: AutoMovieComposition[] = [
+    const parts: IAutoMovieComposition[] = [
       intent("a", "knee", at("abdomen")),
       ...(gap ? [intent("a", "stand", { seconds: 1 })] : []),
       intent("a", "punch", at("face")),
@@ -152,7 +155,7 @@ export function test_motion_striking_kickboxing_rules(): void {
   );
 
   const model: ReturnType<typeof createRing> = createRing();
-  const ring: KickboxingRing.IRing = KickboxingRing.of(
+  const ring: IAutoMovieMotionHumanKickboxingRing.IRing = KickboxingRing.of(
     HumanObject.prop("ring", model, { at: { x: 1, y: 0, z: 2 }, yaw: 30 }),
   );
   const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>

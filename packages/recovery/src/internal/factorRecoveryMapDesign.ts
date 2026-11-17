@@ -2,9 +2,10 @@ import {
   decomposeAutoMovieSingularMatrix,
   reduceAutoMovieQrDesign,
 } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryMapDesignFactor } from "../structures/internal/IAutoMovieRecoveryMapDesignFactor";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapDesignFactor,
+} from "@automovie/interface";
 
 /**
  * Qualify the original column-normalized design without synthesizing an answer.

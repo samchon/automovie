@@ -1,8 +1,11 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFrame } from "./HumanFrame";
-import type { HumanHand } from "./HumanHand";
 
 /**
  * A named direction of a hand as a world vector: how `HumanHand.Direction`,
@@ -34,12 +37,12 @@ export namespace HumanHandDirection {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
-    direction: HumanHand.Direction,
+    direction: IAutoMovieMotionHumanHand.Direction,
   ): IAutoMovieVector3 {
     const sign: number = side === "left" ? 1 : -1;
-    const axis = (name: HumanHand.Axis): IAutoMovieVector3 => {
+    const axis = (name: IAutoMovieMotionHumanHand.Axis): IAutoMovieVector3 => {
       switch (name) {
         case "out":
           return { x: sign, y: 0, z: 0 };

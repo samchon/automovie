@@ -4,14 +4,17 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanMusketDrill,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,8 +51,8 @@ export function test_human_motion_musket_recover(): void {
   const bound: number =
     (Math.atan((2 * HumanVerdicts.SKIN) / length) * 180) / Math.PI;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "recover",
@@ -93,7 +96,10 @@ export function test_human_motion_musket_recover(): void {
     const t: number = segment.start + 0.75 * segment.plan.duration;
     const frame = performance.prop("musket", t);
     const world = (id: "butt" | "muzzle"): IAutoMovieVector3 =>
-      Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point(id)));
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, point(id)),
+      );
     // "The Firelock perpendicular": the whole piece upright, the line from
     // its butt to its muzzle (the law's reading, after the manual's butt
     // and face and the 1778 Britannica abstract's "straight up").

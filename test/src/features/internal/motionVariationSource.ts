@@ -1,3 +1,7 @@
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanVariation,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanVariation, HumanSkill } from "@automovie/motions";
 
 /**
@@ -15,7 +19,7 @@ export const motionVariationSource: (props?: {
   index?: number;
   skill?: number;
   variation?: number;
-}) => AutoMovieMotionHumanVariation.ISource = (
+}) => IAutoMovieMotionHumanVariation.ISource = (
   props: {
     seed?: string;
     subject?: string;
@@ -24,8 +28,8 @@ export const motionVariationSource: (props?: {
     skill?: number;
     variation?: number;
   } = {},
-): AutoMovieMotionHumanVariation.ISource => {
-  const skill: HumanSkill.ISkill = HumanSkill.resolve(
+): IAutoMovieMotionHumanVariation.ISource => {
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: props.skill ?? 0 },
     props.seed ?? "film",
   );

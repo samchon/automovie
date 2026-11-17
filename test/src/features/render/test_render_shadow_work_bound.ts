@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderSubject,
   deriveAutoMovieSemanticMask,
   measureAutoMovieRenderInventory,
 } from "@automovie/engine";
@@ -8,6 +7,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieRenderInventory,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
   IAutoMovieScene,
   IAutoMovieSceneEnvironment,
   IAutoMovieTransform,

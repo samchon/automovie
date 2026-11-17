@@ -1,29 +1,35 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+type Frame = Pick<
+  IAutoMovieMotionHumanPosture,
+  "root" | "yaw" | "pitch" | "joints"
+>;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -90,11 +96,11 @@ export namespace HumanMountOn {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(
-    context: IHumanActionContext<{
+    context: IAutoMovieMotionHumanActionContext<{
       seconds?: number;
-      manner?: AutoMovieMotionManner.IManner;
+      manner?: IAutoMovieMotionManner;
     }>,
-    seat: seated.ISeat,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
     final: {
       pitch: number;
       joints: Partial<
@@ -102,9 +108,9 @@ export namespace HumanMountOn {
       >;
     },
     turn: number,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const astride: boolean = seat.astride === true;
     const yaw0: number = context.entry.posture.yaw;
     const yaw1: number = yaw0 + turn;
@@ -143,7 +149,8 @@ export namespace HumanMountOn {
     const duration: number = climb + hold;
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
+    const upright: IAutoMovieMotionHumanPosture["joints"] =
+      standUpright.of(body).joints;
 
     // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
     const crossing: readonly [number, number] = astride
@@ -167,7 +174,7 @@ export namespace HumanMountOn {
         t < 0.6 * climb
           ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IHumanPosture["joints"] = {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...stand.relaxed(body),
         ...upright,
       };
@@ -184,8 +191,10 @@ export namespace HumanMountOn {
           was[2] + a[2] * settle,
         ];
       }
-      const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
-        HumanTrunk.incline(joints, lean);
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(joints, lean);
       const yaw: number = yaw0 + turn * across;
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
@@ -305,7 +314,7 @@ export namespace HumanMountOn {
     };
 
     // A foot the entry already holds off the floor, on a rest, hanging or in flight, goes on from where it is, and one already on its rest stays there.
-    const entry: IHumanActionContext["entry"] = context.entry;
+    const entry: IAutoMovieMotionHumanActionContext["entry"] = context.entry;
     const onFloor: Record<"left" | "right", boolean> = {
       left: HumanMount.grounded(body, entry.feet.left),
       right: HumanMount.grounded(body, entry.feet.right),
@@ -366,7 +375,7 @@ export namespace HumanMountOn {
       onFloor.left ? flight.left[0] : 0,
       onFloor.right ? flight.right[0] : 0,
     );
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "seat",
         kind: "seat",
@@ -404,23 +413,23 @@ export namespace HumanMountOn {
       contacts,
       contact: touch,
       base: { kind: "seated", seat },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IHumanPosture["limbs"] = stand.legs(
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
           body,
           frame.root,
           yaw0,
           floor,
         );
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
           if (stays[side]) {
             limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
             continue;
           }
-          const planted: IHumanPosture.IGoal = standing[limb]!;
+          const planted: IAutoMovieHumanLimbGoal = standing[limb]!;
           const [leaves, arrives]: readonly [number, number] = flight[side];
           if (onFloor[side] && t <= leaves) {
             limbs[limb] = planted;

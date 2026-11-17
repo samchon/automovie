@@ -1,15 +1,4 @@
-/*
- * Copyright 2022 University of Oxford Control Group
- * SPDX-License-Identifier: Apache-2.0
- *
- * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
- * with zero/nonnegative cones and engine-owned numerical workspaces.
- * Adapted from Clarabel.rs 0.11.1, revision
- * 25540f559592068d0c8a80e46ded1b21760212a1.
- * Original source: src/solver/implementations/default/problemdata.rs
- * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
- */
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
+import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
 /**
  * Apply ten bounded Ruiz diagonal equilibration passes to owned conic arrays.

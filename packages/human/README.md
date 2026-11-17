@@ -9,11 +9,12 @@ The package is being rebuilt. The realistic skin surface was removed and is bein
 The package needs Node.js 22.23.2 or later.
 
 ```bash
-npm install @automovie/human
+npm install @automovie/human @automovie/interface
 ```
 
 ```ts
-import { AutoMovieHumanCanonicalBody, type IAutoMovieHumanParameters } from "@automovie/human";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
 declare const parameters: IAutoMovieHumanParameters;
 
@@ -21,7 +22,7 @@ const body = AutoMovieHumanCanonicalBody.prepare(parameters, { mass: 72, id: "a"
 // body.skeleton, body.profile and body.joints
 ```
 
-`body` and `head` are required and everything else is optional. Each field's JSDoc gives its unit.
+`body` and `head` are required and everything else is optional. Each field's JSDoc gives its unit. Public data contracts come from `@automovie/interface`; Human re-exports the same identities for compatibility. For typia validators and JSON schemas, use the explicit `*Schema` types exported by Human, as explained in [schema refinements](src/schema/README.md).
 
 ## Entry points
 
@@ -38,8 +39,8 @@ npm install @automovie/render @automovie/interface three
 ```
 
 ```ts
-import { AutoMovieHumanCanonicalBody, type IAutoMovieHumanParameters } from "@automovie/human";
-import type { IAutoMoviePose } from "@automovie/interface";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type { IAutoMovieHumanParameters, IAutoMoviePose } from "@automovie/interface";
 import { buildHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 

@@ -1,18 +1,21 @@
 import {
   AutoMovieLoftChain,
-  type AutoMovieLoftFrame,
   AutoMovieLoftFrameSource,
   AutoMovieLoftJet,
   AutoMovieSolidBlendChain,
   AutoMovieSolidChain,
-  type AutoMovieSolidJoin,
   AutoMovieSolidMerge,
   AutoMovieSplineCurve,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 import { ConstructionSourceIngress } from "../../internal/construction/ConstructionSourceIngress";
@@ -136,7 +139,7 @@ export function test_construction_orientation(): void {
         [0, 1, 0],
         [0, 0, 1],
       );
-      const result: AutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
+      const result: IAutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
         part,
         host,
         seed: { phi: 0, s: 0, y: 20 * scale, theta: 0 },
@@ -147,12 +150,12 @@ export function test_construction_orientation(): void {
       });
       if (result.join === null || result.diagnostics.length !== 0) {
         failures.push(
-          `merge ${scale}/${mirror}: ${result.diagnostics.map((d: AutoMovieSolidJoin.IResult["diagnostics"][number]): string => d.detail).join("; ")}`,
+          `merge ${scale}/${mirror}: ${result.diagnostics.map((d: IAutoMovieSolidJoin.IResult["diagnostics"][number]): string => d.detail).join("; ")}`,
         );
         continue;
       }
-      const join: AutoMovieSolidJoin.IJoin = result.join;
-      const blend: AutoMovieSolidBlendChain.IBlend | null =
+      const join: IAutoMovieSolidJoin.IJoin = result.join;
+      const blend: IAutoMovieSolidBlendChain.IBlend | null =
         AutoMovieSolidBlendChain.of("annular blend", join, 48);
       if (blend === null) {
         failures.push(`published blend ${scale}/${mirror} is absent`);
@@ -168,7 +171,7 @@ export function test_construction_orientation(): void {
       }
       for (let k: number = 0; k < 48; k++) {
         const phase: number = (2 * Math.PI * k) / 48;
-        const column: AutoMovieSolidJoin.IColumn | null = join.column(
+        const column: IAutoMovieSolidJoin.IColumn | null = join.column(
           blend.seed + phase,
         );
         if (column === null) {
@@ -203,24 +206,24 @@ export function test_construction_orientation(): void {
           refusal(
             failures,
             `unsupported column count ${count}`,
-            (): AutoMovieSolidBlendChain.IBlend | null =>
+            (): IAutoMovieSolidBlendChain.IBlend | null =>
               AutoMovieSolidBlendChain.of("invalid count", join, count),
           );
         for (const outward of [
           [0, 0, 0],
           [0, 0, Infinity],
         ] as Vec3[]) {
-          const broken: AutoMovieSolidJoin.IJoin = {
+          const broken: IAutoMovieSolidJoin.IJoin = {
             ...join,
-            column(t: number): AutoMovieSolidJoin.IColumn | null {
-              const column: AutoMovieSolidJoin.IColumn | null = join.column(t);
+            column(t: number): IAutoMovieSolidJoin.IColumn | null {
+              const column: IAutoMovieSolidJoin.IColumn | null = join.column(t);
               return column === null ? null : { ...column, outward };
             },
           };
           refusal(
             failures,
             `invalid outward normal ${outward}`,
-            (): AutoMovieSolidBlendChain.IBlend | null =>
+            (): IAutoMovieSolidBlendChain.IBlend | null =>
               AutoMovieSolidBlendChain.of("invalid outward", broken, 48),
           );
         }
@@ -318,15 +321,15 @@ function admission(failures: string[]): void {
   }
 
   const base: IAutoMovieLoftChain = annulus(1, 1, "identity");
-  const frame: AutoMovieLoftFrame.IFrame = base.layers[0]!.frame!;
-  const still: AutoMovieLoftFrame.IFrame = {
+  const frame: IAutoMovieLoftSectionFrame = base.layers[0]!.frame!;
+  const still: IAutoMovieLoftSectionFrame = {
     origin: [0, 0, 0],
     u: [0, 0, 0],
     v: [0, 0, 0],
   };
   const marker: Error = new Error("actual axis callback identity");
   const axis: IAutoMovieViewPart["axis"] = {
-    at: (): AutoMovieLoftFrame.IFrame => frame,
+    at: (): IAutoMovieLoftSectionFrame => frame,
     jet: (
       station: number,
     ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
@@ -350,7 +353,7 @@ function admission(failures: string[]): void {
   // Values remain available when only the interior physical jet is absent.
   for (const unavailable of ["null", "nonfinite"] as const) {
     const valueAxis: IAutoMovieViewPart["axis"] = {
-      at: (): AutoMovieLoftFrame.IFrame => frame,
+      at: (): IAutoMovieLoftSectionFrame => frame,
       jet: (
         station: number,
       ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
@@ -418,12 +421,12 @@ function annulus(
       ),
     ),
   );
-  const frame: AutoMovieLoftFrame.IFrame = {
+  const frame: IAutoMovieLoftSectionFrame = {
     origin: [17 * scale, -11 * scale, 5 * scale],
     u: [transform === "mirror" ? -1 : 1, 0, 0],
     v: [0, 0, 1],
   };
-  const still: AutoMovieLoftFrame.IFrame = {
+  const still: IAutoMovieLoftSectionFrame = {
     origin: [0, 0, 0],
     u: [0, 0, 0],
     v: [0, 0, 0],

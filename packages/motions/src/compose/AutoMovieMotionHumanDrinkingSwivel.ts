@@ -1,12 +1,14 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwivelBound,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
@@ -52,9 +54,9 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the arm and its four bounds.
    */
   export function bounded(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
   ): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
@@ -111,11 +113,15 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         );
       },
     );
-    const of: AutoMovieMotionHumanSwivelBound.IArm = { shoulder, upper, lower };
-    const bounds: AutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
+    const of: IAutoMovieMotionHumanSwivelBound.IArm = {
+      shoulder,
+      upper,
+      lower,
+    };
+    const bounds: IAutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
       (
         normal: IAutoMovieVector3,
-      ): AutoMovieMotionHumanSwivelBound.IHalfPlane => ({
+      ): IAutoMovieMotionHumanSwivelBound.IHalfPlane => ({
         normal,
         point: shoulder,
         margin: 0,

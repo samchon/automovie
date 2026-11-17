@@ -2,17 +2,18 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Where a wearable sits once worn: its `wear` socket on the body region it
@@ -47,12 +48,12 @@ export namespace HumanWorn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    prop: IHumanProp,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion,
     turn: number = 0,
-  ): IHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
     const wear: IAutoMovieAffordance | undefined = affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === "wear",

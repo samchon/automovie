@@ -1,10 +1,12 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieProficiency,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
-import type { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
 
 /**
  * The draws and the bound rules every slot function of the seeded variation
@@ -71,7 +73,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function uniforms(
-    draws: IHumanActionContext.ISeries,
+    draws: IAutoMovieMotionHumanActionContext.ISeries,
     count: 1 | 2 | 3,
   ): number[] {
     return ALPHA[count]!.map((alpha: number, c: number): number => {
@@ -96,7 +98,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function normals(
-    draws: IHumanActionContext.ISeries,
+    draws: IAutoMovieMotionHumanActionContext.ISeries,
     count: 1 | 2 | 3,
   ): number[] {
     return uniforms(draws, count).map((u: number): number =>
@@ -119,7 +121,9 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function disc(draws: IHumanActionContext.ISeries): [number, number] {
+  export function disc(
+    draws: IAutoMovieMotionHumanActionContext.ISeries,
+  ): [number, number] {
     const [u, v] = uniforms(draws, 2) as [number, number];
     const cut: number = 1 - Math.exp(-(TRUNCATE ** 2) / 2);
     const radius: number = Math.sqrt(-2 * Math.log(1 - u * cut));
@@ -212,7 +216,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function quantity(
-    source: AutoMovieMotionHumanVariation.ISource,
+    source: IAutoMovieMotionHumanVariation.ISource,
     axis: IAutoMovieProficiency.Axis,
     spread: readonly [number, number],
   ): number {
@@ -240,7 +244,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function scalar(
-    source: AutoMovieMotionHumanVariation.ISource,
+    source: IAutoMovieMotionHumanVariation.ISource,
     key: string,
     axis: IAutoMovieProficiency.Axis,
     spread: readonly [number, number],

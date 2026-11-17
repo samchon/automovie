@@ -1,16 +1,4 @@
-/**
- * Parsed RFC 5646 caption-language identity.
- *
- * `display` retains the authored spelling. `comparisonKey` folds only ASCII
- * case, as RFC 5646 comparison requires, without consulting a language
- * registry or replacing a tag with a Preferred-Value.
- */
-interface IAutoMovieCaptionLanguageIdentity {
-  /** Authored language tag preserved for display and serialization. */
-  display: string;
-  /** ASCII case-insensitive identity used by every caption consumer. */
-  comparisonKey: string;
-}
+import type { IAutoMovieCaptionLanguageIdentity } from "@automovie/interface";
 
 const GRANDFATHERED_LANGUAGE_TAGS: ReadonlySet<string> = new Set([
   "art-lojban",

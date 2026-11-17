@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
+import type {
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmSpanEnd,
+} from "@automovie/interface";
+
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanElbowSpan } from "./AutoMovieHumanElbowSpan";
 
@@ -41,11 +45,16 @@ export namespace AutoMovieHumanForearmBelly {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } {
+  export function end(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmSpanEnd {
     const s: number = inputs.axis.fore(JUNCTION * inputs.stylion);
     const { forearm, wrist } = inputs.tapes;
 
-    return { row: AutoMovieHumanArmRows.row("f0.6", s), knot: [s, wrist + FALL_JUNCTION * (forearm - wrist)] };
+    return {
+      row: AutoMovieHumanArmRows.row("f0.6", s),
+      knot: [s, wrist + FALL_JUNCTION * (forearm - wrist)],
+    };
   }
 
   /**
@@ -53,11 +62,16 @@ export namespace AutoMovieHumanForearmBelly {
    *
    * @param inputs The fixed inputs.
    */
-  export function piece(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece {
-    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = AutoMovieHumanElbowSpan.end(inputs);
-    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = end(inputs);
+  export function piece(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece {
+    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      AutoMovieHumanElbowSpan.end(inputs);
+    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      end(inputs);
     const { forearm, wrist } = inputs.tapes;
-    const at = (share: number): number => inputs.axis.fore(share * inputs.stylion);
+    const at = (share: number): number =>
+      inputs.axis.fore(share * inputs.stylion);
 
     return {
       name: "forearm-belly",
@@ -70,7 +84,12 @@ export namespace AutoMovieHumanForearmBelly {
         AutoMovieHumanArmRows.row("f0.4", at(0.4)),
         far.row,
       ],
-      knots: [near.knot, [at(BELLY), forearm], [at(0.4), wrist + FALL_FORTY * (forearm - wrist)], far.knot],
+      knots: [
+        near.knot,
+        [at(BELLY), forearm],
+        [at(0.4), wrist + FALL_FORTY * (forearm - wrist)],
+        far.knot,
+      ],
     };
   }
 }

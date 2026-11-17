@@ -1,6 +1,6 @@
 import type {
   IAutoMovieContactReceipt,
-  IAutoMovieVector3,
+  IAutoMovieSampleContactSurfaceResponse,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -21,24 +21,9 @@ import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function sampleContactSurfaceResponse(input: {
-  /** Actual receipts for this provider body. */
-  contacts: readonly IAutoMovieContactReceipt[];
-  /** Film second being drawn. */
-  seconds: number;
-  /** Surface sample in the provider's selected metre frame. */
-  point: IAutoMovieVector3;
-  /** Contact centre transported into that same frame. */
-  center: (receipt: IAutoMovieContactReceipt) => IAutoMovieVector3;
-  /** Explicit appearance radius, metres. */
-  radius: number;
-  /** Accumulation weight per N s. */
-  weightPerImpulse: number;
-  /** Positive decay time, seconds; Infinity retains marks. */
-  decaySeconds: number;
-  /** Formula-derived N s for geometric contacts. */
-  geometricImpulses: Readonly<Record<string, number>>;
-}): number {
+export function sampleContactSurfaceResponse(
+  input: IAutoMovieSampleContactSurfaceResponse.IInput,
+): number {
   if (
     !Number.isFinite(input.seconds) ||
     input.seconds < 0 ||

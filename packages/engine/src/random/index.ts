@@ -1,4 +1,3 @@
-export * from "./IAutoMovieRandom";
 export * from "./createAutoMovieRandom";
 export * from "./deriveAutoMovieSeed";
 export * from "./hashAutoMovieFnv1a64";

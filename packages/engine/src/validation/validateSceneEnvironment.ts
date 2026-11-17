@@ -1,7 +1,8 @@
 import {
-  IAutoMovieLight,
-  IAutoMovieSceneEnvironment,
+  type IAutoMovieResolveShadowProfile,
+  type IAutoMovieValidateSceneEnvironment,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
@@ -29,14 +30,10 @@ const SHADOW_TYPES: ReadonlySet<string> = new Set(["pcf", "pcfSoft", "vsm"]);
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Validates one current environment snapshot and optional light context; the module shares constant policy sets, while no mutable environment result or renderer effects are cached across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one collector and a transient shadow profile until return; contextual profile storage is bounded by supplied light count, and only the returned violations transfer to the caller. Module policy sets have fixed size and no resources or tasks are acquired.
  */
-export function validateSceneEnvironment(props: {
-  /** Current authored environment, inspected without mutation. */
-  environment: IAutoMovieSceneEnvironment;
-
-  /** Admitted scene light traits; contextual refusals retain their scene paths. */
-  lights?: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];
-}): IAutoMovieValidation {
-  const out: ViolationCollector = new ViolationCollector();
+export function validateSceneEnvironment(
+  props: IAutoMovieValidateSceneEnvironment.IProps,
+): IAutoMovieValidation {
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const value: unknown = props.environment;
   if (!isRecord(value)) {
     out.push(
@@ -119,7 +116,7 @@ export function validateSceneEnvironment(props: {
       typeof value.shadows.type === "string" &&
       SHADOW_TYPES.has(value.shadows.type)
     ) {
-      const profile: ReturnType<typeof resolveAutoMovieShadowProfile> =
+      const profile: IAutoMovieResolveShadowProfile.IResult =
         resolveAutoMovieShadowProfile({
           lights: props.lights,
           shadows: props.environment.shadows,
@@ -137,7 +134,7 @@ function finiteRange(
   exclusive: boolean,
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   max: number = Infinity,
 ): void {
   if (

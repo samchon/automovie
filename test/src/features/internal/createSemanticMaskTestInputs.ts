@@ -1,5 +1,5 @@
-import { IAutoMovieRenderSubject } from "@automovie/engine";
 import {
+  type IAutoMovieRenderSubject,
   IAutoMovieScene,
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,

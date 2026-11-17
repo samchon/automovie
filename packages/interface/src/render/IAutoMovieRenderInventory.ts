@@ -1,9 +1,9 @@
-import { IAutoMovieRenderAnalysisGap } from "./IAutoMovieRenderAnalysisGap";
-import { IAutoMovieRenderInstanceSetCost } from "./IAutoMovieRenderInstanceSetCost";
-import { IAutoMovieRenderModelCost } from "./IAutoMovieRenderModelCost";
-import { IAutoMovieRenderOwnerCost } from "./IAutoMovieRenderOwnerCost";
-import { IAutoMovieRenderTextureCost } from "./IAutoMovieRenderTextureCost";
-import { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
+import type { IAutoMovieRenderAnalysisGap } from "./IAutoMovieRenderAnalysisGap";
+import type { IAutoMovieRenderInstanceSetCost } from "./IAutoMovieRenderInstanceSetCost";
+import type { IAutoMovieRenderModelCost } from "./IAutoMovieRenderModelCost";
+import type { IAutoMovieRenderOwnerCost } from "./IAutoMovieRenderOwnerCost";
+import type { IAutoMovieRenderTextureCost } from "./IAutoMovieRenderTextureCost";
+import type { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
 
 /**
  * Compiled-artifact preflight counts, submission bounds and resource estimates for render-budget evaluation.

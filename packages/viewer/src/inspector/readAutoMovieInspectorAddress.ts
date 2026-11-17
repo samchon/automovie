@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import { parseAutoMovieCapturePlanRequest } from "@automovie/render";
 
 /**
  * Read the request an address names: its query text, with or without the leading `?`, through the capture plan grammar.

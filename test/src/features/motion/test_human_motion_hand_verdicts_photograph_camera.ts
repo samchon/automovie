@@ -1,5 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { HumanPerformance, IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -23,8 +26,8 @@ import { photographScene } from "../internal/photographScene";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, what a takeover would do and the scenario.
  */
 export function test_human_motion_hand_verdicts_photograph_camera(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const performance: HumanPerformance = photographScene(body);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const performance: IAutoMovieMotionHumanPerformance = photographScene(body);
   const step: number = 1 / 120;
   const path: IAutoMovieVector3[] = Array.from(
     { length: Math.floor(performance.duration / step) + 1 },

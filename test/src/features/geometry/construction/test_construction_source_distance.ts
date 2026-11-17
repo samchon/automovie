@@ -2,7 +2,10 @@ import {
   AutoMovieViewOutline,
   rootsAutoMovieViewPolynomial,
 } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,7 +27,7 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_construction_source_distance(): void {
   const failures: string[] = [];
-  const line: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const line: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "line start", station: 0, value: 3 },
@@ -99,7 +102,7 @@ export function test_construction_source_distance(): void {
         failures.push(`nonfinite target accepted: ${target}`);
   }
 
-  const cubic: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const cubic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "natural start", station: 0, value: 0 },
@@ -133,7 +136,7 @@ export function test_construction_source_distance(): void {
       (0.5 - target) ** 2 + (0.6875 - 2) ** 2,
       3e-12,
     );
-    const reading: AutoMovieViewOutline.IReading | string =
+    const reading: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(cubic, 0.5);
     if (typeof reading === "string") failures.push(reading);
     else {
@@ -163,14 +166,14 @@ export function test_construction_source_distance(): void {
 
   for (const end of ["bottom", "top"] as const) {
     const source:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
       parameter: { type: "root", end, pole: end === "bottom" ? 0 : 4 },
       knots: (end === "bottom" ? [0, 1, 4] : [0, 3, 4]).map(
         (
           station: number,
           i: number,
-        ): AutoMovieViewOutline.IOutline["knots"][number] => ({
+        ): IAutoMovieViewOutline.IOutline["knots"][number] => ({
           site: `natural root ${end}/${i}`,
           station,
           value: i === 1 ? 1 : 0,
@@ -212,18 +215,18 @@ export function test_construction_source_distance(): void {
   for (const length of [0.001, 1, 1000])
     for (const sign of [-1, 1])
       for (const kind of ["station", "bottom", "top"] as const) {
-        const parameter: AutoMovieConstructionOutlineParameter | undefined =
+        const parameter: IAutoMovieConstructionOutlineParameter | undefined =
           kind === "station"
             ? undefined
             : { type: "root", end: kind, pole: kind === "bottom" ? 0 : length };
         const source:
-          | AutoMovieViewOutline.IOutline
-          | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+          | IAutoMovieViewOutline.IOutline
+          | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
           ...(parameter === undefined ? {} : { parameter }),
           knots: [0, 1].map(
             (
               fraction: number,
-            ): AutoMovieViewOutline.IOutline["knots"][number] => {
+            ): IAutoMovieViewOutline.IOutline["knots"][number] => {
               const q: number = kind === "top" ? 1 - fraction : fraction;
               return {
                 site: `quintic ${kind} ${fraction}`,
@@ -276,7 +279,7 @@ export function test_construction_source_distance(): void {
           const station: number =
             length *
             (kind === "station" ? q : kind === "top" ? 1 - q * q : q * q);
-          const reading: AutoMovieViewOutline.IReading | string =
+          const reading: IAutoMovieViewOutline.IReading | string =
             AutoMovieViewOutline.at(source, station);
           if (typeof reading === "string") {
             failures.push(`source reading: ${reading}`);
@@ -312,10 +315,10 @@ export function test_construction_source_distance(): void {
       }
 
   const osculating:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
     knots: [-0.5, 0.5].map(
-      (q: number): AutoMovieViewOutline.IOutline["knots"][number] => ({
+      (q: number): IAutoMovieViewOutline.IOutline["knots"][number] => ({
         site: `parabola ${q}`,
         station: q + 0.5,
         value: q + q * q,
@@ -333,10 +336,10 @@ export function test_construction_source_distance(): void {
       0.5,
       2e-11,
     );
-  const dome: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const dome: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [-0.5, 0.5].map(
-        (q: number): AutoMovieViewOutline.IOutline["knots"][number] => ({
+        (q: number): IAutoMovieViewOutline.IOutline["knots"][number] => ({
           site: `dome ${q}`,
           station: q + 0.5,
           value: 1 - q * q,
@@ -395,7 +398,7 @@ export function test_construction_source_distance(): void {
     if (!rejected)
       failures.push(`unsupported polynomial accepted: ${coefficients}`);
   }
-  const angle: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const angle: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       parameter: { type: "angle", bottom: 0, top: 1 },
       knots: [
@@ -409,7 +412,7 @@ export function test_construction_source_distance(): void {
       "string"
   )
     failures.push("angle source did not fail explicitly");
-  const huge: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const huge: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "huge start", station: 0, value: Number.MAX_VALUE },
@@ -459,7 +462,7 @@ function contains(
 function minimum(
   failures: string[],
   label: string,
-  source: AutoMovieViewOutline.IOutline,
+  source: IAutoMovieViewOutline.IOutline,
   candidates: number[] | string,
   targetStation: number,
   targetValue: number,

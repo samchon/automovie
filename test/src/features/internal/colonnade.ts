@@ -1,11 +1,11 @@
 import {
-  IAutoMovieMeshAssembly,
   mergeAutoMovieMeshParts,
   revolveAutoMovieProfile,
 } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshAssembly,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**

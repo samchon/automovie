@@ -1,5 +1,5 @@
-import { IAutoMovieGroupPayload } from "./IAutoMovieGroupPayload";
-import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
+import type { IAutoMovieGroupPayload } from "./IAutoMovieGroupPayload";
+import type { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
 
 /**
  * A grouping of sibling nodes, such as a montage or an exchange.

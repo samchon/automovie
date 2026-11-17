@@ -1,17 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether a body standing on both feet alone keeps its balance: the margin
@@ -67,12 +67,12 @@ export namespace AutoMovieMotionHumanAuditBalance {
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      IAutoMovieMotionHumanAuditMotion.windows(motion, subject);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+      HumanAuditMotion.windows(motion, subject);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     let worst: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
@@ -84,11 +84,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       resolveAutoMovieCenterOfMass.frequency(
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       );
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     for (let i: number = 0; i < times.length; i++) {
       const t: number = times[i]!;
       // A foot that lifts within the pendulum's own time is a step being
@@ -124,8 +120,8 @@ export namespace AutoMovieMotionHumanAuditBalance {
   export function margin(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
-    model: resolveAutoMovieCenterOfMass.IModel,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     seconds: number,
     before: number = Math.max(0, seconds - STEP),
     after: number = Math.min(motion.duration, seconds + STEP),
@@ -137,7 +133,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
     // of every other part bearing on the ground (a knee, a palm), or both
     // feet when no window says otherwise.
     const open: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      IAutoMovieMotionHumanAuditMotion.windows(motion, subject).filter(
+      HumanAuditMotion.windows(motion, subject).filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
           seconds >= w.from &&
           seconds <= w.to &&
@@ -152,11 +148,13 @@ export namespace AutoMovieMotionHumanAuditBalance {
     const feet: ("left" | "right")[] =
       borne.length === 0
         ? ["left", "right"]
-        : (["left", "right"] as const).filter((side: "left" | "right"): boolean =>
-            open.some(
-              (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-                w.contact.part === `${side}Foot` && w.contact.kind === "plant",
-            ),
+        : (["left", "right"] as const).filter(
+            (side: "left" | "right"): boolean =>
+              open.some(
+                (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+                  w.contact.part === `${side}Foot` &&
+                  w.contact.kind === "plant",
+              ),
           );
     const support: IAutoMovieVector3[] = [
       ...HumanFoot.base(body, bones, feet),

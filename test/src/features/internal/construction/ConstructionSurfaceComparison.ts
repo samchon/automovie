@@ -1,7 +1,7 @@
 import type {
-  AutoMovieSolidBlendChain,
+  IAutoMovieSolidBlendChain,
   IAutoMovieSolidSurface,
-} from "@automovie/engine";
+} from "@automovie/interface";
 
 /** World vector in the caller's declared length unit. */
 type V3 = [number, number, number];
@@ -10,7 +10,7 @@ type V3 = [number, number, number];
 export namespace ConstructionSurfaceComparison {
   /** Original normal/normal-curvature comparison at both rails, with no exterior source requests. */
   export function rails(
-    blend: AutoMovieSolidBlendChain.IBlend,
+    blend: IAutoMovieSolidBlendChain.IBlend,
     surface: IAutoMovieSolidSurface,
     host: IAutoMovieSolidSurface,
     part: IAutoMovieSolidSurface,

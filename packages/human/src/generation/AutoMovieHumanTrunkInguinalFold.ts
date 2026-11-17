@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanTrunkInguinalFold } from "@automovie/interface";
+
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
 /**
@@ -57,8 +59,8 @@ export namespace AutoMovieHumanTrunkInguinalFold {
     rise: number,
     depth: number,
     soft: number,
-    cut: readonly [number, number],
-  ): (z: number) => [number, number, number] {
+    cut: IAutoMovieHumanTrunkInguinalFold.AtCut,
+  ): IAutoMovieHumanTrunkInguinalFold.AtResult {
     const up: number = Math.max(0, rise);
 
     return AutoMovieHumanTrunkSolve.jet((z: number): number => {

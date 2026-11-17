@@ -1,4 +1,8 @@
-import { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
+import type {
+  IAutoMovieFitSubdivisionLimit,
+  IAutoMovieSubdivisionStencil,
+} from "@automovie/interface";
+
 import { solveAutoMovieSubdivisionLimit } from "./solveAutoMovieSubdivisionLimit";
 import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionLimit";
 
@@ -40,15 +44,11 @@ import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionL
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call fits one cage; the network sampler calls it once per tier.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the stencil arrays, O(F), and two position buffers, O(V), are released on return except the result, which is transferred.
  */
-export const fitAutoMovieSubdivisionLimit: (props: {
-  faces: ReadonlyArray<readonly number[]>;
-  targets: readonly number[];
-  pinned?: readonly boolean[];
-}) => { positions: number[]; residual: number } = (props: {
-  faces: ReadonlyArray<readonly number[]>;
-  targets: readonly number[];
-  pinned?: readonly boolean[];
-}): { positions: number[]; residual: number } => {
+export const fitAutoMovieSubdivisionLimit: (
+  props: IAutoMovieFitSubdivisionLimit.IProps,
+) => IAutoMovieFitSubdivisionLimit.IResult = (
+  props: IAutoMovieFitSubdivisionLimit.IProps,
+): IAutoMovieFitSubdivisionLimit.IResult => {
   const count: number = props.targets.length / 3;
   if (!Number.isInteger(count))
     throw new Error("fit targets must be packed triples");

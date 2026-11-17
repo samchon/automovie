@@ -4,7 +4,11 @@ import {
   Vector3,
   physicalShapeSurfaceAnchor,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalShape,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Selected receiver surfaces follow their bone frame and agree with independent native closest-point queries.
@@ -20,16 +24,16 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sphere, capsule and box support witnesses lie on the exact collider under two composed rotations.).
  */
 export async function test_physical_surface_anchor(): Promise<void> {
-  const geometry: Geometry.IQueries = await Geometry();
-  const pose: P.ITransform = {
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const pose: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
-  const transform: P.ITransform = {
+  const transform: IAutoMovieRigidTransform = {
     position: { x: 0.1, y: -0.2, z: 0.3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
   };
-  const shapes: P.IShape[] = [
+  const shapes: IAutoMoviePhysicalShape[] = [
     { id: "sphere", material: "solid", kind: "sphere", radius: 0.1, transform },
     {
       id: "capsule",
@@ -55,7 +59,7 @@ export async function test_physical_surface_anchor(): Promise<void> {
     ]) {
       const anchor: ReturnType<typeof physicalShapeSurfaceAnchor> =
         physicalShapeSurfaceAnchor(pose, shape, normal);
-      const projected: P.ITransform["position"] = geometry.project(
+      const projected: IAutoMovieRigidTransform["position"] = geometry.project(
         { body: "object", bone: "part", shape, pose },
         Vector3.add(anchor.point, Vector3.scale(anchor.normal, 0.01)),
       );

@@ -1,18 +1,20 @@
 import { createBall, createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanMutual,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -65,7 +67,7 @@ export function test_human_motion_recompose_mutual(): void {
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   const instant = (
-    segment: HumanSegment.ISegment | undefined,
+    segment: IAutoMovieMotionHumanSegment | undefined,
     event: string,
   ): number =>
     segment === undefined
@@ -79,17 +81,17 @@ export function test_human_motion_recompose_mutual(): void {
     ["m-average", "f-small"],
     ["f-small", "m-tall"],
   ] as const) {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(first),
       b: motionHumanBody(second),
     };
     for (const base of ["standing", "seated"] as const) {
       const label: string = `${first} with ${second}, ${base}`;
-      const start = (who: "a" | "b"): HumanChain => {
-        const body: IHumanBody = bodies[who];
+      const start = (who: "a" | "b"): IAutoMovieMotionHumanChain => {
+        const body: IAutoMovieMotionHumanBody = bodies[who];
         if (base === "standing")
           return HumanChain.subject(who).stand({ seconds: 0.3 });
-        const seat: seated.ISeat = {
+        const seat: IAutoMovieMotionHumanSeated.ISeat = {
           at: {
             x: 0,
             y: seated.popliteal(body),
@@ -104,11 +106,13 @@ export function test_human_motion_recompose_mutual(): void {
         return HumanChain.subject(who).sit({ seat });
       };
       const perform = (
-        composition: { node: HumanPerformance.IInput["composition"] },
-        props: IHumanProp[] = [],
+        composition: {
+          node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+        },
+        props: IAutoMovieMotionHumanProp[] = [],
         seed: string = "recompose",
         distance: number = apart,
-      ): HumanPerformance =>
+      ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed,
           props,
@@ -122,7 +126,7 @@ export function test_human_motion_recompose_mutual(): void {
           composition: composition.node,
         });
       const seatHeld = (
-        p: HumanPerformance,
+        p: IAutoMovieMotionHumanPerformance,
         who: "a" | "b",
         from: number,
         to: number,
@@ -158,14 +162,14 @@ export function test_human_motion_recompose_mutual(): void {
 
       // 1. Handshake.
       attempt("handshake", (): void => {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(HumanMutual.handshake, {
             one: start("a"),
             other: start("b"),
           }),
         );
-        const sa: HumanSegment.ISegment | undefined = p.segments("a")[1];
-        const sb: HumanSegment.ISegment | undefined = p.segments("b")[1];
+        const sa: IAutoMovieMotionHumanSegment | undefined = p.segments("a")[1];
+        const sb: IAutoMovieMotionHumanSegment | undefined = p.segments("b")[1];
         const clasp: number = instant(sa, "clasp");
         if (!(Math.abs(clasp - instant(sb, "clasp")) <= 1e-9))
           findings.push(
@@ -193,7 +197,7 @@ export function test_human_motion_recompose_mutual(): void {
         seatHeld(p, "a", sa!.entryTime, sa!.end, "handshake");
 
         // 8. Replay and variation.
-        const again: HumanPerformance = perform(
+        const again: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(HumanMutual.handshake, {
             one: start("a"),
             other: start("b"),
@@ -204,7 +208,7 @@ export function test_human_motion_recompose_mutual(): void {
           JSON.stringify(p.pose("a", clasp))
         )
           findings.push(`${label}: the handshake does not replay`);
-        const other: HumanPerformance = perform(
+        const other: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(HumanMutual.handshake, {
             one: start("a"),
             other: start("b"),
@@ -225,7 +229,7 @@ export function test_human_motion_recompose_mutual(): void {
 
       // 2. High five.
       attempt("high five", (): void => {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(HumanMutual.highFive, {
             one: start("a"),
             other: start("b"),
@@ -256,7 +260,7 @@ export function test_human_motion_recompose_mutual(): void {
         kind: "mug",
       });
       // Where each sits once seated: its right shoulder, read from the pair sitting down.
-      const sat: HumanPerformance | null =
+      const sat: IAutoMovieMotionHumanPerformance | null =
         base === "seated"
           ? perform({
               node: {
@@ -269,7 +273,7 @@ export function test_human_motion_recompose_mutual(): void {
       const before = (
         who: "a" | "b",
       ): { at: IAutoMovieVector3; yaw: number } => {
-        const m: IHumanBody["measure"] = bodies[who].measure;
+        const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
         const ahead: number = 0.6 * (m.upperArm + m.forearm);
         const toward: number = who === "a" ? 1 : -1;
         const shoulder: IAutoMovieVector3 =
@@ -292,7 +296,7 @@ export function test_human_motion_recompose_mutual(): void {
         };
       };
       attempt("handover", (): void => {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(
             HumanMutual.handOver,
             {
@@ -303,12 +307,16 @@ export function test_human_motion_recompose_mutual(): void {
           ),
           [HumanObject.prop("mug", mug, before("a"))],
         );
-        const give: HumanSegment.ISegment | undefined = p
+        const give: IAutoMovieMotionHumanSegment | undefined = p
           .segments("a")
-          .find((s: HumanSegment.ISegment): boolean => s.name === "handOver");
-        const take: HumanSegment.ISegment | undefined = p
+          .find(
+            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "handOver",
+          );
+        const take: IAutoMovieMotionHumanSegment | undefined = p
           .segments("b")
-          .find((s: HumanSegment.ISegment): boolean => s.name === "receive");
+          .find(
+            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "receive",
+          );
         if (!(instant(take, "gripClosed") < instant(give, "release")))
           findings.push(
             `${label}: the giver releases at ${instant(give, "release").toFixed(3)} s, before the receiver's grip closes at ${instant(take, "gripClosed").toFixed(3)} s`,
@@ -319,14 +327,14 @@ export function test_human_motion_recompose_mutual(): void {
 
       // 4. A kiss on the cheek, joined: the kissed looks at the kisser's face.
       attempt("kiss", (): void => {
-        const p: HumanPerformance = perform(
+        const p: IAutoMovieMotionHumanPerformance = perform(
           HumanChain.mutual(
             HumanMutual.kiss,
             { kisser: start("a"), kissed: start("b") },
             { region: "cheekLeft" },
           ),
         );
-        const k: HumanSegment.ISegment = p.segments("a")[1]!;
+        const k: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
         const contact: number = instant(k, "contact");
         if (!(contact > k.entryTime && contact < k.end))
           findings.push(
@@ -342,7 +350,7 @@ export function test_human_motion_recompose_mutual(): void {
         ["ball", createBall({ kind: "football" }), "grip"],
       ] as const)
         attempt(`pick up a ${name}`, (): void => {
-          const p: HumanPerformance = perform(
+          const p: IAutoMovieMotionHumanPerformance = perform(
             {
               node: {
                 kind: "parallel",
@@ -356,7 +364,7 @@ export function test_human_motion_recompose_mutual(): void {
             },
             [HumanObject.prop(name, prop, before("a"))],
           );
-          const pick: HumanSegment.ISegment = p.segments("a")[1]!;
+          const pick: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
           const closed: number = instant(pick, "gripClosed");
           const lifted: number = instant(pick, "lifted");
           if (!(closed < lifted))
@@ -390,7 +398,7 @@ export function test_human_motion_recompose_mutual(): void {
           const ball: ReturnType<typeof createBall> = createBall({
             kind: "football",
           });
-          const p: HumanPerformance = perform(
+          const p: IAutoMovieMotionHumanPerformance = perform(
             HumanChain.mutual(
               HumanMutual.pass,
               {
@@ -408,7 +416,8 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("a")
               .find(
-                (s: HumanSegment.ISegment): boolean => s.name === "throwObject",
+                (s: IAutoMovieMotionHumanSegment): boolean =>
+                  s.name === "throwObject",
               ),
             "release",
           );
@@ -416,7 +425,8 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("b")
               .find(
-                (s: HumanSegment.ISegment): boolean => s.name === "catchObject",
+                (s: IAutoMovieMotionHumanSegment): boolean =>
+                  s.name === "catchObject",
               ),
             "secured",
           );
@@ -441,7 +451,7 @@ export function test_human_motion_recompose_mutual(): void {
           const ball: ReturnType<typeof createBall> = createBall({
             kind: "football",
           });
-          const p: HumanPerformance = perform(
+          const p: IAutoMovieMotionHumanPerformance = perform(
             {
               node: {
                 kind: "parallel",
@@ -458,7 +468,8 @@ export function test_human_motion_recompose_mutual(): void {
               }),
             ],
           );
-          const kick: HumanSegment.ISegment | undefined = p.segments("a")[1];
+          const kick: IAutoMovieMotionHumanSegment | undefined =
+            p.segments("a")[1];
           const stroke: number = instant(kick, "stroke");
           if (!(stroke > kick!.entryTime && stroke < kick!.end))
             findings.push(

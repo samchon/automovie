@@ -1,9 +1,9 @@
-import { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
-import { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
-import { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
-import { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";
-import { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
+import type { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
+import type { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import type { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
+import type { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";
+import type { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
 
 /**
  * Deterministic semantic sound input derived from one current compiled film edit.

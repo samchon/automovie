@@ -1,10 +1,9 @@
-import {
-  HumanChain,
-  HumanEmblem,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import { HumanChain, HumanEmblem, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,12 +33,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why no posture is read and the 4 scenarios with their bounds.
  */
 export function test_human_motion_emblem_seeds(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
 
   /** A seed's preparation and stroke lengths, seconds. */
   const read = (seed: string, variation: number): [number, number] => {
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed,
       laws: [HumanEmblem.halt],
       performers: [
@@ -56,7 +55,7 @@ export function test_human_motion_emblem_seeds(): void {
         variation === 0 ? {} : { manner: { variation } },
       ).node,
     });
-    const placed: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const at = (event: string): number =>
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) * placed.plan.duration;

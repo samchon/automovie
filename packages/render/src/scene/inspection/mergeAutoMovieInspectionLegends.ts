@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
+import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
 /**
  * Join legends into one, adding the counts of entries that share a label and keeping the order in which labels first appear.

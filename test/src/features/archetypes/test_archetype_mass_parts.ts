@@ -1,7 +1,7 @@
 import { ArchetypeMass } from "@automovie/archetypes";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,7 +30,7 @@ export function test_archetype_mass_parts(): void {
   const EPSILON: number = 1e-12;
   const part = (
     id: string,
-    shape: AutoMoviePrimitiveShape,
+    shape: IAutoMoviePrimitiveShape,
     at: IAutoMovieVector3,
   ): IAutoMovieModelPart => ({
     id,

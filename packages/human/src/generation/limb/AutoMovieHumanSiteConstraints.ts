@@ -1,26 +1,20 @@
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanSiteConstraints,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Call-owned independent site constraints, shared before adjoining scalar laws are published. */
 export namespace AutoMovieHumanSiteConstraints {
-  /** One explicit tape demand over copied numeric supports; no foreign callback is retained. */
-  export interface IOwner {
-    /** Same tuple and diagnostic identity reuse the original result; changed inputs replace only that site's record. */
-    solve(
-      name: string,
-      extents: [number, number, number, number],
-      girth: number,
-    ): AutoMovieViewSection.ISolved;
-  }
-
   /** Prepare an invocation-local owner bounded by the actual named measurement sites. */
-  export function create(): IOwner {
+  export function create(): IAutoMovieHumanSiteConstraints.IOwner {
     const sites: Map<string, IRecord> = new Map();
     return {
       solve(
         name: string,
         extents: [number, number, number, number],
         girth: number,
-      ): AutoMovieViewSection.ISolved {
+      ): IAutoMovieViewSection.ISolved {
         const previous: IRecord | undefined = sites.get(name);
         if (
           previous !== undefined &&
@@ -30,11 +24,8 @@ export namespace AutoMovieHumanSiteConstraints {
           )
         )
           return previous.result;
-        const result: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
-          name,
-          { extents },
-          girth,
-        );
+        const result: IAutoMovieViewSection.ISolved =
+          AutoMovieViewSection.solve(name, { extents }, girth);
         sites.set(name, { extents: [...extents], girth, result });
         return result;
       },
@@ -51,5 +42,5 @@ interface IRecord {
   girth: number;
 
   /** Exact original engine response, including its refusal and diagnostics. */
-  result: AutoMovieViewSection.ISolved;
+  result: IAutoMovieViewSection.ISolved;
 }

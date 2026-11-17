@@ -1,6 +1,6 @@
 import {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
+  type IAutoMoviePrimitiveShape,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
@@ -9,7 +9,7 @@ import {
  */
 export function primitivePart(
   id: string,
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
   transform: IAutoMovieTransform | null = null,
 ): IAutoMovieModelPart {
   return {

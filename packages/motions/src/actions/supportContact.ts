@@ -1,21 +1,20 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanSupport } from "../law/HumanSupport";
-import type { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
@@ -35,7 +34,7 @@ export namespace supportContact {
   /** A contact as the fit takes it: its target and the part that bears on the floor. */
   export interface IForm {
     /** The fit's target. */
-    target: HumanBodyFit.ITarget;
+    target: IAutoMovieMotionHumanBodyFitTypes.ITarget;
 
     /** The bones that bear on the floor, for a contact on it. */
     bearing?: RegExp;
@@ -49,8 +48,8 @@ export namespace supportContact {
    * hand's palm socket give their normals.
    */
   export function form(
-    body: IHumanBody,
-    c: HumanSupport.IContact,
+    body: IAutoMovieMotionHumanBody,
+    c: IAutoMovieMotionHumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): IForm {
     const side: "left" | "right" = c.part.startsWith("left") ? "left" : "right";
@@ -109,7 +108,7 @@ export namespace supportContact {
               : /^(hips|spine|chest)$/
             : new RegExp(`^${side}LowerLeg$`),
         };
-      const region: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         body.surfaces.regions[
           c.part === "seat"
             ? "seat"
@@ -131,7 +130,7 @@ export namespace supportContact {
         },
       };
     }
-    const surface: HumanHand.IFrame = HumanHand.offset(
+    const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
       side,
       c.kind === "grip" ? "grip" : "palm",
@@ -171,12 +170,12 @@ export namespace supportContact {
    * @returns The fit's target, or null for a step with no place.
    */
   export function swing(
-    body: IHumanBody,
-    to: HumanSupport.IContact,
+    body: IAutoMovieMotionHumanBody,
+    to: IAutoMovieMotionHumanSupport.IContact,
     from: IAutoMovieVector3 | null,
     onto: IAutoMovieVector3 | null,
     rise: number,
-  ): HumanBodyFit.ITarget | null {
+  ): IAutoMovieMotionHumanBodyFitTypes.ITarget | null {
     const a: IAutoMovieVector3 | null = from ?? onto;
     const b: IAutoMovieVector3 | null = onto ?? from;
     if (a === null || b === null) return null;
@@ -194,7 +193,7 @@ export namespace supportContact {
    * for every lying position, the front's too, as the lying law names it
    * (`lieDown`); any other part its own.
    */
-  export function window(part: HumanSupport.Part): string {
+  export function window(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Knee")
       ? part.replace("Knee", "LowerLeg")
       : part === "front"
@@ -207,7 +206,7 @@ export namespace supportContact {
    * one leg, a hand its arm; a part of the trunk is its own, since the
    * trunk rolls from one to another and never steps.
    */
-  export function limb(part: HumanSupport.Part): string {
+  export function limb(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Foot") || part.endsWith("Knee")
       ? `${part.startsWith("left") ? "left" : "right"}Leg`
       : part.endsWith("Hand")
@@ -217,19 +216,19 @@ export namespace supportContact {
 
   /** Whether two contacts are one: the same part on the same target. */
   export function same(
-    a: HumanSupport.IContact,
-    b: HumanSupport.IContact,
+    a: IAutoMovieMotionHumanSupport.IContact,
+    b: IAutoMovieMotionHumanSupport.IContact,
   ): boolean {
     return id(a) === id(b);
   }
 
   /** A contact's identity: its part, how it touches, its target and the stance it was set down in (`placements`). */
-  export function id(c: HumanSupport.IContact): string {
+  export function id(c: IAutoMovieMotionHumanSupport.IContact): string {
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${(c as Partial<IPlaced>).placed ?? ""}`;
   }
 
   /** A contact with the index of the stance it was last set down in. */
-  export interface IPlaced extends HumanSupport.IContact {
+  export interface IPlaced extends IAutoMovieMotionHumanSupport.IContact {
     /** The stance it was set down in. */
     placed: number;
   }
@@ -241,32 +240,36 @@ export namespace supportContact {
    * anew (`step`), is set down in that stance.
    */
   export function placements(
-    stances: readonly HumanSupport.IStance[],
-  ): HumanSupport.IStance[] {
-    const out: HumanSupport.IStance[] = [];
-    stances.forEach((stance: HumanSupport.IStance, i: number): void => {
-      const before: readonly HumanSupport.IContact[] =
-        i === 0 ? [] : out[i - 1]!.contacts;
-      out.push({
-        ...stance,
-        contacts: stance.contacts.map((c: HumanSupport.IContact): IPlaced => {
-          const was: HumanSupport.IContact | undefined =
-            c.step === true
-              ? undefined
-              : before.find(
-                  (p: HumanSupport.IContact): boolean =>
-                    p.part === c.part &&
-                    p.kind === c.kind &&
-                    (p.inset ?? 0) === (c.inset ?? 0) &&
-                    JSON.stringify(p.target) === JSON.stringify(c.target),
-                );
-          return {
-            ...c,
-            placed: was === undefined ? i : (was as IPlaced).placed,
-          };
-        }),
-      });
-    });
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[],
+  ): IAutoMovieMotionHumanSupport.IStance[] {
+    const out: IAutoMovieMotionHumanSupport.IStance[] = [];
+    stances.forEach(
+      (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
+        const before: readonly IAutoMovieMotionHumanSupport.IContact[] =
+          i === 0 ? [] : out[i - 1]!.contacts;
+        out.push({
+          ...stance,
+          contacts: stance.contacts.map(
+            (c: IAutoMovieMotionHumanSupport.IContact): IPlaced => {
+              const was: IAutoMovieMotionHumanSupport.IContact | undefined =
+                c.step === true
+                  ? undefined
+                  : before.find(
+                      (p: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                        p.part === c.part &&
+                        p.kind === c.kind &&
+                        (p.inset ?? 0) === (c.inset ?? 0) &&
+                        JSON.stringify(p.target) === JSON.stringify(c.target),
+                    );
+              return {
+                ...c,
+                placed: was === undefined ? i : (was as IPlaced).placed,
+              };
+            },
+          ),
+        });
+      },
+    );
     return out;
   }
 
@@ -284,8 +287,8 @@ export namespace supportContact {
    * @returns The place, world metres.
    */
   export function onSurface(
-    body: IHumanBody,
-    c: HumanSupport.IContact,
+    body: IAutoMovieMotionHumanBody,
+    c: IAutoMovieMotionHumanSupport.IContact,
     edge: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieVector3 {
@@ -298,7 +301,7 @@ export namespace supportContact {
       ? body.measure.shoulderHalfWidth
       : body.measure.hipHalfWidth;
     const reach: number = body.measure.forearm + body.measure.hand;
-    const frame: HumanFrame.IFrame = { origin: edge, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin: edge, yaw };
     return HumanFrame.point(frame, {
       x: sign * half,
       y: 0,
@@ -308,9 +311,9 @@ export namespace supportContact {
 
   /** Where a part bears in a posture, dropped to the floor: the place a contact without one keeps. */
   export function onFloor(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    part: HumanSupport.Part,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    part: IAutoMovieMotionHumanSupport.Part,
   ): IAutoMovieVector3 {
     const p: IAutoMovieVector3 = pinned(body, posture, part);
     return { x: p.x, y: 0, z: p.z };
@@ -334,12 +337,16 @@ export namespace supportContact {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    contact: HumanSupport.IContact,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    contact: IAutoMovieMotionHumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): IAutoMovieVector3 {
-    const target: HumanBodyFit.ITarget = form(body, contact, aimed).target;
+    const target: IAutoMovieMotionHumanBodyFitTypes.ITarget = form(
+      body,
+      contact,
+      aimed,
+    ).target;
     const bone: IAutoMovieResolvedBone = poseBones(
       body,
       resolveHumanPosture(body, posture),
@@ -354,9 +361,9 @@ export namespace supportContact {
   }
   /** Where a part bears in a posture: the joint or bone its contact rides. */
   export function pinned(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    part: HumanSupport.Part,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    part: IAutoMovieMotionHumanSupport.Part,
   ): IAutoMovieVector3 {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,

@@ -2,6 +2,7 @@ import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { physicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -75,11 +76,12 @@ export function test_archetype_armour_joints(): void {
         );
         if (headRadius !== undefined)
           for (const [id, corners] of cells) {
-            const faces: physicalHullFaces.IFace[] =
+            const faces: IAutoMoviePhysicalHullFaces.IFace[] =
               physicalHullFaces(corners).faces;
             const inner: number = Math.min(
               ...faces.map(
-                (face: physicalHullFaces.IFace): number => face.offset,
+                (face: IAutoMoviePhysicalHullFaces.IFace): number =>
+                  face.offset,
               ),
             );
             if (Math.abs(inner + headRadius + PAD) > EPSILON)
@@ -196,9 +198,8 @@ export function test_archetype_armour_joints(): void {
         const cells: ReadonlyMap<string, readonly IAutoMovieVector3[]> =
           armourJointObservation.cells(piece);
         const course: (readonly IAutoMovieVector3[])[] = [...cells]
-          .filter(
-            ([id]: [string, readonly IAutoMovieVector3[]]): boolean =>
-              id.startsWith(prefix),
+          .filter(([id]: [string, readonly IAutoMovieVector3[]]): boolean =>
+            id.startsWith(prefix),
           )
           .map(
             ([, points]: [
@@ -216,7 +217,9 @@ export function test_archetype_armour_joints(): void {
           );
         }
         if (course.length === 0 || Math.abs(minimumGauge - thickness) > EPSILON)
-          findings.push(limb.model + " lost its radial course or minimum gauge");
+          findings.push(
+            limb.model + " lost its radial course or minimum gauge",
+          );
         if (limb.kind !== "gauntlet") {
           const ys: number[] = course.flatMap(
             (points: readonly IAutoMovieVector3[]): number[] =>
@@ -228,7 +231,9 @@ export function test_archetype_armour_joints(): void {
               : 0.22
             : limb.length;
           if (Math.abs(Math.max(...ys) - Math.min(...ys) - length) > EPSILON)
-            findings.push(limb.model + " changed the actual axial guard length");
+            findings.push(
+              limb.model + " changed the actual axial guard length",
+            );
         }
       }
   TestValidator.equals(

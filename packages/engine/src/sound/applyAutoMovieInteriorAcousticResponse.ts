@@ -1,4 +1,4 @@
-import { IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+import type { IAutoMovieApplyInteriorAcousticResponse } from "@automovie/interface";
 
 /** Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s. */
 const TAP_INTERVAL_SECONDS: number = 0.02;
@@ -20,21 +20,11 @@ const MAX_TAIL_SECONDS: number = 2;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each delayed tap gain/offset is computed once for its full sample traversal, and one supplied response serves the whole generation; no PCM or response cache persists between calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh PCM result, input is read without mutation, and local tap state retains no decoder, adopted bytes, process or audio device.
  */
-export const applyAutoMovieInteriorAcousticResponse: (props: {
-  samples: Float32Array<ArrayBufferLike>;
-  channels: number;
-  sampleRate: number;
-  response: IAutoMovieProductionAcousticResponse;
-}) => Float32Array<ArrayBufferLike> = (props: {
-  /** Input interleaved PCM. */
-  samples: Float32Array;
-  /** Positive channel count. */
-  channels: number;
-  /** Positive sample rate. */
-  sampleRate: number;
-  /** Shared event room-path result. */
-  response: IAutoMovieProductionAcousticResponse;
-}): Float32Array => {
+export const applyAutoMovieInteriorAcousticResponse: (
+  props: IAutoMovieApplyInteriorAcousticResponse.IProps,
+) => Float32Array<ArrayBufferLike> = (
+  props: IAutoMovieApplyInteriorAcousticResponse.IProps,
+): Float32Array => {
   if (!Number.isSafeInteger(props.channels) || props.channels <= 0)
     throw new Error("acoustic response channels must be a positive integer");
   if (!Number.isSafeInteger(props.sampleRate) || props.sampleRate <= 0)

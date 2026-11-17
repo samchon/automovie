@@ -1,27 +1,26 @@
+import type { AutoMovieHumanIrisColor as AutoMovieHumanIrisColorContract } from "@automovie/interface";
+
+/** The canonical AutoMovieHumanIrisColor literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanIrisColor = AutoMovieHumanIrisColorContract;
+
 /**
  * Iris colour, as a closed choice ordered from the lightest to the darkest iris.
  *
  * The choice describes an iris colour category rather than a measured pigment concentration or a stroma pattern.
  */
-export enum AutoMovieHumanIrisColor {
+export const AutoMovieHumanIrisColor = {
   /** Blue iris. */
-  Blue = "blue",
-
+  Blue: "blue",
   /** Grey iris. */
-  Gray = "gray",
-
+  Gray: "gray",
   /** Green iris. */
-  Green = "green",
-
+  Green: "green",
   /** Hazel iris: brown near the pupil, green or grey toward the limbus. */
-  Hazel = "hazel",
-
+  Hazel: "hazel",
   /** Light brown iris. */
-  LightBrown = "lightBrown",
-
+  LightBrown: "lightBrown",
   /** Brown iris. */
-  Brown = "brown",
-
+  Brown: "brown",
   /** Dark brown iris that reads nearly black. */
-  DarkBrown = "darkBrown",
-}
+  DarkBrown: "darkBrown",
+} as const satisfies Readonly<Record<string, AutoMovieHumanIrisColorContract>>;

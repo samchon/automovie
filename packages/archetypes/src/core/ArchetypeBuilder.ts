@@ -1,13 +1,10 @@
-import {
-  Vector3,
-  rotationBetween,
-} from "@automovie/engine";
+import { Vector3, rotationBetween } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieAffordance,
   IAutoMovieBodyContact,
   IAutoMovieBodyDrag,
   IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -319,7 +316,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       ids.add(set.id);
       for (const part of set.parts) {
         if (
-          !this.#inventory.parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
+          !this.#inventory.parts.some(
+            (p: IAutoMovieModelPart): boolean => p.id === part,
+          )
         )
           throw new Error(
             `fracture set ${set.id} names the unrecorded part ${part}`,
@@ -436,12 +435,18 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   /** Record one primitive through the shared actual-part/material owner. */
   #add(
     id: string,
-    shape: AutoMoviePrimitiveShape,
+    shape: IAutoMoviePrimitiveShape,
     at: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     options: ArchetypeBuilder.IOptions | undefined,
   ): this {
-    this.#inventory.add(id, { type: "primitive", shape }, at, rotation, options);
+    this.#inventory.add(
+      id,
+      { type: "primitive", shape },
+      at,
+      rotation,
+      options,
+    );
     return this;
   }
 }

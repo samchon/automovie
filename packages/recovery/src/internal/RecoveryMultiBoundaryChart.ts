@@ -1,6 +1,9 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryMultiBoundaryChart,
+  IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation,
+} from "@automovie/interface";
 
-import type { IRecoveryMultiBoundaryChart } from "./IRecoveryMultiBoundaryChart";
 import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBoundarySurface";
 
 /**
@@ -27,8 +30,8 @@ import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBound
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graphs, heaps and fan labels are invocation-local and expire on return or failure. At most 3F private vertex occurrences and F triangles transfer to the caller; no handles, retained cache or consumer topology are created.
  */
 export function RecoveryMultiBoundaryChart(
-  input: IRecoveryMultiBoundaryChart.Input,
-): IRecoveryMultiBoundaryChart.Result {
+  input: Parameters<IAutoMovieRecoveryMultiBoundaryChart.Operation>[0],
+): ReturnType<IAutoMovieRecoveryMultiBoundaryChart.Operation> {
   const fail: (reason: string) => never = (reason: string): never => {
     throw new Error(`Unsupported multi-boundary chart: ${reason}`);
   };
@@ -46,7 +49,8 @@ export function RecoveryMultiBoundaryChart(
       (key: string): boolean => typeof key !== "string" || !key.length,
     ) ||
     input.verticesMm.some(
-      (p: C.Vector): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     )
   )
     fail("finite positions and unique nonempty source keys are required");
@@ -60,12 +64,12 @@ export function RecoveryMultiBoundaryChart(
         ? 1
         : 0;
   const analyze: (
-    vertices: readonly C.Vector[],
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
-  ) => ReturnType<typeof analyzeRecoveryMultiBoundarySurface> = (
-    vertices: readonly C.Vector[],
+  ) => ReturnType<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation> = (
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
-  ): ReturnType<typeof analyzeRecoveryMultiBoundarySurface> =>
+  ): ReturnType<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation> =>
     analyzeRecoveryMultiBoundarySurface(vertices, triangles, fail, edgeKey);
   const source: ReturnType<typeof analyze> = analyze(
     input.verticesMm,
@@ -254,8 +258,10 @@ export function RecoveryMultiBoundaryChart(
           .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
       ),
   );
-  const verticesMm: C.Vector[] = input.verticesMm.map(
-      (p: C.Vector): C.Vector => [...p],
+  const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
+      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [
+        ...p,
+      ],
     ),
     vertexKeys: string[] = [...input.vertexKeys],
     fanKeys: string[] = [];

@@ -1,18 +1,18 @@
 import {
   IAutoMovieAngleRange,
+  type IAutoMovieAxisFrame,
+  type IAutoMovieBoxExcludedSwivels,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
+  type IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
-import type { swingTwistRange } from "./swingTwistRange";
 import { swivelArcs } from "./swivelArcs";
 
 /**
@@ -64,22 +64,9 @@ import { swivelArcs } from "./swivelArcs";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the two merged arc lists in the returned test only.
  */
-export function boxExcludedSwivels(props: {
-  /** The joint's clinical basis, admitted and normalized (`normalizeJointAxes`). */
-  basis: IAutoMovieJointAxes;
-
-  /** The rest frame lifting the joint's rest-relative angles to clinical ones; omitted, they are clinical. */
-  frame?: IAutoMovieRestFrame | undefined;
-
-  /** The joint's resolved range of motion, as the decomposition's domain and the overshoot read it; `null` refuses nothing. */
-  constraint: IAutoMovieJointConstraint | null;
-
-  /** The frame a swing-twist gate is read in, as the overshoot reads it (`scanJointRom`); omitted, a gated joint refuses nothing. */
-  joint?: swingTwistRange.IJoint | undefined;
-
-  /** The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel. */
-  rotation: (swivel: number) => IAutoMovieQuaternion;
-}): (low: number, high: number) => boolean {
+export function boxExcludedSwivels(
+  props: IAutoMovieBoxExcludedSwivels.IProps,
+): (low: number, high: number) => boolean {
   const constraint: IAutoMovieJointConstraint | null = props.constraint;
   if (constraint === null) return (): boolean => false;
   if (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
@@ -118,7 +105,7 @@ export function boxExcludedSwivels(props: {
       );
     },
   );
-  const entry = (i: number, j: number): swivelArcs.ISinusoid => {
+  const entry = (i: number, j: number): IAutoMovieSwivelArcs.ISinusoid => {
     const [zero, quarter, half] = sampled.map(
       (m: number[][]): number => m[i]![j]!,
     ) as [number, number, number];
@@ -143,9 +130,9 @@ export function boxExcludedSwivels(props: {
         };
 
   // Each chart's refused swivels: the union of its axes' arcs.
-  const charts: (swivelArcs.IArc[] | "all")[] = [false, true].map(
-    (alternate: boolean): swivelArcs.IArc[] | "all" => {
-      const arcs: swivelArcs.IArc[] = [];
+  const charts: (IAutoMovieSwivelArcs.IArc[] | "all")[] = [false, true].map(
+    (alternate: boolean): IAutoMovieSwivelArcs.IArc[] | "all" => {
+      const arcs: IAutoMovieSwivelArcs.IArc[] = [];
       for (const axis of AXES) {
         const range: IAutoMovieAngleRange | null = constraint[axis];
         if (range === null) continue;
@@ -155,10 +142,8 @@ export function boxExcludedSwivels(props: {
           rig(range, props.frame?.[axis]),
           alternate,
         )) {
-          const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
-            bound,
-            MARGIN,
-          );
+          const arc: IAutoMovieSwivelArcs.IArc | "all" | null =
+            swivelArcs.above(bound, MARGIN);
           if (arc === "all") return "all";
           if (arc !== null) arcs.push(arc);
         }
@@ -167,7 +152,7 @@ export function boxExcludedSwivels(props: {
     },
   );
   return (low: number, high: number): boolean =>
-    charts.every((chart: swivelArcs.IArc[] | "all"): boolean =>
+    charts.every((chart: IAutoMovieSwivelArcs.IArc[] | "all"): boolean =>
       swivelArcs.covers(chart, low, high),
     );
 }
@@ -187,8 +172,12 @@ type Axis = "flexion" | "abduction" | "twist";
 
 /** How an axis is read: the middle angle's sine, or an outer angle's vector and the sign its rest-relative angle takes. */
 type IRead =
-  | { sine: swivelArcs.ISinusoid }
-  | { y: swivelArcs.ISinusoid; x: swivelArcs.ISinusoid; turn: 1 | -1 };
+  | { sine: IAutoMovieSwivelArcs.ISinusoid }
+  | {
+      y: IAutoMovieSwivelArcs.ISinusoid;
+      x: IAutoMovieSwivelArcs.ISinusoid;
+      turn: 1 | -1;
+    };
 
 /** A clinical interval as rest-relative degrees, ordered (the inverse of `toClinicalAngle`). */
 function rig(
@@ -213,7 +202,7 @@ function bounds(
   read: IRead,
   [lo, hi]: [number, number],
   alternate: boolean,
-): swivelArcs.ISinusoid[] {
+): IAutoMovieSwivelArcs.ISinusoid[] {
   if (hi - lo >= 360) return [];
   if ("sine" in read) {
     // The middle angle is asin(s), or in the alternate chart 180 - asin(s),
@@ -225,7 +214,7 @@ function bounds(
     if (last > first) return [];
     const p: number = Math.max(from + 360 * first, -90);
     const q: number = Math.min(to + 360 * first, 90);
-    const out: swivelArcs.ISinusoid[] = [];
+    const out: IAutoMovieSwivelArcs.ISinusoid[] = [];
     if (q < 90)
       out.push({
         ...read.sine,

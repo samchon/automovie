@@ -1,6 +1,22 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanSelfAction,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -13,14 +29,8 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -60,10 +70,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace selfAction {
   /** The action's name. */
-  export const name: HumanActionName = "selfAction";
+  export const name: AutoMovieMotionHumanActionName = "selfAction";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       touch: ["fromRelax", "smooth"],
@@ -72,44 +82,14 @@ export namespace selfAction {
       flinch: ["anytime", "reflex"],
     });
 
-  /** The actions. */
-  export type Kind =
-    | "stretch"
-    | "victory"
-    | "fistPump"
-    | "neckRoll"
-    | "shoulderRoll";
-
   /** The yawn-and-stretch's whole duration, seconds (Provine 1986, unverified). */
   export const YAWN: number = 6;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The action by name, the hand of a one-arm action and the repetitions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed kind union.
-   */
-  export interface IParams {
-    /** The action. */
-    kind: Kind;
-
-    /** The arm of a fist pump; `right` when absent. */
-    side?: HumanHand.Side;
-
-    /** Pumps or rolls; 3 for a pump, 2 for a roll when absent. */
-    count?: number;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** Each arm action's place for the right hand (the left mirrors). */
   const PLACES: Readonly<
     Record<
       "stretch" | "victory" | "fistPump",
-      AutoMovieMotionHumanTargetGrid.IGrid
+      IAutoMovieMotionHumanTargetGrid.IGrid
     >
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
@@ -123,13 +103,13 @@ export namespace selfAction {
   /** An arm a kind raises: its side, its place, the hand's shape and whether its fist pumps. */
   interface IRaised {
     /** The arm. */
-    side: HumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The place of the air the hand goes to. */
-    grid: AutoMovieMotionHumanTargetGrid.IGrid;
+    grid: IAutoMovieMotionHumanTargetGrid.IGrid;
 
     /** The hand's shape: flat palms or a fist. */
-    shape: HumanHand.Shape;
+    shape: IAutoMovieMotionHumanHand.Shape;
 
     /** Whether the fist drops and rises over the stroke. */
     pump: boolean;
@@ -140,7 +120,7 @@ export namespace selfAction {
    * from: the knuckles face away from it. With the fist a forearm ahead of
    * the shoulder, the whole drop stays within the elbow's flexion range.
    */
-  const ELBOW: AutoMovieMotionHumanTargetGrid.IGrid = {
+  const ELBOW: IAutoMovieMotionHumanTargetGrid.IGrid = {
     height: "shoulder",
     lateral: "outside",
     distance: "near",
@@ -162,19 +142,19 @@ export namespace selfAction {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the entry.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSelfAction.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanSelfAction.IParams = context.params;
     const body = context.body;
-    const kind: Kind = p.kind;
+    const kind: IAutoMovieMotionHumanSelfAction.Kind = p.kind;
     const count: number =
       p.count ?? (kind === "fistPump" ? 3 : kind.endsWith("Roll") ? 2 : 1);
     HumanBound.whole("count", count);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
 
     // The arms the kind raises: both palms for the stretch, both fists for
     // victory, as the winners' display does (the law's doc names the
@@ -182,7 +162,7 @@ export namespace selfAction {
     const raised: readonly IRaised[] =
       kind === "stretch" || kind === "victory"
         ? (["right", "left"] as const).map(
-            (side: HumanHand.Side): IRaised => ({
+            (side: AutoMovieHumanSide): IRaised => ({
               side,
               grid: PLACES[kind],
               shape: kind === "victory" ? "fist" : "flat",
@@ -203,10 +183,10 @@ export namespace selfAction {
     // An arm's goal on a posture: the hand laid on its place, dropped by
     // `drop` metres below it.
     const placed = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       r: IRaised,
       drop: number,
-    ): IHumanPosture.IGoal => {
+    ): IAutoMovieHumanLimbGoal => {
       const place = AutoMovieMotionHumanTarget.fallback(
         body,
         posture,
@@ -277,7 +257,7 @@ export namespace selfAction {
           : count *
             AutoMovieMotionHumanTiming.seconds("beat") *
             (kind === "fistPump" ? 1 : 2.5);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: rise,
         attack,
@@ -289,7 +269,7 @@ export namespace selfAction {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
     const raise = (r: IRaised): void => {
-      const side: HumanHand.Side = r.side;
+      const side: AutoMovieHumanSide = r.side;
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,
@@ -310,9 +290,9 @@ export namespace selfAction {
           // The pump's fist drops a fifth of the arm and rises again
           // `count` times over the stroke.
           goal: (
-            posture: IHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): IHumanPosture.IGoal =>
+          ): IAutoMovieHumanLimbGoal =>
             placed(
               posture,
               r,
@@ -339,14 +319,14 @@ export namespace selfAction {
       );
     };
     const circle = (
-      angles: (cos: number, sin: number) => AutoMovieMotionHumanJoints.Angles,
+      angles: (cos: number, sin: number) => IAutoMovieMotionHumanJoints.Angles,
     ): IAutoMovieMotionHumanPrimitive => {
-      const probe: AutoMovieMotionHumanJoints.Angles = angles(1, 1);
+      const probe: IAutoMovieMotionHumanJoints.Angles = angles(1, 1);
       return AutoMovieMotionHumanJoints.add({
         channels: AutoMovieMotionHumanJoints.channels(probe),
         from: 0,
         to: clock.duration,
-        delta: (seconds: number): AutoMovieMotionHumanJoints.Angles => {
+        delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
           const w: number = clock.envelope(
             ["start", "ready"],
             ["relax", "end"],
@@ -389,7 +369,7 @@ export namespace selfAction {
       case "shoulderRoll": {
         const lift = (
           bone: "leftShoulder" | "rightShoulder",
-          motion: AutoMovieMotionHumanRange.Motion,
+          motion: IAutoMovieMotionHumanRange.Motion,
         ): number =>
           AutoMovieMotionHumanRange.degrees(bone, motion, "light") *
           modifiers.extent;

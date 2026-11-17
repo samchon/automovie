@@ -1,5 +1,8 @@
-import { type ITwoBoneIK, solveTwoBoneIK } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { solveTwoBoneIK } from "@automovie/engine";
+import type {
+  IAutoMovieTwoBoneIK,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ArchetypeUnits } from "../core";
 
@@ -313,7 +316,7 @@ export namespace QuadrupedLimb {
         throw new RangeError(
           `Quadruped reach ${distance} m is outside [${lower.minimum}, ${lower.maximum}] m or has no direction at fold ${fold} degrees`,
         );
-      let triangle: ITwoBoneIK;
+      let triangle: IAutoMovieTwoBoneIK;
       try {
         triangle = solveTwoBoneIK(a, lower.lower, distance);
       } catch (error) {

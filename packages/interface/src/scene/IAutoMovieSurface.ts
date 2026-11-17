@@ -1,6 +1,6 @@
-import { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
+import type { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
 
 /**
  * One standable surface patch of a space: the semantic ground the engine queries where it previously assumed a single scalar plane.

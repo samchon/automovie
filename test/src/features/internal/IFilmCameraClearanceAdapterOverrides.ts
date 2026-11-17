@@ -1,5 +1,5 @@
-import type { IAutoMovieCameraClearanceRuntime } from "@automovie/engine";
 import type {
+  IAutoMovieCameraClearanceRuntime,
   IAutoMovieClip,
   IAutoMovieModel,
   IAutoMovieMotion,

@@ -1,18 +1,19 @@
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieFootLeg,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
+  type IAutoMovieMotionSample,
   IAutoMoviePose,
+  type IAutoMovieRekeyPlantedFeet,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { fitChainToTarget } from "./fitChainToTarget";
-import { sampleMotion } from "./sampleMotion";
 
 /**
  * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
@@ -25,53 +26,16 @@ import { sampleMotion } from "./sampleMotion";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses caller topology across all corrected frames and the preceding corrected pose for continuity; frame-specific parent pose and target still require fresh chain preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pass caller owns new keyframes and corrected joints; unchanged root/expression/joints may be shared with sampled input, while no cross-call cache or native handle persists.
  */
-export const rekeyPlantedFeet: (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
-  /** Index of the same unchanged rig already used by stance detection. */ topology: IAutoMovieSkeletonTopology;
-  /** Sample times in local seconds, parallel to poses and targets. */ times: readonly number[];
-  /** Already sampled pose/expression values at the parallel times. */ poses: ReadonlyArray<
-    ReturnType<typeof sampleMotion>
-  >;
-  /** Declared leg chains eligible for pinned correction. */ legs: readonly IAutoMovieFootLeg[];
-  /** Per-frame fixed model-metre contacts keyed by foot bone. */ targets: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>
-  >;
-  /** Optional clinical axes used to lower and replay solved joints. */ jointAxes?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Optional clinical rest frames used to lower and replay solved joints. */ restFrames?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-}) => IAutoMovieKeyframe[] = (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Index of the same unchanged rig already used by stance detection. */
-  topology: IAutoMovieSkeletonTopology;
-
-  /** Sample times in local seconds, parallel to poses and targets. */
-  times: readonly number[];
-
-  /** Already sampled pose/expression values at the parallel times. */
-  poses: ReadonlyArray<ReturnType<typeof sampleMotion>>;
-
-  /** Declared leg chains eligible for pinned correction. */
-  legs: readonly IAutoMovieFootLeg[];
-
-  /** Per-frame fixed model-metre contacts keyed by foot bone. */
-  targets: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>;
-
-  /** Optional clinical axes used to lower and replay solved joints. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional clinical rest frames used to lower and replay solved joints. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): IAutoMovieKeyframe[] => {
+export const rekeyPlantedFeet: (
+  props: IAutoMovieRekeyPlantedFeet.IProps,
+) => IAutoMovieKeyframe[] = (
+  props: IAutoMovieRekeyPlantedFeet.IProps,
+): IAutoMovieKeyframe[] => {
   const topology: IAutoMovieSkeletonTopology = props.topology;
   const keyframes: IAutoMovieKeyframe[] = [];
   let prior: IAutoMoviePose | undefined;
   props.times.forEach((time: number, index: number): void => {
-    const sampled: ReturnType<typeof sampleMotion> = props.poses[index]!;
+    const sampled: IAutoMovieMotionSample = props.poses[index]!;
     const pose: IAutoMoviePose = {
       skeleton: sampled.pose.skeleton,
       root: sampled.pose.root,

@@ -1,16 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -35,19 +34,29 @@ export namespace HumanArmFrame {
    * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
    * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
    */
-  export function of(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
-    let kept: Map<string, G.IFrame> | undefined = FRAMES.get(base);
+  export function of(
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    base: G.IBase,
+    alone: boolean,
+  ): IAutoMovieMotionHumanArmGeometry.IFrame {
+    let kept: Map<string, IAutoMovieMotionHumanArmGeometry.IFrame> | undefined =
+      FRAMES.get(base);
     if (kept === undefined) FRAMES.set(base, (kept = new Map()));
     const key: string = `${setup.bones.upper}|${alone}`;
-    let frame: G.IFrame | undefined = kept.get(key);
+    let frame: IAutoMovieMotionHumanArmGeometry.IFrame | undefined =
+      kept.get(key);
     if (frame === undefined) kept.set(key, (frame = built(setup, base, alone)));
     return frame;
   }
 
   /** The frame of a base, built. */
-  function built(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
-    const body: IHumanBody = setup.body;
-    const bones: G.ISetup["bones"] = setup.bones;
+  function built(
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    base: G.IBase,
+    alone: boolean,
+  ): IAutoMovieMotionHumanArmGeometry.IFrame {
+    const body: IAutoMovieMotionHumanBody = setup.body;
+    const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = setup.bones;
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, base.pose);
     const side: "left" | "right" = bones.upper.startsWith("left")
@@ -69,14 +78,17 @@ export namespace HumanArmFrame {
     // Frame part indices keep the audit's own parts first, then each placed
     // external segment once. External parts share no own-body reference or
     // joint exclusions, even when their bone names match the body's.
-    const others: HumanColliders.IPlaced[] = [...new Set(base.others)];
-    const parts: ReadonlyMap<HumanColliders.IPlaced, number> = new Map(
-      others.map(
-        (segment: HumanColliders.IPlaced, i: number) =>
-          [segment, model.parts.length + i] as const,
-      ),
-    );
-    const shapes: G.IShape[] = [];
+    const others: IAutoMovieMotionHumanColliders.IPlaced[] = [
+      ...new Set(base.others),
+    ];
+    const parts: ReadonlyMap<IAutoMovieMotionHumanColliders.IPlaced, number> =
+      new Map(
+        others.map(
+          (segment: IAutoMovieMotionHumanColliders.IPlaced, i: number) =>
+            [segment, model.parts.length + i] as const,
+        ),
+      );
+    const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const segment of [
       ...HumanArmClearance.obstacles(
         body,
@@ -106,8 +118,8 @@ export namespace HumanArmFrame {
     const owners: ("upper" | "lower" | "hand")[] = [];
     const segments: number[] = [];
     const indices: number[] = [];
-    const colliders: G.IFrame["colliders"] = [];
-    const corners: G.IFrame["body"] = [];
+    const colliders: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] = [];
+    const corners: IAutoMovieMotionHumanArmGeometry.IFrame["body"] = [];
     const other: "left" | "right" = side === "left" ? "right" : "left";
     const frames: Record<"upper" | "lower" | "hand", IAutoMovieResolvedBone> = {
       upper: resolved.get(bones.upper)!,
@@ -115,7 +127,7 @@ export namespace HumanArmFrame {
       hand,
     };
     HumanColliders.placed(body, resolved).forEach(
-      (segment: HumanColliders.IPlaced, i: number): void => {
+      (segment: IAutoMovieMotionHumanColliders.IPlaced, i: number): void => {
         const owner: "upper" | "lower" | "hand" | null =
           segment.bone === bones.upper
             ? "upper"
@@ -215,7 +227,7 @@ export namespace HumanArmFrame {
           (_: IAutoMovieVector3, i: number): boolean => owners[i] === owner,
         ),
       );
-    const bounds: G.IFrame["bounds"] = {
+    const bounds: IAutoMovieMotionHumanArmGeometry.IFrame["bounds"] = {
       upper: of("upper"),
       lower: of("lower"),
       hand: of("hand"),
@@ -236,10 +248,11 @@ export namespace HumanArmFrame {
       length +
       Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
       NEAR;
-    const near: G.IFrame["body"] = corners.filter(
-      (c: G.IFrame["body"][number]): boolean =>
-        Vector3.length(Vector3.subtract(c.point, shoulder)) < around,
-    );
+    const near: IAutoMovieMotionHumanArmGeometry.IFrame["body"] =
+      corners.filter(
+        (c: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number]): boolean =>
+          Vector3.length(Vector3.subtract(c.point, shoulder)) < around,
+      );
     return {
       parent: {
         rotation: parent.worldRotation,
@@ -280,4 +293,7 @@ function sphere(points: readonly IAutoMovieVector3[]): {
 }
 
 /** The frames built, by base and then by arm and solve, kept while the base is held. */
-const FRAMES: WeakMap<G.IBase, Map<string, G.IFrame>> = new WeakMap();
+const FRAMES: WeakMap<
+  G.IBase,
+  Map<string, IAutoMovieMotionHumanArmGeometry.IFrame>
+> = new WeakMap();

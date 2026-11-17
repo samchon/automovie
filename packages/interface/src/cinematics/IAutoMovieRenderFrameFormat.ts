@@ -1,4 +1,4 @@
-import { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
+import type { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
 
 /**
  * The output clock and pixel geometry shared by a render and every sidecar

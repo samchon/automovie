@@ -1,12 +1,13 @@
 import type {
+  IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMovieResolveRelationalGoal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { fitPhysicalWholeBodyTarget } from "../physics/fitPhysicalWholeBodyTarget";
-import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
 
 /**
  * Realize a relational goal at one instant: read the target subject's region
@@ -30,24 +31,18 @@ import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 10 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function resolveAutoMovieRelationalGoal(input: {
-  /** The performing subject's id. */ performer: string;
-  /** The goal. */ goal: IAutoMovieRelationalGoal;
-  /** Every subject's body. */ bodies: Readonly<
-    Record<string, resolveAutoMovieRelationalGoal.IBody>
-  >;
-  /** Film seconds. */ seconds: number;
-  /** Positive solver budget, at most 64; 32 by default. */ iterations?: number;
-  /** Residual early-out, metres; 1e-4 by default. */ tolerance?: number;
-  /** Metres of residual per unit approach difference; 0.05 by default. */ approachWeight?: number;
-}): resolveAutoMovieRelationalGoal.IResult {
-  const performer: resolveAutoMovieRelationalGoal.IBody | undefined =
+export function resolveAutoMovieRelationalGoal(
+  input: IAutoMovieResolveRelationalGoal.IInput,
+): IAutoMovieResolveRelationalGoal.IResult {
+  const performer: IAutoMovieResolveRelationalGoal.IBody | undefined =
     input.bodies[input.performer];
-  const target: resolveAutoMovieRelationalGoal.IBody | undefined =
+  const target: IAutoMovieResolveRelationalGoal.IBody | undefined =
     input.bodies[input.goal.target.subject];
   if (!performer || !target)
     throw new Error(`Unknown relational subject of ${input.performer}`);
-  const prior: Record<string, P.ITransform> = performer.pose(input.seconds);
+  const prior: Record<string, IAutoMovieRigidTransform> = performer.pose(
+    input.seconds,
+  );
   const { start, end }: { start: number; end: number } = input.goal.window;
   if (input.seconds < start || input.seconds > end)
     return {
@@ -58,117 +53,55 @@ export function resolveAutoMovieRelationalGoal(input: {
       position: 0,
       approach: 0,
     };
-  const region: resolveAutoMovieRelationalGoal.IRegion | undefined =
+  const region: IAutoMovieResolveRelationalGoal.IRegion | undefined =
     target.regions[input.goal.target.region];
   if (!region)
     throw new Error(
       `Unknown region ${input.goal.target.subject}.${input.goal.target.region}`,
     );
-  const read: Record<string, P.ITransform> = target.pose(
+  const read: Record<string, IAutoMovieRigidTransform> = target.pose(
     input.goal.lock === "freeze" ? start : input.seconds,
   );
-  const pose: P.ITransform = read[region.bone]!;
+  const pose: IAutoMovieRigidTransform = read[region.bone]!;
   const point: IAutoMovieVector3 = Vector3.add(
     pose.position,
     Quaternion.rotateVector(pose.rotation, region.localPoint),
   );
-  const support: resolveAutoMovieRelationalGoal.ISupport = performer.support(
+  const support: IAutoMovieResolveRelationalGoal.ISupport = performer.support(
     input.seconds,
   );
-  const held: P.ITransform = prior[support.bone]!;
-  const fit: fitPhysicalWholeBodyTarget.IResult = fitPhysicalWholeBodyTarget({
-    profile: performer.profile,
-    targets: prior,
-    support: {
-      bone: support.bone,
-      point: Vector3.add(
-        held.position,
-        Quaternion.rotateVector(held.rotation, support.localPoint),
-      ),
-      normal: support.normal,
-      minimum: support.minimum,
-      maximum: support.maximum,
-    },
-    bones: performer.bones,
-    goal: {
-      bone: input.goal.surface.bone,
-      localPoint: input.goal.surface.localPoint,
-      point,
-      ...(input.goal.approach && input.goal.surface.localDirection
-        ? {
-            approach: {
-              localDirection: input.goal.surface.localDirection,
-              direction: input.goal.approach,
-              weight: input.approachWeight ?? 0.05,
-            },
-          }
-        : {}),
-    },
-    iterations: input.iterations ?? 32,
-    tolerance: input.tolerance ?? 1e-4,
-  });
+  const held: IAutoMovieRigidTransform = prior[support.bone]!;
+  const fit: IAutoMovieFitPhysicalWholeBodyTarget.IResult =
+    fitPhysicalWholeBodyTarget({
+      profile: performer.profile,
+      targets: prior,
+      support: {
+        bone: support.bone,
+        point: Vector3.add(
+          held.position,
+          Quaternion.rotateVector(held.rotation, support.localPoint),
+        ),
+        normal: support.normal,
+        minimum: support.minimum,
+        maximum: support.maximum,
+      },
+      bones: performer.bones,
+      goal: {
+        bone: input.goal.surface.bone,
+        localPoint: input.goal.surface.localPoint,
+        point,
+        ...(input.goal.approach && input.goal.surface.localDirection
+          ? {
+              approach: {
+                localDirection: input.goal.surface.localDirection,
+                direction: input.goal.approach,
+                weight: input.approachWeight ?? 0.05,
+              },
+            }
+          : {}),
+      },
+      iterations: input.iterations ?? 32,
+      tolerance: input.tolerance ?? 1e-4,
+    });
   return { ...fit, point, active: true };
-}
-/**
- * Companion types of {@link resolveAutoMovieRelationalGoal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 4 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 4 members (`IRegion`, `ISupport`, `IBody`, `IResult`); units and frames named in its text: frame, metres, world, radians, seconds. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `resolveAutoMovieRelationalGoal` in packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts; its surface is the 4 members listed and the text shows 6 other files naming it, mostly movies (4), packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace resolveAutoMovieRelationalGoal {
-  /** A named point on a body. */
-  export interface IRegion {
-    /** Segment carrying it. */
-    bone: string;
-
-    /** Point in the segment frame, metres. */
-    localPoint: IAutoMovieVector3;
-  }
-
-  /** A held support at an instant. */
-  export interface ISupport {
-    /** Held segment. */
-    bone: string;
-
-    /** Contact point in the segment frame, metres. */
-    localPoint: IAutoMovieVector3;
-
-    /** Unit world contact normal. */
-    normal: IAutoMovieVector3;
-
-    /** Lower turn about the normal, radians. */
-    minimum: number;
-
-    /** Upper turn about the normal, radians. */
-    maximum: number;
-  }
-
-  /** An engine-level body. */
-  export interface IBody {
-    /** Its admitted physical profile. */
-    profile: P;
-
-    /** Its prior world pose of every segment at an instant. */
-    pose(seconds: number): Record<string, P.ITransform>;
-
-    /** Its named regions. */
-    regions: Readonly<Record<string, IRegion>>;
-
-    /** Its held support at an instant, for a performer. */
-    support(seconds: number): ISupport;
-
-    /** Segments a fit may move, for a performer. */
-    bones: readonly string[];
-  }
-
-  /** A realized goal. */
-  export interface IResult extends fitPhysicalWholeBodyTarget.IResult {
-    /** The target's world point, or null outside the window. */
-    point: IAutoMovieVector3 | null;
-
-    /** Whether the instant lies in the window. */
-    active: boolean;
-  }
 }

@@ -4,7 +4,7 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -415,7 +415,7 @@ export class Archetype<
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  public shapes(): IAutoMoviePhysicalProfile.IShape[] {
+  public shapes(): IAutoMoviePhysicalShape[] {
     return ArchetypeShapes.of(this.parts, this.#rest.cells);
   }
 

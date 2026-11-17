@@ -1,3 +1,8 @@
+import type { AutoMovieHumanPopulation as AutoMovieHumanPopulationContract } from "@automovie/interface";
+
+/** The canonical AutoMovieHumanPopulation literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanPopulation = AutoMovieHumanPopulationContract;
+
 /**
  * Reference population associated with the requested survey statistics.
  *
@@ -5,13 +10,11 @@
  *
  * The choice names a body of published survey data, not the person's identity or detailed measurements. It supplies no automatic dimensions or pigmentation.
  */
-export enum AutoMovieHumanPopulation {
+export const AutoMovieHumanPopulation = {
   /** European ancestry, as in the US 3D Facial Norms and the White subsample of US surveys. */
-  European = "european",
-
+  European: "european",
   /** East Asian ancestry, as in Chinese and Korean national surveys. */
-  EastAsian = "eastAsian",
-
+  EastAsian: "eastAsian",
   /** Sub-Saharan African ancestry, as in Kenyan, Nigerian and South African surveys. */
-  African = "african",
-}
+  African: "african",
+} as const satisfies Readonly<Record<string, AutoMovieHumanPopulationContract>>;

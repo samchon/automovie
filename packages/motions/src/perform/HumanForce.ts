@@ -1,13 +1,12 @@
-import {
-  type IAutoMovieImpact,
-  type IAutoMovieImpactBody,
-  Vector3,
-  resolveImpact,
-} from "@automovie/engine";
+import { Vector3, resolveImpact } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
+  AutoMovieHumanForceSite,
+  IAutoMovieImpact,
+  IAutoMovieImpactBodyState,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanImpulse,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -29,62 +28,6 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The impulse of a hit is the engine's `resolveImpact` or the record's own momentum change, not a law's own formula.
  */
 export namespace HumanForce {
-  /** Where a force acts on the body: a surface region, or a point in a bone's frame. */
-  export type At =
-    | AutoMovieHumanoidRegion
-    | { bone: AutoMovieHumanoidBone; point: IAutoMovieVector3 };
-
-  /** An impulse at an instant. */
-  export interface IImpulse {
-    /** The discriminator. */
-    kind: "impulse";
-
-    /** The person it acts on. */
-    subject: string;
-
-    /** Where it acts. */
-    at: At;
-
-    /** Film seconds. */
-    seconds: number;
-
-    /** World newton seconds, on the body. */
-    impulse: IAutoMovieVector3;
-  }
-
-  /** A force sustained over a span. */
-  export interface ISustained {
-    /** The discriminator. */
-    kind: "sustained";
-
-    /** The person it acts on. */
-    subject: string;
-
-    /** Where it acts. */
-    at: At;
-
-    /** Film seconds, start. */
-    from: number;
-
-    /** Film seconds, end. */
-    to: number;
-
-    /** World newtons on the body, constant or a pure function of film seconds. */
-    force: IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3);
-  }
-
-  /** A force of either kind. */
-  export type IForce = IImpulse | ISustained;
-
-  /** The receiver of a hit: its mass and its velocity at the struck point. */
-  export interface IReceiver {
-    /** Kilograms. */
-    mass: number;
-
-    /** World metres per second at the struck point. */
-    velocity: IAutoMovieVector3;
-  }
-
   /**
    * The impulse a hit delivers to the struck person, the only conversion of
    * a hit record into a force (P1, #3480).
@@ -104,14 +47,14 @@ export namespace HumanForce {
    */
   export function ofHit(
     hit: IAutoMovieInteractionEvent,
-    receiver: IReceiver,
-  ): IImpulse | null {
+    receiver: IAutoMovieMotionHumanForce.IReceiver,
+  ): IAutoMovieMotionHumanImpulse | null {
     if (hit.target === null) return null;
-    const at: At = hit.region ?? {
+    const at: AutoMovieHumanForceSite = hit.region ?? {
       bone: hit.bone ?? "hips",
       point: { x: 0, y: 0, z: 0 },
     };
-    const of = (impulse: IAutoMovieVector3): IImpulse => ({
+    const of = (impulse: IAutoMovieVector3): IAutoMovieMotionHumanImpulse => ({
       kind: "impulse",
       subject: hit.target!,
       at,
@@ -126,7 +69,7 @@ export namespace HumanForce {
       );
     if (hit.normal === undefined) return null;
     const still: Pick<
-      IAutoMovieImpactBody,
+      IAutoMovieImpactBodyState,
       "restitution" | "hardness" | "penetrability"
     > = { restitution: 0, hardness: 0, penetrability: 0 };
     const response: IAutoMovieImpact = resolveImpact(
@@ -151,13 +94,13 @@ export namespace HumanForce {
    * @returns The forces, in the order given.
    */
   export function within(
-    forces: readonly IForce[],
+    forces: readonly IAutoMovieMotionHumanForce[],
     subject: string,
     from: number,
     to: number,
-  ): IForce[] {
+  ): IAutoMovieMotionHumanForce[] {
     return forces.filter(
-      (f: IForce): boolean =>
+      (f: IAutoMovieMotionHumanForce): boolean =>
         f.subject === subject &&
         (f.kind === "impulse"
           ? f.seconds >= from && f.seconds <= to
@@ -172,7 +115,10 @@ export namespace HumanForce {
    * @param seconds Film seconds.
    * @returns World newtons; zero outside its span.
    */
-  export function at(force: ISustained, seconds: number): IAutoMovieVector3 {
+  export function at(
+    force: IAutoMovieMotionHumanSustainedForce,
+    seconds: number,
+  ): IAutoMovieVector3 {
     if (seconds < force.from || seconds > force.to) return { x: 0, y: 0, z: 0 };
     return typeof force.force === "function"
       ? force.force(seconds)

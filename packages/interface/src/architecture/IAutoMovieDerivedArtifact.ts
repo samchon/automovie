@@ -1,5 +1,5 @@
-import { IAutoMovieDesignAssetCitation } from "./IAutoMovieDesignAssetCitation";
-import { IAutoMovieDesignStamp } from "./IAutoMovieDesignStamp";
+import type { IAutoMovieDesignAssetCitation } from "./IAutoMovieDesignAssetCitation";
+import type { IAutoMovieDesignStamp } from "./IAutoMovieDesignStamp";
 
 /**
  * One output computed from stable identities under one lineage stamp.

@@ -1,20 +1,20 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  type IAutoMovieFitChainToTargetProps,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  type IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/getConstraint";
-import { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 
 /**
@@ -30,15 +30,15 @@ import { resolveBoneMap } from "./resolveBoneMap";
  */
 export const prepareChainPlant: (
   props: Pick<
-    IFitChainToTargetProps,
+    IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
-) => IPreparedChainPlant | null = (
+) => IAutoMoviePreparedChainPlant | null = (
   props: Pick<
-    IFitChainToTargetProps,
+    IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
-): IPreparedChainPlant | null => {
+): IAutoMoviePreparedChainPlant | null => {
   const { chain }: typeof props = props;
   // The limb at rest under the current parent pose: zero its own articulation
   // so the recovered world rotations carry the torso pose but not the limb's.
@@ -50,13 +50,14 @@ export const prepareChainPlant: (
         j.bone !== chain.upper && j.bone !== chain.lower,
     ),
   };
-  const map: ReturnType<typeof resolveBoneMap> = resolveBoneMap(
-    props.skeleton,
-    zeroed,
-    props.topology,
-    props.jointAxes,
-    props.restFrames,
-  );
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    resolveBoneMap(
+      props.skeleton,
+      zeroed,
+      props.topology,
+      props.jointAxes,
+      props.restFrames,
+    );
   const upper: IAutoMovieResolvedBone | undefined = map.get(chain.upper);
   const lower: IAutoMovieResolvedBone | undefined = map.get(chain.lower);
   const effector: IAutoMovieResolvedBone | undefined = map.get(chain.effector);

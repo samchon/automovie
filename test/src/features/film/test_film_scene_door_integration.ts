@@ -1,7 +1,4 @@
 import {
-  type IAutoMovieForgedProp,
-  type IAutoMovieResolveOutput,
-  type IAutoMovieResolveViolation,
   Matrix4,
   forgeProp,
   resolveFrame,
@@ -9,11 +6,14 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieClip,
+  IAutoMovieForgedProp,
   IAutoMovieNode,
   IAutoMovieProfile,
   IAutoMovieProfileBinding,
   IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
+  IAutoMovieResolveOutput,
+  IAutoMovieResolveViolation,
   IAutoMovieScene,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

@@ -1,18 +1,20 @@
 import { createRelayBaton } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPartner,
   HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,11 +46,11 @@ export function test_archetype_sport_relay(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const ahead: number = (0.75 * body.measure.stature) / average;
     // The baton's +Y on the hand's +Z, its middle where a 0.3 m baton
     // centred on its origin would lie.
-    const prop: IHumanProp = {
+    const prop: IAutoMovieMotionHumanProp = {
       ...HumanObject.prop("baton", baton, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
       worn: {
         subject: "in",
@@ -61,7 +63,7 @@ export function test_archetype_sport_relay(): void {
     };
 
     // 1. It plans.
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "relay",
@@ -86,7 +88,7 @@ export function test_archetype_sport_relay(): void {
         composition: HumanChain.subject("in")
           .run({ to: { x: 0, y: 0, z: 20 }, pace: "jog" })
           .over(
-            (o: HumanChain): HumanChain =>
+            (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               o.registered("relayIncoming", {
                 partner: "out",
                 at,
@@ -98,7 +100,7 @@ export function test_archetype_sport_relay(): void {
             HumanChain.subject("out")
               .run({ to: { x: 0, y: 0, z: 20 + ahead }, pace: "jog" })
               .over(
-                (o: HumanChain): HumanChain =>
+                (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
                   o.registered("relayOutgoing", {
                     partner: "in",
                     at,
@@ -115,7 +117,7 @@ export function test_archetype_sport_relay(): void {
     }
 
     // 2. The baton's front in the outgoing palm.
-    const frame: IHumanProp.IFrame = performance.prop("baton", at);
+    const frame: IAutoMovieRigidTransform = performance.prop("baton", at);
     const end: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, front),

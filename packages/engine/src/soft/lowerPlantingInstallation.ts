@@ -1,12 +1,10 @@
 import {
   AutoMovieSoftAnalysisStatus,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
-  IAutoMoviePlantingInstallation,
+  type IAutoMovieLowerPlantingInstallation,
+  type IAutoMoviePlantingFrame,
   IAutoMovieSoftAnalysis,
 } from "@automovie/interface";
 
-import { IAutoMoviePlantingFrame } from "./IAutoMoviePlantingFrame";
 import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
@@ -22,15 +20,11 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One derived plant serves all returned member placements; recipe, cluster and installation mutation do not have a retained cross-call result cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh tree/placement arrays transfer with the analysis; admission failure returns no geometry and no renderer/native task is acquired.
  */
-export const lowerPlantingInstallation: (props: {
-  installation: IAutoMoviePlantingInstallation;
-  cluster: IAutoMoviePlantingCluster;
-  domain: IAutoMoviePlantingDomain;
-}) => IAutoMoviePlantingFrame = (props: {
-  installation: IAutoMoviePlantingInstallation;
-  cluster: IAutoMoviePlantingCluster;
-  domain: IAutoMoviePlantingDomain;
-}): IAutoMoviePlantingFrame => {
+export const lowerPlantingInstallation: (
+  props: IAutoMovieLowerPlantingInstallation.IProps,
+) => IAutoMoviePlantingFrame = (
+  props: IAutoMovieLowerPlantingInstallation.IProps,
+): IAutoMoviePlantingFrame => {
   const { installation, cluster, domain }: typeof props = props;
   /** Create one recipe-attributed planting derivation status without retaining a partial tree. */
   const analysis: (

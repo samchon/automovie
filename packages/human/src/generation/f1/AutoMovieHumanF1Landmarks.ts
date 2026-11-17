@@ -1,4 +1,5 @@
-import type { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
@@ -27,45 +28,49 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * The frame each would set takes a declared substitute in the frame tree.
  */
 export namespace AutoMovieHumanF1Landmarks {
-  /** A point in the figure's frame, mm. */
-  export type V3 = AutoMovieHumanF1Joints.V3;
-
   /**
    * EL, the lateral humeral epicondyle (Wu et al. 2005, 2.3.4): on the skin's section through the elbow centre (`lowerarm_r`) square to
    * the humerus's long axis (`upperarm_r` to `lowerarm_r`), the extreme along the elbow's flexion axis, the normal of the plane the
    * humerus and the forearm span (the reference's elbow stands flexed 37 degrees, so that plane is defined), on the lateral side.
    */
-  export const epicondyleLateral: V3 = AutoMovieHumanF1Placement.point("epicondyleLateral");
+  export const epicondyleLateral: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("epicondyleLateral");
 
   /** EM, the medial humeral epicondyle: the same section's extreme on the medial side (skin breadth EL to EM 75.0 mm; bony 61.9 +- 4.2 mm). */
-  export const epicondyleMedial: V3 = AutoMovieHumanF1Placement.point("epicondyleMedial");
+  export const epicondyleMedial: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("epicondyleMedial");
 
   /**
    * RS, the radial styloid (Wu et al. 2005, 2.3.6): on the skin's section through the wrist centre (`hand_r`) square to the forearm's
    * long axis (`lowerarm_r` to `hand_r`), the end of the section's diameter nearer the thumb's carpometacarpal joint (`thumb_01_r`).
    * The bistyloid breadth is the wrist's greatest breadth, so the diameter runs between the styloids.
    */
-  export const styloidRadial: V3 = AutoMovieHumanF1Placement.point("styloidRadial");
+  export const styloidRadial: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("styloidRadial");
 
   /** US, the ulnar styloid: the other end of that diameter (skin bistyloid breadth 55.7 mm; bony 49.4 +- 3.3 mm). */
-  export const styloidUlnar: V3 = AutoMovieHumanF1Placement.point("styloidUlnar");
+  export const styloidUlnar: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("styloidUlnar");
 
   /**
    * The lateral femoral epicondyle (Wu et al. 2002, 4.4): on the skin's section through the knee centre (`calf_r`) square to the femur's
    * long axis (`thigh_r` to `calf_r`), the extreme along the hip centres' line (+Z) made square to the femur, on the lateral side. The
    * reference's knee stands extended, so its flexion axis is not read from a bend; the hip centres' line stands for it.
    */
-  export const femoralEpicondyleLateral: V3 = AutoMovieHumanF1Placement.point("femoralEpicondyleLateral");
+  export const femoralEpicondyleLateral: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("femoralEpicondyleLateral");
 
   /** The medial femoral epicondyle: the same section's medial extreme (skin biepicondylar breadth 107.8 mm; bony 90.5 +- 6.0 mm). */
-  export const femoralEpicondyleMedial: V3 = AutoMovieHumanF1Placement.point("femoralEpicondyleMedial");
+  export const femoralEpicondyleMedial: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("femoralEpicondyleMedial");
 
   /**
    * Pternion, the heel's back: the skin vertex farthest behind the ankle centre along the foot's level long axis (the ankle centre to the
    * second toe's metatarsophalangeal joint, `indextoe_01_r`), below the ankle centre, within 30 mm of the foot's sagittal plane through the
    * ankle centre and 150 mm of it; 46.6 mm behind the ankle centre.
    */
-  export const pternion: V3 = AutoMovieHumanF1Placement.point("pternion");
+  export const pternion: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("pternion");
 
   /**
    * IJ, suprasternale, the deepest point of the jugular notch (Wu et al. 2005, 2.3.1): on the median section (z = 0), the front profile's
@@ -73,23 +78,28 @@ export namespace AutoMovieHumanF1Landmarks {
    * profile at the nearer window end. Its height is 0.833 of stature (the skin's highest point, 1,699.7 mm), against ANSUR II women's
    * 0.8164 +- 0.0071 (+2.3 SD).
    */
-  export const suprasternale: V3 = AutoMovieHumanF1Placement.point("suprasternale");
+  export const suprasternale: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("suprasternale");
 
   /** Pronasale, the nose's tip: on the head's median section, the front profile's most anterior point between 1,535 and 1,575 mm high. */
-  export const pronasale: V3 = AutoMovieHumanF1Placement.point("pronasale");
+  export const pronasale: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("pronasale");
 
   /** Nasion, the root of the nose: the front profile's most posterior point from 15 to 50 mm above pronasale. */
-  export const nasion: V3 = AutoMovieHumanF1Placement.point("nasion");
+  export const nasion: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("nasion");
 
   /** Subnasale, where the columella meets the upper lip: the front profile's most posterior point from 22 to 4 mm below pronasale. */
-  export const subnasale: V3 = AutoMovieHumanF1Placement.point("subnasale");
+  export const subnasale: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("subnasale");
 
   /**
    * The base of the third metacarpal, Wu et al. 2005 4.3.4's proximal landmark of the hand's frame: the reference rig's bind joint
    * `middle_metacarpal_r`, read like the joint table (`FamilyConicSource.load`, native centimetres to the figure's frame), rounded to
    * 0.01 mm. The metacarpal's head is the joint table's `middle1`.
    */
-  export const metacarpalBase: V3 = AutoMovieHumanF1Placement.point("metacarpalBase");
+  export const metacarpalBase: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("metacarpalBase");
 
   /**
    * Tragion, read at the tragus's crest: on the head's level section through the concha's deepest point (1,563 mm,
@@ -97,5 +107,6 @@ export namespace AutoMovieHumanF1Landmarks {
    * the notch at the tragus's upper margin, a few millimetres above this crest; the head frame reads it only for its origin, the
    * bitragion midpoint.
    */
-  export const tragion: V3 = AutoMovieHumanF1Placement.point("tragion");
+  export const tragion: AutoMovieVector3Tuple =
+    AutoMovieHumanF1Placement.point("tragion");
 }

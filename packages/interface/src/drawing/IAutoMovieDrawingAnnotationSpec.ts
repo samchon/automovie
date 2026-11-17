@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
+import type { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
 
 /**
  * A note pinned to one feature of the design, authored on a view.

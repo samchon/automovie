@@ -1,14 +1,21 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLegBones,
+  IAutoMovieHumanLegProximal,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanSourceRealization,
+  IAutoMovieHumanWalkPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
-import type { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 import { AutoMovieHumanLegDistal } from "./AutoMovieHumanLegDistal";
 import { AutoMovieHumanLegProximal } from "./AutoMovieHumanLegProximal";
 
 /** A calibration-mm point or a unit course direction. */
-type Vec3 = AutoMovieHumanLegBones.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * One leg as one walk over the femur and the tibia (#3048): straight along
@@ -38,36 +45,6 @@ type Vec3 = AutoMovieHumanLegBones.Vec3;
  * depth sets the knee's turn.
  */
 export namespace AutoMovieHumanLegWalk {
-  /** One site's law, calibration mm. */
-  export interface ISiteLaw {
-    /** Height of the site over the floor. */
-    height: number;
-
-    /** The box's edges from the bone's axis: anterior, toward +Z (lateral on the left leg, medial on the right), posterior (negative), toward -Z (negative). */
-    edges: [number, number, number, number];
-
-    /** The tape there. */
-    girth: number;
-  }
-
-  /**
-   * Public tape laws and optional retained shape rows of the same source.
-   *
-   * @evidence contracts/common.md#principled-implementation Keeps the five public sites distinct from normalized profile rows that author their intervening shape.
-   * @evidence contracts/common.md#clear-and-simple-design A callable lookup and optional names preserve existing callers without a parallel curve owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Intermediate names do not become new measurements or sampled mesh readback.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes published site identities from retained placement/shape proxies.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This callable data contract executes no interpolation.
-   * @evidence contracts/performance.md#reuse-equivalent-work One law supplies public and intermediate sites to the same construction.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the lookup and its finite list for one source definition.
-   */
-  export interface ILaw {
-    /** A named calibration-mm site from the same resolved inputs. */
-    (site: string): ISiteLaw;
-    /** Retained intermediate shape names; the public SITES remain separately identifiable. */
-    intermediate?: readonly string[];
-  }
-
   /** The sites, from the hip down. */
   export const SITES: readonly string[] = [
     "thigh",
@@ -79,19 +56,6 @@ export namespace AutoMovieHumanLegWalk {
 
   /** Control points and ring phases of every section: 256, over four times the reference pack's about 57 spans per leg section (`generalization.md`, Leg), a multiple of 4. */
   export const ORDER: number = 256;
-
-  /** The exact pre-loft leg and the source station of its shared ankle anchor. */
-  export type IDefinition = AutoMovieHumanSiteViewPart.IDefinition & {
-    /** Physical station of bone 2/share 1 in this identical source, mm. */
-    ankleStation: number;
-    /** Same actual parent contact used to author the unmeasured proximal source. */
-    proximal?: AutoMovieHumanLegProximal.IContact;
-    /** Identical measured interval retained by the base, coupled trials/final and ankle consumer. */
-    distal?: ReturnType<typeof AutoMovieHumanLegDistal>;
-  };
-
-  /** The canonical trial/final parent and its own named hip station. */
-  export type IProximalParent = AutoMovieHumanLegProximal.IParent;
 
   /**
    * Prepare the actual leg family once; its retained distal interval serves the foot while the full proximal source is separately assembled.
@@ -106,12 +70,12 @@ export namespace AutoMovieHumanLegWalk {
    */
   export function define(
     name: string,
-    bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
-    law: ILaw,
+    bones: Pick<IAutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
+    law: IAutoMovieHumanLegWalk.ILaw,
     gap: number,
-    parent?: IProximalParent,
-  ): IDefinition {
-    const prepared: AutoMovieHumanWalkPart.ISource | string = source(
+    parent?: IAutoMovieHumanLegProximal.IParent,
+  ): IAutoMovieHumanLegWalk.IDefinition {
+    const prepared: IAutoMovieHumanWalkPart.ISource | string = source(
       name,
       bones,
       law,
@@ -131,7 +95,7 @@ export namespace AutoMovieHumanLegWalk {
           },
         ],
       };
-    const base: IDefinition = {
+    const base: IAutoMovieHumanLegWalk.IDefinition = {
       ...AutoMovieHumanSiteViewPart.define(prepared.input),
       ankleStation: prepared.station(2, 1),
     };
@@ -163,9 +127,9 @@ export namespace AutoMovieHumanLegWalk {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns each trial result; this operation retains no old trial or global cache.
    */
   export function reparent(
-    base: IDefinition,
-    parent: IProximalParent,
-  ): IDefinition {
+    base: IAutoMovieHumanLegWalk.IDefinition,
+    parent: IAutoMovieHumanLegProximal.IParent,
+  ): IAutoMovieHumanLegWalk.IDefinition {
     if (base.part === null) return base;
     const name: string = base.part.name;
     try {
@@ -188,7 +152,7 @@ export namespace AutoMovieHumanLegWalk {
         throw new Error(
           "Actual proximal leg source has no oriented lateral guide",
         );
-      const proximal: AutoMovieHumanLegProximal.IResult =
+      const proximal: IAutoMovieHumanLegProximal.IResult =
         AutoMovieHumanLegProximal.create(
           base.part,
           thigh.station,
@@ -240,11 +204,11 @@ export namespace AutoMovieHumanLegWalk {
    */
   export function create(
     name: string,
-    bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
-    law: ILaw,
+    bones: Pick<IAutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
+    law: IAutoMovieHumanLegWalk.ILaw,
     gap: number,
-    parent?: IProximalParent,
-  ): AutoMovieHumanSiteViewPart.IResult {
+    parent?: IAutoMovieHumanLegProximal.IParent,
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(
       define(name, bones, law, gap, parent),
     );
@@ -267,13 +231,16 @@ export namespace AutoMovieHumanLegWalk {
    */
   export function source(
     name: string,
-    bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
-    law: ILaw,
+    bones: Pick<IAutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">,
+    law: IAutoMovieHumanLegWalk.ILaw,
     gap: number,
-  ): AutoMovieHumanWalkPart.ISource | string {
-    const laws: ISiteLaw[] = SITES.map((s: string): ISiteLaw => law(s));
-    const reach: (l: ISiteLaw) => number = (l: ISiteLaw): number =>
-      Math.max(...l.edges.map(Math.abs));
+  ): IAutoMovieHumanWalkPart.ISource | string {
+    const laws: IAutoMovieHumanLegWalk.ISiteLaw[] = SITES.map(
+      (s: string): IAutoMovieHumanLegWalk.ISiteLaw => law(s),
+    );
+    const reach: (l: IAutoMovieHumanLegWalk.ISiteLaw) => number = (
+      l: IAutoMovieHumanLegWalk.ISiteLaw,
+    ): number => Math.max(...l.edges.map(Math.abs));
     const along: (from: Vec3, to: Vec3, by: number) => Vec3 = (
       from: Vec3,
       to: Vec3,
@@ -335,30 +302,36 @@ export namespace AutoMovieHumanLegWalk {
     // of reading that profile at five sites and replacing it by a sparse
     // angle spline influenced by the two hidden poles. Public tapes remain
     // their own unaltered sites. The intermediate rows are not measurements.
-    const placed: { site: string; law: ISiteLaw }[] = [
+    const placed: { site: string; law: IAutoMovieHumanLegWalk.ISiteLaw }[] = [
       ...SITES,
       ...(law.intermediate ?? []),
     ]
-      .map((site: string): { site: string; law: ISiteLaw } => ({
-        site,
-        law: law(site),
-      }))
+      .map(
+        (
+          site: string,
+        ): { site: string; law: IAutoMovieHumanLegWalk.ISiteLaw } => ({
+          site,
+          law: law(site),
+        }),
+      )
       .sort(
-        (a: { law: ISiteLaw }, b: { law: ISiteLaw }): number =>
-          b.law.height - a.law.height,
+        (
+          a: { law: IAutoMovieHumanLegWalk.ISiteLaw },
+          b: { law: IAutoMovieHumanLegWalk.ISiteLaw },
+        ): number => b.law.height - a.law.height,
       );
-    const sites: AutoMovieHumanWalkPart.ISite[] = placed.map(
+    const sites: IAutoMovieHumanWalkPart.ISite[] = placed.map(
       (site: {
         site: string;
-        law: ISiteLaw;
-      }): AutoMovieHumanWalkPart.ISite => ({
+        law: IAutoMovieHumanLegWalk.ISiteLaw;
+      }): IAutoMovieHumanWalkPart.ISite => ({
         site: site.site,
         ...place(site.law.height),
         edges: median(site.law.height, site.law.edges),
         fullness: { girth: site.law.girth },
       }),
     );
-    const knee: ISiteLaw = laws[SITES.indexOf("knee")]!;
+    const knee: IAutoMovieHumanLegWalk.ISiteLaw = laws[SITES.indexOf("knee")]!;
     return AutoMovieHumanWalkPart.source({
       name,
       centres: [top, bones.hip, bones.knee, bones.ankle, bottom],

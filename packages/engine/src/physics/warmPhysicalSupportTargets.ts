@@ -1,6 +1,7 @@
 import type {
-  IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMoviePhysicalJoint,
+  IAutoMovieRigidTransform,
+  IAutoMovieWarmPhysicalSupportTargets,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -20,47 +21,31 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function warmPhysicalSupportTargets(input: {
-  /** Parent-first, run-owned tree order. */ order: readonly P.ISegment[];
-  /** Declared parent joints, indexed once. */ joints: ReadonlyMap<
-    string,
-    P.IJoint
-  >;
-  /** Run-owned exact descendant sets. */ descendants: ReadonlyMap<
-    string,
-    readonly string[]
-  >;
-  /** Coordinates actually owned by this support fit. */ selected: ReadonlySet<string>;
-  /** Current authored placements before fitting. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Authored placements at the preceding completed reference boundary. */ before: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** The fitted reference at that same boundary. */ previous: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Support endpoints and witnesses defining the fit task. */ pattern: IAutoMovieFootfallPattern;
-  /** Endpoints whose floor witnesses are planted in this fit. */ planted: ReadonlySet<string>;
-  /** The support fit's metre residual tolerance, bounding how far returning posture may move the task. */ tolerance: number;
-}): Record<string, P.ITransform> {
-  const targets: Record<string, P.ITransform> = { ...input.targets };
+export function warmPhysicalSupportTargets(
+  input: IAutoMovieWarmPhysicalSupportTargets.IInput,
+): Record<string, IAutoMovieRigidTransform> {
+  const targets: Record<string, IAutoMovieRigidTransform> = {
+    ...input.targets,
+  };
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
-    const joint: P.IJoint | undefined = input.joints.get(segment.bone);
-    if (!joint || !input.selected.has(segment.bone)) continue;
-    const relative: P.ITransform["rotation"] = projectPhysicalJointRotation(
-      joint,
-      Quaternion.multiply(
-        Quaternion.multiply(
-          physicalJointRelativeRotation(input.targets, joint),
-          Quaternion.inverse(
-            physicalJointRelativeRotation(input.before, joint),
-          ),
-        ),
-        physicalJointRelativeRotation(input.previous, joint),
-      ),
+    const joint: IAutoMoviePhysicalJoint | undefined = input.joints.get(
+      segment.bone,
     );
+    if (!joint || !input.selected.has(segment.bone)) continue;
+    const relative: IAutoMovieRigidTransform["rotation"] =
+      projectPhysicalJointRotation(
+        joint,
+        Quaternion.multiply(
+          Quaternion.multiply(
+            physicalJointRelativeRotation(input.targets, joint),
+            Quaternion.inverse(
+              physicalJointRelativeRotation(input.before, joint),
+            ),
+          ),
+          physicalJointRelativeRotation(input.previous, joint),
+        ),
+      );
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
     for (const bone of descendants)
       if (!owned.has(bone)) {

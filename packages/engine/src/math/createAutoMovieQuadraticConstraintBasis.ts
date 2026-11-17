@@ -1,5 +1,7 @@
-import { IAutoMovieQuadraticConstraintBasis } from "./IAutoMovieQuadraticConstraintBasis";
-import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import type {
+  IAutoMovieQuadraticConstraintBasis,
+  IAutoMovieQuadraticRow,
+} from "@automovie/interface";
 
 /**
  * Factor a working transpose by column-pivoted Householder QR, without A*A'.

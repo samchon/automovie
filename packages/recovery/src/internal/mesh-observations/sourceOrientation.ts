@@ -1,9 +1,12 @@
-import { CutPoint } from "./CutPoint";
-import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh";
-import { Plane } from "./Plane";
-import { Polyline } from "./Polyline";
-import { V2 } from "./V2";
-import { V3 } from "./V3";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshPlaneContour,
+  IAutoMovieMeshPlaneIntersection,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrame,
+} from "@automovie/interface";
+
 import { cross } from "./cross";
 import { dist } from "./dist";
 import { dot } from "./dot";
@@ -26,9 +29,9 @@ import { to2 } from "./to2";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns its source and edge adjacency until its extraction operation ends; it is never globally cached.
  */
 export function sourceOrientation(
-  skin: IAutoMovieRecoveryIndexedMesh,
-  orientation: "signed-volume" | 1 | -1 = "signed-volume",
-): (plane: Plane, polyline: Polyline) => number {
+  skin: Parameters<IAutoMovieMeshSectionOrientation.Operation>[0],
+  orientation: Parameters<IAutoMovieMeshSectionOrientation.Operation>[1] = "signed-volume",
+): ReturnType<IAutoMovieMeshSectionOrientation.Operation> {
   const edges: Map<string, number[]> = new Map();
   const key: (a: number, b: number) => string = (
     a: number,
@@ -57,19 +60,23 @@ export function sourceOrientation(
   const outward: number =
     orientation === "signed-volume" ? Math.sign(volume) : orientation;
   if (!outward) throw new Error("Source orientation has zero signed volume");
-  return (plane: Plane, polyline: Polyline): number => {
+  return (
+    plane: IAutoMoviePlaneFrame,
+    polyline: IAutoMovieMeshPlaneContour,
+  ): number => {
     if (!polyline.closed)
       throw new Error("An open arc does not define a material winding");
     for (let i: number = 0; i < polyline.pts.length; i++) {
-      const a: CutPoint = polyline.pts[i],
-        b: CutPoint = polyline.pts[(i + 1) % polyline.pts.length];
+      const a: IAutoMovieMeshPlaneIntersection = polyline.pts[i],
+        b: IAutoMovieMeshPlaneIntersection =
+          polyline.pts[(i + 1) % polyline.pts.length];
       const other: number[] = edges.get(key(b.a, b.b)) ?? [];
       const triangle: number | undefined = (
         edges.get(key(a.a, a.b)) ?? []
       ).find((t: number): boolean => other.includes(t));
       if (triangle === undefined || dist(a.p, b.p) < 1e-12) continue;
       const t: [number, number, number] = skin.triangles[triangle];
-      const normal: V3 = mul(
+      const normal: AutoMovieVector3Tuple = mul(
         cross(
           sub(skin.vertices[t[1]], skin.vertices[t[0]]),
           sub(skin.vertices[t[2]], skin.vertices[t[0]]),
@@ -83,7 +90,12 @@ export function sourceOrientation(
         return (
           sense *
           Math.sign(
-            signedArea(polyline.pts.map((p: CutPoint): V2 => to2(plane, p.p))),
+            signedArea(
+              polyline.pts.map(
+                (p: IAutoMovieMeshPlaneIntersection): AutoMovieVector2Tuple =>
+                  to2(plane, p.p),
+              ),
+            ),
           )
         );
     }

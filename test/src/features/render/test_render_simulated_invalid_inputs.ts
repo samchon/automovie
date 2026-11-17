@@ -1,7 +1,7 @@
-import { IAutoMovieRenderSubject } from "@automovie/engine";
 import type {
   IAutoMoviePlantingDomain,
   IAutoMovieRenderInventory,
+  IAutoMovieRenderSubject,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

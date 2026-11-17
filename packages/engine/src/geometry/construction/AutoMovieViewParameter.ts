@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieConstructionOutlineParameter } from "@automovie/interface";
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 
@@ -23,8 +23,8 @@ export namespace AutoMovieViewParameter {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a copied record; no input is retained.
    */
   export function prepare(
-    parameter: AutoMovieConstructionOutlineParameter | undefined,
-  ): AutoMovieConstructionOutlineParameter | undefined | string {
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
+  ): IAutoMovieConstructionOutlineParameter | undefined | string {
     if (parameter === undefined) return undefined;
     if (parameter.type === "root")
       return Number.isFinite(parameter.pole) &&
@@ -51,7 +51,7 @@ export namespace AutoMovieViewParameter {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    parameter: AutoMovieConstructionOutlineParameter | undefined,
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): number {
     if (!Number.isFinite(station)) return NaN;
@@ -95,7 +95,7 @@ export namespace AutoMovieViewParameter {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function station(
-    parameter: AutoMovieConstructionOutlineParameter | undefined,
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
     x: number,
   ): number {
     if (parameter === undefined) return x;
@@ -119,7 +119,7 @@ export namespace AutoMovieViewParameter {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns at most a two-number pair and retains nothing.
    */
   export function jet(
-    parameter: AutoMovieConstructionOutlineParameter | undefined,
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
     if (parameter === undefined) return [1, 0];
@@ -155,7 +155,7 @@ export namespace AutoMovieViewParameter {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh pair or null and retains nothing.
    */
   export function inverseJet(
-    parameter: AutoMovieConstructionOutlineParameter | undefined,
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
     if (!Number.isFinite(at(parameter, station))) return null;
@@ -187,8 +187,8 @@ export namespace AutoMovieViewParameter {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only a pair or null and keeps neither parameter record.
    */
   export function transferJet(
-    source: AutoMovieConstructionOutlineParameter | undefined,
-    target: AutoMovieConstructionOutlineParameter | undefined,
+    source: IAutoMovieConstructionOutlineParameter | undefined,
+    target: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
     if (
@@ -271,8 +271,8 @@ function checked(jet: [number, number]): [number, number] | null {
 
 /** Exact map identity compares the actual endpoint data, allowing equal-value copies. */
 function same(
-  source: AutoMovieConstructionOutlineParameter,
-  target: AutoMovieConstructionOutlineParameter | undefined,
+  source: IAutoMovieConstructionOutlineParameter,
+  target: IAutoMovieConstructionOutlineParameter | undefined,
 ): boolean {
   return source.type === "root"
     ? target?.type === "root" &&

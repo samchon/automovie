@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * The closed set of gesture families a `gesture` action names.

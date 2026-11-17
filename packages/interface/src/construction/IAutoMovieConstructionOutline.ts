@@ -1,5 +1,5 @@
-import type { AutoMovieConstructionOutlineParameter } from "./AutoMovieConstructionOutlineParameter";
 import type { IAutoMovieConstructionKnot } from "./IAutoMovieConstructionKnot";
+import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
 import type { IAutoMovieConstructionOutlineRange } from "./IAutoMovieConstructionOutlineRange";
 
 /**
@@ -17,7 +17,7 @@ export interface IAutoMovieConstructionOutline {
   knots: IAutoMovieConstructionKnot[];
 
   /** Optional source parameter; nonzero endpoint values are allowed unless the holding part separately requests radial closure. */
-  parameter?: AutoMovieConstructionOutlineParameter;
+  parameter?: IAutoMovieConstructionOutlineParameter;
 
   /** Optional scalar range on the closed source knot span; this does not constrain a moving world frame or open extensions. */
   range?: IAutoMovieConstructionOutlineRange;

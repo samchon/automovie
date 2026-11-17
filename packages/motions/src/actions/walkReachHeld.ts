@@ -1,15 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { walkFoot } from "./walkFoot";
-import { walkReachStance } from "./walkReachStance";
 import { walkReach } from "./walkReach";
+import { walkReachStance } from "./walkReachStance";
 
 /**
  * A stance course's pelvis over its feet (`walkStanceCourse`): the pelvis
@@ -36,7 +37,7 @@ export namespace walkReachHeld {
    * @returns The pelvis's world rotation and the tilted hip joints.
    */
   export function tilt(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
@@ -87,11 +88,13 @@ export namespace walkReachHeld {
    * @returns The pelvis and each stance as held.
    */
   export function held(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
     course: {
       drop: number;
       pitch: Record<"left" | "right", number>;

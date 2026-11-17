@@ -1,5 +1,4 @@
 import {
-  type IArticulatedRigReader,
   Quaternion,
   Vector3,
   decomposeJointRotationOnBasis,
@@ -8,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
+  IAutoMovieArticulatedRigReader,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -33,7 +33,7 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
  */
 export function QuadrupedPoseAngles(
   rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone>,
-  reader: IArticulatedRigReader<QuadrupedBody.Bone>,
+  reader: IAutoMovieArticulatedRigReader<QuadrupedBody.Bone>,
 ): QuadrupedPosePlan.Lowering {
   const nodes: Map<
     QuadrupedBody.Bone,

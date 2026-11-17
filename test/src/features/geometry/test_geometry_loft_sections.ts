@@ -1,11 +1,11 @@
 import {
-  type IAutoMovieMeshTopology,
   inspectAutoMovieMeshTopology,
   validateMeshTopology,
   validateModel,
 } from "@automovie/engine";
 import {
   IAutoMovieMesh,
+  type IAutoMovieMeshTopology,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";

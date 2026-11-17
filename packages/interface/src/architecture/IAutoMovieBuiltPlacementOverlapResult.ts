@@ -1,4 +1,4 @@
-import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
+import type { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 
 /**
  * The deterministic box-level answer for two named building bodies.

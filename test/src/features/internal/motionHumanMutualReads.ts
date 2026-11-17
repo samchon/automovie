@@ -1,9 +1,13 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -60,9 +64,10 @@ export namespace motionHumanMutualReads {
     victim: motionHumanBody.Name,
   ): string[] {
     const label: string = `${scene} (${attacker} and ${victim})`;
-    const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-    let xia: HumanChain = HumanChain.subject("xia");
-    let yan: HumanChain = HumanChain.subject("yan");
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+      Object.values(HUMAN_LEXICON).flat();
+    let xia: IAutoMovieMotionHumanChain = HumanChain.subject("xia");
+    let yan: IAutoMovieMotionHumanChain = HumanChain.subject("yan");
     if (scene === "held") {
       const press = (other: string) => ({
         target: {
@@ -97,7 +102,7 @@ export namespace motionHumanMutualReads {
       }
     }
     try {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "chokehold",
         laws,
         performers: [

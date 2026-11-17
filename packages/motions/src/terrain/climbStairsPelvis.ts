@@ -1,7 +1,8 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The pelvis's path over a flight of stairs (`climbStairs`): between the
@@ -44,7 +45,7 @@ export namespace climbStairsPelvis {
    */
   export function of(
     stance: readonly IAutoMovieVector3[],
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     steps: number,
     duration: number,
   ): (seconds: number) => IAutoMovieVector3 {

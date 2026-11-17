@@ -1,9 +1,11 @@
 import {
-  type IAutoMovieRenderTextureResidency,
-  type IAutoMovieRenderTextureSource,
   autoMovieRenderTextureDigest,
   measureAutoMovieRenderTextureClosure,
 } from "@automovie/engine";
+import type {
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

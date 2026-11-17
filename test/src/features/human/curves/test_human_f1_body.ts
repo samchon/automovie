@@ -1,4 +1,5 @@
 import { AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
 /**
  * f1's sewn body as `AutoMovieHumanF1.create()` generates it, against what a body is.
@@ -16,18 +17,27 @@ import { AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
  */
 export function test_human_f1_body(): void {
   const failures: string[] = [];
-  const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+  const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
 
   // 1. One piece, no diagnostic.
-  if (pieces.length !== 1 || pieces[0]!.name !== "body") failures.push(`pieces: ${pieces.map((piece: AutoMovieHumanF1.IPiece): string => piece.name).join(", ")}`);
-  const body: AutoMovieHumanF1.IPiece = pieces[0]!;
-  if (body.diagnostics.length !== 0) failures.push(`${body.diagnostics.length} diagnostics: ${body.diagnostics.slice(0, 3).join(" | ").slice(0, 600)}`);
+  if (pieces.length !== 1 || pieces[0]!.name !== "body")
+    failures.push(
+      `pieces: ${pieces.map((piece: IAutoMovieHumanF1.IPiece): string => piece.name).join(", ")}`,
+    );
+  const body: IAutoMovieHumanF1.IPiece = pieces[0]!;
+  if (body.diagnostics.length !== 0)
+    failures.push(
+      `${body.diagnostics.length} diagnostics: ${body.diagnostics.slice(0, 3).join(" | ").slice(0, 600)}`,
+    );
   if (body.indices.length === 0) failures.push("the body has no triangle");
 
   // 2. Closed and connected.
   const count: number = body.positions.length / 3;
   const uses: Map<number, number> = new Map();
-  const parent: number[] = Array.from({ length: count }, (_: unknown, i: number): number => i);
+  const parent: number[] = Array.from(
+    { length: count },
+    (_: unknown, i: number): number => i,
+  );
   const find = (i: number): number => {
     let root: number = i;
     while (parent[root] !== root) root = parent[root]!;
@@ -52,21 +62,40 @@ export function test_human_f1_body(): void {
     if (used === 1) ++open;
     if (used > 2) ++over;
   }
-  if (open !== 0 || over !== 0) failures.push(`skin: ${open} edges used once and ${over} used more than twice, of ${uses.size}`);
+  if (open !== 0 || over !== 0)
+    failures.push(
+      `skin: ${open} edges used once and ${over} used more than twice, of ${uses.size}`,
+    );
   const components: Set<number> = new Set();
-  for (let t: number = 0; t < body.indices.length; t += 3) components.add(find(body.indices[t]!));
-  if (components.size !== 1) failures.push(`the triangles form ${components.size} components`);
+  for (let t: number = 0; t < body.indices.length; t += 3)
+    components.add(find(body.indices[t]!));
+  if (components.size !== 1)
+    failures.push(`the triangles form ${components.size} components`);
 
   // 3. Size, mm.
-  const bound = (axis: number, pick: (...values: number[]) => number): number => {
+  const bound = (
+    axis: number,
+    pick: (...values: number[]) => number,
+  ): number => {
     let value: number = body.positions[axis]!;
-    for (let i: number = axis; i < body.positions.length; i += 3) value = pick(value, body.positions[i]!);
+    for (let i: number = axis; i < body.positions.length; i += 3)
+      value = pick(value, body.positions[i]!);
     return value * 1000;
   };
-  const crown: number = AutoMovieHumanF1Joints.axisFloor[1] + AutoMovieHumanF1.BODY.trunk.tips![1]!.tip;
-  if (!(Math.abs(bound(1, Math.max) - crown) <= 1)) failures.push(`the crown stands at ${bound(1, Math.max)} mm, the trunk's tip at ${crown} mm`);
-  if (!(Math.abs(bound(1, Math.min)) <= 5)) failures.push(`the soles stand at ${bound(1, Math.min)} mm`);
-  if (!(Math.abs(bound(2, Math.max) + bound(2, Math.min)) <= 2)) failures.push(`the sides reach ${bound(2, Math.max)} and ${bound(2, Math.min)} mm`);
+  const crown: number =
+    AutoMovieHumanF1Joints.axisFloor[1] +
+    AutoMovieHumanF1.BODY.trunk.tips![1]!.tip;
+  if (!(Math.abs(bound(1, Math.max) - crown) <= 1))
+    failures.push(
+      `the crown stands at ${bound(1, Math.max)} mm, the trunk's tip at ${crown} mm`,
+    );
+  if (!(Math.abs(bound(1, Math.min)) <= 5))
+    failures.push(`the soles stand at ${bound(1, Math.min)} mm`);
+  if (!(Math.abs(bound(2, Math.max) + bound(2, Math.min)) <= 2))
+    failures.push(
+      `the sides reach ${bound(2, Math.max)} and ${bound(2, Math.min)} mm`,
+    );
 
-  if (failures.length > 0) throw new Error("human f1 body:\n" + failures.join("\n"));
+  if (failures.length > 0)
+    throw new Error("human f1 body:\n" + failures.join("\n"));
 }

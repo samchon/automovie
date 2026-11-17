@@ -1,10 +1,11 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
-import type { HumanHand } from "../posture/HumanHand";
 
 /**
  * An arm's joint angles and their reader: what an arm carried in joint
@@ -18,31 +19,6 @@ import type { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each triple is the posture's own joint triple, so it is written back without conversion.
  */
 export namespace AutoMovieMotionHumanArmAngles {
-  /**
-   * One arm's joint angles: the clinical flexion, abduction and twist of the
-   * upper arm, the forearm and the hand, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which joints are held, the order of each triple and the unit.
-   * @evidence contracts/development/design.md#principled-representation An arm that travels freely is described by its joint angles, the coordinates a free arm movement is smooth in (Soechting and Lacquaniti 1981).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, the three joints the arm channel owns; read by `angles` and `carry`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Each triple is the posture's own joint triple, so it is written back without conversion.
-   */
-  export interface IAngles {
-    /** The upper arm's flexion, abduction and twist. */
-    upper: readonly [number, number, number];
-
-    /** The forearm's flexion, abduction and twist. */
-    lower: readonly [number, number, number];
-
-    /** The hand's flexion, abduction and twist. */
-    hand: readonly [number, number, number];
-
-    /** The fingers' joints of that hand as the arm holds them, read off the pose with the arm; the posture's own when absent. */
-    fingers?: Readonly<
-      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
-    >;
-  }
-
   /**
    * An arm's joint angles read off a solved pose.
    *
@@ -58,7 +34,10 @@ export namespace AutoMovieMotionHumanArmAngles {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing computed twice.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function angles(pose: IAutoMoviePose, side: HumanHand.Side): IAngles {
+  export function angles(
+    pose: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
     const read = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {

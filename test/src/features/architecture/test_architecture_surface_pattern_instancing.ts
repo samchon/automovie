@@ -1,15 +1,15 @@
 import {
-  type IAutoMoviePatternInstancing,
-  type IAutoMoviePatternPlacement,
-  type IAutoMoviePatternPoint,
-  type IAutoMovieSurfacePatternResult,
   Quaternion,
   autoMoviePatternInstanceTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
+  IAutoMoviePatternInstancing,
+  IAutoMoviePatternPlacement,
+  IAutoMoviePatternPoint,
   IAutoMovieQuaternion,
+  IAutoMovieSurfacePatternResult,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

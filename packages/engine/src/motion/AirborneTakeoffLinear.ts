@@ -1,5 +1,6 @@
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -7,7 +8,6 @@ import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
-import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /**
  * The linearized shooting relation `angle = turning L - lagging` in the
@@ -26,7 +26,10 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the two returned numerical arrays escape; no cache or process is owned here.
  */
 export function AirborneTakeoffLinear(
-  props: Pick<solveAirborneTakeoff.IProps, "history" | "t0" | "t1" | "h">,
+  props: Pick<
+    IAutoMovieSolveAirborneTakeoff.IProps,
+    "history" | "t0" | "t1" | "h"
+  >,
   into: IAutoMovieQuaternion,
 ): { turning: number[][]; lagging: number[] } {
   const step: number = props.h ?? integrateMotionTrajectory.STEP;

@@ -1,9 +1,7 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
 } from "@automovie/interface";
 
@@ -30,9 +28,22 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  */
 export function test_construction_continuation_band(): void {
   const failures: string[] = [];
-  const host: IAutoMovieConstructionView = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
-  const part: IAutoMovieConstructionView = { ...ConstructionShapes.cylinder("neck", { ...ConstructionShapes.DOWN, origin: { x: 0, y: 0, z: -0.1 } }, 0.015, 0.06), order: 32 };
-  const tree = (band: boolean): AutoMovieConstructionNode => ({
+  const host: IAutoMovieConstructionView = ConstructionShapes.cylinder(
+    "trunk",
+    ConstructionShapes.DOWN,
+    0.02,
+    0.1,
+  );
+  const part: IAutoMovieConstructionView = {
+    ...ConstructionShapes.cylinder(
+      "neck",
+      { ...ConstructionShapes.DOWN, origin: { x: 0, y: 0, z: -0.1 } },
+      0.015,
+      0.06,
+    ),
+    order: 32,
+  };
+  const tree = (band: boolean): IAutoMovieConstructionNode => ({
     type: "continue",
     name: "join.neck",
     host,
@@ -45,29 +56,56 @@ export function test_construction_continuation_band(): void {
   });
 
   // 1. Without a band.
-  const plain: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "plain", root: tree(false) }, { chord: 1e-4 });
-  if (plain.diagnostics.length === 0) failures.push("unequal orders without a band were not refused, so the case does not test the band");
+  const plain: IAutoMovieConstructionRealization.IRealization =
+    realizeAutoMovieConstruction(
+      { name: "plain", root: tree(false) },
+      { chord: 1e-4 },
+    );
+  if (plain.diagnostics.length === 0)
+    failures.push(
+      "unequal orders without a band were not refused, so the case does not test the band",
+    );
 
   // 2. With a band.
-  const banded: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "banded", root: tree(true) }, { chord: 1e-4 });
-  if (banded.diagnostics.length !== 0) failures.push(`band: diagnostics ${JSON.stringify(banded.diagnostics)}`);
+  const banded: IAutoMovieConstructionRealization.IRealization =
+    realizeAutoMovieConstruction(
+      { name: "banded", root: tree(true) },
+      { chord: 1e-4 },
+    );
+  if (banded.diagnostics.length !== 0)
+    failures.push(`band: diagnostics ${JSON.stringify(banded.diagnostics)}`);
   const m = banded.mesh;
-  const at = (v: number): number[] => [m.positions[3 * v]!, m.positions[3 * v + 1]!, m.positions[3 * v + 2]!];
-  const key = (v: number): string => at(v).map((x: number): number => Math.round(x * 1e8)).join(",");
+  const at = (v: number): number[] => [
+    m.positions[3 * v]!,
+    m.positions[3 * v + 1]!,
+    m.positions[3 * v + 2]!,
+  ];
+  const key = (v: number): string =>
+    at(v)
+      .map((x: number): number => Math.round(x * 1e8))
+      .join(",");
   const edges: Map<string, { ends: number[]; triangles: number[] }> = new Map();
   for (let t: number = 0; t < m.indices.length; t += 3)
     for (let k: number = 0; k < 3; ++k) {
       const [a, b] = [m.indices[t + k]!, m.indices[t + ((k + 1) % 3)]!];
-      const id: string = [key(a), key(b)].sort((x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0)).join("/");
+      const id: string = [key(a), key(b)]
+        .sort((x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0))
+        .join("/");
       const edge = edges.get(id) ?? { ends: [a, b], triangles: [] };
       edge.triangles.push(t);
       edges.set(id, edge);
     }
   const normal = (t: number): number[] => {
-    const [p, q, r] = [0, 1, 2].map((k: number): number[] => at(m.indices[t + k]!)) as [number[], number[], number[]];
+    const [p, q, r] = [0, 1, 2].map((k: number): number[] =>
+      at(m.indices[t + k]!),
+    ) as [number[], number[], number[]];
     const u: number[] = [q[0]! - p[0]!, q[1]! - p[1]!, q[2]! - p[2]!];
     const w: number[] = [r[0]! - p[0]!, r[1]! - p[1]!, r[2]! - p[2]!];
-    const n: number[] = [u[1]! * w[2]! - u[2]! * w[1]!, u[2]! * w[0]! - u[0]! * w[2]!, u[0]! * w[1]! - u[1]! * w[0]!];
+    const n: number[] = [
+      u[1]! * w[2]! - u[2]! * w[1]!,
+      u[2]! * w[0]! - u[0]! * w[2]!,
+      u[0]! * w[1]! - u[1]! * w[0]!,
+    ];
     const l: number = Math.hypot(n[0]!, n[1]!, n[2]!);
     return n.map((x: number): number => x / l);
   };
@@ -76,15 +114,45 @@ export function test_construction_continuation_band(): void {
   for (const edge of edges.values()) {
     const z: number[] = edge.ends.map((v: number): number => at(v)[2]!);
     if (edge.triangles.length === 1) {
-      if (!z.every((x: number): boolean => Math.abs(x) < 1e-9 || Math.abs(x + 0.16) < 1e-9)) ++open;
+      if (
+        !z.every(
+          (x: number): boolean =>
+            Math.abs(x) < 1e-9 || Math.abs(x + 0.16) < 1e-9,
+        )
+      )
+        ++open;
       continue;
     }
-    const onRing: boolean = z.every((x: number): boolean => Math.abs(x + 0.1) < 1e-7) || z.every((x: number): boolean => Math.abs(x + 0.13) < 1e-7);
+    const onRing: boolean =
+      z.every((x: number): boolean => Math.abs(x + 0.1) < 1e-7) ||
+      z.every((x: number): boolean => Math.abs(x + 0.13) < 1e-7);
     if (!onRing || edge.triangles.length !== 2) continue;
-    const [n1, n2] = [normal(edge.triangles[0]!), normal(edge.triangles[1]!)] as [number[], number[]];
-    fold = Math.max(fold, (Math.acos(Math.max(-1, Math.min(1, n1[0]! * n2[0]! + n1[1]! * n2[1]! + n1[2]! * n2[2]!))) * 180) / Math.PI);
+    const [n1, n2] = [
+      normal(edge.triangles[0]!),
+      normal(edge.triangles[1]!),
+    ] as [number[], number[]];
+    fold = Math.max(
+      fold,
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, n1[0]! * n2[0]! + n1[1]! * n2[1]! + n1[2]! * n2[2]!),
+        ),
+      ) *
+        180) /
+        Math.PI,
+    );
   }
-  if (open !== 0) failures.push(`band: ${open} edges are open away from the free ends, so a ring is not shared`);
-  if (!(fold < 4)) failures.push(`band: the skin folds by ${fold.toFixed(2)} degrees across a ring, not G1`);
-  if (failures.length !== 0) throw new Error(`${failures.length} continuation band failures:\n${failures.join("\n")}`);
+  if (open !== 0)
+    failures.push(
+      `band: ${open} edges are open away from the free ends, so a ring is not shared`,
+    );
+  if (!(fold < 4))
+    failures.push(
+      `band: the skin folds by ${fold.toFixed(2)} degrees across a ring, not G1`,
+    );
+  if (failures.length !== 0)
+    throw new Error(
+      `${failures.length} continuation band failures:\n${failures.join("\n")}`,
+    );
 }

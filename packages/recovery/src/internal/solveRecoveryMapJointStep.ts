@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryMapDesignSolutionOperation,
+  IAutoMovieRecoveryMapJointPreparation,
+  IAutoMovieRecoveryMapJointStepSolutionOperation,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
-import type { IAutoMovieRecoveryMapJointPreparation } from "../structures/internal/IAutoMovieRecoveryMapJointPreparation";
-import type { IAutoMovieRecoveryMapJointStep } from "../structures/internal/IAutoMovieRecoveryMapJointStep";
 import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
@@ -24,12 +25,12 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Camera/point steps and scalar diagnostics transfer. Explicit metric retention additionally holds O(L*C+C^2) owned current factors/scales for the feasible consumer; ordinary calls retain none. No borrowed observations, global cache or external handles remain.
  */
 export function solveRecoveryMapJointStep(
-  blocks: readonly IAutoMovieRecoveryMapJointBlock[],
-  minimumRatio: number,
-  damping: number,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-  retainMetric: boolean = false,
-): IAutoMovieRecoveryMapJointStep {
+  blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0],
+  minimumRatio: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[1],
+  damping: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[2],
+  budget: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[3],
+  retainMetric: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[4] = false,
+): ReturnType<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation> {
   if (!(damping >= 0) || !Number.isFinite(damping))
     throw new Error("camera-map: bounded joint blocks required");
   const prepared: IAutoMovieRecoveryMapJointPreparation =
@@ -42,7 +43,7 @@ export function solveRecoveryMapJointStep(
   const eliminate: IAutoMovieRecoveryMapJointPreparation["eliminate"] =
     prepared.eliminate;
   const original: ReturnType<typeof eliminate> = eliminate(0);
-  const qualified: ReturnType<typeof solveRecoveryMapDesign> =
+  const qualified: ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> =
     solveRecoveryMapDesign(
       original.rows,
       original.right,
@@ -52,7 +53,7 @@ export function solveRecoveryMapJointStep(
     );
   const damped: ReturnType<typeof eliminate> =
     damping > 0 ? eliminate(damping) : original;
-  const solution: ReturnType<typeof solveRecoveryMapDesign> =
+  const solution: ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> =
     damping > 0
       ? solveRecoveryMapDesign(damped.rows, damped.right, 0, 0, budget)
       : qualified;

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanMouthPrior } from "@automovie/interface";
+
 /**
  * Published anatomy the mouth's interior is generated from, shared by every
  * person. Lengths are millimetres of an adult; a person's own head sets where
@@ -23,47 +25,124 @@
  *   84:1-28).
  */
 export namespace AutoMovieHumanMouthPrior {
-  /** One tooth's crown, millimetres. */
-  export interface ITooth {
-    /** Name within its quadrant. */
-    name: string;
-
-    /** Mesiodistal crown width, along the arch. */
-    width: number;
-
-    /** Labiolingual or buccolingual crown depth, across the arch. */
-    depth: number;
-
-    /** Cervicoincisal or cervico-occlusal crown height. */
-    height: number;
-
-    /** Mesiodistal width at the cervical line, where the crown meets the gum. */
-    neck: number;
-
-    /** Kind of crown: a blade, a cusp or a table. */
-    kind: "incisor" | "canine" | "premolar" | "molar";
-  }
-
   /** Maxillary quadrant, central incisor first (Wheeler Table 1-1). */
-  export const UPPER: readonly ITooth[] = [
-    { name: "centralIncisor", width: 8.5, depth: 7.0, height: 10.5, neck: 7.0, kind: "incisor" },
-    { name: "lateralIncisor", width: 6.5, depth: 6.0, height: 9.0, neck: 5.0, kind: "incisor" },
-    { name: "canine", width: 7.5, depth: 8.0, height: 10.0, neck: 5.5, kind: "canine" },
-    { name: "firstPremolar", width: 7.0, depth: 9.0, height: 8.5, neck: 5.0, kind: "premolar" },
-    { name: "secondPremolar", width: 6.5, depth: 9.0, height: 8.5, neck: 5.0, kind: "premolar" },
-    { name: "firstMolar", width: 10.0, depth: 11.0, height: 7.5, neck: 8.0, kind: "molar" },
-    { name: "secondMolar", width: 9.0, depth: 11.0, height: 7.0, neck: 7.0, kind: "molar" },
+  export const UPPER: readonly IAutoMovieHumanMouthPrior.ITooth[] = [
+    {
+      name: "centralIncisor",
+      width: 8.5,
+      depth: 7.0,
+      height: 10.5,
+      neck: 7.0,
+      kind: "incisor",
+    },
+    {
+      name: "lateralIncisor",
+      width: 6.5,
+      depth: 6.0,
+      height: 9.0,
+      neck: 5.0,
+      kind: "incisor",
+    },
+    {
+      name: "canine",
+      width: 7.5,
+      depth: 8.0,
+      height: 10.0,
+      neck: 5.5,
+      kind: "canine",
+    },
+    {
+      name: "firstPremolar",
+      width: 7.0,
+      depth: 9.0,
+      height: 8.5,
+      neck: 5.0,
+      kind: "premolar",
+    },
+    {
+      name: "secondPremolar",
+      width: 6.5,
+      depth: 9.0,
+      height: 8.5,
+      neck: 5.0,
+      kind: "premolar",
+    },
+    {
+      name: "firstMolar",
+      width: 10.0,
+      depth: 11.0,
+      height: 7.5,
+      neck: 8.0,
+      kind: "molar",
+    },
+    {
+      name: "secondMolar",
+      width: 9.0,
+      depth: 11.0,
+      height: 7.0,
+      neck: 7.0,
+      kind: "molar",
+    },
   ];
 
   /** Mandibular quadrant, central incisor first (Wheeler Table 1-1). */
-  export const LOWER: readonly ITooth[] = [
-    { name: "centralIncisor", width: 5.0, depth: 6.0, height: 9.0, neck: 3.5, kind: "incisor" },
-    { name: "lateralIncisor", width: 5.5, depth: 6.5, height: 9.5, neck: 4.0, kind: "incisor" },
-    { name: "canine", width: 7.0, depth: 7.5, height: 11.0, neck: 5.5, kind: "canine" },
-    { name: "firstPremolar", width: 7.0, depth: 7.5, height: 8.5, neck: 5.0, kind: "premolar" },
-    { name: "secondPremolar", width: 7.0, depth: 8.0, height: 8.0, neck: 5.0, kind: "premolar" },
-    { name: "firstMolar", width: 11.0, depth: 10.5, height: 7.5, neck: 9.0, kind: "molar" },
-    { name: "secondMolar", width: 10.5, depth: 10.0, height: 7.0, neck: 8.0, kind: "molar" },
+  export const LOWER: readonly IAutoMovieHumanMouthPrior.ITooth[] = [
+    {
+      name: "centralIncisor",
+      width: 5.0,
+      depth: 6.0,
+      height: 9.0,
+      neck: 3.5,
+      kind: "incisor",
+    },
+    {
+      name: "lateralIncisor",
+      width: 5.5,
+      depth: 6.5,
+      height: 9.5,
+      neck: 4.0,
+      kind: "incisor",
+    },
+    {
+      name: "canine",
+      width: 7.0,
+      depth: 7.5,
+      height: 11.0,
+      neck: 5.5,
+      kind: "canine",
+    },
+    {
+      name: "firstPremolar",
+      width: 7.0,
+      depth: 7.5,
+      height: 8.5,
+      neck: 5.0,
+      kind: "premolar",
+    },
+    {
+      name: "secondPremolar",
+      width: 7.0,
+      depth: 8.0,
+      height: 8.0,
+      neck: 5.0,
+      kind: "premolar",
+    },
+    {
+      name: "firstMolar",
+      width: 11.0,
+      depth: 10.5,
+      height: 7.5,
+      neck: 9.0,
+      kind: "molar",
+    },
+    {
+      name: "secondMolar",
+      width: 10.5,
+      depth: 10.0,
+      height: 7.0,
+      neck: 8.0,
+      kind: "molar",
+    },
   ];
 
   /**

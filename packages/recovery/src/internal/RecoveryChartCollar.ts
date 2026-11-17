@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
+
 /**
  * Partition one unit UV square into an affine boundary collar and local leaves.
  * Side knots are bottom, right, top and left, increasing in chart u or v.
@@ -22,33 +24,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Side cuts are collected once, and the leaf map resolves each sequential split without searching or rebuilding unrelated roots. There is no cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call owns knot-derived cut arrays and at most maxLeaves leaf records. Temporary maps expire on return or throw; returned bounds are newly owned arrays and inputs are never retained or mutated.
  */
-export function RecoveryChartCollar(input: {
-  /** Four strict increasing unit knot arrays, including both endpoints. */
-  knots: readonly [
-    readonly number[],
-    readonly number[],
-    readonly number[],
-    readonly number[],
-  ];
-  /** Positive safe bound on both the initial and every resulting leaf count. */
-  maxLeaves: number;
-  /** Sequential split requests addressed to the currently retained leaf IDs. */
-  splits?: readonly { leaf: string; axis: 0 | 1; parameter: number }[];
-}): {
-  /** Global UV coordinates separating corners, side bands and center. */
-  frame: { uL: number; uR: number; vD: number; vU: number };
-  /** Deterministic map order, with children appended when their parent is split. */
-  leaves: {
-    id: string;
-    root: string;
-    level: number;
-    bounds: [number, number, number, number];
-  }[];
-  /** Count before applying any explicit split requests. */
-  initialLeaves: number;
-  /** Source-free construction qualifications; validity failures throw. */
-  diagnostics: string[];
-} {
+export function RecoveryChartCollar(
+  input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartCollar.Operation> {
   if (
     !input ||
     !Array.isArray(input.knots) ||
@@ -108,7 +86,7 @@ export function RecoveryChartCollar(input: {
   }
   const leaves: Map<
     string,
-    ReturnType<typeof RecoveryChartCollar>["leaves"][number]
+    ReturnType<IAutoMovieRecoveryChartCollar.Operation>["leaves"][number]
   > = new Map();
   const roots: { id: string; bounds: [number, number, number, number] }[] = [
     { id: "corner.bottom-left", bounds: [0, uL, 0, vD] },
@@ -162,7 +140,7 @@ export function RecoveryChartCollar(input: {
         "A collar split needs a retained leaf, an axis and a finite global parameter",
       );
     const parent:
-      | ReturnType<typeof RecoveryChartCollar>["leaves"][number]
+      | ReturnType<IAutoMovieRecoveryChartCollar.Operation>["leaves"][number]
       | undefined = leaves.get(split.leaf);
     if (!parent)
       throw new Error(

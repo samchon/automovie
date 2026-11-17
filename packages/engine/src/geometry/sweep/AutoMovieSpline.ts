@@ -1,3 +1,5 @@
+import type { IAutoMovieSpline } from "@automovie/interface";
+
 /** Tension below which a segment is evaluated as the plain cubic, where the hyperbolic form loses precision. */
 const CUBIC: number = 1e-4;
 
@@ -68,8 +70,8 @@ export namespace AutoMovieSpline {
     ys: ArrayLike<number>,
     n: number,
     period: number,
-    m: { [index: number]: number },
-    scratch: { [index: number]: number },
+    m: IAutoMovieSpline.IFitM,
+    scratch: IAutoMovieSpline.IFitScratch,
   ): number {
     if (n < 3 && period === 0) {
       for (let k: number = 0; k < n; ++k) m[k] = 0;

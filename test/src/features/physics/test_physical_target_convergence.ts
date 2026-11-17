@@ -4,6 +4,8 @@ import {
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
@@ -24,7 +26,8 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A quarter-millimetre hinge endpoint reaches its admissible target within 0.1 mm.).
  */
 export function test_physical_target_convergence(): void {
-  const segment: P.ISegment = PhysicalFixtures.sphere().segments[0]!;
+  const segment: IAutoMoviePhysicalSegment =
+    PhysicalFixtures.sphere().segments[0]!;
   const profile: P = {
     id: "small-lever",
     mass: 2,
@@ -63,11 +66,13 @@ export function test_physical_target_convergence(): void {
       },
     ],
   };
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((item: P.ISegment): [string, P.ITransform] => [
-      item.bone,
-      structuredClone(item.neutral),
-    ]),
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (item: IAutoMoviePhysicalSegment): [string, IAutoMovieRigidTransform] => [
+        item.bone,
+        structuredClone(item.neutral),
+      ],
+    ),
   );
   const initial: string = JSON.stringify(targets);
   const point: V = { x: 0.00025, y: 0, z: 0 };
@@ -83,7 +88,9 @@ export function test_physical_target_convergence(): void {
       targets,
       iterations: 64,
       tolerance: 0.0001,
-      measure: (poses: Readonly<Record<string, P.ITransform>>): number[] => {
+      measure: (
+        poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+      ): number[] => {
         const difference: V = Vector3.subtract(
           physicalSupportPoint(poses.child!, point),
           goal,

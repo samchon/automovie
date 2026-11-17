@@ -1,11 +1,14 @@
 import {
   advancePhysicalBalance as Balance,
-  AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
   trackPhysicalWorld,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,8 +31,10 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 export async function test_physical_recovery_release(): Promise<void> {
   await RAPIER.init();
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 1);
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(profile, 1);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1);
   Object.assign(input, {
     gravity: { x: 0, y: -9.81, z: 0 },
     substeps: 4,
@@ -50,7 +55,7 @@ export async function test_physical_recovery_release(): Promise<void> {
       input,
       false,
     );
-    const state: Balance.IState = {
+    const state: IAutoMoviePhysicalRecoveryState = {
       last: "unrecoverable",
       failedLanding: true,
       lostSince: 0,
@@ -81,7 +86,8 @@ export async function test_physical_recovery_release(): Promise<void> {
   } finally {
     world.free();
   }
-  const floorInput: Simulation.IInput = structuredClone(input);
+  const floorInput: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   floorInput.floor = 0;
   const landed: World = new RAPIER.World(floorInput.gravity);
   try {
@@ -97,7 +103,7 @@ export async function test_physical_recovery_release(): Promise<void> {
       false,
     );
     for (let step: number = 0; step < 4; step++) landed.step();
-    const state: Balance.IState = {
+    const state: IAutoMoviePhysicalRecoveryState = {
       last: "unrecoverable",
       failedLanding: true,
       lostSince: 0,

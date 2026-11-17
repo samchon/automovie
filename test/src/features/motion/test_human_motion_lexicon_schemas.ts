@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanLexiconSchemas } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HUMAN_LEXICON_SCHEMAS,
@@ -43,7 +44,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  */
 export function test_human_motion_lexicon_schemas(): void {
   const complaints: string[] = [];
-  type ISchema = HUMAN_LEXICON_SCHEMAS.ISchema;
+  type ISchema = IAutoMovieMotionHumanLexiconSchemas.ISchema;
   const resolved = (schema: ISchema | undefined): ISchema | undefined =>
     schema?.$ref === undefined
       ? schema

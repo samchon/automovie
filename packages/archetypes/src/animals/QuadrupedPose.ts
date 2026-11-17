@@ -1,5 +1,4 @@
 import {
-  type IArticulatedRigReader,
   Quaternion,
   Vector3,
   prepareArticulatedRig,
@@ -8,6 +7,7 @@ import {
 import type {
   IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
+  IAutoMovieArticulatedRigReader,
   IAutoMovieConstraintViolation,
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -67,7 +67,7 @@ export function QuadrupedPose<Id extends string, Dimension extends string>(
     );
   const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
     QuadrupedSkeleton.of(animal);
-  const reader: IArticulatedRigReader<QuadrupedBody.Bone> =
+  const reader: IAutoMovieArticulatedRigReader<QuadrupedBody.Bone> =
     prepareArticulatedRig(rig);
   const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
     reader.read();

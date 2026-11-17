@@ -1,16 +1,18 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
+  IAutoMovieBodyMomentum,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMoviePrincipalTensorFrame,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { samplePoseVelocity } from "../motion/samplePoseVelocity";
-import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 /**
@@ -52,16 +54,16 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieMomentum(
-  model: resolveAutoMovieCenterOfMass.IModel,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   seconds: number,
-): resolveAutoMovieMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   if (!(seconds > 0))
     throw new Error(`The momentum needs a positive interval, got ${seconds}`);
-  const a: combinePhysicalMassProperties.IPart[] =
+  const a: IAutoMovieCombinePhysicalMassProperties.IPart[] =
     resolveAutoMovieMomentum.parts(model, before);
-  const b: combinePhysicalMassProperties.IPart[] =
+  const b: IAutoMovieCombinePhysicalMassProperties.IPart[] =
     resolveAutoMovieMomentum.parts(model, after);
   const ca: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
     model,
@@ -79,49 +81,51 @@ export function resolveAutoMovieMomentum(
 
   // Orbital plus spin momentum of each segment at the interval's middle.
   let angular: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  a.forEach((p0: combinePhysicalMassProperties.IPart, i: number): void => {
-    const p1: combinePhysicalMassProperties.IPart = b[i]!;
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(p0.centerOfMass, p1.centerOfMass),
-      0.5,
-    );
-    const v: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(p1.centerOfMass, p0.centerOfMass),
-      1 / seconds,
-    );
-    const w: IAutoMovieVector3 = Vector3.scale(
-      samplePoseVelocity.rotationVector(
-        Quaternion.multiply(
-          p1.inertiaRotation,
-          Quaternion.inverse(p0.inertiaRotation),
-        ),
-      ),
-      1 / seconds,
-    );
-    const spin: number[][] = physicalInertiaTensor(
-      [
-        {
-          ...p0,
-          inertiaRotation: Quaternion.slerp(
-            p0.inertiaRotation,
+  a.forEach(
+    (p0: IAutoMovieCombinePhysicalMassProperties.IPart, i: number): void => {
+      const p1: IAutoMovieCombinePhysicalMassProperties.IPart = b[i]!;
+      const middle: IAutoMovieVector3 = Vector3.scale(
+        Vector3.add(p0.centerOfMass, p1.centerOfMass),
+        0.5,
+      );
+      const v: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(p1.centerOfMass, p0.centerOfMass),
+        1 / seconds,
+      );
+      const w: IAutoMovieVector3 = Vector3.scale(
+        samplePoseVelocity.rotationVector(
+          Quaternion.multiply(
             p1.inertiaRotation,
-            0.5,
+            Quaternion.inverse(p0.inertiaRotation),
           ),
-        },
-      ],
-      p0.centerOfMass,
-    );
-    angular = Vector3.add(
-      angular,
-      Vector3.add(
-        Vector3.scale(
-          Vector3.cross(Vector3.subtract(middle, centre), v),
-          p0.mass,
         ),
-        resolveAutoMovieMomentum.apply(spin, w),
-      ),
-    );
-  });
+        1 / seconds,
+      );
+      const spin: number[][] = physicalInertiaTensor(
+        [
+          {
+            ...p0,
+            inertiaRotation: Quaternion.slerp(
+              p0.inertiaRotation,
+              p1.inertiaRotation,
+              0.5,
+            ),
+          },
+        ],
+        p0.centerOfMass,
+      );
+      angular = Vector3.add(
+        angular,
+        Vector3.add(
+          Vector3.scale(
+            Vector3.cross(Vector3.subtract(middle, centre), v),
+            p0.mass,
+          ),
+          resolveAutoMovieMomentum.apply(spin, w),
+        ),
+      );
+    },
+  );
   return {
     centre,
     velocity,
@@ -140,30 +144,6 @@ export function resolveAutoMovieMomentum(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The tensor sum is `physicalInertiaTensor`'s, the diagonalization `physicalPrincipalAxes`'s and the centre `resolveAutoMovieCenterOfMass.place`'s, imported rather than copied.
  */
 export namespace resolveAutoMovieMomentum {
-  /** Linear and angular momentum of a body over an interval. */
-  export interface IMomentum {
-    /** The whole-body centre of mass at the interval's middle, the mean of its two ends, metres. */
-    centre: IAutoMovieVector3;
-
-    /** The centre's velocity over the interval, metres per second. */
-    velocity: IAutoMovieVector3;
-
-    /** Linear momentum, the total mass times `velocity`, kg m/s. */
-    linear: IAutoMovieVector3;
-
-    /** Angular momentum about `centre`, kg m²/s. */
-    angular: IAutoMovieVector3;
-  }
-
-  /** A tensor's principal frame. */
-  export interface IPrincipal {
-    /** The principal moments in ascending order, in the tensor's unit. */
-    moments: IAutoMovieVector3;
-
-    /** The rotation from the principal frame to the tensor's frame; its columns are the moments' axes. */
-    rotation: IAutoMovieQuaternion;
-  }
-
   /**
    * The composite inertia tensor of a posed body about its whole-body centre
    * of mass, in the bones' frame: each segment's principal tensor turned by
@@ -176,7 +156,7 @@ export namespace resolveAutoMovieMomentum {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function inertia(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number[][] {
     return physicalInertiaTensor(
@@ -195,7 +175,7 @@ export namespace resolveAutoMovieMomentum {
    */
   export function principal(
     tensor: readonly (readonly number[])[],
-  ): IPrincipal {
+  ): IAutoMoviePrincipalTensorFrame {
     return physicalPrincipalAxes(
       tensor.map((row: readonly number[]): number[] => [...row]),
     );
@@ -228,13 +208,13 @@ export namespace resolveAutoMovieMomentum {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function parts(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): combinePhysicalMassProperties.IPart[] {
+  ): IAutoMovieCombinePhysicalMassProperties.IPart[] {
     return model.segments.map(
       (
-        s: resolveAutoMovieCenterOfMass.ISegment,
-      ): combinePhysicalMassProperties.IPart => {
+        s: IAutoMovieResolveCenterOfMass.ISegment,
+      ): IAutoMovieCombinePhysicalMassProperties.IPart => {
         const bone: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
         if (bone === undefined)
           throw new Error(`The momentum needs the posed bone ${s.bone}`);

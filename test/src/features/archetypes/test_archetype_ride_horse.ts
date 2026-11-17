@@ -10,8 +10,8 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -77,7 +77,7 @@ function ends(
   const part: IAutoMovieModelPart = horse.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === bone,
   )!;
-  const shape: AutoMoviePrimitiveShape | null =
+  const shape: IAutoMoviePrimitiveShape | null =
     part.geometry.type === "primitive" ? part.geometry.shape : null;
   const half: number =
     shape !== null && (shape.type === "cylinder" || shape.type === "capsule")

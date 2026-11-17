@@ -1,8 +1,8 @@
-import {
-  type IAutoMovieArtifactResolution,
-  type IAutoMovieArtifactStore,
-  resolveAutoMovieArtifact,
-} from "@automovie/engine";
+import { resolveAutoMovieArtifact } from "@automovie/engine";
+import type {
+  IAutoMovieArtifactResolution,
+  IAutoMovieArtifactStore,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 

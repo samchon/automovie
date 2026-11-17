@@ -1,6 +1,7 @@
 import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieRecordPhysicalContact,
   IAutoMovieVector3,
-  IAutoMovieContactReceipt as Receipt,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -16,26 +17,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function recordPhysicalContact(input: {
-  /** First mapped shape. */ a: Receipt["a"];
-  /** Second mapped shape. */ b: Receipt["b"];
-  /** Current completed fixed-step second. */ seconds: number;
-  /** Duration represented by the impulse. */ dt: number;
-  /** Surface application point. */ point: IAutoMovieVector3;
-  /** From a toward b. */ normal: IAutoMovieVector3;
-  /** Positive solved normal impulse before any explicit response gain. */ impulse: number;
-  /** Actual transferred soft-solver normal impulses; omission retains direct native manifold authority. */ appliedImpulse?: {
-    a: number;
-    b: number;
-  };
-  /** Actual signed separation, never a predicted air gap. */ separation: number;
-  /** Retained complete episodes. */ contacts: Receipt[];
-  /** Still-active episodes keyed by canonical shape pair. */ active: Map<
-    string,
-    Receipt
-  >;
-  /** Pairs touched in the current step. */ found: Set<string>;
-}): Receipt {
+export function recordPhysicalContact(
+  input: IAutoMovieRecordPhysicalContact.IInput,
+): IAutoMovieContactReceipt {
   const aKey: string = JSON.stringify(input.a);
   const bKey: string = JSON.stringify(input.b);
   const forward: boolean = aKey < bKey;
@@ -52,7 +36,7 @@ export function recordPhysicalContact(input: {
     ? { ...actual }
     : { a: actual.b, b: actual.a };
   input.found.add(key);
-  let receipt: Receipt | undefined = input.active.get(key);
+  let receipt: IAutoMovieContactReceipt | undefined = input.active.get(key);
   if (!receipt) {
     receipt = {
       id: `contact:${key}:${input.seconds}:${input.contacts.length}`,
@@ -75,8 +59,9 @@ export function recordPhysicalContact(input: {
   receipt.impulse = (receipt.impulse ?? 0) + input.impulse;
   receipt.separation = Math.min(receipt.separation, input.separation);
   receipt.compression = Math.max(receipt.compression, -input.separation);
-  const sample: NonNullable<Receipt["samples"]>[number] | undefined =
-    receipt.samples!.at(-1);
+  const sample:
+    | NonNullable<IAutoMovieContactReceipt["samples"]>[number]
+    | undefined = receipt.samples!.at(-1);
   if (sample?.seconds === input.seconds) {
     const total: number = sample.impulse + input.impulse;
     sample.point = Vector3.scale(

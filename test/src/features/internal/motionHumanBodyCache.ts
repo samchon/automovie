@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanParameters } from "@automovie/human";
 import type {
+  IAutoMovieHumanParameters,
   IAutoMoviePhysicalProfile,
   IAutoMovieSkeleton,
 } from "@automovie/interface";

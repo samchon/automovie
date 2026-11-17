@@ -1,11 +1,11 @@
-import { IAutoMovieMeshMorphTarget } from "./IAutoMovieMeshMorphTarget";
-import { IAutoMovieMeshPhysicalVertices } from "./IAutoMovieMeshPhysicalVertices";
-import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
+import type { IAutoMovieMeshMorphTarget } from "./IAutoMovieMeshMorphTarget";
+import type { IAutoMovieMeshPhysicalVertices } from "./IAutoMovieMeshPhysicalVertices";
+import type { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
 
 /**
  * Explicit triangle-mesh geometry: imported, baked, or deterministically generated.
  *
- * Unlike a {@link AutoMoviePrimitiveShape} with compact named dimensions, a mesh carries explicit bulk vertex data. Supported ingest reads glTF, GLB or VRM appearance; this repository implements no FBX importer. An engine may bake triangles, or ordinary production TypeScript may generate them from authored equations and inputs. An authoring agent authors the named generator rather than transcribing opaque bulk arrays.
+ * Unlike a {@link IAutoMoviePrimitiveShape} with compact named dimensions, a mesh carries explicit bulk vertex data. Supported ingest reads glTF, GLB or VRM appearance; this repository implements no FBX importer. An engine may bake triangles, or ordinary production TypeScript may generate them from authored equations and inputs. An authoring agent authors the named generator rather than transcribing opaque bulk arrays.
  *
  * Attributes follow the glTF convention of parallel flat arrays indexed by vertex: `positions` is `[x0,y0,z0, x1,y1,z1, ...]`, so `positions.length` is `3 * vertexCount`. `normals` and `uvs` (when present) align to the same vertex order. `skin` binds vertices to skeleton bones for deformation, and `targets` displace them before skinning.
  *

@@ -1,4 +1,8 @@
-import type { AutoMoviePhysicalPlayback } from "./AutoMoviePhysicalPlayback";
+import type {
+  IAutoMovieDecodePhysicalPlayback,
+  IAutoMoviePhysicalPlayback,
+} from "@automovie/interface";
+
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { admitPhysicalPlaybackMetadata } from "./admitPhysicalPlaybackMetadata";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
@@ -17,16 +21,8 @@ import { freezePhysicalRecord } from "./freezePhysicalRecord";
 export async function decodePhysicalPlayback(
   source: Uint8Array,
   expectedIdentity: string,
-  budget: {
-    maximumBytes: number;
-    maximumFrames: number;
-    maximumSegments: number;
-  },
-): Promise<{
-  bytes: Uint8Array<ArrayBuffer>;
-  header: AutoMoviePhysicalPlayback.IHeader;
-  offset: number;
-}> {
+  budget: IAutoMovieDecodePhysicalPlayback.IBudget,
+): IAutoMovieDecodePhysicalPlayback.IResult {
   if (
     ![budget.maximumBytes, budget.maximumFrames, budget.maximumSegments].every(
       (value: number): boolean => Number.isSafeInteger(value) && value > 0,
@@ -53,7 +49,7 @@ export async function decodePhysicalPlayback(
     )
   )
     throw new Error("Damaged physical playback archive");
-  const header: AutoMoviePhysicalPlayback.IHeader = JSON.parse(
+  const header: IAutoMoviePhysicalPlayback.IHeader = JSON.parse(
     new TextDecoder("utf-8", { fatal: true }).decode(
       bytes.subarray(8, 8 + length),
     ),

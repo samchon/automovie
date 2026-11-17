@@ -7,7 +7,10 @@ import {
   physicalHullFaces,
   signedArea,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Independent contact observations of the actual transformed armour cells.
@@ -65,12 +68,13 @@ export namespace armourJointObservation {
     points: readonly IAutoMovieVector3[],
     epsilon: number,
   ): number {
-    const faces: physicalHullFaces.IFace[] = physicalHullFaces(points).faces;
+    const faces: IAutoMoviePhysicalHullFaces.IFace[] =
+      physicalHullFaces(points).faces;
     let minimum: number = Infinity;
     for (let i: number = 0; i < faces.length; i++)
       for (let j: number = i + 1; j < faces.length; j++) {
-        const first: physicalHullFaces.IFace = faces[i]!;
-        const second: physicalHullFaces.IFace = faces[j]!;
+        const first: IAutoMoviePhysicalHullFaces.IFace = faces[i]!;
+        const second: IAutoMoviePhysicalHullFaces.IFace = faces[j]!;
         const separation: number = first.offset + second.offset;
         if (
           Vector3.length(Vector3.add(first.normal, second.normal)) <= epsilon &&

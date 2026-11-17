@@ -1,3 +1,5 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 
 /**
@@ -19,41 +21,6 @@ import { Quaternion } from "../math/Quaternion";
  */
 export namespace swivelArcs {
   /**
-   * `a + b cos ψ + c sin ψ` of a swivel `ψ`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its term.
-   * @evidence contracts/development/design.md#principled-representation The three coefficients of a sinusoid.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
-   */
-  export interface ISinusoid {
-    /** The constant term. */
-    a: number;
-
-    /** The cosine's coefficient. */
-    b: number;
-
-    /** The sine's coefficient. */
-    c: number;
-  }
-
-  /**
-   * An interval of swivels, degrees, `from` up to `to`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its end and unit.
-   * @evidence contracts/development/design.md#principled-representation The two ends of an arc.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
-   */
-  export interface IArc {
-    /** The start, degrees. */
-    from: number;
-
-    /** The end, degrees, not before `from`. */
-    to: number;
-  }
-
-  /**
    * The sinusoid through its values at swivels 0, 90 and 180 degrees.
    *
    * @param zero Its value at 0.
@@ -73,7 +40,7 @@ export namespace swivelArcs {
     zero: number,
     quarter: number,
     half: number,
-  ): ISinusoid {
+  ): IAutoMovieSwivelArcs.ISinusoid {
     const a: number = (zero + half) / 2;
     return { a, b: (zero - half) / 2, c: quarter - a };
   }
@@ -93,7 +60,10 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every bound.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function scaled(f: ISinusoid, by: number): ISinusoid {
+  export function scaled(
+    f: IAutoMovieSwivelArcs.ISinusoid,
+    by: number,
+  ): IAutoMovieSwivelArcs.ISinusoid {
     return { a: f.a * by, b: f.b * by, c: f.c * by };
   }
 
@@ -115,11 +85,11 @@ export namespace swivelArcs {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function combined(
-    f: ISinusoid,
+    f: IAutoMovieSwivelArcs.ISinusoid,
     u: number,
-    g: ISinusoid,
+    g: IAutoMovieSwivelArcs.ISinusoid,
     v: number,
-  ): ISinusoid {
+  ): IAutoMovieSwivelArcs.ISinusoid {
     return { a: u * f.a + v * g.a, b: u * f.b + v * g.b, c: u * f.c + v * g.c };
   }
 
@@ -138,7 +108,10 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every bound.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function above(f: ISinusoid, margin: number): IArc | "all" | null {
+  export function above(
+    f: IAutoMovieSwivelArcs.ISinusoid,
+    margin: number,
+  ): IAutoMovieSwivelArcs.IArc | "all" | null {
     const radius: number = Math.hypot(f.b, f.c);
     if (f.a - radius > margin) return "all";
     if (f.a + radius <= margin) return null;
@@ -164,8 +137,10 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Built once per fit and read by every test of it.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
    */
-  export function union(arcs: readonly IArc[]): IArc[] | "all" {
-    const pieces: IArc[] = [];
+  export function union(
+    arcs: readonly IAutoMovieSwivelArcs.IArc[],
+  ): IAutoMovieSwivelArcs.IArc[] | "all" {
+    const pieces: IAutoMovieSwivelArcs.IArc[] = [];
     for (const arc of arcs) {
       const from: number = arc.from - 360 * Math.floor(arc.from / 360);
       for (const turn of [-360, 0, 360])
@@ -174,15 +149,23 @@ export namespace swivelArcs {
           to: from + (arc.to - arc.from) + turn,
         });
     }
-    pieces.sort((x: IArc, y: IArc): number => x.from - y.from);
-    const out: IArc[] = [];
+    pieces.sort(
+      (x: IAutoMovieSwivelArcs.IArc, y: IAutoMovieSwivelArcs.IArc): number =>
+        x.from - y.from,
+    );
+    const out: IAutoMovieSwivelArcs.IArc[] = [];
     for (const piece of pieces) {
-      const last: IArc | undefined = out[out.length - 1];
+      const last: IAutoMovieSwivelArcs.IArc | undefined = out[out.length - 1];
       if (last !== undefined && piece.from <= last.to)
         last.to = Math.max(last.to, piece.to);
       else out.push({ ...piece });
     }
-    if (out.some((arc: IArc): boolean => arc.from <= 0 && arc.to >= 360))
+    if (
+      out.some(
+        (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+          arc.from <= 0 && arc.to >= 360,
+      )
+    )
       return "all";
     return out;
   }
@@ -204,14 +187,15 @@ export namespace swivelArcs {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function covers(
-    merged: readonly IArc[] | "all",
+    merged: readonly IAutoMovieSwivelArcs.IArc[] | "all",
     low: number,
     high: number,
   ): boolean {
     if (merged === "all") return true;
     const turns: number = 360 * Math.floor(low / 360);
     return merged.some(
-      (arc: IArc): boolean => arc.from <= low - turns && arc.to >= high - turns,
+      (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+        arc.from <= low - turns && arc.to >= high - turns,
     );
   }
 
@@ -231,13 +215,14 @@ export namespace swivelArcs {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function nearest(
-    merged: readonly IArc[] | "all",
+    merged: readonly IAutoMovieSwivelArcs.IArc[] | "all",
     swivel: number,
   ): number | null {
     if (merged === "all") return null;
     const at: number = swivel - 360 * Math.floor(swivel / 360);
-    const holding: IArc | undefined = merged.find(
-      (arc: IArc): boolean => arc.from <= at && at <= arc.to,
+    const holding: IAutoMovieSwivelArcs.IArc | undefined = merged.find(
+      (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+        arc.from <= at && at <= arc.to,
     );
     if (holding === undefined) return swivel;
     return at - holding.from <= holding.to - at ? holding.from : holding.to;

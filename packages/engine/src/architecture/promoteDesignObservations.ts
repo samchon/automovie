@@ -7,6 +7,7 @@ import {
   IAutoMovieDesignSourceFrame,
   IAutoMovieDesignWithholding,
   IAutoMovieObservedPrimitive,
+  type IAutoMoviePromoteDesignObservations,
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -53,19 +54,11 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one reference and floor that coordinates no work across calls; the reference is the caller's value, so no promotion is cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frame, primitive, issue and producer indexes are local and released on return, each bounded by its record count; the caller owns the returned promotion, whose outlines are bounded by the promoted candidates' points.
  */
-export const promoteDesignObservations: (props: {
-  /** Observed reference whose candidates are judged; validated before use. */ reference: IAutoMovieDesignReference;
-  /** Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a certain reading promotes unless the caller consciously lowers the bar. */ minimumConfidence?: number;
-}) => IAutoMovieDesignPromotion = (props: {
-  /** Observed reference whose candidates are judged; validated before use. */
-  reference: IAutoMovieDesignReference;
-
-  /**
-   * Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a
-   * certain reading promotes unless the caller consciously lowers the bar.
-   */
-  minimumConfidence?: number;
-}): IAutoMovieDesignPromotion => {
+export const promoteDesignObservations: (
+  props: IAutoMoviePromoteDesignObservations.IProps,
+) => IAutoMovieDesignPromotion = (
+  props: IAutoMoviePromoteDesignObservations.IProps,
+): IAutoMovieDesignPromotion => {
   const validated: IAutoMovieValidation = validateDesignReference({
     reference: props.reference,
   });

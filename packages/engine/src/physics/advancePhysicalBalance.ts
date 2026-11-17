@@ -1,8 +1,18 @@
 import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieCollectPhysicalSupports,
   IAutoMovieContactReceipt,
-  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalBalanceBracing,
+  IAutoMoviePhysicalBalanceExhaustion,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryPolicy,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSupportPatch,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalRecoveryGoal,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
@@ -10,7 +20,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
-import { AutoMovieStepPlanner as Planner } from "./AutoMovieStepPlanner";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
@@ -37,7 +46,7 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 export function advancePhysicalBalance(input: {
   /** Active solver, read before this step's integration. */ world: World;
   /** Scene body identity. */ body: string;
-  /** Its actual provider profile. */ profile: P;
+  /** Its actual provider profile. */ profile: IAutoMoviePhysicalProfile;
   /** Current world segment wrappers. */ segments: ReadonlyMap<
     string,
     RigidBody
@@ -47,10 +56,10 @@ export function advancePhysicalBalance(input: {
     IAutoMovieContactReceipt["a"]
   >;
   /** Completed-step surface impulses, including compliant support. */ contacts: readonly IAutoMovieContactReceipt[];
-  /** Numerical support/motor policy. */ policy: advancePhysicalBalance.IPolicy;
-  /** Previous controller state; the caller retains it in checkpoints. */ state: advancePhysicalBalance.IState;
+  /** Numerical support/motor policy. */ policy: IAutoMoviePhysicalRecoveryPolicy;
+  /** Previous controller state; the caller retains it in checkpoints. */ state: IAutoMoviePhysicalRecoveryState;
   /** Current authored world placements. */ targets: Readonly<
-    Record<string, P.ITransform>
+    Record<string, IAutoMovieRigidTransform>
   >;
   /** Endpoint world velocities derived from the same sampled authored poses. */ velocities?: Readonly<
     Record<string, IAutoMovieVector3>
@@ -64,18 +73,13 @@ export function advancePhysicalBalance(input: {
     string,
     IAutoMovieVector3
   >;
-  /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly collectPhysicalSupports.ISupport[];
-}): {
-  rootStrength: number;
-  rootShift?: IAutoMovieVector3;
-  state: advancePhysicalBalance.IState;
-  goals: Record<string, IAutoMovieVector3>;
-} {
-  const supports: readonly collectPhysicalSupports.ISupport[] =
+  /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
+}): IAutoMovieAdvancePhysicalBalance.IResult {
+  const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
     collectPhysicalSupports({ ...input, pattern: input.policy.pattern });
   const goals: Record<string, IAutoMovieVector3> = Object.create(null);
-  const state: advancePhysicalBalance.IState = input.state;
+  const state: IAutoMoviePhysicalRecoveryState = input.state;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
@@ -144,7 +148,7 @@ export function advancePhysicalBalance(input: {
         { x: position.x, y: intended.y, z: position.z },
         intended,
       );
-      const root: P.ISegment = input.profile.segments.find(
+      const root: IAutoMoviePhysicalSegment = input.profile.segments.find(
         (segment: (typeof input.profile.segments)[number]): boolean =>
           !input.profile.joints.some(
             (joint: (typeof input.profile.joints)[number]): boolean =>
@@ -181,7 +185,7 @@ export function advancePhysicalBalance(input: {
       state.revision = (state.revision ?? 0) + 1;
     }
   }
-  const planted: Balance.ISupport[] = supports.filter(
+  const planted: IAutoMoviePhysicalSupportPatch[] = supports.filter(
     (support: (typeof supports)[number]): boolean =>
       support.bone !== state.swing?.bone,
   );
@@ -195,7 +199,7 @@ export function advancePhysicalBalance(input: {
           ),
         )
       : input.floor;
-  const assessment: Balance.IResult = Balance.assess({
+  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     center,
     velocity,
     gravity: input.gravity,
@@ -248,7 +252,7 @@ export function advancePhysicalBalance(input: {
   }
   if (state.swing) {
     const rigid: RigidBody = input.segments.get(state.swing.bone)!;
-    const motion: ReturnType<typeof samplePhysicalRecoveryGoal> =
+    const motion: IAutoMovieSamplePhysicalRecoveryGoal.IResult =
       samplePhysicalRecoveryGoal({
         swing: state.swing,
         point: authored(state.swing.bone),
@@ -257,7 +261,7 @@ export function advancePhysicalBalance(input: {
         seconds: input.seconds,
       });
     goals[state.swing.bone] = motion.point;
-    const segment: P.ISegment = input.profile.segments.find(
+    const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
       (candidate: (typeof input.profile.segments)[number]): boolean =>
         candidate.bone === state.swing!.bone,
     )!;
@@ -281,7 +285,7 @@ export function advancePhysicalBalance(input: {
   for (const [bone, offset] of Object.entries(state.offsets)) {
     if (state.swing?.bone === bone) continue;
     const rigid: RigidBody = input.segments.get(bone)!;
-    const segment: P.ISegment = input.profile.segments.find(
+    const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
       (candidate: (typeof input.profile.segments)[number]): boolean =>
         candidate.bone === bone,
     )!;
@@ -305,7 +309,7 @@ export function advancePhysicalBalance(input: {
       ),
     );
   }
-  const exhaustion: ReturnType<typeof physicalBalanceExhaustion> =
+  const exhaustion: IAutoMoviePhysicalBalanceExhaustion.IResult =
     physicalBalanceExhaustion({
       unrecoverable: state.last === "unrecoverable",
       lostSince: state.lostSince,
@@ -322,7 +326,7 @@ export function advancePhysicalBalance(input: {
       );
   const exhausted: boolean = exhaustion.exhausted;
   if (input.policy.bracing) {
-    const effort: ReturnType<typeof physicalBalanceBracing> =
+    const effort: IAutoMoviePhysicalBalanceBracing.IResult =
       physicalBalanceBracing({
         assessment,
         center,
@@ -404,67 +408,5 @@ export function advancePhysicalBalance(input: {
         physicalNativeVector(point),
         true,
       );
-  }
-}
-
-/**
- * Serialized recovery state and explicitly adopted controller budgets.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Serialized recovery state and explicitly adopted controller budgets) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Serialized recovery state and explicitly adopted controller budgets: companion namespace of 2 members (`IPolicy`, `IState`); units and frames named in its text: metres, seconds. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `advancePhysicalBalance` in packages/engine/src/physics/advancePhysicalBalance.ts; its surface is the 2 members listed and the text shows 14 other files naming it, mostly packages/engine (9), test (5), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace advancePhysicalBalance {
-  /** Same support pattern used by the authored step planner. */
-  export interface IPolicy {
-    /** Arbitrary endpoint bones and their timing. */ pattern: IAutoMovieFootfallPattern;
-    /** Maximum recovery-step distance, metres. */ maximumStep: number;
-    /** Support margin in metres. */ margin: number;
-    /** Recovery swing duration, seconds. */ duration: number;
-    /** Peak recovery clearance, metres. */ height: number;
-    /** Endpoint motor stiffness, N/m. */ stiffness: number;
-    /** Endpoint motor damping, N s/m. */ damping: number;
-    /** Per-endpoint force cap, N. */ maximumForce: number;
-    /** Tracking strength of recovery IK goals, [0,1]; defaults to full bounded tracking. */ jointStrength?: number;
-    /** Recovery coordinate-descent budget, 1..64; defaults to 24. */ iterations?: number;
-    /** Recovery target residual early-out, metres; defaults to 0.001. */ targetTolerance?: number;
-    /** Maximum reach-derived root lowering, metres; defaults to 0.15. */ maximumRootDrop?: number;
-    /** Maximum horizontal landing error, metres; defaults to 0.025. */ landingTolerance?: number;
-    /** Maximum endpoint speed at accepted landing, m/s; defaults to 1. */ landingSpeed?: number;
-    /** Seconds to await actual contact after swing, defaulting to duration. */ landingTimeout?: number;
-    /** Sustained support loss before a recovery request, seconds; defaults to 0.1. */ reactionSeconds?: number;
-    /** Retain bounded muscular effort after a missed step until measured recovery geometry is lost. */ bracing?: {
-      /** Minimum actual COM height above the floor, metres; the provider declares its standing-recovery envelope. */ minimumCenterHeight: number;
-      /** Maximum horizontal capture-point correction of the root motor target, metres. */ maximumRootShift: number;
-    };
-  }
-  /** Every field needed for a deterministic checkpoint continuation. */
-  export interface IState {
-    /** Last physical assessment. */ last: Balance.IResult["state"];
-    /** Active support swing, if any. */ swing?: Planner.IStep;
-    /** Actual requests and measured ownership resolution, in time order. */ steps: (Planner.IStep & {
-      resolved?: { seconds: number; status: "landed" | "cancelled" | "failed" };
-    })[];
-    /** Completed landing offsets relative to authored support goals. */ offsets: Record<
-      string,
-      IAutoMovieVector3
-    >;
-    /** Actual horizontal body displacement adopted at the latest confirmed landing. */ rootOffset?: IAutoMovieVector3;
-    /** Confirmed physical landings and adopted goal offsets, distinct from planned steps. */ landings?: {
-      bone: string;
-      seconds: number;
-      position: IAutoMovieVector3;
-      offset?: IAutoMovieVector3;
-      rootOffset?: IAutoMovieVector3;
-    }[];
-    /** An authored limb swing or strike takes back an endpoint's accepted recovery placement. */ handoffs?: {
-      bone: string;
-      seconds: number;
-    }[];
-    /** A timed-out landing withdraws support rather than inventing a success. */ failedLanding?: boolean;
-    /** Start of continuously unrecoverable support loss. */ lostSince?: number;
-    /** Start of continuously out-of-support capture point, including initial contact settling. */ outsideSince?: number;
-    /** Monotone support-plan revision, used only to invalidate transient motor goals. */ revision?: number;
   }
 }

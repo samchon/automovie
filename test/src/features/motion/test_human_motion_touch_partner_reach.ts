@@ -1,15 +1,19 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSocial,
-  type IHumanBody,
   touch,
-  type touchSite,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,9 +46,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, the three sites, how the place and the palm are read and the one scenario with its bound and status.
  */
 export function test_human_motion_touch_partner_reach(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
-  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+  const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(touch.EFFECTORS.palm, "hold");
   for (const [label, site] of [
     ["no site", undefined],
@@ -55,9 +59,9 @@ export function test_human_motion_touch_partner_reach(): void {
     ["40 mm up and 40 mm out", { up: 0.04, out: 0.04 }],
   ] as const satisfies readonly (readonly [
     string,
-    touchSite.ISite | undefined,
+    IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ])[]) {
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "site",
       laws: [HumanSocial.comfort],
       performers: [
@@ -84,7 +88,7 @@ export function test_human_motion_touch_partner_reach(): void {
         })
         .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
     });
-    const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find(

@@ -1,19 +1,23 @@
-import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieBoneBuffer,
+  type IAutoMoviePlanSurfaceRigPatchesOutput,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRigSurfaceNetwork,
+  type IAutoMovieSubdivisionStencil,
+  type IAutoMovieSurfaceCage,
+  type IAutoMovieSurfaceConstruction,
+  type IAutoMovieSurfaceCurveRig,
+  type IAutoMovieSurfaceNetwork,
+  type IAutoMovieSurfacePoint,
+  type IAutoMovieSurfaceRegistry,
+  type IAutoMovieSurfaceRig,
+  type IAutoMovieSurfaceSample,
+  type IAutoMovieSweepBinding,
+  type IAutoMovieSweepRig,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone";
-import { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
-import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
-import { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
-import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
-import { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
-import { IAutoMovieSurfaceCurveRig } from "./IAutoMovieSurfaceCurveRig";
-import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
-import { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
-import { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
-import { IAutoMovieSurfaceRig } from "./IAutoMovieSurfaceRig";
-import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
-import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
-import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
 import { holdAutoMovieSurfaceGirths } from "./holdAutoMovieSurfaceGirths";
 import { planAutoMovieSurfaceRigPatches } from "./planAutoMovieSurfaceRigPatches";
@@ -60,33 +64,11 @@ const FIT_LIMIT: number = 1e-6;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shapes, Coons weights, Hermite weights, stencils and rest volumes are computed once; shared identities reuse their compiled geometric writers and sampling coefficients. Each emitted vertex is written once, while each curve endpoint read reevaluates its shared field's one to three terms; endpoint values are not cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the cage record, one writer per vertex or blend, four position buffers of 3 V numbers, the stencils, and each sweep's and curve's rig with its compiled surface, whose row cache `compileAutoMovieSweep` bounds at 8,192 rows and which posing does not grow; requested construction temporarily adds one writer per sample, clears those writers after reading, and retains the registered observation frame/scale slots and the separate rest snapshot until the rig is released.
  */
-export const rigAutoMovieSurfaceNetwork: (props: {
-  network: IAutoMovieSurfaceNetwork;
-  tier: AutoMovieSurfaceTier;
-  fit?: boolean;
-  bindings?: {
-    sweeps?: Record<string, IAutoMovieSweepBinding>;
-    nodes?: Record<string, AutoMovieHumanoidBone>;
-    curves?: Record<string, AutoMovieHumanoidBone>;
-    rings?: Record<string, AutoMovieHumanoidBone>;
-  };
-  rest?: readonly IAutoMovieResolvedBone[];
-  preserveVolume?: boolean;
-  construction?: IAutoMovieSurfaceConstruction.ISamples;
-}) => IAutoMovieSurfaceRig = (props: {
-  network: IAutoMovieSurfaceNetwork;
-  tier: AutoMovieSurfaceTier;
-  fit?: boolean;
-  bindings?: {
-    sweeps?: Record<string, IAutoMovieSweepBinding>;
-    nodes?: Record<string, AutoMovieHumanoidBone>;
-    curves?: Record<string, AutoMovieHumanoidBone>;
-    rings?: Record<string, AutoMovieHumanoidBone>;
-  };
-  rest?: readonly IAutoMovieResolvedBone[];
-  preserveVolume?: boolean;
-  construction?: IAutoMovieSurfaceConstruction.ISamples;
-}): IAutoMovieSurfaceRig => {
+export const rigAutoMovieSurfaceNetwork: (
+  props: IAutoMovieRigSurfaceNetwork.IProps,
+) => IAutoMovieSurfaceRig = (
+  props: IAutoMovieRigSurfaceNetwork.IProps,
+): IAutoMovieSurfaceRig => {
   const { network, tier }: typeof props = props;
   const bindings: NonNullable<typeof props.bindings> = props.bindings ?? {};
   function known(
@@ -350,7 +332,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     return out;
   }
 
-  const { layout, blend }: ReturnType<typeof planAutoMovieSurfaceRigPatches> =
+  const { layout, blend }: IAutoMoviePlanSurfaceRigPatchesOutput =
     planAutoMovieSurfaceRigPatches({
       network,
       registry,

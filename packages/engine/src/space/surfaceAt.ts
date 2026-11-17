@@ -1,6 +1,9 @@
-import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+import {
+  type IAutoMoviePreparedSpace,
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+} from "@automovie/interface";
 
-import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { prepareSpace } from "./prepareSpace";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";
 import { surfaceHeightAt } from "./surfaceHeightAt";

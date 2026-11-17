@@ -1,9 +1,12 @@
 import { physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanColliders,
   HumanPerformance,
-  type IHumanBody,
   workout,
 } from "@automovie/motions";
 
@@ -37,7 +40,7 @@ export function test_human_motion_workout_floor(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const LIMIT: number = 0.005;
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [kind, hold] of [
       ["superman", 0.5],
       ["crunch", 0.5],
@@ -46,7 +49,7 @@ export function test_human_motion_workout_floor(): void {
       ["benchPress", 0.5],
       ["sidePlank", 1.5],
     ] as const) {
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "workout-floor",

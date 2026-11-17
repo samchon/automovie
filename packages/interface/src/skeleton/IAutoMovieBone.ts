@@ -1,7 +1,7 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
-import { IAutoMovieJointConstraint } from "./IAutoMovieJointConstraint";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import type { IAutoMovieJointConstraint } from "./IAutoMovieJointConstraint";
 
 /**
  * One bone in a {@link IAutoMovieSkeleton}: its identity, parent, rest pose, anatomical range of motion, and optionally the axes its clinical angles turn about.

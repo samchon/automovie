@@ -1,13 +1,19 @@
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGoal,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanBase,
   AutoMovieMotionHumanGoal,
   AutoMovieMotionHumanLean,
   HumanFrame,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanActionPlan,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,31 +50,31 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motion_compose_goal(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
-  const from: IHumanPosture.IGoal = {
+  const from: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 1, z: 0 },
     bend: { x: 0, y: 0.5, z: -1 },
     rotation: Quaternion.identity(),
     planted: true,
   };
-  const to: IHumanPosture.IGoal = {
+  const to: IAutoMovieHumanLimbGoal = {
     point: { x: 0.4, y: 1.2, z: 0.2 },
     bend: { x: 0.2, y: 0.5, z: -1 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     contact: { x: 0, y: -0.05, z: 0.1 },
   };
-  const halfway = (goal: IHumanPosture.IGoal): boolean =>
+  const halfway = (goal: IAutoMovieHumanLimbGoal): boolean =>
     close(goal.point.x, 0.2) &&
     close(goal.point.y, 1.1) &&
     close(goal.point.z, 0.1) &&
     close(goal.bend.x, 0.1) &&
     close(goal.bend.z, -1) &&
     Math.abs(HumanFrame.heading(goal.rotation!) - 45) < 1e-6;
-  const arrived = (goal: IHumanPosture.IGoal): boolean =>
+  const arrived = (goal: IAutoMovieHumanLimbGoal): boolean =>
     close(goal.point.x, 0.4) &&
     close(goal.point.y, 1.2) &&
     close(goal.point.z, 0.2);
 
-  const mixed: IHumanPosture.IGoal = AutoMovieMotionHumanGoal.mix(
+  const mixed: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanGoal.mix(
     from,
     to,
     0.5,
@@ -89,7 +95,7 @@ export function test_motion_compose_goal(): void {
     AutoMovieMotionHumanGoal.mix({ ...from, on: "head" }, to, 0.5),
   );
 
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 5,
@@ -98,17 +104,17 @@ export function test_motion_compose_goal(): void {
     limbs: { rightArm: from, leftArm: to },
   };
   const drive = (
-    origin?: AutoMovieMotionHumanGoal.Frame,
+    origin?: IAutoMovieMotionHumanGoal.Frame,
   ): IAutoMovieMotionHumanPrimitive =>
     AutoMovieMotionHumanGoal.drive({
       limb: "rightArm",
       from: 0,
       to: 1,
-      goal: (): IHumanPosture.IGoal => to,
+      goal: (): IAutoMovieHumanLimbGoal => to,
       ...(origin === undefined ? {} : { origin }),
       weight: (): number => 0.5,
     });
-  const driven: IHumanPosture = drive().write(posture, 0.5);
+  const driven: IAutoMovieMotionHumanPosture = drive().write(posture, 0.5);
   TestValidator.equals("a drive claims its limb", drive().channels, [
     "rightArm",
   ]);
@@ -121,14 +127,15 @@ export function test_motion_compose_goal(): void {
   TestValidator.predicate(
     "a drive leaves its origin when given one",
     arrived(
-      drive((): IHumanPosture.IGoal => to).write(posture, 0.5).limbs.rightArm!,
+      drive((): IAutoMovieHumanLimbGoal => to).write(posture, 0.5).limbs
+        .rightArm!,
     ),
   );
   TestValidator.error("a drive with nothing to leave", (): unknown =>
     drive().write({ ...posture, limbs: {} }, 0.5),
   );
 
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
     { name: "rise", seconds: 0.2 },
     { name: "peak", seconds: 0.4 },
     { name: "fall", seconds: 0.6 },
@@ -140,7 +147,7 @@ export function test_motion_compose_goal(): void {
       "rightArm",
       ["rise", "peak"],
       ["fall", "rest"],
-      (): IHumanPosture.IGoal => to,
+      (): IAutoMovieHumanLimbGoal => to,
       undefined,
       size,
     );
@@ -154,7 +161,7 @@ export function test_motion_compose_goal(): void {
       halfway(pulse(0.5).write(posture, 0.5).limbs.rightArm!),
   );
 
-  const base: IHumanActionPlan = AutoMovieMotionHumanBase.still(
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.still(
     2,
     posture,
     AutoMovieMotionHumanBase.plants(0.25, 0.75),
@@ -177,12 +184,12 @@ export function test_motion_compose_goal(): void {
   const tilt: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLean.tilt({
     from: 0,
     to: 1,
-    angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+    angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
       pitch: 10 * seconds,
       roll: 4,
     }),
   });
-  const tilted: IHumanPosture = tilt.write(posture, 0.5);
+  const tilted: IAutoMovieMotionHumanPosture = tilt.write(posture, 0.5);
   TestValidator.equals("a tilt claims the trunk", tilt.channels, ["trunk"]);
   TestValidator.predicate(
     "a tilt adds to the posture's lean",

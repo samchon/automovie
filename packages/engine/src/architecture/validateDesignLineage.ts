@@ -7,7 +7,9 @@ import {
   IAutoMovieDesignRevision,
   IAutoMovieDesignSubject,
   IAutoMovieDesignVariant,
+  type IAutoMovieValidateDesignLineage,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -64,14 +66,13 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A validation of one record per call; every lineage query validates its input once before answering, and nothing here is shared across those calls because the record is the caller's mutable value.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id sets, the phase and variant indexes and each prerequisite walk are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignLineage: (props: {
-  /** Lineage record to validate. */ lineage: IAutoMovieDesignLineage;
-}) => IAutoMovieValidation = (props: {
-  /** Lineage record to validate. */
-  lineage: IAutoMovieDesignLineage;
-}): IAutoMovieValidation => {
+export const validateDesignLineage: (
+  props: IAutoMovieValidateDesignLineage.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignLineage.IProps,
+): IAutoMovieValidation => {
   const lineage: IAutoMovieDesignLineage = props.lineage;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   out.nonEmpty(`${root}.id`, lineage.id, "design lineage id");

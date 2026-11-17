@@ -1,8 +1,6 @@
 import {
   AutoMovieChain,
   AutoMovieComposition,
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
   auditAutoMovieOutcome,
   checkAutoMovieLegality,
   evaluateAutoMovieSchedule,
@@ -10,6 +8,20 @@ import {
   resolveAutoMovieOutcome,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
+import type {
+  IAutoMovieAuditOutcome,
+  IAutoMovieChain,
+  IAutoMovieCheckLegality,
+  IAutoMovieComposition,
+  IAutoMovieEvaluateSchedule,
+  IAutoMovieIntent,
+  IAutoMovieMeasureSchedule,
+  IAutoMovieResolveOutcome,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Intents compose immutably, resolve on the film clock with the production's laws, and are read, judged and measured without rewriting.
@@ -39,8 +51,8 @@ export function test_composition_schedule(): void {
     capability,
     ...(anchor === undefined ? {} : { anchor }),
   });
-  const first: AutoMovieChain = AutoMovieChain.of(act("a", "reach", "r1"));
-  const chained: AutoMovieChain = first
+  const first: IAutoMovieChain = AutoMovieChain.of(act("a", "reach", "r1"));
+  const chained: IAutoMovieChain = first
     .next(act("a", "turn"))
     .next(act("a", "reach"));
   // A production subclass keeps its vocabulary after every combinator.
@@ -65,7 +77,7 @@ export function test_composition_schedule(): void {
   );
 
   // a: reach (1 s, contact 0.4) -> turn (0.5 s) -> reach; b answers at r1 + 0.1.
-  const composition: AutoMovieComposition = AutoMovieComposition.parallel(
+  const composition: IAutoMovieComposition = AutoMovieComposition.parallel(
     chained,
     AutoMovieComposition.at(
       "r1",
@@ -73,7 +85,7 @@ export function test_composition_schedule(): void {
       0.1,
     ),
   );
-  const timing: resolveAutoMovieSchedule.ILaws["timing"] = (
+  const timing: IAutoMovieScheduleLaws["timing"] = (
     intent: IAutoMovieIntent,
   ) =>
     intent.capability === "reach"
@@ -84,18 +96,18 @@ export function test_composition_schedule(): void {
   const schedule: IAutoMovieSchedule = resolveAutoMovieSchedule(composition, {
     timing,
     outcome: (
-      entry: IAutoMovieSchedule.IEntry,
-      context: resolveAutoMovieSchedule.IContext,
+      entry: IAutoMovieScheduleEntry,
+      context: IAutoMovieScheduleContext,
     ) =>
       entry.intent.capability === "dodge"
         ? `after ${context.entries.length} entries`
         : undefined,
-    state: (entry: IAutoMovieSchedule.IEntry) => ({
+    state: (entry: IAutoMovieScheduleEntry) => ({
       last: entry.intent.capability,
     }),
   });
   const placed: string[] = schedule.entries.map(
-    (e: IAutoMovieSchedule.IEntry): string =>
+    (e: IAutoMovieScheduleEntry): string =>
       `${e.subject}.${e.intent.capability}@${e.start.toFixed(2)}-${e.end.toFixed(2)}`,
   );
   TestValidator.equals("placement", placed, [
@@ -130,11 +142,11 @@ export function test_composition_schedule(): void {
   TestValidator.equals("composition refusals", refusals, []);
 
   // Pure, seekable evaluation.
-  const late: evaluateAutoMovieSchedule.IInstant = evaluateAutoMovieSchedule(
+  const late: IAutoMovieEvaluateSchedule.IInstant = evaluateAutoMovieSchedule(
     schedule,
     1.25,
   );
-  const early: evaluateAutoMovieSchedule.IInstant = evaluateAutoMovieSchedule(
+  const early: IAutoMovieEvaluateSchedule.IInstant = evaluateAutoMovieSchedule(
     schedule,
     0.6,
   );
@@ -155,7 +167,7 @@ export function test_composition_schedule(): void {
   );
 
   // Outcomes from a production table.
-  const table: resolveAutoMovieOutcome.ITable<"lands" | "misses" | "blocked"> =
+  const table: IAutoMovieResolveOutcome.ITable<"lands" | "misses" | "blocked"> =
     {
       rules: [
         {
@@ -195,19 +207,19 @@ export function test_composition_schedule(): void {
   const contact = (
     seconds: number,
     impulse: number,
-  ): auditAutoMovieOutcome.IContact => ({
+  ): IAutoMovieAuditOutcome.IContact => ({
     a: { subject: "b", region: "head" },
     b: { subject: "a", region: "hand" },
     seconds,
     impulse,
   });
-  const expectation: auditAutoMovieOutcome.IExpectation = {
+  const expectation: IAutoMovieAuditOutcome.IExpectation = {
     a: { subject: "a", region: "hand" },
     b: { subject: "b", region: "head" },
     window: { start: 0.3, end: 0.5 },
     minimumImpulse: 1,
   };
-  const outcome: auditAutoMovieOutcome.IOutcome = {
+  const outcome: IAutoMovieAuditOutcome.IOutcome = {
     id: "lands",
     required: [expectation],
   };
@@ -226,27 +238,27 @@ export function test_composition_schedule(): void {
   );
 
   // Legality and pacing.
-  const violations: checkAutoMovieLegality.IViolation[] =
+  const violations: IAutoMovieCheckLegality.IViolation[] =
     checkAutoMovieLegality(schedule, [
       {
         id: "no-turn",
-        check: (e: IAutoMovieSchedule.IEntry) =>
+        check: (e: IAutoMovieScheduleEntry) =>
           e.intent.capability === "turn" ? "turned" : null,
       },
     ]);
   TestValidator.equals("legality", violations, [
     { rule: "no-turn", entry: 1, detail: "turned" },
   ]);
-  const measure: measureAutoMovieSchedule.IMeasure = measureAutoMovieSchedule(
+  const measure: IAutoMovieMeasureSchedule.IMeasure = measureAutoMovieSchedule(
     schedule,
     {
-      action: (e: IAutoMovieSchedule.IEntry) => e.intent.capability === "reach",
+      action: (e: IAutoMovieScheduleEntry) => e.intent.capability === "reach",
       combinationGap: 0.5,
-      displacement: (e: IAutoMovieSchedule.IEntry) =>
+      displacement: (e: IAutoMovieScheduleEntry) =>
         e.intent.capability === "dodge"
           ? { lateral: 0.3, linear: 0.1 }
           : { lateral: 0, linear: 0.2 },
-      idle: (e: IAutoMovieSchedule.IEntry) => e.intent.capability === "watch",
+      idle: (e: IAutoMovieScheduleEntry) => e.intent.capability === "watch",
     },
   );
   TestValidator.predicate(

@@ -1,9 +1,12 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,8 +31,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the reading, the stage and the 2 scenarios.
  */
 export function test_human_motion_hand_verdicts_span(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const performance: HumanPerformance = new HumanPerformance({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "span",
     performers: [
       {
