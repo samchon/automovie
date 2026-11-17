@@ -1,6 +1,8 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMoviePose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -9,8 +11,11 @@ import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanA
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanTouch } from "../compose/IAutoMovieMotionHumanTouch";
 import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { HumanHand } from "../posture/HumanHand";
+import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -94,5 +99,107 @@ export namespace touchReach {
       );
     }
     return longest;
+  }
+
+  /**
+   * How long a hand's reach to a mutual meeting's point takes: the
+   * free-space time of its distance (`AutoMovieMotionHumanTiming.transport`),
+   * and at least what its arm's arc needs within the audit's travel bound
+   * (`place`) where the performer's posture is known, so the reach the
+   * meeting's instant pins meets the bound its arm is laid by.
+   *
+   * @param body The body.
+   * @param bones The performer's world bones where it stands.
+   * @param entry Its posture and pose there, when known.
+   * @param side The hand.
+   * @param surface The surface that meets the point: the palm, or the fist.
+   * @param point The meeting's point, world.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two times taken and when the arm's is read.
+   * @evidence contracts/development/implementation.md#principled-implementation The free-space time of the hand's distance, raised to the arm's own reach where the arc is longer than that time allows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance, one arm reach, their larger.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A role whose posture is not known keeps the free-space time.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame read and `place`'s one posture solve and arc.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each role is timed once by its meeting.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function meeting(
+    body: IHumanBody,
+    bones: AutoMovieMotionMeeting.IRole["bones"],
+    entry: AutoMovieMotionMeeting.IRole["entry"],
+    side: HumanHand.Side,
+    surface: "palm" | "fist",
+    point: IAutoMovieVector3,
+  ): number {
+    const from: IAutoMovieVector3 = HumanHand.frame(body, bones, side, surface, "relaxed").point;
+    const free: number = AutoMovieMotionHumanTiming.transport(Vector3.distance(point, from));
+    return entry === undefined
+      ? free
+      : Math.max(free, place(body, entry, side,
+          { surface, shape: surface === "fist" ? "fist" : "flat" }, point, "up"));
+  }
+
+  /**
+   * The shortest reach of one hand to a point: from its arm at the entry to
+   * the arm laid there with the elbow hung naturally, its effector's skin on
+   * the point and the point's normal looking back at the performer, level,
+   * as a mutual meeting lays two hands on their shared point.
+   *
+   * @param body The body.
+   * @param entry The posture and the pose the arm leaves from.
+   * @param side The hand.
+   * @param effector The part of the hand that meets the point.
+   * @param point The point, world.
+   * @param tangent Which tangent the effector lies along.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the region the point is read as and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm laid on the point as `duration` lays it on a region, solved by the posture resolver, and the observation's travel bound between it and the entry's arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One region, one goal, one solve, one measurement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is the arm's fitted blend, never the hand's straight distance; a point at the performer's own place has no level normal and is faced forward.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and the observation's arc samples.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each meeting role is measured once by its caller.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function place(
+    body: IHumanBody,
+    entry: { posture: IHumanPosture; pose: IAutoMoviePose },
+    side: HumanHand.Side,
+    effector: AutoMovieMotionHumanTouchEffector.IEffector,
+    point: IAutoMovieVector3,
+    tangent: AutoMovieMotionHumanTouchForm.Tangent,
+  ): number {
+    const reached: IHumanPosture = entry.posture;
+    const back: IAutoMovieVector3 = { x: reached.root.x - point.x, y: 0, z: reached.root.z - point.z };
+    const length: number = Math.hypot(back.x, back.z);
+    const yaw: number = (reached.yaw * Math.PI) / 180;
+    const normal: IAutoMovieVector3 = length > 1e-6
+      ? { x: back.x / length, y: 0, z: back.z / length }
+      : { x: -Math.sin(yaw), y: 0, z: -Math.cos(yaw) };
+    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+      body,
+      reached,
+      side,
+      effector,
+      { point, normal },
+      tangent,
+      AutoMovieMotionHumanBend.hang(body, reached, side),
+      "arm",
+    );
+    const arrival: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
+      resolveHumanPosture.seeded(body, {
+        ...reached,
+        limbs: { ...reached.limbs, [`${side}Arm`]: goal },
+      }).pose,
+      side,
+    );
+    return AutoMovieMotionHumanArmPlanned.reaching(
+      body,
+      reached,
+      side,
+      AutoMovieMotionHumanArm.angles(entry.pose, side),
+      arrival,
+    );
   }
 }

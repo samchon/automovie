@@ -3,6 +3,7 @@ import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
@@ -66,6 +67,7 @@ export namespace HumanPerformanceMeeting {
         seated: entry.supports.some(
           (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
         ),
+        entry: { posture: entry.posture, pose: entry.pose },
       };
       const others: readonly IHumanActionContext.IPartner[] =
         partner === undefined ? [] : "subject" in partner ? [partner] : partner;
@@ -98,22 +100,29 @@ export namespace HumanPerformanceMeeting {
             ...others.map(
               (
                 other: IHumanActionContext.IPartner,
-              ): AutoMovieMotionMeeting.IRole => ({
-                name: other.role,
-                subject: other.subject,
-                body: HumanPerformanceRead.person(self, other.subject).performer
-                  .body,
-                posture: HumanPerformanceRead.posture(
+              ): AutoMovieMotionMeeting.IRole => {
+                const posture: IHumanPosture = HumanPerformanceRead.posture(
                   self,
                   other.subject,
                   start,
-                ),
-                bones: HumanPerformanceRead.bones(self, other.subject, start),
-                seated: seated(
-                  HumanPerformanceRead.segments(self, other.subject),
-                  start,
-                ),
-              }),
+                );
+                return {
+                  name: other.role,
+                  subject: other.subject,
+                  body: HumanPerformanceRead.person(self, other.subject).performer
+                    .body,
+                  posture,
+                  bones: HumanPerformanceRead.bones(self, other.subject, start),
+                  seated: seated(
+                    HumanPerformanceRead.segments(self, other.subject),
+                    start,
+                  ),
+                  entry: {
+                    posture,
+                    pose: HumanPerformanceRead.pose(self, other.subject, start),
+                  },
+                };
+              },
             ),
           ],
           context,

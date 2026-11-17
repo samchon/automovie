@@ -9,7 +9,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
@@ -28,6 +27,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSeatedReach } from "./HumanSeatedReach";
+import { touchReach } from "./touchReach";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -48,7 +48,9 @@ import { HumanSeatedReach } from "./HumanSeatedReach";
  * (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
  * both arms of, leaned as far as they can, are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
- * (`AutoMovieMotionHumanTiming.transport`); the pair meets when the slower
+ * (`AutoMovieMotionHumanTiming.transport`), and at least the time its arm's
+ * arc takes within the audit's travel bound (`touchReach.meeting`); the pair
+ * meets when the slower
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
  * reach's time. The palms (or the fists) face each other, each surface's
  * skin on the point.
@@ -218,15 +220,13 @@ export namespace highFive {
         }
       },
       timing: (role, contacts) => {
-        const from: IAutoMovieVector3 = HumanHand.frame(
+        const reach: number = touchReach.meeting(
           role.body,
           role.bones,
+          role.entry,
           side,
           surface,
-          "relaxed",
-        ).point;
-        const reach: number = AutoMovieMotionHumanTiming.transport(
-          Vector3.distance(contacts.meet!, from),
+          contacts.meet!,
         );
         return { ready: reach, stroke: reach, relax: reach + REBOUND };
       },
@@ -289,17 +289,13 @@ export namespace highFive {
     // A meeting a window holds later than this hand needs is waited for at
     // rest: the hand leaves only its own reach's time before it.
     const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose);
-    const own: number = p.window === undefined ? 0 : AutoMovieMotionHumanTiming.transport(
-      Vector3.distance(
-          paired.point,
-          HumanHand.frame(
-            body,
-            bones,
-            side,
-            kind === "fist" ? "fist" : "palm",
-            "relaxed",
-          ).point,
-        ),
+    const own: number = p.window === undefined ? 0 : touchReach.meeting(
+      body,
+      bones,
+      context.entry,
+      side,
+      kind === "fist" ? "fist" : "palm",
+      paired.point,
     );
     const lead: number =
       p.window === undefined
@@ -488,3 +484,4 @@ export namespace highFive {
     };
   }
 }
+

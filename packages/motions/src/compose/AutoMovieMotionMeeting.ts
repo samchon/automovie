@@ -1,6 +1,7 @@
 import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -59,6 +60,9 @@ export namespace AutoMovieMotionMeeting {
 
     /** Whether a seat bears the performer then, so a reach may lean the trunk over the seat; standing when absent. */
     seated?: boolean;
+
+    /** The performer's posture and pose there, which a role's timing reads its arm's own reach on (`touchReach.place`); a timing that needs no arm reads none. */
+    entry?: { posture: IHumanPosture; pose: IAutoMoviePose };
   }
 
   /**
