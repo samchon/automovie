@@ -18,10 +18,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
-import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
-import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyMeasures } from "../generation/IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanCanonicalBind } from "./AutoMovieHumanCanonicalBind";
 import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanonicalProfile";
 import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
 
@@ -38,8 +37,8 @@ import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
  * anatomical left.
  *
  * The polygon man is built from joints and girth radii only, so the body is
- * prepared at the skeleton level, without Human's skin, lofts or head
- * surfaces. The canonical rig has no scapulohumeral rhythm, pelvic share or
+ * prepared at the skeleton level, without Human's skin, lofts, head
+ * surfaces or any solve of the detailed figure's curves. The canonical rig has no scapulohumeral rhythm, pelvic share or
  * resting abduction, which Human's own evaluator adds; a canonical pose moves
  * the polygon man by the rig's angles alone.
  */
@@ -93,9 +92,12 @@ export namespace AutoMovieHumanCanonicalBody {
    * Prepare a Human's polygon man on the canonical rig from its parameters,
    * at the skeleton level: no skin, loft or head surface is built.
    *
-   * The bind joints come from Human's own source preparation and skeleton
-   * law (`AutoMovieHumanBodyLaw.prepareSources`, its head source and
-   * `AutoMovieHumanSkeletonLaw.complete`), about 2 s a body. Each joint's girth
+   * The bind joints come from `AutoMovieHumanCanonicalBind`, which places
+   * them by closed-form placement laws alone: no curve of the detailed figure
+   * is built, fitted or measured, so the trunk joints stand on the line from
+   * the mid-hip to the neck base instead of the detailed figure's converged
+   * column axis. A body costs tens of milliseconds, nearly all of it the hull
+   * search of its colliders. Each joint's girth
    * radius is perimeter / 2π of the person's own resolved circumference
    * (`AutoMovieHumanBodyAnatomy.resolve`): hip, waist, chest, neck and head
    * for the trunk and head, the arm at the axilla, the forearm, the hand, the
@@ -128,17 +130,11 @@ export namespace AutoMovieHumanCanonicalBody {
     params: IAutoMovieHumanParameters,
     options: { mass: number; id: string },
   ): IBody {
-    const original: AutoMovieHumanBodyLaw.IOriginal =
-      AutoMovieHumanBodyLaw.prepareSources(params);
-    const anatomy: AutoMovieHumanSkeletonLaw.IOutput =
-      AutoMovieHumanSkeletonLaw.complete(
-        original.bodyAnatomy(),
-        original.headSource(),
-        original.stature,
-      );
+    const anatomy: AutoMovieHumanCanonicalBind.IOutput =
+      AutoMovieHumanCanonicalBind.of(params);
     const measures: IAutoMovieHumanBodyMeasures =
       AutoMovieHumanBodyAnatomy.resolve(params);
-    const scale: number = measures.stature / original.stature / 1000;
+    const scale: number = measures.stature / anatomy.stature / 1000;
     const girth = (millimetres: number): number =>
       millimetres / 1000 / (2 * Math.PI);
     const headRadius: number = girth(params.head.circumference);

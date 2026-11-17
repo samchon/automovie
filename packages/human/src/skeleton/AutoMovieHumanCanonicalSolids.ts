@@ -99,8 +99,10 @@ export namespace AutoMovieHumanCanonicalSolids {
     // A run of rings is one hull when the hull's surface passes through
     // every ring: no ring point is buried, and no ring edge either, since
     // two points can lie on a hull whose surface cuts across between them.
-    const convex = (run: IAutoMovieVector3[][]): boolean => {
-      const points: IAutoMovieVector3[] = run.flat();
+    const convex = (
+      run: IAutoMovieVector3[][],
+      points: IAutoMovieVector3[],
+    ): boolean => {
       const hull: physicalHullFaces.IHull = physicalHullFaces(points);
       return (
         hull.buried <= hull.tolerance &&
@@ -141,9 +143,19 @@ export namespace AutoMovieHumanCanonicalSolids {
       let start: number = 0;
       while (start + 1 < layers.length) {
         let end: number = start + 1;
-        while (end + 1 < layers.length && convex(layers.slice(start, end + 2)))
+
+        // The points of the longest run found convex are kept as the array
+        // its hull was searched on, so the solid's mass reads that hull from
+        // the engine's per-array memo instead of searching it again.
+        let accepted: IAutoMovieVector3[] | null = null;
+        while (end + 1 < layers.length) {
+          const run: IAutoMovieVector3[][] = layers.slice(start, end + 2);
+          const points: IAutoMovieVector3[] = run.flat();
+          if (!convex(run, points)) break;
+          accepted = points;
           end++;
-        runs.push(layers.slice(start, end + 1).flat());
+        }
+        runs.push(accepted ?? layers.slice(start, end + 1).flat());
         start = end;
       }
       runs.forEach((points: IAutoMovieVector3[], index: number): void => {

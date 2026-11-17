@@ -25,8 +25,8 @@ import { HumanPopulation } from "./population/HumanPopulation";
  * @evidence contracts/development/implementation.md#principled-implementation Bodies are Human's own parameter sets, the ANSUR boundary-manikin people in `population`, so variation follows population statistics rather than hand-picked ratios.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lookups delegating preparation to `humanPolygonMan`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown names throw.
- * @evidence contracts/development/implementation.md#efficient-algorithms One cached preparation per distinct body.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation is shared through `humanPolygonMan`'s cache.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One closed-form preparation per call, tens of milliseconds, through `humanPolygonMan`.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Coordinates no requests; a caller that needs one body twice holds the result.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing between calls.
  */
 export namespace MotionBodies {

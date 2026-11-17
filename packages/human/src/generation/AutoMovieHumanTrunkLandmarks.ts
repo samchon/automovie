@@ -104,11 +104,11 @@ export namespace AutoMovieHumanTrunkLandmarks {
    * The column's axis at a height, interpolated between its samples and held
    * beyond them.
    *
-   * @param landmarks The trunk's landmarks.
+   * @param landmarks The trunk's landmarks, of which only the axis is read.
    * @param y Height, mm.
    * @returns The axis point `[x, y, 0]`, mm.
    */
-  export function axisAt(landmarks: IAutoMovieHumanTrunkLandmarks, y: number): [number, number, number] {
+  export function axisAt(landmarks: Pick<IAutoMovieHumanTrunkLandmarks, "axis">, y: number): [number, number, number] {
     const a: [number, number][] = landmarks.axis;
     if (y <= a[0]![0]) return [a[0]![1], y, 0];
 
