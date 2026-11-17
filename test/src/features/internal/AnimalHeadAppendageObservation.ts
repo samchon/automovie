@@ -12,8 +12,10 @@ import { nclose } from "./nclose";
 export namespace AnimalHeadAppendageObservation {
   /** Literal source dimensions and explicitly authored construction controls. */
   export interface IExpected {
-    /** Head capsule's complete coarse length and diameter, metres. */
+    /** Complete axial length of the actual generated head capsule, metres. */
     head: number;
+
+    /** Complete diameter of the actual generated head capsule, metres. */
     diameter: number;
     /** Appendage ids whose entire actual base disk belongs inside the head. */
     roots: readonly string[];

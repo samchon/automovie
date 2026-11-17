@@ -1,15 +1,15 @@
-import type {
-  IAutoMovieCapturePlan,
-  IAutoMovieCaptureSubject,
-  IAutoMovieDrawScene,
-  IAutoMovieInspectionHandle,
+import {
+  type IAutoMovieCapturePlan,
+  type IAutoMovieCaptureSubject,
+  type IAutoMovieDrawScene,
+  type IAutoMovieInspectionHandle,
+  planAutoMovieDrawCall,
 } from "@automovie/render";
-import { planAutoMovieDrawCall } from "@automovie/render";
 
 /**
  * Data admission and native request records for the current archetype round.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the current 26-purpose host contract, actual subject ownership, string-only execution boundary and complete native restart/layout admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States the current 28-purpose host contract, actual subject ownership, string-only execution boundary and complete native restart/layout admission.
  * @evidence contracts/development/design.md#principled-representation Existing render types carry scenes, clocks and legends; runtime readers admit finite JSON values and the exact reviewed purpose set.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinator, purpose expander and camera resolver share only the records/readers and native text construction each currently consumes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This inspection-only module introduces no product registry, recipe framework, species runtime policy or renderer substitute.
@@ -126,13 +126,13 @@ export namespace ArchetypeRoundPlan {
   }
 
   /**
-   * Admit only the reviewed v3, 26-purpose, 536-cell source-ready plan.
+   * Admit only the reviewed v4, 28-purpose, 536-cell source-ready plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the source-ready gate, schema, exact purpose set and finite cap; malformed plan data throws.
    * @evidence contracts/development/implementation.md#principled-implementation Plain JSON field checks enforce the current reviewed inspection contract before model preparation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One top-level object check, one exact purpose-identity set and one return.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown purpose, repeated group or dirty-stage substitute widens this tool's scope.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the fixed 26 purpose identities.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the fixed 28 purpose identities.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value operation owns no cross-request work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No resource or retained state is acquired.
    */
@@ -170,20 +170,22 @@ export namespace ArchetypeRoundPlan {
       "car-open-right-construction",
       "car-open-left-rear",
       "van-side-passage",
+      "armour-opening-complements",
+      "long-equid-ear-complements",
     ]);
     if (
-      plan.schemaVersion !== 3 ||
-      groups.length !== 26 ||
+      plan.schemaVersion !== 4 ||
+      groups.length !== 28 ||
       object(plan.finiteBudget).maximumDrawnCellsPerRound !== 536
     )
       throw new Error(
-        "This materializer owns the reviewed v3, 26-purpose, 536-cell plan only",
+        "This materializer owns the reviewed v4, 28-purpose, 536-cell plan only",
       );
     const identities: string[] = groups.map(
       (group: Record<string, unknown>): string => text(group.id),
     );
     if (
-      new Set(identities).size !== 26 ||
+      new Set(identities).size !== 28 ||
       identities.some((id: string): boolean => !expected.has(id))
     )
       throw new Error("The reviewed purpose identities changed or repeat");
@@ -263,7 +265,9 @@ export namespace ArchetypeRoundPlan {
         return numbers(draft.seconds).map((seconds: number): string =>
           JSON.stringify([...key, seconds]),
         );
-      }).sort(),
+      }).sort((left: string, right: string): number =>
+        left < right ? -1 : left > right ? 1 : 0,
+      ),
     );
   }
 

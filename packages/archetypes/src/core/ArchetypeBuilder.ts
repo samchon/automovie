@@ -17,7 +17,6 @@ import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
 import { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeFracture } from "./ArchetypeFracture";
-import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMaterial } from "./ArchetypeMaterial";

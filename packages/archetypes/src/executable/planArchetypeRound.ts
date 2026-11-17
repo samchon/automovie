@@ -21,7 +21,7 @@ import { materializeArchetypeRoundGroups } from "./materializeArchetypeRoundGrou
 import { subjects } from "./subjects";
 
 /**
- * Materialize the current 26-purpose, at-most-536-cell archetype inspection round.
+ * Materialize the current 28-purpose, at-most-536-cell archetype inspection round.
  *
  * Run from packages/archetypes only after the source batch is committed and
  * clean: `pnpm exec ttsx --no-plugins --noCheck src/executable/planArchetypeRound.ts
@@ -34,11 +34,11 @@ import { subjects } from "./subjects";
  * @throws {Error} For dirty/drifting source, invalid plan/round, unavailable subjects, times, marks or selections, native planning failure or a purpose/round budget overflow. A refused ledger never issues an executable partial manifest.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States cwd, command, clean source gate, current plan scope, exact driver manifest, explicit times/fixed cameras, ignored output ownership, failure ledger and absence of drawing.
- * @evidence contracts/development/implementation.md#principled-implementation Actual subjects prepare the catalog models, clocks, events and marks used by capture. The pinned previous ledger supplies verbatim cameras for its unchanged 496 purpose cells; only the new van aperture section fits actual current bounds. Native plans and complete drawing inputs admit every all-string job and four exact restart pairs before drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns admission, request text and exact native restart matching; materializeArchetypeRoundGroups expands 26 purposes and separates existing restart anchors. This coordinator owns actual scene lifetime, explicit previous cameras, actual van half-space selection, complete ledgers and manifest issuance.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual subjects prepare the catalog models, clocks, events and marks used by capture. The pinned ledger supplies verbatim cameras for its unchanged 496 purpose cells; only the declared van section, armour-opening and long-ear complements fit current bounds. Native plans and complete drawing inputs admit every all-string job and four exact restart pairs before drawing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns admission, request text and exact native restart matching; materializeArchetypeRoundGroups expands 28 purposes and separates existing restart anchors. This coordinator owns scene lifetime, the original cameras, actual van half-space selection, three finite complementary camera purposes, complete ledgers and manifest issuance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Explicit fixture/group recipes are inspection content, not product runtime policy. Actual cruise/leftForeOn/catch/release events determine moving times; missing data and mark/selection failures remain failures instead of neutral substitutions. Dense continuity keeps the plan's selected overlays and matched anchor triplets without a blind cross product.
  * @evidence contracts/development/implementation.md#efficient-algorithms For S finite subjects, C<=536 cells and P actual primitive vertices per sampled scene, preparation retains O(SP) scene data and camera fitting costs O(CP). Each subject is created once; per-camera time/pass inputs are deduplicated. No unmeasured performance claim is made.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared scenes/descriptions serve all groups of their subject. Original camera text is reused verbatim by subject/member/view; only newly declared van aperture views are fitted over all matching times/passes. Reframing cannot hide changed geometry outside the old view, which remains visually unverified. Duplicate non-restart cells reuse their first job's evidence.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared scenes/descriptions serve all groups of their subject. Original camera text is reused verbatim by subject/member/view; only declared complementary views fit their complete time/pass union. A complement never overwrites original framing or proves an occluded face; unreadable construction remains visually unverified. Duplicate non-restart cells reuse their first job's evidence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One invocation owns at most one scene per finite selected subject and disposes every successfully prepared scene in finally. Inspection handles restore after every sampled bound. Files remain in the caller's task-owned round directory; no host, renderer, GPU, watcher or background process is created.
  */
 export async function planArchetypeRound(round: string): Promise<void> {
@@ -97,6 +97,11 @@ export async function planArchetypeRound(round: string): Promise<void> {
       "Camera reuse requires the explicitly pinned 496-cell baseline",
     );
   const previousCameras: Record<string, unknown> = Round.object(previous.cameras);
+  const complementary: ReadonlySet<string> = new Set([
+    "van-side-passage",
+    "armour-opening-complements",
+    "long-equid-ear-complements",
+  ]);
   let source: ReturnType<typeof subjects> = {};
   try {
     try {
@@ -112,7 +117,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
     if (
       Round.identity(
         drafts.filter(
-          (draft: Round.IDraft): boolean => draft.group !== "van-side-passage",
+          (draft: Round.IDraft): boolean => !complementary.has(draft.group),
         ),
       ) !== Round.identity(Round.list(previous.drafts))
     )
@@ -121,7 +126,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
         cause: "The original 496 purpose cells changed",
       });
 
-    // Preserve original framing; only the new van section fits a camera.
+    // Preserve original framing; only the declared complementary purposes fit.
     const fits: Map<string, Round.IDraft[]> = new Map();
     for (const draft of drafts) {
       const key: string = Round.cameraKey(draft);
@@ -306,7 +311,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
     }
   }
 
-  /** Admit actual selections, preserve original framing and fit only the new van section. */
+  /** Admit selections and preserve original framing outside the three declared complements. */
   async function camera(items: Round.IDraft[]): Promise<string> {
     const first: Round.IDraft = items[0]!;
     const item: Round.IPrepared = await get(first.subject);
@@ -317,7 +322,9 @@ export async function planArchetypeRound(round: string): Promise<void> {
         "Purpose views must be fixed once from native named directions",
       );
     const fixed: unknown = previousCameras[Round.cameraKey(first)];
-    if (fixed === undefined && first.group !== "van-side-passage")
+    if (fixed !== undefined && complementary.has(first.group))
+      throw new Error("A complementary view must not reuse an original camera key");
+    if (fixed === undefined && !complementary.has(first.group))
       throw new Error(
         `The pinned baseline has no camera for ${Round.cameraKey(first)}`,
       );

@@ -12,7 +12,7 @@ import { ArchetypeRoundTiming } from "./ArchetypeRoundTiming";
  * @param props The admitted plan, its groups, cached actual-subject reader and shared failure collector.
  * @returns Draft requests, ordinary reused cells and the four explicit fresh-session comparisons.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the finite 26-purpose inspection scope, actual clock/event inputs, native time normalization, duplicate-cell reuse, existing restart-anchor job separation and failure collection.
+ * @evidence contracts/development/common.md#meaningful-documentation States the finite 28-purpose inspection scope, actual clock/event inputs, native time normalization, duplicate-cell reuse, existing restart-anchor job separation and failure collection.
  * @evidence contracts/development/implementation.md#principled-implementation Purpose recipes read actual subject durations and instants; native frame planning owns rounding and event windows. A steady stride uses consecutive leftForeOn events inside cruise/brake, and source depart/stop events set the three towing branches. The source plan supplies static identities and finite allowances.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One expansion dispatch serves the existing purpose groups; timing, request admission and source-field readers stay separate. Source preparation and lifetime remain with the injected reader.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No neutral replacement, guessed missing event or dropped required frame repairs unavailable evidence. Millisecond filename collisions split requests rather than discard distinct instants; authored inspection choices remain review content.
