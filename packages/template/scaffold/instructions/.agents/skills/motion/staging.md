@@ -1,6 +1,6 @@
 # Staging
 
-Staging turns screenplay beats into scene compositions, and returns whenever blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](frame-evaluation.md) owns time sampling and the screenplay owns every edit decision.
+Staging turns screenplay beats into scene compositions, and returns whenever blocking, cameras or continuity change. The screenplay owns every edit decision.
 
 ## Reading the scene
 
@@ -10,19 +10,19 @@ Read each scene with its beat records: the required action or change, who starts
 
 Stage in the set's zones and landmarks, never in coordinates: each beat's spatial change moves its participants between them through entity capabilities, and the set entity resolves where that is.
 
-Program each person's actions, reactions, pauses and result through their [composition](compose/composition.md) and the interactions that relate the participants, with [physical feedback](physical-feedback.md) and [retargeting](retargeting.md) where a scene needs them. An installed action carries its own preparation and follow-through, so add only the anticipation the screenplay decides, such as stepping nearer or looking at the target first.
+Program each person's actions, reactions, pauses and result through their composition, joined by the vocabulary's operators where participants act together. An installed action carries its own preparation and follow-through, so add only the anticipation the screenplay decides, such as stepping nearer first.
 
-Program everyone present as [living scene](../contracts/development/composition.md#living-scene) asks, so an official repositions, a crowd composed as a [group](compose/composition.md#groups) reacts and a partner keeps reading the action. Take each background mover's purpose and destination from the screenplay, or record them as a [concretization](../story/correction/repair.md#concretization). Cross a mover behind the principal action rather than through it, and quiet it at the beat's focal moment, as the DGA's [background guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) advises.
+Everyone present performs for their whole presence, as [living scene](../contracts/development/composition.md#living-scene) asks: an official repositions, a crowd composed as a group reacts and a partner keeps reading the action. Take each background mover's purpose and destination from the screenplay, or record them as a [concretization](../story/correction/repair.md#concretization). Cross a mover behind the principal action rather than through it, and quiet it at the beat's focal moment, as the DGA's [background guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) advises.
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state. A reach or scale mismatch is fixed at its owner, never by changing the outcome.
 
 ## The view
 
-Cameras and lights are entities whose behavior follows the action. A camera realizes the shots and cuts the screenplay decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
+Cameras and lights are entities whose behavior follows the action. A camera realizes the shots and cuts the screenplay decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give goes back to the user.
 
-Light each scene from the sources its set and story day give, such as a window, a lamp or the sun, and keep each source's direction and color across the scene's cuts, because light that jumps at a cut reads as another place or time.
+Light each scene from the sources its set and story day give, such as a window or the sun, and keep each source's direction and color across the scene's cuts, because light that jumps at a cut reads as another place or time.
 
-Inspect every shot at the delivered aspect and scale through the whole action, in the actual camera frames rather than in subject bounds:
+Inspect every shot at the delivered aspect and scale through the whole action, in the camera's frames rather than in subject bounds:
 
 - the subject the beat names reads at the decided size;
 - at the key action, the moving limb and the turned head stand clear of the torso and the background;

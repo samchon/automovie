@@ -6,14 +6,12 @@ Answer for what the declaration implements, wherever its file lives:
 
 | Responsibility | Owns |
 | --- | --- |
-| Composition | Selection and coordination of installed actions |
+| Relation | Coordination of installed actions that several scenes reuse |
 | Motion law | Planning a new action or moving body |
 | Pure rule or table | Legality, outcome classification or variation bounds |
 | Consequence | The effect of an actual outcome |
 
-Study only what [research](../../story/planning/research.md#what-needs-a-study) requires. Cite each study used as `@evidence docs/research/<discipline>/<topic>.md <section and values>`.
-
-Screenplay decisions and installed defaults need no new study. Every production study still needs a behavior that uses it.
+A law names the study it follows in its [studied laws](#studied-laws) answer, as `docs/research/<discipline>/<topic>.md` with the section and values it uses.
 
 Statements: [statements/behaviors.md](statements/behaviors.md).
 

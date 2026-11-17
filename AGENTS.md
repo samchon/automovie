@@ -49,8 +49,7 @@ Read every skill whose trigger applies.
 | [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging a form, a motion, a guide channel, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior |
 | [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict |
 | [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do |
-| [scaffold](.agents/skills/scaffold/SKILL.md) | Editing `packages/template`, or reading, authoring, or reviewing production content anywhere |
-| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Designing or revising the skills, contracts and routers the scaffold ships |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Editing `packages/template` or its shipped skills, or reading, authoring or reviewing production content |
 | [production-campaign](.agents/skills/production-campaign/SKILL.md) | Running sustained authoring campaigns with writers and reviewers launched as CLI processes, observing one production's runs, or comparing productions |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md`, or a skill |
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |

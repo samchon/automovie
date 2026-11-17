@@ -1,7 +1,5 @@
 # Treatment upstream statements
 
-Contract: [upstream/treatments.md](../../upstream/treatments.md).
-
 ## Settings repair
 
 1. The exact settings owner of each defect is identified.

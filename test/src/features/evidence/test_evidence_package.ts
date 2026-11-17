@@ -22,13 +22,13 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 4. Default claim objects remain independent across calls.
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
  * 6. Settings closed and returned to disabled while treatments runs keeps its discovery claim active, so its recorded findings in the shared discovery record still resolve and the graph passes.
- * 7. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
+ * 7. Enabled research and behavior stages require each study's detached answers and each law's answers: a law missing one behaviors answer fails, and the complete law passes with its study named in prose and no study tag.
  * 8. An enabled composition stage over a film folder of scene files requires every section and beat realized and every scene file ordered: a scene citing one of two beats fails, citing its whole scene file covers both, and a film ordering one of two scene files fails until it orders both.
  * 9. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, a closed disabled settings layer against a running treatments layer, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing its whole scene file, a film ordering one scene file against both, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, a closed disabled settings layer against a running treatments layer, relative location rejection, independent default objects, a law missing one behaviors answer against the complete law that names its study in prose, a scene citing one beat against one citing its whole scene file, a film ordering one scene file against both, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -329,7 +329,7 @@ export async function test_evidence_package(): Promise<void> {
     );
 
     // A study answers the story research principles; a law answers the
-    // behaviors contract and must cite the study it follows.
+    // behaviors contract and owes no study citation.
     for (const file of [
       "development/behaviors.md",
       "development/composition.md",
@@ -381,15 +381,14 @@ export async function test_evidence_package(): Promise<void> {
       " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its arguments alone.",
       " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
     ];
-    const step = (citation: string[]): string =>
+    const step = (relational: string[]): string =>
       [
         "/** Lead step length for a stance width, in meters.",
         " * @evidence contracts/development/common.md#meaningful-documentation The comment names the quantity and its unit.",
         ...implementation,
-        " * @evidence contracts/development/behaviors.md#studied-laws The half-stance step is the study's observed value.",
-        " * @evidence contracts/development/behaviors.md#relational-goals The length is relative to the performer's own stance.",
+        " * @evidence contracts/development/behaviors.md#studied-laws The half-stance step is the value docs/research/footwork/lead-step.md records.",
+        ...relational,
         " * @evidence contracts/development/behaviors.md#deterministic-evaluation The result depends only on its argument.",
-        ...citation,
         " */",
         "export function stepLength(stance: number): number { return stance / 2; }",
       ].join("\n");
@@ -404,24 +403,26 @@ export async function test_evidence_package(): Promise<void> {
       development: { behaviors: "evidence" },
     });
     const stagedFile: string = path.join(production, "evidence.config.ts");
-    const uncited: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+    const incomplete: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(staged, stagedFile),
     );
-    assert.equal(uncited.report.success, false);
+    assert.equal(incomplete.report.success, false);
+
+    // The complete law names its study in prose and carries no study tag.
     ProductionWorkflowFixture.write(
       production,
       "src/laws/footwork/stepLength.ts",
       step([
-        " * @evidence docs/research/footwork/lead-step.md The lead step covers half a stance length.",
+        " * @evidence contracts/development/behaviors.md#relational-goals The length is relative to the performer's own stance.",
       ]),
     );
-    const cited: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+    const studied: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(staged, stagedFile),
     );
     assert.equal(
-      cited.report.success,
+      studied.report.success,
       true,
-      JSON.stringify(cited.report.diagnostics),
+      JSON.stringify(studied.report.diagnostics),
     );
 
     // The film folder holds one file per scene. A scene composition must

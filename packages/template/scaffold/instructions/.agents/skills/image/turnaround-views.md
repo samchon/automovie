@@ -2,7 +2,7 @@
 
 Turnaround views show a subject's sides for a commissioned [detail option](../development/entities.md#detail) or standalone asset under [3D modeling](../3d-modeling/SKILL.md). A coarse entity needs none.
 
-Keep this set separate from the subject's frozen [canon references](canon-references.md). [Image hints](../3d-modeling/diffusion/image-hints.md) owns the required views and their form.
+Keep this set separate from the subject's frozen canon references. [Image hints](../3d-modeling/diffusion/image-hints.md) sets the required views and their form.
 
 ## Making the views
 

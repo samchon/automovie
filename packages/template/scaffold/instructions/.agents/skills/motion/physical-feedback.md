@@ -1,41 +1,37 @@
 # Physical feedback
 
-Choose and verify the scene's physical mode here. Installed actions already resolve their supports, contacts and forces from the composition's [forces and outcomes](compose/composition.md#forces-and-outcomes). Engine scheduling, camera evaluation and sampling remain ordinary composition operations.
+A film's performance is kinematic: the installed actions already resolve their supports, contacts and forces from the composition's [forces and outcomes](compose/composition.md#forces-and-outcomes). This page serves the scene that needs a simulated response as well, or a law that moves a body no package moves.
 
-## Physical mode
+## Simulation
 
-Add physical solving only for a response the kinematic performance cannot supply, or a body no package moves. The scene's composition comment names:
+### When to simulate
 
-- the required response and why the existing performance cannot supply it;
-- the affected bodies and time window;
-- the mode the installed package supplies.
+Simulate only a response the screenplay decides and the kinematic performance cannot show, such as a stack of boxes scattering.
 
-The documented modes are:
+The scene's composition comment names the response and why the composed performance cannot supply it, the bodies and time window it affects, and whether it is a simulated window or a stated departure from the solved result.
 
-- the kinematic default, planned by the vocabulary;
-- a simulated window, in which the engine's solver produces the bodies' response and hands back to the composed motion after it;
-- a stated departure from the solved result when impulse, gravity or compliance is exaggerated.
+### Simulated windows
 
-Within that window, the solver realizes the [decided outcome](compose/composition.md#forces-and-outcomes). Report defective installed actions through [reuse](../development/reuse.md#a-defect-or-a-gap).
+In a simulated window the engine's solver produces the bodies' response, then hands back to the composed motion. The solver realizes the decided outcome, so the window changes how the outcome looks and never which outcome happens.
 
-Record exaggerated impulse, gravity or compliance and its reason in the scene's comment. Check promised contacts, misses, falls and timing against actual receipts; proximity establishes no solved impulse.
+Record an exaggerated impulse, gravity or compliance with its reason in the scene's comment, because an unstated departure can hide a failed outcome.
 
-Run [catalog checks](catalog-cases.md#capture-and-review) separately from playback and capture.
+Check the window's promised contacts, misses, falls and timing on the contacts the solver reports. Two bodies drawn close together prove no contact.
 
-## Cached simulation
+### Cached simulation
 
 Simulate fixed numerical inputs once as a [stage cache](../production/stage-caches.md) and draw cached states by film time, so playback, seek and capture consume the same performance. A late edit may reuse only a verified unchanged input prefix with its complete solver and controller checkpoint.
 
-Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and constraints explicit where the chosen API needs them, with simple collision or control representations separate from display tessellation.
+Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and constraints explicit where the chosen API needs them. Keep simple collision or control representations separate from display tessellation.
 
 ## A production law's goals
 
-A law for [a body no package moves](laws/extension.md#what-is-not-a-person) realizes its [effector goals](laws/authoring.md) through the installed engine's public solvers. Follow [fit order](laws/authoring.md#fit-order) and solve coupled goals together where the API supports it.
+A law for a body no package moves, written under vocabulary extension, realizes its [effector goals](laws/authoring.md) through the installed engine's public solvers. Follow [fit order](laws/authoring.md#fit-order) and solve coupled goals together where the API supports it. A solver the engine lacks goes to the user.
 
-A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as [staging](staging.md#blocking) directs. A solver the engine lacks follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
+A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as [staging](staging.md#blocking) directs.
 
 ## Review
 
-Review the resolved performance and receipts against the decided outcome under [segment review](segment-review.md), including consecutive frames at contacts and both simulation hand-backs.
+Review the resolved performance against the decided outcome under [segment review](segment-review.md). Both hand-backs of a simulated window are joins, so they take the consecutive frames [times](../visual-debugging/capture.md#times) requires.
 
 After changing detail, proportions or attachments, check that physical inputs and visible contacts still agree.

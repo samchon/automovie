@@ -19,7 +19,7 @@ State the owner, the consumers the surface serves, and why any non-obvious membe
 Do not:
 
 - shape a type around one consumer, fixture or scene when the concept it names serves others;
-- fix a concept to one case its current consumers already outgrow, such as one body's bones in a gait several bodies use;
+- fix a concept to one case its consumers already outgrow, such as one body's bones in a gait several bodies use;
 - encode alternatives as optional fields that combine into meaningless states, where a discriminated union separates them;
 - widen to `any`, `unknown` or a cast to hide a mismatch between a value and its declared shape;
 - add members only a test reads.

@@ -14,7 +14,7 @@ A contract family is a folder one owner keeps; a new sentence pattern needs no n
 
 Compare a proposed item with the existing ones for overlap, contradiction and whether all can be met at once. Preserving meaning must not freeze defective wording, removing a failure must not delete a setup or promised tone, and correcting expression must not invent facts or events.
 
-An H2 title is an address, so keep it stable, and move callers, selected respondents and dependencies together with a moved item. Existing answers and approvals do not certify a changed obligation, and closed work follows the production's [closed passes](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes).
+An H2 title is an address, so keep it stable, and move callers, selected respondents and dependencies together with a moved item. A source folder is an address too: changing one moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together. Existing answers and approvals do not certify a changed obligation, and closed work follows the production's [closed passes](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes).
 
 ## New criteria
 

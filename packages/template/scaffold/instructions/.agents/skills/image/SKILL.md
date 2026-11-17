@@ -7,12 +7,12 @@ description: Prepares canon references, shot frames and turnaround views, and ro
 
 Image work supplies the appearance of people, places and props, shot frames for a video model, and views for image-to-3D. The motion hint carries pose and camera; images supply the intended look.
 
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Generate, edit or finish an image | [Image diffusion](diffusion/SKILL.md) |
-| Make a subject's canon references | [Canon references](canon-references.md) |
-| Prepare a shot frame, place angle or shape reference from a render | [Conditioning](diffusion/conditioning.md) |
-| Make views for image-to-3D or a modeler | [Turnaround views](turnaround-views.md) |
+| [Image diffusion](diffusion/SKILL.md) | Generate, edit or finish an image |
+| [Canon references](canon-references.md) | Make a subject's canon references |
+| [Conditioning](diffusion/conditioning.md) | Prepare a shot frame, place angle or shape reference from a render |
+| [Turnaround views](turnaround-views.md) | Make views for image-to-3D or a modeler |
 
 ## Every image
 
@@ -20,4 +20,4 @@ Freeze each accepted image: keep the file as generated, with its content credent
 
 Generate every view, shot frame and variant from the frozen canon references, never from an earlier derived image alone, because each edit of an edit loses detail and drifts from the subject.
 
-Judge each image under [visual debugging](../visual-debugging/SKILL.md), against its record and its frozen canon references: identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.
+Judge each image under the visual debugging skill, against its record and its frozen canon references: identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.
