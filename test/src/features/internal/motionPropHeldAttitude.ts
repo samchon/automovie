@@ -60,7 +60,7 @@ const AWAY: number = Math.sin(Math.PI / 180);
  * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame and the mouth region.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two performances and their readings, gathered as complaints and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A performance that does not plan is a complaint with the refusal's words; the bounds are the spec's own, unchanged by the split.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two short performances, sampled at 17, 7 and 5 instants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two short performances, sampled at up to 17 and 5 instants; the arm's description and the 7 pick-up instants of a complaint are resolved only when the carry's bound fails.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
@@ -177,7 +177,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
 
     // 1a. The carry, until the glass starts to tip.
     let carried: number = 0;
-    let worst: string = "";
+    let tilted: number = drink.start;
     const profile: string[] = [];
     for (let i: number = 0; i <= 16; i++) {
       if (minimumJerk(i / 16).s > 1 - AutoMovieMotionHumanTouch.TIP + 1e-9)
@@ -187,43 +187,55 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       profile.push(`${seconds.toFixed(2)}: ${now.toFixed(1)}`);
       if (now > carried) {
         carried = now;
-        worst = `at ${seconds.toFixed(2)} s of ${drink.start.toFixed(2)} to ${atMouth.toFixed(2)}, ${shown(drunk, seconds, axis(seconds))}`;
+        tilted = seconds;
       }
     }
-    // Through the pick-up, from the fingers' closing to the lift's end.
-    // Each frame: the glass's tilt, and how far the hand bone and the
-    // glass have each turned since the fingers closed.
-    const picked: string[] = [];
-    const reader: HumanSignature.IReader = HumanSignature.of(
-      drunk,
-      "a",
-      body,
-      0,
-    );
-    const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
-      (2 *
-        Math.acos(
-          Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w)),
-        ) *
-        180) /
-      Math.PI;
-    const closing: number = instant(lift, "gripClosed") + 0.01;
-    const gripped: IAutoMovieQuaternion = HumanSignature.bones(
-      reader,
-      closing,
-    ).get("rightHand")!.worldRotation;
-    const seated: IAutoMovieQuaternion = drunk.prop("glass", closing).rotation;
-    for (let i: number = 0; i <= 6; i++) {
-      const seconds: number =
-        closing + ((instant(lift, "lifted") - closing) * i) / 6;
-      picked.push(
-        `${seconds.toFixed(2)}: ${from(axis(seconds)).toFixed(1)} (hand ${turn(HumanSignature.bones(reader, seconds).get("rightHand")!.worldRotation, gripped).toFixed(1)}, glass ${turn(drunk.prop("glass", seconds).rotation, seated).toFixed(1)})`,
+    if (!(carried <= 10)) {
+      // The arm at the worst instant and through the pick-up, from the
+      // fingers' closing to the lift's end, are resolved only to describe
+      // a failure. Each pick-up frame: the glass's tilt, and how far the
+      // hand bone and the glass have each turned since the fingers closed.
+      const worst: string = `at ${tilted.toFixed(2)} s of ${drink.start.toFixed(2)} to ${atMouth.toFixed(2)}, ${shown(drunk, tilted, axis(tilted))}`;
+      const picked: string[] = [];
+      const reader: HumanSignature.IReader = HumanSignature.of(
+        drunk,
+        "a",
+        body,
+        0,
       );
-    }
-    if (!(carried <= 10))
+      const turn = (
+        a: IAutoMovieQuaternion,
+        b: IAutoMovieQuaternion,
+      ): number =>
+        (2 *
+          Math.acos(
+            Math.min(
+              1,
+              Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
+            ),
+          ) *
+          180) /
+        Math.PI;
+      const closing: number = instant(lift, "gripClosed") + 0.01;
+      const gripped: IAutoMovieQuaternion = HumanSignature.bones(
+        reader,
+        closing,
+      ).get("rightHand")!.worldRotation;
+      const seated: IAutoMovieQuaternion = drunk.prop(
+        "glass",
+        closing,
+      ).rotation;
+      for (let i: number = 0; i <= 6; i++) {
+        const seconds: number =
+          closing + ((instant(lift, "lifted") - closing) * i) / 6;
+        picked.push(
+          `${seconds.toFixed(2)}: ${from(axis(seconds)).toFixed(1)} (hand ${turn(HumanSignature.bones(reader, seconds).get("rightHand")!.worldRotation, gripped).toFixed(1)}, glass ${turn(drunk.prop("glass", seconds).rotation, seated).toFixed(1)})`,
+        );
+      }
       complaints.push(
         `${name}: the held glass tilts ${carried.toFixed(1)} degrees while it is carried to the mouth, within 10 expected (${worst}; ${from(axis(drink.start)).toFixed(1)} degrees as the drink starts, ${from(axis(instant(lift, "gripClosed") + 0.01)).toFixed(1)} as the fingers close, ${from(axis(instant(lift, "lifted") - 0.01)).toFixed(1)} as the glass is lifted (${shown(drunk, instant(lift, "lifted") - 0.01, axis(instant(lift, "lifted") - 0.01))}); through the pick-up ${picked.join(", ")}; through the carry ${profile.join(", ")})`,
       );
+    }
 
     // 1b. At the mouth: the lean the law asked, read as the glass's axis
     // carried by the asked hand rotation, and the shown one beside it.

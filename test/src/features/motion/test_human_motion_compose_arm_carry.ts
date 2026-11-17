@@ -182,14 +182,15 @@ export function test_human_motion_compose_arm_carry(): void {
           const written: IHumanPosture = carried(share);
           // What the carry's own reading says of the written arm, of the
           // plain blend and of the two ends, so a failing row tells a
-          // clearing that found no way from one that read another room.
+          // clearing that found no way from one that read another room;
+          // these readings are made only when the bound fails.
           const own = (arm: HumanArmClearance.IArm): string =>
             HumanArmClearance.room(body, solved, side, arm, blocking).toFixed(
               3,
             );
           const angles = (of: readonly [number, number, number]): string =>
             of.map((v: number): string => v.toFixed(1)).join("/");
-          const plain: HumanArmClearance.IArm = {
+          const plain = (): HumanArmClearance.IArm => ({
             upper: blendHumanJoint(
               body,
               `${side}UpperArm`,
@@ -211,11 +212,11 @@ export function test_human_motion_compose_arm_carry(): void {
               end.hand,
               share,
             ),
-          };
-          complaints.check(
-            `${cell} at share ${share}: forearm overshoot ${need.toFixed(3)} deg over the allowance ${allowed.toFixed(3)} (ends ${need0.toFixed(3)}, ${need1.toFixed(3)}); written upper ${angles(written.joints[`${side}UpperArm`]!)} lower ${angles(written.joints[`${side}LowerArm`]!)}, plain upper ${angles(plain.upper)} lower ${angles(plain.lower)}; by the carry's reading the written arm lacks ${own({ upper: written.joints[`${side}UpperArm`]!, lower: written.joints[`${side}LowerArm`]!, hand: written.joints[`${side}Hand`]! })}, the plain blend ${own(plain)}, the ends ${own(held)} and ${own(end)}`,
-            need <= allowed + 0.05,
-          );
+          });
+          complaints.check((): string => {
+            const blended: HumanArmClearance.IArm = plain();
+            return `${cell} at share ${share}: forearm overshoot ${need.toFixed(3)} deg over the allowance ${allowed.toFixed(3)} (ends ${need0.toFixed(3)}, ${need1.toFixed(3)}); written upper ${angles(written.joints[`${side}UpperArm`]!)} lower ${angles(written.joints[`${side}LowerArm`]!)}, plain upper ${angles(blended.upper)} lower ${angles(blended.lower)}; by the carry's reading the written arm lacks ${own({ upper: written.joints[`${side}UpperArm`]!, lower: written.joints[`${side}LowerArm`]!, hand: written.joints[`${side}Hand`]! })}, the plain blend ${own(blended)}, the ends ${own(held)} and ${own(end)}`;
+          }, need <= allowed + 0.05);
 
           // 3. Range, hand and the rest.
           for (const [part, from, to] of [
