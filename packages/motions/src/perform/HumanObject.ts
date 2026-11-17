@@ -12,6 +12,8 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+import { HumanObjectCord } from "./HumanObjectCord";
+
 /**
  * Attach actions to an object: an object says where a person meets it
  * through its affordances (a seat, a handle, a surface), and this gives the
@@ -136,6 +138,9 @@ export namespace HumanObject {
               return {
                 affordances: posed.affordances ?? [],
                 ...(moved === undefined ? {} : { shapes: moved }),
+                ...(posed.span === undefined
+                  ? {}
+                  : { span: posed.span.bind(posed) }),
               };
             },
           }),
@@ -167,6 +172,26 @@ export namespace HumanObject {
             },
           }),
     };
+  }
+
+  /**
+   * Create a soft cord on a model span's own endpoints and rest length.
+   * The owning prop and returned cord both belong in the performance props.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the model and line identity and how to supply the result.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanObjectCord discretizes the existing model line in world metres and binds both endpoints to the owning prop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the object authoring entry. The cord's domain construction belongs to HumanObjectCord.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The author supplies no second endpoint declaration. The cord constructor refuses invalid span and domain inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One call to the linear cord discretization and domain validator.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the provider's public span reader and the existing soft solver settings.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
+   */
+  export function cord(
+    model: IAutoMovieMotionHumanObject.ISpanModel,
+    span: string,
+    props: IAutoMovieMotionHumanObject.ICord,
+  ): IAutoMovieMotionHumanProp {
+    return HumanObjectCord(model, span, props);
   }
 
   /**
