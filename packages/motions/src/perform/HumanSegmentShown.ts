@@ -112,6 +112,31 @@ export namespace HumanSegmentShown {
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
   }
 
+  /**
+   * The displayed pose at a second solved exactly by the display pipeline,
+   * never read from a pose table nor kept: the reference a table read is
+   * held to (`HumanSegmentTable`).
+   *
+   * @param person The person.
+   * @param seconds Film seconds.
+   * @returns The pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and that nothing is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation The active action's own exact evaluation, or the standing pose before the first.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One selection, one evaluation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No table, kept pose or still representative is read.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One exact evaluation a call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Shares nothing by design.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function exact(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number): IAutoMoviePose {
+    const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body);
+    const active: IAutoMovieMotionHumanSegment | undefined = HumanSegmentSelection.last(person.segments, seconds);
+    return active === undefined
+      ? HumanSegmentPose.initial(person, undefined, prepared)
+      : HumanSegmentPose.of(person, active, seconds, prepared);
+  }
+
   /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
   function keep(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number, kept: HumanSegment.IShown): boolean {
     if (person.resolving) {
