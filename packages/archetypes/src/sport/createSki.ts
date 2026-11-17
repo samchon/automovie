@@ -67,6 +67,7 @@ export function createSki(
   };
   const builder: ArchetypeBuilder<createSki.Affordance, createSki.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: `ski ${length.name}`,
       draw,

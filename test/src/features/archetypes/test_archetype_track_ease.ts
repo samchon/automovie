@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1c. Eased open from 0 to the hinge's full travel, the range's own ends are admitted and it ends there.
  * 4. A `to` past the hinge's range, a `from` before it, a duration of 0 or less, a launch outside the two travels, and a launch on a track that does not move are refused at their fields.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Eases a produced hatch's hinge and reads the travel through seconds; a linear ramp, a track that overshoots or turns back, ends that are not held, or a launch at the wrong instant or rate is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Eases a produced hatch's hinge and reads travel through seconds with finite-safe bounded checks; a linear ramp, a track that overshoots or turns back, ends that are not held, or a launch at the wrong instant or rate is caught.
  * @evidence contracts/development/testing.md#independent-expectations The halfway travel, the quarter points, the zero end rates and the peak rate `30/16` are the quintic's own properties, worked by hand: `s^3 (10 - 15 s + 6 s^2)` is 1/2 at 1/2 and its derivative `30 s^2 (1 - s)^2` is 0 at both ends and 30/16 at the middle.
  * @evidence contracts/development/testing.md#distinguishing-cases A closing track, its held ends and quarter points, an opening track to the range's end, a launch, and six refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -42,26 +42,31 @@ export function test_archetype_track_ease(): void {
     findings.push(
       `the ends hold ${closing.travel(0)} and ${closing.travel(START + SECONDS + 1)} degrees`,
     );
-  if (Math.abs(closing.travel(START + SECONDS / 2) - open / 2) > 1e-9)
+  if (!(Math.abs(closing.travel(START + SECONDS / 2) - open / 2) <= 1e-9))
     findings.push(
       `halfway the cover is at ${closing.travel(START + SECONDS / 2)} degrees`,
     );
   for (let t: number = START; t < START + SECONDS; t += 0.01)
-    if (closing.travel(t + 0.01) > closing.travel(t))
+    if (!(closing.travel(t + 0.01) <= closing.travel(t)))
       findings.push(`the cover turns back at ${t} s`);
 
   // 2. At rest at both ends.
   const mean: number = open / SECONDS;
   const ms: number = 1e-3;
   for (const t of [START, START + SECONDS - ms])
-    if (Math.abs(closing.travel(t + ms) - closing.travel(t)) / ms > 1e-3 * mean)
+    if (
+      !(
+        Math.abs(closing.travel(t + ms) - closing.travel(t)) / ms <=
+        1e-3 * mean
+      )
+    )
       findings.push(`the cover moves at ${t} s`);
 
   // 3. The launch.
   if (
     closing.launch === null ||
-    Math.abs(closing.launch.seconds - (START + SECONDS / 2)) > 1e-9 ||
-    Math.abs(closing.launch.rate + (30 / 16) * mean) > 1e-9
+    !(Math.abs(closing.launch.seconds - (START + SECONDS / 2)) <= 1e-9) ||
+    !(Math.abs(closing.launch.rate + (30 / 16) * mean) <= 1e-9)
   )
     findings.push(`the launch is ${JSON.stringify(closing.launch)}`);
 
@@ -71,7 +76,7 @@ export function test_archetype_track_ease(): void {
     [0.75, 459 / 512],
   ] as const) {
     const at: number = closing.travel(START + quarter * SECONDS);
-    if (Math.abs(at - open * (1 - share)) > 1e-9)
+    if (!(Math.abs(at - open * (1 - share)) <= 1e-9))
       findings.push(
         `at ${quarter} of the way the cover is at ${at} degrees, ${open * (1 - share)} expected`,
       );

@@ -69,6 +69,7 @@ export function createTableware(
     createTableware.Affordance,
     createTableware.Dimension
   > = new ArchetypeBuilder({
+    material: "ceramic",
     id: params.id,
     name: kind,
     draw,

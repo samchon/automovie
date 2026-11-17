@@ -74,6 +74,7 @@ export function createHandgun(
     createHandgun.Affordance,
     createHandgun.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: createHandgun.NAMES[frame],
     draw,

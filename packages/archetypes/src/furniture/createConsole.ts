@@ -67,6 +67,7 @@ export function createConsole(
     createConsole.Affordance,
     createConsole.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `control console ${size.name}`,
     draw,

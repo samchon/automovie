@@ -111,6 +111,7 @@ export function createSeat(
   const arm: number | undefined = d.armHeight;
   const builder: ArchetypeBuilder<createSeat.Affordance, createSeat.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: NAMES[kind],
       draw,

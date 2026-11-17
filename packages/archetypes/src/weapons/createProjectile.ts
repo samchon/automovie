@@ -83,6 +83,14 @@ export function createProjectile(
     createProjectile.Affordance,
     createProjectile.Dimension
   > = new ArchetypeBuilder({
+    material:
+      kind === "ball"
+        ? "lead"
+        : kind === "roundShot"
+          ? "iron"
+          : kind === "stone"
+            ? "stone"
+            : "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

@@ -79,6 +79,7 @@ export function createLongTool(
     createLongTool.Affordance,
     createLongTool.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

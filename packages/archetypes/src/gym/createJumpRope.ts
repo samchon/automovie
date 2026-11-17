@@ -66,6 +66,7 @@ export function createJumpRope(
     createJumpRope.Affordance,
     createJumpRope.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `skipping rope ${handle.name}, ${cable.name} cable`,
     draw,

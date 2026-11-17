@@ -41,10 +41,11 @@ export namespace GalleryArchetype {
       throw new Error(`No archetype producer is named ${request.subject}`);
 
     const key: string = GalleryCatalogue.variants(producer).key;
-    // A producer that needs a site parameter beyond its variant carries the
-    // stated reference instance for it, which the gallery builds from.
+    // A dispatcher inherits the selected factory's reference only. A dog's
+    // authored specimen mass therefore cannot override an equid's derived mass.
     const params: Record<string, unknown> = {
       ...producer.REFERENCE,
+      ...producer.PRODUCERS?.[request.variant]?.REFERENCE,
       ...(key === "" ? {} : { [key]: request.variant }),
     };
     const rest: Archetype<string, string> = producer(

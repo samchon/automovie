@@ -93,6 +93,7 @@ export function createStationery(
     createStationery.Affordance,
     createStationery.Dimension
   > = new ArchetypeBuilder({
+    material: kind === "paper" || kind === "map" ? "paper" : "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

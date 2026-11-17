@@ -56,6 +56,7 @@ export function createDiscus(
     createDiscus.Affordance,
     createDiscus.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `${kind}'s discus`,
     draw,

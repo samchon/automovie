@@ -81,6 +81,7 @@ export function createBeerTap(
     createBeerTap.Affordance,
     createBeerTap.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "beer tower",
     draw,

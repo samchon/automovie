@@ -48,6 +48,7 @@ export function createRamp(
   const run: number = d.rise / d.slope;
   const builder: ArchetypeBuilder<createRamp.Affordance, createRamp.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: "ramp",
       draw,

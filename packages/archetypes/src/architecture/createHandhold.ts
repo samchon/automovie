@@ -79,6 +79,7 @@ export function createHandhold(
     createHandhold.Affordance,
     createHandhold.Dimension
   > = new ArchetypeBuilder({
+    material: kind === "pole" ? "steel" : "composite",
     id: params.id,
     name:
       strap.name === undefined ? "grab pole" : `hanging strap ${strap.name}`,

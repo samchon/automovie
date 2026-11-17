@@ -52,6 +52,7 @@ export function createHeavyBag(
     createHeavyBag.Affordance,
     createHeavyBag.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "heavy bag",
     draw,

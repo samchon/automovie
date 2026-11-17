@@ -29,7 +29,9 @@ export function test_archetype_armour_fit(): void {
   const PLATE: readonly [number, number] = [0.0015, 0.003];
   const PAD: number = 0.75 * 0.0254;
   const EPSILON: number = 1e-9;
-  const shape = (
+  const shape: (
+    piece: ReturnType<typeof createArmour>,
+  ) => AutoMoviePrimitiveShape = (
     piece: ReturnType<typeof createArmour>,
   ): AutoMoviePrimitiveShape => {
     const part: IAutoMovieModelPart = piece.parts.find(
@@ -39,8 +41,11 @@ export function test_archetype_armour_fit(): void {
       throw new Error("an armour piece is not a primitive");
     return part.geometry.shape;
   };
-  const inside = (value: number, low: number, high: number): boolean =>
-    value >= low - EPSILON && value <= high + EPSILON;
+  const inside: (value: number, low: number, high: number) => boolean = (
+    value: number,
+    low: number,
+    high: number,
+  ): boolean => value >= low - EPSILON && value <= high + EPSILON;
 
   // 1. Fitted to every body.
   for (const name of motionHumanBody.SWEEP) {
@@ -75,7 +80,7 @@ export function test_archetype_armour_fit(): void {
           s.type !== "box" ||
           !inside(s.width - m.chestBreadth, 2 * plate[0], 2 * plate[1]) ||
           !inside(s.depth - m.chestDepth, 2 * plate[0], 2 * plate[1]) ||
-          Math.abs(s.height - height) > EPSILON
+          !(Math.abs(s.height - height) <= EPSILON)
         )
           findings.push(
             `${label}: ${JSON.stringify(s)} round a chest ${m.chestBreadth} by ${m.chestDepth} m`,
@@ -92,7 +97,7 @@ export function test_archetype_armour_fit(): void {
         if (
           s.type !== "cylinder" ||
           !inside(s.radius - radius, PLATE[0], PLATE[1]) ||
-          Math.abs(s.height - length) > EPSILON
+          !(Math.abs(s.height - length) <= EPSILON)
         )
           findings.push(
             `${label}: ${JSON.stringify(s)} round a limb of ${radius} m over ${length} m`,
@@ -119,10 +124,12 @@ export function test_archetype_armour_fit(): void {
         findings.push(`${kind} ${model}: not admitted`);
       if (
         s.type !== "box" ||
-        Math.abs(s.height - h / 100) > EPSILON ||
-        Math.abs(s.width - w / 100) > EPSILON ||
-        Math.abs(s.depth - dp / 100) > EPSILON ||
-        Math.abs(piece.body.mass - g / 1000) > EPSILON
+        !(
+          Math.abs(s.height - h / 100) <= EPSILON &&
+          Math.abs(s.width - w / 100) <= EPSILON &&
+          Math.abs(s.depth - dp / 100) <= EPSILON &&
+          Math.abs(piece.body.mass - g / 1000) <= EPSILON
+        )
       )
         findings.push(
           `${kind} ${model}: ${JSON.stringify(s)}, ${piece.body.mass} kg`,

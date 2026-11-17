@@ -63,6 +63,7 @@ export function createUmbrella(
     createUmbrella.Affordance,
     createUmbrella.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: params.open === true ? "open umbrella" : "umbrella",
     draw,

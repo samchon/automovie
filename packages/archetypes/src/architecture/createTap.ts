@@ -50,6 +50,7 @@ export function createTap(
   );
   const builder: ArchetypeBuilder<createTap.Affordance, createTap.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: "mixer tap",
       draw,

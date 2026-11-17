@@ -77,6 +77,7 @@ export function createTree(
   );
   const builder: ArchetypeBuilder<createTree.Affordance, createTree.Dimension> =
     new ArchetypeBuilder({
+      material: "wood",
       id: params.id,
       name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
       draw,

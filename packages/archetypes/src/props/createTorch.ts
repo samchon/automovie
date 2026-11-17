@@ -50,6 +50,7 @@ export function createTorch(
     createTorch.Affordance,
     createTorch.Dimension
   > = new ArchetypeBuilder({
+    material: "aluminium",
     id: params.id,
     name: "torch",
     draw,

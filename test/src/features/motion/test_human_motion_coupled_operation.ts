@@ -24,6 +24,7 @@ function coupled(): Archetype<"drive" | "follower", never> {
   const frame: ReturnType<typeof ArchetypeFrame.upright> =
     ArchetypeFrame.upright(Vector3.create(0, 1, 0));
   return new ArchetypeBuilder<"drive" | "follower", never>({
+    material: "steel",
     name: "coupled-operation",
     draw: new ArchetypeDrawSession<never>("coupled-operation", {}, undefined),
   })

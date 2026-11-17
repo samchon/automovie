@@ -99,7 +99,7 @@ export function test_archetype_projectile_flight_data(): void {
     const depth: number | undefined = DEPTH[kind];
     if (
       depth !== undefined &&
-      Math.abs((body.contact?.embed ?? Number.NaN) - depth) > 1e-12
+      !(Math.abs((body.contact?.embed ?? Number.NaN) - depth) <= 1e-12)
     )
       findings.push(`${kind} sticks ${body.contact?.embed} m deep`);
 
@@ -111,7 +111,7 @@ export function test_archetype_projectile_flight_data(): void {
     } else if (
       body.drag === undefined ||
       body.drag.coefficient !== (kind === "arrow" ? ARROW : SPHERE) ||
-      Math.abs(body.drag.area - Math.PI * radius * radius) > 1e-15
+      !(Math.abs(body.drag.area - Math.PI * radius * radius) <= 1e-15)
     )
       findings.push(`${kind}: drag ${JSON.stringify(body.drag)}`);
     if (kind === "bolt") {
@@ -131,7 +131,7 @@ export function test_archetype_projectile_flight_data(): void {
       kind: "roundShot",
       model,
     });
-    if (Math.abs(shot.body.contact!.embed! - feet * 12 * inch) > 1e-12)
+    if (!(Math.abs(shot.body.contact!.embed! - feet * 12 * inch) <= 1e-12))
       findings.push(`${model} embeds ${shot.body.contact!.embed} m`);
   }
   TestValidator.equals(

@@ -56,6 +56,7 @@ export function createVaultingTable(
     createVaultingTable.Affordance,
     createVaultingTable.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "vaulting table",
     draw,

@@ -66,6 +66,7 @@ export function createSaloonDoor(
     createSaloonDoor.Affordance,
     createSaloonDoor.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `saloon doors for a ${opening.name} opening`,
     draw,

@@ -57,6 +57,7 @@ export function createHurdle(
     createHurdle.Affordance,
     createHurdle.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "hurdle",
     draw,

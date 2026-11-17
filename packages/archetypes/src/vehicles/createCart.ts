@@ -84,6 +84,7 @@ export function createCart(
   const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: createCart.NAMES[kind],
       draw,

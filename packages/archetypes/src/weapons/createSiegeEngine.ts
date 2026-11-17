@@ -57,6 +57,7 @@ export function createSiegeEngine(
     createSiegeEngine.Affordance,
     createSiegeEngine.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

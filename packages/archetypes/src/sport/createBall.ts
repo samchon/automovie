@@ -53,6 +53,7 @@ export function createBall(
   );
   const builder: ArchetypeBuilder<createBall.Affordance, createBall.Dimension> =
     new ArchetypeBuilder({
+      material: kind === "puck" ? "rubber" : "composite",
       id: params.id,
       name: kind === "puck" ? "puck" : `${kind} ball`,
       draw,

@@ -33,6 +33,9 @@ export namespace GalleryCatalogue {
 
     /** The parameters a producer needs beyond its variant, as the stated reference instance it carries, such as a cell front's narrowest width. */
     REFERENCE?: Readonly<Record<string, unknown>>;
+
+    /** A dispatcher's public variant factories; only the selected child's stated reference parameters are read, so one variant's required inputs never alter its siblings. */
+    PRODUCERS?: Readonly<Record<string, Pick<IProducer, "REFERENCE">>>;
   }
 
   /** The archetype families, by subpath, in the package's order. */

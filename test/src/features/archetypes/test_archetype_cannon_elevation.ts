@@ -42,7 +42,7 @@ export function test_archetype_cannon_elevation(): void {
   const findings: string[] = [];
   const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
     createCannon({ kind: "fieldGun" });
-  const sinking = (degrees: number): number => {
+  const sinking: (degrees: number) => number = (degrees: number): number => {
     const turn: number = (degrees * Math.PI) / 180;
     return BEHIND * Math.sin(turn) - RING * (1 - Math.cos(turn));
   };
@@ -64,37 +64,44 @@ export function test_archetype_cannon_elevation(): void {
       createCannon.Dimension
     > = gun.articulate({ elevation: degrees });
     if (
-      Math.abs(posed.travel("elevation") - degrees) > 1e-9 ||
-      Math.abs(byElevation.travel("screw") - screw) > 1e-6
+      !(
+        Math.abs(posed.travel("elevation") - degrees) <= 1e-9 &&
+        Math.abs(byElevation.travel("screw") - screw) <= 1e-6
+      )
     )
       findings.push(
         `at ${degrees} the two inputs do not describe one coupling`,
       );
     const launch: createCannon.ILaunch = createCannon.launch(gun, { screw });
     if (
-      Math.abs(launch.direction.y - Math.sin((degrees * Math.PI) / 180)) > 1e-9
+      !(
+        Math.abs(launch.direction.y - Math.sin((degrees * Math.PI) / 180)) <=
+        1e-9
+      )
     )
       findings.push(
         `at ${degrees} the screw-driven launch has the wrong direction`,
       );
     const sunk: number = posed.travel("screwRise");
     const turned: number = posed.travel("screw");
-    if (Math.abs(sunk - sinking(degrees)) > 1e-9)
+    if (!(Math.abs(sunk - sinking(degrees)) <= 1e-9))
       findings.push(
         `at ${degrees} the screw sinks ${sunk}, not ${sinking(degrees)}`,
       );
-    if (Math.abs(turned - (sinking(degrees) / PITCH) * 360) > 1e-6)
+    if (!(Math.abs(turned - (sinking(degrees) / PITCH) * 360) <= 1e-6))
       findings.push(`at ${degrees} the handle turns ${turned} degrees`);
     const top: number = archetypeExtent(posed, "y", ["screw"]).high;
-    if (Math.abs(top0 - top - sinking(degrees)) > 1e-6)
+    if (!(Math.abs(top0 - top - sinking(degrees)) <= 1e-6))
       findings.push(
         `at ${degrees} the screw's head misses the ring reference height`,
       );
     if (
-      Math.abs(
-        posed.affordance("screw").frame.translation.y -
-          (gun.affordance("screw").frame.translation.y - sinking(degrees)),
-      ) > 1e-9
+      !(
+        Math.abs(
+          posed.affordance("screw").frame.translation.y -
+            (gun.affordance("screw").frame.translation.y - sinking(degrees)),
+        ) <= 1e-9
+      )
     )
       findings.push(`at ${degrees} the handle does not ride the screw's head`);
     const rise: IAutoMovieVector3 = ArchetypeFrame.axis(
@@ -109,8 +116,10 @@ export function test_archetype_cannon_elevation(): void {
   }
   const handle: ReturnType<typeof gun.affordance> = gun.affordance("screw");
   if (
-    Math.abs(handle.travel! - (sinking(12) / PITCH) * 360) > 1e-6 ||
-    Math.abs(handle.reverse! + (sinking(-8) / PITCH) * 360) > 1e-6 ||
+    !(
+      Math.abs(handle.travel! - (sinking(12) / PITCH) * 360) <= 1e-6 &&
+      Math.abs(handle.reverse! + (sinking(-8) / PITCH) * 360) <= 1e-6
+    ) ||
     handle.follows !== undefined ||
     gun.affordance("elevation").follows?.id !== "screw"
   )

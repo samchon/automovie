@@ -3,9 +3,9 @@ import { IAutoMovieBody, IAutoMovieVector3 } from "@automovie/interface";
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
- * Require finite positive mass, inclusive[0,1] restitution, an optional static friction in [0,1], an optional kinetic friction in [0,1] present only with the static one and no greater than it, finite optional center-of-mass coordinates, an optional drag of positive coefficient and area, and an optional contact of a non-negative embedding depth and rolling resistance and pass loss in [0,1], a positive breaking energy and a glance angle in [0,90] degrees.
+ * Require finite positive mass, declared restitution in inclusive [0,1], optional static and kinetic friction, finite optional center-of-mass coordinates and the declared drag and contact ranges. A missing restitution remains unknown and does not invalidate kinematic model construction.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Require finite positive mass, inclusive[0,1] restitution, an optional static friction in [0,1] (absent when nothing measured it), an optional kinetic friction in [0,1] present only with the static one and no greater than it (sliding never resists more than sticking), finite optional center-of-mass coordinates, a drag whose coefficient and area are positive (a drag of zero is no drag, and absent), and a contact whose depth is not negative, whose rolling resistance and speed loss are shares, whose breaking energy is positive, and whose glance angle lies between the normal and the surface, 0 to 90 degrees.
+ * @evidence contracts/development/implementation.md#principled-implementation Require finite positive mass, an optional explicitly declared restitution in inclusive [0,1] (absence remains unknown until a physical response needs it), an optional static friction in [0,1] (absent when nothing measured it), an optional kinetic friction in [0,1] present only with the static one and no greater than it (sliding never resists more than sticking), finite optional center-of-mass coordinates, a drag whose coefficient and area are positive (a drag of zero is no drag, and absent), and a contact whose depth is not negative, whose rolling resistance and speed loss are shares, whose breaking energy is positive, and whose glance angle lies between the normal and the surface, 0 to 90 degrees.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Body metadata owns these scalar policies and the collector owns range reporting.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Passing scalars does not certify a simulated body, fitted inertia tensor or measured center of mass.
  * @evidence contracts/development/common.md#meaningful-documentation Null centerOfMass means omitted metadata; field paths and append-only errors are explicit.
@@ -54,7 +54,14 @@ export const validateBody: (
         body.kineticFriction,
       );
   }
-  collector.range(`${path}.restitution`, body.restitution, 0, 1, "restitution");
+  if (body.restitution !== undefined)
+    collector.range(
+      `${path}.restitution`,
+      body.restitution,
+      0,
+      1,
+      "restitution",
+    );
   if (body.drag !== undefined)
     for (const field of ["coefficient", "area"] as const)
       if (!(Number.isFinite(body.drag[field]) && body.drag[field] > 0))

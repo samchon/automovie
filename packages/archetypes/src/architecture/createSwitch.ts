@@ -57,6 +57,7 @@ export function createSwitch(
     createSwitch.Affordance,
     createSwitch.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "rocker" ? "light switch" : "call button",
     draw,

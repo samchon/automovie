@@ -97,6 +97,7 @@ export function createPolearm(
     createPolearm.Affordance,
     createPolearm.Dimension
   > = new ArchetypeBuilder({
+    material: kind === "staff" ? "wood" : "composite",
     id: params.id,
     name: kind,
     draw,

@@ -45,8 +45,7 @@ import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
 ): projectileDragFlight.IFlight {
-  const known: projectileDragFlight.IFlight | undefined =
-    MEMO.get(projectile);
+  const known: projectileDragFlight.IFlight | undefined = MEMO.get(projectile);
   if (known !== undefined) return known;
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
@@ -152,6 +151,25 @@ export function projectileDragFlight(
   const flight: projectileDragFlight.IFlight = {
     step: h,
     fastest,
+    interval: (seconds: number): projectileDragFlight.IInterval => {
+      const t: number = Math.max(0, seconds);
+      const trajectory: integrateMotionTrajectory.ITrajectory = chunk(
+        Math.floor(t / span),
+      );
+      const data: integrateMotionTrajectory.IInterval = trajectory.interval!(t);
+      return {
+        from: data.from,
+        to: data.to,
+        start: {
+          position: { x: data.start[0]!, y: data.start[1]!, z: data.start[2]! },
+          velocity: { x: data.first[0]!, y: data.first[1]!, z: data.first[2]! },
+        },
+        end: {
+          position: { x: data.end[0]!, y: data.end[1]!, z: data.end[2]! },
+          velocity: { x: data.last[0]!, y: data.last[1]!, z: data.last[2]! },
+        },
+      };
+    },
     at: (seconds: number): IAutoMovieProjectileState => {
       const t: number = Math.max(0, seconds);
       const x: number[] = chunk(Math.floor(t / span)).at(t).x;
@@ -185,6 +203,25 @@ export namespace projectileDragFlight {
   /** Steps per chunk: a memory bound no flight reads, about a thousand knots of six numbers per chunk. */
   export const CHUNK: number = 1024;
 
+  /**
+   * The actual fixed Hermite interval containing a query.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its knot time or endpoint-state meaning.
+   * @evidence contracts/development/design.md#principled-representation Two actual integrator knot times and their position/velocity states define the position cubic, whose endpoint derivatives are those velocities.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The drag departure classifier needs the dense curve's endpoints, not a continuous-force assumption or a second integration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No resampled trajectory or mutable knot storage escapes; state readers return fresh numeric records.
+   */
+  export interface IInterval {
+    /** First actual knot second. */
+    from: number;
+    /** Next actual knot second. */
+    to: number;
+    /** Position and velocity at the first knot. */
+    start: IAutoMovieProjectileState;
+    /** Position and velocity at the next knot. */
+    end: IAutoMovieProjectileState;
+  }
+
   /** A drag flight's reader. */
   export interface IFlight {
     /** The integration step, seconds. */
@@ -192,6 +229,21 @@ export namespace projectileDragFlight {
 
     /** The largest speed the flight reaches, m/s: the launch speed or the terminal speed, whichever is larger. */
     fastest: number;
+
+    /**
+     * Read the actual cubic interval containing a nonnegative flight time.
+     *
+     * @param seconds Seconds since launch; negative times select the first interval.
+     * @returns Actual adjacent knot times with fresh endpoint states.
+     * @evidence contracts/development/common.md#meaningful-documentation States the time frame, held-start selection and ownership of returned knot states.
+     * @evidence contracts/development/implementation.md#principled-implementation Reads the fixed integrator's actual stored Hermite data; the cubic's position derivatives are its stored right-hand-side rates, not rounded interpolation results or the independently interpolated velocity channel.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the actual chunk and map its stored adjacent positions and derivatives to vectors.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Knots are selected from the integrator's own times rather than reconstructed from a nominal clock grid.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size copies after the existing lazy chunk integration; no additional right-hand-side or interpolation evaluations occur.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same memoized launch trajectory as at and projectileAt.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned states own fresh vectors and expose no knot arrays or retained trajectory reference.
+     */
+    interval(seconds: number): IInterval;
 
     /**
      * The state at a second after the launch.

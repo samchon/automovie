@@ -56,6 +56,7 @@ export function createJavelin(
     createJavelin.Affordance,
     createJavelin.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `${kind}'s javelin`,
     draw,

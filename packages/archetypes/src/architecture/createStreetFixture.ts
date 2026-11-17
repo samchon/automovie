@@ -106,6 +106,7 @@ export function createStreetFixture(
     ...model.figures,
   };
   const builder: Builder = new ArchetypeBuilder({
+    material: kind === "bollard" ? "steel" : "composite",
     id: params.id,
     name:
       model.name === undefined ? NAMES[kind] : `${NAMES[kind]} ${model.name}`,

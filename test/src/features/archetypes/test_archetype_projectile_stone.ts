@@ -26,7 +26,9 @@ export function test_archetype_projectile_stone(): void {
   const findings: string[] = [];
   const MASS: readonly [number, number] = [0.5, 1];
   const GRAVITY: readonly [number, number] = [2.6, 2.72];
-  const ball = (stone: ReturnType<typeof createProjectile>): number => {
+  const ball: (stone: ReturnType<typeof createProjectile>) => number = (
+    stone: ReturnType<typeof createProjectile>,
+  ): number => {
     const part: IAutoMovieModelPart | undefined = stone.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === "stone",
     );
@@ -75,8 +77,10 @@ export function test_archetype_projectile_stone(): void {
     kind: "stone",
   });
   if (
-    Math.abs(middle.body.mass - 0.75) > 1e-12 ||
-    Math.abs(middle.dimensions.gravity! - 2.66) > 1e-12
+    !(
+      Math.abs(middle.body.mass - 0.75) <= 1e-12 &&
+      Math.abs(middle.dimensions.gravity! - 2.66) <= 1e-12
+    )
   )
     findings.push(
       `seedless it weighs ${middle.body.mass} kg at a specific gravity of ${middle.dimensions.gravity}`,
@@ -89,13 +93,13 @@ export function test_archetype_projectile_stone(): void {
   const centre: number | undefined = middle.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === "stone",
   )?.transform?.translation.y;
-  if (centre === undefined || Math.abs(centre - r) > 1e-12)
+  if (centre === undefined || !(Math.abs(centre - r) <= 1e-12))
     findings.push(`its centre stands ${centre} m up, its radius ${r} m`);
   const body: ReturnType<typeof middle.affordance> = middle.affordance("body");
   if (
     body.kind !== "handle" ||
     body.grip !== "power" ||
-    Math.abs(body.aperture! - 2 * r) > 1e-12
+    !(Math.abs(body.aperture! - 2 * r) <= 1e-12)
   )
     findings.push(`the body grip is ${JSON.stringify(body)}`);
   if (middle.body.friction === undefined)

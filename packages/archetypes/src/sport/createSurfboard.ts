@@ -55,6 +55,7 @@ export function createSurfboard(
     createSurfboard.Affordance,
     createSurfboard.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `surfboard ${model.name}`,
     draw,

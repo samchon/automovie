@@ -12,6 +12,7 @@ import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
+import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
 
 /**
  * A projectile's first contact with any of several colliders over a span of
@@ -34,18 +35,26 @@ import { projectileDragFlight } from "./projectileDragFlight";
  * states its own. The point and the normal are the struck collider's
  * nearest-point reading against the projectile at the contact second.
  *
+ * Initial touch or penetration is reported by default. After resolving that
+ * episode, `departing` names its collider. A fixed plane can then classify
+ * departure for a sphere or fixed-attitude tail from the normal motion of
+ * this flight, deferring only that pair until actual positive clearance or
+ * proving no fresh entry in the span. Later reentry and other colliders keep
+ * the original scan. Rotating tails and opaque colliders retain initial
+ * reporting unless their own physical model supplies a certificate.
+ *
  * @param projectile The flight.
  * @param colliders What it may meet; `projectileFirstContact.plane` and `projectileFirstContact.shape` build the common ones.
  * @param span Seconds since launch the search covers.
- * @param options The projectile's radius and tail, and the thinnest collider the step must not cross.
+ * @param options The projectile's radius and tail, thinnest collider and optional already-resolved initial collider.
  * @returns The first contact, or null when the flight meets nothing in the span.
- * @throws {RangeError} When the span is not forward, the thickness or the radius is not positive and finite, or a tail is given without an attitude.
+ * @throws {RangeError} When the span is not finite and forward, thickness is not finite and positive, radius is not finite and non-negative, a tail lacks an attitude, or a departure certificate is invalid.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the projectile's shape, the sweep's owner, the step rule, the blind spot and where the normal comes from.
  * @evidence contracts/development/implementation.md#principled-implementation Continuous collision detection by the resolver's conservative scan and bisection, with the step bounded by the largest point speed so no collider of the stated thickness is stepped over.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, bound the speed, sweep with the one resolver, read the contact's point and normal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and the stated thickness; nothing is sampled on a frame grid.
- * @evidence contracts/development/implementation.md#efficient-algorithms One nearest-point reading per collider per scan step and bisection, linear in the colliders and the span over the step.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One nearest-point reading per eligible collider per scan step and bisection. An initially contacting collider may additionally classify departure once; the fixed plane probes actual normal clearance until a witness or representable-time exhaustion. This adds model work without changing the scan's thickness bound or blind spot.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver's sweep, `physicalShapeNearest` for shapes and `projectileAt`'s memoised flight.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the flight's own memo.
  */
@@ -55,7 +64,13 @@ export function projectileFirstContact(
   span: { from: number; to: number },
   options: projectileFirstContact.IOptions,
 ): IAutoMovieHit | null {
-  if (!(Number.isFinite(span.from) && Number.isFinite(span.to) && span.to > span.from))
+  if (
+    !(
+      Number.isFinite(span.from) &&
+      Number.isFinite(span.to) &&
+      span.to > span.from
+    )
+  )
     throw new RangeError(
       `projectile contact span ${span.from} to ${span.to} is not finite and forward`,
     );
@@ -129,16 +144,30 @@ export function projectileFirstContact(
         },
       ],
       bodies: colliders.map(
-        (c: projectileFirstContact.ICollider): resolveAutoMovieContactEvents.IBody => ({
-          id: c.id,
-          distance: (point: IAutoMovieVector3, seconds: number): number =>
-            c.nearest(point, point, seconds).distance,
-          axis: (
-            a: IAutoMovieVector3,
-            b: IAutoMovieVector3,
-            seconds: number,
-          ): number => c.nearest(a, b, seconds).distance,
-        }),
+        (
+          c: projectileFirstContact.ICollider,
+        ): resolveAutoMovieContactEvents.IBody => {
+          const departure: projectileFirstContact.ICollider["departure"] =
+            c.departure;
+          return {
+            id: c.id,
+            distance: (point: IAutoMovieVector3, seconds: number): number =>
+              c.nearest(point, point, seconds).distance,
+            axis: (
+              a: IAutoMovieVector3,
+              b: IAutoMovieVector3,
+              seconds: number,
+            ): number => c.nearest(a, b, seconds).distance,
+            ...(departure === undefined
+              ? {}
+              : {
+                  departure: (
+                    contact: resolveAutoMovieContactEvents.IInitialContact,
+                  ): resolveAutoMovieContactEvents.Departure | undefined =>
+                    departure.call(c, projectile, options, contact),
+                }),
+          };
+        },
       ),
       from: span.from,
       to: span.to,
@@ -167,7 +196,7 @@ export function projectileFirstContact(
  * Companion types and collider builders of {@link projectileFirstContact}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
- * @evidence contracts/development/design.md#principled-representation A collider is a nearest-point reading of a segment at a second, the one query the sweep and the normal both need; a plane and a placed shape are two builders of it.
+ * @evidence contracts/development/design.md#principled-representation A collider is a nearest-point reading of a segment at a second, optionally with physical departure knowledge for a resolved initial episode; a plane and a placed shape are its builders. The resolved collider id is separate from geometry and never removes later entry.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a caller gives and the two builders the engine's own colliders need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A person's colliders are the caller's reading, never a shape the engine guesses.
  */
@@ -190,6 +219,17 @@ export namespace projectileFirstContact {
     id: string;
 
     /**
+     * Certify departure of an explicitly resolved initial episode using this
+     * collider's physical model. Unknown motion returns undefined and retains
+     * ordinary overlap reporting; a witness is checked by the shared resolver.
+     */
+    departure?(
+      projectile: IAutoMovieProjectile,
+      options: IOptions,
+      contact: resolveAutoMovieContactEvents.IInitialContact,
+    ): resolveAutoMovieContactEvents.Departure | undefined;
+
+    /**
      * Where a world segment comes nearest it at a second; a point when both
      * ends coincide.
      *
@@ -207,6 +247,13 @@ export namespace projectileFirstContact {
 
   /** The projectile's size and the thinnest collider the search must see. */
   export interface IOptions {
+    /**
+     * Collider whose initial contact was already resolved by a continuation.
+     * Only a physical departure certificate may defer this pair; absent or
+     * unknown, initial overlap/touch is still reported. Other colliders and
+     * this collider's later entry remain in the same sweep.
+     */
+    departing?: string;
     /** The projectile's radius, metres; 0 for a point. */
     radius: number;
 
@@ -233,6 +280,12 @@ export namespace projectileFirstContact {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     return {
       id,
+      departure: (
+        projectile: IAutoMovieProjectile,
+        options: IOptions,
+        contact: resolveAutoMovieContactEvents.IInitialContact,
+      ): resolveAutoMovieContactEvents.Departure | undefined =>
+        projectilePlaneDeparture(id, n, projectile, options, contact),
       nearest: (a: IAutoMovieVector3, b: IAutoMovieVector3): INearest => {
         const da: number = Vector3.dot(Vector3.subtract(a, point), n);
         const db: number = Vector3.dot(Vector3.subtract(b, point), n);
@@ -283,4 +336,3 @@ export namespace projectileFirstContact {
     };
   }
 }
-

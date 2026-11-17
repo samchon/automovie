@@ -81,6 +81,7 @@ export function createCannon(
     createCannon.Affordance,
     createCannon.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,
@@ -310,6 +311,11 @@ export namespace createCannon {
         6.41 * ArchetypeUnits.INCH,
         GRIFFITHS,
       ),
+      ball: ArchetypeBand.metres(
+        6.14 * ArchetypeUnits.INCH,
+        6.2 * ArchetypeUnits.INCH,
+        `${GRIFFITHS}, p. 59: the 32-pounder's shot low and high gauges, 6.14 and 6.20 in, distinct from its 6.41 in bore`,
+      ),
       frontWheelDiameter: ArchetypeBand.metres(
         19 * ArchetypeUnits.INCH,
         19 * ArchetypeUnits.INCH,
@@ -375,7 +381,7 @@ export namespace createCannon {
     /** The shot's speed leaving the muzzle, metres per second. */
     speed: number;
 
-    /** The shot's diameter, metres: the gun's `ball`, else its bore. */
+    /** The known shot diameter, metres, from the gun's `ball`; a bore is not a substitute for the shot. */
     calibre: number;
   }
 

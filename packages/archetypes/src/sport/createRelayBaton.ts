@@ -49,6 +49,7 @@ export function createRelayBaton(
     createRelayBaton.Affordance,
     createRelayBaton.Dimension
   > = new ArchetypeBuilder({
+    material: "aluminium",
     id: params.id,
     name: "relay baton",
     draw,

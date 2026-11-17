@@ -49,6 +49,7 @@ function fixture(
   const facing = (at: IAutoMovieVector3): IAutoMovieAffordance["frame"] =>
     ArchetypeFrame.facing(at, v(0, 1, 0), v(1, 0, 0));
   return new ArchetypeBuilder<Id, never>({
+    material: "steel",
     name: "fixture",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

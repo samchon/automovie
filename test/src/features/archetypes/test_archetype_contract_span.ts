@@ -33,6 +33,7 @@ function fixture(
 ): Archetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
   return new ArchetypeBuilder<Id, never>({
+    material: "steel",
     name: "fixture",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

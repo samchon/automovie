@@ -53,13 +53,27 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the engine's, never a second closed form; the sweep is the engine's one resolver.
  */
 export namespace HumanPropFlight {
-  /** What a flight struck. */
+  /**
+   * What a flight struck.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a person's canonical bone, a prop subject and the world ground; identities refer to the placed performance.
+   * @evidence contracts/development/design.md#principled-representation A closed discriminated union keeps the carrier facts required by each target kind; runtime performance readers establish that the subject and bone exist.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The sweep produces these targets and contact settlement/frame readers consume every variant.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No material, response or actor identity is inferred from the subject string; each variant carries only its carrier identity.
+   */
   export type Struck =
     | { kind: "person"; subject: string; bone: AutoMovieHumanoidBone }
     | { kind: "prop"; subject: string }
     | { kind: "ground" };
 
-  /** One flight of a prop. */
+  /**
+   * One flight of a prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States film-absolute launch/end times, launch-relative projectile/leg clocks, source action, optional first contact and unended-flight Infinity.
+   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact and infinite end express an unended flight, with their consistency established by fly rather than by the record type alone.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Frame and hit readers consume the launch, source, projectile, end, contact and continuation legs emitted by this owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores neither sampled frames nor a second ballistic law; source/published records are borrowed from the planned performance and returned flight records are not deeply frozen.
+   */
   export interface IFlight {
     /** The prop. */
     prop: string;
@@ -86,7 +100,14 @@ export namespace HumanPropFlight {
     legs?: readonly HumanPropOutcome.ILeg[];
   }
 
-  /** Where and how a flight struck. */
+  /**
+   * Where and how a flight struck.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names world-metre point/normal and incoming velocity, the carrier-relative resting offset and the declared contact outcome.
+   * @evidence contracts/development/design.md#principled-representation Keeps the observed world contact separate from the prop's embedded or unembedded offset in the struck carrier's frame; supported target and outcome unions constrain their alternatives.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Flight frames use the target/offset, while hit records read the geometry, velocity and outcome.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contact data does not claim a calibrated moving-surface impulse or a coupled rigid-body solve; the existing continuation uses its fixed-surface response approximation.
+   */
   export interface IContact {
     /** What it struck. */
     struck: Struck;
@@ -113,6 +134,14 @@ export namespace HumanPropFlight {
    * @param self The performance.
    * @param subject The prop.
    * @returns The flights.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines film ordering, action-window launch filtering, borrowed cached output and predecessor flights exposed during recursive construction.
+   * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows, stably sorts them by film time and delegates each flight to the engine-backed fly owner; recursive frame reads see only flights already built.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection/order, flight construction and per-performance retention stay distinct; sweep and continuation laws remain with their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. Final-state cache identity does not independently detect caller mutation of performance inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection scans action segments/launches and sorts L matching launches in O(L log L), then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. BUILDING shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
   export function flights(
     self: HumanPerformanceState,
@@ -175,6 +204,14 @@ export namespace HumanPropFlight {
    * @param seconds Film seconds.
    * @param since Film second before which a launch is overtaken by a later grip.
    * @returns The frame, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States latest qualifying launch selection, film seconds, the grip cutoff, undefined absence and carrier-relative rest after contact.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the latest launch inside the requested grip interval, samples its engine trajectory or launch-relative continuation leg, then composes a settled offset with the current struck carrier. Finite query clocks and coherent generated flight records are caller premises.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One temporal selection separates first-flight, continuation and settled-carrier frame paths, reusing the existing motion and frame owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not restart a flight at query time, clamp a bad clock or invent a rebound; no qualifying launch stays undefined, and delegated admission/refusal propagates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms After flight acquisition, selection scans L launches and up to K continuation legs, plus the chosen trajectory sample or carrier/FK read; it allocates no sampled-frame history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed performance's flight records and engine trajectory readers; caller time alone selects a frame without replaying previous output frames.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no query or frame locally; active paths return a small frame wrapper, and an uncarried settled path borrows the cached contact offset.
    */
   export function frame(
     self: HumanPerformanceState,
@@ -269,6 +306,7 @@ export namespace HumanPropFlight {
       p: IAutoMovieProjectile,
       base: number,
       leave?: string,
+      departing?: string,
     ): HumanPropOutcome.IMeeting | null =>
       HumanPropSweep.sweep(
         self,
@@ -278,6 +316,7 @@ export namespace HumanPropFlight {
         p,
         horizon - base,
         leave,
+        departing,
       );
     const settle = (
       m: HumanPropOutcome.IMeeting,

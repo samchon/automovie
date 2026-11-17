@@ -65,6 +65,7 @@ export function createBench(
     createBench.Affordance,
     createBench.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "weight bench",
     draw,

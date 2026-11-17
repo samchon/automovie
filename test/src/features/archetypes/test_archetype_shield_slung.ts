@@ -31,8 +31,10 @@ export function test_archetype_shield_slung(): void {
       ],
     ),
   ];
-  const close = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) <= 1e-12;
+  const close: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): boolean => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) <= 1e-12;
   for (const [label, shield] of shields) {
     const slung: ReturnType<typeof shield.affordance> =
       shield.affordance("slung");
@@ -40,9 +42,11 @@ export function test_archetype_shield_slung(): void {
     const back: number = archetypeExtent(shield, "z").low;
     if (
       slung.kind !== "socket" ||
-      Math.abs(at.x) > 1e-12 ||
-      Math.abs(at.y) > 1e-12 ||
-      Math.abs(at.z - back) > 1e-12
+      !(
+        Math.abs(at.x) <= 1e-12 &&
+        Math.abs(at.y) <= 1e-12 &&
+        Math.abs(at.z - back) <= 1e-12
+      )
     )
       findings.push(
         `${label}: slung at ${JSON.stringify(at)}, the rearmost face at z ${back}`,

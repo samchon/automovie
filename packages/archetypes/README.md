@@ -56,7 +56,7 @@ Each producer's JSDoc states how the thing stands in its own space, and its name
 
 A door's leaf, a drawer, a lever, a suitcase's handle and a bicycle's crank are parts bound to an articulation affordance (`hinge`, `slider`, `knob`, `button`, `trigger`, `crank`, `wheel`, `pedal`). `archetype.articulate({ id: travel })` returns the archetype with those parts, and every contact that rides them, moved; the travel is degrees for a turning kind and metres otherwise, and a travel outside the articulation's range is refused.
 
-An articulation may follow another (`follows`): a car's front road wheels steer as its steering wheel turns. A state names only the leader, and `archetype.travel(id)` reads any articulation's travel, a follower's included. A span (`ArchetypeBuilder.span`) is a straight line between two moving frames, laid again after every pose; `archetype.span(id)` gives its ends and whether it is slack.
+An articulation may follow another (`follows`): a car's front road wheels steer as its steering wheel turns. A state names the leader unless the coupling explicitly permits reversible input. A reversible coupling accepts either coordinate, but naming both coordinates of the same degree of freedom is refused. `archetype.travel(id)` reads any articulation's travel, a follower's included. A span (`ArchetypeBuilder.span`) is a straight line between two moving frames, laid again after every pose; `archetype.span(id)` gives its ends and whether it is slack.
 
 ### Assemblies
 

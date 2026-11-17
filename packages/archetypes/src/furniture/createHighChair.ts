@@ -55,6 +55,7 @@ export function createHighChair(
     createHighChair.Affordance,
     createHighChair.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "high chair",
     draw,

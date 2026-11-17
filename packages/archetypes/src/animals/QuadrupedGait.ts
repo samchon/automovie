@@ -81,6 +81,9 @@ export namespace QuadrupedGait {
 
     /** Mean stance time of the left fore foot, seconds. */
     stance: number;
+
+    /** Optional mean hind-foot stance time, seconds. Absent retains the existing common fore/hind timing approximation for that row. */
+    hindStance?: number;
   }
 
   /**
@@ -129,8 +132,11 @@ export namespace QuadrupedGait {
     /** Each gait in `order`. */
     gaits: Readonly<Partial<Record<Gait, IGait>>>;
 
-    /** The height at the withers of the animals the rows were measured on, metres. */
+    /** Measured reference withers height, metres, for dynamic similarity. With absolute scaling this is only the default query height and no measured-height claim is implied. */
     reference: number;
+
+    /** `absolute` keeps a pooled experimental speed/time interval without inferring an unmeasured reference height. Absent uses the existing provisional dynamic-similarity rule. */
+    scaling?: "absolute";
 
     /** How far past a change point the speed must go before the gait changes, metres per second at the measured animals' height, scaled with the gait's speeds. */
     hysteresis: number;
@@ -154,8 +160,11 @@ export namespace QuadrupedGait {
     /** Standard deviation of the stride time at that speed, seconds. */
     deviation: number;
 
-    /** Duty factor: the fraction of the stride a foot is on the ground. */
+    /** Fore duty factor; also used for hind feet when hindDuty is absent. */
     duty: number;
+
+    /** Hind-foot stance fraction when separately declared in the bracketed rows; absent uses duty for every foot, preserving legacy tables. */
+    hindDuty?: number;
   }
 
   /**
@@ -190,7 +199,8 @@ export namespace QuadrupedGait {
   }
 
   /**
-   * The factor by which an animal's stride times and speeds differ from its species' measured animals' at the same gait: the square root of its height at the withers over theirs.
+   * The factor for stride times and speeds: square-root height similarity, or
+   * one when the table explicitly preserves an absolute experimental interval.
    *
    * Animals of one build move in a dynamically similar way at equal Froude number, the speed squared over gravity times leg length (Alexander and Jayes 1983, J Zool 201:135; Alexander 1984, Int J Robotics Res 3:49): their stride lengths are then the same multiple of leg length, so at speeds in the ratio of the square roots of their leg lengths their stride times are in that ratio too. Height at the withers stands for leg length, the two being proportional across animals of one build. Neither paper was read at its source, and for the horse the rule under-corrects against measured warmbloods (it gives 0.99 s for a 1.6 m/s walk and 0.63 s for a 4.0 m/s trot at 1.615 m, against the 1.09 s and 0.67 s of Back, Schamhardt and Barneveld 1996, Vet Q 18:79): provisional.
    *
@@ -199,7 +209,7 @@ export namespace QuadrupedGait {
    * @returns The factor; 1 at the measured animals' height.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the similarity rule, its sources, what stands for leg length and how far it falls short of a measured case.
-   * @evidence contracts/development/implementation.md#principled-implementation Dynamic similarity at equal Froude number, the rule the human gaits of this repository scale by.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing square-root rule is unchanged by default; an absolute table preserves its measured seconds and speeds without inferring an unknown experimental reference height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One square root.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No factor is fitted to the warmblood figures; the shortfall is stated instead.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -210,6 +220,7 @@ export namespace QuadrupedGait {
     species: createQuadruped.ISpecies,
     withers: number,
   ): number {
+    if (species.table.scaling === "absolute") return 1;
     return Math.sqrt(withers / species.table.reference);
   }
 
@@ -251,12 +262,12 @@ export namespace QuadrupedGait {
    * @param speed The speed, metres per second, inside the gait's range for that height.
    * @param tempo How far this animal's stride time lies from the mean, in standard deviations, from -1 to 1; the mean when absent.
    * @param withers The animal's height at the withers, metres; the measured animals' when absent, which gives the rows as measured.
-   * @returns The stride time, its standard deviation and the duty factor. For a height other than the measured animals' the times are scaled by dynamic similarity and are provisional, as `scale` states.
+   * @returns Stride time, standard deviation and fore duty, with separate hind duty when supplied. Duties are ratios of interpolated time means, not a claim to reproduce a paper's separately averaged percentage. Height similarity remains provisional as `scale` states.
    * @throws {ArchetypeRefusal} When the species has no such gait, the speed lies outside the gait's range for that height, giving the range, the tempo lies outside -1 to 1, or the height is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and ranges, what height does, that scaled values are provisional and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The rows are read at the dynamically similar speed, the speed over `scale`, by linear interpolation between the two rows that bracket it; the stride time and its deviation are then multiplied by `scale`, and the duty factor, a ratio of two times, is unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the height, the tempo and the speed, scale the speed, find the bracket, interpolate three numbers, scale the times.
+   * @evidence contracts/development/implementation.md#principled-implementation Read the bracket at speed over scale, interpolate stride and stance means, and scale times. Fore and optional hind duty are each stance mean over the common stride mean; a missing hind row retains that row's prior fore approximation. Legacy tables emit no new field.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit height, tempo and speed, find the bracket, interpolate the common times and optional hind stance, then return their ratios.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is extrapolated beyond the rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of at most ten rows.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`, `scale` and `range`.
@@ -333,6 +344,15 @@ export namespace QuadrupedGait {
       stride: (stride + tempo * deviation) * by,
       deviation: deviation * by,
       duty: mix(low.stance, high.stance) / stride,
+      ...(low.hindStance === undefined && high.hindStance === undefined
+        ? {}
+        : {
+            hindDuty:
+              mix(
+                low.hindStance ?? low.stance,
+                high.hindStance ?? high.stance,
+              ) / stride,
+          }),
     };
   }
 

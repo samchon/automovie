@@ -81,6 +81,7 @@ export function createCar(
   };
   const builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind,
       draw,
