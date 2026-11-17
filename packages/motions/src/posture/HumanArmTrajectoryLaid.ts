@@ -270,6 +270,7 @@ export namespace HumanArmTrajectoryLaid {
       laid: ILaid;
       region: number;
       depth?: number;
+      last: number;
       done: boolean;
     };
     const transports: ITransport[] = [[0, first], [last, n - 1]].map(
@@ -279,6 +280,7 @@ export namespace HumanArmTrajectoryLaid {
         detours: [],
         laid: lay(from!, to!, []),
         region: Clear.REGION,
+        last: 0,
         done: false,
       }),
     );
@@ -287,22 +289,26 @@ export namespace HumanArmTrajectoryLaid {
       let moved: boolean = false;
       for (const t of transports) {
         if (t.done) continue;
-        const detour: Clear.IDetour | undefined =
+        // One detour per arm still inside; the transport's depth is the
+        // deepest of them, the progress the rule below reads.
+        const found: Clear.IDetour[] =
           Clear.detour(context, x, reading, t.from, t.to, t.laid.shares, t.region);
-        if (detour !== undefined && t.depth !== undefined && !(detour.depth < t.depth)) {
-          t.detours.pop();
+        const depth: number = Math.max(0, ...found.map((d: Clear.IDetour): number => d.depth));
+        if (found.length > 0 && t.depth !== undefined && !(depth < t.depth)) {
+          t.detours.splice(t.detours.length - t.last, t.last);
           t.laid = lay(t.from, t.to, t.detours);
           t.done = true;
           moved = true;
           continue;
         }
-        if (detour === undefined) {
+        if (found.length === 0) {
           t.done = true;
           continue;
         }
         if (t.depth !== undefined) t.region = Math.min(Clear.WIDEST, t.region * Clear.EXPAND);
-        t.depth = detour.depth;
-        t.detours.push(detour);
+        t.depth = depth;
+        t.last = found.length;
+        t.detours.push(...found);
         t.laid = lay(t.from, t.to, t.detours);
         moved = true;
       }

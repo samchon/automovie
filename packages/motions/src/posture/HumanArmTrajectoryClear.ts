@@ -68,7 +68,7 @@ export namespace HumanArmTrajectoryClear {
    * @param to Its last waypoint.
    * @param shares The share of its path each waypoint of the transport stands at, by waypoint.
    * @param region The largest change of any coordinate the detour may make, coordinate units.
-   * @returns The detour, or none.
+   * @returns Each arm's detour, at its own deepest waypoint; none for an arm whose every pair and sweep inside the transport lies within what the admission allows.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, what is returned and when nothing is.
    * @evidence contracts/development/implementation.md#principled-implementation The waypoint with the deepest pair past the admission's slack (`T.SKIN`), or the inner end of the interval whose swept sphere lies deepest past its bound (its row the shape's normal at that end, as the convex subproblem's sweep row reads it); at it every pair within the tolerance of its bound linearised along its normal on the arm's point Jacobian (a probe's own, a body corner carried by the arm's segment the other way), and the least-norm change meeting each at its bound by an active set on the normal equations.
@@ -86,17 +86,41 @@ export namespace HumanArmTrajectoryClear {
     to: number,
     shares: readonly number[],
     region: number,
+  ): IDetour[] {
+    // Each arm is laid round its own deepest waypoint: two arms of one
+    // transport (a choke's two hands) each meet their own shapes, and a
+    // detour of one arm alone leaves the other's depth as it was.
+    const all: J.IJacobian[][] = J.of(c, x, at);
+    const out: IDetour[] = [];
+    x.forEach((_: readonly (readonly number[])[], arm: number): void => {
+      const detour: IDetour | undefined = ofArm(c, x, at, all, arm, from, to, shares, region);
+      if (detour !== undefined) out.push(detour);
+    });
+    return out;
+  }
+
+  /** One arm's detour of a transport (`detour`): its deepest waypoint's change, none where it lies within what the admission allows. */
+  function ofArm(
+    c: M.IContext,
+    x: readonly (readonly number[])[][],
+    at: M.IEvaluation,
+    all: J.IJacobian[][],
+    arm: number,
+    from: number,
+    to: number,
+    shares: readonly number[],
+    region: number,
   ): IDetour | undefined {
-    // The deepest pair inside the transport past what the admission allows:
-    // a waypoint's pair past the skin's slack (`T.SKIN`), or an interval's
-    // sweep past its bound (a sweep has no slack), read at the interval's
-    // inner end. `excess` is how far past the admission it lies.
-    let arm: number = -1;
+    // The arm's deepest pair inside the transport past what the admission
+    // allows: a waypoint's pair past the skin's slack (`T.SKIN`), or an
+    // interval's sweep past its bound (a sweep has no slack), read at the
+    // interval's inner end. `excess` is how far past the admission it lies.
     let waypoint: number = -1;
     let excess: number = M.TOLERANCE;
     let deepest: number = 0;
     let swept: { sweep: HumanArmTrajectorySweep.ISwept; later: boolean } | undefined;
-    x.forEach((_: readonly (readonly number[])[], a: number): void => {
+    {
+      const a: number = arm;
       for (let k: number = from; k < to; ++k) {
         const pairs: M.IEvaluation["pairs"][number][number] | undefined = at.pairs[a]?.[k];
         if (k > from && pairs !== undefined)
@@ -104,7 +128,6 @@ export namespace HumanArmTrajectoryClear {
             if (!pair.rested && pair.short - T.SKIN > excess) {
               excess = pair.short - T.SKIN;
               deepest = pair.short;
-              arm = a;
               waypoint = k;
               swept = undefined;
             }
@@ -114,18 +137,16 @@ export namespace HumanArmTrajectoryClear {
           const later: boolean = k + 1 < to;
           excess = short;
           deepest = short;
-          arm = a;
           waypoint = later ? k + 1 : k;
           swept = { sweep, later };
         }
       }
-    });
-    if (arm < 0 || !M.inner(c, waypoint)) return undefined;
+    }
+    if (waypoint < 0 || !M.inner(c, waypoint)) return undefined;
 
     // Each pair near its bound there, a row: the change of its distance by
     // a change of the arm's coordinates, millimetres per unit, and what the
     // distance must gain to reach its bound less the tolerance.
-    const all: J.IJacobian[][] = J.of(c, x, at);
     const jac: J.IJacobian = all[arm]![waypoint]!;
     const frame: G.IFrame = c.frames[arm]![waypoint]!;
     const placed: G.IPlaced = at.placed[arm]![waypoint]!;
