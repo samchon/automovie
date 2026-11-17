@@ -57,21 +57,41 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       Vector3.subtract(a.pose.position, b.pose.position),
     );
     const out: Float64Array = new Float64Array(probes.length);
+    const rx: number = rotation.x;
+    const ry: number = rotation.y;
+    const rz: number = rotation.z;
+    const rw: number = rotation.w;
     for (let k: number = 0; k < probes.length; k++) {
-      // The probe in the segment's frame.
-      const local: IAutoMovieVector3 = Vector3.add(
-        position,
-        Quaternion.rotateVector(rotation, probes[k]!),
-      );
+      // The probe in the segment's frame: `position + rotation * probe`, in
+      // the engine's own expressions (`readRotatedVector`, `Vector3.add`) on
+      // components, so each value is the one the record forms gave.
+      const probe: IAutoMovieVector3 = probes[k]!;
+      const tx: number = 2 * (ry * probe.z - rz * probe.y);
+      const ty: number = 2 * (rz * probe.x - rx * probe.z);
+      const tz: number = 2 * (rx * probe.y - ry * probe.x);
+      const lx: number = position.x + (probe.x + rw * tx + (ry * tz - rz * ty));
+      const ly: number = position.y + (probe.y + rw * ty + (rz * tx - rx * tz));
+      const lz: number = position.z + (probe.z + rw * tz + (rx * ty - ry * tx));
+      let local: IAutoMovieVector3 | undefined;
       let deepest: number = 0;
       for (let s: number = 0; s < b.shapes.length; s++) {
         const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
+        const ball: { centre: IAutoMovieVector3; radius: number } = balls[s]!;
+        const bx: number = lx - ball.centre.x;
+        const by: number = ly - ball.centre.y;
+        const bz: number = lz - ball.centre.z;
+        const squared: number = bx * bx + by * by + bz * bz;
+        // `Vector3.distance`: the square root wherever the square neither
+        // underflows nor overflows, its own scaled form elsewhere.
         if (
-          Vector3.distance(local, balls[s]!.centre) >=
-          balls[s]!.radius
+          (squared >= 2 ** -1000 && squared <= 2 ** 1000
+            ? Math.sqrt(squared)
+            : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre)) >=
+          ball.radius
         )
           continue;
         if (shape.kind !== "hull") {
+          local ??= { x: lx, y: ly, z: lz };
           deepest = Math.max(
             deepest,
             -physicalShapeSegmentDistance(IDENTITY, shape, local, local),
@@ -84,15 +104,22 @@ export function prepareAutoMovieMotionHumanAuditDepths(
           if (inverses === undefined) inverses = [];
           inverses[s] = unturn;
         }
-        const point: IAutoMovieVector3 = Quaternion.rotateVector(
-          unturn,
-          Vector3.subtract(local, shape.transform.position),
-        );
+        // The probe in the hull's frame: `unturn * (local - position)`.
+        const vx: number = lx - shape.transform.position.x;
+        const vy: number = ly - shape.transform.position.y;
+        const vz: number = lz - shape.transform.position.z;
+        const ux: number = 2 * (unturn.y * vz - unturn.z * vy);
+        const uy: number = 2 * (unturn.z * vx - unturn.x * vz);
+        const uz: number = 2 * (unturn.x * vy - unturn.y * vx);
+        const px: number = vx + unturn.w * ux + (unturn.y * uz - unturn.z * uy);
+        const py: number = vy + unturn.w * uy + (unturn.z * ux - unturn.x * uz);
+        const pz: number = vz + unturn.w * uz + (unturn.x * uy - unturn.y * ux);
         let inside: number = Infinity;
         for (const face of physicalHullFaces(shape.points).faces) {
           inside = Math.min(
             inside,
-            face.offset - Vector3.dot(face.normal, point),
+            face.offset -
+              (face.normal.x * px + face.normal.y * py + face.normal.z * pz),
           );
           if (inside <= deepest) break;
         }
