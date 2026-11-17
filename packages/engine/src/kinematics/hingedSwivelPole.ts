@@ -8,12 +8,15 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  *
  * On each bend branch the search starts at the pole's swivel or, when the
  * caller's certified refusal (`excluded`, closed-form range arcs) refuses
- * its two-step bracket, at the nearest swivel either way, one step apart,
- * whose bracket it does not refuse. From there it walks downhill one step at
- * a time, first toward increasing swivel and then toward decreasing, while
- * the next step is strictly ahead under the caller's ordering, and refines
- * the two-step bracket around the step reached by the golden-section search
- * (`refineHingedSwivel`). The best branch result is returned. This is a
+ * its two-step bracket, at the nearest swivel, one step apart, whose bracket
+ * it does not refuse; of two at the same distance either way the better
+ * scored is kept. It then reads both neighbours, walks downhill one step at
+ * a time toward the better one while the next step is strictly ahead under
+ * the caller's ordering, and refines the two-step bracket around the step
+ * reached by the golden-section search (`refineHingedSwivel`). Every choice
+ * is made by the scores alone, never by a preferred direction, so a mirrored
+ * request, whose swivel runs the other way, takes the mirrored path. The
+ * best branch result is returned. This is a
  * local search: a basin far from the pole is not visited, so the result can
  * differ from a global sweep's where that sweep would jump to a far swivel;
  * the caller decides when the result is final (`hingedArmArticulation`
@@ -52,9 +55,9 @@ export namespace hingedSwivelPole {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the null case.
    * @evidence contracts/development/implementation.md#principled-implementation The pole of two-bone IK fixes the mid joint's direction in closed form; the downhill walk and golden refinement then minimise the caller's full score in that start's basin under the caller's strict ordering.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per branch: start, walk, refine, keep the best.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per branch: start, walk, refine, keep the best; start and direction are chosen by score, so the search has no direction-dependent tie-break beyond exactly equal scores.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused bracket moves the start; a branch with no unrefused swivel within half a turn is skipped; a missing pole returns null rather than guessing a side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per branch one pole reading, at most 360 refusal tests to find the start, one score per step walked plus one that stops each direction, and the refinement's scores: a start already at its minimum costs three scores and the refinement, against the sweep's 360 and every minimum's refinement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per branch one pole reading, at most 360 refusal tests and at most two start scores, the two neighbours, one score per further step walked plus the one that stops it, and the refinement's scores: a start already at its minimum costs three scores and the refinement, against the sweep's 360 and every minimum's refinement.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure search of the caller's scorers.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds two candidates per branch until return.
    */
@@ -70,28 +73,41 @@ export namespace hingedSwivelPole {
       const peak: number | null = props.pole(branch.upper);
       if (peak === null || !Number.isFinite(peak)) return null;
 
-      // The nearest swivel, either way from the peak, whose two-step bracket
-      // the range does not certainly refuse.
-      let start: number | null = null;
-      for (let k: number = 0; start === null && k * props.step <= 180; ++k)
-        for (const angle of k === 0 ? [peak] : [peak - k * props.step, peak + k * props.step])
-          if (branch.refused === null || !branch.refused(angle - props.step, angle + props.step)) {
-            start = angle;
-            break;
+      // The nearest swivel from the peak whose two-step bracket the range does
+      // not certainly refuse. Two at the same distance, one either way, are
+      // both scored and the better kept, so a request whose swivel runs the
+      // other way (a mirror image) chooses the mirrored start.
+      let at: number = peak;
+      let here: T | null = null;
+      for (let k: number = 0; here === null && k * props.step <= 180; ++k)
+        for (const angle of k === 0 ? [peak] : [peak - k * props.step, peak + k * props.step]) {
+          if (branch.refused !== null && branch.refused(angle - props.step, angle + props.step)) continue;
+          const scored: T = branch.probe(angle);
+          if (here === null || props.better(scored, here)) {
+            at = angle;
+            here = scored;
           }
-      if (start === null) continue;
+        }
+      if (here === null) continue;
 
-      // Downhill one step at a time, one way and then the other, then the
-      // refinement of the bracket around the step reached.
-      let at: number = start;
-      let here: T = branch.probe(at);
-      for (const direction of [1, -1])
-        for (let k: number = 0; k * props.step < 360; ++k) {
+      // Downhill one step at a time toward the better neighbour, read on
+      // both sides first so the direction depends on the scores alone, then
+      // the refinement of the bracket around the step reached.
+      const below: T = branch.probe(at - props.step);
+      const above: T = branch.probe(at + props.step);
+      const direction: number =
+        props.better(above, here) && !props.better(below, above) ? 1
+          : props.better(below, here) ? -1 : 0;
+      if (direction !== 0) {
+        at += direction * props.step;
+        here = direction === 1 ? above : below;
+        for (let k: number = 1; k * props.step < 360; ++k) {
           const next: T = branch.probe(at + direction * props.step);
           if (!props.better(next, here)) break;
           at += direction * props.step;
           here = next;
         }
+      }
       const refined: T = props.refine(branch.probe, at);
       const kept: T = props.better(here, refined) ? here : refined;
       if (best === null || props.better(kept, best)) best = kept;
