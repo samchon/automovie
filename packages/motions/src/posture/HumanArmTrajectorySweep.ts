@@ -91,6 +91,8 @@ export namespace HumanArmTrajectorySweep {
         undefined,
         c.reachable[a]![k]!,
       )) {
+        // The hand's spheres on what the hand rests on are the goal's contact.
+        if (probe >= G.WRIST && frame.resting.has(frame.shapes[shape]!.part)) continue;
         // The probe's motion relative to the shape, which may move too.
         const moved: {
           point: IAutoMovieVector3;

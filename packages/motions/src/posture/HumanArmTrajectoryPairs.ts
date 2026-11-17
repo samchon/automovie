@@ -217,6 +217,8 @@ export namespace HumanArmTrajectoryPairs {
         for (const shape of S.nearby(frame, placed, probe, T.REACH, screened, gaps)) {
           const other: number = frame.shapes[shape]!.part;
           if (frame.related[part]?.[other] === true) continue;
+          // The hand on what it rests on is the goal's contact.
+          if (frame.owners[probe - G.SURFACE] === "hand" && frame.resting.has(other)) continue;
 
           // A part of -1 is the arm's own segment's; one number keys the pair.
           const key: number = (part + 1) * frame.shapes.length + shape;

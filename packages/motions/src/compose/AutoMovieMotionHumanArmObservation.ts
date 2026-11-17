@@ -242,7 +242,11 @@ export namespace AutoMovieMotionHumanArmObservation {
     return {
       error: Vector3.subtract(now.point, then.point),
       contact: now.contact,
-      base: { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] },
+      base: {
+        pose,
+        others: [...(goal.clear ?? []), ...(goal.rests ?? [])],
+        ...(goal.rests === undefined || goal.rests.length === 0 ? {} : { rests: goal.rests }),
+      },
     };
   }
   /**

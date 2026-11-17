@@ -342,7 +342,10 @@ function solved(
       ...(goals[side].rests ?? []),
     ],
   );
-  const base: G.IBase = { pose, others };
+  const rests: IAutoMovieMotionHumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [...(goals[side].rests ?? [])],
+  );
+  const base: G.IBase = { pose, others, ...(rests.length === 0 ? {} : { rests }) };
   const sides: readonly ["right", "left"] = ["right", "left"];
   const context: M.IContext = HumanArmTrajectoryContext.of({
     body,

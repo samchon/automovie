@@ -244,14 +244,21 @@ export namespace AutoMovieMotionHumanArmPlanned {
       let found: HumanArmTrajectory.IProblem["bases"][number] | undefined =
         bases.get(t);
       if (found === undefined) {
+        const goals: IAutoMovieHumanLimbGoal[] = carries.map(
+          (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieHumanLimbGoal => aimed(a, t),
+        );
+        // On the hold the hand lies on what its goal lays it on: those
+        // segments are its contact there, and obstacles on the way.
+        const rests: IAutoMovieMotionHumanColliders.IPlaced[] = holding(t)
+          ? goals.flatMap((goal: IAutoMovieHumanLimbGoal): IAutoMovieMotionHumanColliders.IPlaced[] => [...(goal.rests ?? [])])
+          : [];
         found = {
           pose: at(t).pose,
-          others: carries.flatMap(
-            (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanColliders.IPlaced[] => {
-              const goal: IAutoMovieHumanLimbGoal = aimed(a, t);
-              return [...(goal.clear ?? []), ...(goal.rests ?? [])];
-            },
-          ),
+          others: goals.flatMap((goal: IAutoMovieHumanLimbGoal): IAutoMovieMotionHumanColliders.IPlaced[] => [
+            ...(goal.clear ?? []),
+            ...(goal.rests ?? []),
+          ]),
+          ...(rests.length === 0 ? {} : { rests }),
         };
         bases.set(t, found);
       }
