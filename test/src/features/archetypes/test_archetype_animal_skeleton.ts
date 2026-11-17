@@ -27,7 +27,7 @@ import { nclose } from "../internal/nclose";
  *    and orientation, with21 quadruped names and no dummy humanoid slot.
  * 2. A neck turn carries explicitly bound bridle parts and rein/lead frames;
  *    their neck-local coordinates stay fixed and their world positions move.
- * 3. Missing accessory or contact bindings refuse. Construction and sampling
+ * 3. Missing accessory/contact bindings and unknown replacement frame ids refuse. Construction and sampling
  *    leave the original horse's complete serialization unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual source bars, independent neutral-frame comparison, carried-contact invariants and preservation of original horse bytes.
@@ -143,6 +143,10 @@ export function test_archetype_animal_skeleton(): void {
   for (const run of [
     (): unknown => QuadrupedSkeleton.pose(animal, joints, {}, contacts),
     (): unknown => QuadrupedSkeleton.pose(animal, joints, parts, {}),
+    (): unknown => animal.reposed(animal.parts, new Map()),
+    (): unknown => animal.reposed(animal.parts, new Map([
+      ["unknown-contact", animal.affordances[0]!.frame],
+    ])),
   ]) {
     try {
       run();

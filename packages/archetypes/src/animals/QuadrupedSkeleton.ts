@@ -215,16 +215,15 @@ export namespace QuadrupedSkeleton {
         };
       },
     );
-    const affordances: IAutoMovieAffordance[] = animal.affordances.map(
-      (contact: IAutoMovieAffordance): IAutoMovieAffordance => ({
-        ...contact,
-        frame: ArchetypeFrame.move(
+    const frames: Map<string, IAutoMovieTransform> = new Map(animal.affordances.map(
+      (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => [
+        contact.id, ArchetypeFrame.move(
           carrier(contacts[contact.id], contact.id),
           contact.frame,
         ),
-      }),
-    );
-    return animal.reposed(moved, affordances);
+      ],
+    ));
+    return animal.reposed(moved, frames);
 
     /** An incomplete declared binding must refuse instead of leaving a rigid object at rest. */
     function carrier(
