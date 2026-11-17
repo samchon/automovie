@@ -16,7 +16,9 @@ Pick the representation by the form, then optimize the form within it:
 
 Code CAD builds the form from dimensioned primitives with extrusion, revolution, sweep and boolean operations. Take boolean and offset operations from the installed packages or an established solid-modeling kernel, because a hand-written boolean leaves open and self-intersecting surfaces.
 
-Vertices are only what the formulas emit; never place a vertex, triangle or polygon by hand. A coding agent changes text by meaning, holds only part of a form in mind, cannot see the surface while it edits and judges a render it did not draw. A named value says what a change means, formulas build the form part by part, and a construction drawn beside the surface traces each defect to the value that made it. Hand-placed geometry offers thousands of coordinates that mean nothing, a moved vertex that disturbs unseen neighbors, and no construction to trace.
+Vertices are only what the formulas emit; never place a vertex, triangle or polygon by hand. A coding agent changes text by meaning, holds only part of a form in mind, cannot see the surface while it edits and judges a render it did not draw.
+
+A named value says what a change means, formulas build the form part by part, and a construction drawn beside the surface traces each defect to the value that made it. Hand-placed geometry offers thousands of coordinates that mean nothing, a moved vertex that disturbs unseen neighbors, and no construction to trace.
 
 ## Definition and dimensions
 

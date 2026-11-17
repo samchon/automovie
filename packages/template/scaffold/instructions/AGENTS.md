@@ -75,7 +75,7 @@ Stop only when nothing can move without the user or a destructive or outward-fac
 
 ## Skills
 
-Read every skill whose trigger fits the task. This list is alphabetical; the production workflow owns task order.
+Open a skill when the work reaches its task, in the order the [production workflow](.agents/skills/production/workflow.md) gives. Open only the pages its router names for that task, and read no page ahead of its stage.
 
 | Skill | Use when |
 | --- | --- |

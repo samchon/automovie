@@ -18,7 +18,9 @@ Each entity has one transform owner, so a clip, an attachment and a procedural d
 
 ## The view
 
-Cameras and lights are entities whose behavior follows the action. A camera realizes the shots and cuts the screenplay decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give goes back to the user.
+Cameras and lights are entities whose behavior follows the action.
+
+A camera realizes the shots and cuts the screenplay decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give goes back to the user.
 
 Light each scene from the sources its set and story day give, such as a window or the sun, and keep each source's direction and color across the scene's cuts, because light that jumps at a cut reads as another place or time.
 

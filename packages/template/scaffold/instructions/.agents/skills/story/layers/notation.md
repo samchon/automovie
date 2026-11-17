@@ -4,7 +4,9 @@ How scripts and the screenplay are written down: their blocks, their headings an
 
 ## Blocks
 
-Unless the commission adopts another form, write conventional screenplay blocks, as the [BBC format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) and [Final Draft elements](https://www.finaldraft.com/learn/screenplay-formatting-elements/) show: a scene heading such as `INT. LOCATION - DAY`, short present-tense action paragraphs of what can be seen or heard, and a consistent speaker cue, the name in capitals on its own line, before each dialogue block. Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
+Unless the commission adopts another form, write conventional screenplay blocks, as the [BBC format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) and [Final Draft elements](https://www.finaldraft.com/learn/screenplay-formatting-elements/) show: a scene heading such as `INT. LOCATION - DAY`, short present-tense action paragraphs of what can be seen or heard, and a consistent speaker cue, the name in capitals on its own line, before each dialogue block.
+
+Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
 
 The blocks run as one continuous sequence, each starting where the one before it ends. Running time comes from the performed action, speech, pauses and edit, never from the length of the text.
 

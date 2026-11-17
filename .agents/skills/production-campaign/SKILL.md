@@ -1,6 +1,6 @@
 ---
 name: production-campaign
-description: Coordinates writing, review and media execution across commissioned productions by launching each writer and reviewer as its own CLI process, keeping an observer subagent on them and connecting independent review. Use for sustained authoring campaigns, explicit single-production observation and production comparisons.
+description: Coordinates writers and reviewers launched as CLI processes across productions.
 ---
 
 # Production campaign

@@ -1,6 +1,6 @@
 ---
 name: video-diffusion
-description: Chooses the video generation model with the user, reads its documentation for every value the plan depends on, chooses how the hint reaches it, keeps requests continuous, and writes the prompts it takes. Use when choosing or changing the video model, deciding how a request takes the hint or continues a take, or writing a video prompt.
+description: Chooses the video model, how it takes the hint, and its prompts.
 ---
 
 # Video diffusion

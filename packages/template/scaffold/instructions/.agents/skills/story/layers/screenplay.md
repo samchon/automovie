@@ -14,13 +14,19 @@ On the long route, extract concise notes of the required identities, decisions, 
 
 On the short route, decide the events and their realization here from the instructions: from the first encounter with the promised experience through consequences, setup and payoff to the ending, and whether the audience learns each danger or secret before, with or after the people it concerns. Cite the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 
-On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that. A polygon man without a drawn face shows attention by the turn of its head and torso, and feeling by its posture, tempo and distance from others, named by the distance bands the installed motion vocabulary performs, not by a number. A fact the representation cannot carry reaches a generated film through canon references and the generation prompt, and a [direct 3D film](../../video/direct-film.md) through a detail option that shows it.
+On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that.
+
+A polygon man without a drawn face shows attention by the turn of its head and torso, and feeling by its posture, tempo and distance from others, named by the distance bands the installed motion vocabulary performs, not by a number.
+
+A fact the representation cannot carry reaches a generated film through canon references and the generation prompt, and a [direct 3D film](../../video/direct-film.md) through a detail option that shows it.
 
 ## Beats
 
 A beat is one exchange, ending when an intent or the initiative changes. Its action lines name every action it chains, in order, and its record decides the exchange once, because a record per single action buries the performance under bookkeeping and splits a combination into turns.
 
-Plan the whole film's performance before writing beats, because beats written first and counted afterward come out as sparse turns of one shape. The plan sets how densely each section's action comes against its study's density and distribution targets, where the practice has them, where pressure rises, and where a recurring motif returns and what varies around it. Keep it as working notes in ignored `.cache/`, never as a section or file of the screenplay, because every screenplay heading owes realization, answers and review.
+Plan the whole film's performance before writing beats, because beats written first and counted afterward come out as sparse turns of one shape. The plan sets how densely each section's action comes against its study's density and distribution targets, where the practice has them, where pressure rises, and where a recurring motif returns and what varies around it.
+
+Keep the plan as working notes in ignored `.cache/`, never as a section or file of the screenplay, because every screenplay heading owes realization, answers and review.
 
 Decide each beat completely in its [beat record](notation.md#records). An action the installed motion vocabulary does not perform, alone or joined with others, is named by the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
 

@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling
-description: Defines how 3D assets are crafted in code, generated or found, conditioned for use, recovered into curves, rigged, and inspected as forms. Use before changing geometry, rigs, assets, materials, or lighting; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
+description: Crafts, generates, conditions, rigs and inspects 3D assets.
 ---
 
 # 3D modeling

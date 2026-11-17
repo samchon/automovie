@@ -1,6 +1,6 @@
 ---
 name: motion-laws
-description: Holds the rules for designing and checking an action law that hold in any project, namely effector goals, declaration, variation, transitions, contacts, layers and verification. Use when designing, writing or verifying a law.
+description: Holds the rules for designing and checking an action law.
 ---
 
 # Laws

@@ -20,7 +20,9 @@ Where the project's motion vocabulary runs the transitions below, a law only dec
 
 ### Changing action
 
-At a cut into a different action, inertialize: carry the difference in pose and velocity at the cut and let it decay (Bollo 2018, "Inertialization: High-Performance Animation Transitions in Gears of War"). Take each channel's offset x0 and velocity v0 from both sides at the same instant and decay them together on Bollo's quintic polynomial. Where x0 and v0 have opposite signs, limit the decay time t1 to t1 ≤ −5·x0/v0. Leaving out v0 keeps the pose continuous but breaks its velocity, which reads as a jerk at the cut.
+At a cut into a different action, inertialize: carry the difference in pose and velocity at the cut and let it decay (Bollo 2018, "Inertialization: High-Performance Animation Transitions in Gears of War").
+
+Take each channel's offset x0 and velocity v0 from both sides at the same instant and decay them together on Bollo's quintic polynomial. Where x0 and v0 have opposite signs, limit the decay time t1 to t1 ≤ −5·x0/v0. Leaving out v0 keeps the pose continuous but breaks its velocity, which reads as a jerk at the cut.
 
 Keep the offset off every limb that bears a contact: after applying it, solve each planted foot and gripping hand onto its goal again, so the decay reaches only the free joints. A contact that takes part in the blend slides for as long as the blend lasts.
 

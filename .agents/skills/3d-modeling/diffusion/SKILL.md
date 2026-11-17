@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling-diffusion
-description: Generates a mesh with a text- or image-to-3D model, steered by a prompt, an image or a shape the project already has. Use when a form is generated rather than crafted or found.
+description: Generates a mesh with a text- or image-to-3D model.
 ---
 
 # Diffusion

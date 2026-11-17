@@ -8,7 +8,9 @@ Before wiring audio into a render, read the installed packages' contracts for ad
 
 Use the user's recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted service and local generation against the required language, performance, privacy, cost and turnaround. Use existing connectors and command-line tools before writing acquisition code.
 
-Check each asset's terms, on every layer [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery. Permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither; a recorded song needs both a synchronization license for the composition and a master-use license for the recording. Clone or design a voice after a real person only with that person's recorded consent, and through the provider's own voice verification where it has one.
+Check each asset's terms, on every layer [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery. Permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither; a recorded song needs both a synchronization license for the composition and a master-use license for the recording.
+
+Clone or design a voice after a real person only with that person's recorded consent, and through the provider's own voice verification where it has one.
 
 ## Speech
 

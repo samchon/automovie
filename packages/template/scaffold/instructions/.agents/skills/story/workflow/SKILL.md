@@ -1,6 +1,6 @@
 ---
 name: story-workflow
-description: Chooses the story route and who writes the screenplay, and runs each route to completion. Use when starting, resuming or completing narrative work.
+description: Chooses the story route and runs it to completion.
 ---
 
 # Workflow

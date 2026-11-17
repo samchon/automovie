@@ -1,6 +1,6 @@
 ---
 name: motion-laws
-description: Extends the installed motion vocabulary when composing cannot stage a beat, by a registered row or law, and holds the shared rules for designing and verifying a law. Use when a beat needs an action or a moving body the installed packages lack.
+description: Extends the motion vocabulary with a registered row or law.
 ---
 
 # Motion laws

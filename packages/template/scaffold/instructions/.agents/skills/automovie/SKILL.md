@@ -1,6 +1,6 @@
 ---
 name: automovie
-description: Maps each production need onto the installed AutoMovie package that provides it, and says how to read a package. Use before preparing a person, an object, a motion, a picture or a command.
+description: Maps each production need onto the installed AutoMovie package that provides it.
 ---
 
 # AutoMovie packages

@@ -20,6 +20,8 @@ Lock the whole initial table before author defenses. The author repairs or raise
 
 ## Changed work
 
-The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Reverse an unchanged classification only for new body, parent, source or contract evidence, never for a preferred reading, and give a repaired passage another yes only for a clear applicable failure. Then reread the changed passages together under [cause rounds](repair.md#cause-rounds).
+The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons.
+
+Reverse an unchanged classification only for new body, parent, source or contract evidence, never for a preferred reading, and give a repaired passage another yes only for a clear applicable failure. Then reread the changed passages together under [cause rounds](repair.md#cause-rounds).
 
 The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked. A clean table is neither independent approval nor whole-work completion; independent review closes the pass.

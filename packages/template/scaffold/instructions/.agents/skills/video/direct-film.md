@@ -28,7 +28,9 @@ Set one exposure and tone curve for the film among those the renderer offers, ta
 
 A face the representation adopts, from a detail option or drawn by the renderer on the polygon man, carries the expressions and speech the screenplay decides. Read in the installed packages' READMEs and types which faces, expressions and mouth shapes they perform, and tell the user when the film needs one they lack.
 
-Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Drive each mouth by a track of mouth shapes, visemes, timed from the take's phonemes: those a speech service reports, or a forced alignment of the screenplay's line to the accepted audio. On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. Ask the user to watch and listen to the sync as a whole, because stills cannot show it.
+Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Drive each mouth by a track of mouth shapes, visemes, timed from the take's phonemes: those a speech service reports, or a forced alignment of the screenplay's line to the accepted audio.
+
+On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips. Ask the user to watch and listen to the sync as a whole, because stills cannot show it.
 
 ## Renderer
 

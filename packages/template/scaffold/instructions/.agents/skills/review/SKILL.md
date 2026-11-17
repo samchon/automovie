@@ -1,6 +1,6 @@
 ---
 name: review
-description: Reviews independently what an author made: narrative passes, source and its evidence, and the delivered output, and estimates experience only on request. Use for independent review, evidence truth checks, final acceptance or read-only edition comparison.
+description: Reviews independently what an author made.
 ---
 
 # Review

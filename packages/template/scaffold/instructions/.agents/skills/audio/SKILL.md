@@ -1,6 +1,6 @@
 ---
 name: audio
-description: Plans and finishes a generated film's sound, routes separate audio generation, makes requested voice previews, and builds commissioned soundtracks for the user to accept by ear. Use when planning, generating or finishing sound, choosing an audio model or cloning a voice.
+description: Plans, generates and finishes a film's sound.
 ---
 
 # Audio

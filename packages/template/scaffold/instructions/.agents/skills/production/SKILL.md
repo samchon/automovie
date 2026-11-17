@@ -1,11 +1,11 @@
 ---
 name: production
-description: Guides the whole production from the request through story, images, motion and video to delivery, and keeps its scope, context, caches, media and assembly. Use when learning or planning the workflow, or starting, resuming, restructuring or handing off a production.
+description: Keeps a production's scope, workflow, caches, media and assembly.
 ---
 
 # Production
 
-Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
+The request and [project context](project-context.md) decide which skills run and what completes the work.
 
 | Read | For |
 | --- | --- |

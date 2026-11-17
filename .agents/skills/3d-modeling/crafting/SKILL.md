@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling-crafting
-description: Builds a form in code from named dimensions and formulas, lofts and fits it from related sections and guides, or recovers a fixed mesh as curves that parameters drive. Use when a form is shaped in code rather than generated or found as it is.
+description: Builds a form in code, by lofting or by mesh recovery.
 ---
 
 # Crafting

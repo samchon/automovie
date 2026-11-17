@@ -1,6 +1,6 @@
 ---
 name: contracts-development
-description: Maps the development checklists, common, design, implementation, testing, entities, behaviors and composition, onto the source declarations and tests that answer them in their doc comments. Use before writing or citing a development contract item.
+description: Maps the development checklists onto the declarations that answer them.
 ---
 
 # Development contracts

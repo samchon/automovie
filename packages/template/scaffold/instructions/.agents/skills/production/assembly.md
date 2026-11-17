@@ -4,7 +4,11 @@ Turn the composed scenes or finished takes into the complete delivered video, fr
 
 ## Film assembly
 
-Each screenplay film folder becomes one film under the development skill's source layout, and every scene file, section and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, and a generated film its finished takes with their [film sound](../audio/film-sound.md). Keep each channel's meaning as the motion skill's control channels define it, and schedule frames and check both sides of every cut under [frame evaluation](../motion/frame-evaluation.md).
+Each screenplay film folder becomes one film under the development skill's source layout, and every scene file, section and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering.
+
+A motion hint or direct 3D film assembles its programmed scenes, and a generated film its finished takes with their [film sound](../audio/film-sound.md).
+
+Keep each channel's meaning as the motion skill's control channels define it, and schedule frames and check both sides of every cut under [frame evaluation](../motion/frame-evaluation.md).
 
 Assembly decides nothing: the screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, change the screenplay under [repair](../story/correction/repair.md) and realize the change, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites.
 

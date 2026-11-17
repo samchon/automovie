@@ -1,6 +1,6 @@
 ---
 name: video
-description: Finishes a motion hint as a direct 3D or generated film. Use when choosing the final picture's production path, rendering a direct film, or planning, generating and finishing video takes.
+description: Finishes a motion hint as a direct 3D or generated film.
 ---
 
 # Video

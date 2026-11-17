@@ -6,7 +6,9 @@ Lofting builds a surface through one family of related sections and guides, auth
 
 Define the family from independent [dimensions](construction.md#dimensions): its physical course, section planes, relative frames and stations. Derive its guides from the family, derive supported spans from corresponding feature parameters, and constrain the joins between spans.
 
-Declare each section's plane and frame. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's own plane and frame map, and that plane need not be normal to each contributor's axis. Verify those maps, and measure each published dimension in the plane its definition requires, because a world-plane cut can be oblique to a member.
+Declare each section's plane and frame. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least.
+
+A composed family declares its common physical plane and each contributing curve's own plane and frame map, and that plane need not be normal to each contributor's axis. Verify those maps, and measure each published dimension in the plane its definition requires, because a world-plane cut can be oblique to a member.
 
 A few view curves can define the whole family, as in conic lofting: front and side outline pairs, an axis, and a fullness control, the value that sets how far each section bulges between its outline points. Each section is then the chain of conic or rational arcs through the outline points at its station, and measured section dimensions check the loft instead of being authored loop by loop.
 

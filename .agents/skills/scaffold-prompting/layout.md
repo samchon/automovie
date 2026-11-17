@@ -4,9 +4,9 @@ How the shipped skill tree is shaped, so a task reads only what it needs and rea
 
 ## Routers
 
-A router is a `SKILL.md`: a top-level skill's, or a sub-skill's one level below it. It holds the skill's scope in a short paragraph and a table of its pages with what each is for, so opening it to find the way costs little. A rule or short procedure that every use of the skill follows may follow the table; a page only some tasks need never does.
+A router is a `SKILL.md`: a top-level skill's, a sub-skill's one level below it, or a page folder's. It holds the skill's scope in a short paragraph and a table of its pages with what each is for, so opening it to find the way costs little. A rule or short procedure that every use of the skill follows may follow the table; a page only some tasks need never does.
 
-A sub-skill exists when a topic holds three or more pages with a trigger of their own, such as the techniques of one generation medium. A smaller topic stays pages of its parent, in a plain folder without a `SKILL.md` when grouping helps, and its parent's router links each page. No sub-skill nests inside another, so any page is at most three links from `AGENTS.md`.
+A sub-skill exists when a topic holds three or more pages with a trigger of their own, such as the techniques of one generation medium. A smaller topic is a folder of pages whose `SKILL.md` only lists them. Every folder of pages has one, except a folder of contracts or statements below a contract family's router, where the checker reads every file as a checklist. No sub-skill or page folder nests inside another, so any page is at most three links from `AGENTS.md`.
 
 ## Pages
 
