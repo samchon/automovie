@@ -1,21 +1,21 @@
 import {
   AutoMovieBuiltPlacementBasis,
-  AutoMovieBuiltPlacementSupportLocator,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltEnvironmentSupportStatus,
+  type IAutoMovieBuiltPlacementBody,
   IAutoMovieBuiltPlacementBounds,
-  IAutoMovieBuiltSupportQuery,
+  type IAutoMovieBuiltPlacementSupportLocator,
   IAutoMovieBuiltSupportResult,
   IAutoMovieBuiltSurface,
+  type IAutoMovieFootprint,
+  type IAutoMoviePropSupportFace,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { IAutoMoviePropSupportFace } from "../film/IAutoMoviePropSupportFace";
 import { propSupportGap } from "../film/propSupportGap";
-import { IAutoMovieFootprint } from "../space/IAutoMovieFootprint";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { footprintRing } from "../space/footprintRing";
 import { surfaceFootprint } from "../space/surfaceFootprint";
-import { IAutoMovieBuiltPlacementBody } from "./IAutoMovieBuiltPlacementBody";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
@@ -58,13 +58,11 @@ interface IResolvedSupport {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Judges one authored relation per call and retains no staging. Subject and support element resolutions each stage independently; `builtEnvironmentSupportSweep` shares staging for its separate nearest-bounds classification and does not replace authored relation checks.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the resolved boxes and face only for the call; the caller owns the returned verdict.
  */
-export const builtEnvironmentSupportStatus: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  query: IAutoMovieBuiltSupportQuery;
-}) => IAutoMovieBuiltSupportResult = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  query: IAutoMovieBuiltSupportQuery;
-}): IAutoMovieBuiltSupportResult => {
+export const builtEnvironmentSupportStatus: (
+  props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
+) => IAutoMovieBuiltSupportResult = (
+  props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
+): IAutoMovieBuiltSupportResult => {
   const tolerance: number =
     props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
@@ -127,11 +125,11 @@ export const builtEnvironmentSupportStatus: (props: {
  */
 const resolveSupport: (
   environment: IAutoMovieBuiltEnvironment,
-  locator: AutoMovieBuiltPlacementSupportLocator,
+  locator: IAutoMovieBuiltPlacementSupportLocator,
   subject: IAutoMovieBuiltPlacementBounds | null,
 ) => IResolvedSupport | null = (
   environment: IAutoMovieBuiltEnvironment,
-  locator: AutoMovieBuiltPlacementSupportLocator,
+  locator: IAutoMovieBuiltPlacementSupportLocator,
   subject: IAutoMovieBuiltPlacementBounds | null,
 ): IResolvedSupport | null => {
   if (locator.kind === "surface") {

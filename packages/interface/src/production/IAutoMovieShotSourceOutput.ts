@@ -1,23 +1,23 @@
-import { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
-import { IAutoMovieDesignEvidence } from "../architecture/IAutoMovieDesignEvidence";
-import { IAutoMovieDesignLineage } from "../architecture/IAutoMovieDesignLineage";
-import { IAutoMovieDesignReference } from "../architecture/IAutoMovieDesignReference";
-import { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
-import { IAutoMovieFluidDomain } from "../fluid/IAutoMovieFluidDomain";
-import { IAutoMovieWaterFeature } from "../fluid/IAutoMovieWaterFeature";
-import { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
-import { IAutoMovieScene } from "../scene/IAutoMovieScene";
-import { IAutoMovieServiceNetwork } from "../service/IAutoMovieServiceNetwork";
-import { IAutoMoviePlantingCluster } from "../soft/IAutoMoviePlantingCluster";
-import { IAutoMoviePlantingDomain } from "../soft/IAutoMoviePlantingDomain";
-import { IAutoMoviePlantingInstallation } from "../soft/IAutoMoviePlantingInstallation";
-import { IAutoMovieSoftBodyDomain } from "../soft/IAutoMovieSoftBodyDomain";
-import { IAutoMovieSoftFurnishing } from "../soft/IAutoMovieSoftFurnishing";
-import { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
-import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
-import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
+import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieDesignEvidence } from "../architecture/IAutoMovieDesignEvidence";
+import type { IAutoMovieDesignLineage } from "../architecture/IAutoMovieDesignLineage";
+import type { IAutoMovieDesignReference } from "../architecture/IAutoMovieDesignReference";
+import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
+import type { IAutoMovieFluidDomain } from "../fluid/IAutoMovieFluidDomain";
+import type { IAutoMovieWaterFeature } from "../fluid/IAutoMovieWaterFeature";
+import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
+import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieServiceNetwork } from "../service/IAutoMovieServiceNetwork";
+import type { IAutoMoviePlantingCluster } from "../soft/IAutoMoviePlantingCluster";
+import type { IAutoMoviePlantingDomain } from "../soft/IAutoMoviePlantingDomain";
+import type { IAutoMoviePlantingInstallation } from "../soft/IAutoMoviePlantingInstallation";
+import type { IAutoMovieSoftBodyDomain } from "../soft/IAutoMovieSoftBodyDomain";
+import type { IAutoMovieSoftFurnishing } from "../soft/IAutoMovieSoftFurnishing";
+import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
+import type { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
 
 /**
  * Engine-compiled shot source with optional host-attached semantic carriers.

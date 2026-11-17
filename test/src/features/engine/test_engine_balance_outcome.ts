@@ -3,7 +3,10 @@ import {
   Vector3,
   resolveAutoMovieBalanceOutcome,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -67,7 +70,7 @@ export function test_engine_balance_outcome(): void {
     mass: number,
     impulse: IAutoMovieVector3,
     at?: IAutoMovieVector3,
-  ): resolveAutoMovieBalanceOutcome.IOutcome =>
+  ): IAutoMovieResolveBalanceOutcome.IOutcome =>
     resolveAutoMovieBalanceOutcome({
       centre,
       velocity: { x: 0, y: 0, z: 0 },
@@ -85,7 +88,7 @@ export function test_engine_balance_outcome(): void {
     Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
 
   // 1. Nothing pushes.
-  const still: resolveAutoMovieBalanceOutcome.IOutcome = outcome(76, {
+  const still: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(76, {
     x: 0,
     y: 0,
     z: 0,
@@ -107,7 +110,7 @@ export function test_engine_balance_outcome(): void {
     for (const d of directions) {
       const edge: number = d.x !== 0 && d.z !== 0 ? half * Math.SQRT2 : half;
       const absorb: number = mass * w0 * edge;
-      const read: resolveAutoMovieBalanceOutcome.IOutcome = outcome(
+      const read: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(
         mass,
         Vector3.scale(d, absorb),
       );
@@ -137,8 +140,8 @@ export function test_engine_balance_outcome(): void {
   const rank: Record<string, number> = { absorb: 0, step: 1, fall: 2 };
   for (let k: number = 1; k <= 20; k++) {
     const j: IAutoMovieVector3 = { x: 0, y: 0, z: 10 * k };
-    const light: resolveAutoMovieBalanceOutcome.IOutcome = outcome(38, j);
-    const heavy: resolveAutoMovieBalanceOutcome.IOutcome = outcome(118, j);
+    const light: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(38, j);
+    const heavy: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(118, j);
     if (!close(heavy.velocity.z, (light.velocity.z * 38) / 118, 1e-12))
       findings.push(
         `${10 * k} N s: velocity changes ${heavy.velocity.z} and ${light.velocity.z} not in the masses' ratio`,
@@ -150,7 +153,7 @@ export function test_engine_balance_outcome(): void {
   }
 
   // 5. The moment of an impulse above the centre.
-  const above: resolveAutoMovieBalanceOutcome.IOutcome = outcome(
+  const above: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(
     76,
     { x: 0, y: 0, z: 20 },
     { x: 0, y: 1.5, z: 0 },
@@ -174,7 +177,7 @@ export function test_engine_balance_outcome(): void {
   let last: number = 0;
   for (let k: number = 1; k < 20; k++) {
     const j: number = absorb76 + ((step76 - absorb76) * k) / 20;
-    const read: resolveAutoMovieBalanceOutcome.IOutcome = outcome(76, {
+    const read: IAutoMovieResolveBalanceOutcome.IOutcome = outcome(76, {
       x: 0,
       y: 0,
       z: j,
@@ -203,7 +206,7 @@ export function test_engine_balance_outcome(): void {
   }
 
   // 7. Refusals.
-  const props: resolveAutoMovieBalanceOutcome.IProps = {
+  const props: IAutoMovieResolveBalanceOutcome.IProps = {
     centre,
     velocity: { x: 0, y: 0, z: 0 },
     mass: 76,

@@ -1,5 +1,4 @@
 import {
-  IAutoMovieActorContext,
   Quaternion,
   Vector3,
   compileDefinedShot,
@@ -10,6 +9,7 @@ import {
   sampleMotion,
 } from "@automovie/engine";
 import {
+  type IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
   IAutoMovieDefinedShotContract,

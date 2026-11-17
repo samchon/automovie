@@ -1,14 +1,17 @@
-import type { operate } from "../affordance/operate";
-import type { handToFace } from "../daily/handToFace";
-import type { dress } from "../dressing/dress";
-import type { gesture } from "../everyday/gesture";
-import type { look } from "../everyday/look";
-import type { rest } from "../everyday/rest";
-import type { typeText } from "../everyday/typeText";
-import type { useTool } from "../tasks/useTool";
-import type { wipe } from "../tasks/wipe";
-import type { selfAction } from "../touch/selfAction";
-import type { touch } from "../touch/touch";
+import type {
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanGesture,
+  IAutoMovieMotionHumanHandToFace,
+  IAutoMovieMotionHumanLook,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieMotionHumanSelfAction,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTypeText,
+  IAutoMovieMotionHumanUseTool,
+  IAutoMovieMotionHumanWipe,
+} from "@automovie/interface";
+
 import { HumanChainPosture } from "./HumanChainPosture";
 
 /**
@@ -30,7 +33,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public look(params: look.IParams, anchor?: string): this {
+  public look(
+    params: IAutoMovieMotionHumanLook.IParams,
+    anchor?: string,
+  ): this {
     return this.act("look", params, anchor);
   }
 
@@ -41,7 +47,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public gesture(params: gesture.IParams, anchor?: string): this {
+  public gesture(
+    params: IAutoMovieMotionHumanGesture.IParams,
+    anchor?: string,
+  ): this {
     return this.act("gesture", params, anchor);
   }
 
@@ -52,7 +61,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public rest(params: rest.IParams = {}, anchor?: string): this {
+  public rest(
+    params: IAutoMovieMotionHumanRest.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("rest", params, anchor);
   }
 
@@ -65,7 +77,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public touch(params: touch.IParams, anchor?: string): this {
+  public touch(
+    params: IAutoMovieMotionHumanTouch.IParams,
+    anchor?: string,
+  ): this {
     return this.act("touch", params, anchor);
   }
 
@@ -77,7 +92,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public selfAction(params: selfAction.IParams, anchor?: string): this {
+  public selfAction(
+    params: IAutoMovieMotionHumanSelfAction.IParams,
+    anchor?: string,
+  ): this {
     return this.act("selfAction", params, anchor);
   }
 
@@ -89,7 +107,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public handToFace(params: handToFace.IParams, anchor?: string): this {
+  public handToFace(
+    params: IAutoMovieMotionHumanHandToFace.IParams,
+    anchor?: string,
+  ): this {
     return this.act("handToFace", params, anchor);
   }
 
@@ -100,7 +121,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public dress(params: dress.IParams, anchor?: string): this {
+  public dress(
+    params: IAutoMovieMotionHumanDress.IParams,
+    anchor?: string,
+  ): this {
     return this.act("dress", params, anchor);
   }
 
@@ -112,7 +136,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public useTool(params: useTool.IParams, anchor?: string): this {
+  public useTool(
+    params: IAutoMovieMotionHumanUseTool.IParams,
+    anchor?: string,
+  ): this {
     return this.act("useTool", params, anchor);
   }
 
@@ -123,7 +150,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public wipe(params: wipe.IParams, anchor?: string): this {
+  public wipe(
+    params: IAutoMovieMotionHumanWipe.IParams,
+    anchor?: string,
+  ): this {
     return this.act("wipe", params, anchor);
   }
 
@@ -135,7 +165,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public operate(params: operate.IParams, anchor?: string): this {
+  public operate(
+    params: IAutoMovieMotionHumanOperate.IParams,
+    anchor?: string,
+  ): this {
     return this.act("operate", params, anchor);
   }
 
@@ -147,7 +180,10 @@ export class HumanChainManual extends HumanChainPosture {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public typeText(params: typeText.IParams, anchor?: string): this {
+  public typeText(
+    params: IAutoMovieMotionHumanTypeText.IParams,
+    anchor?: string,
+  ): this {
     return this.act("typeText", params, anchor);
   }
 }

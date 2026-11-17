@@ -3,7 +3,15 @@ import {
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanCarried,
   HumanChain,
@@ -12,7 +20,6 @@ import {
   HumanForceExchange,
   HumanPerformance,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -57,7 +64,7 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ] as const) {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
@@ -69,7 +76,10 @@ export function test_human_motion_lexicon_rows_coupled(): void {
         yaw: 0,
         proficiency: { level: "trained" as const },
       }));
-    const placed = (film: HumanPerformance, subject: string): string => {
+    const placed = (
+      film: IAutoMovieMotionHumanPerformance,
+      subject: string,
+    ): string => {
       const segments = film.segments(subject);
       return segments[segments.length - 1]?.name ?? "none";
     };
@@ -77,10 +87,10 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     // 1. The carries.
     for (const carry of Object.keys(
       HumanCarried.CARRIES,
-    ) as HumanCarried.Carry[]) {
+    ) as IAutoMovieMotionHumanCarried.Carry[]) {
       const cell: string = `carry ${carry}, ${names[0]} bearing ${names[1]}`;
       try {
-        const film: HumanPerformance = new HumanPerformance({
+        const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "coupled-rows",
           laws: [HumanCarried.borne, HumanCarried.bearing],
           performers: performers(bodies.a.measure.footLength),
@@ -112,13 +122,13 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     }
 
     // 2. The throws.
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
     const weight: number = model.mass * AutoMovieGravity.STANDARD;
 
     for (const kind of Object.keys(
       HumanCoupled.FULCRUMS,
-    ) as HumanCoupled.Throw[])
+    ) as IAutoMovieMotionHumanCoupled.Throw[])
       for (const outcome of ["thrown", "resist", "yield"] as const) {
         const cell: string = `throw ${kind} ${outcome}, ${names[0]} throwing ${names[1]}`;
 
@@ -126,7 +136,7 @@ export function test_human_motion_lexicon_rows_coupled(): void {
         const force: number =
           outcome === "resist" ? resistible(bodies.b) / 2 : weight;
         try {
-          const film: HumanPerformance = new HumanPerformance({
+          const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
             seed: "coupled-rows",
             // The thrower stands a foot ahead of the thrown body, its back
             // to it, as a turned-in entry stands.
@@ -167,7 +177,7 @@ export function test_human_motion_lexicon_rows_coupled(): void {
 
     // 3. Help-up and a walk between two helpers.
     try {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "coupled-rows",
         performers: performers(0).map((p) =>
           p.subject === "a" ? { ...p, ...helperStand(bodies.b, bodies.a) } : p,
@@ -194,7 +204,7 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     }
     try {
       const width: number = bodies.b.measure.stature / 4;
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "coupled-rows",
         laws: [HumanCarried.borne, HumanCarried.bearing],
         performers: [
@@ -241,10 +251,10 @@ export function test_human_motion_lexicon_rows_coupled(): void {
  * under the helper's reach.
  */
 function helperStand(
-  helped: IHumanBody,
-  helper: IHumanBody,
+  helped: IAutoMovieMotionHumanBody,
+  helper: IAutoMovieMotionHumanBody,
 ): { at: IAutoMovieVector3; yaw: number } {
-  const lying: HumanPerformance = new HumanPerformance({
+  const lying: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "helper-stand",
     performers: [
       {
@@ -259,7 +269,7 @@ function helperStand(
   });
   const segments = lying.segments("b");
   const last = segments[segments.length - 1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     lying,
     "b",
     helped,
@@ -292,8 +302,8 @@ function helperStand(
  * displayed base: its weight times the base's extent behind its centre over
  * the collar-and-sleeve grips' height, `M g e / h` (`HumanForceExchange`).
  */
-function resistible(body: IHumanBody): number {
-  const film: HumanPerformance = new HumanPerformance({
+function resistible(body: IAutoMovieMotionHumanBody): number {
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "resistible",
     performers: [
       {
@@ -306,7 +316,12 @@ function resistible(body: IHumanBody): number {
     ],
     composition: HumanChain.subject("b").stand({ seconds: 0.3 }).node,
   });
-  const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    film,
+    "b",
+    body,
+    0,
+  );
   const centre: IAutoMovieVector3 = HumanSignature.centre(reader, 0.3);
   const behind: number = HumanForceExchange.edge(
     centre,

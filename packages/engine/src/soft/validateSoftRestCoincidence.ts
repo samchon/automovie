@@ -1,6 +1,7 @@
-import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
-
-import { ViolationCollector } from "../validation/ViolationCollector";
+import {
+  IAutoMovieSoftBodyDomain,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Report a structural rest edge whose squared displacement vanishes.
@@ -14,13 +15,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The domain array is read and unretained; only the caller collector owns any finding and its particle-index pair.
  */
 export const validateSoftRestCoincidence: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
   a: number,
   b: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
   a: number,

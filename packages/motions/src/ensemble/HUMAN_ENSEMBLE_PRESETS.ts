@@ -1,4 +1,4 @@
-import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
+import type { IAutoMovieMotionHumanEnsemblePreset } from "@automovie/interface";
 
 /**
  * Named groups as distributions of their members' attributes and
@@ -15,7 +15,10 @@ import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
  * the rows' own numbers.
  */
 export const HUMAN_ENSEMBLE_PRESETS: Readonly<
-  Record<IHumanEnsemblePreset.Name, IHumanEnsemblePreset>
+  Record<
+    IAutoMovieMotionHumanEnsemblePreset.Name,
+    IAutoMovieMotionHumanEnsemblePreset
+  >
 > = {
   elite: {
     proficiency: { mean: 0.9, spread: 0.05 },

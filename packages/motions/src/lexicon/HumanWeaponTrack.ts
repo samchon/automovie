@@ -1,12 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanWeaponTrack,
+  IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { StrikingHeld } from "../striking/StrikingHeld";
 
 /**
  * Tracking: a presented firearm kept on a target that moves (#3348). The
@@ -32,15 +32,6 @@ import type { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is read through `context.aim`, the reader every aimed law uses, at the second shown.
  */
 export namespace HumanWeaponTrack {
-  /** What tracking adds to presenting a weapon. */
-  export interface IParams {
-    /** What it is aimed at. */
-    target?: AutoMovieMotionTarget;
-
-    /** Whether the aim follows the target while the carriage is held; `false` when absent. */
-    track?: boolean;
-  }
-
   /**
    * The path of a presented weapon: the pose itself, or with `track` the
    * pose turned onto the target at each second.
@@ -60,18 +51,24 @@ export namespace HumanWeaponTrack {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The path closes over the pose, the eye and the context.
    */
   export function path(
-    context: IHumanActionContext<IParams>,
-    pose: StrikingHeld.IHandFrame,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponTrack.IParams>,
+    pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     eye: IAutoMovieVector3,
     aimed: IAutoMovieVector3 | null,
-  ): (progress: number, seconds: number) => StrikingHeld.IHandFrame {
-    const target: AutoMovieMotionTarget | undefined = context.params.target;
+  ): (
+    progress: number,
+    seconds: number,
+  ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const target: IAutoMovieMotionTarget | undefined = context.params.target;
     if (aimed === null || target === undefined || context.params.track !== true)
-      return (): StrikingHeld.IHandFrame => pose;
+      return (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose;
     const first: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(aimed, eye),
     );
-    return (_: number, seconds: number): StrikingHeld.IHandFrame => {
+    return (
+      _: number,
+      seconds: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const now: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(
           context.aim(target, context.start + seconds).point,

@@ -1,8 +1,9 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
+import {
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepPath,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Wrap a transport in the object-returning path record.

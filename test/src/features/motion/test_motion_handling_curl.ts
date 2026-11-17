@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   curlChainUntilContact,
@@ -11,8 +10,10 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -58,15 +59,15 @@ export function test_motion_handling_curl(): void {
     root: null,
     joints: [],
   };
-  const chain: curlChainUntilContact.IChain = {
+  const chain: IAutoMovieCurlChainUntilContact.IChain = {
     bones: BONES,
     tip: { x: 0.02, y: 0, z: 0 },
     radius: RADIUS,
   };
   const curl = (
-    colliders: curlChainUntilContact.ICollider[],
+    colliders: IAutoMovieCurlChainUntilContact.ICollider[],
     start: IAutoMoviePose = pose,
-  ): curlChainUntilContact.IResult =>
+  ): IAutoMovieCurlChainUntilContact.IResult =>
     curlChainUntilContact({
       skeleton,
       pose: start,
@@ -83,49 +84,51 @@ export function test_motion_handling_curl(): void {
 
   // 1-2. Each shape kind under the finger: the curl ends touching, not inside.
   const below = (
-    shape: IAutoMoviePhysicalProfile.IShape,
-  ): curlChainUntilContact.ICollider => ({
+    shape: IAutoMoviePhysicalShape,
+  ): IAutoMovieCurlChainUntilContact.ICollider => ({
     shape,
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
   });
-  const cases: { label: string; collider: curlChainUntilContact.ICollider }[] =
-    [
-      {
-        label: "box",
-        collider: below(
-          box({ x: 0.1, y: -0.05, z: 0 }, { x: 0.06, y: 0.02, z: 0.05 }),
-        ),
-      },
-      {
-        label: "sphere",
-        collider: below({
-          id: "s",
-          material: "m",
-          transform: {
-            position: { x: 0.08, y: -0.045, z: 0 },
-            rotation: Quaternion.identity(),
-          },
-          kind: "sphere",
-          radius: 0.03,
-        }),
-      },
-      {
-        label: "capsule",
-        collider: below({
-          id: "c",
-          material: "m",
-          transform: {
-            position: { x: 0.07, y: -0.04, z: 0 },
-            rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-          },
-          kind: "capsule",
-          radius: 0.02,
-          halfLength: 0.05,
-        }),
-      },
-    ];
+  const cases: {
+    label: string;
+    collider: IAutoMovieCurlChainUntilContact.ICollider;
+  }[] = [
+    {
+      label: "box",
+      collider: below(
+        box({ x: 0.1, y: -0.05, z: 0 }, { x: 0.06, y: 0.02, z: 0.05 }),
+      ),
+    },
+    {
+      label: "sphere",
+      collider: below({
+        id: "s",
+        material: "m",
+        transform: {
+          position: { x: 0.08, y: -0.045, z: 0 },
+          rotation: Quaternion.identity(),
+        },
+        kind: "sphere",
+        radius: 0.03,
+      }),
+    },
+    {
+      label: "capsule",
+      collider: below({
+        id: "c",
+        material: "m",
+        transform: {
+          position: { x: 0.07, y: -0.04, z: 0 },
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+        kind: "capsule",
+        radius: 0.02,
+        halfLength: 0.05,
+      }),
+    },
+  ];
   for (const { label, collider } of cases) {
-    const result: curlChainUntilContact.IResult = curl([collider]);
+    const result: IAutoMovieCurlChainUntilContact.IResult = curl([collider]);
     const least: number = clearance(skeleton, result.pose, collider);
     TestValidator.predicate(
       `${label}: touches without penetrating (${(least * 1000).toFixed(3)} mm)`,
@@ -140,10 +143,10 @@ export function test_motion_handling_curl(): void {
   }
 
   // 3. Out of reach: every joint at its range maximum, the gap positive.
-  const far: curlChainUntilContact.ICollider = below(
+  const far: IAutoMovieCurlChainUntilContact.ICollider = below(
     box({ x: 0.1, y: -0.5, z: 0 }, { x: 0.05, y: 0.05, z: 0.05 }),
   );
-  const free: curlChainUntilContact.IResult = curl([far]);
+  const free: IAutoMovieCurlChainUntilContact.IResult = curl([far]);
   TestValidator.predicate(
     "unreached joints stop at the range maximum",
     free.chains[0]!.flexion.every(
@@ -156,17 +159,17 @@ export function test_motion_handling_curl(): void {
   );
 
   // 4. Already pressing: unchanged.
-  const pressing: curlChainUntilContact.ICollider = below(
+  const pressing: IAutoMovieCurlChainUntilContact.ICollider = below(
     box({ x: 0.06, y: -0.01, z: 0 }, { x: 0.05, y: 0.01, z: 0.05 }),
   );
-  const kept: curlChainUntilContact.IResult = curl([pressing]);
+  const kept: IAutoMovieCurlChainUntilContact.IResult = curl([pressing]);
   TestValidator.predicate(
     "a pressing finger keeps its angles",
     kept.chains[0]!.flexion.every((a: number): boolean => a === 0),
   );
 
   // 5. A sphere under the proximal phalanx only: proximal stops, the rest close on.
-  const knob: curlChainUntilContact.ICollider = below({
+  const knob: IAutoMovieCurlChainUntilContact.ICollider = below({
     id: "k",
     material: "m",
     transform: {
@@ -176,7 +179,7 @@ export function test_motion_handling_curl(): void {
     kind: "sphere",
     radius: 0.015,
   });
-  const staged: curlChainUntilContact.IResult = curl([knob]);
+  const staged: IAutoMovieCurlChainUntilContact.IResult = curl([knob]);
   const [proximal, middle, distal] = staged.chains[0]!.flexion as [
     number,
     number,
@@ -196,7 +199,9 @@ export function test_motion_handling_curl(): void {
   );
 
   // 6. Determinism and refusals.
-  const again: curlChainUntilContact.IResult = curl([cases[0]!.collider]);
+  const again: IAutoMovieCurlChainUntilContact.IResult = curl([
+    cases[0]!.collider,
+  ]);
   TestValidator.predicate(
     "bit-identical",
     JSON.stringify(again.chains) ===
@@ -268,7 +273,7 @@ function finger(): IAutoMovieSkeleton {
 function box(
   at: IAutoMovieVector3,
   half: IAutoMovieVector3,
-): IAutoMoviePhysicalProfile.IShape {
+): IAutoMoviePhysicalShape {
   return {
     id: "b",
     material: "m",
@@ -282,7 +287,7 @@ function box(
 function clearance(
   skeleton: IAutoMovieSkeleton,
   pose: IAutoMoviePose,
-  collider: curlChainUntilContact.ICollider,
+  collider: IAutoMovieCurlChainUntilContact.ICollider,
 ): number {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
     resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
@@ -302,7 +307,7 @@ function clearance(
       Quaternion.rotateVector(distal.worldRotation, { x: 0.02, y: 0, z: 0 }),
     ),
   );
-  const shape: IAutoMoviePhysicalProfile.IShape = collider.shape;
+  const shape: IAutoMoviePhysicalShape = collider.shape;
   const c: IAutoMovieVector3 = shape.transform.position;
   const distance = (p: IAutoMovieVector3): number => {
     if (shape.kind === "sphere")

@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieCreateDynamicActorPoseClip,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMoviePose,
@@ -36,30 +37,11 @@ const boneTargetTimes: (
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Duplicate landmarks are collapsed before callback evaluation; no cache spans actions because live target and actor-frame callbacks may depend on different shot times.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns the grid and keyframes, releases partial output on null/throw, and returns successful callback poses by reference; no external handle or task is retained.
  */
-export const createDynamicActorPoseClip: (props: {
-  /** Caller-selected output motion identity. */ id: string;
-  /** Skeleton id shared by every callback pose. */ skeleton: string;
-  /** Finite strictly positive clip span in seconds. */ duration: number;
-  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt: (
-    time: number,
-  ) => IAutoMoviePose | null;
-  /** Additional finite in-span seconds that must be sampled exactly; duplicates collapse with the regular grid. */ landmarks?: readonly number[];
-}) => IAutoMovieMotion | null = (props: {
-  /** Caller-selected output motion identity. */
-  id: string;
-
-  /** Skeleton id shared by every callback pose. */
-  skeleton: string;
-
-  /** Finite strictly positive clip span in seconds. */
-  duration: number;
-
-  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */
-  poseAt: (time: number) => IAutoMoviePose | null;
-
-  /** Additional finite in-span seconds that must be sampled exactly; duplicates collapse with the regular grid. */
-  landmarks?: readonly number[];
-}): IAutoMovieMotion | null => {
+export const createDynamicActorPoseClip: (
+  props: IAutoMovieCreateDynamicActorPoseClip.IProps,
+) => IAutoMovieMotion | null = (
+  props: IAutoMovieCreateDynamicActorPoseClip.IProps,
+): IAutoMovieMotion | null => {
   const keyframes: IAutoMovieKeyframe[] = [];
   for (const time of boneTargetTimes(props.duration, props.landmarks)) {
     const pose: IAutoMoviePose | null = props.poseAt(time);

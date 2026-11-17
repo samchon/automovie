@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
+import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 
 /**
  * One logical space's cross-section on the cut plane, per authored cell.

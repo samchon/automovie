@@ -1,20 +1,20 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieChainBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
@@ -50,11 +50,11 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pose-specific frames/closures release with the call and the pose owns its new joint array. Paired mode adds one result wrapper and one selected fixed-size reading only until immediate orientation; borrowed source rig/projector remain caller-owned, with no target history, handles or tasks.
  */
 export function splitDistalTwist(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   pose: IAutoMoviePose,
   rotation: IAutoMovieQuaternion,
-  prepared?: IPreparedChainPlant,
+  prepared?: IAutoMoviePreparedChainPlant,
   rig?: prepareChainFit.IRig,
 ): IAutoMoviePose {
   return split(props, axes, pose, rotation, prepared, rig, false).pose;
@@ -62,11 +62,11 @@ export function splitDistalTwist(
 
 /** Same distal law for pose-only callers and the immediate orientation consumer. */
 function split(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   pose: IAutoMoviePose,
   rotation: IAutoMovieQuaternion,
-  prepared: IPreparedChainPlant | undefined,
+  prepared: IAutoMoviePreparedChainPlant | undefined,
   rig: prepareChainFit.IRig | undefined,
   paired: boolean,
 ): splitDistalTwist.IResult {
@@ -221,11 +221,11 @@ export namespace splitDistalTwist {
    * no target history, solver workspace, handles or tasks survive.
    */
   export function withProjection(
-    props: IFitChainToTargetProps,
+    props: IAutoMovieFitChainToTargetProps,
     axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
     pose: IAutoMoviePose,
     rotation: IAutoMovieQuaternion,
-    prepared?: IPreparedChainPlant,
+    prepared?: IAutoMoviePreparedChainPlant,
     rig?: prepareChainFit.IRig,
   ): IResult {
     return split(props, axes, pose, rotation, prepared, rig, true);

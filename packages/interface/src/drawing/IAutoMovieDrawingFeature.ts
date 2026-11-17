@@ -1,4 +1,4 @@
-import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
+import type { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
 
 /**
  * Which geometric feature of the design an annotation or dimension is pinned

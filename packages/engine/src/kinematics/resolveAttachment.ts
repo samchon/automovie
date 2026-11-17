@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAttachment,
   IAutoMovieJointAxes,
@@ -6,14 +6,16 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { resolvePose } from "./resolvePose";
+import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
-import type { preparePoseResolution } from "./preparePoseResolution";
+import { resolvePose } from "./resolvePose";
 
 /**
  * The transform of a child model's root rigidly coupled to one bone of a posed

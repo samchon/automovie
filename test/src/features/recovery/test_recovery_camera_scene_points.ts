@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapObservation,
-  type IAutoMovieRecoveryMapPose,
   admitRecoveryCameraScene,
   evaluateRecoveryScenePoint,
   refineRecoveryCameraMap,

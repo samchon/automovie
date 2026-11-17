@@ -1,15 +1,18 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootGuide,
+  IAutoMovieHumanFootKnots,
+  IAutoMovieHumanFootWebLine,
+} from "@automovie/interface";
+
 import { AutoMovieHumanFootAchilles } from "./AutoMovieHumanFootAchilles";
-import type { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
+import { AutoMovieHumanFootColumn } from "./AutoMovieHumanFootColumn";
 import { AutoMovieHumanFootCrestForefoot } from "./AutoMovieHumanFootCrestForefoot";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
-import { AutoMovieHumanFootColumn } from "./AutoMovieHumanFootColumn";
 import { AutoMovieHumanFootLateralForefoot } from "./AutoMovieHumanFootLateralForefoot";
-import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
-
-type Vec3 = G.Vec3;
 
 /**
  * The foot's guide regions and the five guides they compose, as one table.
@@ -52,38 +55,44 @@ type Vec3 = G.Vec3;
  *   crown at shares 0.5 to 0.65) and the column up to the medial malleolus.
  */
 export namespace AutoMovieHumanFootKnots {
-  /** A guide region. */
-  export type Region =
-    | "crestForefoot"
-    | "crestAnkle"
-    | "lateralForefoot"
-    | "lateralHeel"
-    | "lateralColumn"
-    | "medialForefoot"
-    | "medialNavicular"
-    | "medialColumn"
-    | "contactLateralBall"
-    | "contactLateralMidfoot"
-    | "contactLateralHeel"
-    | "contactMedialBall"
-    | "contactMedialMidfoot"
-    | "contactMedialHeel"
-    | "heelCornerLateral"
-    | "heelCornerMedial"
-    | "achillesLateral"
-    | "achillesMedial";
-
   /** Each guide's regions, front to back. */
-  export const GUIDES: Readonly<Record<keyof AutoMovieHumanFootBody.IGuides, readonly Region[]>> = {
+  export const GUIDES: Readonly<
+    Record<
+      keyof IAutoMovieHumanFootBody.IGuides,
+      readonly IAutoMovieHumanFootKnots.Region[]
+    >
+  > = {
     crest: ["crestForefoot", "crestAnkle"],
     lateral: ["lateralForefoot", "lateralHeel", "lateralColumn"],
-    contactLateral: ["contactLateralBall", "contactLateralMidfoot", "contactLateralHeel", "heelCornerLateral", "achillesLateral"],
-    contactMedial: ["contactMedialBall", "contactMedialMidfoot", "contactMedialHeel", "heelCornerMedial", "achillesMedial"],
+    contactLateral: [
+      "contactLateralBall",
+      "contactLateralMidfoot",
+      "contactLateralHeel",
+      "heelCornerLateral",
+      "achillesLateral",
+    ],
+    contactMedial: [
+      "contactMedialBall",
+      "contactMedialMidfoot",
+      "contactMedialHeel",
+      "heelCornerMedial",
+      "achillesMedial",
+    ],
     medial: ["medialForefoot", "medialNavicular", "medialColumn"],
   };
 
   /** The contact regions' knots on the floor, front first: `[a, u]` in foot lengths and breadths. */
-  const FLOOR: Readonly<Record<"contactLateralBall" | "contactLateralMidfoot" | "contactLateralHeel" | "contactMedialBall" | "contactMedialMidfoot" | "contactMedialHeel", readonly (readonly [number, number])[]>> = {
+  const FLOOR: Readonly<
+    Record<
+      | "contactLateralBall"
+      | "contactLateralMidfoot"
+      | "contactLateralHeel"
+      | "contactMedialBall"
+      | "contactMedialMidfoot"
+      | "contactMedialHeel",
+      readonly (readonly [number, number])[]
+    >
+  > = {
     contactLateralBall: [
       [0.86, 0.6],
       [0.8, 0.61],
@@ -127,7 +136,12 @@ export namespace AutoMovieHumanFootKnots {
   ];
 
   /** The border regions' knots read in the fan's own planes (`AutoMovieHumanFootGuide.fanned`): `[share, a, u, y / L, y / H]`. */
-  const FANNED: Readonly<Record<"lateralHeel" | "medialForefoot" | "medialNavicular", readonly AutoMovieHumanFootGuide.IFanKnot[]>> = {
+  const FANNED: Readonly<
+    Record<
+      "lateralHeel" | "medialForefoot" | "medialNavicular",
+      readonly IAutoMovieHumanFootGuide.IFanKnot[]
+    >
+  > = {
     lateralHeel: [
       [0.55, 0.276, 0.8411, 0.069, 0.2511],
       [0.6, 0.2221, 0.8275, 0.0651, 0.2321],
@@ -161,12 +175,19 @@ export namespace AutoMovieHumanFootKnots {
    * @param line The foot's web line.
    * @returns The knots.
    */
-  export function knots(region: Region, frame: AutoMovieHumanFootFrame.IFrame, line: AutoMovieHumanFootWebLine.IWebLine): Vec3[] {
+  export function knots(
+    region: IAutoMovieHumanFootKnots.Region,
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): AutoMovieVector3Tuple[] {
     switch (region) {
       case "crestForefoot":
         return AutoMovieHumanFootCrestForefoot.knots(frame);
       case "crestAnkle":
-        return ANKLE.map((q: readonly [number, number, number]): Vec3 => frame.at(q[0], q[1], q[2] * frame.H));
+        return ANKLE.map(
+          (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
+            frame.at(q[0], q[1], q[2] * frame.H),
+        );
       case "lateralForefoot":
         return AutoMovieHumanFootLateralForefoot.knots(frame, line);
       case "lateralColumn":
@@ -191,7 +212,10 @@ export namespace AutoMovieHumanFootKnots {
       case "contactMedialBall":
       case "contactMedialMidfoot":
       case "contactMedialHeel":
-        return FLOOR[region].map((q: readonly [number, number]): Vec3 => frame.at(q[0], q[1], 0));
+        return FLOOR[region].map(
+          (q: readonly [number, number]): AutoMovieVector3Tuple =>
+            frame.at(q[0], q[1], 0),
+        );
     }
   }
 
@@ -203,12 +227,20 @@ export namespace AutoMovieHumanFootKnots {
    * @param line The foot's web line.
    * @returns The guides.
    */
-  export function guides(frame: AutoMovieHumanFootFrame.IFrame, line: AutoMovieHumanFootWebLine.IWebLine): AutoMovieHumanFootBody.IGuides {
-    const guide = (name: keyof AutoMovieHumanFootBody.IGuides): AutoMovieHumanFootGuide.IGuide =>
+  export function guides(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): IAutoMovieHumanFootBody.IGuides {
+    const guide = (
+      name: keyof IAutoMovieHumanFootBody.IGuides,
+    ): IAutoMovieHumanFootGuide.IGuide =>
       AutoMovieHumanFootGuide.of(
         frame,
         line,
-        GUIDES[name].flatMap((r: Region): Vec3[] => knots(r, frame, line)),
+        GUIDES[name].flatMap(
+          (r: IAutoMovieHumanFootKnots.Region): AutoMovieVector3Tuple[] =>
+            knots(r, frame, line),
+        ),
       );
 
     return {

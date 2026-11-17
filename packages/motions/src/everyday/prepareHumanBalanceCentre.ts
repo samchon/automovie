@@ -1,12 +1,15 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -24,12 +27,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the body and bounded fixed-name reader until its operation/plan ends. Local getters and borrowed FK/ROM loans end with their synchronous observation or parent operation; no posture, fitted result, centre, dynamic workspace or time history enters the returned closure.
  */
 export function prepareHumanBalanceCentre(
-  body: IHumanBody,
-): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieVector3 {
+  body: IAutoMovieMotionHumanBody,
+): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieVector3 {
   const bones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, HumanColliders.bones(body));
-  return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieVector3 => {
+  return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieVector3 => {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-    const model: IHumanBody["massModel"] = body.massModel;
+    const model: IAutoMovieMotionHumanBody["massModel"] = body.massModel;
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose;
     return resolveAutoMovieCenterOfMass.place(model, bones(pose, read()));
   };

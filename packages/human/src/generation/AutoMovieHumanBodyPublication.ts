@@ -1,11 +1,10 @@
 import type {
-  AutoMovieLoftContract,
-  AutoMovieLoftFrame,
-  AutoMovieSolidBody,
+  IAutoMovieHumanBodyLane,
   IAutoMovieLoftChain,
-} from "@automovie/engine";
-
-import type { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
+  IAutoMovieLoftContract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieSolidBody,
+} from "@automovie/interface";
 
 /** Publish finite realized chains and only bodies whose complete face owners survived; no source construction is repeated. */
 export namespace AutoMovieHumanBodyPublication {
@@ -24,14 +23,14 @@ export namespace AutoMovieHumanBodyPublication {
    */
   export function of(
     chains: IAutoMovieLoftChain[],
-    bodies: AutoMovieSolidBody.IPublished[],
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-  ): AutoMovieHumanBodyLane.IOutput {
+    bodies: IAutoMovieSolidBody.IPublished[],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieHumanBodyLane.IOutput {
     const finite: (values: readonly number[] | undefined) => boolean = (
       values: readonly number[] | undefined,
     ): boolean => values === undefined || values.every(Number.isFinite);
-    const plane: (f: AutoMovieLoftFrame.IFrame | undefined) => boolean = (
-      f: AutoMovieLoftFrame.IFrame | undefined,
+    const plane: (f: IAutoMovieLoftSectionFrame | undefined) => boolean = (
+      f: IAutoMovieLoftSectionFrame | undefined,
     ): boolean =>
       f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
     const sound: (c: IAutoMovieLoftChain) => boolean = (
@@ -65,10 +64,10 @@ export namespace AutoMovieHumanBodyPublication {
     );
     return {
       chains: kept,
-      bodies: bodies.filter((b: AutoMovieSolidBody.IPublished): boolean => {
+      bodies: bodies.filter((b: IAutoMovieSolidBody.IPublished): boolean => {
         const lost: string[] = b.faces
           .map(
-            (f: AutoMovieSolidBody.IPublished["faces"][number]): string =>
+            (f: IAutoMovieSolidBody.IPublished["faces"][number]): string =>
               f.chain,
           )
           .filter((n: string): boolean => dropped.has(n));

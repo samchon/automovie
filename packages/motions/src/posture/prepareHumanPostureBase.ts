@@ -1,11 +1,15 @@
-import type { IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
-import type { IHumanPosture } from "./IHumanPosture";
 import { assembleHumanPosture } from "./assembleHumanPosture";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { refitHumanPosture } from "./refitHumanPosture";
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { turnHumanPosture } from "./turnHumanPosture";
@@ -25,31 +29,31 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One search owns its clamped base, fixed authoring/digit snapshot and private lazy reader/source geometry until completion or throw. Explicit incoming FK sources and candidate outputs are not retained; fresh copies isolate the base and existing memory, with no fixed-goal key/result reader.
  */
 export function prepareHumanPostureBase(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   base?: IAutoMoviePose,
 ): prepareHumanPostureBase.IWorkspace {
-  const fixed: IHumanPosture = structuredClone({ ...posture, limbs: {} });
+  const fixed: IAutoMovieMotionHumanPosture = structuredClone({ ...posture, limbs: {} });
   const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, fixed, base);
   const pose: IAutoMoviePose = structuredClone(assembled.pose);
   const ownedResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanLimbSource(body);
   return {
     seeded: (
-      limbs: IHumanPosture["limbs"],
-      near: resolveHumanPosture.INear = {},
+      limbs: IAutoMovieMotionHumanPosture["limbs"],
+      near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ): resolveHumanPosture.ISeeded => {
-      const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...fixed, limbs });
+    ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
+      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...fixed, limbs });
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = source === undefined
         ? ownedResolution : prepareHumanPoseResolution(source);
-      const fitted: resolveHumanPosture.ISeeded = (source === undefined ? refitHumanPosture : refitHumanPosture.independent)(
+      const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = (source === undefined ? refitHumanPosture : refitHumanPosture.independent)(
         body,
         structuredClone(pose),
         turned.limbs,
         near,
         resolution,
       );
-      const result: resolveHumanPosture.ISeeded = {
+      const result: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = {
         ...fitted,
         pose: HumanDigitFit.fitted(body, fitted.pose, fixed.digits, resolution),
       };
@@ -78,9 +82,9 @@ export namespace prepareHumanPostureBase {
   export interface IWorkspace {
     /** Actual cold/continued solve on a fresh copy of this operation's fixed direct pose. */
     seeded: (
-      limbs: IHumanPosture["limbs"],
-      near?: resolveHumanPosture.INear,
+      limbs: IAutoMovieMotionHumanPosture["limbs"],
+      near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ) => resolveHumanPosture.ISeeded;
+    ) => IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
   }
 }

@@ -1,27 +1,22 @@
 # Testing
 
-Give each module millisecond-scale unit tests of its pure logic, with expectations taken from the settings or brief facts, the research laws or another independent reference, as the [testing checklist](../contracts/development/testing.md) requires. Test what the chain promises:
+Give each module the production writes millisecond-scale unit tests of its own logic, with expectations taken from the settings or brief facts, the screenplay, a study or another independent reference, as the [testing checklist](../contracts/development/testing.md) requires. Test what the production itself decides: that each scene's resolved schedule yields the outcomes its screenplay beats decide, that another seed keeps those outcomes, and that a resolved state hashes the same on every run.
 
-- each research outcome table is consistent, and every screenplay outcome is one it permits;
-- a composition is legal;
-- each scene's resolved schedule yields its screenplay outcome classes;
-- goals reach the counterpart's actual region;
-- every seed keeps the outcome classes;
-- a resolved state hashes the same on every run.
+A rule or table the production adds, such as which actions a practice allows, is tested on its own inputs.
 
-Test geometry operators on made inputs as 3D modeling's [construction](../3d-modeling/crafting/construction.md#tests) describes. The installed packages own the validation of authored data, so a production calls it rather than writing or testing its own.
+Test geometry operators on made inputs as 3D modeling's [construction](../3d-modeling/crafting/construction.md#tests) describes. The installed packages own the validation of authored data, so call it rather than writing or testing another.
 
 ## Motion checks
 
-A production law takes the bounded checks [motion verification](../motion/laws/verification.md) lists: evaluate the resolved plan at its event times and assert each bound on the result, across the bodies the [behavior statements](../contracts/development/statements/behaviors.md#relational-goals) require.
+A production law takes the bounded checks [motion verification](../motion/laws/verification.md) lists: evaluate the resolved plan at its event times and assert each bound on the result, across the bodies the [relational goals](../contracts/development/behaviors.md#relational-goals) item requires.
 
 A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests.
 
-The installed motion vocabulary checks its own actions, so a production does not test them again. A production's test of a composition asserts only the value [a person's case](../motion/catalog-cases.md#a-persons-case) names.
+The installed motion vocabulary tests its own actions, so a production adds no test or report for them.
 
 ## What a test is not
 
-Beyond what the [testing checklist](../contracts/development/testing.md) excludes, a production test never monkey-patches globals or internals and never replays recorded fixtures. What only a picture shows belongs to the stills of the [catalog case](../motion/catalog-cases.md), and rendered pictures, decoded media and anything the user watches or hears to the [acceptance record](../review/delivery-review.md#acceptance-record), not to a test.
+Beyond what the testing checklist excludes, a production test never monkey-patches globals or internals and never replays recorded fixtures. What only a picture shows belongs to the catalog case's stills, and rendered pictures, decoded media and anything the user watches or hears to the [acceptance record](../review/delivery-review.md#acceptance-record), not to a test.
 
 ## Files and runs
 

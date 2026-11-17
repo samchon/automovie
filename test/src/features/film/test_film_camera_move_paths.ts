@@ -1,7 +1,8 @@
-import { IAutoMovieFramedSubject, compileCameraMove } from "@automovie/engine";
+import { compileCameraMove } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
+  type IAutoMovieFramedSubject,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

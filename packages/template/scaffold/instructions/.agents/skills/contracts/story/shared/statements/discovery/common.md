@@ -1,7 +1,5 @@
 # Common discovery statements
 
-Contract: [discovery/common.md](../../discovery/common.md).
-
 ## Requirement ownership
 
 Requirements:
@@ -20,7 +18,7 @@ Language:
     - names and titles;
     - number, date, age, color, material, dimension and unit wording.
 8. Affected speakers and passages, audience cues and canonical owners are identified, and the concrete language risks existing owners cover are recorded.
-9. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), period usage is checked against the cited record or the adopted departure identified. Notation serves the actual audience and medium, not artificial period weight.
+9. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), period usage is checked against the cited record or the adopted departure identified. Notation serves the audience and medium, not artificial period weight.
 
 Production coverage:
 
@@ -31,7 +29,7 @@ Production coverage:
     - a skill, folder or instruction the work needed but lacked.
 11. Each gap found was answered in one of three ways:
     - by adopting a work-specific contract or folder;
-    - by recording a scaffold candidate with its motivating evidence, which stays local until other productions show the same need;
+    - by recording a scaffold candidate with its motivating evidence, local until other productions show the same need;
     - by recording its absence with the inspected scope.
 12. The inspection was repeated at each [discovery checkpoint](../../../../../story/planning/discovery.md#checkpoints) reached so far. An unchecked checkpoint stays open.
 

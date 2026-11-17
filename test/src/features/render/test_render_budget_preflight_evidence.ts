@@ -1,5 +1,5 @@
+import type { IAutoMovieRenderBudgetAssessment } from "@automovie/interface";
 import {
-  type IAutoMovieRenderBudgetAssessment,
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,
   autoMovieRenderBudgetRefusal,

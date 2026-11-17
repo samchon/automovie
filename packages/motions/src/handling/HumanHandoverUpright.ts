@@ -1,9 +1,13 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanHandover } from "./HumanHandover";
 
 /**
@@ -25,9 +29,9 @@ export namespace HumanHandoverUpright {
    */
   export interface IFrame {
     /** The fixed current body/digits and complete other limb goals. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
     /** The acting hand's original task except its varying attitude. */
-    goal: Omit<IHumanPosture.IGoal, "rotation">;
+    goal: Omit<IAutoMovieHumanLimbGoal, "rotation">;
     /**
      * The original hand attitude at a candidate's degree yaw.
      *
@@ -53,8 +57,8 @@ export namespace HumanHandoverUpright {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual giver/receiver and public callback courses share the same candidate order, cost/tie policy and scalar interpolation, without sharing fitted answers or source frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Callback/body/fit work is local to planning; the detached returned interpolator retains only K scalar times and turns until its action is released.
    */
-  export function ordinary(body: IHumanBody, side: HumanHand.Side,
-    at: (seconds: number, yaw: number) => IHumanPosture,
+  export function ordinary(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    at: (seconds: number, yaw: number) => IAutoMovieMotionHumanPosture,
     from: number, to: number, ends: readonly [number, number | undefined],
   ): (seconds: number) => number {
     return chosen((seconds: number): ((yaw: number) => number) =>
@@ -72,7 +76,7 @@ export namespace HumanHandoverUpright {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same actual frame/goal assembler supplies rank and display, avoiding a separate pose equation or prepared fit result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh posture/limb/goal wrappers borrowing original immutable frame geometry; no builder, FK reader, queried time or history is retained.
    */
-  export function posed(frame: IFrame, side: HumanHand.Side, yaw: number): IHumanPosture {
+  export function posed(frame: IFrame, side: AutoMovieHumanSide, yaw: number): IAutoMovieMotionHumanPosture {
     return { ...frame.posture,
       limbs: { ...frame.posture.limbs, [`${side}Arm`]: goalOf(frame, yaw) } };
   }
@@ -96,7 +100,7 @@ export namespace HumanHandoverUpright {
 }
 
 /** Preserve the acting goal's original field order for both ranking and display. */
-function goalOf(frame: HumanHandoverUpright.IFrame, yaw: number): IHumanPosture.IGoal {
+function goalOf(frame: HumanHandoverUpright.IFrame, yaw: number): IAutoMovieHumanLimbGoal {
   const { point, ...rest }: typeof frame.goal = frame.goal;
   return { point, rotation: frame.rotation(yaw), ...rest };
 }

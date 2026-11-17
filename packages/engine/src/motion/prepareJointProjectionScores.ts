@@ -1,8 +1,11 @@
-import type { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
-import type { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
-import type { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
+import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
 import type { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /** Original degree-valued clinical coordinate names. */

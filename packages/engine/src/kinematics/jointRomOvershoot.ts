@@ -1,12 +1,12 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
+import { type IAutoMovieJointRotationFrame } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
-import type { swingTwistRange } from "./swingTwistRange";
 
 /**
  * The total range-of-motion overshoot of one joint's clinical angles, in
@@ -35,7 +35,7 @@ import type { swingTwistRange } from "./swingTwistRange";
 export function jointRomOvershoot(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): number {
   return constraint === null ? 0 : scanJointRom.overshoot(joint, constraint, rig);
 }
@@ -71,7 +71,7 @@ export namespace jointRomOvershoot {
   export function prepare(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
-    rig?: swingTwistRange.IJoint,
+    rig?: IAutoMovieJointRotationFrame,
   ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
     return constraint === null
       ? (_joint: IAutoMovieJointPose, _rotation?: IAutoMovieQuaternion): number => 0

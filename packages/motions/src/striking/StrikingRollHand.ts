@@ -1,10 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
@@ -30,12 +35,12 @@ import { StrikingStrain } from "./StrikingStrain";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing one-shot search or fixed-axis action owns G angle records and G rigid readers, bounded by its original cone grid; nongrid refinements are not retained. Each query releases ranks, temporary frames and FK/direct-pose workspaces on return or failure, and the output retains no reader or history.
  */
 export function StrikingRollHand(
-  context: Pick<IHumanActionContext, "body">,
-  tool: StrikingHeld.ITool,
+  context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   back: number,
   axis: IAutoMovieVector3,
   cone: number,
-): (at: IAutoMovieVector3, posture: StrikingRoll.IChoice["posture"]) => StrikingHeld.IHandFrame {
+): (at: IAutoMovieVector3, posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"]) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
   const strain: ReturnType<typeof StrikingStrain> = StrikingStrain(context.body, tool.side);
   const along: IAutoMovieVector3 = Vector3.normalize(axis);
   const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(
@@ -43,7 +48,7 @@ export function StrikingRollHand(
   ));
   const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
   const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(context.body, shoulderBones);
-  const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
+  const shoulder = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
     shoulderAt(posture).get(`${tool.side}UpperArm`)!.worldPosition;
   const rigid = (values: readonly number[]): ReturnType<typeof StrikingHeld.prepareHand> => {
     const [tilt, around, turn] = values as readonly [number, number, number];
@@ -66,12 +71,12 @@ export function StrikingRollHand(
       }
       if (tilt === 0) break;
     }
-  return (at: IAutoMovieVector3, posture: StrikingRoll.IChoice["posture"]): StrikingHeld.IHandFrame => {
+  return (at: IAutoMovieVector3, posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
     const from: IAutoMovieVector3 | undefined = typeof posture === "function" ? undefined : shoulder(posture);
-    const frame = (values: readonly number[]): StrikingHeld.IHandFrame =>
+    const frame = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
       (fixed.get(key(values)) ?? rigid(values))(at);
     const rank = (values: readonly number[]): number => {
-      const posed: StrikingHeld.IHandFrame = frame(values);
+      const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
       try {
         return strain(posed, from ?? shoulder(typeof posture === "function" ? posture(posed) : posture));
       } catch (error) {

@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  skinAutoMovieMesh,
-} from "@automovie/engine";
+import { skinAutoMovieMesh } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSkin,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

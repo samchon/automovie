@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderedProductionSound,
   deriveProductionSoundPlan,
   renderProductionSound,
 } from "@automovie/engine";
@@ -8,6 +7,7 @@ import type {
   IAutoMovieFilmTimeline,
   IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
+  IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

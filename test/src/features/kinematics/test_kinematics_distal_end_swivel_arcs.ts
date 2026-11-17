@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieRestFrame,
   Quaternion,
   Vector3,
   distalEndSwivelArcs,
@@ -15,6 +14,8 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -61,7 +62,7 @@ export function test_kinematics_distal_end_swivel_arcs(): void {
     let admitted: number = 0;
     for (let k: number = 0; k < 40; ++k) {
       const direction: (swivel: number) => IAutoMovieVector3 = circling(random);
-      const arcs: swivelArcs.IArc[] | "all" | null = distalEndSwivelArcs({
+      const arcs: IAutoMovieSwivelArcs.IArc[] | "all" | null = distalEndSwivelArcs({
         basis, frame, constraint, axis: twist, direction, margin: 0,
       });
       if (arcs === null) { wrong.push(`${bone} circle ${k}: not applicable`); continue; }
@@ -81,7 +82,7 @@ export function test_kinematics_distal_end_swivel_arcs(): void {
             mismatched.push(`${bone} circle ${k} swivel ${swivel}: direction off by ${off}`);
         }
         const inside: boolean = swivelArcs.covers(arcs, swivel, swivel);
-        const edge: boolean = arcs !== "all" && arcs.some((arc: swivelArcs.IArc): boolean =>
+        const edge: boolean = arcs !== "all" && arcs.some((arc: IAutoMovieSwivelArcs.IArc): boolean =>
           [arc.from, arc.to].some((end: number): boolean =>
             Math.abs(((end - swivel + 540) % 360) - 180) < 1e-6));
         const overshoot: number = jointRomOvershoot(joint, constraint);

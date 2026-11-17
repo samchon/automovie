@@ -1,8 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IFitChainToTargetProps,
   Quaternion,
   fitHingedRotationError,
   fitSeededChainToTarget,
@@ -14,18 +12,16 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Uses one existing polygon Human, immutable source pose copies and owned callbacks in memory; no foreign methods, globals or runtime are replaced.
  */
 export function test_human_motion_core_chain_admission(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const posed: IAutoMoviePose = resolveHumanPosture(
     body,
     stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
@@ -63,7 +59,7 @@ export function test_human_motion_core_chain_admission(): void {
   );
   const shoulder: IAutoMovieVector3 = actual.get("leftUpperArm")!.worldPosition;
   const hand: IAutoMovieVector3 = actual.get("leftHand")!.worldPosition;
-  const base: Omit<IFitChainToTargetProps, "target"> = {
+  const base: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
     skeleton: body.skeleton,
     topology: body.topology,
     pose: posed,
@@ -95,7 +91,7 @@ export function test_human_motion_core_chain_admission(): void {
     const held: IAutoMovieJointPose = posed.joints.find(
       (joint: IAutoMovieJointPose): boolean => joint.bone === "leftHand",
     ) ?? { bone: "leftHand", flexion: 0, abduction: 0, twist: 0 };
-    const source: IFitChainToTargetProps = {
+    const source: IAutoMovieFitChainToTargetProps = {
       ...base,
       target: hand,
       effectorRotation: wanted,
@@ -170,7 +166,7 @@ export function test_human_motion_core_chain_admission(): void {
     const duplicate: IAutoMovieJointPose = posed.joints.find(
       (joint: IAutoMovieJointPose): boolean => joint.bone === bad.bone,
     ) ?? { bone: bad.bone, flexion: 0, abduction: 0, twist: 0 };
-    const source: Omit<IFitChainToTargetProps, "target"> = {
+    const source: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
       ...base,
       pose: { ...posed, joints: [bad, ...posed.joints, duplicate] },
     };
@@ -179,7 +175,7 @@ export function test_human_motion_core_chain_admission(): void {
     );
   }
   for (const order of [invalid, [...invalid].reverse()]) {
-    const source: Omit<IFitChainToTargetProps, "target"> = {
+    const source: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
       ...base,
       pose: {
         ...posed,

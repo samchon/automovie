@@ -1,12 +1,12 @@
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionTrajectoryInterval,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { IMotionTrajectoryInterval } from "./IMotionTrajectoryInterval";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
-import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
 
@@ -36,8 +36,8 @@ const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed output holds ceil((t1-t0)/h)+1 owned numeric states and rate snapshots; adaptive output holds accepted numeric steps with no fixed count bound. MotionTrajectoryRead constructs both readers outside the callback's scope, retaining at most one previous read and returning fresh vector and orientation records, so only completed numeric data escapes.
  */
 export function integrateMotionTrajectory(
-  props: integrateMotionTrajectory.IProps,
-): integrateMotionTrajectory.ITrajectory {
+  props: IAutoMovieIntegrateMotionTrajectory.IProps,
+): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
   const { t0, t1 } = props;
   if (!(Number.isFinite(t0) && Number.isFinite(t1) && t1 > t0))
@@ -54,12 +54,12 @@ export function integrateMotionTrajectory(
     throw new Error("Continuous rotation-defect control requires an orientation and adaptive tolerance");
   if (n === 0 && !oriented)
     throw new Error("integrateMotionTrajectory: the state is empty");
-  const rate: integrateMotionTrajectory.IProps["f"] = (
+  const rate: IAutoMovieIntegrateMotionTrajectory.IProps["f"] = (
     t: number,
     x: readonly number[],
     q: IAutoMovieQuaternion | null,
-  ): integrateMotionTrajectory.IRate => {
-    const r: integrateMotionTrajectory.IRate = props.f(t, x, q);
+  ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+    const r: IAutoMovieIntegrateMotionTrajectory.IRate = props.f(t, x, q);
     if (r.dx.length !== n)
       throw new Error(
         `integrateMotionTrajectory: f returned ${r.dx.length} rates for ${n} states`,
@@ -112,12 +112,12 @@ export function integrateMotionTrajectory(
 
   // Only retained knot derivatives need an owned snapshot. Copy numeric
   // indices rather than iterating an externally supplied derivative array.
-  const retained: integrateMotionTrajectory.IProps["f"] = (
+  const retained: IAutoMovieIntegrateMotionTrajectory.IProps["f"] = (
     t: number,
     x: readonly number[],
     q: IAutoMovieQuaternion | null,
-  ): integrateMotionTrajectory.IRate => {
-    const r: integrateMotionTrajectory.IRate = rate(t, x, q);
+  ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+    const r: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t, x, q);
     let dx: readonly number[] = x;
     if (n !== 0) {
       const values: number[] = [];
@@ -138,7 +138,7 @@ export function integrateMotionTrajectory(
   const qs: (IAutoMovieQuaternion | null)[] = [
     oriented ? Quaternion.normalize(props.q0!) : null,
   ];
-  const ks: integrateMotionTrajectory.IRate[] = [retained(t0, xs[0]!, qs[0]!)];
+  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [retained(t0, xs[0]!, qs[0]!)];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
     const next: number = s === steps - 1 ? t1 : t0 + (s + 1) * h;
@@ -150,12 +150,12 @@ export function integrateMotionTrajectory(
     // turned by a rotation vector, and the stage's body rate is carried back
     // to that vector's derivative by the inverse differential of the
     // exponential, so the orientation keeps the method's fourth order.
-    const k1: integrateMotionTrajectory.IRate = ks[s]!;
+    const k1: IAutoMovieIntegrateMotionTrajectory.IRate = ks[s]!;
     const u1: IAutoMovieVector3 | undefined = k1.w;
     const v2: IAutoMovieVector3 | undefined = oriented
       ? scaled(u1, dt / 2)
       : undefined;
-    const k2: integrateMotionTrajectory.IRate = rate(
+    const k2: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k1.dx, dt / 2),
       oriented ? turn(q, v2) : null,
@@ -166,7 +166,7 @@ export function integrateMotionTrajectory(
     const v3: IAutoMovieVector3 | undefined = oriented
       ? scaled(u2, dt / 2)
       : undefined;
-    const k3: integrateMotionTrajectory.IRate = rate(
+    const k3: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k2.dx, dt / 2),
       oriented ? turn(q, v3) : null,
@@ -177,7 +177,7 @@ export function integrateMotionTrajectory(
     const v4: IAutoMovieVector3 | undefined = oriented
       ? scaled(u3, dt)
       : undefined;
-    const k4: integrateMotionTrajectory.IRate = rate(
+    const k4: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt,
       add(x, k3.dx, dt),
       oriented ? turn(q, v4) : null,
@@ -223,152 +223,8 @@ export function integrateMotionTrajectory(
  */
 export namespace integrateMotionTrajectory {
   /** Actual fixed Hermite knot data; the top-level owner documents its units and independent arrays. */
-  export type IInterval = IMotionTrajectoryInterval;
+  export type IInterval = IAutoMovieMotionTrajectoryInterval;
 
   /** The default step, seconds: a sixtieth of a second, under which the classical method's error stays far below a millimetre for the motions planned (#3424). */
   export const STEP: number = 1 / 60;
-
-  /**
-   * What a trajectory is integrated from.
-   *
-   */
-  export interface IProps {
-    /**
-     * The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
-     *
-     */
-    f: (
-      t: number,
-      x: readonly number[],
-      q: IAutoMovieQuaternion | null,
-    ) => IRate;
-
-    /** The vector state at `t0`. */
-    x0: readonly number[];
-
-    /** The orientation at `t0`, a unit quaternion; absent for a state without one. */
-    q0?: IAutoMovieQuaternion;
-
-    /** The first second. */
-    t0: number;
-
-    /** The last second, after `t0`. */
-    t1: number;
-
-    /** The step, seconds, positive; `STEP` when absent. Under a `tolerance`, the first step tried. */
-    h?: number;
-
-    /**
-     * Error control: when given, the trajectory is integrated by the
-     * Dormand-Prince 5(4) pair with steps chosen so each step's error
-     * estimate stays within it, and read between knots by the pair's
-     * continuous extension; when absent, the fixed-step classical method.
-     */
-    tolerance?: ITolerance;
-
-    /**
-     * Optional continuous rotation-defect admission. Receives film seconds,
-     * the dense orientation and its actual body angular velocity in rad/s.
-     * The pure callback returns a nonnegative error normalized in its own
-     * physical units: at most one admits, Infinity rejects. Adaptive dense
-     * control checks paired extensions independently of the existing RMS.
-     * Requires both q0 and an adaptive tolerance; otherwise admission throws.
-     * Smoothness underlies the sampled estimator; arbitrary unsampled history
-     * features and a downstream finite-difference observer are not certified.
-     * Borrowed numeric records must not be mutated or retained for mutation.
-     */
-    rotationDefect?: (
-      seconds: number,
-      q: IAutoMovieQuaternion,
-      w: IAutoMovieVector3,
-    ) => number;
-
-    /** Optional caller-owned unique symbol correlating this operation's failures. Admitted before the first RHS and copied only to this integration's MotionTrajectoryFailure; it affects no numerical decision and is not passed to f or rotationDefect. */
-    errorScope?: symbol;
-
-    /** Optional operation-owned adaptive time mesh. Every trial still computes and admits its own states, RMS and dense physical defect; only exact interval boundaries are shared. The caller releases the mesh after its whole operation. Ignored in fixed-step mode. */
-    partition?: MotionTrajectoryPartition.IPartition;
-  }
-
-  /**
-   * A step's accepted error, per component: `absolute + relative × |value|`,
-   * the vector state's value the larger of the step's two ends, the
-   * orientation's the length of its rotation vector over the step, the
-   * error norm the root mean square of the components' error over that.
-   * An explicit same-unit vector partition instead controls each block
-   * independently and takes the maximum with the orientation's original RMS.
-   *
-   * Relative error is dimensionless, absolute error is in each state's own unit, and blocks specify a Euclidean partition.
-   * Nonnegative finite budgets with a nonzero sum are runtime-admitted; optional positive integer block lengths must partition the vector, with [] only for an empty vector.
-   * The integrator owns local error admission. Existing callers keep componentwise RMS; airborne's same-unit sensitivity matrix uses one Euclidean block without changing its orientation budget.
-   * No absolute floor or action-specific precision is added. Each block uses its declared units; a local embedded estimate is not a global physical-error or Newton-convergence certificate.
-   */
-  export interface ITolerance {
-    /** The share of a component's value, non-negative. */
-    relative: number;
-
-    /** The component's own unit, non-negative; not both zero. */
-    absolute: number;
-
-    /** Optional partition into same-unit Euclidean vector blocks. Positive integer lengths must sum to x0.length; [] is valid only for an empty vector. Each block controls ||error||/(sqrt(length)*absolute + relative*max(||start||,||end||)); the maximum of these errors and the orientation's existing RMS controls acceptance. Without blocks the existing componentwise RMS is unchanged. Equal numeric absolute tolerances act in each block's own units, not equal physical units across blocks. */
-    blocks?: readonly number[];
-  }
-
-  /**
-   * A state's rate.
-   *
-   */
-  export interface IRate {
-    /** The vector state's derivative, one per component. */
-    dx: readonly number[];
-
-    /** The body-frame angular velocity, radians per second; required when the state has an orientation. */
-    w?: IAutoMovieVector3;
-  }
-
-  /**
-   * A state read at one time.
-   *
-   */
-  export interface IState {
-    /** The vector state. */
-    x: number[];
-
-    /** The orientation, or null. */
-    q: IAutoMovieQuaternion | null;
-  }
-
-  /**
-   * An integrated trajectory.
-   *
-   */
-  export interface ITrajectory {
-    /** The first second. */
-    t0: number;
-
-    /** The last second. */
-    t1: number;
-
-    /** The step; under a tolerance, the first step tried. */
-    h: number;
-
-    /** The number of knots, the steps plus one. */
-    knots: number;
-
-    /** The knots' times, seconds, from `t0` to `t1`: a fixed grid, or the accepted steps' ends under a tolerance. */
-    times: readonly number[];
-
-    /** Read fresh copies of adjacent actual fixed Hermite states and rates; absent for adaptive continuous extensions. Query seconds are finite and outside times select the nearest end interval. */
-    interval?: (time: number) => IInterval;
-
-    /**
-     * The state at a time, held at the ends outside `[t0, t1]`. Each call
-     * owns its mutable vector and quaternion, including repeated reads.
-     *
-     */
-    at: (time: number) => IState;
-
-    /** Optional orientation-only projection of the same solved curve. Each read returns a fresh quaternion or null, without evaluating or copying the vector block. */
-    orientation?: (time: number) => IAutoMovieQuaternion | null;
-  }
 }

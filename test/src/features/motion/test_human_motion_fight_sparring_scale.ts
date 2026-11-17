@@ -1,7 +1,10 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type IHumanBody,
   createHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,19 +47,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scene, why the bodies are wrapped afresh, the bounds with their measured basis, what the ratio cannot tell at this size and the 3 scenarios.
  */
 export function test_human_motion_fight_sparring_scale(): void {
-  const striker: IHumanBody = motionHumanBody("m-average");
-  const defender: IHumanBody = motionHumanBody("f-small");
+  const striker: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const defender: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const gap: number =
     1.3 *
     (striker.measure.upperArm + striker.measure.forearm + striker.measure.hand);
   const face = (subject: string) =>
     ({ kind: "person", subject, region: "face" }) as const;
   const plan = (exchanges: number): number => {
-    let a: HumanChain = HumanChain.subject("a").guard({
+    let a: IAutoMovieMotionHumanChain = HumanChain.subject("a").guard({
       seconds: 0.8,
       facing: face("b"),
     });
-    let b: HumanChain = HumanChain.subject("b").guard({
+    let b: IAutoMovieMotionHumanChain = HumanChain.subject("b").guard({
       seconds: 0.8,
       facing: face("a"),
     });

@@ -1,10 +1,12 @@
 import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFootRotation } from "../posture/HumanFootRotation";
 import type { walkFoot } from "./walkFoot";
@@ -57,9 +59,9 @@ export namespace walkReachStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    foot: walkFoot.IFoot,
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     h: IAutoMovieVector3,
     yaw: number,
     pivoted: number,
@@ -90,15 +92,15 @@ export namespace walkReachStance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    foot: walkFoot.IFoot,
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     yaw: number,
     pivoted: number,
     rocker: number,
     course?: number,
   ): (hip: IAutoMovieVector3) => { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
-    const initial: HumanFoot.IPlacement = foot.placement;
+    const initial: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(initial.rotation);
     const heading: number = direction.heading;
     const starting: number = direction.pitch;
@@ -114,7 +116,7 @@ export namespace walkReachStance {
       about,
       initial,
     );
-    const at: (degrees: number) => HumanFoot.IPlacement =
+    const at: (degrees: number) => IAutoMovieMotionHumanFoot.IPlacement =
       HumanFoot.preparePivot(body, side, about, pivot, heading);
     const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, about);
     const bears: boolean = !(course !== undefined && about === "mtp") &&
@@ -129,7 +131,7 @@ export namespace walkReachStance {
     let trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined;
     let trailAnkle: ReturnType<typeof HumanFoot.prepareAnkle> | undefined;
     return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
-      let placement: HumanFoot.IPlacement = initial;
+      let placement: IAutoMovieMotionHumanFoot.IPlacement = initial;
       let pitch: number = starting;
       // The heel rises about the ball once the shank leans past the ankle's
       // dorsal limit: the forefoot rocker begins where the ankle can bend no

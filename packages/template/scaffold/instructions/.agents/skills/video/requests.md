@@ -1,12 +1,12 @@
 # Requests
 
-A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt, and a take is the kept result of one of its jobs. Plan each scene's requests from its screenplay scene file and the rendered hint.
+A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt. A take is the kept result of one of its jobs. Plan each scene's requests from its screenplay scene file and the rendered hint.
 
 ## Intervals
 
 End a request at a screenplay cut, unless the model generates several shots in one request. Such a model may cut a request into shots by default, so turn that off for a continuous shot, by the setting or the wording its guide gives; its cuts are not frame-exact unless it takes them from the hint.
 
-Split a continuous shot only where the model's length forces it, at a beat boundary or a held pose, because every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows. Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
+Split a continuous shot only where the model's length forces it, at a beat boundary or a held pose, because identity and light can jump at every split, and a split inside a contact or a spoken line shows. Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
 
 A take eases toward stillness and drifts in its last seconds, so keep a request shorter than the model's maximum where the shot allows. Render and generate each request a little past its cuts as an editor's handle, at least as long as any transition the screenplay decides there, and record the handle's length in [project context](../production/project-context.md). Keep the request's lines speakable within its length, as [generated sound](../audio/generated-sound.md) sets.
 

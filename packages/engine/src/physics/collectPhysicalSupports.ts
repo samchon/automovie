@@ -1,8 +1,10 @@
 import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieFootfallPattern as Pattern,
-  IAutoMovieContactReceipt as Receipt,
-  IAutoMovieVector3 as V,
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieContactReceipt,
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import type {
   RigidBody,
@@ -10,7 +12,6 @@ import type {
   World,
 } from "@dimforge/rapier3d-compat";
 
-import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { visitPhysicalNative } from "./visitPhysicalNative";
 
@@ -28,18 +29,23 @@ import { visitPhysicalNative } from "./visitPhysicalNative";
 export function collectPhysicalSupports(input: {
   /** Current native world, outside a solver invocation. */ world: World;
   /** Source body identity. */ body: string;
-  /** Source material and shape ownership. */ profile: P;
-  /** Explicit support paths and patch owners. */ pattern: Pattern;
+  /** Source material and shape ownership. */ profile: IAutoMoviePhysicalProfile;
+  /** Explicit support paths and patch owners. */ pattern: IAutoMovieFootfallPattern;
   /** Actual segment wrappers. */ segments: ReadonlyMap<string, RigidBody>;
-  /** Scene collider ownership. */ colliders: ReadonlyMap<number, Receipt["a"]>;
-  /** Completed contact samples. */ contacts: readonly Receipt[];
+  /** Scene collider ownership. */ colliders: ReadonlyMap<
+    number,
+    IAutoMovieContactReceipt["a"]
+  >;
+  /** Completed contact samples. */ contacts: readonly IAutoMovieContactReceipt[];
   /** Current local seconds and native timestep. */ seconds: number;
   dt: number;
-}): collectPhysicalSupports.ISupport[] {
+}): IAutoMovieCollectPhysicalSupports.ISupport[] {
   return input.pattern.limbs.flatMap(
-    (limb: Pattern["limbs"][number]): collectPhysicalSupports.ISupport[] => {
+    (
+      limb: IAutoMovieFootfallPattern["limbs"][number],
+    ): IAutoMovieCollectPhysicalSupports.ISupport[] => {
       const patches: readonly string[] = limb.contacts ?? [limb.bone];
-      const samples: collectPhysicalSupports.IPoint[] = [];
+      const samples: IAutoMovieCollectPhysicalSupports.IPoint[] = [];
       const seen: Set<string> = new Set();
       let loaded: boolean = false;
       for (const [handle, identity] of input.colliders)
@@ -76,7 +82,8 @@ export function collectPhysicalSupports(input: {
                     i++
                   ) {
                     if (manifold.solverContactDist(i) > 0) continue;
-                    const point: V | null = manifold.solverContactPoint(i);
+                    const point: IAutoMovieVector3 | null =
+                      manifold.solverContactPoint(i);
                     if (point)
                       append(point, manifold.friction(), identity.bone);
                   }
@@ -94,15 +101,16 @@ export function collectPhysicalSupports(input: {
           receipt.b.body === input.body &&
           patches.includes(receipt.b.bone) &&
           receipt.a.body === "floor";
-        const material: P.IMaterial | undefined = input.profile.materials.find(
-          (candidate: P.IMaterial): boolean =>
-            candidate.id ===
-            (first
-              ? receipt.a.material
-              : second
-                ? receipt.b.material
-                : undefined),
-        );
+        const material: IAutoMoviePhysicalMaterial | undefined =
+          input.profile.materials.find(
+            (candidate: IAutoMoviePhysicalMaterial): boolean =>
+              candidate.id ===
+              (first
+                ? receipt.a.material
+                : second
+                  ? receipt.b.material
+                  : undefined),
+          );
         if (
           receipt.source !== "solver" ||
           !material ||
@@ -112,7 +120,9 @@ export function collectPhysicalSupports(input: {
 
         // Receipts use their enclosing cache-frame clock. A just-appended future
         // tail must not hide the latest causal sample still carrying soft force.
-        let sample: NonNullable<Receipt["samples"]>[number] | undefined;
+        let sample:
+          | NonNullable<IAutoMovieContactReceipt["samples"]>[number]
+          | undefined;
         for (
           let index: number = (receipt.samples?.length ?? 0) - 1;
           index >= 0;
@@ -148,7 +158,9 @@ export function collectPhysicalSupports(input: {
                 limb.localPoint,
               ),
               points: samples.map(
-                (sample: collectPhysicalSupports.IPoint): V => sample.point,
+                (
+                  sample: IAutoMovieCollectPhysicalSupports.IPoint,
+                ): IAutoMovieVector3 => sample.point,
               ),
               samples,
               loaded,
@@ -157,7 +169,11 @@ export function collectPhysicalSupports(input: {
         : [];
 
       /** Equal horizontal native witnesses describe the same floor application point. */
-      function append(point: V, friction: number, carrier: string): void {
+      function append(
+        point: IAutoMovieVector3,
+        friction: number,
+        carrier: string,
+      ): void {
         const key: string = `${carrier}/${point.x}/${point.z}`;
         if (seen.has(key)) return;
         seen.add(key);
@@ -165,31 +181,4 @@ export function collectPhysicalSupports(input: {
       }
     },
   );
-}
-
-/**
- * Actual support geometry is shared by balance classification and force allocation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Actual support geometry is shared by balance classification and force allocation) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Actual support geometry is shared by balance classification and force allocation: companion namespace of 2 members (`IPoint`, `ISupport`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `collectPhysicalSupports` in packages/engine/src/physics/collectPhysicalSupports.ts; its surface is the 2 members listed and the text shows 8 other files naming it, mostly test (5), packages/engine (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace collectPhysicalSupports {
-  /** One measured floor application point and its Coulomb coefficient. */
-  export interface IPoint {
-    /** Collider-owning segment; a distal endpoint does not carry every patch contact. */
-    carrier: string;
-    /** World metres. */
-    point: V;
-    /** Actual native combined coefficient, or the declared mean for a solved compliant-surface receipt fallback. */
-    friction: number;
-  }
-  /** No handle or borrowed manifold survives this collection. */
-  export interface ISupport extends Balance.ISupport {
-    /** A touching upward constraint carried a positive actual native or compliant-solver impulse. Zero-load constraints remain available for wrench allocation. */
-    loaded: boolean;
-    /** Actual floor constraints, not a complete nominal sole. */
-    samples: IPoint[];
-  }
 }

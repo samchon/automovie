@@ -1,16 +1,22 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspJudgement } from "./HumanGraspJudgement";
@@ -55,12 +61,12 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over the grasp record.
    */
   export function grip(
-    context: Pick<IHumanActionContext, "body" | "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
     prop: string,
-    side: HumanHand.Side,
-    shown: HumanHand.IWrist,
-    posture: IHumanPosture,
-  ): IHumanActionLaw.IGrip {
+    side: AutoMovieHumanSide,
+    shown: IAutoMovieMotionHumanHand.IWrist,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanActionLaw.IGrip {
     return prepare(context, prop, side, posture)(shown);
   }
 
@@ -82,22 +88,22 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns the builder's one prop frame and affordance list and releases them with its closure; candidate records retain only their own held transform.
    */
   export function prepare(
-    context: Pick<IHumanActionContext, "body" | "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
     prop: string,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
-  ): (shown: HumanHand.IWrist) => IHumanActionLaw.IGrip {
-    const held: IHumanActionContext.IProp = context.prop(prop);
-    const frame: IHumanProp.IFrame = held.frame(context.start);
-    return (shown: HumanHand.IWrist): IHumanActionLaw.IGrip => {
-      const grasped: AutoMovieMotionHumanHeld.IHeld =
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
+  ): (shown: IAutoMovieMotionHumanHand.IWrist) => IAutoMovieMotionHumanActionLaw.IGrip {
+    const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
+    const frame: IAutoMovieRigidTransform = held.frame(context.start);
+    return (shown: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanActionLaw.IGrip => {
+      const grasped: IAutoMovieMotionHumanHeld.IHeld =
         AutoMovieMotionHumanHeld.grasped(
           context.body, side, prop, frame, held.prop.affordances ?? [], shown,
         );
       return {
         prop,
         side,
-        tool: (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
+        tool: (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool =>
           StrikingHeld.read(grasped, points),
         posture,
       };
@@ -128,9 +134,9 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The judge closes over the demand.
    */
   export function key(
-    body: IHumanBody,
-    demand: IHumanActionLaw.IDemand,
-  ): HumanGrasp.IKey {
+    body: IAutoMovieMotionHumanBody,
+    demand: IAutoMovieMotionHumanActionLaw.IDemand,
+  ): IAutoMovieMotionHumanGrasp.IKey {
     return prepareKey(body, demand.posture)(demand);
   }
 
@@ -154,13 +160,13 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grasp search owns at most two hand records and one last-tool producer, replaced on a tool/back change and released with the builder. The shared judgement owner prevents returned keys from retaining either search preparation context; each judge retains only its fixed grip-point reader and actual demand, with no FK reader, time history or handle.
    */
   export function prepareKey(
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): (demand: Omit<IHumanActionLaw.IDemand, "posture">) => HumanGrasp.IKey {
-    const hands: Map<HumanHand.Side, IHand> = new Map();
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): (demand: Omit<IAutoMovieMotionHumanActionLaw.IDemand, "posture">) => IAutoMovieMotionHumanGrasp.IKey {
+    const hands: Map<AutoMovieHumanSide, IHand> = new Map();
     const goals: IGoalContext = {};
-    return (demand: Omit<IHumanActionLaw.IDemand, "posture">): HumanGrasp.IKey => {
-      const side: HumanHand.Side = demand.tool.side;
+    return (demand: Omit<IAutoMovieMotionHumanActionLaw.IDemand, "posture">): IAutoMovieMotionHumanGrasp.IKey => {
+      const side: AutoMovieHumanSide = demand.tool.side;
       let hand: IHand | undefined = hands.get(side);
       if (hand === undefined) {
         hand = {
@@ -176,14 +182,14 @@ export namespace HumanGraspDemand {
 
 /** Assemble a key outside the preparation closure so its judge cannot retain the hand map. */
 function demandedKey(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  demand: Omit<IHumanActionLaw.IDemand, "posture">,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  demand: Omit<IAutoMovieMotionHumanActionLaw.IDemand, "posture">,
   hand: IHand,
   goals: IGoalContext,
-): HumanGrasp.IKey {
-  const side: HumanHand.Side = demand.tool.side;
-  const wrist: HumanHand.IWrist = {
+): IAutoMovieMotionHumanGrasp.IKey {
+  const side: AutoMovieHumanSide = demand.tool.side;
+  const wrist: IAutoMovieMotionHumanHand.IWrist = {
     point: Vector3.subtract(
       demand.frame.point,
       Quaternion.rotateVector(demand.frame.rotation, hand.socket),
@@ -224,7 +230,7 @@ interface IHand {
 /** One bounded consecutive immutable tool/back geometry, never a goal or fit result. */
 interface IGoalContext {
   /** The exact unchanged source of the prepared local tool offsets. */
-  tool?: StrikingHeld.ITool;
+  tool?: IAutoMovieMotionHumanStrikingHeld.ITool;
   /** Its kept-point distance in metres, compared without merging signed zero. */
   back?: number;
   /** The fixed-geometry owner; replaced as soon as tool or back changes. */

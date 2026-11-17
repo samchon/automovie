@@ -1,5 +1,9 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanArmOvershoot, type HumanColliders, type IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanArmOvershoot, type HumanColliders } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -30,8 +34,8 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit borrows immutable canonical Human measurements and owns a finite box, poses, lists and candidate points. It restores screening in finally, uses only public APIs, and adds no Human imitation, internal import, foreign replacement, host or compiler.
  */
 export function test_motion_prepared_arm_clearance(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const box: HumanColliders.IPlaced = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const box: IAutoMovieMotionHumanColliders.IPlaced = {
     bone: "head",
     pose: { position: { x: 2, y: 3, z: 4 },
       rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 } },
@@ -39,8 +43,8 @@ export function test_motion_prepared_arm_clearance(): void {
       transform: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
       halfExtents: { x: 1, y: 0.1, z: 1 } }],
   };
-  const absent: readonly HumanColliders.IPlaced[] = [];
-  const obstacle: readonly HumanColliders.IPlaced[] = [box];
+  const absent: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [];
+  const obstacle: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [box];
   try {
     for (const [own, others, rests] of [
       [obstacle, absent, absent], [absent, obstacle, absent], [absent, absent, obstacle],

@@ -1,10 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
@@ -50,13 +51,13 @@ export namespace sitPlace {
    * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
    */
   export function reach(
-    body: IHumanBody,
-    seat: seated.ISeat,
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
     goal: IAutoMovieVector3,
     feet: Record<"left" | "right", IAutoMovieVector3>,
     pitch: number,
   ): void {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const root: IAutoMovieVector3 = seated.root(body, goal, {
       yaw: seat.yaw,
       pitch,

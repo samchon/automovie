@@ -1,6 +1,6 @@
-import { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
-import { IAutoMovieSubjectReviewPose } from "./IAutoMovieSubjectReviewPose";
-import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
+import type { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
+import type { IAutoMovieSubjectReviewPose } from "./IAutoMovieSubjectReviewPose";
+import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 
 /**
  * Receipt for one subject observation made from an inspection-owned viewpoint.

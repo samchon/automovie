@@ -1,4 +1,4 @@
-import { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
+import type { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
 
 /**
  * Coding-agent-authored stand-in model inventory for a script cast.

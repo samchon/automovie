@@ -1,8 +1,9 @@
+import { deriveAutoMovieSemanticMask } from "@automovie/engine";
 import {
-  IAutoMovieRenderSubject,
-  deriveAutoMovieSemanticMask,
-} from "@automovie/engine";
-import { IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+  type IAutoMovieRenderSubject,
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 import {
   applyAutoMovieSemanticMask,
   buildFluidSurfaceObject,

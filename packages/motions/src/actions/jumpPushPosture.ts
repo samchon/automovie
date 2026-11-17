@@ -1,7 +1,9 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
@@ -25,19 +27,19 @@ import type { jumpPush } from "./jumpPush";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Arms, the heel's actual hip and the final posture consume the same phase sample. Explicit fixed writers share only unchanged relaxed/upright entries, arm separation and the body's minimum-knee reach; omission retains original live table/dimension reads. Terminal legs still share the endpoint writer. The heel's actual hip FK and lowering borrow one synchronous lazy workspace without retaining a pose, goal or fitted answer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh posture records and retains neither those records nor the optional borrowed reader/supplier, whose lifetime remains the synchronous caller's.
  */
-export function jumpPushPosture(props: jumpPush.IProps, paths: jumpPush.IPush, seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], prepared?: IPrepared): IHumanPosture {
+export function jumpPushPosture(props: jumpPush.IProps, paths: jumpPush.IPush, seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], prepared?: IPrepared): IAutoMovieMotionHumanPosture {
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
   const t: number = Math.min(props.push, Math.max(0, seconds));
   const phase: jumpPush.IPhase = paths.sample(t);
   const root: IAutoMovieVector3 = phase.root;
   const left: number = paths.arm(phase, "left");
   const right: number = paths.arm(phase, "right");
-  const joints: IHumanPosture["joints"] = prepared === undefined
+  const joints: IAutoMovieMotionHumanPosture["joints"] = prepared === undefined
     ? jumpJoints(props.body, props.upright.joints, left, right)
     : prepared.joints(left, right);
-  const limbs: IHumanPosture["limbs"] = {};
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   paths.write(phase, joints, limbs, read);
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root, yaw: phase.yaw, pitch: 0, roll: 0, joints, limbs,
   };
   return prepared === undefined

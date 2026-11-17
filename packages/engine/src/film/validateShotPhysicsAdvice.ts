@@ -1,6 +1,9 @@
+import type {
+  IAutoMovieAuthoringDiagnostic,
+  IAutoMovieShotPhysicsAdvice,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
-import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 
 /**
  * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages anything, returning every `contract-mismatch` diagnostic at once.

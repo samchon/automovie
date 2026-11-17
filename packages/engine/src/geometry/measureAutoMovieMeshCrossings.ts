@@ -1,7 +1,9 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshCrossing,
+  IAutoMovieMeshCrossingOptions,
+} from "@automovie/interface";
 
-import type { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
-import type { IAutoMovieMeshCrossingOptions } from "./IAutoMovieMeshCrossingOptions";
 import { createAutoMovieMeshCrossingQuery } from "./createAutoMovieMeshCrossingQuery";
 
 /**

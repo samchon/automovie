@@ -1,11 +1,11 @@
 import {
-  type IAutoMovieSpaceObservationStation,
   builtSpaceContainsPoint,
   builtSpaceObservationStations,
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
+  IAutoMovieSpaceObservationStation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

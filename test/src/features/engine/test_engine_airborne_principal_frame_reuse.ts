@@ -1,5 +1,6 @@
 import { Quaternion, integrateAirborneRotation } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -49,9 +50,9 @@ export function test_engine_airborne_principal_frame_reuse(): void {
     const frame: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
     let before: number = 0;
     let after: number = 0;
-    const history: integrateAirborneRotation.IHistory = (
+    const history: IAutoMovieIntegrateAirborneRotation.IHistory = (
       seconds: number,
-    ): integrateAirborneRotation.IInstant => {
+    ): IAutoMovieIntegrateAirborneRotation.IInstant => {
       const turned: boolean = seconds >= 0.5;
       if (turned) after++;
       else before++;
@@ -62,7 +63,7 @@ export function test_engine_airborne_principal_frame_reuse(): void {
         relative: { x: 0, y: 0, z: 0 },
       };
     };
-    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+    const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
       {
         history,
         t0: 0,

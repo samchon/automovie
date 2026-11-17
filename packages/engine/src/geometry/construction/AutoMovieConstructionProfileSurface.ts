@@ -1,11 +1,16 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConstructionProfileLoop,
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftWorldJetWorld,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Exact world chart of one original interval, retained or in its actual neighborhood.
@@ -27,8 +32,8 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 export function AutoMovieConstructionProfileSurface(
   source: IAutoMovieConstructionProfileSource,
   family: string,
-  loop: IAutoMovieConstructionProfile.ILoop,
-  piece: IAutoMovieConstructionProfile.IPiece,
+  loop: IAutoMovieConstructionProfileLoop,
+  piece: IAutoMovieConstructionProfilePiece,
   curve: IAutoMovieConstructionProfileSource.ICurve,
   originalDomain?: readonly [number, number],
 ): IAutoMovieSolidSurface {
@@ -73,12 +78,12 @@ export function AutoMovieConstructionProfileSurface(
     period,
     orientation: loop.surfaceOrientation ?? 1,
     point: (station: number, phase: number): [number, number, number] => {
-      const local: IAutoMovieConstructionProfileSource.Vector = curve.point(
+      const local: AutoMovieVector2Tuple = curve.point(
         station,
         clock(station, phase),
       );
       pair(local);
-      const frame: AutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       frameRow(frame);
       const point: [number, number, number] = [0, 1, 2].map(
         (k: number): number =>
@@ -110,8 +115,10 @@ export function AutoMovieConstructionProfileSurface(
         st: scale(local!.st, factor),
         tt: scale(local!.tt, factor * factor),
       };
-      const world: ReturnType<typeof AutoMovieLoftWorldJet> =
-        AutoMovieLoftWorldJet(scaled, rows);
+      const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
+        scaled,
+        rows,
+      );
       const normal: number[] = [
         world.s[1] * world.t[2] - world.s[2] * world.t[1],
         world.s[2] * world.t[0] - world.s[0] * world.t[2],
@@ -145,7 +152,7 @@ function pair(value: readonly number[]): void {
 }
 
 /** Copy actual frame value/first/second operands without manufacturing absent data. */
-function frameRow(frame: AutoMovieLoftFrame.IFrame): number[] {
+function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   const row: number[] = [];
   for (const key of ["origin", "u", "v"] as const) {
     if (
@@ -161,9 +168,9 @@ function frameRow(frame: AutoMovieLoftFrame.IFrame): number[] {
 
 /** Actual affine clock scaling applies only to the corresponding derivative order. */
 function scale(
-  value: IAutoMovieConstructionProfileSource.Vector,
+  value: AutoMovieVector2Tuple,
   factor: number,
-): IAutoMovieConstructionProfileSource.Vector {
+): AutoMovieVector2Tuple {
   return [factor * value[0], factor * value[1]];
 }
 

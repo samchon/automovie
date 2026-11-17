@@ -1,6 +1,10 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
@@ -30,7 +34,7 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the model reference only, for as long as its history does; the caller releases a prepared token after its history.
  */
 export function AirborneShapeReduction(
-  model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+  model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
 ): AirborneShapeReduction.IReduction {
   if (!("segments" in model)) prepareAutoMovieMassModel.bones(model);
   return "segments" in model
@@ -41,7 +45,7 @@ export function AirborneShapeReduction(
           before: resolveAutoMovieMomentum.IPosed,
           after: resolveAutoMovieMomentum.IPosed,
           seconds: number,
-        ): resolveAutoMovieMomentum.IMomentum =>
+        ): IAutoMovieBodyMomentum =>
           resolveAutoMovieMomentum.between(model, before, after, seconds),
         tensor: (posed: resolveAutoMovieMomentum.IPosed): number[][] =>
           physicalInertiaTensor(posed.parts, posed.centre),
@@ -54,7 +58,7 @@ export function AirborneShapeReduction(
           before: resolveAutoMovieMomentum.IPosed,
           after: resolveAutoMovieMomentum.IPosed,
           seconds: number,
-        ): resolveAutoMovieMomentum.IMomentum =>
+        ): IAutoMovieBodyMomentum =>
           prepareAutoMovieMassModel.between(model, before, after, seconds),
         tensor: (posed: resolveAutoMovieMomentum.IPosed): number[][] =>
           prepareAutoMovieMassModel.inertia(model, posed),
@@ -92,7 +96,7 @@ export namespace AirborneShapeReduction {
       before: resolveAutoMovieMomentum.IPosed,
       after: resolveAutoMovieMomentum.IPosed,
       seconds: number,
-    ): resolveAutoMovieMomentum.IMomentum;
+    ): IAutoMovieBodyMomentum;
 
     /** A posed instant's composite inertia tensor about its centre, kg m², as fresh rows. */
     tensor(posed: resolveAutoMovieMomentum.IPosed): number[][];

@@ -1,4 +1,4 @@
-import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
+import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "@automovie/interface";
 
 /**
  * Compare every admitted descriptor pair once and retain unique mutual matches.
@@ -15,22 +15,11 @@ import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeature
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only O(F+G) temporary arrays and O(min(F,G)) copied matches are allocated. All state belongs to the synchronous call and no image, index, process or global cache survives it.
  */
 export function matchRecoveryImageFeatures(
-  first: readonly ReturnType<
-    typeof extractRecoveryImageFeatures
-  >["points"][number][],
-  second: readonly ReturnType<
-    typeof extractRecoveryImageFeatures
-  >["points"][number][],
-  ratio: number,
-  maxPairs: number,
-): {
-  firstIndex: number;
-  secondIndex: number;
-  first: [number, number];
-  second: [number, number];
-  squaredDescriptorDistance: number;
-  descriptorDistanceRatio: number;
-}[] {
+  first: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[0],
+  second: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[1],
+  ratio: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[2],
+  maxPairs: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> {
   const pairs: number = first.length * second.length;
   if (!Number.isSafeInteger(pairs) || pairs > maxPairs)
     throw new Error("camera-matches: descriptor pair budget exhausted");
@@ -65,7 +54,8 @@ export function matchRecoveryImageFeatures(
       } else if (squared < reverseSecond[j]!) reverseSecond[j] = squared;
     }
   }
-  const matches: ReturnType<typeof matchRecoveryImageFeatures> = [];
+  const matches: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> =
+    [];
   for (let i: number = 0; i < first.length; i++) {
     const j: number = forwardIndex[i]!;
     if (

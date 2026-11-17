@@ -1,25 +1,29 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanKneel,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
@@ -62,10 +66,10 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  */
 export namespace kneel {
   /** The action's name. */
-  export const name: HumanActionName = "kneel";
+  export const name: AutoMovieMotionHumanActionName = "kneel";
 
   /** Cancel table: the body stands, crouches or handles a low thing once it has settled. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -79,34 +83,6 @@ export namespace kneel {
       { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /** On one knee, on both knees upright, or sitting back on the heels. */
-  export type Kind = "one" | "both" | "sitBack";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation A closed kind, a side, a hold and whether to rise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No place or angle is typed by the author.
-   */
-  export interface IParams {
-    /** The kneeling posture; `one` when absent. */
-    kind?: Kind;
-
-    /** The knee that goes down first; `right` when absent. */
-    knee?: "left" | "right";
-
-    /** Seconds held kneeling; 1.5 when absent. */
-    hold?: number & import("typia").tags.Minimum<0> & HumanUnit<"s">;
-
-    /** Whether the body rises again at the end; `true` when absent. */
-    rise?: boolean;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
   export const REACH: number = 0.98;
@@ -135,22 +111,22 @@ export namespace kneel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its key states and the base.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKneel.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const kind: Kind = context.params.kind ?? "one";
+    const kind: IAutoMovieMotionHumanKneel.Kind = context.params.kind ?? "one";
     const k: "left" | "right" = context.params.knee ?? "right";
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const probe: IHumanActionPlan = stand.plan(
+    const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: 1 } },
       k,
     );
-    const standing: IHumanPosture = probe.posture(0);
+    const standing: IAutoMovieMotionHumanPosture = probe.posture(0);
     const yaw: number = standing.yaw;
     const solved: kneelKeys.IKeys = kneelKeys.solve(body, standing, kind, k);
     const keys: kneelKeys.IKey[] = solved.keys;
@@ -202,7 +178,7 @@ export namespace kneel {
         });
       phases.push({ name: "stood", seconds: 0, from: 0, to: 0 });
     }
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
         phases.map((p: IPhase) => ({ name: p.name, seconds: p.seconds })),
       ),
@@ -234,11 +210,11 @@ export namespace kneel {
     const courses: ((seconds: number) => number)[] = [];
     const heights: { landed?: number } = {};
     const write = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       along?: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-    ): IHumanPosture => {
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ): IAutoMovieMotionHumanPosture => {
       const { phase, index, u } = at(seconds);
       const feet = {
         left: geometry[index]!.feet.left(u),
@@ -301,14 +277,14 @@ export namespace kneel {
           solved.forward,
         );
       } else root = geometry[index]!.root!(u);
-      const placed: IHumanPosture = AutoMovieMotionHumanLean.tip(
+      const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
         { ...posture, root, yaw },
         pitch,
         0,
       );
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      const joints: IHumanPosture["joints"] = { ...posture.joints };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
       for (const side of ["left", "right"] as const) {
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -332,7 +308,7 @@ export namespace kneel {
     // coming up it is back over the standing foot while the knee leaves the
     // floor, before the foot behind lifts. The landing height is read from
     // the step's own course first.
-    const centre = (posture: IHumanPosture): number =>
+    const centre = (posture: IAutoMovieMotionHumanPosture): number =>
       Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
     const stood: number = centre(standing);
     const middle: number =
@@ -365,8 +341,8 @@ export namespace kneel {
         posture: (
           seconds: number,
           along: number,
-          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        ): IHumanPosture => write(standing, seconds, along, resolution),
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
         target: (seconds: number): number => {
           const { phase, u } = at(seconds);
           const share: number =
@@ -402,11 +378,11 @@ export namespace kneel {
       from: 0,
       to: duration,
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      ): IHumanPosture => write(posture, seconds, undefined, resolution),
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => write(posture, seconds, undefined, resolution),
     };
 
     // The hands come onto the thighs while the hips lower and leave them as
@@ -432,7 +408,7 @@ export namespace kneel {
       );
 
     // Plant windows from the phases' feet.
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (const side of ["left", "right"] as const) {
       let open: number | undefined;
       for (const phase of phases) {
@@ -453,7 +429,7 @@ export namespace kneel {
       if (open !== undefined) contacts.push(plant(side, open, 1));
     }
 
-    const base: IHumanActionPlan = stand.plan(
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: duration } },
       k,
     );
@@ -484,7 +460,7 @@ export namespace kneel {
     side: "left" | "right",
     from: number,
     to: number,
-  ): IHumanContactWindow => ({
+  ): IAutoMovieMotionHumanContactWindow => ({
     part: side === "left" ? "leftFoot" : "rightFoot",
     kind: "plant",
     from,

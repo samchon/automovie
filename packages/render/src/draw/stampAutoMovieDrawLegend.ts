@@ -1,6 +1,8 @@
-import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
-import type { IAutoMovieInspectionLegendEntry } from "../scene/inspection/IAutoMovieInspectionLegendEntry.js";
+import type {
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieRasterImage,
+  IAutoMovieRasterLabel,
+} from "@automovie/interface";
 
 /** Rows of a stamped label box in font pixels: five glyph rows and two of padding above and below, as the label stamp draws it. */
 const ROW: number = 9;
@@ -22,7 +24,7 @@ export function stampAutoMovieDrawLegend(
   picture: IAutoMovieRasterImage,
   legend: readonly IAutoMovieInspectionLegendEntry[],
   scale: number,
-): IAutoMovieCaptureDrawing.ILabel[] {
+): IAutoMovieRasterLabel[] {
   if (legend.length === 0) return [];
   const { width, height, pixels } = picture;
   const side: number = ROW * scale;
@@ -81,7 +83,7 @@ export function stampAutoMovieDrawLegend(
     (
       entry: IAutoMovieInspectionLegendEntry,
       index: number,
-    ): IAutoMovieCaptureDrawing.ILabel => {
+    ): IAutoMovieRasterLabel => {
       const top: number = best.top + index * side;
       for (
         let y: number = Math.max(0, top);

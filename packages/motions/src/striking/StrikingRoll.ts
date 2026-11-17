@@ -1,13 +1,20 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -64,18 +71,18 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional exact reader is borrowed through synchronous return or throw; each candidate releases its independent pose/map and temporary goal, while only the scalar miss escapes. No direct-pose snapshot or ROM mapper enters retained state.
    */
   export function miss(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ): number {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       resolution ?? prepareHumanPoseResolution();
     const bend: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const goal: IHumanPosture.IGoal = StrikingHeld.goal(context, tool, frame, back, bend);
-    const limbs: IHumanPosture["limbs"] = {
+    const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(context, tool, frame, back, bend);
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       ...posture.limbs,
       [`${tool.side}Arm`]: {
         ...goal,
@@ -88,7 +95,7 @@ export namespace StrikingRoll {
     const bones: ReturnType<typeof poseBones> = poseBones(
       context.body, fittedPose.pose, read(), HANDS[tool.side],
     );
-    const fitted: StrikingHeld.IHandFrame = {
+    const fitted: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
       point: HumanHand.frame(context.body, bones, tool.side, "grip").point,
       rotation: bones.get(`${tool.side}Hand`)!.worldRotation,
     };
@@ -118,26 +125,26 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate ranks and actual chooser workspaces end with this synchronous search; only the independent chosen hand frame escapes. No future callback's tool geometry or pose is retained as an answer.
    */
   export function hand(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     cone: number,
     posture:
-      | IHumanPosture
-      | ((frame: StrikingHeld.IHandFrame) => IHumanPosture),
-  ): StrikingHeld.IHandFrame {
+      | IAutoMovieMotionHumanPosture
+      | ((frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame) => IAutoMovieMotionHumanPosture),
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     const from: IAutoMovieVector3 | undefined = typeof posture === "function" ? undefined : shoulder(context, tool.side, posture);
     const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(along, Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 }));
-    const frame: IChoice["frame"] = (values: readonly number[]): StrikingHeld.IHandFrame => {
+    const frame: IAutoMovieMotionHumanStrikingRoll.IChoice["frame"] = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [tilt, around, turn] = values as readonly [number, number, number];
       const run: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.fromAxisAngle(along, around), Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along));
       return StrikingHeld.hand(tool, back, at, run, Quaternion.rotateVector(Quaternion.fromAxisAngle(run, turn), Vector3.cross(run, aside)));
     };
     const rank: (values: readonly number[]) => number = (values: readonly number[]): number => {
-      const posed: StrikingHeld.IHandFrame = frame(values);
+      const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
       try {
         const actual: IAutoMovieVector3 = from ?? shoulder(context, tool.side, typeof posture === "function" ? posture(posed) : posture);
         const measure: ReturnType<typeof StrikingStrain> = StrikingStrain(context.body, tool.side);
@@ -191,10 +198,10 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The anatomical closure and fresh raw-trunk map end on return or throw. Only the scalar rank escapes, with no pose, FK workspace, hand frame or numerical history retained.
    */
   export function strain(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
-    posture: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    posture: IAutoMovieMotionHumanPosture,
   ): number {
     const from: IAutoMovieVector3 = shoulder(context, tool.side, posture);
     return StrikingStrain(context.body, tool.side)(frame, from);
@@ -226,20 +233,20 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local exact reader and each independent current goal/fit/map end on search return or failure. No direct snapshot, tool geometry, ROM mapper or candidate answer is retained by the chosen fresh hand frame.
    */
   export function chosen(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    props: IChoice,
-  ): StrikingHeld.IHandFrame {
-    const { frame, tried, freedoms, back, posture }: IChoice = props;
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    props: IAutoMovieMotionHumanStrikingRoll.IChoice,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const { frame, tried, freedoms, back, posture }: IAutoMovieMotionHumanStrikingRoll.IChoice = props;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     return frame(
       HumanFreedomChoice.chosen({
         tried,
         freedoms,
         judge: (values: readonly number[]): number[] => {
-          const posed: StrikingHeld.IHandFrame = frame(values);
+          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
           try {
-            const current: IHumanPosture = typeof posture === "function" ? posture(posed) : posture;
+            const current: IAutoMovieMotionHumanPosture = typeof posture === "function" ? posture(posed) : posture;
             return [
               miss(
                 context,
@@ -258,47 +265,6 @@ export namespace StrikingRoll {
       }).values,
     );
   }
-
-  /**
-   * A tool pose's freedoms as a law states them for chosen.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state actual candidate frame construction, ordered preferred values, bounded/wrapped freedoms, kept-point metres and actual posture inputs, whose object fields may change inside a frame callback.
-   * @evidence contracts/development/design.md#principled-representation Existing hand/posture types and HumanFreedomChoice freedoms encode actual geometric candidates and complete body demands without storing a solved pose or success flag.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The chooser consumes exactly the frame producer, original trial ordering/refinement freedoms, kept tool point and actual candidate posture source.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A posture object is read after each actual frame callback and is never assumed immutable by identity; every current raw field is re-admitted cold, and all candidates retain original limb/digit/rival fits and limits.
-   */
-  export interface IChoice {
-    /**
-     * Build the actual hand frame for the law's freedom values, in their
-     * declared order and units. The point is in world metres and the rotation
-     * is the hand bone's world quaternion. Calls may observe or change current
-     * authoring; neither captures nor returned frames are presumed immutable.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States value order/units, world grip-frame meaning and the callback's observable current-authoring effects.
-     * @evidence contracts/development/implementation.md#principled-implementation The law parameterizes candidate geometry, while chosen measures the resulting actual hand/tool pose through the complete arm fit; frame construction alone certifies no physical reachability.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns geometric parameterization only; chosen owns candidate/refinement ordering and miss owns physical fitting and read-back.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arbitrary producers receive their actual candidate values and execute before each current-posture read; no purity, fixed capture, cached pose or success assertion is inferred from this callable's identity.
-     * @evidence contracts/development/implementation.md#efficient-algorithms C callback evaluations cost C times the concrete producer's work; the contract imposes no constant bound on arbitrary producers. Search and physical-fit costs remain with chosen rather than being hidden by this callback.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work chosen invokes the actual producer for each judged candidate and again for the selected values, without reusing a frame by equal values or callback identity; a producer's own reusable prerequisites remain its responsibility.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous chooser borrows this callable until return or throw; the IChoice owner controls its capture lifetime and the caller owns the chosen frame. This callback contract imposes no bound on resources a supplied producer owns.
-     */
-    frame: (values: readonly number[]) => StrikingHeld.IHandFrame;
-
-    /** The values to fit first, in the law's order of preference, nearest the asked pose first. */
-    tried: readonly (readonly number[])[];
-
-    /** Each value's freedom: its bounds or period and its refinement step. */
-    freedoms: readonly HumanFreedomChoice.Freedom[];
-
-    /** The point of the tool the pose keeps, metres behind its working point. */
-    back: number;
-
-    /** The current body posture, read after each actual frame callback, or a posture callback for each candidate frame when another hand supports that frame's tool. */
-    posture:
-      | IHumanPosture
-      | ((frame: StrikingHeld.IHandFrame) => IHumanPosture);
-  }
-
   /**
    * Of a law's candidate tool poses, in its order of preference, the first
    * the arm holds exactly, else the one the fitted hand misses least: what a
@@ -321,18 +287,18 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader and each independent fitted pose/map end with the synchronous loop on return or throw. No posture snapshot, fixed tool geometry, ROM projector or candidate history is retained, and only the chosen frame escapes.
    */
   export function best(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    candidates: readonly (() => StrikingHeld.IHandFrame)[],
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    candidates: readonly (() => IAutoMovieMotionHumanStrikingHeld.IHandFrame)[],
     back: number,
-    posture: IHumanPosture,
-  ): StrikingHeld.IHandFrame {
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    let chosen: StrikingHeld.IHandFrame | undefined;
+    let chosen: IAutoMovieMotionHumanStrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
       if (least <= HumanFreedomChoice.EXACT) break;
-      const frame: StrikingHeld.IHandFrame = candidate();
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = candidate();
       const missed: number = miss(context, tool, frame, back, posture, resolution);
       if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
@@ -364,11 +330,11 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy exact workspace and temporary raw/fitted maps end on normal return or either refusal; no query result, reader, goal or new history is retained by a returned plan.
    */
   export function reachable(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     fix: string,
   ): void {
     const wrist: IAutoMovieVector3 = Vector3.subtract(
@@ -405,14 +371,14 @@ export namespace StrikingRoll {
 
   /** The holding arm's shoulder joint on a posture, world metres. */
   const shoulder: (
-    context: Pick<IHumanActionContext, "body">,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ) => IAutoMovieVector3 = (
-    context: Pick<IHumanActionContext, "body">,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture, undefined, resolution, SHOULDERS[side]).get(`${side}UpperArm`)!
@@ -420,13 +386,13 @@ export namespace StrikingRoll {
 }
 
 /** The two actual output branches consumed by tool-pose judging. */
-const HANDS: Readonly<Record<HumanHand.Side, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const HANDS: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
   left: new Set<AutoMovieHumanoidBone>(["leftHand"]),
   right: new Set<AutoMovieHumanoidBone>(["rightHand"]),
 };
 
 /** Ranking needs only the holding shoulder and its FK ancestry. */
-const SHOULDERS: Readonly<Record<HumanHand.Side, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const SHOULDERS: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
 };

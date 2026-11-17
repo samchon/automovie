@@ -1,4 +1,4 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 
 /**
  * One transformable member of the visible building hierarchy.

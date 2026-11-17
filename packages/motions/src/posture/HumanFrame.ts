@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanFrame,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,22 +26,6 @@ const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(
  */
 export namespace HumanFrame {
   /**
-   * A floor origin and heading defining the performer's horizontal frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines world-metre origin and degrees about world +Y.
-   * @evidence contracts/development/design.md#principled-representation An origin and one yaw are exactly the degrees of freedom of a floor frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both members are read by forward and inverse coordinate conversion.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and a numeric degree value without an alternate transform representation.
-   */
-  export interface IFrame {
-    /** Origin, world metres. */
-    origin: IAutoMovieVector3;
-
-    /** Heading about +Y, degrees. */
-    yaw: number;
-  }
-
-  /**
    * A local point in world metres.
    *
    * @param frame The frame.
@@ -56,7 +41,7 @@ export namespace HumanFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no frame or point.
    */
   export function point(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
@@ -81,7 +66,7 @@ export namespace HumanFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no input.
    */
   export function local(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     world: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
@@ -105,7 +90,7 @@ export namespace HumanFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit frame snapshot establishes a fixed heading and default origin; a moving-root caller can supply its actual current origin per point without rebuilding the heading, while changed points/translations are always transformed and a changed heading requires another preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns three closures and five scalar origin/heading coefficients until released; none retains the source frame, prior point, output vector or growing history.
    */
-  export function prepare(frame: IFrame): IPrepared {
+  export function prepare(frame: IAutoMovieMotionHumanFrame): IPrepared {
     const origin: IAutoMovieVector3 = {
       x: frame.origin.x, y: frame.origin.y, z: frame.origin.z,
     };
@@ -175,7 +160,7 @@ export namespace HumanFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure holds only copied origin/endpoint coefficients until released, without a source frame/vector, body, query history, returned vector or external handle.
    */
   export function prepareLerp(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
   ): (share: number, origin?: IAutoMovieVector3, liftY?: number) => IAutoMovieVector3 {

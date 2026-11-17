@@ -1,16 +1,20 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingRollHand } from "../striking/StrikingRollHand";
 
 /**
@@ -38,34 +42,6 @@ import { StrikingRollHand } from "../striking/StrikingRollHand";
  */
 export namespace operateInsert {
   /**
-   * A held prop inserted into a world-target socket along its outward axis.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members name the held subject, leading affordance, socket target, metre depth and optional withdrawal, including the tip default.
-   * @evidence contracts/development/design.md#principled-representation The insert discriminator carries its actual held subject, socket target and positive authored metre depth; stroke progress and world placement remain runtime inputs, with the established action validation responsible for numeric admission.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface operate consumes depth/withdraw for timing and operateInsert's shared target/wrist producer consumes the same original tool/socket fields; existing target and hand-side types retain their owners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fixture/tool kind, fixed body dimension or fitted pose is encoded; optional tip and withdraw retain only their original documented defaults.
-   */
-  export interface IMechanism {
-    /** The discriminator. */
-    kind: "insert";
-
-    /** The held prop's subject. */
-    prop: string;
-
-    /** The held prop's working point that leads into the socket; `tip` when absent. */
-    tip?: string;
-
-    /** The socket: its mouth, its normal pointing out along the axis. */
-    into: AutoMovieMotionTarget;
-
-    /** How far the working point goes in, metres; positive. */
-    depth: number;
-
-    /** Whether the prop is drawn back out over the stroke's second half. */
-    withdraw?: boolean;
-  }
-
-  /**
    * How far the working point is in at a progress of the stroke.
    *
    * @param mechanism The insertion.
@@ -80,7 +56,7 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All insertion consumers use this same depth owner; each progress remains actual.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
-  export function depth(mechanism: IMechanism, progress: number): number {
+  export function depth(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism, progress: number): number {
     return mechanism.withdraw === true
       ? (mechanism.depth * (1 - Math.cos(2 * Math.PI * progress))) / 2
       : mechanism.depth * progress;
@@ -101,7 +77,7 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work operate uses this one owner for insertion duration.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function travel(mechanism: IMechanism): number {
+  export function travel(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism): number {
     return mechanism.depth * (mechanism.withdraw === true ? 2 : 1);
   }
 
@@ -123,10 +99,10 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original numeric held-tool record, without a sampled pose or live solver reader.
    */
   export function tool(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    side: HumanHand.Side,
-  ): StrikingHeld.ITool {
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeld.of(context, side, mechanism.prop, {
       tip: mechanism.tip ?? "tip",
     });
@@ -153,13 +129,13 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold preparation releases with this call; only numeric original target fields escape.
    */
   export function target(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    tool: StrikingHeld.ITool,
-    socket: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    posture: IHumanPosture,
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
+    posture: IAutoMovieMotionHumanPosture,
     progress: number,
-  ): AutoMovieMotionHumanArm.ITarget {
+  ): IAutoMovieMotionHumanArmTarget.ITarget {
     return prepare(context, mechanism, tool, socket)(posture, progress);
   }
 
@@ -183,11 +159,11 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed source records, axis and the original bounded roll-grid readers until release; no changing posture, queried time, target-result history or external handle is retained.
    */
   export function prepare(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    tool: StrikingHeld.ITool,
-    socket: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-  ): (posture: IHumanPosture, progress: number) => AutoMovieMotionHumanArm.ITarget {
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
+  ): (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget {
     return prepareMoving(context, mechanism, tool, socket).target;
   }
 
@@ -208,15 +184,15 @@ export namespace operateInsert {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns constant-size fixed geometry and bounded roll readers until release; current frames/wrists/targets are fresh and do not enter any time, pose, target or fit history.
    */
   export function prepareMoving(
-    context: IHumanActionContext,
-    mechanism: IMechanism,
-    tool: StrikingHeld.ITool,
-    socket: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+    context: IAutoMovieMotionHumanActionContext,
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
   ): {
-    target: (posture: IHumanPosture, progress: number) => AutoMovieMotionHumanArm.ITarget;
-    wrist: (posture: IHumanPosture, progress: number) => HumanHand.IWrist;
+    target: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget;
+    wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanHand.IWrist;
   } {
-    const side: HumanHand.Side = tool.side;
+    const side: AutoMovieHumanSide = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
       -1,
@@ -225,10 +201,10 @@ export namespace operateInsert {
       context, tool, 0, inward, 0,
     );
     const grip: IAutoMovieVector3 = HumanHand.offset(context.body, side, "grip", "relaxed").point;
-    const placed: (posture: IHumanPosture, progress: number) => {
-      hand: StrikingHeld.IHandFrame; wrist: HumanHand.IWrist;
-    } = (posture: IHumanPosture, progress: number): ReturnType<typeof placed> => {
-      const hand: StrikingHeld.IHandFrame = read(
+    const placed: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
+      hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame; wrist: IAutoMovieMotionHumanHand.IWrist;
+    } = (posture: IAutoMovieMotionHumanPosture, progress: number): ReturnType<typeof placed> => {
+      const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame = read(
         Vector3.add(
           socket.point,
           Vector3.scale(inward, depth(mechanism, progress)),
@@ -238,8 +214,8 @@ export namespace operateInsert {
       return { hand, wrist: placeHumanHandSurface(grip, hand.point, hand.rotation) };
     };
     return {
-      wrist: (posture: IHumanPosture, progress: number): HumanHand.IWrist => placed(posture, progress).wrist,
-      target: (posture: IHumanPosture, progress: number): AutoMovieMotionHumanArm.ITarget => {
+      wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieMotionHumanHand.IWrist => placed(posture, progress).wrist,
+      target: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieMotionHumanArmTarget.ITarget => {
         const { hand, wrist }: ReturnType<typeof placed> = placed(posture, progress);
         return {
           surface: "grip",

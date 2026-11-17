@@ -1,5 +1,8 @@
 import { tessellate } from "@automovie/engine";
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type {
+  IAutoMoviePrimitiveShape,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -90,7 +93,7 @@ const signedVolume: (t: {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every welded nondegenerate edge of box, sphere, cylinder, cone and capsule has exactly two incident triangles.).
  */
 export function test_geometry_tessellate_watertight(): void {
-  const solids: AutoMoviePrimitiveShape[] = [
+  const solids: IAutoMoviePrimitiveShape[] = [
     { type: "box", width: 0.4, height: 0.6, depth: 0.2 },
     { type: "sphere", radius: 0.5 },
     { type: "cylinder", radius: 0.3, height: 1 },
@@ -156,7 +159,7 @@ export function test_geometry_tessellate_watertight(): void {
   );
 
   for (const shape of solids) {
-    const t: import("@automovie/engine").ITessellation = tessellate(shape);
+    const t: IAutoMovieTessellation = tessellate(shape);
     TestValidator.predicate(
       `${shape.type}: normals are unit length`,
       t.normals.length > 0 &&
@@ -173,7 +176,7 @@ export function test_geometry_tessellate_watertight(): void {
         ).every((length: number): boolean => nclose(length, 1, 1e-9)),
     );
   }
-  const cone: import("@automovie/engine").ITessellation = tessellate({
+  const cone: IAutoMovieTessellation = tessellate({
     type: "cone",
     radius: 0.3,
     height: 1,
@@ -188,7 +191,7 @@ export function test_geometry_tessellate_watertight(): void {
     ).every((ny: number): boolean => nclose(ny, slantY, 1e-9)),
   );
 
-  const plane: import("@automovie/engine").ITessellation = tessellate({
+  const plane: IAutoMovieTessellation = tessellate({
     type: "plane",
     width: 2,
     depth: 3,

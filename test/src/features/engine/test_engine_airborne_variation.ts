@@ -1,14 +1,15 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
-  resolveAutoMovieCenterOfMass,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -56,14 +57,14 @@ export function test_engine_airborne_variation(): void {
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const segment = (
     bone: AutoMovieHumanoidBone,
-  ): resolveAutoMovieCenterOfMass.ISegment => ({
+  ): IAutoMovieResolveCenterOfMass.ISegment => ({
     bone,
     mass: 1,
     point: origin,
     inertia: { x: 2, y: 2, z: 2 },
     axes: identity,
   });
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: [segment("hips"), segment("head")],
   };
@@ -73,7 +74,7 @@ export function test_engine_airborne_variation(): void {
     new Map(
       model.segments.map(
         (
-          part: resolveAutoMovieCenterOfMass.ISegment,
+          part: IAutoMovieResolveCenterOfMass.ISegment,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
           part.bone,
           {
@@ -87,7 +88,7 @@ export function test_engine_airborne_variation(): void {
       ),
     );
   const span: { from: number; to: number } = { from: 0.5, to: 1 };
-  const history: integrateAirborneRotation.IHistory =
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
     integrateAirborneRotation.history(model, bones, span);
   const delta: number = integrateAirborneRotation.DELTA;
   // For this unit-mass/identity-frame model the momentum's x is exactly
@@ -129,8 +130,8 @@ export function test_engine_airborne_variation(): void {
   }
 
   // 2. A rigid isotropic body's exact forward sensitivities.
-  const rigid: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: (): integrateAirborneRotation.IInstant => ({
+  const rigid: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
+    history: (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
       inertia: { moments: { x: 2, y: 2, z: 2 }, rotation: identity },
       relative: origin,
     }),
@@ -196,8 +197,8 @@ export function test_engine_airborne_variation(): void {
           (unit: IAutoMovieVector3): IAutoMovieVector3 =>
             Quaternion.rotateVector(basis, unit),
         );
-        const props: integrateAirborneRotation.IProps = {
-          history: fixed ?? ((): integrateAirborneRotation.IInstant => {
+        const props: IAutoMovieIntegrateAirborneRotation.IProps = {
+          history: fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => {
             historyReads++;
             return { inertia: {
               moments: { x: 2 * scale, y: 2 * scale, z: 2 * scale },
@@ -215,10 +216,10 @@ export function test_engine_airborne_variation(): void {
           }),
           tolerance: { relative: 1e-10, absolute: 0 },
         };
-        const primal: integrateAirborneRotation.IFlight =
+        const primal: IAutoMovieIntegrateAirborneRotation.IFlight =
           integrateAirborneRotation(props);
         const primalReads: number = historyReads;
-        const varied: integrateAirborneRotation.IFlight =
+        const varied: IAutoMovieIntegrateAirborneRotation.IFlight =
           integrateAirborneRotation({
             ...props,
             variations: columns.map(
@@ -295,11 +296,11 @@ export function test_engine_airborne_variation(): void {
       span,
     );
   const query: number = span.from + delta / 4;
-  const first: integrateAirborneRotation.IInstant = cached(query);
+  const first: IAutoMovieIntegrateAirborneRotation.IInstant = cached(query);
   const instantValues: (
-    value: integrateAirborneRotation.IInstant,
+    value: IAutoMovieIntegrateAirborneRotation.IInstant,
   ) => readonly number[] = (
-    value: integrateAirborneRotation.IInstant,
+    value: IAutoMovieIntegrateAirborneRotation.IInstant,
   ): readonly number[] => [
     value.inertia.moments.x,
     value.inertia.moments.y,
@@ -326,7 +327,7 @@ export function test_engine_airborne_variation(): void {
     findings.push(
       "the two boundary queries did not share their fixed stencil moments",
     );
-  const playback: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+  const playback: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
     {
       history: cached,
       t0: span.from,
@@ -344,7 +345,7 @@ export function test_engine_airborne_variation(): void {
   }
   if (count() !== completedReads)
     findings.push("completed flight playback read its released shape history");
-  const renewed: integrateAirborneRotation.IInstant = cached(query);
+  const renewed: IAutoMovieIntegrateAirborneRotation.IInstant = cached(query);
   if (
     renewed === first ||
     instantValues(renewed).some(
@@ -369,7 +370,7 @@ function sphericalHistory(): integrateAirborneRotation.ICachedHistory | undefine
     bone: "hips", parent: null, constraint: null,
     rest: { translation: { x: 0, y: 0, z: 0 }, rotation: identity, scale: { x: 1, y: 1, z: 1 } },
   }] };
-  const model: resolveAutoMovieCenterOfMass.IModel = { mass: 1,
+  const model: IAutoMovieResolveCenterOfMass.IModel = { mass: 1,
     segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 2, y: 2, z: 2 }, axes: identity }],
   };

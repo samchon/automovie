@@ -1,8 +1,4 @@
 import {
-  type IAutoMovieForgedCast,
-  type IAutoMoviePerformedShot,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieStagedSet,
   Matrix4,
   forgeCast,
   motionToClip,
@@ -15,11 +11,15 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieClip,
+  type IAutoMovieForgedCast,
   IAutoMovieModel,
   type IAutoMovieNode,
+  type IAutoMoviePerformedShot,
+  type IAutoMovieResolvedBone,
   type IAutoMovieSceneNode,
   type IAutoMovieScript,
   type IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
   type IAutoMovieTrack,
   type IAutoMovieTransform,
 } from "@automovie/interface";

@@ -1,19 +1,20 @@
 import type {
-  AutoMovieConstructionAxis,
-  AutoMovieConstructionFullness,
-  AutoMovieConstructionParameter,
+  IAutoMovieConstructionAxis,
+  IAutoMovieConstructionFullness,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionOutlinePair,
+  IAutoMovieConstructionParameter,
   IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
+  IAutoMovieSolidIntersection,
   IAutoMovieVector3,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParallelAxis } from "./AutoMovieViewParallelAxis";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { rollAutoMovieViewAxis } from "./rollAutoMovieViewAxis";
 
 /**
@@ -60,7 +61,7 @@ export namespace AutoMovieConstructionViews {
         return `evaluated source ${view.source} does not name ${view.name}`;
       return source;
     }
-    const axis: AutoMovieViewAxis.IAxis | string = frame(view.axis);
+    const axis: IAutoMovieViewAxis.IAxis | string = frame(view.axis);
     if (typeof axis === "string") return axis;
     return {
       name: view.name,
@@ -90,8 +91,8 @@ export namespace AutoMovieConstructionViews {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Converted data belongs to the returned axis builder; the dispatch retains no global state.
    */
   export function frame(
-    axis: AutoMovieConstructionAxis,
-  ): AutoMovieViewAxis.IAxis | string {
+    axis: IAutoMovieConstructionAxis,
+  ): IAutoMovieViewAxis.IAxis | string {
     switch (axis.type) {
       case "straight":
         return AutoMovieViewAxis.straight(
@@ -106,7 +107,7 @@ export namespace AutoMovieConstructionViews {
       case "curved":
         return AutoMovieViewAxis.minimal(
           axis.knots.map(
-            (k): AutoMovieViewAxis.IAxisKnot => ({
+            (k): IAutoMovieViewAxis.IAxisKnot => ({
               station: k.station * SCALE,
               point: point(k.point),
             }),
@@ -115,7 +116,7 @@ export namespace AutoMovieConstructionViews {
           axis.step * SCALE,
         );
       case "jointed": {
-        const base: AutoMovieViewAxis.IAxis | string =
+        const base: IAutoMovieViewAxis.IAxis | string =
           AutoMovieViewAxis.jointed(
             axis.centres.map(point),
             axis.halves.map((h: number): number => h * SCALE),
@@ -150,8 +151,8 @@ export namespace AutoMovieConstructionViews {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and, for angle, three fresh vectors without retaining the source parameter or any trace history.
    */
   export function parameter(
-    p: AutoMovieConstructionParameter,
-  ): AutoMovieSolidIntersection.Parameter {
+    p: IAutoMovieConstructionParameter,
+  ): IAutoMovieSolidIntersection.Parameter {
     switch (p.type) {
       case "phase":
         return { kind: "phase" };
@@ -228,9 +229,9 @@ export namespace AutoMovieConstructionViews {
   /** A scalar course of lengths in millimetres. */
   function knots(
     outline: IAutoMovieConstructionOutline,
-  ): AutoMovieViewAxis.IAxisKnot1[] {
+  ): IAutoMovieViewAxis.IAxisKnot1[] {
     return outline.knots.map(
-      (k): AutoMovieViewAxis.IAxisKnot1 => ({
+      (k): IAutoMovieViewAxis.IAxisKnot1 => ({
         station: k.station * SCALE,
         value: k.value * SCALE,
       }),
@@ -246,7 +247,7 @@ export namespace AutoMovieConstructionViews {
 
   /** The fullness owner in the operator's records. */
   function fullness(
-    f: AutoMovieConstructionFullness,
+    f: IAutoMovieConstructionFullness,
   ): IAutoMovieViewPart.Fullness {
     const quarters = (
       q: [

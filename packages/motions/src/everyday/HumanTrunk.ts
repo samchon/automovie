@@ -1,19 +1,21 @@
-import {
-  type IAutoMovieResolvedBone,
-  Transform,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Transform, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHandspring,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTrunk,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
 
@@ -56,9 +58,9 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores no reader or result. The caller owns fresh map/records, the body owns topology, and an optional borrowed reader/supplier belongs only to its parent's synchronous evaluation and is demanded at this actual FK call.
    */
   export function resolve(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    joints: IHumanPosture["joints"] = posture.joints,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
@@ -85,13 +87,13 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body and captured actual name membership establish fixed demand; each current posture/root/joint value is assembled and resolved normally. An optional synchronous workspace shares only exact checked dynamic dependencies.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning operation/plan retains body and bounded name metadata until release. No posture, world frame, query result, borrowed dynamic workspace or time history enters the closure; every map/frame is caller-owned.
    */
-  export function prepareResolve(body: IHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>):
-    (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], joints?: IHumanPosture["joints"]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  export function prepareResolve(body: IAutoMovieMotionHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>):
+    (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], joints?: IAutoMovieMotionHumanPosture["joints"]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const read: ReturnType<typeof poseBones.prepareTuples> = poseBones.prepareTuples(body, requested);
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      joints: IHumanPosture["joints"] = posture.joints): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const staged: ReturnType<typeof read> = read(joints);
-      const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
+      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
       return staged({ skeleton: body.skeleton.id, root: Transform.of(turned.position, turned.rotation) },
         typeof resolution === "function" ? resolution() : resolution);
     };
@@ -130,17 +132,17 @@ export namespace HumanTrunk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the caller owns the returned wrapper and positive-inclination joint copy, while nonpositive inclination borrows the original joint map and untouched triples stay borrowed.
    */
   export function incline(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     inclination: number,
     pelvisLimit: number = Infinity,
-  ): { pitch: number; joints: IHumanPosture["joints"] } {
+  ): IAutoMovieMotionHumanTrunk.IInclineResult {
     if (inclination <= 0) return { pitch: inclination, joints };
     const pelvis: number = Math.max(
       0,
       Math.min(RHYTHM.pelvis * inclination, pelvisLimit),
     );
     const spine: number = inclination - pelvis;
-    const out: IHumanPosture["joints"] = { ...joints };
+    const out: IAutoMovieMotionHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
     addInclination(out, "spine", share, spine);
     addInclination(out, "chest", 1 - share, spine);
@@ -173,12 +175,12 @@ export namespace HumanTrunk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns one scalar; temporary world hip and heading scalars die with the call.
    */
   export function pelvisLimit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     ankles: Record<"left" | "right", IAutoMovieVector3>,
   ): number {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const turn: number = (yaw * Math.PI) / 180;
     const forwardX: number = Math.sin(turn);
     const forwardZ: number = Math.cos(turn);
@@ -228,12 +230,12 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary FK map is released after placement and the caller owns point/normal; the optional reader/supplier remains parent-owned and never enters either returned vector or persistent state.
    */
   export function region(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     region: AutoMovieHumanoidRegion,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+  ): IAutoMovieMotionHumanTrunk.IRegionResult {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
     const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
       frame,
       resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(frame.bone)!,
@@ -257,12 +259,12 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the unchanged body, region frame and bounded name reader until its plan/operation ends. No posture, output, time history or current operation workspace is stored across calls; outputs are fresh.
    */
   export function prepareRegion(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ISurface {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanHandspring.ISurface {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
     const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ISurface => {
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanHandspring.ISurface => {
       const bones: ReturnType<typeof read> = read(posture, resolution);
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
         resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
@@ -286,12 +288,12 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fixed frame/body/name metadata until plan/operation release; each current map/workspace ends with its synchronous query and only the fresh point escapes, without pose, target or time history.
    */
   export function preparePoint(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
     const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
       const bones: ReturnType<typeof read> = read(posture, resolution);
       return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
     };
@@ -321,11 +323,11 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK and filtered maps are local and released on return or throw; the caller owns returned vectors, while delegated weak geometry caches are bounded by the body's profile segments, shapes and hull records and released with those owners.
    */
   export function surface(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanTrunk.ISurfaceResult {
     const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       resolve(body, posture, undefined, undefined, MIDLINE);
     return cast(body, HumanColliders.reading(body, midline), from, toward);
@@ -351,8 +353,8 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading holds one FK map and, only after first ray demand, a subset plus one bound collider reader until synchronous return or throw. A separate reading factory captures no posture or optional FK loan. Population is bounded by that rig/profile; no global or sampled-frame history retains it.
    */
   export function prepare(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
@@ -362,18 +364,18 @@ export namespace HumanTrunk {
   }
 
   /** Bind actual resolved frames in a scope that cannot retain the parent FK loan. */
-  function reading(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IReading {
+  function reading(body: IAutoMovieMotionHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IReading {
     let colliders: ReturnType<typeof HumanColliders.reading> | undefined;
     return {
       bones,
-      region: (region: AutoMovieHumanoidRegion): ISurface => {
-        const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      region: (region: AutoMovieHumanoidRegion): IAutoMovieMotionHumanHandspring.ISurface => {
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[region];
         const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
           resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
         return { point: placed.point, normal: placed.normal };
       },
-      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): ISurface => {
+      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): IAutoMovieMotionHumanHandspring.ISurface => {
         if (colliders === undefined) {
           const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
           for (const [bone, resolved] of bones)
@@ -408,7 +410,7 @@ export namespace HumanTrunk {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration coordinates no computation; prepare owns fixed FK sharing.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature retains no query or frame; prepare owns the reader lifetime.
      */
-    region(region: AutoMovieHumanoidRegion): ISurface;
+    region(region: AutoMovieHumanoidRegion): IAutoMovieMotionHumanHandspring.ISurface;
 
     /**
      * A world ray's hit on midline colliders, throwing when it misses within two statures.
@@ -421,7 +423,7 @@ export namespace HumanTrunk {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature shares no ray result; prepare owns only immutable frame preparation.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature holds no collider or hit; prepare owns its synchronous readers.
      */
-    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): ISurface;
+    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): IAutoMovieMotionHumanHandspring.ISurface;
   }
 
   /**
@@ -442,12 +444,12 @@ export namespace HumanTrunk {
 
   /** Apply the existing ray policy to a fixed midline frame map. */
   function cast(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     colliders: ReturnType<typeof HumanColliders.reading>,
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
-  ): ISurface {
-    const hit: HumanColliders.IHit | undefined = colliders.cast(
+  ): IAutoMovieMotionHumanHandspring.ISurface {
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined = colliders.cast(
       from,
       toward,
       2 * body.measure.stature,
@@ -466,7 +468,7 @@ const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBon
 ]);
 
 /** Add one ordered spinal flexion while preserving its other authored components. */
-function addInclination(joints: IHumanPosture["joints"], bone: "spine" | "chest",
+function addInclination(joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest",
   part: number, spine: number): void {
   const was: readonly [number, number, number] = joints[bone] ?? ZERO;
   joints[bone] = [was[0] + part * spine, was[1], was[2]];

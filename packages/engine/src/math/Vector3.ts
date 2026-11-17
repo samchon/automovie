@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Pure vector math over {@link IAutoMovieVector3} (`{ x, y, z }`).

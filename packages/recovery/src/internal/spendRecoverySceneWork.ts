@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
+import type {
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
 /**
  * Charge aggregate scene work before an action, without geometry rollback.

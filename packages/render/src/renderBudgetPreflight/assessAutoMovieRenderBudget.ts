@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieRenderTextureResidency,
-  IAutoMovieRenderTextureSource,
   autoMovieRenderSubjectOfCompiledShot,
   autoMovieRenderTextureDigest,
   deriveAutoMovieSemanticMask,
@@ -8,15 +6,11 @@ import {
   measureAutoMovieRenderInventory,
   sealAutoMovieRenderTarget,
 } from "@automovie/engine";
-import {
-  IAutoMovieCompiledShotSource,
-  IAutoMovieRenderBudget,
-  IAutoMovieRenderTargetAsset,
-  IAutoMovieRenderTargetRenderer,
-  IAutoMovieRenderTargetSettings,
+import type {
+  IAutoMovieAssessRenderBudgetProps,
+  IAutoMovieRenderBudgetAssessment,
+  IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
-
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
 
 /**
  * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
@@ -33,33 +27,11 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One subject and mask serve both inventory measurement and budget attribution; all sharing is confined to this artifact and the supplied renderer, settings, assets and residency facts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assessment retains the inventory, mask, report and sealed target until its caller discards them; it neither acquires the renderer nor owns texture allocation or host tasks.
  */
-export const assessAutoMovieRenderBudget: (props: {
-  compiled: IAutoMovieCompiledShotSource;
-  shot: string;
-  budget: IAutoMovieRenderBudget | null;
-  renderer: IAutoMovieRenderTargetRenderer | null;
-  settings: IAutoMovieRenderTargetSettings;
-  assets: readonly IAutoMovieRenderTargetAsset[];
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}) => IAutoMovieRenderBudgetAssessment = (props: {
-  /** Fully builder-owned shot artifact. */
-  compiled: IAutoMovieCompiledShotSource;
-  /** Shot id the artifact belongs to. */
-  shot: string;
-  /** Explicit limits selected by the caller, or null to evaluate without a declared budget. */
-  budget: IAutoMovieRenderBudget | null;
-  /** Caller-supplied graphics identity, or null when no such observation is supplied. */
-  renderer: IAutoMovieRenderTargetRenderer | null;
-  /** Intended target settings supplied for measurement and sealing. */
-  settings: IAutoMovieRenderTargetSettings;
-  /** Caller-supplied asset identity records for the intended target. */
-  assets: readonly IAutoMovieRenderTargetAsset[];
-  /** Supplied decoded upload and sharing observations; the caller owns their acquisition and truth. */
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  /** Supplied context/other-shot residency observations; this helper acquires no capture host. */
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}): IAutoMovieRenderBudgetAssessment => {
+export const assessAutoMovieRenderBudget: (
+  props: IAutoMovieAssessRenderBudgetProps,
+) => IAutoMovieRenderBudgetAssessment = (
+  props: IAutoMovieAssessRenderBudgetProps,
+): IAutoMovieRenderBudgetAssessment => {
   if (props.renderer === null)
     return {
       shot: props.shot,

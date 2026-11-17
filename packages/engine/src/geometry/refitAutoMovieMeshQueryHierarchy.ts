@@ -1,4 +1,4 @@
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
+import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
 
 /**
  * Refit an admitted hierarchy's fixed partition with fresh replacement entries.

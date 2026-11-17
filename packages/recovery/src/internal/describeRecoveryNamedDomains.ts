@@ -1,7 +1,9 @@
-import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type {
+  IAutoMovieRecoveryDomainLedger,
+  IAutoMovieRecoveryNamedDomainsDescriptionOperation,
+} from "@automovie/interface";
+
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-import type { reconstructRecovery } from "./reconstructRecovery";
 
 /**
  * Bind planned named domains only to unique actual reports with the same identity.
@@ -18,13 +20,9 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local name and binding maps expire on return; returned metadata owns strings and ranges without retaining mesh buffers.
  */
 export function describeRecoveryNamedDomains(
-  input: IAutoMovieRecoveryTensorFamiliesInput,
-  result: ReturnType<typeof reconstructRecovery>,
-): {
-  members: IAutoMovieRecoveryDomainLedger["members"];
-  owners: Map<string, string>;
-  diagnostics: string[];
-} {
+  input: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[0],
+  result: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> {
   type Member = IAutoMovieRecoveryDomainLedger["members"][number];
   const members: Member[] = [];
   const owners: Map<string, string> = new Map();

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 import { HumanQuadraticProgram } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,8 +37,8 @@ export function test_human_motion_core_quadratic_program(): void {
     diagonal: (i: number) => number,
     off: (i: number, j: number) => number,
     q: readonly number[],
-    rows: HumanQuadraticProgram.IRow[],
-  ): HumanQuadraticProgram.IProblem => ({
+    rows: IAutoMovieMotionHumanQuadraticProgram.IRow[],
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem => ({
     n,
     band,
     p: Array.from({ length: n }, (_: unknown, i: number): Float64Array => {
@@ -52,7 +53,7 @@ export function test_human_motion_core_quadratic_program(): void {
   });
   const close = (
     label: string,
-    state: HumanQuadraticProgram.IState,
+    state: IAutoMovieMotionHumanQuadraticProgram.IState,
     expected: readonly number[],
   ): void => {
     expected.forEach((v: number, i: number): void => {
@@ -64,8 +65,8 @@ export function test_human_motion_core_quadratic_program(): void {
   };
   const held = (
     label: string,
-    p: HumanQuadraticProgram.IProblem,
-    state: HumanQuadraticProgram.IState,
+    p: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    state: IAutoMovieMotionHumanQuadraticProgram.IState,
     r: number,
     bound: number,
   ): void => {

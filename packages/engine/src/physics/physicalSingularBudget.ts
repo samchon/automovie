@@ -1,4 +1,4 @@
-import type { IAutoMovieSingularMatrixBudget } from "../math/IAutoMovieSingularMatrixBudget";
+import type { IAutoMovieSingularMatrixBudget } from "@automovie/interface";
 
 /**
  * Shared SVD work budget for physical target designs. A design has at most

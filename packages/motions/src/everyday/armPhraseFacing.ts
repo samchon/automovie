@@ -1,5 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
 
@@ -20,7 +24,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh quaternion and retains no target, normal, body or frame.
  */
 export function armPhraseFacing(
-  side: HumanHand.Side,
+  side: AutoMovieHumanSide,
   normal: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
   const n: IAutoMovieVector3 = Vector3.normalize(normal);

@@ -1,11 +1,9 @@
 import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
   IAutoMovieEnvelopeAssembly,
   IAutoMovieEnvelopeRequest,
   IAutoMovieSpaceAirRequest,
-} from "@automovie/engine";
-import type {
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisRun,
 } from "@automovie/interface";
 
 import { assertAnalysisEnvelopeHygrothermalPart1 } from "../internal/assertAnalysisEnvelopeHygrothermalPart1";

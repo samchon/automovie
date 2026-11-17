@@ -1,6 +1,6 @@
-import { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
-import { AutoMovieAnalysisMetricStatus } from "./AutoMovieAnalysisMetricStatus";
-import { IAutoMovieAnalysisMetricGap } from "./IAutoMovieAnalysisMetricGap";
+import type { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
+import type { AutoMovieAnalysisMetricStatus } from "./AutoMovieAnalysisMetricStatus";
+import type { IAutoMovieAnalysisMetricGap } from "./IAutoMovieAnalysisMetricGap";
 
 /**
  * One measured quantity, or one explicit gap where a measurement is not.

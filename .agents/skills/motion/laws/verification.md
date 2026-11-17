@@ -1,6 +1,6 @@
 # Motion verification
 
-Give each action isolated cases, because a case that only shows the action establishes nothing. Each case tests the action's own goal as bounded assertions, in the unit tests or capture checks the project has, and unit tests of the laws answer the [testing contract](../../contracts/development/testing.md). The assertions cover:
+Give each action isolated cases. Each case tests the action's own goal as bounded assertions, in the unit tests or capture checks the project has, because a case that only shows the action establishes nothing. Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md). The assertions cover:
 
 - the distance from effector to target;
 - penetration;
@@ -17,13 +17,13 @@ Measure the displayed result, never the plan's own output. A check that compares
 
 Check slip and penetration at a rate that cannot step over the contact, because a strike or a plant can begin and end between two output frames.
 
-Take every bound from the requirement or its study. Widening a bound until a case passes hides the defect the case exists to find.
+Take every bound from the requirement or its study, never widening one until a case passes.
 
-Run the cases across bodies of different statures and proportions, and against different partners and props, because a pass on one body establishes nothing about another. Cut each action at every window it declares for a cut, and move its target mid-motion where it tracks one, because films use an action where it is interrupted.
+Run the cases across bodies of different statures and proportions, and against different partners and props. Cut each action at every window it declares for a cut, and move its target mid-motion where it tracks one, because films use an action where it is interrupted.
 
 ## Frame review
 
-Review stills of every case, in order, from several named views, with `joint` marks where the project's capture offers them and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is. Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
+Review stills of every case, in order, from several named views, with `joint` marks where the project's capture offers them and with every held prop drawn at every frame. Numbers alone miss what a still shows at once, such as a bottle that is not where the hand is. Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
 
 ## Rounds
 

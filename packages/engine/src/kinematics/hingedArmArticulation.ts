@@ -1,8 +1,11 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieHingedArmArticulation,
+  type IAutoMovieHingedArmSwivel,
+  type IAutoMovieHingedArticulation,
+  type IAutoMovieSwivelNear,
+} from "@automovie/interface";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
-import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import { IAutoMovieSwivelNear } from "./IAutoMovieSwivelNear";
 import type { hingedArmCandidate } from "./hingedArmCandidate";
 import { hingedArmSwivel } from "./hingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
@@ -116,148 +119,16 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the solve. Within that unchanged branch/target/score, a full fallback reuses each actual step and completed refinement of the same bracket; it still compares all original candidates in their original order. An optional matching prepared target also shares source span coefficients/inverse root and this point's lowered goal. No scored answer crosses targets or solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains at most two branches' 360 step candidates and one selected candidate per refined step, with their branch pose/probe closures. The bounded workspace releases at return or throw; only the selected rotations escape, with no history or external handle.
  */
-export function hingedArmArticulation(props: {
-  /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
-  upper: IAutoMovieChainBone;
-
-  /** Mid bone's rest offset from the chain root, in the root's bone frame. */
-  midOffset: IAutoMovieVector3;
-
-  /** Mid bone's rest rotation relative to the chain root. */
-  midRest: IAutoMovieQuaternion;
-
-  /** Effector's rest offset from the mid joint, in the mid bone's frame. */
-  endOffset: IAutoMovieVector3;
-
-  /** The mid joint's flexion axis in the mid bone's frame; any length. */
-  hinge: IAutoMovieVector3;
-
-  /** World target the effector should land on. */
-  target: IAutoMovieVector3;
-
-  /**
-   * The mid joint's legal rotation about `hinge`, radians, `min <= max` and
-   * no wider than a full turn; omitted, every hinge angle is legal. A branch
-   * outside it stops at the nearer limit, read around the circle from the
-   * range's centre.
-   */
-  range?: { min: number; max: number };
-
-  /**
-   * Score one candidate's bone-local root and mid rotations: `overshoot` is
-   * the total ROM overshoot in degrees, compared first, and `deviation` the
-   * effort tie-break, compared second. The caller owns the decomposition
-   * convention and the rig's constraints. With `exact`, `deviation` is a
-   * lower bound of the tie-break and `exact` gives it exactly: a caller
-   * whose tie-break ends in a costly non-negative term passes the rest as
-   * the bound, and the term is computed only for a comparison the bound
-   * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
-   * in one bucket of width `tie` are one, and the lesser `tiebreak` decides
-   * (task priority, Siciliano and Slotine 1991: the second objective only
-   * among the first's optima), so `exact` need then be right only to its
-   * bucket. The score and its lazy readers describe the same unchanged
-   * objective throughout this synchronous solve. The candidate's swivel,
-   * degrees, and its branch's poser are passed for a caller that reads them.
-   */
-  score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, swivel: number,
-    posed: ReturnType<typeof hingedArmSwivel.pose>) => {
-    overshoot: number;
-    deviation: number;
-    exact?: () => number;
-    tiebreak?: () => number;
-  };
-
-  /**
-   * Given the root's bone-local rotation at a swivel on one bend branch,
-   * degrees, a test of whether every swivel from `low` to `high` degrees is
-   * certain to score a positive `overshoot` (`boxExcludedSwivels`); omitted,
-   * every step is scored. Only a certainty may be returned: the returned pose
-   * is then the one the full sweep gives.
-   */
-  excluded?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-  ) => (low: number, high: number) => boolean;
-
-  /**
-   * Given the root's bone-local rotation at a swivel on one bend branch,
-   * degrees, and that branch's poser, a certified lower bound of the exact
-   * `deviation` of every candidate at a swivel from `low` to `high` degrees;
-   * omitted, every step is scored. The cold sweep then scores only the steps
-   * the bound cannot place behind a legal candidate (`hingedSwivelBounded`),
-   * with the full sweep's choice: under a `tie` by the deviation's bucket, and after the `minimum` certificate's test of the sweep's first candidate.
-   */
-  bound?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-    posed: ReturnType<typeof hingedArmSwivel.pose>,
-  ) => (low: number, high: number) => number;
-
-  /**
-   * Given a branch's poser, the closed-form start swivel, degrees: the pole
-   * (mid joint toward the hint) or a term's own minimiser; null when none.
-   * A cold fit with no `tie` or `minimum` searches from it (`hingedSwivelPole`)
-   * and returns a legal result that `met` accepts; otherwise the sweep decides.
-   */
-  pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
-
-  /**
-   * Given a branch's poser, every swivel on it, degrees, at which a requested
-   * term that only isolated swivels can meet is met (`immobileAxisSwivels`),
-   * in closed form; null or none when the analysis does not apply. A cold fit
-   * with no `tie` or `minimum` scores those candidates alone and returns the
-   * best when it is legal and `met` accepts it; otherwise the pole start and
-   * the sweep decide as without it.
-   */
-  closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
-
-  /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
-  met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
-
-  /**
-   * Given a branch's poser, whether it is certain that no candidate on the
-   * branch passes `met` (a certified lower bound of the requested term's
-   * miss above its tolerance at every swivel). Where every branch is so
-   * certified, a cold fit skips the pole start, whose result `met` would
-   * refuse, and the sweep decides at once; omitted, nothing is certified.
-   */
-  unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
-
-  /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
-  direct?: boolean;
-
-  /**
-   * The seed of a fit of a nearby target to continue (`IAutoMovieSwivelNear`):
-   * its branch, or the last branch when the target has fewer (two branches
-   * meet at the span's ends), and its swivel refined within one step either
-   * way to its tolerance, with no sweep; omitted, every swivel is swept.
-   */
-  near?: IAutoMovieSwivelNear;
-
-  /**
-   * The positive width of the buckets two deviations are one in, the unit of
-   * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
-   * are compared exactly and `tiebreak` is not read.
-   */
-  tie?: number;
-
-  /**
-   * Certified global lower bounds of every actual score in this solve;
-   * omission keeps the complete search. With no second key, only the original
-   * first coarse candidate may stop early after both keys equal these bounds
-   * exactly. The score and all raw inputs must already be admitted; this is
-   * a mathematical certificate, not a reach or convergence tolerance.
-   */
-  minimum?: { overshoot: number; deviation: number };
-
-  /** Exact source/target geometry of this same unchanged chain, point and hinge range. */
-  prepared?: hingedArmSwivel.IPreparedTarget;
-}): IAutoMovieHingedArticulation | null {
+export function hingedArmArticulation(
+  props: hingedArmArticulation.IProps,
+): IAutoMovieHingedArticulation | null {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
   // the line to the target, as it does on the geometric shell. Of two
   // branches the one stopping nearer the target is kept; branches inside the
   // range stop nowhere and tie.
-  const found: hingedArmSwivel.IStop[] | null = props.prepared === undefined
+  const found: IAutoMovieHingedArmSwivel.IStop[] | null = props.prepared === undefined
     ? hingedArmSwivel.branches(props) : props.prepared.branches();
   if (found === null) return null;
   const pose: (theta: number) => ReturnType<typeof hingedArmSwivel.pose> =
@@ -266,7 +137,7 @@ export function hingedArmArticulation(props: {
       : (theta: number): ReturnType<typeof hingedArmSwivel.pose> => props.prepared!.pose(theta);
   const stops: IBranch[] = found
     .map(
-      (stop: hingedArmSwivel.IStop, branch: number): IBranch => ({
+      (stop: IAutoMovieHingedArmSwivel.IStop, branch: number): IBranch => ({
         ...stop,
         branch,
       }),
@@ -286,7 +157,7 @@ export function hingedArmArticulation(props: {
   const prober =
     (
       stop: IBranch,
-      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      posed: IAutoMovieHingedArmSwivel.IPoseResult,
     ): ((angle: number) => IScored) =>
     (angle: number): IScored => {
       const { upper, lower } = posed(angle);
@@ -496,3 +367,106 @@ type IScored = hingedArmCandidate.IScored;
 
 /** One branch as a sweep pass reads it, with its poser and its completed-work record. */
 type IPass = hingedSwivelSwept.IBranch<IScored> & { posed: ISweep["posed"]; record: ISweep };
+
+/**
+ * Companion types of {@link hingedArmArticulation}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents every engine-owned member: the scored candidate's swivel and poser, the lazy bound, pole, closed-form and unmet certificates, the bucketed tie, the global minimum and the prepared target, with units and absence rules.
+ * @evidence contracts/development/design.md#principled-representation The geometric chain, target, range, exclusion test and near seed stay in IAutoMovieHingedArmArticulation.IProps; the members that read a branch's poser or prepared target are typed by hingedArmSwivel, an engine implementation, so they extend that contract here instead of entering the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `reachPose`, `fitHingedChainCandidate` and the motions bend search pass these certificates and the prepared target to the one hinged solver; a caller that needs none supplies the interface members alone.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omits and redeclares only score and 	ie, whose engine signatures and bucket meaning differ; every other member is the interface's own, not a copy.
+ */
+export namespace hingedArmArticulation {
+  /** The solver's props: the interface chain and target with the engine's certificates and prepared geometry. */
+  export interface IProps
+    extends Omit<IAutoMovieHingedArmArticulation.IProps, "score" | "tie"> {
+    /**
+     * Score one candidate's bone-local root and mid rotations: `overshoot` is
+     * the total ROM overshoot in degrees, compared first, and `deviation` the
+     * effort tie-break, compared second. The caller owns the decomposition
+     * convention and the rig's constraints. With `exact`, `deviation` is a
+     * lower bound of the tie-break and `exact` gives it exactly: a caller
+     * whose tie-break ends in a costly non-negative term passes the rest as
+     * the bound, and the term is computed only for a comparison the bound
+     * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
+     * in one bucket of width `tie` are one, and the lesser `tiebreak` decides
+     * (task priority, Siciliano and Slotine 1991: the second objective only
+     * among the first's optima), so `exact` need then be right only to its
+     * bucket. The score and its lazy readers describe the same unchanged
+     * objective throughout this synchronous solve. The candidate's swivel,
+     * degrees, and its branch's poser are passed for a caller that reads them.
+     */
+    score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, swivel: number,
+      posed: ReturnType<typeof hingedArmSwivel.pose>) => {
+      overshoot: number;
+      deviation: number;
+      exact?: () => number;
+      tiebreak?: () => number;
+    };
+
+    /**
+     * Given the root's bone-local rotation at a swivel on one bend branch,
+     * degrees, and that branch's poser, a certified lower bound of the exact
+     * `deviation` of every candidate at a swivel from `low` to `high` degrees;
+     * omitted, every step is scored. The cold sweep then scores only the steps
+     * the bound cannot place behind a legal candidate (`hingedSwivelBounded`),
+     * with the full sweep's choice: under a `tie` by the deviation's bucket, and after the `minimum` certificate's test of the sweep's first candidate.
+     */
+    bound?: (
+      upper: (swivel: number) => IAutoMovieQuaternion,
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+    ) => (low: number, high: number) => number;
+
+    /**
+     * Given a branch's poser, the closed-form start swivel, degrees: the pole
+     * (mid joint toward the hint) or a term's own minimiser; null when none.
+     * A cold fit with no `tie` or `minimum` searches from it (`hingedSwivelPole`)
+     * and returns a legal result that `met` accepts; otherwise the sweep decides.
+     */
+    pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+
+    /**
+     * Given a branch's poser, every swivel on it, degrees, at which a requested
+     * term that only isolated swivels can meet is met (`immobileAxisSwivels`),
+     * in closed form; null or none when the analysis does not apply. A cold fit
+     * with no `tie` or `minimum` scores those candidates alone and returns the
+     * best when it is legal and `met` accepts it; otherwise the pole start and
+     * the sweep decide as without it.
+     */
+    closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
+
+    /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
+    met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
+
+    /**
+     * Given a branch's poser, whether it is certain that no candidate on the
+     * branch passes `met` (a certified lower bound of the requested term's
+     * miss above its tolerance at every swivel). Where every branch is so
+     * certified, a cold fit skips the pole start, whose result `met` would
+     * refuse, and the sweep decides at once; omitted, nothing is certified.
+     */
+    unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
+
+    /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
+    direct?: boolean;
+
+    /**
+     * The positive width of the buckets two deviations are one in, the unit of
+     * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
+     * are compared exactly and `tiebreak` is not read.
+     */
+    tie?: number;
+
+    /**
+     * Certified global lower bounds of every actual score in this solve;
+     * omission keeps the complete search. With no second key, only the original
+     * first coarse candidate may stop early after both keys equal these bounds
+     * exactly. The score and all raw inputs must already be admitted; this is
+     * a mathematical certificate, not a reach or convergence tolerance.
+     */
+    minimum?: { overshoot: number; deviation: number };
+
+    /** Exact source/target geometry of this same unchanged chain, point and hinge range. */
+    prepared?: hingedArmSwivel.IPreparedTarget;
+  }
+}

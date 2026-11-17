@@ -1,13 +1,17 @@
-import type { AutoMovieConstructionSeed } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSeed,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 
 /**
@@ -57,13 +61,13 @@ export namespace AutoMovieConstructionSeeds {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Interior/ordered station arrays and current numerical jets have call lifetime; only the selected seed's chart scalars/face index or error string is returned.
    */
   export function create(
-    seed: AutoMovieConstructionSeed,
+    seed: IAutoMovieConstructionSeed,
     part: IAutoMovieSolidSurface,
     layers: readonly number[],
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
-  ): AutoMovieSolidIntersection.IInput["seed"] | string {
+  ): IAutoMovieSolidIntersection.IInput["seed"] | string {
     const S: number = AutoMovieConstructionViews.SCALE;
     if (seed.type === "point")
       return {
@@ -99,7 +103,7 @@ export namespace AutoMovieConstructionSeeds {
     const b: number = first + seed.to * (last - first);
     let starts: number = 0;
     for (const phase of phases) {
-      const found: AutoMovieSolidIntersection.IInput["seed"] | number = along(
+      const found: IAutoMovieSolidIntersection.IInput["seed"] | number = along(
         a,
         b,
         phase,
@@ -132,7 +136,7 @@ export namespace AutoMovieConstructionSeeds {
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
-  ): AutoMovieSolidIntersection.IInput["seed"] | number {
+  ): IAutoMovieSolidIntersection.IInput["seed"] | number {
     const low: number = Math.min(a, b);
     const high: number = Math.max(a, b);
     const inside: number[] = layers.filter(
@@ -152,7 +156,7 @@ export namespace AutoMovieConstructionSeeds {
       const p: Vec3 = at.p;
       const start: [number, number] = guess ?? nearest(host, p);
       let initial: [number, number] = start;
-      let foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
+      let foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
         host,
         p,
         start,

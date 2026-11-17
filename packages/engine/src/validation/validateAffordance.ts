@@ -1,7 +1,10 @@
-import { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
-import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
@@ -42,11 +45,11 @@ const DIMENSIONS: readonly (
 export const validateAffordance: (
   affordance: IAutoMovieAffordance,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   affordance: IAutoMovieAffordance,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   collectNonEmptyId(affordance.id, `${path}.id`, "affordance id", collector);
   validateTransformScalars({

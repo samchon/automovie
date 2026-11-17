@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieSwivelArcs,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -170,12 +173,12 @@ export namespace distalTwistSwivelRange {
     ];
     const fit = (
       pick: (v: IAutoMovieVector3) => number,
-    ): swivelArcs.ISinusoid =>
+    ): IAutoMovieSwivelArcs.ISinusoid =>
       swivelArcs.fitted(pick(zero), pick(quarter), pick(half));
-    const onX: swivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.x);
-    const onY: swivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.y);
-    const onZ: swivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.z);
-    const along = (n: IAutoMovieVector3): swivelArcs.ISinusoid => ({
+    const onX: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.x);
+    const onY: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.y);
+    const onZ: IAutoMovieSwivelArcs.ISinusoid = fit((v: IAutoMovieVector3): number => v.z);
+    const along = (n: IAutoMovieVector3): IAutoMovieSwivelArcs.ISinusoid => ({
       a: n.x * onX.a + n.y * onY.a + n.z * onZ.a,
       b: n.x * onX.b + n.y * onY.b + n.z * onZ.b,
       c: n.x * onX.c + n.y * onY.c + n.z * onZ.c,
@@ -202,7 +205,7 @@ export namespace distalTwistSwivelRange {
         Vector3.scale(u, Vector3.dot(props.normal, u)),
       ),
     );
-    const onAxis: swivelArcs.ISinusoid = along(u);
+    const onAxis: IAutoMovieSwivelArcs.ISinusoid = along(u);
     const level = (height: number): void => {
       for (const sign of [1, -1])
         breaks.push(
@@ -251,7 +254,7 @@ export namespace distalTwistSwivelRange {
           const swivel: number = (low + high) / 2;
           const cos: number = Math.cos(swivel * D);
           const sin: number = Math.sin(swivel * D);
-          const value = (f: swivelArcs.ISinusoid): number =>
+          const value = (f: IAutoMovieSwivelArcs.ISinusoid): number =>
             f.a + f.b * cos + f.c * sin;
           const x: IAutoMovieVector3 = {
             x: value(onX),
@@ -276,7 +279,7 @@ export namespace distalTwistSwivelRange {
       admits: (swivel: number): boolean => {
         const cos: number = Math.cos(swivel * D);
         const sin: number = Math.sin(swivel * D);
-        const value = (f: swivelArcs.ISinusoid): number =>
+        const value = (f: IAutoMovieSwivelArcs.ISinusoid): number =>
           f.a + f.b * cos + f.c * sin;
         const x: IAutoMovieVector3 = {
           x: value(onX),

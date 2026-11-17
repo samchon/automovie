@@ -1,8 +1,10 @@
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanMutual,
+} from "@automovie/interface";
 
 import { getUp } from "../floor/getUp";
-import type { IHumanMutual } from "../law/IHumanMutual";
-import type { HumanCarried } from "./HumanCarried";
 
 /**
  * The two-body compositions of #3440: carries with their lift and set-down,
@@ -50,33 +52,18 @@ import type { HumanCarried } from "./HumanCarried";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
-  /** The shared parameters of a carry. */
-  export interface ICarry {
-    /** The carry; `piggyback` when absent. */
-    carry?: HumanCarried.Carry;
-
-    /** Seconds carried; the laws' own when absent. */
-    seconds?: number;
-
-    /** Seconds of the lift into the carry; none when absent. */
-    lift?: number;
-
-    /** Seconds of the set-down; none when absent. */
-    setDown?: number;
-
-    /** Kilograms the borne person carries besides their body; none when absent. */
-    mass?: number;
-  }
-
   /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. */
-  export const carry: IHumanMutual<ICarry, "bearer" | "borne"> = {
+  export const carry: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.ICarry,
+    "bearer" | "borne"
+  > = {
     name: "carry",
     roles: ["bearer", "borne"],
     act: (
       role: "bearer" | "borne",
-      params: ICarry,
+      params: IAutoMovieMotionHumanCoupled.ICarry,
       cast: Readonly<Record<"bearer" | "borne", string>>,
-    ): IHumanMutual.IAct => {
+    ): IAutoMovieMotionHumanMutual.IAct => {
       const shared: object = {
         ...(params?.carry === undefined ? {} : { carry: params.carry }),
         ...(params?.seconds === undefined ? {} : { seconds: params.seconds }),
@@ -98,12 +85,6 @@ export namespace HumanCoupled {
     },
   };
 
-  /** The shared parameters of helping someone up from the floor. */
-  export interface IHelpUp {
-    /** The hand both hold by, the helper's and the helped's alike, as a handshake takes them; `right` when absent. */
-    hand?: "left" | "right";
-  }
-
   /**
    * Help someone up from the floor: both perform `support` (#3435). The
    * helper, from the squat, grips the helped person's wrist where it lies; the
@@ -111,14 +92,17 @@ export namespace HumanCoupled {
    * that hand gripping the helper's palm, which bears on the helper while
    * the hand holds and lets go once the feet bear alone.
    */
-  export const helpUp: IHumanMutual<IHelpUp, "helper" | "helped"> = {
+  export const helpUp: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.IHelpUp,
+    "helper" | "helped"
+  > = {
     name: "helpUp",
     roles: ["helper", "helped"],
     act: (
       role: "helper" | "helped",
-      params: IHelpUp,
+      params: IAutoMovieMotionHumanCoupled.IHelpUp,
       cast: Readonly<Record<"helper" | "helped", string>>,
-    ): IHumanMutual.IAct => {
+    ): IAutoMovieMotionHumanMutual.IAct => {
       const side: "left" | "right" = params?.hand ?? "right";
       const part: "leftHand" | "rightHand" =
         side === "left" ? "leftHand" : "rightHand";
@@ -176,24 +160,18 @@ export namespace HumanCoupled {
     },
   };
 
-  /** The shared parameters of a walk between two helpers. */
-  export interface ISupportWalk {
-    /** Seconds supported; the laws' own when absent. */
-    seconds?: number;
-  }
-
   /** One person walked between two helpers: each helper `bearing` on its side of a supported walk, the helped person `borne` on both. */
-  export const supportWalk: IHumanMutual<
-    ISupportWalk,
+  export const supportWalk: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.ISupportWalk,
     "helper" | "second" | "helped"
   > = {
     name: "supportWalk",
     roles: ["helper", "second", "helped"],
     act: (
       role: "helper" | "second" | "helped",
-      params: ISupportWalk,
+      params: IAutoMovieMotionHumanCoupled.ISupportWalk,
       cast: Readonly<Record<"helper" | "second" | "helped", string>>,
-    ): IHumanMutual.IAct => {
+    ): IAutoMovieMotionHumanMutual.IAct => {
       const seconds: object =
         params?.seconds === undefined ? {} : { seconds: params.seconds };
       return role === "helped"
@@ -218,11 +196,10 @@ export namespace HumanCoupled {
     },
   };
 
-  /** A throw or a takedown by its common name. */
-  export type Throw = "seoiNage" | "oGoshi" | "oSotoGari" | "singleLeg";
-
   /** The thrower's region each throw turns the thrown body over. */
-  export const FULCRUMS: Readonly<Record<Throw, AutoMovieHumanoidRegion>> = {
+  export const FULCRUMS: Readonly<
+    Record<IAutoMovieMotionHumanCoupled.Throw, AutoMovieHumanoidRegion>
+  > = {
     seoiNage: "upperBack",
     oGoshi: "lowerBack",
     oSotoGari: "thighOuterRight",
@@ -232,27 +209,18 @@ export namespace HumanCoupled {
   /** The thrown body's region that lies on the fulcrum: the front of the trunk, as a hip or a shoulder throw loads it. */
   export const ON: AutoMovieHumanoidRegion = "abdomen";
 
-  /** The shared parameters of a throw. */
-  export interface IThrow {
-    /** The throw; `seoiNage` when absent. */
-    kind?: Throw;
-
-    /** The author's outcome: thrown, resisted or yielded; `thrown` when absent. */
-    outcome?: "thrown" | "resist" | "yield";
-
-    /** Seconds the thrower holds the grip; the clinch's own when absent. */
-    hold?: number;
-  }
-
   /** One person throws another: the thrower grips (`clinch`), the thrown answers the pull (`perturb`). */
-  export const throwing: IHumanMutual<IThrow, "thrower" | "thrown"> = {
+  export const throwing: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.IThrow,
+    "thrower" | "thrown"
+  > = {
     name: "throw",
     roles: ["thrower", "thrown"],
     act: (
       role: "thrower" | "thrown",
-      params: IThrow,
+      params: IAutoMovieMotionHumanCoupled.IThrow,
       cast: Readonly<Record<"thrower" | "thrown", string>>,
-    ): IHumanMutual.IAct =>
+    ): IAutoMovieMotionHumanMutual.IAct =>
       role === "thrower"
         ? {
             name: "clinch",

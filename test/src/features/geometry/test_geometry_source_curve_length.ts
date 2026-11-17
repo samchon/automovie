@@ -1,9 +1,13 @@
 import {
   AutoMovieViewOutline,
-  type IAutoMovieCurve64 as C,
   measureAutoMovieCubicCurveLength64,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -38,7 +42,11 @@ export function test_geometry_source_curve_length(): void {
       ].map(
         (domain: number[]): Piece => ({
           domain: [domain[0]!, domain[1]!],
-          derivative: (): C.Vector => [3 * sign * scale, 4 * scale, 12 * scale],
+          derivative: (): Readonly<AutoMovieVector3Tuple> => [
+            3 * sign * scale,
+            4 * scale,
+            12 * scale,
+          ],
         }),
       );
       near(
@@ -50,7 +58,7 @@ export function test_geometry_source_curve_length(): void {
       );
       const helix: Piece = {
         domain: [-0.7, 1.2],
-        derivative: (t: number): C.Vector => [
+        derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
           2 * scale * 1.7 * Math.cos(1.7 * t),
           -3 * scale,
           -sign * 2 * scale * 1.7 * Math.sin(1.7 * t),
@@ -70,7 +78,7 @@ export function test_geometry_source_curve_length(): void {
       ].map(
         (domain: number[]): Piece => ({
           domain: [domain[0]!, domain[1]!],
-          derivative: (p: number): C.Vector => {
+          derivative: (p: number): Readonly<AutoMovieVector3Tuple> => {
             const t: number = sign > 0 ? (p - 5) / 3 : (8 - p) / 3;
             return [
               (sign * scale * (1 - t * t - t ** 4)) / 3,
@@ -95,7 +103,7 @@ export function test_geometry_source_curve_length(): void {
   ].map(
     (domain: number[]): Piece => ({
       domain: [domain[0]!, domain[1]!],
-      derivative: (t: number): C.Vector => [1, 2 * t, 0],
+      derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [1, 2 * t, 0],
     }),
   );
   const parabolaLength: number = 1.5 * Math.sqrt(37) + Math.asinh(6) / 4;
@@ -117,14 +125,15 @@ export function test_geometry_source_curve_length(): void {
   }
 
   // These are the original public source jets, including a named-height chain rule.
-  const natural: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      knots: [
-        { site: "start", station: 0, value: 0 },
-        { site: "turn", station: 1, value: 1 },
-        { site: "end", station: 2, value: 0 },
-      ],
-    });
+  const natural:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    knots: [
+      { site: "start", station: 0, value: 0 },
+      { site: "turn", station: 1, value: 1 },
+      { site: "end", station: 2, value: 0 },
+    ],
+  });
   if ("detail" in natural) failures.push(natural.detail);
   else {
     const before: string = JSON.stringify(natural);
@@ -134,8 +143,8 @@ export function test_geometry_source_curve_length(): void {
     ].map(
       (domain: number[]): Piece => ({
         domain: [domain[0]!, domain[1]!],
-        derivative: (t: number): C.Vector => {
-          const r: AutoMovieViewOutline.IReading | string =
+        derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
+          const r: IAutoMovieViewOutline.IReading | string =
             AutoMovieViewOutline.at(natural, t);
           if (typeof r === "string" || r.stationJet === null)
             throw new Error("Unavailable original natural derivative");
@@ -160,24 +169,25 @@ export function test_geometry_source_curve_length(): void {
       JSON.stringify(natural) === before,
     );
   }
-  const height: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      knots: [
-        {
-          site: "height start",
-          station: 0,
-          value: 0,
-          jet: { first: 0, second: 0 },
-        },
-        {
-          site: "height end",
-          station: 1,
-          value: 1,
-          jet: { first: 0, second: 0 },
-        },
-      ],
-    });
-  const axis: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const height:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    knots: [
+      {
+        site: "height start",
+        station: 0,
+        value: 0,
+        jet: { first: 0, second: 0 },
+      },
+      {
+        site: "height end",
+        station: 1,
+        value: 1,
+        jet: { first: 0, second: 0 },
+      },
+    ],
+  });
+  const axis: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "axis start", station: 0, value: 0 },
@@ -190,12 +200,12 @@ export function test_geometry_source_curve_length(): void {
     const before: string = JSON.stringify([height, axis]);
     const course: Piece = {
       domain: [0, 1],
-      derivative: (t: number): C.Vector => {
-        const y: AutoMovieViewOutline.IReading | string =
+      derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
+        const y: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(height, t);
         if (typeof y === "string" || y.stationJet === null)
           throw new Error("Unavailable named-height derivative");
-        const x: AutoMovieViewOutline.IReading | string =
+        const x: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(axis, y.value);
         if (typeof x === "string" || x.stationJet === null)
           throw new Error("Unavailable axis derivative");
@@ -217,13 +227,16 @@ export function test_geometry_source_curve_length(): void {
   }
   const zero: ReturnType<typeof measureAutoMovieCurveLength64> =
     measureAutoMovieCurveLength64([
-      { domain: [-1, 1], derivative: (): C.Vector => [0, 0, 0] },
+      {
+        domain: [-1, 1],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 0, 0],
+      },
     ]);
   near(failures, "finite zero-speed length", zero.lengthMm, 0, 0);
   near(failures, "finite zero-speed difference", zero.differenceMm, 0, 0);
 
   // Bernstein PH speed is1+t²; the second span is a3mm line in a different chart width.
-  const cubic: C.Cubic = {
+  const cubic: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "original PH and line",
     closed: false,
@@ -261,9 +274,16 @@ export function test_geometry_source_curve_length(): void {
         [
           {
             domain: [0, 1],
-            derivative: (t: number): C.Vector => [1 - t * t, 2 * t, 0],
+            derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
+              1 - t * t,
+              2 * t,
+              0,
+            ],
           },
-          { domain: [4, 5], derivative: (): C.Vector => [0, 3, 0] },
+          {
+            domain: [4, 5],
+            derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 3, 0],
+          },
         ],
         count,
       );
@@ -288,7 +308,7 @@ export function test_geometry_source_curve_length(): void {
 
   // Legacy finite-final admission is distinct from strict source endpoint/underflow admission.
   const large: number = (Number.MAX_VALUE / 3) * 1.01;
-  const extreme: C.Cubic = {
+  const extreme: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "finite final endpoint overflow",
     closed: false,
@@ -323,7 +343,7 @@ export function test_geometry_source_curve_length(): void {
       measureAutoMovieCurveLength64([
         {
           domain: [0, 1],
-          derivative: (t: number): C.Vector => [
+          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
             3 * ((1 - t) * (1 - t) * large),
             0,
             0,
@@ -343,7 +363,7 @@ export function test_geometry_source_curve_length(): void {
     oldMessage === "Cubic speed integration overflow",
   );
   const tiny: number = Number.MIN_VALUE;
-  const subnormal: C.Cubic = {
+  const subnormal: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "legacy subnormal rounding",
     closed: false,
@@ -384,7 +404,7 @@ export function test_geometry_source_curve_length(): void {
       [
         {
           domain: [2, 3],
-          derivative: (t: number): C.Vector => {
+          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
             ++reads;
             outside ||= t < 2 || t > 3;
             return [1, 0, 0];
@@ -399,7 +419,11 @@ export function test_geometry_source_curve_length(): void {
     "closed-domain evaluation budget",
     reads === 24 * 1024 + 2 && !outside,
   );
-  const constant: (t: number) => C.Vector = (): C.Vector => [1, 0, 0];
+  const constant: (
+    t: number,
+  ) => Readonly<AutoMovieVector3Tuple> = (): Readonly<AutoMovieVector3Tuple> => [
+    1, 0, 0,
+  ];
   refuses(failures, "empty pieces", (): unknown =>
     measureAutoMovieCurveLength64([]),
   );
@@ -430,7 +454,11 @@ export function test_geometry_source_curve_length(): void {
       measureAutoMovieCurveLength64([
         {
           domain: [0, 1],
-          derivative: (t: number): C.Vector => [t === endpoint ? NaN : 1, 0, 0],
+          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
+            t === endpoint ? NaN : 1,
+            0,
+            0,
+          ],
         },
       ]),
     );
@@ -438,7 +466,7 @@ export function test_geometry_source_curve_length(): void {
     measureAutoMovieCurveLength64([
       {
         domain: [0, 1],
-        derivative: (t: number): C.Vector => [
+        derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
           t === 0 || t === 1 ? 1 : Infinity,
           0,
           0,
@@ -450,7 +478,7 @@ export function test_geometry_source_curve_length(): void {
     measureAutoMovieCurveLength64([
       {
         domain: [0, 1],
-        derivative: (): C.Vector => [
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [
           Number.MAX_VALUE,
           Number.MAX_VALUE,
           Number.MAX_VALUE,
@@ -460,12 +488,24 @@ export function test_geometry_source_curve_length(): void {
   );
   refuses(failures, "unrepresentable length", (): unknown =>
     measureAutoMovieCurveLength64([
-      { domain: [0, 4], derivative: (): C.Vector => [1e308, 1e308, 1e308] },
+      {
+        domain: [0, 4],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [
+          1e308, 1e308, 1e308,
+        ],
+      },
     ]),
   );
   refuses(failures, "underflowing contribution", (): unknown =>
     measureAutoMovieCurveLength64([
-      { domain: [0, 1], derivative: (): C.Vector => [Number.MIN_VALUE, 0, 0] },
+      {
+        domain: [0, 1],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [
+          Number.MIN_VALUE,
+          0,
+          0,
+        ],
+      },
     ]),
   );
   const marker: Error = new Error("original source failure");
@@ -474,7 +514,7 @@ export function test_geometry_source_curve_length(): void {
     measureAutoMovieCurveLength64([
       {
         domain: [0, 1],
-        derivative: (): C.Vector => {
+        derivative: (): Readonly<AutoMovieVector3Tuple> => {
           throw marker;
         },
       },

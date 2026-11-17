@@ -1,4 +1,7 @@
-import type { IAutoMoviePlanarPoint } from "@automovie/interface";
+import type {
+  IAutoMoviePlanarPoint,
+  IAutoMoviePlanarRegionFailure,
+} from "@automovie/interface";
 
 import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 import { planarCross } from "./planarCross";
@@ -37,11 +40,9 @@ import { signedArea } from "./signedArea";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure validation of the rings passed in; callers validate each region once, and portrait skin reservation calls it per candidate loop because each loop differs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one array of ring labels and one of rings per call and releases both on return; the caller's rings are only read.
  */
-export const autoMoviePlanarRegionFailure = (props: {
-  outer: readonly IAutoMoviePlanarPoint[];
-  holes?: ReadonlyArray<readonly IAutoMoviePlanarPoint[]>;
-  label?: string;
-}): string | null => {
+export const autoMoviePlanarRegionFailure = (
+  props: IAutoMoviePlanarRegionFailure.IProps,
+): string | null => {
   const label: string = props.label ?? "polygon";
   const holes: ReadonlyArray<readonly IAutoMoviePlanarPoint[]> =
     props.holes ?? [];

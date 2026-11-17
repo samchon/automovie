@@ -1,7 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
 /**
@@ -21,9 +21,9 @@ import type {
  */
 export function motionHandleShapes(
   affordances: readonly IAutoMovieAffordance[],
-): IAutoMoviePhysicalProfile.IShape[] {
+): IAutoMoviePhysicalShape[] {
   return affordances.flatMap(
-    (a: IAutoMovieAffordance): IAutoMoviePhysicalProfile.IShape[] =>
+    (a: IAutoMovieAffordance): IAutoMoviePhysicalShape[] =>
       a.radius === undefined
         ? []
         : [

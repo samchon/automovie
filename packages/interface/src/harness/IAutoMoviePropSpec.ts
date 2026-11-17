@@ -1,6 +1,6 @@
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { IAutoMoviePropArticulation } from "./IAutoMoviePropArticulation";
-import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMoviePropArticulation } from "./IAutoMoviePropArticulation";
+import type { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
 
 /**
  * One authored prop: a primitive proxy whose meaning is stated as data. The geometry stays simple parts, while the physics body ({@link IAutoMovieModel.body}), the contact points ({@link IAutoMovieModel.affordances}), the articulation and the placement carry what the engine validates and simulates.

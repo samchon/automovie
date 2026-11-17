@@ -1,21 +1,22 @@
 import {
+  type IAutoMovieBallisticSolution,
   IAutoMovieClip,
+  type IAutoMovieCompileLaunch,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
+  type IAutoMovieLaunchResult,
+  type IAutoMovieProjectile,
+  type IAutoMovieProjectileState,
   IAutoMovieReactAction,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
-import { IAutoMovieBallisticSolution } from "../physics/IAutoMovieBallisticSolution";
-import { IAutoMovieProjectile } from "../physics/IAutoMovieProjectile";
-import { IAutoMovieProjectileState } from "../physics/IAutoMovieProjectileState";
 import { projectileAt } from "../physics/projectileAt";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { solveBallisticLaunch } from "../physics/solveBallisticLaunch";
 import { solveMovingLaunch } from "../physics/solveMovingLaunch";
-import { IAutoMovieLaunchResult } from "./IAutoMovieLaunchResult";
 import { eventTimeKey } from "./eventTimeKey";
 
 /** The default fall the launch solves against: standard gravity, world −Y. */
@@ -48,35 +49,9 @@ function firstActor(action: IAutoMovieLaunchAction): string | null {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
-export function compileLaunch(props: {
-  /** The launch to compile: its `projectile`, `speed`, `onHit` and `start`. */
-  action: IAutoMovieLaunchAction;
-
-  /** Where the projectile launches from, in world metres. */
-  origin: IAutoMovieVector3;
-
-  /** The struck target's world point, where a static aim lands. */
-  target: IAutoMovieVector3;
-
-  /**
-   * The struck scene node, the emitted `react`'s actor, or null when the aim is a point or group with no single actor to recoil. A null value supports flight and contact without `onHit`; requesting `onHit` without a non-blank target node throws.
-   */
-  targetNode: string | null;
-
-  /**
-   * The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`.
-   */
-  targetAt?: (t: number) => IAutoMovieVector3;
-
-  /** Constant acceleration in m/s²; defaults to standard gravity along world −Y (`AutoMovieGravity.DOWN`). */
-  gravity?: IAutoMovieVector3;
-
-  /** A flat `direct` shot, the default, or a lobbed `high` arc. */
-  arc?: "direct" | "high";
-
-  /** Samples per second of the baked flight clip; defaults to 30. */
-  fps?: number;
-}): IAutoMovieLaunchResult | null {
+export function compileLaunch(
+  props: IAutoMovieCompileLaunch.IProps,
+): IAutoMovieLaunchResult | null {
   const action: IAutoMovieLaunchAction = props.action;
   if (
     action.onHit !== undefined &&

@@ -1,10 +1,10 @@
 import { equalProductionFrameRates } from "@automovie/engine";
 import type {
+  IAutoMovieAssertProductionVideoProfileProps,
   IAutoMovieProductionFrameRate,
   IAutoMovieProductionVideoProbe,
+  IAutoMovieProductionVideoProfile,
 } from "@automovie/interface";
-
-import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile.js";
 
 /**
  * Refuse every presentation, timing or color fact of a probed H.264-in-MP4
@@ -30,16 +30,9 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call judges one probe of one file, and the several callers check different files or the same file after it changed, so no earlier verdict is equivalent.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The comparison list is the only allocation and dies with the call; the function opens no file, process or task.
  */
-export const assertProductionVideoProfile: (props: {
-  expected: IAutoMovieProductionVideoProfile;
-  actual: IAutoMovieProductionVideoProbe;
-}) => void = (props: {
-  /** Profile resolved from the deliverable's authored raster and rate. */
-  expected: IAutoMovieProductionVideoProfile;
-
-  /** Facts the MP4 probe observed in the file. */
-  actual: IAutoMovieProductionVideoProbe;
-}): void => {
+export const assertProductionVideoProfile: (
+  props: IAutoMovieAssertProductionVideoProfileProps,
+) => void = (props: IAutoMovieAssertProductionVideoProfileProps): void => {
   const expected: IAutoMovieProductionVideoProfile = props.expected;
   const actual: IAutoMovieProductionVideoProbe = props.actual;
   const clockValid: boolean =

@@ -3,6 +3,10 @@ import {
   AutoMovieLoftSectionNative,
   AutoMovieViewSection,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadSectionConstraints,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /**
  * Independent named head points constrain the original section that owns them.
@@ -18,9 +22,6 @@ import {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned scalars survive; there is no global source cache.
  */
 export namespace AutoMovieHumanHeadSectionConstraints {
-  /** Four signed-guide magnitudes, front/left/back/right, calibration mm. */
-  type Extents = [number, number, number, number];
-
   /**
    * Lateral extent that puts a named point at its supplied half breadth.
    * The fixed forward coordinate is relative to the actual section origin.
@@ -34,8 +35,8 @@ export namespace AutoMovieHumanHeadSectionConstraints {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary section records are invocation-local.
    */
   export function lateral(
-    extents: Extents,
-    shoulders: Extents,
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
+    shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
     forward: number,
     half: number,
   ): number {
@@ -105,7 +106,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar; local closures and section records are released with the call.
    */
   export function frontal(
-    extents: Extents,
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
     posterior: number,
     forward: number,
     half: number,
@@ -167,13 +168,17 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   }
 
   /** Radius of the engine-owned original section; no validity fallback changes its shape. */
-  function radius(extents: Extents, shoulders: Extents, angle: number): number {
+  function radius(
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
+    shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
+    angle: number,
+  ): number {
     const value: number = AutoMovieLoftSectionNative.value({
       extents,
       shoulders,
     })(angle);
     if (!(Number.isFinite(value) && value > 0)) {
-      const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+      const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
         { extents },
         shoulders,
       );
@@ -185,7 +190,10 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   }
 
   /** Basic finite input bounds only. Actual positive curvature, representable G2 end domains and convexity remain separate engine premises; these bounds do not prove residual continuity. */
-  function admit(extents: Extents, shoulders: Extents): void {
+  function admit(
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
+    shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
+  ): void {
     if (
       !extents.every(
         (value: number): boolean => Number.isFinite(value) && value > 0,

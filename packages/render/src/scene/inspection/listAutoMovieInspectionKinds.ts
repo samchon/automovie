@@ -1,8 +1,9 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionKind,
+  IAutoMovieListInspectionKindsProps,
+} from "@automovie/interface";
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionKind } from "./IAutoMovieInspectionKind.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
 
 /**
  * List the mark kinds a request's `marks` patterns may name for a set of supplied marks: what a picture can draw, each with its label and default colour.
@@ -19,13 +20,9 @@ import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
-export function listAutoMovieInspectionKinds(props: {
-  /** The request's sliver limit and trail patterns, which decide the conditional kinds. */
-  request: Pick<IAutoMovieInspectionRequest, "sliver" | "trail">;
-
-  /** The marks the subject supplies. */
-  marks: readonly IAutoMovieMark[];
-}): IAutoMovieInspectionKind[] {
+export function listAutoMovieInspectionKinds(
+  props: IAutoMovieListInspectionKindsProps,
+): IAutoMovieInspectionKind[] {
   const kinds: Map<string, IAutoMovieInspectionKind> = new Map<
     string,
     IAutoMovieInspectionKind

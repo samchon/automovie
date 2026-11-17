@@ -1,9 +1,11 @@
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootGuide,
+  IAutoMovieHumanFootWebLine,
+} from "@automovie/interface";
 
-type Vec3 = G.Vec3;
+import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 
 /**
  * The lateral border over the forefoot: the fifth metatarsal's side from the web ring back to the cuboid, the greatest across point of each of the fan's own section planes from the web ring to half of the stations (shares 0 to 0.5). Own centre: the fifth metatarsal head; the border runs close to the floor here (3 to 6 percent of the foot's length).
@@ -16,7 +18,10 @@ export namespace AutoMovieHumanFootLateralForefoot {
    * @param frame The foot's frame.
    * @param line The web line.
    */
-  export function knots(frame: AutoMovieHumanFootFrame.IFrame, line: AutoMovieHumanFootWebLine.IWebLine): Vec3[] {
+  export function knots(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): AutoMovieVector3Tuple[] {
     return AutoMovieHumanFootGuide.fanned(frame, line, KNOTS);
   }
 
@@ -27,7 +32,7 @@ export namespace AutoMovieHumanFootLateralForefoot {
 }
 
 /** The region's knots, [share, a, u, y / L, y / H]. Reference median, awaiting a published value. */
-const KNOTS: readonly AutoMovieHumanFootGuide.IFanKnot[] = [
+const KNOTS: readonly IAutoMovieHumanFootGuide.IFanKnot[] = [
   [0, 0.6803, 0.9882, 0.0345, 0.1218],
   [0.05, 0.6435, 0.999, 0.0367, 0.1294],
   [0.1, 0.6117, 0.9968, 0.0409, 0.1436],

@@ -1,8 +1,12 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPreshape,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
@@ -44,23 +48,23 @@ export namespace HumanPreshape {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original fresh chosen joint/scalar data and releases the synchronous aperture workspace on return/throw. No borrowed endpoint coefficient snapshot, body pose, sampled history or external handle escapes.
    */
   export function open(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    closed: IHumanPosture["joints"],
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    closed: IAutoMovieMotionHumanPosture["joints"],
     width: number,
-  ): { joints: IHumanPosture["joints"]; aperture: number } {
+  ): IAutoMovieMotionHumanPreshape.IOpenResult {
     const want: number = HumanPrehension.aperture(width);
-    const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const aperture: ReturnType<typeof HumanGrip.prepareAperture> =
       HumanGrip.prepareAperture(body, side);
-    const blend: (weight: number) => IHumanPosture["joints"] = (weight: number): IHumanPosture["joints"] =>
+    const blend: (weight: number) => IAutoMovieMotionHumanPosture["joints"] = (weight: number): IAutoMovieMotionHumanPosture["joints"] =>
       prepareHumanShapeBlend.cold(closed, flat, weight);
-    const solve: (shape: (x: number) => IHumanPosture["joints"], hi: number) => {
-      joints: IHumanPosture["joints"]; aperture: number;
+    const solve: (shape: (x: number) => IAutoMovieMotionHumanPosture["joints"], hi: number) => {
+      joints: IAutoMovieMotionHumanPosture["joints"]; aperture: number;
     } = (
-      shape: (x: number) => IHumanPosture["joints"],
+      shape: (x: number) => IAutoMovieMotionHumanPosture["joints"],
       hi: number,
-    ): { joints: IHumanPosture["joints"]; aperture: number } => {
+    ): { joints: IAutoMovieMotionHumanPosture["joints"]; aperture: number } => {
       let lo: number = 0;
       let top: number = hi;
       if (aperture(shape(top)) <= want)
@@ -81,9 +85,9 @@ export namespace HumanPreshape {
     // whichever sense widens the span.
     const thumb: AutoMovieHumanoidBone =
       `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
-    const abducted: (sense: number) => (x: number) => IHumanPosture["joints"] =
+    const abducted: (sense: number) => (x: number) => IAutoMovieMotionHumanPosture["joints"] =
       (sense: number) =>
-      (x: number): IHumanPosture["joints"] => ({
+      (x: number): IAutoMovieMotionHumanPosture["joints"] => ({
         ...flat,
         [thumb]: [0, sense * 60 * x, 0] as const,
       });

@@ -2,26 +2,29 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieConstraintViolation,
+  type IAutoMovieHumanoidRetargetProps,
+  type IAutoMovieHumanoidRetargetResult,
+  type IAutoMovieHumanoidRigCharacterization,
   IAutoMovieJointAxes,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieProfileBinding,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
+  type IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateMotion } from "../validation/validateMotion";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
-import { IAutoMovieHumanoidRetargetProps } from "./IAutoMovieHumanoidRetargetProps";
-import { IAutoMovieHumanoidRetargetResult } from "./IAutoMovieHumanoidRetargetResult";
-import { IAutoMovieHumanoidRigCharacterization } from "./IAutoMovieHumanoidRigCharacterization";
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
 import { validateRetargetContacts } from "./validateRetargetContacts";
 
@@ -43,10 +46,10 @@ export const retargetHumanoidMotion: (
 ) => IAutoMovieHumanoidRetargetResult = (
   props: IAutoMovieHumanoidRetargetProps,
 ): IAutoMovieHumanoidRetargetResult => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const requiredBones: AutoMovieHumanoidBone[] = collectRequiredBones(props);
 
-  const sourceValidation: ReturnType<typeof validateMotion> = validateMotion({
+  const sourceValidation: IAutoMovieValidation = validateMotion({
     motion: props.motion,
     skeleton: props.source,
   });
@@ -126,10 +129,10 @@ export const retargetHumanoidMotion: (
   );
   validateRetargetContacts(props.contacts, props.motion.duration, collector);
 
-  const sourceSpan: ReturnType<typeof restVerticalSpan> | null = sourceAdmitted
+  const sourceSpan: { floor: number; height: number } | null = sourceAdmitted
     ? restVerticalSpan(props.source)
     : null;
-  const targetSpan: ReturnType<typeof restVerticalSpan> | null = targetAdmitted
+  const targetSpan: { floor: number; height: number } | null = targetAdmitted
     ? restVerticalSpan(props.target)
     : null;
   const sourceHeight: number = sourceSpan?.height ?? Number.NaN;
@@ -213,7 +216,7 @@ export const retargetHumanoidMotion: (
       })
     : scaled;
 
-  const targetValidation: ReturnType<typeof validateMotion> = validateMotion({
+  const targetValidation: IAutoMovieValidation = validateMotion({
     motion,
     skeleton: props.target,
   });
@@ -259,12 +262,12 @@ const validateSkeleton: (
   label: string,
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => boolean = (
   label: string,
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): boolean => {
   const previousFindings: number = collector.items.length;
   const path: string = `$input.${label}`;
@@ -315,12 +318,12 @@ const validateBinding: (
   label: "sourceBinding" | "targetBinding",
   binding: IAutoMovieProfileBinding | undefined,
   requiredBones: readonly AutoMovieHumanoidBone[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   label: "sourceBinding" | "targetBinding",
   binding: IAutoMovieProfileBinding | undefined,
   requiredBones: readonly AutoMovieHumanoidBone[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (binding === undefined) return;
   for (const bone of requiredBones) {
@@ -338,11 +341,11 @@ const validateBinding: (
 const validateAxes: (
   label: "sourceJointAxes" | "targetJointAxes",
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   label: "sourceJointAxes" | "targetJointAxes",
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   for (const [bone, table] of Object.entries(axes) as [
     AutoMovieHumanoidBone,
@@ -358,11 +361,11 @@ const validateAxes: (
 const validateRestFrames: (
   label: "sourceRestFrames" | "targetRestFrames",
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   label: "sourceRestFrames" | "targetRestFrames",
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   for (const [bone, frame] of Object.entries(frames) as [
     AutoMovieHumanoidBone,
@@ -398,7 +401,7 @@ const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => {
   floor: number;
   height: number;
 } = (skeleton: IAutoMovieSkeleton): { floor: number; height: number } => {
-  const resolved: ReturnType<typeof resolvePose> = resolvePose(
+  const resolved: IAutoMovieResolvedBone[] = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
   );

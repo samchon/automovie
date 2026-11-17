@@ -1,4 +1,4 @@
-import { IAutoMovieBone } from "./IAutoMovieBone";
+import type { IAutoMovieBone } from "./IAutoMovieBone";
 
 /**
  * A normalized humanoid skeleton: the rig a pose or motion targets.

@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
@@ -92,8 +94,8 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; the returned arrays are fresh.
  */
 export function HumanQuadraticInterior(
-  problem: Q.IProblem,
-): Q.IState | undefined {
+  problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+): IAutoMovieMotionHumanQuadraticProgram.IState | undefined {
   const s: B.IScaled = Preparation.scaled(problem);
   const { n, m, start, cols, vals, lo, hi, weight }: B.IScaled = s;
 
@@ -258,7 +260,7 @@ export function HumanQuadraticInterior(
     }
     return step;
   };
-  let fair: Q.IState | undefined;
+  let fair: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
 
   // The last step's size against the iterate's, largest components. The
   // residuals alone do not bound the iterate's error where the curvature is
@@ -404,8 +406,8 @@ function unscaled(
   x: Float64Array,
   value: Float64Array,
   lambda: Float64Array,
-): Q.IState {
-  const out: Q.IState = {
+): IAutoMovieMotionHumanQuadraticProgram.IState {
+  const out: IAutoMovieMotionHumanQuadraticProgram.IState = {
     x: new Float64Array(s.n),
     z: new Float64Array(s.m),
     y: new Float64Array(s.m),

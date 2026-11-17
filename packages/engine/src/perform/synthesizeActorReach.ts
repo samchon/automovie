@@ -1,11 +1,14 @@
 import type {
-  IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieMotion,
-  IAutoMoviePose, IAutoMovieVector3,
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { reachPose } from "../kinematics/reachPose";
-import type { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import type { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";
 import { createActorExtendClip } from "./createActorExtendClip";
 import { createActorJabClip } from "./createActorJabClip";

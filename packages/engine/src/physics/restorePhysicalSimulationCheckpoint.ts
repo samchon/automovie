@@ -1,32 +1,37 @@
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
  * Restore the complete native and causal prefix selected by sampled-input equivalence.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Restore the complete native and causal prefix selected by sampled-input equivalence) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Restore the complete native and causal prefix selected by sampled-input equivalence) directly over its typed inputs (`input`, `previous`, `cache`, `start`, `diagnostics`) as 8 sequential passes (for-of over previous.cache.checkpoints; for-of over previous.cache.controllerCheckpoints; for-of over previous.cache.balanceCheckpoints), delegating to `RAPIER.World.restoreSnapshot`, `bytes.slice`, `structuredClone`, `Object.assign`, `Object.values`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 71 lines and 3 top-level statements that reuses `RAPIER.World.restoreSnapshot`, `bytes.slice`, `structuredClone`, `Object.assign`, `Object.values` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 3 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`, `previous`, `cache`, `start`, `diagnostics`; the dominant cost is 8 sequential passes (for-of over previous.cache.checkpoints; for-of over previous.cache.controllerCheckpoints; for-of over previous.cache.balanceCheckpoints), performed once per call with 5 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
+ * The caller selects an equivalent completed cached interval and supplies empty
+ * destination collections. Frames and completed receipts remain borrowed;
+ * snapshot bytes, controller state and diagnostics are copied. A copy failure
+ * leaves a partial destination that the failed run must discard, but acquires
+ * no native world. Successful return transfers the World to the caller to free.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States checkpoint selection, interval indexing, borrowed versus copied records, partial destination failure and native disposal ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation Restores every causal ledger through the selected interval and trims active contact sample prefixes to the controller checkpoint, preventing future samples from entering resumed history.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Prefix copying precedes the final native restore; a fresh run returns a new world directly. Each ledger has one ordered pass.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts checkpointPhysicalSimulation establishes matching snapshot/controller entries and valid prefix counts before this helper. Elementwise append has no JavaScript call-argument limit; the helper does not silently truncate admitted history.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Work is linear in visited frame and ledger populations plus copied byte/state size. Active episodes use a Map for constant-time expected receipt lookup rather than pairwise matching.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the selected native snapshot and causal prefix instead of rerunning those simulation steps; selection and sampled-input equivalence belong to checkpointPhysicalSimulation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All fallible copies finish before native allocation. The returned World transfers immediately to compute's finally cleanup; copied state remains in the supplied cache and diagnostic arrays for that run's lifetime.
  */
 export function restorePhysicalSimulationCheckpoint(
-  input: Simulation.IInput,
-  previous: Simulation | undefined,
-  cache: Cache,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  previous: IAutoMoviePhysicalSimulation | undefined,
+  cache: IAutoMoviePhysicsCache,
   start: number,
-  diagnostics: Simulation.IDiagnostic[],
+  diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
 ): World {
-  let world: World;
   if (start > 0 && previous) {
-    world = RAPIER.World.restoreSnapshot(
-      previous.cache.checkpoints.get(start)!,
-    );
-    cache.frames.push(...previous.cache.frames.slice(0, start + 1));
+    for (let index: number = 0; index <= start; index++)
+      cache.frames.push(previous.cache.frames[index]!);
     for (const [step, bytes] of previous.cache.checkpoints)
       if (step <= start) cache.checkpoints.set(step, bytes.slice());
     for (const [step, state] of previous.cache.controllerCheckpoints)
@@ -44,15 +49,11 @@ export function restorePhysicalSimulationCheckpoint(
     const control: NonNullable<
       ReturnType<typeof cache.controllerCheckpoints.get>
     > = previous.cache.controllerCheckpoints.get(start)!;
-    cache.ownership.push(
-      ...previous.cache.ownership.slice(0, control.ownershipCount ?? 0),
-    );
-    cache.supportWrenches.push(
-      ...previous.cache.supportWrenches.filter(
-        (entry: Cache.ISupportWrench): boolean =>
-          entry.seconds <= start / input.rate,
-      ),
-    );
+    for (let index: number = 0; index < (control.ownershipCount ?? 0); index++)
+      cache.ownership.push(previous.cache.ownership[index]!);
+    for (const entry of previous.cache.supportWrenches)
+      if (entry.seconds <= start / input.rate)
+        cache.supportWrenches.push(entry);
     const episodes: Map<string, (typeof control.episodes)[number]> = new Map(
       control.episodes.map(
         (
@@ -78,16 +79,13 @@ export function restorePhysicalSimulationCheckpoint(
           : receipt,
       );
     }
-    diagnostics.push(
-      ...structuredClone(
-        previous.tracking.filter(
-          (entry: (typeof previous.tracking)[number]): boolean =>
-            entry.seconds <= start / input.rate,
-        ),
-      ),
-    );
-  } else {
-    world = new RAPIER.World(input.gravity);
+    for (const entry of previous.tracking)
+      if (entry.seconds <= start / input.rate)
+        diagnostics.push(structuredClone(entry));
+
+    // Finish every fallible prefix copy before acquiring the native world.
+    // The caller receives sole disposal ownership immediately on return.
+    return RAPIER.World.restoreSnapshot(previous.cache.checkpoints.get(start)!);
   }
-  return world;
+  return new RAPIER.World(input.gravity);
 }

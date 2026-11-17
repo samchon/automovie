@@ -1,4 +1,4 @@
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
  * Complete render metric population with a numeric preflight total or explicit absence of measurement.

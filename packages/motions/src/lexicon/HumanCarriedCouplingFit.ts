@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   getConstraint,
@@ -9,21 +8,25 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAngleRange,
-  IAutoMovieQuaternion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingFit,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The key pose of a coupled carry placed on its bearer (#3437): the
@@ -38,34 +41,6 @@ import { readHumanBone } from "../body/readHumanBone";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The resting contact is never traded for the holds.
  */
 export namespace HumanCarriedCouplingFit {
-  /**
-   * The key pose's placement on the bearer: the bearer's stance, the borne
-   * legs, the turn and where it puts a point of the key pose at the origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members and their frames.
-   * @evidence contracts/development/design.md#principled-representation A rigid map as its turn and its point map, so callers place any point the same way, with the two postures it maps between.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The stance, the legs, the turn and the point map.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point map keeps the resting contact exact; no caller rebuilds it.
-   */
-  export interface IFit {
-    /** The bearer's stance (`HumanCarriedCouplingPose.stance`): trunk inclination, degrees, and lowering, a share of a squat's drop. */
-    stance: { incline: number; depth: number };
-
-    /** Both legs' hip flexion, knee flexion and hip abduction the key pose takes, degrees. */
-    legs: readonly [number, number, number];
-
-    /** The turn applied after the key pose's own heading, unit quaternion. */
-    turn: IAutoMovieQuaternion;
-
-    /**
-     * A point of the key pose at the origin, placed on the bearer.
-     *
-     * @param point World metres on the key pose at the origin.
-     * @returns World metres on the bearer in its stance at the origin.
-     */
-    place(point: IAutoMovieVector3): IAutoMovieVector3;
-  }
-
   /**
    * The key pose placed on its bearer. The bearer's stance (its trunk's
    * inclination and its knees' lowering, `HumanCarriedCouplingPose.stance`)
@@ -95,15 +70,15 @@ export namespace HumanCarriedCouplingFit {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fit owns its stance map, two small curvatures and the current linearization/preparation. Repriced shells share those fixed data without a history chain and release their warm state on replacement; the returned placement closes only over two points and a turn.
    */
   export function fit(
-    bearer: IHumanBody,
-    borne: IHumanBody,
-    row: HumanCarried.IRow,
+    bearer: IAutoMovieMotionHumanBody,
+    borne: IAutoMovieMotionHumanBody,
+    row: IAutoMovieMotionHumanCarried.IRow,
     held: readonly [
       AutoMovieHumanoidRegion | null,
       AutoMovieHumanoidRegion | null,
     ],
     bends: boolean,
-  ): IFit {
+  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
     // The five angles: the borne hip flexion, knee flexion and hip
     // abduction, the bearer's trunk inclination and lowering; each one's
     // bounds, and the span its change is weighed by.
@@ -197,11 +172,11 @@ export namespace HumanCarriedCouplingFit {
           depth: x[4]!,
         },
       );
-      const placed: IFit = registration.fit;
+      const placed: IAutoMovieMotionHumanCarriedCouplingFit.IFit = registration.fit;
       const mine: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = registration.bones;
       return sides.map((side: "left" | "right"): number => {
         const k: number = side === "left" ? 0 : 1;
-        const surface: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
           borne.surfaces.regions[held[k]!];
         const local: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
           resolveAutoMovieHumanoidSurfaces.place(
@@ -212,7 +187,7 @@ export namespace HumanCarriedCouplingFit {
         // A palm's farthest possible reach assumes it continues the forearm.
         // The bearing instead faces the carried surface: judge that very
         // wrist target, since the surface normal fixes the palm's offset.
-        const goal: IHumanPosture.IGoal = AutoMovieMotionHumanArmTarget.goal(
+        const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
           bearer,
           side,
           AutoMovieMotionHumanTarget.hand(
@@ -255,7 +230,7 @@ export namespace HumanCarriedCouplingFit {
         gaps: g,
       };
     };
-    const solved: SCO.IResult<Float64Array, IReading> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IReading> = SCO.minimise(
       {
         evaluate,
         feasible: (e: IReading): boolean => e.worst <= accuracy,
@@ -265,7 +240,7 @@ export namespace HumanCarriedCouplingFit {
           mu: number,
           _radius: number,
           objective: boolean,
-        ): SCO.IModel<Float64Array> => {
+        ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
           // Central differences at the step that balances their truncation
           // against round-off, one-sided at a range's end; an angle pinned
           // by its range has no slope.
@@ -287,15 +262,15 @@ export namespace HumanCarriedCouplingFit {
           const q: Float64Array = Float64Array.from(all, (k: number): number =>
             objective ? weight[k]! * (x[k]! - start[k]!) : 0,
           );
-          const priced: (price: number) => SCO.IModel<Float64Array> = (price: number): SCO.IModel<Float64Array> => {
-            const model: QP.IProblem = {
+          const priced: (price: number) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (price: number): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+            const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
               n,
               band: n - 1,
               p: curvatures[objective ? 1 : 0]!,
               q,
               rows: [
                 ...e.gaps.map(
-                  (g: number, i: number): QP.IRow => ({
+                  (g: number, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                     key: `g|${i}`,
                     index: all,
                     coef: all.map((k: number): number => slope[k]![i]!),
@@ -305,7 +280,7 @@ export namespace HumanCarriedCouplingFit {
                   }),
                 ),
                 ...all.map(
-                  (k: number): QP.IRow => ({
+                  (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                     key: `r|${k}`,
                     index: [k],
                     coef: [1],
@@ -316,16 +291,16 @@ export namespace HumanCarriedCouplingFit {
               ],
             };
             const zero: number = QP.value(model);
-            let warm: QP.IState | undefined;
+            let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
             return {
               reprice: priced,
-              solve: (r: number): SCO.IStep<Float64Array> => {
-                const problem: QP.IProblem = {
+              solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+                const problem: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
                   ...model,
                   rows: [
                     ...model.rows,
                     ...all.map(
-                      (k: number): QP.IRow => ({
+                      (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                         key: `t|${k}`,
                         index: [k],
                         coef: [1],
@@ -451,7 +426,7 @@ export namespace HumanCarriedCouplingFit {
   const EXPAND: number = 2;
 
   /** A stance and legs' reading: the change, the summed and the worst gap past the arms, and each gap, metres. */
-  interface IReading extends SCO.IEvaluation {
+  interface IReading extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     worst: number;
     gaps: number[];
   }

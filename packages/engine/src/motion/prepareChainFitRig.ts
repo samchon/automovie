@@ -1,16 +1,16 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
@@ -35,8 +35,8 @@ import { prepareChainRigConstants } from "./prepareChainRigConstants";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's workspace owns source/reference values and, when the chain carries none, the rig-only record until release. Inputs are borrowed, loader callbacks and target results are not retained, and no global collection, handle or task owns this context.
  */
 export function prepareChainFitRig(
-  props: Omit<IFitChainToTargetProps, "target">,
-  prepared: IPreparedChainPlant | null,
+  props: Omit<IAutoMovieFitChainToTargetProps, "target">,
+  prepared: IAutoMoviePreparedChainPlant | null,
   fixed?: prepareChainFit.IRig,
 ): prepareChainFit.IRig {
   const reference: ReturnType<typeof prepareReferences> = prepareReferences(props);
@@ -121,7 +121,7 @@ export function prepareChainFitRig(
 }
 
 /** Query-local first-record reference and weight; neither belongs to the fixed source rig. */
-function prepareReferences(props: Omit<IFitChainToTargetProps, "target">): {
+function prepareReferences(props: Omit<IAutoMovieFitChainToTargetProps, "target">): {
   rotation: (bone: AutoMovieHumanoidBone, rig: prepareChainFit.IRig) => IAutoMovieQuaternion | null;
   weight: () => number;
 } {

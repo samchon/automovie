@@ -1,7 +1,11 @@
+import type {
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieViewConic,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
-import type { AutoMovieViewConic } from "./AutoMovieViewConic";
 
 /** Eight invocation-local endpoint values, indexed by their guide and side. */
 interface Own<T> {
@@ -34,17 +38,17 @@ export namespace AutoMovieConicPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Own arrays retain eight tuple references only through synchronous assembly; returned quarter controls remain caller-owned.
    */
   export function source(
-    extents: readonly AutoMovieConicFieldJet.IJet[],
-    shoulders: readonly AutoMovieConicFieldJet.IJet[],
-  ): AutoMovieViewConic.ICurve<AutoMovieConicFieldJet.IJet> {
-    const own: Own<AutoMovieConicFieldJet.IJet> = { before: [], after: [] };
-    const ops: AutoMovieConicFieldJet.IAlgebra<AutoMovieConicFieldJet.IJet> =
+    extents: readonly IAutoMovieConicFieldJet.IJet[],
+    shoulders: readonly IAutoMovieConicFieldJet.IJet[],
+  ): IAutoMovieViewConic.ICurve<IAutoMovieConicFieldJet.IJet> {
+    const own: Own<IAutoMovieConicFieldJet.IJet> = { before: [], after: [] };
+    const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
       AutoMovieConicFieldJet.AD;
     const shared: [
-      AutoMovieConicFieldJet.IJet,
-      AutoMovieConicFieldJet.IJet,
-      AutoMovieConicFieldJet.IJet,
-      AutoMovieConicFieldJet.IJet,
+      IAutoMovieConicFieldJet.IJet,
+      IAutoMovieConicFieldJet.IJet,
+      IAutoMovieConicFieldJet.IJet,
+      IAutoMovieConicFieldJet.IJet,
     ] = policy(ops, extents, shoulders, own);
     return build(ops, extents, shoulders, shared, own);
   }
@@ -61,7 +65,7 @@ export namespace AutoMovieConicPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns four scalars and allocates no own-curvature retention arrays.
    */
   export function curvatures<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
     shoulders: readonly T[],
   ): [T, T, T, T] {
@@ -80,11 +84,11 @@ export namespace AutoMovieConicPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns four fixed-size caller-owned quarters or an empty named failure; no local state survives separately.
    */
   export function geometry<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
     shoulders: readonly T[],
     curvatures: readonly T[],
-  ): AutoMovieViewConic.ICurve<T> {
+  ): IAutoMovieViewConic.ICurve<T> {
     return build(ops, extents, shoulders, curvatures, null);
   }
 
@@ -101,13 +105,13 @@ export namespace AutoMovieConicPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed local temporaries die on return or throw; a successful patch owns its controls and weights.
    */
   export function end<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     a: T,
     b: T,
     r: T,
     shared: T,
     own: T,
-  ): AutoMovieConicHermite.IPatch<T> | string | null {
+  ): IAutoMovieConicHermite.IPatch<T> | string | null {
     if (
       ![a, b, own, shared].every(
         (value: T): boolean =>
@@ -218,7 +222,7 @@ export namespace AutoMovieConicPreparation {
 
   /** Retain own values only for the fixed-AD assembly; generic calls preserve their original effects. */
   function policy<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
     shoulders: readonly T[],
     own: Own<T> | null,
@@ -251,12 +255,12 @@ export namespace AutoMovieConicPreparation {
 
   /** Build one invocation's quarters; null own preserves independent generic end calculations. */
   function build<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     extents: readonly T[],
     shoulders: readonly T[],
     curvatures: readonly T[],
     own: Own<T> | null,
-  ): AutoMovieViewConic.ICurve<T> {
+  ): IAutoMovieViewConic.ICurve<T> {
     if (
       extents.length !== 4 ||
       shoulders.length !== 4 ||
@@ -277,12 +281,12 @@ export namespace AutoMovieConicPreparation {
         failure:
           "conic quarters need four finite positive extents/curvatures and shoulders inside (0,1)",
       };
-    const quarters: AutoMovieViewConic.IQuarter<T>[] = [];
+    const quarters: IAutoMovieViewConic.IQuarter<T>[] = [];
     for (let q: number = 0; q < 4; q++) {
       const a: T = extents[q]!;
       const b: T = extents[(q + 1) % 4]!;
       const r: T = shoulders[q]!;
-      const start: AutoMovieConicHermite.IPatch<T> | string | null =
+      const start: IAutoMovieConicHermite.IPatch<T> | string | null =
         AutoMovieConicPreparation.end(
           ops,
           a,
@@ -293,7 +297,7 @@ export namespace AutoMovieConicPreparation {
             ? AutoMovieConicArcField.curvature(ops, a, b, r)
             : own.after[q]!,
         );
-      const end: AutoMovieConicHermite.IPatch<T> | string | null =
+      const end: IAutoMovieConicHermite.IPatch<T> | string | null =
         AutoMovieConicPreparation.end(
           ops,
           b,

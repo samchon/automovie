@@ -1,11 +1,10 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionBandProfile,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
+  IAutoMovieConstructionRealization,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -45,17 +44,33 @@ type V3 = [number, number, number];
 export function test_construction_port_profile(): void {
   const failures: string[] = [];
   const n: number = 32;
-  const clock: (k: number) => number = (k: number): number => (2 * Math.PI * k) / n;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const clock: (k: number) => number = (k: number): number =>
+    (2 * Math.PI * k) / n;
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
+    "trunk",
+    ConstructionShapes.DOWN,
+    0.02,
+    0.1,
+  );
+  const arm: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
-    { origin: { x: 0.012, y: 0, z: -0.05 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
+    {
+      origin: { x: 0.012, y: 0, z: -0.05 },
+      u: { x: 0, y: 0, z: 1 },
+      v: { x: 0, y: 1, z: 0 },
+    },
     0.007,
     0.06,
     7,
   );
-  const window: Omit<IAutoMovieConstructionPort.IProfile, "knots"> = { start: -0.4, end: 0.4, transition: 0.6 };
-  const port = (profiles?: IAutoMovieConstructionPort.IProfile[]): IAutoMovieConstructionPort => ({
+  const window: Omit<IAutoMovieConstructionBandProfile, "knots"> = {
+    start: -0.4,
+    end: 0.4,
+    transition: 0.6,
+  };
+  const port = (
+    profiles?: IAutoMovieConstructionBandProfile[],
+  ): IAutoMovieConstructionPort => ({
     type: "port",
     name: "port.arm",
     host,
@@ -70,23 +85,43 @@ export function test_construction_port_profile(): void {
     rows: 4,
     ...(profiles === undefined ? {} : { profiles }),
   });
-  const realize = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization =>
+  const realize = (
+    root: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
-  const sub = (a: readonly number[], b: readonly number[]): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-  const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-  const cross = (a: readonly number[], b: readonly number[]): V3 => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
+  const sub = (a: readonly number[], b: readonly number[]): V3 => [
+    a[0]! - b[0]!,
+    a[1]! - b[1]!,
+    a[2]! - b[2]!,
+  ];
+  const dot = (a: readonly number[], b: readonly number[]): number =>
+    a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+  const cross = (a: readonly number[], b: readonly number[]): V3 => [
+    a[1]! * b[2]! - a[2]! * b[1]!,
+    a[2]! * b[0]! - a[0]! * b[2]!,
+    a[0]! * b[1]! - a[1]! * b[0]!,
+  ];
   const len = (a: readonly number[]): number => Math.hypot(a[0]!, a[1]!, a[2]!);
 
   // 1. Both trees.
-  const plain: AutoMovieConstructionRealization.IRealization = realize(port());
-  const shaped: AutoMovieConstructionRealization.IRealization = realize(port([{ knots: [[0.5, 0.002]], ...window }]));
-  for (const [label, real] of [["plain", plain], ["profiled", shaped]] as const) {
-    if (real.diagnostics.length !== 0) failures.push(`${label} diagnostics: ${ConstructionRead.diagnostics(real)}`);
+  const plain: IAutoMovieConstructionRealization.IRealization = realize(port());
+  const shaped: IAutoMovieConstructionRealization.IRealization = realize(
+    port([{ knots: [[0.5, 0.002]], ...window }]),
+  );
+  for (const [label, real] of [
+    ["plain", plain],
+    ["profiled", shaped],
+  ] as const) {
+    if (real.diagnostics.length !== 0)
+      failures.push(
+        `${label} diagnostics: ${ConstructionRead.diagnostics(real)}`,
+      );
     const names: string = real.body.faces
       .map((f: { chain: string }): string => f.chain)
       .sort((x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0))
       .join(",");
-    if (names !== "arm,band.port,trunk") failures.push(`${label} faces: ${names}`);
+    if (names !== "arm,band.port,trunk")
+      failures.push(`${label} faces: ${names}`);
   }
   const uses: Map<string, number> = new Map();
   const ix: number[] = shaped.mesh.indices;
@@ -100,27 +135,65 @@ export function test_construction_port_profile(): void {
   const free = (v: number): boolean => {
     const x: number = shaped.mesh.positions[3 * v]!;
     const z: number = shaped.mesh.positions[3 * v + 2]!;
-    return Math.abs(z) < 1e-7 || Math.abs(z + 0.1) < 1e-7 || Math.abs(x - 0.072) < 1e-7;
+    return (
+      Math.abs(z) < 1e-7 ||
+      Math.abs(z + 0.1) < 1e-7 ||
+      Math.abs(x - 0.072) < 1e-7
+    );
   };
   let open: number = 0;
-  for (const [key, count] of uses) if (count > 2 || (count === 1 && !key.split(",").every((v: string): boolean => free(Number(v))))) ++open;
-  if (open !== 0) failures.push(`profiled skin: ${open} edges open away from the free ends or in more than two triangles`);
+  for (const [key, count] of uses)
+    if (
+      count > 2 ||
+      (count === 1 &&
+        !key.split(",").every((v: string): boolean => free(Number(v))))
+    )
+      ++open;
+  if (open !== 0)
+    failures.push(
+      `profiled skin: ${open} edges open away from the free ends or in more than two triangles`,
+    );
 
-  const before: IAutoMovieSolidSurface = ConstructionRead.surface(plain, "band.port");
-  const after: IAutoMovieSolidSurface = ConstructionRead.surface(shaped, "band.port");
-  const span = (real: AutoMovieConstructionRealization.IRealization): number =>
-    real.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers.at(-1)?.y ?? NaN;
+  const before: IAutoMovieSolidSurface = ConstructionRead.surface(
+    plain,
+    "band.port",
+  );
+  const after: IAutoMovieSolidSurface = ConstructionRead.surface(
+    shaped,
+    "band.port",
+  );
+  const span = (real: IAutoMovieConstructionRealization.IRealization): number =>
+    real.chains
+      .find((c: { name: string }): boolean => c.name === "band.port")
+      ?.layers.at(-1)?.y ?? NaN;
   const L: number = span(plain);
-  if (!(Math.abs(span(shaped) - L) <= 1e-9)) failures.push(`the profiled band's span ${span(shaped)} mm is not the plain band's ${L} mm`);
+  if (!(Math.abs(span(shaped) - L) <= 1e-9))
+    failures.push(
+      `the profiled band's span ${span(shaped)} mm is not the plain band's ${L} mm`,
+    );
 
   // The depth of a surface's point below the plain band's, along the plain band's inward unit normal.
-  const depth = (surface: IAutoMovieSolidSurface, t: number, c: number): { along: number; aside: number } => {
+  const depth = (
+    surface: IAutoMovieSolidSurface,
+    t: number,
+    c: number,
+  ): { along: number; aside: number } => {
     const base: IAutoMovieSolidSurface.IJet = before.jet(t * L, c);
     const outward: V3 = cross(base.u, base.v);
-    const unit: V3 = outward.map((x: number): number => (x * before.orientation) / len(outward)) as V3;
+    const unit: V3 = outward.map(
+      (x: number): number => (x * before.orientation) / len(outward),
+    ) as V3;
     const gap: V3 = sub(surface.jet(t * L, c).p, base.p);
     const along: number = -dot(gap, unit);
-    return { along, aside: len(sub(gap, unit.map((x: number): number => -x * along))) };
+    return {
+      along,
+      aside: len(
+        sub(
+          gap,
+          unit.map((x: number): number => -x * along),
+        ),
+      ),
+    };
   };
 
   // 2 and 7. Inside the window.
@@ -129,21 +202,34 @@ export function test_construction_port_profile(): void {
     for (let k: number = 0; k < n; ++k) {
       const c: number = clock(k);
       if (!(c <= 0.4 || c >= 2 * Math.PI - 0.4)) continue;
-      const { along, aside }: { along: number; aside: number } = depth(surface, 0.5, c);
-      if (!(Math.abs(along - 2) <= 1e-6 && aside <= 1e-6)) out.push(`${label} column ${k}: ${along} mm in and ${aside} mm aside at half the span, not 2 mm in`);
+      const { along, aside }: { along: number; aside: number } = depth(
+        surface,
+        0.5,
+        c,
+      );
+      if (!(Math.abs(along - 2) <= 1e-6 && aside <= 1e-6))
+        out.push(
+          `${label} column ${k}: ${along} mm in and ${aside} mm aside at half the span, not 2 mm in`,
+        );
     }
     return out;
   };
   failures.push(...inside(after, "profiled"));
-  if (inside(before, "plain").length === 0) failures.push("red: the plain band reads 2 mm in inside the window");
+  if (inside(before, "plain").length === 0)
+    failures.push("red: the plain band reads 2 mm in inside the window");
 
   // 3. Outside the window and its transition.
   for (let k: number = 0; k < n; ++k) {
     const c: number = clock(k);
     if (c < 1.1 || c > 2 * Math.PI - 1.1) continue;
     for (const t of [0.25, 0.5, 0.75]) {
-      const gap: number = len(sub(after.jet(t * L, c).p, before.jet(t * L, c).p));
-      if (!(gap <= 1e-9)) failures.push(`column ${k} outside the window: ${gap} mm off the plain band at the share ${t}`);
+      const gap: number = len(
+        sub(after.jet(t * L, c).p, before.jet(t * L, c).p),
+      );
+      if (!(gap <= 1e-9))
+        failures.push(
+          `column ${k} outside the window: ${gap} mm off the plain band at the share ${t}`,
+        );
     }
   }
 
@@ -152,18 +238,31 @@ export function test_construction_port_profile(): void {
     for (const s of [0, L]) {
       const p: IAutoMovieSolidSurface.IJet = after.jet(s, clock(k));
       const q: IAutoMovieSolidSurface.IJet = before.jet(s, clock(k));
-      const gap: number = Math.max(len(sub(p.p, q.p)), len(sub(p.u, q.u)), len(sub(p.uu, q.uu)));
-      if (!(gap <= 1e-9)) failures.push(`column ${k} at station ${s}: the rail's 2-jet moved by ${gap}`);
+      const gap: number = Math.max(
+        len(sub(p.p, q.p)),
+        len(sub(p.u, q.u)),
+        len(sub(p.uu, q.uu)),
+      );
+      if (!(gap <= 1e-9))
+        failures.push(
+          `column ${k} at station ${s}: the rail's 2-jet moved by ${gap}`,
+        );
     }
 
   // 5. Flat ends.
-  const ends: number[] = [0.02, 0.98].map((t: number): number => Math.abs(depth(after, t, 0).along));
-  if (!ends.every((d: number): boolean => d <= 0.04)) failures.push(`the depth near the rails is ${ends.join(", ")} mm, not flat`);
+  const ends: number[] = [0.02, 0.98].map((t: number): number =>
+    Math.abs(depth(after, t, 0).along),
+  );
+  if (!ends.every((d: number): boolean => d <= 0.04))
+    failures.push(
+      `the depth near the rails is ${ends.join(", ")} mm, not flat`,
+    );
   const quarter: number = depth(after, 0.25, 0).along;
-  if (!(quarter >= 0.3 && quarter <= 1.9)) failures.push(`the depth at a quarter of the span is ${quarter} mm`);
+  if (!(quarter >= 0.3 && quarter <= 1.9))
+    failures.push(`the depth at a quarter of the span is ${quarter} mm`);
 
   // 6. Admission.
-  const refusals: [string, IAutoMovieConstructionPort.IProfile][] = [
+  const refusals: [string, IAutoMovieConstructionBandProfile][] = [
     ["a knot at the share 1", { knots: [[1, 0.002]], ...window }],
     ["a transition of 0", { knots: [[0.5, 0.002]], ...window, transition: 0 }],
   ];
@@ -177,5 +276,6 @@ export function test_construction_port_profile(): void {
     if (!refused) failures.push(`${label} was admitted`);
   }
 
-  if (failures.length !== 0) throw new Error(`test_construction_port_profile:\n${failures.join("\n")}`);
+  if (failures.length !== 0)
+    throw new Error(`test_construction_port_profile:\n${failures.join("\n")}`);
 }

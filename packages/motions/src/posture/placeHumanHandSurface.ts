@@ -1,5 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanHand } from "./HumanHand";
 
@@ -23,7 +27,7 @@ export function placeHumanHandSurface(
   local: IAutoMovieVector3,
   at: IAutoMovieVector3,
   turn: IAutoMovieQuaternion,
-): HumanHand.IWrist {
+): IAutoMovieMotionHumanHand.IWrist {
   return placed(at, turn, Quaternion.rotateVector(turn, local));
 }
 
@@ -50,10 +54,10 @@ export namespace placeHumanHandSurface {
   export function prepare(
     local: IAutoMovieVector3,
     turn: IAutoMovieQuaternion,
-  ): (at: IAutoMovieVector3) => HumanHand.IWrist {
+  ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist {
     const rotation: IAutoMovieQuaternion = { ...turn };
     const shift: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { ...local });
-    return (at: IAutoMovieVector3): HumanHand.IWrist => placed(at, { ...rotation }, shift);
+    return (at: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => placed(at, { ...rotation }, shift);
   }
 }
 
@@ -62,6 +66,6 @@ function placed(
   at: IAutoMovieVector3,
   turn: IAutoMovieQuaternion,
   shift: IAutoMovieVector3,
-): HumanHand.IWrist {
+): IAutoMovieMotionHumanHand.IWrist {
   return { point: Vector3.subtract(at, shift), rotation: turn };
 }

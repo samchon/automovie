@@ -2,34 +2,19 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMoviePoseResolution,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { resolvePoseBone } from "./resolvePoseBone";
 
-/** Raw ordered FK operations and the identity lent to immutable prepared rigs. */
-interface IReader {
-  /** Read each actual clinical/frame value in its original order, sharing pure basis/factor work. */
-  joint(
-    joint: IAutoMovieJointPose,
-    axes: IAutoMovieJointAxes | undefined,
-    frame: IAutoMovieRestFrame | undefined,
-  ): IAutoMovieQuaternion;
-
-  /** Preserve all raw rest/parent/articulation reads and return the original fresh FK output. */
-  bone(
-    bone: IAutoMovieBone,
-    parentRotation: IAutoMovieQuaternion,
-    parentPosition: IAutoMovieVector3,
-    articulation: IAutoMovieQuaternion,
-  ): IAutoMovieResolvedBone;
-}
+/** Raw ordered FK operations and the identity lent to immutable prepared rigs: the interface contract. */
+type IReader = IAutoMoviePoseResolution;
 
 /** Callable-only snapshots are weakly owned by their actual plain factory reader. */
 const NATIVE_READERS: WeakMap<IReader, IReader> = new WeakMap();

@@ -1,5 +1,5 @@
 import {
-  AutoMoviePrimitiveShape,
+  type IAutoMoviePrimitiveShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -21,9 +21,9 @@ import {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed-size returned vector escapes; there is no geometry retention or resource acquisition.
  */
 export const primitiveCentroid: (
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
 ) => IAutoMovieVector3 = (
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
 ): IAutoMovieVector3 => {
   if (shape.type === "cone") return { x: 0, y: shape.height / 4, z: 0 };
   return { x: 0, y: 0, z: 0 };

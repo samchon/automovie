@@ -1,8 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { HumanFoot } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
@@ -59,7 +60,7 @@ export function motionCrouchSignature(
     // A full squat raises the heels unless told otherwise (the law's
     // default); every other row is a partial squat.
     const raised: boolean = row === "heels=up" || full;
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(s.body.skeleton, s.body.profile);
     let low: number = Infinity;
     let high: number = -Infinity;

@@ -1,11 +1,15 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryChartBoundaryNetworkBindings,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
-import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import type { RecoveryChartBoundaryNetwork } from "./RecoveryChartBoundaryNetwork";
-import type { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNetworkRegistry";
-
-type Input = Parameters<typeof RecoveryChartBoundaryNetwork>[0];
-type Binding = ReturnType<ReturnType<typeof RecoveryChartBoundary>["get"]>;
+type Binding = ReturnType<
+  ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
+>;
 
 /**
  * Bind maximal physical arcs to all copied chart sides after augmentation.
@@ -19,9 +23,9 @@ type Binding = ReturnType<ReturnType<typeof RecoveryChartBoundary>["get"]>;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives copied charts and diagnostics; temporary graph and traversal maps expire on return.
  */
 export function RecoveryChartBoundaryNetworkBindings(
-  input: Input,
-  context: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry>,
-): ReturnType<typeof RecoveryChartBoundaryNetwork> {
+  input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[0],
+  context: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[1],
+): ReturnType<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation> {
   const {
     points,
     charts,
@@ -30,7 +34,8 @@ export function RecoveryChartBoundaryNetworkBindings(
     maximumPointChange,
     pair,
     compare,
-  }: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry> = context;
+  }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
+    context;
   const graph: Map<string, { a: string; b: string; charts: Set<string> }> =
       new Map(),
     neighbors: Map<string, Set<string>> = new Map();
@@ -176,7 +181,9 @@ export function RecoveryChartBoundaryNetworkBindings(
       length,
       boundary: input.owner.get(
         word,
-        word.map((key: string): C.Vector => points.get(key)!),
+        word.map(
+          (key: string): Readonly<AutoMovieVector3Tuple> => points.get(key)!,
+        ),
       ),
     });
   }
@@ -219,7 +226,7 @@ export function RecoveryChartBoundaryNetworkBindings(
       );
       if (!(total > 0 && Number.isFinite(total)))
         throw new Error("A composite boundary has no finite physical length");
-      const spans: C.Span[] = [],
+      const spans: AutoMovieCubicBezierControls3[] = [],
         knots: number[] = [0],
         parameters: number[] = [];
       let prefix: number = 0,
@@ -234,12 +241,21 @@ export function RecoveryChartBoundaryNetworkBindings(
         const orientedKnots: number[] = reverse
           ? [...base.knots].reverse().map((v: number): number => 1 - v)
           : [...base.knots];
-        const curve: C.Cubic = reverse
+        const curve: IAutoMovieCubicBezierCurve64 = reverse
           ? {
               ...base.fit.curve,
               spans: [...base.fit.curve.spans]
                 .reverse()
-                .map((net: C.Span): C.Span => [net[3], net[2], net[1], net[0]]),
+                .map(
+                  (
+                    net: AutoMovieCubicBezierControls3,
+                  ): AutoMovieCubicBezierControls3 => [
+                    net[3],
+                    net[2],
+                    net[1],
+                    net[0],
+                  ],
+                ),
               phaseIntervals: orientedKnots
                 .slice(1)
                 .map((v: number, i: number): number => v - orientedKnots[i]!),
@@ -314,7 +330,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           "Composite boundary registration lost points or strict normalized phases",
         );
       const id: string = `network.side.${chart.name}.${s}`,
-        curve: C.Cubic = {
+        curve: IAutoMovieCubicBezierCurve64 = {
           type: "cubicBezier",
           name: id,
           closed: false,

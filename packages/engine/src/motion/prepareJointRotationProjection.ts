@@ -2,16 +2,17 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationDomain,
+  IAutoMoviePrepareJointRotationProjection,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { bilinearAngleBoxCandidates } from "../math/bilinearAngleBoxCandidates";
 import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
@@ -442,31 +443,9 @@ export function prepareJointRotationProjection(props: {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projection reads retain original clamp/candidate/tie policy. Native-only root proposals retain no query and certify no constraint; foreign/coupled/non-two-axis cases decline and actual curve checks/fallback remain mandatory.
  */
 export namespace prepareJointRotationProjection {
-  /** The original callable plus an explicit paired-result read; neither caches targets. */
-  export interface IProjector {
-    /** Project one local target with the same numerical candidate and tie policy. */
-    (rotation: IAutoMovieQuaternion): IAutoMovieJointPose;
+  /** The interface contract (`IAutoMoviePrepareJointRotationProjection.IProjector`). */
+  export type IProjector = IAutoMoviePrepareJointRotationProjection.IProjector;
 
-    /** Project once and return its joint with the exact unnormalized composition. */
-    withQuaternion(rotation: IAutoMovieQuaternion): IProjection;
-
-    /**
-     * Propose degree-valued swivels where the algebraic quaternion half-angle
-     * circle lies on this native two-axis box's unrestricted product surface.
-     * Angle ranges, actual clamp/FK, goals and continuity must still be checked.
-     * Unknown/coupled/non-two-axis projectors decline; public callable scoring
-     * and its callback order are unaffected. Foreign projectors may omit it.
-     */
-    swivelCandidates?(cosine: IAutoMovieQuaternion,
-      sine: IAutoMovieQuaternion): ReturnType<prepareJointRotationCoefficientDots.IReader["swivels"]>;
-  }
-
-  /** Fresh result wrapper and raw quaternion of one query, with the callable's joint ownership. */
-  export interface IProjection {
-    /** Selected clinical record; unknown clamp outputs are stable four-field snapshots. */
-    joint: IAutoMovieJointPose;
-
-    /** Raw jointToQuaternionOnBasis result, before any caller normalization/world composition. */
-    quaternion: IAutoMovieQuaternion;
-  }
+  /** The interface contract (`IAutoMoviePrepareJointRotationProjection.IProjection`). */
+  export type IProjection = IAutoMoviePrepareJointRotationProjection.IProjection;
 }

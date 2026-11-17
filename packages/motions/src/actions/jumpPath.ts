@@ -1,5 +1,8 @@
 import { AutoMovieStationHermite, wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieStationHermite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The paths the jump's phases are drawn on: a quintic Hermite path for the
@@ -45,12 +48,12 @@ export namespace jumpPath {
   ): (t: number) => IAutoMovieVector3 {
     // The engine's quintic Hermite rule over seconds: values, velocities and
     // accelerations (curvatures) at both ends.
-    const from: AutoMovieStationHermite.IEnd = {
+    const from: IAutoMovieStationHermite.IEnd = {
       value: [p0.x, p0.y, p0.z],
       slope: [v0.x, v0.y, v0.z],
       curvature: [a0.x, a0.y, a0.z],
     };
-    const into: AutoMovieStationHermite.IEnd = {
+    const into: IAutoMovieStationHermite.IEnd = {
       value: [p1.x, p1.y, p1.z],
       slope: [v1.x, v1.y, v1.z],
       curvature: [0, 0, 0],

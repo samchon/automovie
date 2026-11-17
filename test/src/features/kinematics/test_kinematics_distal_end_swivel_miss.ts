@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieRestFrame,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
@@ -13,6 +12,7 @@ import {
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

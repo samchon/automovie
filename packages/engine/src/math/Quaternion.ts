@@ -1,4 +1,4 @@
-import {
+import type {
   IAutoMovieEuler,
   IAutoMovieQuaternion,
   IAutoMovieVector3,

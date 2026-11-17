@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 
 /**
  * One independently regenerable contiguous range of a general instance set.

@@ -3,8 +3,10 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
   IAutoMovieFluidDomain,
+  type IAutoMovieValidateWaterFeatures,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
   IAutoMovieWaterFeature,
 } from "@automovie/interface";
 
@@ -50,17 +52,13 @@ const FEATURE_MODES: ReadonlySet<string> = new Set([
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call each domain is validated once and its verdict reused by every feature that cites it; each measured feature builds its basin subtree once for all bed points. Nothing is cached across calls because environments and domains are mutable caller inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the maps, sets and collector die with the call, and the returned violations belong to the caller.
  */
-export const validateWaterFeatures: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  features: IAutoMovieWaterFeature[];
-  domains: IAutoMovieFluidDomain[];
-}) => IAutoMovieValidation = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  features: IAutoMovieWaterFeature[];
-  domains: IAutoMovieFluidDomain[];
-}): IAutoMovieValidation => {
+export const validateWaterFeatures: (
+  props: IAutoMovieValidateWaterFeatures.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateWaterFeatures.IProps,
+): IAutoMovieValidation => {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(

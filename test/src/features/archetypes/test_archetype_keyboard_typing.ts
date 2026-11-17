@@ -1,7 +1,10 @@
 import { createKeyboard } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -10,8 +13,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
-  type IHumanProp,
   typeText,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,7 +45,7 @@ export function test_archetype_keyboard_typing(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const kind of createKeyboard.KINDS) {
       const board: ReturnType<typeof createKeyboard> = createKeyboard({ kind });
       const row: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -59,7 +60,9 @@ export function test_archetype_keyboard_typing(): void {
           body.measure.forearm +
           0.5 * body.measure.hand,
       });
-      const perform = (at: IAutoMovieVector3): HumanPerformance =>
+      const perform = (
+        at: IAutoMovieVector3,
+      ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "typing",
           laws: [],
@@ -89,7 +92,7 @@ export function test_archetype_keyboard_typing(): void {
       );
 
       // 1. It plans.
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = perform(at);
       } catch (error) {
@@ -100,9 +103,9 @@ export function test_archetype_keyboard_typing(): void {
       }
 
       // 2. Each press lands on its key.
-      const segment: ReturnType<HumanPerformance["segments"]>[number] = film
-        .segments("a")
-        .at(-1)!;
+      const segment: ReturnType<
+        IAutoMovieMotionHumanPerformance["segments"]
+      >[number] = film.segments("a").at(-1)!;
       [...text].forEach((letter: string, i: number): void => {
         const t: number =
           segment.start + segment.plan.events[i]!.share * segment.plan.duration;
@@ -128,7 +131,7 @@ export function test_archetype_keyboard_typing(): void {
       });
 
       // 3. The keyboard stays where it was placed.
-      const placed: IHumanProp.IFrame = film.prop("keyboard", 0);
+      const placed: IAutoMovieRigidTransform = film.prop("keyboard", 0);
       let moved: number = 0;
       for (let s: number = 0; s <= film.duration; s += 0.1)
         moved = Math.max(

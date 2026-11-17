@@ -1,7 +1,10 @@
-import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootPrior,
+} from "@automovie/interface";
 
-type Vec3 = G.Vec3;
+import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 
 /**
  * The foot's own frame from its three dimensions: the one place a person's
@@ -19,54 +22,24 @@ type Vec3 = G.Vec3;
  * the left foot lateral toward +Z.
  */
 export namespace AutoMovieHumanFootFrame {
-  /** A foot's dimensions in calibration millimetres. */
-  export interface IDimensions {
-    /** Back of the heel to the tip of the longest toe. */
-    length: number;
-
-    /** Greatest breadth across the metatarsal heads. */
-    breadth: number;
-
-    /** Height of the lateral malleolus. */
-    ankle: number;
-  }
-
-  /** A foot's frame: its scales and the map from normalised coordinates. */
-  export interface IFrame {
-    /** Foot length, mm. */
-    L: number;
-
-    /** Foot breadth, mm. */
-    B: number;
-
-    /** Lateral malleolus height, mm. */
-    H: number;
-
-    /** Ankle ring height, mm. */
-    ring: number;
-
-    /** World point of normalised foot coordinates `[a, u, y mm]`, left frame. */
-    at: (a: number, u: number, y: number) => Vec3;
-
-    /** The foot's lateral direction, left frame. */
-    lateral: Vec3;
-  }
-
   /**
    * A foot's frame.
    *
    * @param d Dimensions in calibration millimetres, all positive.
    */
-  export function of(d: IDimensions): IFrame {
+  export function of(
+    d: IAutoMovieHumanFootFrame.IDimensions,
+  ): IAutoMovieHumanFootFrame.IFrame {
     if (!(d.length > 0) || !(d.breadth > 0) || !(d.ankle > 0))
       throw new Error("A foot needs positive dimensions");
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
     const c: number = Math.cos(prior.yaw);
     const s: number = Math.sin(prior.yaw);
 
     // The plan point of the foot's own coordinates, turned out by the yaw
     // about the ankle's centre.
-    const at = (a: number, u: number, y: number): Vec3 => {
+    const at = (a: number, u: number, y: number): AutoMovieVector3Tuple => {
       const along: number = (a - prior.ankle[0]) * d.length;
       const across: number = (u - prior.ankle[1]) * d.breadth;
       return [along * c - across * s, y, along * s + across * c];

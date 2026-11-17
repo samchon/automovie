@@ -1,13 +1,17 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanPerformanceContacts } from "../perform/HumanPerformanceContacts";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import type { IKickGeometry } from "./IKickGeometry";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";
@@ -63,16 +67,16 @@ export namespace KickClear {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The partner's posed colliders and the trial geometries end with the call; only the launch escapes.
    */
   export function of(
-    context: IHumanActionContext<kick.IParams>,
-    timing: IKickGeometry.ITiming,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     launch: KickLaunch.ILaunch,
   ): KickLaunch.ILaunch {
-    const p: kick.IParams = context.params;
+    const p: IAutoMovieMotionHumanKick.IParams = context.params;
     if (launch.feint || launch.kept !== undefined || p.at.kind !== "person")
       return launch;
-    const body: IHumanActionContext["body"] = context.body;
-    const other: IHumanActionContext.IPerformer = context.performer(
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       p.at.subject,
     );
     const reading: ReturnType<typeof HumanColliders.reading> =
@@ -89,16 +93,16 @@ export namespace KickClear {
     // Whether a plan's leg meets the partner before its contact, on the
     // plan's own free course with no correction and no stop.
     const early = (planned: KickLaunch.IPlanned): boolean => {
-      const geometry: IKickGeometry = KickGeometry.compose(body, timing, t0, {
+      const geometry: IAutoMovieMotionHumanKickGeometry = KickGeometry.compose(body, timing, t0, {
         line: launch.line,
         carriage: planned.carriage,
         base: (
           seconds: number,
-          shown: IKickGeometry.ICarriage,
+          shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
           turning?: number,
           resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
           projection?: ReturnType<typeof prepareHumanPostureProjection>,
-        ): IHumanPosture =>
+        ): IAutoMovieMotionHumanPosture =>
           KickCarriage.posture(
             launch.props,
             shown,
@@ -107,7 +111,7 @@ export namespace KickClear {
             resolution,
             projection,
           ),
-        shown: (): IKickGeometry.ICarriage => planned.carriage,
+        shown: (): IAutoMovieMotionHumanKickGeometry.ICarriage => planned.carriage,
         leg: planned.leg,
         origin: launch.origin,
         back: Vector3.add(
@@ -129,7 +133,7 @@ export namespace KickClear {
         channels?: Parameters<StrikingWeapon.Course>[1],
         resolution?: Parameters<StrikingWeapon.Course>[2],
         projection?: Parameters<StrikingWeapon.Course>[3],
-      ): IHumanPosture =>
+      ): IAutoMovieMotionHumanPosture =>
         geometry.posture(at - t0, channels, resolution, projection?.());
       const step: number = HumanPerformanceContacts.STEP;
       for (

@@ -1,23 +1,23 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import type { prepareChainFit } from "./prepareChainFit";
-import type { prepareChainPlant } from "./prepareChainPlant";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
 
@@ -45,8 +45,8 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, private four-scalar lower snapshot, latest lower clinical/raw/untwisted readings and standalone held raw/inverse data; each is constant-size and the caller's lower quaternion record is not retained. Shared source-held data/projector remain the workspace's. Paired projection is same-query only, with no global handle or growing result cache.
  */
 export function fitHingedRotationError(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   rotation: IAutoMovieQuaternion,
   rig?: prepareChainFit.IRig,

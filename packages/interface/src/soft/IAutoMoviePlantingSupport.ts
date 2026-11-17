@@ -12,6 +12,9 @@ export type IAutoMoviePlantingSupport =
   | IAutoMoviePlantingSupport.ISurface
   | IAutoMoviePlantingSupport.IElement
   | IAutoMoviePlantingSupport.IBoundary;
+/**
+ * Building records that may carry a planting installation.
+ */
 export namespace IAutoMoviePlantingSupport {
   /**
    * Support patch assigned to a logical space.

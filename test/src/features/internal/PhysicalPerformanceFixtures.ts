@@ -1,13 +1,17 @@
 import {
   AutoMovieStepPlanner as Planner,
   Quaternion,
-  type AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   physicalSupportPoint,
   planPhysicalSupportTargets,
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMovieStepPlanner,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -36,13 +40,13 @@ export namespace PhysicalPerformanceFixtures {
         } => {
           const human: boolean = profile.id === "human";
           const bone: string = `${side}${human ? "Midfoot" : "LowerLeg"}`;
-          const segment: P.ISegment = profile.segments.find(
+          const segment: IAutoMoviePhysicalSegment = profile.segments.find(
             (candidate: (typeof profile.segments)[number]): boolean =>
               candidate.bone === bone,
           )!;
           let localPoint: IAutoMovieVector3 | undefined;
           if (!human) {
-            const shape: P.IShape = segment.shapes[0]!;
+            const shape: IAutoMoviePhysicalShape = segment.shapes[0]!;
             if (shape.kind !== "capsule")
               throw new Error(
                 "Stickman acceptance requires its existing actual shin capsule",
@@ -87,23 +91,24 @@ export namespace PhysicalPerformanceFixtures {
     duration: number,
     peakPitch: number = 0,
   ): {
-    body: Simulation.IBody;
-    planner: Planner;
+    body: IAutoMoviePhysicalSimulationInput.IBody;
+    planner: IAutoMovieStepPlanner;
     pattern: IAutoMovieFootfallPattern;
   } {
     const pattern: IAutoMovieFootfallPattern = supports(profile);
     const forward: IAutoMovieVector3 =
       profile.id === "human" ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 };
-    const original: Record<string, P.ITransform> = Object.fromEntries(
-      profile.segments.map(
-        (
-          segment: (typeof profile.segments)[number],
-        ): [string, P.ITransform] => [
-          segment.bone,
-          structuredClone(segment.neutral),
-        ],
-      ),
-    );
+    const original: Record<string, IAutoMovieRigidTransform> =
+      Object.fromEntries(
+        profile.segments.map(
+          (
+            segment: (typeof profile.segments)[number],
+          ): [string, IAutoMovieRigidTransform] => [
+            segment.bone,
+            structuredClone(segment.neutral),
+          ],
+        ),
+      );
     const gap: number =
       profile.id === "human"
         ? 0
@@ -122,17 +127,19 @@ export namespace PhysicalPerformanceFixtures {
         ],
       ),
     );
-    const planner: Planner = new Planner({
+    const planner: IAutoMovieStepPlanner = new Planner({
       pattern,
       start: 0,
       end: duration,
       rate: 120,
-      desired: (seconds: number): Record<string, Planner.IPlacement> =>
+      desired: (
+        seconds: number,
+      ): Record<string, IAutoMovieStepPlanner.IPlacement> =>
         Object.fromEntries(
           pattern.limbs.map(
             (
               limb: (typeof pattern.limbs)[number],
-            ): [string, Planner.IPlacement] => [
+            ): [string, IAutoMovieStepPlanner.IPlacement] => [
               limb.bone,
               {
                 point: [
@@ -160,7 +167,10 @@ export namespace PhysicalPerformanceFixtures {
       pitchLever: 0,
       alternationWindow: 0.5,
     });
-    const body: Simulation.IBody = trackedBody(profile, duration);
+    const body: IAutoMoviePhysicalSimulationInput.IBody = trackedBody(
+      profile,
+      duration,
+    );
     body.supportTracking = {
       pattern,
       stiffness: 100 * profile.mass,
@@ -169,29 +179,36 @@ export namespace PhysicalPerformanceFixtures {
       iterations: 0,
     };
     body.targets = body.targets.map(
-      (_: Simulation.ITarget, step: number): Simulation.ITarget => {
+      (
+        _: IAutoMoviePhysicalSimulationInput.ITarget,
+        step: number,
+      ): IAutoMoviePhysicalSimulationInput.ITarget => {
         const seconds: number = step / 120;
-        const targets: Record<string, P.ITransform> = Object.fromEntries(
-          Object.entries(original).map(
-            ([bone, pose]: [string, P.ITransform]): [string, P.ITransform] => [
-              bone,
-              {
-                position: {
-                  x: pose.position.x + forward.x * seconds * 0.12,
-                  y: pose.position.y - 0.03,
-                  z: pose.position.z + forward.z * seconds * 0.12,
+        const targets: Record<string, IAutoMovieRigidTransform> =
+          Object.fromEntries(
+            Object.entries(original).map(
+              ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+                string,
+                IAutoMovieRigidTransform,
+              ] => [
+                bone,
+                {
+                  position: {
+                    x: pose.position.x + forward.x * seconds * 0.12,
+                    y: pose.position.y - 0.03,
+                    z: pose.position.z + forward.z * seconds * 0.12,
+                  },
+                  rotation: { ...pose.rotation },
                 },
-                rotation: { ...pose.rotation },
-              },
-            ],
-          ),
-        );
+              ],
+            ),
+          );
         const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
           pattern.limbs.map(
             (
               limb: (typeof pattern.limbs)[number],
             ): [string, IAutoMovieVector3] => {
-              const placement: Planner.IPlacement = planner.at(
+              const placement: IAutoMovieStepPlanner.IPlacement = planner.at(
                 limb.bone,
                 seconds,
               ).placement;
@@ -232,8 +249,11 @@ export namespace PhysicalPerformanceFixtures {
   }
 
   /** Declare finite physical actuator budgets with no endpoint teleports or fixed root. */
-  export function trackedBody(profile: P, duration: number): Simulation.IBody {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+  export function trackedBody(
+    profile: P,
+    duration: number,
+  ): IAutoMoviePhysicalSimulationInput.IBody {
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       profile.id,
       profile,
       duration,
@@ -243,7 +263,7 @@ export namespace PhysicalPerformanceFixtures {
   }
 
   /** Apply the same explicit bounded actuator policy to a caller-positioned body. */
-  export function track(body: Simulation.IBody): void {
+  export function track(body: IAutoMoviePhysicalSimulationInput.IBody): void {
     const profile: P = body.profile;
     Object.assign(body, {
       rootStiffness: 100 * profile.mass,

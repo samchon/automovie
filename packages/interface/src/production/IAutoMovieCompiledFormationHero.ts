@@ -1,4 +1,4 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 
 /**
  * One formation slot promoted out of anonymous batches into an explicit actor. Its base transform precedes source-authored hero performance.

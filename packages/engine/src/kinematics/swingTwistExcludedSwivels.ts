@@ -1,17 +1,23 @@
-import {
+import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  type IAutoMovieJointRotationFrame,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSwingTwistLimit,
+  type IAutoMovieSwivelArcs,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { toRigAngle } from "../rom/toRigAngle";
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
+import { normalizeJointAxes } from "./normalizeJointAxes";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
 import { swingTwistRange } from "./swingTwistRange";
 import { swingTwistRegion } from "./swingTwistRegion";
@@ -78,13 +84,13 @@ export function swingTwistExcludedSwivels(props: {
   constraint: IAutoMovieJointConstraint | null;
 
   /** The frame the range reads the joint in (`scanJointRom`'s: the caller's rig's, or `swingTwistRange.of`'s). */
-  joint: swingTwistRange.IJoint;
+  joint: IAutoMovieJointRotationFrame;
 
   /** The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel. */
   rotation: (swivel: number) => IAutoMovieQuaternion;
 }): (low: number, high: number) => boolean {
   const constraint: IAutoMovieJointConstraint | null = props.constraint;
-  const gate: IAutoMovieJointConstraint.ISwingTwist | null | undefined =
+  const gate: IAutoMovieSwingTwistLimit | null | undefined =
     constraint?.swingTwist;
   if (
     constraint === null ||
@@ -111,14 +117,14 @@ export function swingTwistExcludedSwivels(props: {
   );
   const fit = (
     read: (sample: { s: number; w: number; d: number }) => number,
-  ): swivelArcs.ISinusoid => {
+  ): IAutoMovieSwivelArcs.ISinusoid => {
     const [zero, quarter, half] = sampled.map(read) as [number, number, number];
     return swivelArcs.fitted(zero, quarter, half);
   };
 
-  const arcs: swivelArcs.IArc[] = [];
-  const refuse = (f: swivelArcs.ISinusoid): boolean => {
-    const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(f, MARGIN);
+  const arcs: IAutoMovieSwivelArcs.IArc[] = [];
+  const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(f, MARGIN);
     if (arc === "all") return true;
     if (arc !== null) arcs.push(arc);
     return false;
@@ -152,7 +158,7 @@ export function swingTwistExcludedSwivels(props: {
   )
     return (): boolean => true;
 
-  const merged: swivelArcs.IArc[] | "all" = swivelArcs.union(arcs);
+  const merged: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union(arcs);
   return (low: number, high: number): boolean =>
     swivelArcs.covers(merged, low, high);
 }

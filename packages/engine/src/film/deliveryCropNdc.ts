@@ -1,6 +1,8 @@
-import { IAutoMovieDeliveryCrop } from "@automovie/interface";
+import {
+  IAutoMovieDeliveryCrop,
+  type IAutoMovieDeliveryCropNdc,
+} from "@automovie/interface";
 
-import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
 import { resolveAutoMovieDeliveryCrop } from "./resolveAutoMovieDeliveryCrop";
 
 /**

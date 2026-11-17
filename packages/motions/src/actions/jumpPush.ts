@@ -6,21 +6,22 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStandUpright,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
-import type { standUpright } from "./standUpright";
 import { walkLeg } from "./walkLeg";
 
 /**
@@ -48,10 +49,10 @@ export namespace jumpPush {
    */
   export interface IProps {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The fixed entry snapshot supplying this push's initial values and rates. */
-    entry: IHumanEntryState;
+    entry: IAutoMovieMotionHumanEntryState;
 
     /** The foot that pushes off. */
     takeoff: "left" | "right";
@@ -60,7 +61,7 @@ export namespace jumpPush {
     reaching: "left" | "right";
 
     /** The take-off foot as entered. */
-    support: HumanFoot.IPlacement;
+    support: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The take-off foot's heading, degrees. */
     supportHeading: number;
@@ -75,7 +76,7 @@ export namespace jumpPush {
     ball: IAutoMovieVector3;
 
     /** The upright stand the pelvis comes to. */
-    upright: standUpright.IAlignment;
+    upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
     /** The jump's heading, degrees. */
     heading: number;
@@ -181,7 +182,7 @@ export namespace jumpPush {
       joints: Partial<
         Record<AutoMovieHumanoidBone, readonly [number, number, number]>
       >,
-      limbs: IHumanPosture["limbs"],
+      limbs: IAutoMovieMotionHumanPosture["limbs"],
       resolution?: ReturnType<typeof prepareHumanPoseResolution>,
     ) => void;
   }
@@ -407,14 +408,14 @@ export namespace jumpPush {
       arm: armAt,
       write: (
         phase: IPhase,
-        joints: IHumanPosture["joints"],
-        limbs: IHumanPosture["limbs"],
+        joints: IAutoMovieMotionHumanPosture["joints"],
+        limbs: IAutoMovieMotionHumanPosture["limbs"],
         resolution?: ReturnType<typeof prepareHumanPoseResolution>,
       ): void => {
         const t: number = phase.seconds;
         const root: IAutoMovieVector3 = phase.root;
         if (t >= P) {
-          const end: Pick<IHumanPosture, "joints" | "limbs"> = jumpPushEnd(props, root, resolution);
+          const end: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> = jumpPushEnd(props, root, resolution);
           Object.assign(joints, end.joints);
           Object.assign(limbs, end.limbs);
           return;
@@ -425,7 +426,7 @@ export namespace jumpPush {
         // its heel or its ball keeps rolling.
         const pitch: number = pitchAt(phase, resolution);
         const about: "heel" | "mtp" = t < lowered ? "heel" : "mtp";
-        const foot: HumanFoot.IPlacement = about === "heel" ? heelAt!(pitch) : ballAt(pitch);
+        const foot: IAutoMovieMotionHumanFoot.IPlacement = about === "heel" ? heelAt!(pitch) : ballAt(pitch);
         limbs[`${takeoff}Leg`] = {
           point: foot.ankle,
           rotation: foot.rotation,

@@ -1,4 +1,4 @@
-import { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
+import type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
 
 /**
  * A sequence: an ordered cut-list of shots, the editorial timeline, modelled on

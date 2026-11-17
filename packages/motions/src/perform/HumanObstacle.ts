@@ -1,13 +1,16 @@
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionObstacleAperture,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanObject } from "./HumanObject";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
@@ -32,77 +35,14 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is named: a door's opening is its `aperture` affordance, read like any object's.
  */
 export namespace HumanObstacle {
-  /** A solid of the scene on the floor plan. */
-  export interface IObstacle {
-    /** Its subject id, which a refusal names. */
-    subject: string;
-
-    /** Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. */
-    footprint: readonly IAutoMovieVector3[];
-
-    /** The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. */
-    bottom: number;
-
-    /** The height its solid ends at, metres above the floor. */
-    top: number;
-
-    /** Its openings; none when absent. */
-    apertures?: readonly IAperture[];
-
-    /** Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent. */
-    motion?: (seconds: number) => { position: IAutoMovieVector3; yaw: number };
-  }
-
-  /** An opening through an obstacle. */
-  export interface IAperture {
-    /** Its id within the obstacle. */
-    id: string;
-
-    /** The middle of its sill on the floor plan, world metres; `y` is the sill's height. */
-    at: IAutoMovieVector3;
-
-    /** The level unit direction its width runs along, world. */
-    across: IAutoMovieVector3;
-
-    /** Its clear width, metres. */
-    width: number;
-
-    /** Its clear height above the sill, metres. */
-    height: number;
-  }
-
-  /** What a body needs of a passage. */
-  export interface INeed {
-    /** The width it takes, metres: the shoulders' breadth for a body that walks facing its way. */
-    breadth: number;
-
-    /** The height it takes, metres: the stature for a body that stands. */
-    height: number;
-  }
-
   /** Why a path is blocked, as data: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
-  export const CAUSES = ["solid", "narrow", "headroom"] as const;
-
-  /** Where and why a path is blocked. */
-  export interface IBlock {
-    /** The obstacle. */
-    subject: string;
-
-    /** Where the path first meets the obstacle's footprint, world metres on the floor. */
-    at: IAutoMovieVector3;
-
-    /** How far along the path that is, metres from its start. */
-    distance: number;
-
-    /** Why: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
-    cause: (typeof CAUSES)[number];
-
-    /** The opening the path goes through, for `narrow` and `headroom`. */
-    aperture?: string;
-
-    /** The measure that falls short and what it would have to be, metres, for `narrow` and `headroom`. */
-    short?: { has: number; needs: number };
-  }
+  export const CAUSES = [
+    "solid",
+    "narrow",
+    "headroom",
+  ] as const satisfies readonly NonNullable<
+    IAutoMovieMotionHumanObstacle.IBlock["cause"]
+  >[];
 
   /**
    * A straight wall as an obstacle.
@@ -130,8 +70,8 @@ export namespace HumanObstacle {
     to: IAutoMovieVector3,
     thickness: number,
     height: number,
-    apertures: readonly IAperture[] = [],
-  ): IObstacle {
+    apertures: readonly IAutoMovieMotionObstacleAperture[] = [],
+  ): IAutoMovieMotionHumanObstacle {
     const length: number = Math.hypot(to.x - from.x, to.z - from.z);
     if (!(length > 0) || !(thickness > 0) || !(height > 0))
       throw new Error(
@@ -172,11 +112,11 @@ export namespace HumanObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function apertures(
-    model: HumanObject.IModel,
-    placement: HumanObject.Placement,
-  ): IAperture[] {
-    const placed: IHumanProp.IFrame = HumanObject.frame(placement);
-    const out: IAperture[] = [];
+    model: IAutoMovieMotionHumanObject.IModel,
+    placement: IAutoMovieMotionHumanObject.Placement,
+  ): IAutoMovieMotionObstacleAperture[] {
+    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
+    const out: IAutoMovieMotionObstacleAperture[] = [];
     for (const affordance of model.affordances ?? []) {
       if (
         affordance.kind !== "aperture" ||
@@ -242,15 +182,15 @@ export namespace HumanObstacle {
    */
   export function object(
     subject: string,
-    model: HumanObject.IModel,
-    placement: HumanObject.Placement,
-  ): IObstacle {
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = model.shapes?.() ?? [];
+    model: IAutoMovieMotionHumanObject.IModel,
+    placement: IAutoMovieMotionHumanObject.Placement,
+  ): IAutoMovieMotionHumanObstacle {
+    const shapes: IAutoMoviePhysicalShape[] = model.shapes?.() ?? [];
     if (shapes.length === 0)
       throw new Error(
         `The object ${subject} has no colliders, so nothing says where its solid stands: give it shapes, or state it as a wall`,
       );
-    const placed: IHumanProp.IFrame = HumanObject.frame(placement);
+    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
     const corners: IAutoMovieVector3[] = [];
     let bottom: number = Infinity;
     let top: number = -Infinity;
@@ -292,7 +232,10 @@ export namespace HumanObstacle {
       throw new Error(
         `The object ${subject}'s colliders cover no area of the floor plan, so they stand in no path's way`,
       );
-    const openings: IAperture[] = apertures(model, placement);
+    const openings: IAutoMovieMotionObstacleAperture[] = apertures(
+      model,
+      placement,
+    );
     return {
       subject,
       footprint,
@@ -373,22 +316,22 @@ export namespace HumanObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function blocking(
-    obstacles: readonly IObstacle[],
+    obstacles: readonly IAutoMovieMotionHumanObstacle[],
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
-    need: INeed,
-  ): IBlock | null {
+    need: IAutoMovieMotionHumanObstacle.INeed,
+  ): IAutoMovieMotionHumanObstacle.IBlock | null {
     const dx: number = to.x - from.x;
     const dz: number = to.z - from.z;
     const length: number = Math.hypot(dx, dz);
-    let nearest: IBlock | null = null;
+    let nearest: IAutoMovieMotionHumanObstacle.IBlock | null = null;
     for (const obstacle of obstacles) {
       if (obstacle.bottom >= need.height || obstacle.top <= 0) continue;
       const entered: number | null = enters(obstacle.footprint, from, dx, dz);
       if (entered === null) continue;
       // A solid that starts above the floor and below the body's height (a
       // beam, a lintel) leaves too little headroom under it.
-      const block: IBlock | null =
+      const block: IAutoMovieMotionHumanObstacle.IBlock | null =
         obstacle.bottom > 0
           ? {
               subject: obstacle.subject,
@@ -412,13 +355,13 @@ export namespace HumanObstacle {
 
   /** Why a path that enters an obstacle is blocked by it, or null when it goes through an opening that clears the body. */
   const judged = (
-    obstacle: IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     from: IAutoMovieVector3,
     dx: number,
     dz: number,
-    need: INeed,
-  ): IBlock | null => {
-    const solid: IBlock = {
+    need: IAutoMovieMotionHumanObstacle.INeed,
+  ): IAutoMovieMotionHumanObstacle.IBlock | null => {
+    const solid: IAutoMovieMotionHumanObstacle.IBlock = {
       subject: obstacle.subject,
       at: from,
       distance: 0,

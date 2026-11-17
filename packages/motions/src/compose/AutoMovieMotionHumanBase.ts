@@ -1,8 +1,11 @@
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
 /**
@@ -40,14 +43,14 @@ export namespace AutoMovieMotionHumanBase {
    */
   export function still(
     duration: number,
-    posture: IHumanPosture,
-    contacts: readonly IHumanContactWindow[] = [],
-  ): IHumanActionPlan {
+    posture: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanContactWindow[] = [],
+  ): IAutoMovieMotionHumanActionPlan {
     return {
       duration,
       events: [],
       contacts: [...contacts],
-      posture: (): IHumanPosture => posture,
+      posture: (): IAutoMovieMotionHumanPosture => posture,
     };
   }
 
@@ -70,18 +73,18 @@ export namespace AutoMovieMotionHumanBase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the carrier's posture function.
    */
   export function under(
-    context: Pick<IHumanActionContext, "carrier" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "carrier" | "entry">,
     duration: number,
-    contacts?: readonly IHumanContactWindow[],
-  ): IHumanActionPlan {
-    const carrier: IHumanActionContext.ICarrier | undefined = context.carrier;
+    contacts?: readonly IAutoMovieMotionHumanContactWindow[],
+  ): IAutoMovieMotionHumanActionPlan {
+    const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined = context.carrier;
     if (carrier === undefined)
       return still(
         duration,
         context.entry.posture,
         contacts ??
           context.entry.supports.map(
-            (s): IHumanContactWindow => ({ ...s, from: 0, to: 1 }),
+            (s): IAutoMovieMotionHumanContactWindow => ({ ...s, from: 0, to: 1 }),
           ),
       );
     return {
@@ -92,8 +95,8 @@ export namespace AutoMovieMotionHumanBase {
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => carrier.posture(seconds, channels, resolution, projection),
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => carrier.posture(seconds, channels, resolution, projection),
     };
   }
 
@@ -115,9 +118,9 @@ export namespace AutoMovieMotionHumanBase {
   export function plants(
     from: number = 0,
     to: number = 1,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     return (["leftFoot", "rightFoot"] as const).map(
-      (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+      (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
         part,
         kind: "plant",
         from,

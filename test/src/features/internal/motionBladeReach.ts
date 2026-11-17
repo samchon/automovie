@@ -1,7 +1,10 @@
 import type { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanObject, HumanSword, type IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanObject, HumanSword } from "@automovie/motions";
 
 /**
  * Where a pell stands for a sword's lunge at it to need a given share of a
@@ -39,7 +42,7 @@ export namespace motionBladeReach {
    * @returns The pell's place, its target facing the performer.
    */
   export function lunge(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     sword: ReturnType<typeof createSword>,
     pell: ReturnType<typeof createPell>,
     bearing: number,

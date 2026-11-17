@@ -1,4 +1,4 @@
-import { IAutoMovieDesignChange } from "./IAutoMovieDesignChange";
+import type { IAutoMovieDesignChange } from "./IAutoMovieDesignChange";
 
 /**
  * One design alternative: a change set over a common base revision.

@@ -1,24 +1,28 @@
-import {
-  Vector3,
-  minimumJerk,
-  type superposeMinimumJerk,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import type { IKickGeometry } from "./IKickGeometry";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
+import { KickChamber } from "./KickChamber";
+import { KickContact } from "./KickContact";
 import { KickForm } from "./KickForm";
 import { KickLaunch } from "./KickLaunch";
 import { KickPlans } from "./KickPlans";
+import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -67,21 +71,21 @@ export namespace KickGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Geometry retains original plans/record and fixed scalar/bone-name metadata until settle/release; each current FK/projector query ends synchronously without pose/time history.
    */
   export function build(
-    context: IHumanActionContext<kick.IParams>,
-    timing: IKickGeometry.ITiming,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     fixed: number | null | undefined,
     launch: KickLaunch.ILaunch,
-  ): IKickGeometry {
-    const body: IHumanBody = context.body;
-    const { side }: IKickGeometry.ITiming = timing;
+  ): IAutoMovieMotionHumanKickGeometry {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const { side }: IAutoMovieMotionHumanKickGeometry.ITiming = timing;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const { line, offset, props, origin, feint }: KickLaunch.ILaunch = launch;
 
     // What follows the partner as shown: the aim's tracker, and a contact
     // for each correction of the aim on the launch's step, trying the lean
     // it corrects first. A feint throws at nothing, so it follows nothing.
-    const tracker: StrikingAim.ITracker = StrikingAim.track(
+    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker = StrikingAim.track(
       launch.aim,
       {
         launch: t0 - StrikingTarget.LOOK,
@@ -93,7 +97,7 @@ export namespace KickGeometry {
       offset,
     );
     const launched: KickLaunch.IPlanned = launch.launched;
-    const carriage: IKickGeometry.ICarriage = launched.carriage;
+    const carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = launched.carriage;
     const fit: KickChain.IFit = launched.fit;
     const plans: KickPlans.IPlans = KickPlans.create({
       first: launched,
@@ -102,7 +106,7 @@ export namespace KickGeometry {
         goal: IAutoMovieVector3,
       ): KickLaunch.IPlanned =>
         launch.contact(goal, carriage.step, previous.carriage.lean, carriage.drive, launch.chamber),
-      units: (seconds: number): readonly superposeMinimumJerk.IUnit[] =>
+      units: (seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
         feint ? [] : tracker.units(seconds),
       t0,
     });
@@ -111,11 +115,11 @@ export namespace KickGeometry {
       carriage,
       base: (
         seconds: number,
-        shown: IKickGeometry.ICarriage,
+        shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
         turning?: number,
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: ReturnType<typeof prepareHumanPostureProjection>,
-      ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution, projection),
+      ): IAutoMovieMotionHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution, projection),
       shown: plans.shown,
       leg: plans.leg,
       origin,
@@ -168,18 +172,18 @@ export namespace KickGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains original parts and fixed goal metadata; current FK/projector suppliers and maps end on return or throw and never enter returned authored postures.
    */
   export function compose(
-    body: IHumanBody,
-    timing: IKickGeometry.ITiming,
+    body: IAutoMovieMotionHumanBody,
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
-    parts: Omit<IKickGeometry, "posture">,
-  ): IKickGeometry {
+    parts: Omit<IAutoMovieMotionHumanKickGeometry, "posture">,
+  ): IAutoMovieMotionHumanKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead: timing.lead });
     const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
-        const base: IHumanPosture = parts.base(t, parts.shown(t), undefined, resolution, projection);
+        const base: IAutoMovieMotionHumanPosture = parts.base(t, parts.shown(t), undefined, resolution, projection);
         const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
         return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip) };
       }
@@ -196,7 +200,7 @@ export namespace KickGeometry {
       const stepped: number = minimumJerk.share(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       );
-      const base: IHumanPosture = parts.base(s, parts.shown(back), back, resolution, projection);
+      const base: IAutoMovieMotionHumanPosture = parts.base(s, parts.shown(back), back, resolution, projection);
       const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
       return {
         body: base,
@@ -213,7 +217,7 @@ export namespace KickGeometry {
     };
     return {
       ...parts,
-      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
+      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const held: IHeld = chain(t, resolution, projection);
         const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
@@ -238,10 +242,10 @@ export namespace KickGeometry {
   /** The body and the kicking leg's goal at one instant. */
   interface IHeld {
     /** The body's posture without the kicking leg's goal. */
-    body: IHumanPosture;
+    body: IAutoMovieMotionHumanPosture;
 
     /** The kicking leg's goal. */
-    leg: IKickGeometry.ILeg;
+    leg: IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 
   /**
@@ -251,13 +255,13 @@ export namespace KickGeometry {
    * step (up or back) between the launch and the chamber key.
    */
   function windows(
-    timing: IKickGeometry.ITiming,
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     side: "left" | "right",
     support: "left" | "right",
     stepped: boolean,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     const d: number = timing.duration;
-    const pivot = (from: number, to: number): IHumanContactWindow => ({
+    const pivot = (from: number, to: number): IAutoMovieMotionHumanContactWindow => ({
       part: `${support}Foot`,
       kind: "pivot",
       from,

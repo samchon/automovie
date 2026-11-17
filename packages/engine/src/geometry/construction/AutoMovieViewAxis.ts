@@ -1,27 +1,35 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieAxisDirection,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewJointedCourse } from "./AutoMovieViewJointedCourse";
-
-/** World point or direction triple; lengths use kernel mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /** Shared scale-safe vector operations used by every axis builder. */
 const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
 /** A vector scaled to length 1; a zero vector stays zero, which no regular axis meets. */
-function unit(a: Vec3): Vec3 {
+function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return AutoMovieAxisDirection.unit(a);
 }
 
 /** Unit projection in an admitted tangent's normal plane, with shared scale-safe numeric ownership. */
-function projectUnitDirection(a: Vec3, tangent: Vec3): Vec3 {
-  const projected: AutoMovieAxisDirection.IProjection =
+function projectUnitDirection(
+  a: AutoMovieVector3Tuple,
+  tangent: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
+  const projected: IAutoMovieAxisDirection.IProjection =
     AutoMovieAxisDirection.project(a, tangent);
   return AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
 }
@@ -54,64 +62,6 @@ function projectUnitDirection(a: Vec3, tangent: Vec3): Vec3 {
  */
 export namespace AutoMovieViewAxis {
   /**
-   * A source section plane with optional analytic station derivatives.
-   *
-   * @evidence contracts/development/design.md#principled-representation at reads the actual source plane; jet, when supplied, differentiates that same source instead of a resampled frame spline.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Value-only axes remain supported and analytic owners add one explicitly optional callback.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing analytic derivatives remain absent; a numerical minimal-rotation frame does not acquire an exact jet guarantee.
-   * @evidence contracts/development/common.md#meaningful-documentation Callers must keep source data immutable; jet may return null at a singular or unrepresentable station.
-   */
-  export interface IAxis {
-    /**
-     * The section plane at a station.
-     *
-     * @param station Station along the part, mm.
-     * @returns Origin on the axis and orthonormal chart axes, world mm.
-     *
-     * @evidence contracts/development/implementation.md#principled-implementation Evaluates the actual source plane at the requested station.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One value callback supports both analytic and numerical source owners.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Values do not imply an available finite station jet.
-     * @evidence contracts/development/common.md#meaningful-documentation States source-plane output and kernel station units.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; its builder states actual query cost.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls share the axis's immutable preparation.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
-     */
-    at(station: number): AutoMovieLoftFrame.IFrame;
-
-    /**
-     * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.
-     *
-     * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same source law rather than resampled frame values.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional support and nullable singular readings are distinct states.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite derivative is invented at a parameter pole.
-     * @evidence contracts/development/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; the actual source chooses its analytic evaluation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the immutable source used by at.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned jet vectors belong to the caller; the callback owns no separate cache.
-     */
-    jet?(
-      station: number,
-      parameter?: AutoMovieConstructionOutlineParameter,
-    ): AutoMovieViewAxisJet.IJet | null;
-  }
-
-  /**
-   * One source point of a curved axis in world mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation A station/point pair defines an original natural-curve datum.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One scalar and one triple carry each knot.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame derivative is inferred by the record itself.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state units and increasing station order.
-   */
-  export interface IAxisKnot {
-    /** Station, mm, strictly increasing over the knots. */
-    station: number;
-
-    /** The axis point there, world mm. */
-    point: Vec3;
-  }
-
-  /**
    * A straight axis: the plane at station 0 moved along its normal `v x u`.
    *
    * @param origin The axis point at station 0, world mm.
@@ -127,11 +77,15 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes the normal once for all queries.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The immutable input vectors live with the axis; returned vectors are fresh.
    */
-  export function straight(origin: Vec3, u: Vec3, v: Vec3): IAxis {
-    const w: Vec3 = cross(v, u);
-    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+  export function straight(
+    origin: AutoMovieVector3Tuple,
+    u: AutoMovieVector3Tuple,
+    v: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis {
+    const w: AutoMovieVector3Tuple = cross(v, u);
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): AutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: add(origin, scale(w, station)),
       u: [...u],
       v: [...v],
@@ -140,8 +94,8 @@ export namespace AutoMovieViewAxis {
       at,
       jet: (
         station: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
-      ): AutoMovieViewAxisJet.IJet | null =>
+        parameter?: IAutoMovieConstructionOutlineParameter,
+      ): IAutoMovieViewAxisJet.IJet | null =>
         AutoMovieViewAxisJet.parameter(
           AutoMovieViewAxisJet.fixed(at(station), w, [0, 0, 0]),
           parameter,
@@ -164,7 +118,7 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared straight axis serves every station.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned fixed-size axis closure is retained.
    */
-  export function horizontal(): IAxis {
+  export function horizontal(): IAutoMovieViewAxis.IAxis {
     return straight([0, 0, 0], [1, 0, 0], [0, 0, 1]);
   }
 
@@ -187,23 +141,23 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis owns its two prepared knot-sized splines; query outputs are local.
    */
   export function level(
-    x: readonly IAxisKnot1[],
-    z: readonly IAxisKnot1[],
-  ): IAxis {
+    x: readonly IAutoMovieViewAxis.IAxisKnot1[],
+    z: readonly IAutoMovieViewAxis.IAxisKnot1[],
+  ): IAutoMovieViewAxis.IAxis {
     const spline: (
-      knots: readonly IAxisKnot1[],
-    ) => AutoMovieNaturalSpline.ISpline = (
-      knots: readonly IAxisKnot1[],
-    ): AutoMovieNaturalSpline.ISpline =>
+      knots: readonly IAutoMovieViewAxis.IAxisKnot1[],
+    ) => IAutoMovieNaturalCubicSpline = (
+      knots: readonly IAutoMovieViewAxis.IAxisKnot1[],
+    ): IAutoMovieNaturalCubicSpline =>
       AutoMovieNaturalSpline.create(
-        knots.map((k: IAxisKnot1): number => k.station),
-        knots.map((k: IAxisKnot1): number => k.value),
+        knots.map((k: IAutoMovieViewAxis.IAxisKnot1): number => k.station),
+        knots.map((k: IAutoMovieViewAxis.IAxisKnot1): number => k.value),
       );
-    const sx: AutoMovieNaturalSpline.ISpline = spline(x);
-    const sz: AutoMovieNaturalSpline.ISpline = spline(z);
-    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+    const sx: IAutoMovieNaturalCubicSpline = spline(x);
+    const sz: IAutoMovieNaturalCubicSpline = spline(z);
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): AutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: [
         AutoMovieNaturalSpline.evaluate(sx, station),
         station,
@@ -216,8 +170,8 @@ export namespace AutoMovieViewAxis {
       at,
       jet: (
         station: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
-      ): AutoMovieViewAxisJet.IJet | null => {
+        parameter?: IAutoMovieConstructionOutlineParameter,
+      ): IAutoMovieViewAxisJet.IJet | null => {
         const dx: [number, number] = AutoMovieNaturalSpline.derivative(
           sx,
           station,
@@ -237,22 +191,6 @@ export namespace AutoMovieViewAxis {
         );
       },
     };
-  }
-
-  /**
-   * One mm-valued source offset at a mm station.
-   *
-   * @evidence contracts/development/design.md#principled-representation A scalar knot specifies one original level-course offset.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers carry the scalar source datum.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record neither validates station order nor invents derivative data.
-   * @evidence contracts/development/common.md#meaningful-documentation Both members state kernel mm units.
-   */
-  export interface IAxisKnot1 {
-    /** Station, mm, strictly increasing over the knots. */
-    station: number;
-
-    /** The value there, mm. */
-    value: number;
   }
 
   /**
@@ -285,24 +223,24 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned axis owns its finite course arrays; frame query vectors are local and no global cache retains an axis.
    */
   export function jointed(
-    centres: readonly Vec3[],
+    centres: readonly AutoMovieVector3Tuple[],
     halves: readonly number[],
-    up: Vec3,
-  ): IAxis | string {
-    const c: AutoMovieViewJointedCourse.ICourse | string =
+    up: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis | string {
+    const c: IAutoMovieViewJointedCourse.ICourse | string =
       AutoMovieViewJointedCourse.prepare(centres, halves);
     if (typeof c === "string") return c;
-    const { directions, turns }: AutoMovieViewJointedCourse.ICourse = c;
+    const { directions, turns }: IAutoMovieViewJointedCourse.ICourse = c;
     const upNorm: number = Math.hypot(...up);
     if (!up.every(Number.isFinite) || !Number.isFinite(upNorm) || !(upNorm > 0))
       return "up is not a finite nonzero direction";
-    const projected: AutoMovieAxisDirection.IProjection =
+    const projected: IAutoMovieAxisDirection.IProjection =
       AutoMovieAxisDirection.project(up, directions[0]!, upNorm);
     if (!Number.isFinite(projected.normalNorm))
       return "up normal projection is not finitely representable";
     if (!(projected.normalNorm > 1e-9 * projected.targetNorm))
       return `up relative normal projection ${projected.normalNorm / projected.targetNorm} must exceed 1e-9 for direction conditioning`;
-    const first: Vec3 = AutoMovieAxisDirection.unit(
+    const first: AutoMovieVector3Tuple = AutoMovieAxisDirection.unit(
       projected.vector,
       projected.normalNorm,
     );
@@ -313,28 +251,6 @@ export namespace AutoMovieViewAxis {
       first,
       turns,
     );
-  }
-
-  /**
-   * One segment's straight run on a jointed axis: where along the segment the course runs on its line, and the stations there. Outside the run the course is in a turn and cuts the corner inside the segment's line.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point at a distance along a segment's straight run stands at the run's start station plus that distance past the run's start, because the course is the segment's own line there and its station is arclength.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers: the run's two ends as distances from the segment's first centre and as stations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point inside a turn has no station on the segment's line; the run says where that begins rather than guessing one.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field, its unit and what lies outside the run.
-   */
-  export interface IRun {
-    /** Distance from the segment's first centre where the run starts, mm: the previous turn's set-back, 0 on the first segment. */
-    from: number;
-
-    /** Distance from the segment's first centre where the run ends, mm: the segment's length less the next turn's set-back. */
-    to: number;
-
-    /** The station at `from`, mm. */
-    start: number;
-
-    /** The station at `to`, mm. */
-    end: number;
   }
 
   /**
@@ -352,24 +268,26 @@ export namespace AutoMovieViewAxis {
    * @returns The runs, or the broken admission rule.
    */
   export function runs(
-    centres: readonly Vec3[],
+    centres: readonly AutoMovieVector3Tuple[],
     halves: readonly number[],
-  ): IRun[] | string {
-    const c: AutoMovieViewJointedCourse.ICourse | string =
+  ): IAutoMovieViewAxis.IRun[] | string {
+    const c: IAutoMovieViewJointedCourse.ICourse | string =
       AutoMovieViewJointedCourse.prepare(centres, halves);
     if (typeof c === "string") return c;
-    return c.lengths.map((length: number, i: number): IRun => {
-      const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
-      const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
-      const start: number =
-        i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
-      return {
-        from: before,
-        to: length - after,
-        start,
-        end: start + length - before - after,
-      };
-    });
+    return c.lengths.map(
+      (length: number, i: number): IAutoMovieViewAxis.IRun => {
+        const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
+        const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
+        const start: number =
+          i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
+        return {
+          from: before,
+          to: length - after,
+          start,
+          end: start + length - before - after,
+        };
+      },
+    );
   }
 
   /**
@@ -393,69 +311,87 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned axis retains three knot-sized splines and fixed initial vectors. A query holds fixed-size working vectors while allocating transient vectors per step; it retains no station cache or external resource after returning.
    */
   export function minimal(
-    knots: readonly IAxisKnot[],
-    u: Vec3,
+    knots: readonly IAutoMovieViewAxis.IAxisKnot[],
+    u: AutoMovieVector3Tuple,
     step: number,
-  ): IAxis {
-    const stations: number[] = knots.map((k: IAxisKnot): number => k.station);
-    const splines: AutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
-      (c: number): AutoMovieNaturalSpline.ISpline =>
+  ): IAutoMovieViewAxis.IAxis {
+    const stations: number[] = knots.map(
+      (k: IAutoMovieViewAxis.IAxisKnot): number => k.station,
+    );
+    const splines: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
+      (c: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           stations,
-          knots.map((k: IAxisKnot): number => k.point[c]!),
+          knots.map((k: IAutoMovieViewAxis.IAxisKnot): number => k.point[c]!),
         ),
     );
-    const point: (s: number) => Vec3 = (s: number): Vec3 =>
-      splines.map((p: AutoMovieNaturalSpline.ISpline): number =>
+    const point: (s: number) => AutoMovieVector3Tuple = (
+      s: number,
+    ): AutoMovieVector3Tuple =>
+      splines.map((p: IAutoMovieNaturalCubicSpline): number =>
         AutoMovieNaturalSpline.evaluate(p, s),
-      ) as Vec3;
-    const tangent: (s: number) => Vec3 = (s: number): Vec3 =>
+      ) as AutoMovieVector3Tuple;
+    const tangent: (s: number) => AutoMovieVector3Tuple = (
+      s: number,
+    ): AutoMovieVector3Tuple =>
       unit(
         splines.map(
-          (p: AutoMovieNaturalSpline.ISpline): number =>
+          (p: IAutoMovieNaturalCubicSpline): number =>
             AutoMovieNaturalSpline.derivative(p, s)[0],
-        ) as Vec3,
+        ) as AutoMovieVector3Tuple,
       );
 
     // The frame at the first knot: u square to the tangent there.
     const s0: number = stations[0]!;
-    const t0: Vec3 = tangent(s0);
-    const u0: Vec3 = projectUnitDirection(u, t0);
+    const t0: AutoMovieVector3Tuple = tangent(s0);
+    const u0: AutoMovieVector3Tuple = projectUnitDirection(u, t0);
 
     // Double reflection from (s, r) to s + h: reflect by the chord, then by
     // the difference of the reflected tangent and the new one.
-    const reflect: (s: number, r: Vec3, h: number) => Vec3 = (
+    const reflect: (
       s: number,
-      r: Vec3,
+      r: AutoMovieVector3Tuple,
       h: number,
-    ): Vec3 => {
-      const x0: Vec3 = point(s);
-      const x1: Vec3 = point(s + h);
-      const t: Vec3 = tangent(s);
-      const t1: Vec3 = tangent(s + h);
-      const v1: Vec3 = sub(x1, x0);
+    ) => AutoMovieVector3Tuple = (
+      s: number,
+      r: AutoMovieVector3Tuple,
+      h: number,
+    ): AutoMovieVector3Tuple => {
+      const x0: AutoMovieVector3Tuple = point(s);
+      const x1: AutoMovieVector3Tuple = point(s + h);
+      const t: AutoMovieVector3Tuple = tangent(s);
+      const t1: AutoMovieVector3Tuple = tangent(s + h);
+      const v1: AutoMovieVector3Tuple = sub(x1, x0);
       const c1: number = dot(v1, v1);
       if (c1 === 0 && v1.every((value: number): boolean => value === 0))
         return r;
-      const rL: Vec3 = AutoMovieAxisDirection.reflect(r, v1, c1);
-      const tL: Vec3 = AutoMovieAxisDirection.reflect(t, v1, c1);
-      const v2: Vec3 = sub(t1, tL);
+      const rL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(
+        r,
+        v1,
+        c1,
+      );
+      const tL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(
+        t,
+        v1,
+        c1,
+      );
+      const v2: AutoMovieVector3Tuple = sub(t1, tL);
       const c2: number = dot(v2, v2);
       return AutoMovieAxisDirection.reflect(rL, v2, c2);
     };
 
-    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): AutoMovieLoftFrame.IFrame => {
+    ): IAutoMovieLoftSectionFrame => {
       // March from the first knot in equal steps no longer than `step`,
       // so a station's frame depends on the station alone.
       const span: number = station - s0;
       const n: number = Math.max(1, Math.ceil(Math.abs(span) / step));
       const h: number = span / n;
-      let r: Vec3 = u0;
+      let r: AutoMovieVector3Tuple = u0;
       for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
-      const t: Vec3 = tangent(station);
-      const ru: Vec3 = projectUnitDirection(r, t);
+      const t: AutoMovieVector3Tuple = tangent(station);
+      const ru: AutoMovieVector3Tuple = projectUnitDirection(r, t);
       return { origin: point(station), u: ru, v: cross(ru, t) };
     };
     return { at };
@@ -475,7 +411,9 @@ export namespace AutoMovieViewAxis {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure vector reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triple and retains nothing.
    */
-  export function normal(frame: AutoMovieLoftFrame.IFrame): Vec3 {
+  export function normal(
+    frame: IAutoMovieLoftSectionFrame,
+  ): AutoMovieVector3Tuple {
     return cross(frame.v, frame.u);
   }
 }

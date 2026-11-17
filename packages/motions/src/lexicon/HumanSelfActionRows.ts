@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { HumanActionRow } from "../law/HumanActionRow";
 import { selfAction } from "../touch/selfAction";
 
@@ -13,29 +18,37 @@ import { selfAction } from "../touch/selfAction";
  */
 export namespace HumanSelfActionRows {
   /** `selfAction` of kind `stretch`. */
-  export const selfStretch = HumanActionRow.of("selfStretch", selfAction, {
+  export const selfStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfStretch"]
+  > = HumanActionRow.of("selfStretch", selfAction, {
     kind: "stretch",
   });
 
   /** `selfAction` of kind `victory`. */
-  export const selfVictory = HumanActionRow.of("selfVictory", selfAction, {
+  export const selfVictory: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfVictory"]
+  > = HumanActionRow.of("selfVictory", selfAction, {
     kind: "victory",
   });
 
   /** `selfAction` of kind `fistPump`. */
-  export const selfFistPump = HumanActionRow.of("selfFistPump", selfAction, {
+  export const selfFistPump: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfFistPump"]
+  > = HumanActionRow.of("selfFistPump", selfAction, {
     kind: "fistPump",
   });
 
   /** `selfAction` of kind `neckRoll`. */
-  export const selfNeckRoll = HumanActionRow.of("selfNeckRoll", selfAction, {
+  export const selfNeckRoll: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfNeckRoll"]
+  > = HumanActionRow.of("selfNeckRoll", selfAction, {
     kind: "neckRoll",
   });
 
   /** `selfAction` of kind `shoulderRoll`. */
-  export const selfShoulderRoll = HumanActionRow.of(
-    "selfShoulderRoll",
-    selfAction,
-    { kind: "shoulderRoll" },
-  );
+  export const selfShoulderRoll: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfShoulderRoll"]
+  > = HumanActionRow.of("selfShoulderRoll", selfAction, {
+    kind: "shoulderRoll",
+  });
 }

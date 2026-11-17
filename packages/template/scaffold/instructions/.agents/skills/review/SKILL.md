@@ -1,22 +1,22 @@
 ---
 name: review
-description: Reviews independently what an author made: narrative passes, source and its evidence, and the delivered output, and estimates experience only on request. Use for independent review, evidence truth checks, final acceptance or read-only edition comparison.
+description: Reviews independently what an author made.
 ---
 
 # Review
 
-Review in a fresh context without the author's working memory, because an author reads their own work as intended. Identify the requested judgment, its exact scope, its current inputs and its recipient.
+Review in a separate context without the author's working memory, because an author reads their own work as intended. Identify the requested judgment, its exact scope, its current inputs and its recipient.
 
 A self-review is labeled as one and never stands for independent acceptance, and an unavailable context or output is an unperformed check. A narrative pass runs the rounds its [route](../story/workflow/SKILL.md) sets; other reviews repeat until their scope closes. Reviewing segments while implementing motion belongs to the author, under [segment review](../motion/segment-review.md).
 
-| Task | Read |
+| Read | For |
 | --- | --- |
-| Read a narrative independently before auditing author records | [Independent reading](independent-reading.md) |
-| Judge a narrative pass, exchange findings and close its round | [Narrative rounds](narrative-rounds.md) |
-| Review source, its tests and the truth of its answers | [Source review](source-review.md) |
-| Accept the complete commissioned output: text, video or asset | [Delivery review](delivery-review.md) |
-| Estimate quality or compare editions without approving anything | [Estimation](estimation.md) |
+| [Independent reading](independent-reading.md) | Reading a narrative independently before auditing author records |
+| [Narrative rounds](narrative-rounds.md) | Judging a narrative pass, exchanging findings and closing its round |
+| [Source review](source-review.md) | Reviewing source, its tests and the truth of its answers |
+| [Delivery review](delivery-review.md) | Accepting the complete commissioned output: text, video or asset |
+| [Estimation](estimation.md) | Estimating quality or comparing editions without approving anything |
 
 ## What a reviewer observes
 
-Judge motion and picture on stills at the spacing [delivery review](delivery-review.md#measurement-and-comparison) gives, and report playback and sound only as what the user watched or heard, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets. A review that claims an observation it could not make is worse than one that names the gap.
+Judge motion and picture on stills at the [times](../visual-debugging/capture.md#times) capture sets, and report playback and sound only as what the user watched or heard.

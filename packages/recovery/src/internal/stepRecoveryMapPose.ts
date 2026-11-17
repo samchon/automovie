@@ -1,10 +1,9 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieRecoveryMapPose,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 
 /**
  * Apply an independent left SO3 and additive translation resection step.

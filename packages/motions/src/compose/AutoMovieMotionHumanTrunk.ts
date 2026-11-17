@@ -1,21 +1,27 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTrunk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Trunk phrases: the trunk turned on the pelvis, the body sunk into its
@@ -53,7 +59,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function turn(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     degrees: number,
@@ -62,40 +68,6 @@ export namespace AutoMovieMotionHumanTrunk {
       chest: [0, 0, CHEST * degrees],
       spine: [0, 0, (1 - CHEST) * degrees],
     });
-  }
-
-  /**
-   * A crouch over two windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, unit and range.
-   * @evidence contracts/development/design.md#principled-representation A crouch is how far the hips sink and how far the trunk pitches, between a sinking and a rising window; the knees are not stated because the planted feet decide them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven required members and the legs the crouch plants, read only by `crouch`; the legs exist because one caller (the batting stance) steps one foot out itself while the body sinks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hip shift: the shift is solved, so a caller cannot state one that unbalances the body; the feet are read off the standing posture, so a caller cannot plant them somewhere the body does not stand.
-   */
-  export interface ICrouch {
-    /** The body. */
-    body: IHumanBody;
-
-    /** A standing posture of the action, the one the balance is solved on. */
-    standing: IHumanPosture;
-
-    /** The action's clock. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The instants the body starts sinking and is lowest at. */
-    rise: readonly [string, string];
-
-    /** The instants the body starts rising and stands again at. */
-    fall: readonly [string, string];
-
-    /** How far the hips sink at the lowest, metres; not negative. */
-    depth: number;
-
-    /** The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. */
-    pitch: number;
-
-    /** The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place. */
-    legs?: readonly AutoMovieMotionHumanLeg.Side[];
   }
 
   /**
@@ -115,9 +87,9 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The getter and temporary map end with synchronous return or throw; only the two fresh foot placements escape.
    */
   export function footing(
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
@@ -125,7 +97,7 @@ export namespace AutoMovieMotionHumanTrunk {
       resolution(),
       FEET,
     );
-    const at = (side: AutoMovieMotionHumanLeg.Side): HumanFoot.IPlacement => ({
+    const at = (side: AutoMovieHumanSide): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
       rotation: bones.get(`${side}Foot`)!.worldRotation,
     });
@@ -153,12 +125,12 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function planted(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    feet: Readonly<Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement>>,
-    legs: readonly AutoMovieMotionHumanLeg.Side[],
-  ): IHumanPosture {
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>>,
+    legs: readonly AutoMovieHumanSide[],
+  ): IAutoMovieMotionHumanPosture {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of legs)
       limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
         body,
@@ -186,15 +158,15 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes unchanged body, foot placements and leg selection. Current root/yaw and every raw posture/goal remain live inputs, while the leg owner guards exact rotation metadata and owns its original numerical knee/contact formulas.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action holds the borrowed fixed selection/feet and at most two bounded goal readers until release. No current posture, returned limb map, target result, FK/ROM loan or time history is retained.
    */
-  export function preparePlanted(body: IHumanBody,
-    feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement>,
-    legs: readonly AutoMovieMotionHumanLeg.Side[] = ["left", "right"]): (posture: IHumanPosture) => IHumanPosture {
-    const goals: Partial<Record<AutoMovieMotionHumanLeg.Side, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
+  export function preparePlanted(body: IAutoMovieMotionHumanBody,
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    legs: readonly AutoMovieHumanSide[] = ["left", "right"]): (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
+    const goals: Partial<Record<AutoMovieHumanSide, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
     for (const side of legs)
       if (goals[side] === undefined)
         goals[side] = AutoMovieMotionHumanLeg.prepareGoal(body, side, feet[side], true);
-    return (posture: IHumanPosture): IHumanPosture => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    return (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of legs) limbs[`${side}Leg`] = goals[side]!(posture);
       return { ...posture, limbs };
     };
@@ -222,12 +194,12 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function sunk(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     depth: number,
     inclination: number,
     back: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const goal: IAutoMovieVector3 = HumanFrame.point(
       { origin: posture.root, yaw: posture.yaw },
@@ -240,8 +212,8 @@ export namespace AutoMovieMotionHumanTrunk {
         hips,
       ),
     );
-    const left: IHumanPosture.IGoal | undefined = posture.limbs.leftLeg;
-    const right: IHumanPosture.IGoal | undefined = posture.limbs.rightLeg;
+    const left: IAutoMovieHumanLimbGoal | undefined = posture.limbs.leftLeg;
+    const right: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightLeg;
     const tilt = HumanTrunk.incline(
       posture.joints,
       inclination,
@@ -252,7 +224,7 @@ export namespace AutoMovieMotionHumanTrunk {
             right: right.point,
           }),
     );
-    const tipped: IHumanPosture = {
+    const tipped: IAutoMovieMotionHumanPosture = {
       ...posture,
       pitch: posture.pitch + tilt.pitch,
       joints: tilt.joints,
@@ -289,21 +261,21 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk`, the solve to `HumanBalance.shift` and the leg goals to `AutoMovieMotionHumanLeg.goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments and the bounded prepareCrouch writer: two feet, at most two fixed goal readers and one solved shift, without sampled posture results.
    */
-  export function crouch(props: ICrouch): IAutoMovieMotionHumanPrimitive {
-    const lower: (posture: IHumanPosture, share: number) => IHumanPosture =
+  export function crouch(props: IAutoMovieMotionHumanTrunk.ICrouch): IAutoMovieMotionHumanPrimitive {
+    const lower: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture =
       prepareCrouch(props);
-    const legs: readonly AutoMovieMotionHumanLeg.Side[] = props.legs ?? ["left", "right"];
+    const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
     return {
       channels: [
         "root",
         "trunk",
         ...legs.map(
-          (side: AutoMovieMotionHumanLeg.Side): "leftLeg" | "rightLeg" => `${side}Leg`,
+          (side: AutoMovieHumanSide): "leftLeg" | "rightLeg" => `${side}Leg`,
         ),
       ],
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
         lower(posture, props.clock.envelope(props.rise, props.fall, seconds)),
     };
   }
@@ -327,15 +299,15 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns two foot frames, at most two bounded fixed-goal readers and one solved shift until its action ends. The search's trial readings do not survive preparation and no time-indexed history is kept.
    */
   export function prepareCrouch(
-    props: Pick<ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
-  ): (posture: IHumanPosture, share: number) => IHumanPosture {
+    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
+  ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
-    const legs: readonly AutoMovieMotionHumanLeg.Side[] = props.legs ?? [
+    const legs: readonly AutoMovieHumanSide[] = props.legs ?? [
       "left",
       "right",
     ];
-    const feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> =
+    const feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
       footing(props.body, props.standing);
     const plant: ReturnType<typeof preparePlanted> = preparePlanted(props.body, feet, legs);
 
@@ -343,10 +315,10 @@ export namespace AutoMovieMotionHumanTrunk {
     // the pelvis's share is limited by, and the knees bend as the root goes
     // down.
     const low = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       share: number,
       back: number,
-    ): IHumanPosture =>
+    ): IAutoMovieMotionHumanPosture =>
       plant(
         sunk(
           props.body,
@@ -358,9 +330,9 @@ export namespace AutoMovieMotionHumanTrunk {
       );
     const back: number = HumanBalance.shift(
       props.body,
-      (b: number): IHumanPosture => low(props.standing, 1, b),
+      (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b),
     );
-    return (posture: IHumanPosture, share: number): IHumanPosture =>
+    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
       low(posture, share, back * share);
   }
 
@@ -387,13 +359,13 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps the clock, the windows and one solved number; the extended posture is read only during the solve.
    */
   export function counterbalance(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    extended: IHumanPosture,
+    extended: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPrimitive {
-    const shifted = (b: number): IHumanPosture =>
+    const shifted = (b: number): IAutoMovieMotionHumanPosture =>
       AutoMovieMotionHumanRoot.place(extended, {
         point: { x: 0, y: 0, z: -b },
         yaw: 0,

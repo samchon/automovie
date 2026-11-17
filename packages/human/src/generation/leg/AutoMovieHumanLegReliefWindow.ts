@@ -1,4 +1,9 @@
-import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLegReliefWindow,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
@@ -16,56 +21,6 @@ import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
  * that points into the leg).
  */
 export namespace AutoMovieHumanLegReliefWindow {
-  /** A window's declaration. */
-  export interface IWindow {
-    /** Name, for diagnostics and part ids. */
-    name: string;
-
-    /** The bone the window's centre stands on. */
-    segment: AutoMovieHumanLegStations.Segment;
-
-    /** Share of that bone at the centre. */
-    share: number;
-
-    /** Section angle of the centre, radians, 0 forward and increasing toward lateral. */
-    angle: number;
-
-    /** Half extent along the bone, in local radii. */
-    halfStation: number;
-
-    /** Half extent round the section, radians. */
-    halfAngle: number;
-
-    /** Height at the centre, in local radii. */
-    height: number;
-
-    /** Unit direction of a positive height in the section frame `[forward, along the bone, lateral]`. */
-    axis: [number, number, number];
-
-    /**
-     * Where the centre stands when it is not a share of a bone: `crotch` puts
-     * it at the person's gluteal furrow height when that is known and lies
-     * inside the leg, else at the leg's first own row under the crotch ring,
-     * where the trunk's ring has handed the skin over to the leg's law. A skin
-     * crease of the thigh's root is where the buttock meets the thigh, so it
-     * stands there and not at a share of the femur; `segment` and `share` then
-     * only name its bone.
-     */
-    anchor?: "crotch";
-  }
-
-  /** What a window is placed from. */
-  export interface IInput {
-    /** The joints' heights, mm. */
-    bones: AutoMovieHumanLegStations.IBones;
-
-    /** The local radius at the window's centre, mm: the section's girth over 2 pi. */
-    radius: number;
-
-    /** The centre's station when the window is anchored (see {@link IWindow.anchor}), mm. */
-    at?: number;
-  }
-
   /** Controls across each direction of a window. */
   export const COUNT: number = 15;
 
@@ -86,10 +41,22 @@ export namespace AutoMovieHumanLegReliefWindow {
    * @param input The joints and the local radius.
    * @returns The relief on the chart (station in mm, phase in radians) with its net scaled so the evaluated height at the centre is `height` radii.
    */
-  export function create(window: IWindow, input: IInput): IAutoMovieLoftRelief {
-    if (!(input.radius > 0)) throw new Error(`The ${window.name} window needs a positive local radius`);
+  export function create(
+    window: IAutoMovieHumanLegReliefWindow.IWindow,
+    input: IAutoMovieHumanLegReliefWindow.IInput,
+  ): IAutoMovieLoftRelief {
+    if (!(input.radius > 0))
+      throw new Error(
+        `The ${window.name} window needs a positive local radius`,
+      );
     const n: number = COUNT;
-    const centre: number = input.at ?? AutoMovieHumanLegStations.heightAt(input.bones, window.segment, window.share);
+    const centre: number =
+      input.at ??
+      AutoMovieHumanLegStations.heightAt(
+        input.bones,
+        window.segment,
+        window.share,
+      );
     const half: number = window.halfStation * input.radius;
     const stations: [number, number] = [centre - half, centre + half];
     const first: number = wrap(window.angle - window.halfAngle);
@@ -101,13 +68,30 @@ export namespace AutoMovieHumanLegReliefWindow {
     for (let i: number = 0; i < n; i++)
       for (let j: number = 0; j < n; j++) {
         const inner: boolean = i >= 3 && i <= n - 4 && j >= 3 && j <= n - 4;
-        heights.push(inner ? bump((i - 1) / (n - 3), 0.5) * bump((j - 1) / (n - 3), 0.5) : 0);
+        heights.push(
+          inner
+            ? bump((i - 1) / (n - 3), 0.5) * bump((j - 1) / (n - 3), 0.5)
+            : 0,
+        );
       }
-    const unit: IAutoMovieLoftRelief = { name: window.name, stations, phases, axis: window.axis, rows: n, columns: n, heights };
+    const unit: IAutoMovieLoftRelief = {
+      name: window.name,
+      stations,
+      phases,
+      axis: window.axis,
+      rows: n,
+      columns: n,
+      heights,
+    };
 
     // Scale the net so the evaluated height at the centre is the declared one.
-    const reached: number = AutoMovieLoftRelief.height(unit, centre, first + window.halfAngle)[0];
-    const gain: number = reached > 0 ? (window.height * input.radius) / reached : 0;
+    const reached: number = AutoMovieLoftRelief.height(
+      unit,
+      centre,
+      first + window.halfAngle,
+    )[0];
+    const gain: number =
+      reached > 0 ? (window.height * input.radius) / reached : 0;
     return { ...unit, heights: heights.map((h: number): number => h * gain) };
   }
 }

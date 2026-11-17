@@ -1,14 +1,22 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieActorContext,
-  type IAutoMovieActorWorldFrame,
-  type IAutoMovieRestFrame,
   makeActorSynthesizer,
   resolvePose,
   sampleMotion,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
+  IAutoMovieBone,
+  IAutoMovieMotion,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionFitArms } from "../internal/motionFitArms";

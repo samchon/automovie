@@ -1,5 +1,6 @@
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieComputeModelRestExtent,
   IAutoMovieModel,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -30,7 +31,7 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
  */
 export function computeModelRestExtent(
   model: IAutoMovieModel,
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null {
+): IAutoMovieComputeModelRestExtent.IResult {
   const frames: ReadonlyMap<
     AutoMovieHumanoidBone,
     Pick<IAutoMovieTransform, "translation" | "rotation">

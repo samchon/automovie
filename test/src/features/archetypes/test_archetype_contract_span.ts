@@ -9,7 +9,7 @@ import {
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -148,11 +148,9 @@ export function test_archetype_contract_span(): void {
         findings.push(`${label}: length ${state.length}, not ${distance}`);
 
       // 3. Its collider.
-      const collider: IAutoMoviePhysicalProfile.IShape | undefined = posed
+      const collider: IAutoMoviePhysicalShape | undefined = posed
         .shapes()
-        .find(
-          (s: IAutoMoviePhysicalProfile.IShape): boolean => s.id === "line",
-        );
+        .find((s: IAutoMoviePhysicalShape): boolean => s.id === "line");
       if (collider?.kind !== "capsule" || collider.radius !== 0.002)
         findings.push(
           `${label}: the line's collider is ${collider?.kind ?? "missing"}`,

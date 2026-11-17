@@ -1,7 +1,9 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMeshTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
 
 /**
  * Append one triangle that owns its three corners and its own plane normal.

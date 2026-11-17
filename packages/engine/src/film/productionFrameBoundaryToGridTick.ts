@@ -1,4 +1,7 @@
-import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
+import type {
+  IAutoMovieProductionFrameBoundaryToGridTick,
+  IAutoMovieProductionFrameRate,
+} from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
@@ -21,12 +24,9 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One boundary per call with no shared state; the interval form calls it twice per interval because each end is a separate boundary.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates a few `BigInt` temporaries and retains nothing.
  */
-export function productionFrameBoundaryToGridTick(props: {
-  frame: number;
-  frameRate: IAutoMovieProductionFrameRate;
-  ticksPerSecond: number;
-  rounding: "nearest" | "floor" | "ceiling";
-}): number {
+export function productionFrameBoundaryToGridTick(
+  props: IAutoMovieProductionFrameBoundaryToGridTick.IProps,
+): number {
   if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,

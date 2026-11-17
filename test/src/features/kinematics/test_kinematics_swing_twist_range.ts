@@ -12,7 +12,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -100,7 +102,7 @@ export function test_kinematics_swing_twist_range(): void {
   const rng: () => number = makeRng(0x5717c4);
 
   for (const [bone, constraint] of joints) {
-    const joint: swingTwistRange.IJoint = {
+    const joint: IAutoMovieJointRotationFrame = {
       axes: HUMANOID_JOINT_AXES[bone]!,
       frame: HUMANOID_REST_FRAME[bone],
     };
@@ -144,7 +146,7 @@ export function test_kinematics_swing_twist_range(): void {
         swingConeAngle(flexion, abduction) > constraint.swingDeg
       )
         continue;
-      const reading: swingTwistRange.IReading = swingTwistRange.read(
+      const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
         jointToQuaternion(
           { flexion, abduction, twist: 0 },
           joint.axes,
@@ -175,10 +177,8 @@ export function test_kinematics_swing_twist_range(): void {
       let previous: IAutoMovieQuaternion | undefined;
       for (let k: number = 0; k <= 1000; ++k) {
         const here: IAutoMovieQuaternion = Quaternion.slerp(a, b, k / 1000);
-        const reading: swingTwistRange.IReading = swingTwistRange.read(
-          here,
-          joint,
-        );
+        const reading: IAutoMovieSwingTwistRange.IReading =
+          swingTwistRange.read(here, joint);
 
         const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
         const beyondTwist: number = Math.min(
@@ -230,14 +230,13 @@ export function test_kinematics_swing_twist_range(): void {
               value,
               at: `path ${path} step ${k}: ${[before, here]
                 .map((q: IAutoMovieQuaternion): string => {
-                  const r: swingTwistRange.IReading = swingTwistRange.read(
-                    q,
-                    joint,
-                  );
-                  const p: swingTwistRange.IReading = swingTwistRange.read(
-                    swingTwistRange.project(q, constraint, joint),
-                    joint,
-                  );
+                  const r: IAutoMovieSwingTwistRange.IReading =
+                    swingTwistRange.read(q, joint);
+                  const p: IAutoMovieSwingTwistRange.IReading =
+                    swingTwistRange.read(
+                      swingTwistRange.project(q, constraint, joint),
+                      joint,
+                    );
                   return `in swing ${r.swing.toFixed(2)} azimuth ${r.azimuth.toFixed(2)} twist ${r.twist.toFixed(2)} radius ${swingTwistRange.radius(constraint, joint, r.azimuth).toFixed(2)}, out swing ${p.swing.toFixed(2)} azimuth ${p.azimuth.toFixed(2)} twist ${p.twist.toFixed(2)}`;
                 })
                 .join(" then ")}`,
@@ -266,7 +265,7 @@ export function test_kinematics_swing_twist_range(): void {
   // forearm wound a further 60 degrees past each out.
   const shoulder: IAutoMovieJointConstraint =
     DEFAULT_HUMANOID_ROM.leftUpperArm!;
-  const arm: swingTwistRange.IJoint = {
+  const arm: IAutoMovieJointRotationFrame = {
     axes: HUMANOID_JOINT_AXES.leftUpperArm!,
     frame: HUMANOID_REST_FRAME.leftUpperArm,
   };

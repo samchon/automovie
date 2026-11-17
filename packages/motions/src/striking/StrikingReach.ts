@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The goal maths of bringing a weapon surface onto a target point: where a
@@ -8,7 +11,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * flexion that takes, and the declared rule when the target is out of reach.
  *
  * Only goals are computed here: the end joint's point and the middle joint's
- * position become an `IHumanPosture` limb goal (`point` and a `bend` hint
+ * position become an `HumanPosture` limb goal (`point` and a `bend` hint
  * beside the middle joint), and the engine's `fitChainToTarget` solves the
  * joint angles within the range of motion, as Unreal's two-bone IK with a pole
  * target and Final IK's limb solver take an effector goal and a bend goal. The
@@ -35,71 +38,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export namespace StrikingReach {
   /** The most a middle joint flexes when a rigid-ended limb is jammed, degrees: below the elbow's and knee's 145 to 150 degree range. */
   export const JAM_FLEXION: number = 140;
-
-  /**
-   * One limb solve's input; every point in world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and meaning.
-   * @evidence contracts/development/design.md#principled-representation World points, lengths in metres, a bend direction, a flexion band in degrees and whether the contact may slide; a parallel bend is refused by the solve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the triangle and the band need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
-   */
-  export interface IChain {
-    /** The root joint (shoulder or hip). */
-    root: IAutoMovieVector3;
-
-    /** Where the distal segment's chosen point must go. */
-    point: IAutoMovieVector3;
-
-    /** Root to middle joint, metres. */
-    upper: number;
-
-    /** Middle joint to the chosen point along the distal segment, metres; the wrist or ankle itself when equal to `lower`. */
-    along: number;
-
-    /** Middle joint to end joint, metres. */
-    lower: number;
-
-    /** A direction the middle joint bends toward (the elbow down, the knee leading); any non-zero vector not parallel to root-to-point. */
-    bend: IAutoMovieVector3;
-
-    /** The flexion band at contact, degrees `[least, most]`, 0 straight. */
-    flexion: readonly [number, number];
-
-    /** Whether contact may slide along the distal segment when too close (a shin), or the surface is rigid with the end joint (a fist, a sole). */
-    slide: boolean;
-  }
-
-  /**
-   * One limb solve's result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and meaning, the gap its sign.
-   * @evidence contracts/development/design.md#principled-representation The joints and the landing point in world metres, the flexion in degrees, the contact's distance along the distal segment, a closed status union and a signed gap.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the laws turn into goals and records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface ISolution {
-    /** The middle joint, world metres. */
-    middle: IAutoMovieVector3;
-
-    /** The end joint (wrist or ankle), world metres. */
-    end: IAutoMovieVector3;
-
-    /** Where the chosen point lands, world metres: the target, or the nearest point of the line toward it when short. */
-    point: IAutoMovieVector3;
-
-    /** The middle joint's flexion, degrees. */
-    flexion: number;
-
-    /** The distance from the middle joint at which the contact sits, metres. */
-    along: number;
-
-    /** `reached`, `short` (miss at maximum reach) or `jammed` (closer than the band). */
-    status: "reached" | "short" | "jammed";
-
-    /** How far the point falls short of the target, metres: positive when short, negative when jammed past it, otherwise 0. */
-    gap: number;
-  }
 
   /**
    * Reach of a two-segment limb to a point at a flexion.
@@ -137,7 +75,9 @@ export namespace StrikingReach {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chain(input: IChain): ISolution {
+  export function chain(
+    input: IAutoMovieMotionHumanStrikingReach.IChain,
+  ): IAutoMovieMotionHumanStrikingReach.ISolution {
     const { root, upper, lower } = input;
     let along: number = input.along;
     const toward: IAutoMovieVector3 = Vector3.subtract(input.point, root);
@@ -156,7 +96,8 @@ export namespace StrikingReach {
     const longest: number = reach(upper, along, least);
     const shortest: number = reach(upper, along, most);
 
-    let status: ISolution["status"] = "reached";
+    let status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] =
+      "reached";
     let span: number = distance;
     let gap: number = 0;
     if (distance > longest) {
@@ -241,7 +182,7 @@ export namespace StrikingReach {
    */
   export function hint(
     root: IAutoMovieVector3,
-    solution: ISolution,
+    solution: IAutoMovieMotionHumanStrikingReach.ISolution,
     bend: IAutoMovieVector3,
     distance: number,
   ): IAutoMovieVector3 {

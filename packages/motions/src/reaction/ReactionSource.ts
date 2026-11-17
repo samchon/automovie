@@ -1,8 +1,13 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -43,12 +48,12 @@ export namespace ReactionSource {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one single-name set and fresh observed map during the call; only the placed point/normal/solid record escapes, without a performer, map, dynamic loan, query history or retained callback.
    */
   export function at(
-    context: Pick<IHumanActionContext, "aim" | "body" | "performer">,
-    from: AutoMovieMotionTarget | undefined,
+    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body" | "performer">,
+    from: IAutoMovieMotionTarget | undefined,
     seconds: number,
-    posture: IHumanPosture,
-    place: AutoMovieMotionHumanTarget.IDefault,
-  ): AutoMovieMotionHumanTarget.IPlace {
+    posture: IAutoMovieMotionHumanPosture,
+    place: IAutoMovieMotionHumanTarget.IDefault,
+  ): IAutoMovieMotionHumanTarget.IPlace {
     if (from?.kind !== "person")
       return AutoMovieMotionHumanTarget.resolve(
         context,
@@ -57,7 +62,7 @@ export namespace ReactionSource {
         posture,
         place,
       );
-    const other: IHumanActionContext.IPerformer = context.performer(
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       from.subject,
     );
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([

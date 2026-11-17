@@ -1,11 +1,10 @@
 import {
-  IAutoMovieProductionDialogueLine,
+  type IAutoMovieDialogueMouthRange,
+  type IAutoMovieDialogueSpeakerBinding,
+  type IAutoMovieDialogueVisemeCompilation,
+  type IAutoMovieJoinDialogueVisemes,
   IAutoMovieProductionViseme,
 } from "@automovie/interface";
-
-import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
-import { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
-import { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
 
 const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
   new Set<IAutoMovieProductionViseme["viseme"]>([
@@ -28,18 +27,11 @@ const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The completed fresh timeline can be sampled repeatedly under arbitrary seeks; changed receipt, line timing or binding requires joining again, without a mutable playback or actor registry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the outcome and fresh ranges; input receipts and binding records are read but not retained, and no audio, scene node or host task is acquired.
  */
-export const joinAutoMovieDialogueVisemes: (props: {
-  line: IAutoMovieProductionDialogueLine;
-  bindings: readonly IAutoMovieDialogueSpeakerBinding[];
-  visemes: readonly IAutoMovieProductionViseme[];
-}) => IAutoMovieDialogueVisemeCompilation = (props: {
-  /** Dialogue line whose film range is authoritative. */
-  line: IAutoMovieProductionDialogueLine;
-  /** Explicit speaker-to-actor bindings in authored order. */
-  bindings: readonly IAutoMovieDialogueSpeakerBinding[];
-  /** Final-byte receipt visemes for this line. */
-  visemes: readonly IAutoMovieProductionViseme[];
-}): IAutoMovieDialogueVisemeCompilation => {
+export const joinAutoMovieDialogueVisemes: (
+  props: IAutoMovieJoinDialogueVisemes.IProps,
+) => IAutoMovieDialogueVisemeCompilation = (
+  props: IAutoMovieJoinDialogueVisemes.IProps,
+): IAutoMovieDialogueVisemeCompilation => {
   if (props.line.speaker === undefined)
     return {
       join: { status: "not-run", reason: "speaker-not-declared" },

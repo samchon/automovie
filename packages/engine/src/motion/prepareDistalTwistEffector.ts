@@ -1,14 +1,14 @@
 import type {
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
-import type { solveDistalTwist } from "./solveDistalTwist";
+import { solveDistalTwist } from "./solveDistalTwist";
 
 /**
  * Own the lazy target-independent effector readings of one distal-twist

@@ -1,7 +1,9 @@
-import { IAutoMovieTravelMotion } from "@automovie/interface";
+import {
+  IAutoMovieTravelMotion,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "./constants/AUTOMOVIE_FULL_TURN_EPSILON";
 
 /** A travel axis this short or shorter has no direction. */
@@ -33,12 +35,12 @@ export const validateBuiltTravelMotion: (
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   collector.finiteVector(`${path}.axis`, motion.axis, `${label} travel axis`);
   const length: number = Vector3.length(motion.axis);

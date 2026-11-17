@@ -1,5 +1,14 @@
-import { type IAutoMovieRestFrame, jointToQuaternionOnBasis as compose, normalizeJointAxes } from "@automovie/engine";
-import type { IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  jointToQuaternionOnBasis as compose,
+  normalizeJointAxes,
+} from "@automovie/engine";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../internal/qclose";

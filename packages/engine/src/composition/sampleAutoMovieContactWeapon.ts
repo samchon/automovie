@@ -1,3 +1,5 @@
+import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
+
 import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEvents";
 
 /**
@@ -20,9 +22,9 @@ import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEve
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores no state or handle; the returned actual frame retains no new stop map, callback or query history.
  */
 export function sampleAutoMovieContactWeapon(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
   seconds: number,
-  stops: resolveAutoMovieContactEvents.IStops,
+  stops: IAutoMovieResolveContactEvents.IStops,
 ): resolveAutoMovieContactEvents.IWeaponFrame {
   if (weapon.sample === undefined)
     return {

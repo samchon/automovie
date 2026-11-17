@@ -1,5 +1,8 @@
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -38,9 +41,9 @@ export function test_motion_contact_events_advancement(): void {
     recede: number;
     weapon?: number;
     body?: number;
-  }): { events: resolveAutoMovieContactEvents.IEvent[]; calls: number } => {
+  }): { events: IAutoMovieResolveContactEvents.IEvent[]; calls: number } => {
     let calls: number = 0;
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons: [
           {

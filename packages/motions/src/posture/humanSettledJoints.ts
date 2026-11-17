@@ -4,9 +4,8 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * The body's joints whose range clamp gives a record it issued back bit
@@ -36,7 +35,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by its body and released with it.
  */
 export function humanSettledJoints(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): ReadonlySet<AutoMovieHumanoidBone> {
   let known: ReadonlySet<AutoMovieHumanoidBone> | undefined = SETTLED.get(body);
   if (known !== undefined) return known;
@@ -76,4 +75,4 @@ function holdsZero(range: IAutoMovieAngleRange | null): boolean {
 const WRITTEN: RegExp = /(Thumb|Index|Middle|Ring|Little|Toes)/u;
 
 /** Each body's list, held weakly by the body. */
-const SETTLED: WeakMap<IHumanBody, ReadonlySet<AutoMovieHumanoidBone>> = new WeakMap();
+const SETTLED: WeakMap<IAutoMovieMotionHumanBody, ReadonlySet<AutoMovieHumanoidBone>> = new WeakMap();

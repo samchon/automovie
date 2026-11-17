@@ -1,10 +1,8 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieProjectile,
-  Vector3,
-  projectileAt,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieGravity, Vector3, projectileAt } from "@automovie/engine";
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

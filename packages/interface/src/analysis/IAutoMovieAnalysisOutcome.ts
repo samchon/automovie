@@ -1,6 +1,6 @@
-import { IAutoMovieAnalysisMetric } from "./IAutoMovieAnalysisMetric";
-import { IAutoMovieAnalysisSample } from "./IAutoMovieAnalysisSample";
-import { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
+import type { IAutoMovieAnalysisMetric } from "./IAutoMovieAnalysisMetric";
+import type { IAutoMovieAnalysisSample } from "./IAutoMovieAnalysisSample";
+import type { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
 
 /**
  * What one analysis run actually produced.

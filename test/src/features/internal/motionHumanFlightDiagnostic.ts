@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Vector3,
   clampPose,
   resolveAutoMovieCenterOfMass,
@@ -7,15 +6,20 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   type HumanPerformance,
   type HumanSegment,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -107,19 +111,19 @@ interface IRow {
  */
 export function motionHumanFlightDiagnostic(props: {
   /** Actual canonical body shared by the input and completed performance. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
 
   /** Completed original performance; no second film is constructed. */
-  film: HumanPerformance;
+  film: IAutoMovieMotionHumanPerformance;
 
   /** Original construction input, used to check the decomposition premises. */
-  input: HumanPerformance.IInput;
+  input: IAutoMovieMotionHumanPerformance.IInput;
 
   /** The actual jump segment in that film's stand/jump sequence. */
-  segment: HumanSegment.ISegment;
+  segment: IAutoMovieMotionHumanSegment;
 
   /** Original physical mass model, shared with the displayed measurements. */
-  model: resolveAutoMovieCenterOfMass.IModel;
+  model: IAutoMovieResolveCenterOfMass.IModel;
 
   /** Original takeoff; momentum supports follow it and direct seam reads straddle it. */
   from: number;
@@ -170,7 +174,7 @@ export function motionHumanFlightDiagnostic(props: {
   }: typeof props = props;
   const problems: string[] = [];
   const rows: IRow[] = [];
-  const segments: readonly HumanSegment.ISegment[] = film.segments("a");
+  const segments: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
   if (
     film.performers.length !== 1 ||
     film.performers[0]?.body !== body ||
@@ -187,7 +191,7 @@ export function motionHumanFlightDiagnostic(props: {
     film.overlays("a").length !== 0 ||
     Object.values(input.layers ?? {}).some(
       (
-        layers: NonNullable<HumanPerformance.IInput["layers"]>[string],
+        layers: NonNullable<IAutoMovieMotionHumanPerformance.IInput["layers"]>[string],
       ): boolean => layers.length !== 0,
     )
   )
@@ -202,7 +206,7 @@ export function motionHumanFlightDiagnostic(props: {
     );
   if (
     segments.some(
-      (value: HumanSegment.ISegment): boolean =>
+      (value: IAutoMovieMotionHumanSegment): boolean =>
         (value.plan.holds?.length ?? 0) !== 0 ||
         (value.plan.weapons?.length ?? 0) !== 0,
     )
@@ -237,7 +241,7 @@ export function motionHumanFlightDiagnostic(props: {
       ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
         if (!(seconds > from && seconds < to))
           throw new Error(`difference endpoint ${seconds} is outside flight`);
-        const transition: HumanSegment.ISegment["transition"] =
+        const transition: IAutoMovieMotionHumanSegment["transition"] =
           segment.transition;
         if (
           transition !== undefined &&
@@ -252,18 +256,18 @@ export function motionHumanFlightDiagnostic(props: {
         if (
           segment.plan.contacts.some(
             (
-              contact: HumanSegment.ISegment["plan"]["contacts"][number],
+              contact: IAutoMovieMotionHumanSegment["plan"]["contacts"][number],
             ): boolean => contact.from <= share && share <= contact.to,
           )
         )
           throw new Error(`a declared contact remains active at ${seconds}`);
-        const raw: IHumanPosture = {
+        const raw: IAutoMovieMotionHumanPosture = {
           ...segment.plan.posture(seconds - segment.start),
         };
         delete raw.rotation;
         if (
           Object.values(raw.limbs).some(
-            (goal: IHumanPosture.IGoal): boolean =>
+            (goal: IAutoMovieHumanLimbGoal): boolean =>
               goal.planted === true || goal.on !== undefined,
           )
         )

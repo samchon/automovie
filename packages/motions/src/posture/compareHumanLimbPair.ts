@@ -1,9 +1,8 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * Compare the original complete paired-arm key and then its complete image:
@@ -21,9 +20,9 @@ import type { IHumanPosture } from "./IHumanPosture";
  */
 export function compareHumanLimbPair(
   original: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   image: IAutoMoviePose,
-  reflected: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+  reflected: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
 ): number {
   const a: string = key(original, goals);
   const b: string = key(image, reflected);
@@ -31,7 +30,7 @@ export function compareHumanLimbPair(
 }
 
 /** Materialize every original array component before the complete left-to-right JSON observation. */
-function key(pose: IAutoMoviePose, goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>): string {
+function key(pose: IAutoMoviePose, goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>): string {
   return JSON.stringify([pose.root, [...pose.joints].sort(order).map(
     (joint: IAutoMovieJointPose): readonly [IAutoMovieJointPose["bone"], number | null, number | null, number | null] =>
       [joint.bone, joint.flexion ?? null, joint.abduction ?? null, joint.twist ?? null],

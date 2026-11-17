@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
@@ -6,6 +6,7 @@ import {
   IAutoMovieJointPose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
+import { type IAutoMovieGazeChainJoints } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 
@@ -77,7 +78,7 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw calls observe current rig/constraint/bound fields in their original order; prepare shares only explicitly unchanged rig/ROM prerequisites and both paths use this same greedy split owner. Companion prepare: This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw calls retain no input or result. An explicit prepared reader owns bounded fixed cervical metadata until its caller releases it; each actual output array and joint record remains fresh with no aim/time history. Companion prepare: The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
  */
-export function gazeChainJoints(props: IProps): IAutoMovieJointPose[] {
+export function gazeChainJoints(props: IAutoMovieGazeChainJoints.IProps): IAutoMovieJointPose[] {
   const headBone: IAutoMovieBone | null = props.rig?.bones.find(isHead) ?? null;
   const neckBone: IAutoMovieBone | null = props.rig?.bones.find(isNeck) ?? null;
   if (headBone === null || neckBone === null || headBone.parent !== NECK)
@@ -133,11 +134,6 @@ export namespace gazeChainJoints {
 interface IAngles {
   flexionDeg: number;
   twistDeg: number;
-}
-
-/** The ordinary caller keeps a live rig read for each original bone lookup. */
-interface IProps extends IAngles {
-  rig: IAutoMovieSkeleton | null;
 }
 
 /** Only these two axes participate in the existing gaze-chain law. */

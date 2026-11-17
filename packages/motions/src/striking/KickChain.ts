@@ -1,18 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingReach,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -63,7 +62,7 @@ export namespace KickChain {
    */
   export interface IProps {
     /** The kicking body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
     side: "left" | "right";
@@ -119,7 +118,7 @@ export namespace KickChain {
      * it is not, `jammed` when it is with the knee folded past the
      * technique's most flexion, `reached` otherwise.
      */
-    status: StrikingReach.ISolution["status"];
+    status: IAutoMovieMotionHumanStrikingReach.ISolution["status"];
   }
 
   /**
@@ -159,10 +158,10 @@ export namespace KickChain {
    */
   export function solve(
     props: IProps,
-    base: IHumanPosture,
+    base: IAutoMovieMotionHumanPosture,
     origin?: IAutoMovieVector3,
-  ): StrikingReach.ISolution {
-    const m: IHumanBody["measure"] = props.body.measure;
+  ): IAutoMovieMotionHumanStrikingReach.ISolution {
+    const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
     const round: boolean = props.technique === "round";
 
     // The round kick lands the shin's surface, so its axis point lies the
@@ -231,8 +230,8 @@ export namespace KickChain {
    */
   export function fit(
     props: IProps,
-    base: IHumanPosture,
-    solved: StrikingReach.ISolution,
+    base: IAutoMovieMotionHumanPosture,
+    solved: IAutoMovieMotionHumanStrikingReach.ISolution,
     origin?: IAutoMovieVector3,
     borrowed?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
@@ -259,7 +258,7 @@ export namespace KickChain {
   export function prepareFit(
     props: IProps,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): (base: IHumanPosture, solved: StrikingReach.ISolution, origin?: IAutoMovieVector3, borrowed?: Parameters<typeof prepareHumanPoseResolution>[0]) => IFit {
+  ): (base: IAutoMovieMotionHumanPosture, solved: IAutoMovieMotionHumanStrikingReach.ISolution, origin?: IAutoMovieVector3, borrowed?: Parameters<typeof prepareHumanPoseResolution>[0]) => IFit {
     const { body, side }: IProps = props;
     const round: boolean = props.technique === "round";
     const project: ReturnType<typeof prepareHumanPostureProjection> = projection ?? prepareHumanPostureProjection(body);
@@ -279,8 +278,8 @@ export namespace KickChain {
         ? StrikingBody.foot(Vector3.normalize(Vector3.subtract(ankle, knee)), props.direction)
         : flat!;
     return (
-      base: IHumanPosture,
-      solved: StrikingReach.ISolution,
+      base: IAutoMovieMotionHumanPosture,
+      solved: IAutoMovieMotionHumanStrikingReach.ISolution,
       origin?: IAutoMovieVector3,
       borrowed?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IFit => {
@@ -336,15 +335,15 @@ export namespace KickChain {
   /** Fit the leg once and read the fitted bones back. */
   function read(
     props: IProps,
-    base: IHumanPosture,
-    solved: StrikingReach.ISolution,
+    base: IAutoMovieMotionHumanPosture,
+    solved: IAutoMovieMotionHumanStrikingReach.ISolution,
     ask: IAsked,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     projection: ReturnType<typeof prepareHumanPostureProjection>,
     frames: ReturnType<typeof poseBones.prepare>,
   ): IFit {
     const { body, side }: IProps = props;
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...base,
@@ -427,12 +426,12 @@ export namespace KickChain {
 
   /** How far the fitted support foot's ball is from where its planted goal puts it, metres. */
   function slip(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     support: "left" | "right",
-    base: IHumanPosture,
+    base: IAutoMovieMotionHumanPosture,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    const goal: IHumanPosture.IGoal | undefined = base.limbs[`${support}Leg`];
+    const goal: IAutoMovieHumanLimbGoal | undefined = base.limbs[`${support}Leg`];
     if (goal === undefined || goal.rotation === undefined) return 0;
     const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");
     const foot: IAutoMovieResolvedBone = bones.get(

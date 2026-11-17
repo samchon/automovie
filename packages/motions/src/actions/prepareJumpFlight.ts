@@ -1,12 +1,16 @@
 import type { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { prepareHumanFreeCurve } from "../posture/prepareHumanFreeCurve";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpAirborne } from "./jumpAirborne";
 
 /**
@@ -30,20 +34,20 @@ import { jumpAirborne } from "./jumpAirborne";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/model/endpoints and one bounded mass-name set. Queries own raw shape, preparation and fresh requested FK; private canonical pose never escapes here. FK/projector loans stay synchronous and never enter issued source/token/output evidence; translated evidence remains bounded to its own raw output lifetime, without history or handles.
  */
 export function prepareJumpFlight(
-  body: IHumanBody,
-  model: resolveAutoMovieCenterOfMass.IModel,
+  body: IAutoMovieMotionHumanBody,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
   duration: number = 1,
-): (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IHumanPosture {
+): (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const segment of model.segments) requested.add(segment.bone);
   const shapeAt: ReturnType<typeof jumpAirborne.prepare> = jumpAirborne.prepare(shape);
   const root: IAutoMovieVector3 = { ...shape.start.root };
   const curve: ReturnType<typeof prepareHumanFreeCurve> = prepareHumanFreeCurve(
-    body, (share: number): IHumanPosture => shapeAt(root, share), duration,
+    body, (share: number): IAutoMovieMotionHumanPosture => shapeAt(root, share), duration,
   );
 
-  return (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IHumanPosture => {
+  return (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const prepared: HumanPosturePreparation.IPrepared = curve(share, read, projection);
     return HumanPosturePreparation.placed(prepared, model, requested, centre);

@@ -1,14 +1,16 @@
-import type { IAutoMovieRecoveryInput } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryCurveData,
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieRecoveryDefaultObservationOptions,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryObservationOptions,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
-import type { IAutoMovieRecoveryDefaultObservationOptions } from "../structures/operation/IAutoMovieRecoveryDefaultObservationOptions";
-import type { IAutoMovieRecoveryObservationOptions } from "../structures/operation/IAutoMovieRecoveryObservationOptions";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
 
 /**
@@ -61,25 +63,45 @@ export function observeAutoMovieRecovery(
 ): IAutoMovieRecoveryResult<unknown> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "legacy-contour-v1";
-  if (options.signal?.aborted)
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before observation"],
-    };
-  if (
-    !input ||
-    !Array.isArray(input.verticesMm) ||
-    !Array.isArray(input.triangles)
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "Registered millimetre vertices and oriented triangle arrays are required",
-      ],
-    };
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
   try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
+
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before observation"],
+      };
+    if (
+      !input ||
+      !Array.isArray(input.verticesMm) ||
+      !Array.isArray(input.triangles)
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "Registered millimetre vertices and oriented triangle arrays are required",
+        ],
+      };
+
     if (
       options.onSourceLineage !== undefined &&
       typeof options.onSourceLineage !== "function"
@@ -93,21 +115,19 @@ export function observeAutoMovieRecovery(
       AutoMovieRecoveryMeshSections.extract(
         input,
         (phase: string, completed: number, total: number): void => {
-          if (options.signal?.aborted) throw new Error("Observation cancelled");
+          if (cancelled()) throw new Error("Observation cancelled");
           options.onProgress?.(phase, completed, total);
         },
         options.sectionLimit,
         options.onSourceLineage === undefined
           ? undefined
           : (observation: IAutoMovieRecoverySourceLineage): void => {
-              if (options.signal?.aborted)
-                throw new Error("Observation cancelled");
+              if (cancelled()) throw new Error("Observation cancelled");
               options.onSourceLineage!(observation);
-              if (options.signal?.aborted)
-                throw new Error("Observation cancelled");
+              if (cancelled()) throw new Error("Observation cancelled");
             },
       );
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
@@ -135,7 +155,7 @@ export function observeAutoMovieRecovery(
   } catch (failure: unknown) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
+      status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
       ],

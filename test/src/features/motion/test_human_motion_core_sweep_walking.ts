@@ -1,9 +1,12 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -31,11 +34,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and its bounds.
  */
 export function test_human_motion_core_sweep_walking(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const speed: number = 1;
-  const walking = (seconds: number): IHumanPosture =>
+  const walking = (seconds: number): IAutoMovieMotionHumanPosture =>
     stand.posture(body, { x: 0, y: 0, z: speed * seconds }, 0);
-  const quiet: IHumanPosture = walking(0);
+  const quiet: IAutoMovieMotionHumanPosture = walking(0);
   const bones = poseBones(body, resolveHumanPosture(body, quiet));
   const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
   const elbow: IAutoMovieVector3 = bones.get("rightLowerArm")!.worldPosition;
@@ -54,7 +57,10 @@ export function test_human_motion_core_sweep_walking(): void {
       resolveHumanPosture(body, quiet),
       "right",
     ),
-    goal: (_: IHumanPosture, seconds: number): IHumanPosture.IGoal => ({
+    goal: (
+      _: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieHumanLimbGoal => ({
       point: shift(wrist, seconds),
       bend: shift({ x: elbow.x - 0.1, y: elbow.y, z: elbow.z - 0.1 }, seconds),
       rotation: bones.get("rightHand")!.worldRotation,
@@ -67,7 +73,7 @@ export function test_human_motion_core_sweep_walking(): void {
   for (let i: number = 0; i <= Math.round(span.end * 30); i++) {
     const seconds: number = i / 30;
     if (seconds < span.ready || seconds > span.relax) continue;
-    const posture: IHumanPosture = arm.write(
+    const posture: IAutoMovieMotionHumanPosture = arm.write(
       walking(seconds),
       seconds,
       walking,

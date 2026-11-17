@@ -1,6 +1,7 @@
+import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
 
 /**
@@ -14,8 +15,11 @@ import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalInputDigest(input: Simulation.IInput): string {
-  const targets: Map<Simulation.ITarget, string> = new Map();
+export function physicalInputDigest(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+): string {
+  const targets: Map<IAutoMoviePhysicalSimulationInput.ITarget, string> =
+    new Map();
   const bodies: object[] = input.bodies.map(
     (body: (typeof input.bodies)[number]): object => ({
       ...body,

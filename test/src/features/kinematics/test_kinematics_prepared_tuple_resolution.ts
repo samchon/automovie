@@ -1,5 +1,15 @@
-import { preparePoseResolution, prepareSkeletonPoseResolution, Transform } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  Transform,
+  preparePoseResolution,
+  prepareSkeletonPoseResolution,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLegAxis,
+  IAutoMovieJointAxes,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -43,7 +53,7 @@ export function test_kinematics_prepared_tuple_resolution(): void {
   const stage: prepareSkeletonPoseResolution.ITupleReader = rig.prepareTuples(new Set(["spine"]));
   const carrier: Omit<IAutoMoviePose, "joints"> = { skeleton: skeleton.id, root: null };
   const tuple: [number, number, number] = [90, 0, 0];
-  const joints: IJoints = { hips: tuple };
+  const joints: IAutoMovieHumanLegAxis.IJoints = { hips: tuple };
   Object.setPrototypeOf(joints, { head: [NaN, 0, 0] });
   const fixed: prepareSkeletonPoseResolution.ITupleRead = stage(joints);
   tuple[0] = 0;
@@ -87,7 +97,7 @@ export function test_kinematics_prepared_tuple_resolution(): void {
   TestValidator.predicate("an undefined scalar is staged unchanged and refused by later clinical admission",
     throwsError((): unknown => invalid(carrier), ["flexion", "finite"]));
   for (const name of ["spine", "head", "stray"]) {
-    const malformed: IJoints = { hips: [0, 0, 0] };
+    const malformed: IAutoMovieHumanLegAxis.IJoints = { hips: [0, 0, 0] };
     Object.defineProperty(malformed, name, { value: [NaN, 0, 0], enumerable: true });
     const read: prepareSkeletonPoseResolution.ITupleRead = stage(malformed);
     TestValidator.predicate(`demand never filters native admission of authored${name}`,

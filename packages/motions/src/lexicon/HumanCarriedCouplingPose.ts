@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
@@ -7,22 +6,24 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingPose,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
 
 /**
  * The borne body of a coupled carry placed on its bearer (#3437): the carry's
@@ -49,24 +50,6 @@ export namespace HumanCarriedCouplingPose {
     "rightShoulder",
   ];
 
-  /** Where a bearer's hand holds: the held region's point and outward normal, in the bearer's anchor frame. */
-  export interface IHold {
-    /** Metres. */
-    point: IAutoMovieVector3;
-
-    /** Unit, out of the borne body. */
-    normal: IAutoMovieVector3;
-  }
-
-  /** A bearer as the borne body reads it at an instant. */
-  export interface IBearer {
-    /** The bearer's body. */
-    body: IHumanBody;
-
-    /** Its displayed bones at the instant. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
-
   /**
    * The bone a region's place is carried by, as the coupling anchors on it:
    * the region's own bone, a trunk bone or a limb's (a drag's thigh).
@@ -84,7 +67,7 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function anchor(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     name: AutoMovieHumanoidRegion,
   ): AutoMovieHumanoidBone {
     return body.surfaces.regions[name].bone;
@@ -111,8 +94,8 @@ export namespace HumanCarriedCouplingPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An optional exact supplier is borrowed only until synchronous return or throw. A local lazy getter and temporary fitted pose are not retained; the caller owns fresh output bone records without a reader, body or query history captured in them.
    */
   export function bones(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     anchor: AutoMovieHumanoidBone,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -146,13 +129,19 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function of the instant's bones.
    */
   export function posture(
-    body: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
-    row: HumanCarried.IRow,
-    bearers: Readonly<Record<string, IBearer>>,
-  ): IHumanPosture {
-    const of = (role: string): IBearer => {
-      const found: IBearer | undefined = bearers[role];
+    body: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
+    row: IAutoMovieMotionHumanCarried.IRow,
+    bearers: Readonly<
+      Record<string, IAutoMovieMotionHumanCarriedCouplingPose.IBearer>
+    >,
+  ): IAutoMovieMotionHumanPosture {
+    const of = (
+      role: string,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IBearer => {
+      const found:
+        | IAutoMovieMotionHumanCarriedCouplingPose.IBearer
+        | undefined = bearers[role];
       if (found === undefined)
         throw new HumanRefusal({
           kind: "participant",
@@ -177,7 +166,7 @@ export namespace HumanCarriedCouplingPose {
 
     // The borne root frame: the anchor's displayed frame composed with the
     // key frame.
-    const keyed: IHumanPosture = key(row, coupling.key.legs);
+    const keyed: IAutoMovieMotionHumanPosture = key(row, coupling.key.legs);
     const root: IAutoMovieVector3 = Vector3.add(
       anchored.worldPosition,
       Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
@@ -188,17 +177,17 @@ export namespace HumanCarriedCouplingPose {
         Quaternion.inverse(resolveHumanPosture.heading(keyed)),
       ),
     );
-    const placed: IHumanPosture = { ...keyed, root };
+    const placed: IAutoMovieMotionHumanPosture = { ...keyed, root };
     const back: IAutoMovieQuaternion = Quaternion.inverse(turn);
     const unturn = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(
         root,
         Quaternion.rotateVector(back, Vector3.subtract(point, root)),
       );
-    const limbs: IHumanPosture["limbs"] = {};
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const contact of coupling.contacts)
       if (contact.kind === "grip") {
-        const bearer: IBearer = of(contact.on.role);
+        const bearer: IAutoMovieMotionHumanCarriedCouplingPose.IBearer = of(contact.on.role);
         const side: "left" | "right" =
           contact.part === "leftHand" ? "left" : "right";
         limbs[`${side}Arm`] = {
@@ -235,14 +224,11 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function holds(
-    borne: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
-    row: HumanCarried.IRow,
+    borne: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
+    row: IAutoMovieMotionHumanCarried.IRow,
     role: string = coupling.bearer,
-  ): {
-    anchor: AutoMovieHumanoidBone;
-    places: readonly [IHold | null, IHold | null];
-  } {
+  ): IAutoMovieMotionHumanCarriedCouplingPose.IHoldsResult {
     // A further bearer reads the places in its own anchor frame.
     const frame:
       | {
@@ -252,18 +238,20 @@ export namespace HumanCarriedCouplingPose {
         }
       | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
-    const keyed: IHumanPosture = key(row, coupling.key.legs);
+    const keyed: IAutoMovieMotionHumanPosture = key(row, coupling.key.legs);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
-    const at = (palm: AutoMovieHumanoidRegion): IHold | null => {
-      const contact: AutoMovieMotionMeeting.ICoupledContact | undefined =
+    const at = (
+      palm: AutoMovieHumanoidRegion,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IHold | null => {
+      const contact: IAutoMovieMotionCoupling.IContact | undefined =
         coupling.contacts.find(
-          (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
+          (c: IAutoMovieMotionCoupling.IContact): boolean =>
             c.kind === "bear" && c.on.role === role && c.on.region === palm,
         );
       if (contact === undefined) return null;
-      const surface: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         borne.surfaces.regions[contact.region];
       const placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         resolveAutoMovieHumanoidSurfaces.pointNormal(
@@ -310,7 +298,7 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function still(): IHumanPosture {
+  export function still(): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
@@ -341,9 +329,9 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function stance(
-    body: IHumanBody,
-    bent: { incline: number; depth: number },
-  ): IHumanPosture {
+    body: IAutoMovieMotionHumanBody,
+    bent: IAutoMovieMotionHumanCarriedCouplingPose.IStanceBent,
+  ): IAutoMovieMotionHumanPosture {
     return bendLower.lower(
       body,
       stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
@@ -371,8 +359,8 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function stood(
-    body: IHumanBody,
-    bent: { incline: number; depth: number },
+    body: IAutoMovieMotionHumanBody,
+    bent: IAutoMovieMotionHumanCarriedCouplingPose.IStoodBent,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return poseBones(body, resolveHumanPosture(body, stance(body, bent)));
   }
@@ -394,9 +382,9 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function key(
-    row: HumanCarried.IRow,
+    row: IAutoMovieMotionHumanCarried.IRow,
     legs: readonly [number, number, number] = row.legs,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const [hip, knee, apart]: readonly [number, number, number] = legs;
     return {
       root: { x: 0, y: 0, z: 0 },
@@ -431,11 +419,11 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function region(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     name: AutoMovieHumanoidRegion,
   ): IAutoMovieVector3 {
-    const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[name];
     const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
     if (bone === undefined)

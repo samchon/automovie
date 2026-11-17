@@ -1,15 +1,20 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegMassPrior,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieNaturalCubicSpline,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanLegSectionProportion } from "../AutoMovieHumanLegSectionProportion";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
 import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
-import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
 /**
  * A leg's site laws bound for a person (#3048), in calibration millimetres,
@@ -51,7 +56,7 @@ import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  */
 export namespace AutoMovieHumanLegLaws {
   /** ANSUR II midpatella height over stature, women and men (`docs/sources/ansur-ii.md`). Measured. */
-  export const MIDPATELLA: readonly [number, number] = [0.276, 0.278];
+  export const MIDPATELLA: AutoMovieHumanSexPair<number> = [0.276, 0.278];
 
   /**
    * One leg's site laws.
@@ -73,7 +78,7 @@ export namespace AutoMovieHumanLegLaws {
     ankle: number,
     crotch: number,
     side: "left" | "right",
-  ): AutoMovieHumanLegWalk.ILaw {
+  ): IAutoMovieHumanLegWalk.ILaw {
     const female: boolean = measures.sex === AutoMovieHumanSex.Female;
     const patella: number =
       MIDPATELLA[female ? 0 : 1] * measures.stature * scale;
@@ -81,7 +86,7 @@ export namespace AutoMovieHumanLegLaws {
     const rows: { height: number; value: number }[] = [
       ...AutoMovieHumanLegMassPrior.THIGH.map(
         (
-          row: AutoMovieHumanLegMassPrior.IRow,
+          row: IAutoMovieHumanLegMassPrior.IRow,
         ): { height: number; value: number } => ({
           height: hip + row.share * (knee - hip),
           value: row.front,
@@ -89,7 +94,7 @@ export namespace AutoMovieHumanLegLaws {
       ),
       ...AutoMovieHumanLegMassPrior.SHANK.map(
         (
-          row: AutoMovieHumanLegMassPrior.IRow,
+          row: IAutoMovieHumanLegMassPrior.IRow,
         ): { height: number; value: number } => ({
           height: knee + row.share * (malleolus - knee),
           value: row.front,
@@ -99,7 +104,7 @@ export namespace AutoMovieHumanLegLaws {
       (a: { height: number }, b: { height: number }): number =>
         a.height - b.height,
     );
-    const skin: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const skin: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       rows.map((row: { height: number }): number => row.height),
       rows.map((row: { value: number }): number => row.value),
     );
@@ -125,7 +130,7 @@ export namespace AutoMovieHumanLegLaws {
     const law = (
       height: number,
       girth: number,
-    ): AutoMovieHumanLegWalk.ISiteLaw => {
+    ): IAutoMovieHumanLegWalk.ISiteLaw => {
       const span: number = (height - malleolus) / (crotch - malleolus);
       const box: { breadth: number; depth: number } =
         AutoMovieHumanLegSectionProportion.box(girth, span);
@@ -140,7 +145,7 @@ export namespace AutoMovieHumanLegLaws {
         girth,
       };
     };
-    const laws: Record<string, AutoMovieHumanLegWalk.ISiteLaw> = {
+    const laws: Record<string, IAutoMovieHumanLegWalk.ISiteLaw> = {
       thigh: law(
         measures.glutealFurrowHeight * scale,
         measures.thighCircumference * scale,
@@ -173,10 +178,10 @@ export namespace AutoMovieHumanLegLaws {
       laws[site] = law(height, ratio * measures.thighCircumference * scale);
       intermediate.push(site);
     }
-    const resolve: AutoMovieHumanLegWalk.ILaw = (
+    const resolve: IAutoMovieHumanLegWalk.ILaw = (
       site: string,
-    ): AutoMovieHumanLegWalk.ISiteLaw => {
-      const found: AutoMovieHumanLegWalk.ISiteLaw | undefined = laws[site];
+    ): IAutoMovieHumanLegWalk.ISiteLaw => {
+      const found: IAutoMovieHumanLegWalk.ISiteLaw | undefined = laws[site];
       if (found === undefined)
         throw new Error(`No leg law at the site ${site}`);
       return found;

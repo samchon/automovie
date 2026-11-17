@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
@@ -26,13 +28,13 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/common.md#meaningful-documentation States the admitted data premise, shared numeric ownership, optional scratch lifetime and independently owned outputs.
  */
 export function HumanQuadraticSolve(
-  rows: readonly Pick<Q.IRow, "key">[],
+  rows: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "key">[],
   s: B.IScaled,
   tolerance: number,
-  warm?: Q.IState,
+  warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
   duals?: ReadonlyMap<string, number>,
   memory?: Workspace.IMemory,
-): Q.IState {
+): IAutoMovieMotionHumanQuadraticProgram.IState {
   const { n, m, start, cols, vals, singleton, lo, hi, weight, d, e }: B.IScaled = s;
   const c: number = s.c;
 
@@ -123,7 +125,7 @@ export function HumanQuadraticSolve(
     }
   } else
     for (let r: number = 0; r < m; ++r) {
-      const row: Pick<Q.IRow, "key"> = rows[r]!;
+      const row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "key"> = rows[r]!;
 
       // A solve of new rows starts from the multipliers of the rows they
       // linearise again (`Q.IRow.key`), the primal at the iterate itself.
@@ -152,7 +154,7 @@ export function HumanQuadraticSolve(
   const xt: Float64Array = memory?.work.curvature ?? new Float64Array(n);
   const before: Float64Array = memory?.work.rows ?? new Float64Array(m);
   const work: Workspace.IWork = memory?.work ?? Workspace.of(rhs, xt, before);
-  let status: Q.IState["status"] = "unfinished";
+  let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] = "unfinished";
   const residual: { primal: number; dual: number } = {
     primal: Infinity,
     dual: Infinity,
@@ -332,7 +334,7 @@ export function HumanQuadraticSolve(
 
   // Transfer the call-owned iterates after their final scaled use:
   // x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
-  const out: Q.IState = {
+  const out: IAutoMovieMotionHumanQuadraticProgram.IState = {
     x,
     z,
     y,

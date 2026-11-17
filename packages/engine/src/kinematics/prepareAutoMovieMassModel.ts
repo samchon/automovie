@@ -1,17 +1,20 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
-import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 
 /** Private nominal identity prevents constructing a prepared model externally. */
 const BRAND: unique symbol = Symbol("prepared mass model");
@@ -38,11 +41,11 @@ const STATES: WeakMap<prepareAutoMovieMassModel.IPrepared, IState> = new WeakMap
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The token owns O(S) copied model, last frames, intrinsic/endpoint prerequisites, one quaternion scratch and one active-call guard, with no query population or depth pool. Finally releases the guard after success or failure; nested uncached pose results copy private inertia before escaping. Release deletes all state, is idempotent, and later readers reject the released token.
  */
 export function prepareAutoMovieMassModel(
-  source: resolveAutoMovieCenterOfMass.IModel,
+  source: IAutoMovieResolveCenterOfMass.IModel,
 ): prepareAutoMovieMassModel.IPrepared {
-  const segments: resolveAutoMovieCenterOfMass.ISegment[] = source.segments.map(
-    (segment: resolveAutoMovieCenterOfMass.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
-      const copied: resolveAutoMovieCenterOfMass.ISegment = {
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] = source.segments.map(
+    (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieResolveCenterOfMass.ISegment => {
+      const copied: IAutoMovieResolveCenterOfMass.ISegment = {
         bone: segment.bone,
         mass: segment.mass,
         point: copyVector(segment.point),
@@ -61,7 +64,7 @@ export function prepareAutoMovieMassModel(
     },
   );
   const mass: number = segments.reduce(
-    (sum: number, segment: resolveAutoMovieCenterOfMass.ISegment): number => sum + segment.mass,
+    (sum: number, segment: IAutoMovieResolveCenterOfMass.ISegment): number => sum + segment.mass,
     0,
   );
   if (!(Number.isFinite(mass) && mass > 0 && Object.is(mass, source.mass)))
@@ -143,10 +146,10 @@ export namespace prepareAutoMovieMassModel {
     }
     current.active = true;
     try {
-      const parts: combinePhysicalMassProperties.IPart[] = [];
+      const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
       const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
         current.model,
-        (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 => {
+        (segment: IAutoMovieResolveCenterOfMass.ISegment, i: number): IAutoMovieVector3 => {
           const frame: IFrame = readFrame(current, segment, i, bones);
           const principal: IAutoMovieQuaternion = frame.principal ??=
             Quaternion.multiply(frame.rotation, segment.axes);
@@ -187,7 +190,7 @@ export namespace prepareAutoMovieMassModel {
     try {
       return resolveAutoMovieCenterOfMass.mean(
         current.model,
-        (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 =>
+        (segment: IAutoMovieResolveCenterOfMass.ISegment, i: number): IAutoMovieVector3 =>
           readFrame(current, segment, i, bones).point,
       );
     } finally {
@@ -238,7 +241,7 @@ export namespace prepareAutoMovieMassModel {
     before: resolveAutoMovieMomentum.IPosed,
     after: resolveAutoMovieMomentum.IPosed,
     seconds: number,
-  ): resolveAutoMovieMomentum.IMomentum {
+  ): IAutoMovieBodyMomentum {
     const current: IState = state(prepared);
     if (current.active) return resolveAutoMovieMomentum.between(current.model, before, after, seconds);
     current.active = true;
@@ -257,7 +260,7 @@ export namespace prepareAutoMovieMassModel {
     posed: resolveAutoMovieMomentum.IPosed,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
-  ): resolveAutoMovieMomentum.IMomentum {
+  ): IAutoMovieBodyMomentum {
     return resolveAutoMovieMomentumRates(state(prepared).model, posed, bones, rates);
   }
 
@@ -281,7 +284,7 @@ export namespace prepareAutoMovieMassModel {
 /** One copied model and at most one copied frame per ordered mass segment. */
 interface IState {
   /** Immutable copied bone-local SI inputs and their exact total mass. */
-  model: resolveAutoMovieCenterOfMass.IModel;
+  model: IAutoMovieResolveCenterOfMass.IModel;
 
   /** At most one last common-frame numeric dependency row per segment. */
   frames: (IFrame | undefined)[];
@@ -327,7 +330,7 @@ function state(prepared: prepareAutoMovieMassModel.IPrepared): IState {
 /** Read each current scalar before deciding whether the numeric transform is equivalent. */
 function readFrame(
   current: IState,
-  segment: resolveAutoMovieCenterOfMass.ISegment,
+  segment: IAutoMovieResolveCenterOfMass.ISegment,
   i: number,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ): IFrame {

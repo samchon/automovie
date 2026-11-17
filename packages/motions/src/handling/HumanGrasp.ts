@@ -1,22 +1,24 @@
-import {
-  type IAutoMovieResolvedBone,
-  type curlChainUntilContact,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { physicalShapeSpan } from "@automovie/engine";
 import type {
-  AutoMovieGripKind,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMoviePose,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanGraspReach } from "./HumanGraspReach";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { HumanGraspHand } from "./HumanGraspHand";
+import { HumanGraspReach } from "./HumanGraspReach";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 
 /**
@@ -57,35 +59,9 @@ export namespace HumanGrasp {
    * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this view for HumanHeldUse.second; hand and around consume precisely these members.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field is guessed, widened or substituted; complete target consumers retain ITarget and its actual colliders/grip kind.
    */
-  export type IFrame = Pick<ITarget, "point" | "approach" | "axis" | "width">;
+  export type IFrame = Pick<IAutoMovieMotionHumanGrasp.ITarget, "point" | "approach" | "axis" | "width">;
 
-  /**
-   * A grasp target in the world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state world-metre point/width, unit approach/axis, grip kind and actual placed collider list.
-   * @evidence contracts/development/design.md#principled-representation A complete affordance target carries the frame a hand approaches and the geometry its digits close on; runtime construction checks handle/shapes while scalar/unit invariants remain numerical contracts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this record for pickUp, handover and grip closure; IFrame separately narrows placement-only needs without weakening closure data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every field is actual affordance/body geometry; the grip kind is the interface's closed union and no guessed collider, aperture or fixture branch is represented.
-   */
-  export interface ITarget {
-    /** The grip point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The unit direction the hand arrives along, into the object (the affordance's `-Y`). */
-    approach: IAutoMovieVector3;
-
-    /** The unit wrapped axis (the affordance's `+X`). */
-    axis: IAutoMovieVector3;
-
-    /** The grip kind. */
-    grip: AutoMovieGripKind;
-
-    /** The grasped width, metres. */
-    width: number;
-
-    /** The prop's colliders in the world. */
-    colliders: curlChainUntilContact.ICollider[];
-  }
+  
 
   /**
    * A prop affordance as a target at a film second, from its displayed frame.
@@ -106,12 +82,12 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no context/frame/history after return; the caller owns fresh target wrappers borrowing the actual prop shape records.
    */
   export function target(
-    context: Pick<IHumanActionContext, "prop">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
     subject: string,
     id: string,
     seconds: number,
-  ): ITarget {
-    const prop: IHumanActionContext.IProp = context.prop(subject);
+  ): IAutoMovieMotionHumanGrasp.ITarget {
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(subject);
     return HumanGrasp.at(prop.prop, id, prop.frame(seconds));
   }
 
@@ -134,10 +110,10 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cold builder is released at return; only the fresh target/collider wrappers borrowing prop shape records and the supplied frame escape, with no result cache or handle.
    */
   export function at(
-    prop: IHumanProp,
+    prop: IAutoMovieMotionHumanProp,
     id: string,
-    frame: IHumanProp.IFrame,
-  ): ITarget {
+    frame: IAutoMovieRigidTransform,
+  ): IAutoMovieMotionHumanGrasp.ITarget {
     return HumanGraspTarget(prop, id).at(frame);
   }
 
@@ -159,11 +135,11 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cold preparation is released at return and retains no body/result history; output point and rotation are fresh numeric records.
    */
   export function hand(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     target: IFrame,
     tilt: number = 0,
-  ): HumanHand.IWrist {
+  ): IAutoMovieMotionHumanHand.IWrist {
     return prepareHand(body, side)(target, tilt);
   }
 
@@ -183,9 +159,9 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns constant-size hand frames/offsets through its grasp search or support plan and stores no candidate pose, numerical reader or time history.
    */
   export function prepareHand(
-    body: IHumanBody,
-    side: HumanHand.Side,
-  ): (target: IFrame, tilt?: number) => HumanHand.IWrist {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): (target: IFrame, tilt?: number) => IAutoMovieMotionHumanHand.IWrist {
     return HumanGraspHand.prepare(body, side);
   }
 
@@ -217,27 +193,20 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate/key/FK workspaces are local to the delegated synchronous search; only the chosen wrist, pose, reference and scalar reports escape without a reader or history.
    */
   export function reachable(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     bend: IAutoMovieVector3,
-    goal: (turn: number, tilt: number) => HumanHand.IWrist,
+    goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0],
     stroke?: (
-      wrist: HumanHand.IWrist,
-      shown: HumanHand.IWrist,
-    ) => Iterable<IKey>,
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+      shown: IAutoMovieMotionHumanHand.IWrist,
+    ) => Iterable<IAutoMovieMotionHumanGrasp.IKey>,
     turns: readonly number[] = TURNS,
-    required?: {
-      bound: number;
-      measure: (
-        keys: readonly number[],
-        judged: readonly number[],
-        bounds: readonly number[],
-      ) => number;
-    },
-    admits?: (wrist: HumanHand.IWrist) => boolean,
-  ): IReach {
+    required?: IAutoMovieMotionHumanGrasp.IReachableRequired,
+    admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
+  ): IAutoMovieMotionHumanGrasp.IReach {
     return HumanGraspReach.reachable(
       body,
       posture,
@@ -257,99 +226,6 @@ export namespace HumanGrasp {
     { length: 13 },
     (_: unknown, i: number): number => -90 + 15 * i,
   );
-
-  /**
-   * A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish world-metre wrist/elbow goals, other-limb posture, optional actual metre judgement/bound, complete goal and reference policy.
-   * @evidence contracts/development/design.md#principled-representation A key is a real whole-body posture and arm goal; optional judgement/bound measure the placed thing separately from mixed hand error. Runtime callers/resolver retain numerical unit/range obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Grasp, tool-use, dressing and next-action demand builders supply these fields to the single reachable owner; goal/reference options express actual differing fit contracts.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses canonical posture, wrist, bone and goal types; no phantom successful judgment, guessed collider or fixture-specific alternative is represented.
-   */
-  export interface IKey {
-    /** The posture's other limbs and trunk at the key. */
-    posture: IHumanPosture;
-
-    /** The wrist goal at the key. */
-    wrist: HumanHand.IWrist;
-
-    /** The elbow hint at the key, world metres. */
-    bend: IAutoMovieVector3;
-
-    /**
-     * How far what the key places strays from its place once the arm is
-     * fitted to the key within its ranges, metres: a held tool's working
-     * point off where its use asks it, a worn thing's socket off its region.
-     * Absent, the key places nothing but the hand.
-     *
-     * @param bones The fitted body's bones.
-     * @returns Metres, not negative.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which unit and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation The placed thing is read off the fitted hand, so the arm's ranges count, as `StrikingRoll.miss` reads a held tool.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `HumanGraspReach.reachable` for each fitted key.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller judges the key in the unit of what it places, never in a mix of degrees and millimetres.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    judge?(
-      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): number;
-
-    /** The most the judgement may be, metres: the bound the action that asks the key holds the pose to. The caller's own bound when absent. */
-    bound?: number;
-
-    /** The limb goal the key is fitted by, as the action that asks it fits its own pose (its effector's kept point, its elbow); the wrist at `wrist` with `bend`, the elbow left to the body, when absent. */
-    goal?: IHumanPosture.IGoal;
-
-    /** False for a key another action asks, which that action fits on its own arm solution: the key is fitted without the grasp's (`reachable`'s reference). Fitted on the grasp's when absent. */
-    reference?: false;
-  }
-
-  /**
-   * The reachable grip {@link reachable} chose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state degree turn/tilt/departure, wanted and achieved wrists, complete pose/reference, original mixed-unit error and ordered key metre judgements/bounds with original NaN absence.
-   * @evidence contracts/development/design.md#principled-representation One chosen candidate separates requested wrist from actual displayed hand and records the original full fitted pose/reference; runtime search owns feasibility and ordered array correspondence.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pick-up, handover, clasp and held-support consumers read the chosen geometry/reference and reports; the numerical owner builds the record once for its retained best candidate.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Wanted and achieved frames are not conflated, errors keep their existing units, and no successful-contact flag or body/prop-specific result is invented.
-   */
-  export interface IReach {
-    /** Degrees of the chosen turn. */
-    turn: number;
-
-    /** Degrees of the chosen tilt. */
-    tilt: number;
-
-    /** The wrist goal of that turn and tilt. */
-    wrist: HumanHand.IWrist;
-
-    /** The hand the arm achieves for it. */
-    shown: HumanHand.IWrist;
-
-    /** The arm's solution at the grasp, the reference of the whole stroke. */
-    reference: IHumanPosture.IReference;
-
-    /** The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position. */
-    miss: number;
-
-    /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
-    departure: number;
-
-    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is. */
-    keys: readonly number[];
-
-    /** Each of those keys' own judgement (`IKey.judge`), metres, in the same order; `NaN` for a key that has none, the grasp's always: what a law reads to say which pose of a use the grasp cannot hold. */
-    judged: readonly number[];
-
-    /** The bound each of those keys holds its judgement to (`IKey.bound`), metres, in the same order; `NaN` where none. */
-    bounds: readonly number[];
-
-    /** The posed body at the grasp. */
-    pose: IAutoMoviePose;
-  }
-
   /**
    * The standing posture a person settles into from where they stand: the
    * stand law's posture centred over the person's displayed feet, facing the
@@ -370,12 +246,12 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh stand posture and retains no displayed bone map, body memory, query history or handle.
    */
   export function standing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return HumanGraspReach.standing(body, bones);
   }
 
@@ -387,7 +263,7 @@ export namespace HumanGrasp {
    * @param turn Degrees about the wrapped axis.
    * @returns The turned target.
    */
-  export function around(target: ITarget, turn: number): ITarget;
+  export function around(target: IAutoMovieMotionHumanGrasp.ITarget, turn: number): IAutoMovieMotionHumanGrasp.ITarget;
   /** The same rigid handle turn when only its hand-placement frame is needed. */
   export function around(target: IFrame, turn: number): IFrame;
   /**
@@ -422,7 +298,7 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no collider list, span history or handles; only the numeric width is returned.
    */
   export function extent(
-    colliders: readonly curlChainUntilContact.ICollider[],
+    colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
     axis: IAutoMovieVector3,
   ): number {
     const [lo, hi]: readonly [number, number] = span(colliders, axis);
@@ -447,7 +323,7 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each engine span is consumed immediately; the fresh two-number tuple is the only output and no shapes, frames, history or handle are retained.
    */
   export function span(
-    colliders: readonly curlChainUntilContact.ICollider[],
+    colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
     axis: IAutoMovieVector3,
   ): readonly [number, number] {
     let lo: number = Infinity;

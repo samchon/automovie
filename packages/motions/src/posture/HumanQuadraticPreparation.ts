@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanQuadraticAdmission } from "./HumanQuadraticAdmission";
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticFactorOrder } from "./HumanQuadraticFactorOrder";
@@ -39,7 +41,7 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak source owner retains one numeric preparation, O(S+n*w+Z+n+m), including inverse scales; replacement and collection release it. Initial factors have their own weak scaled-core owner. Fresh solve wrappers borrow raw rows, fixed models replace that loan with copies, and neither enters the retained core. A miss consumes fresh lo as scale scratch before overwriting it.
    * @evidence contracts/development/common.md#meaningful-documentation States the scaling source, zero and duplicate semantics, validation failures, exact reuse dependencies and retained-data lifetime.
    */
-  export function scaled(problem: Q.IProblem): B.IScaled {
+  export function scaled(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): B.IScaled {
     let prepared: IPrepared | undefined = PREPARATIONS.get(problem.p);
     const admitted: ReturnType<typeof HumanQuadraticAdmission> = HumanQuadraticAdmission(
       problem,
@@ -51,7 +53,7 @@ export namespace HumanQuadraticPreparation {
     const core: ICore = prepared.core;
     const hi: Float64Array = new Float64Array(core.m);
     const weight: Float64Array = new Float64Array(core.m);
-    problem.rows.forEach((row: Q.IRow, r: number): void => {
+    problem.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
       lo[r] = row.l * core.e[r]!;
       hi[r] = row.u * core.e[r]!;
       weight[r] =
@@ -195,12 +197,12 @@ const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
  * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
  */
 function create(
-  problem: Q.IProblem,
+  problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   admitted: ReturnType<typeof HumanQuadraticAdmission>,
   dr: Float64Array,
   previous?: HumanQuadraticPreparation.IPrepared,
 ): HumanQuadraticPreparation.IPrepared {
-  const { n, band, rows }: Q.IProblem = problem;
+  const { n, band, rows }: IAutoMovieMotionHumanQuadraticProgram.IProblem = problem;
   const m: number = rows.length;
   const start: Int32Array = admitted.topology
     ? previous!.core.start : new Int32Array(m + 1);
@@ -214,7 +216,7 @@ function create(
     ? previous!.vals : new Float64Array(admitted.entries);
   if (!admitted.rows) {
     let at: number = 0;
-    rows.forEach((row: Q.IRow, r: number): void => {
+    rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
       if (!admitted.topology) start[r] = at;
       let previousColumn: number = -1;
       for (let a: number = 0; a < row.index.length; ++a) {

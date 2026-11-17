@@ -14,6 +14,7 @@ import { FIELD_GUN } from "./FIELD_GUN";
 import { buildFieldGun } from "./buildFieldGun";
 import { cannonLaunch } from "./cannonLaunch";
 import { cannonRecoil } from "./cannonRecoil";
+import { cannonTowing } from "./cannonTowing";
 
 /** A hundredweight, kilograms: 112 pounds. */
 const CWT: number = 112 * ArchetypeUnits.POUND;
@@ -390,4 +391,14 @@ export namespace createCannon {
 
   /** A field gun's recoil after a shot, run back from rest by its read recoil and slowed evenly to rest: `cannonRecoil`, which refuses a gun without a `recoil` slider. */
   export const recoil: typeof cannonRecoil = cannonRecoil;
+
+  /**
+   * Actual field-gun axle support for generic towing; cannonTowing admits its kind.
+   *
+   * @param gun Actual neutral fieldGun output; its trail coupling lies behind its own +Z direction.
+   * @returns An independent model-space metre axle supporting rigid body pitch with both wheels grounded; generic towing derives the reverse trail-first orientation.
+   * @throws {RangeError} For another producer/kind or invalid actual wheel-axis geometry.
+   * @throws {ArchetypeRefusal} If an actual required wheel-spin affordance is absent.
+   */
+  export const towing: typeof cannonTowing = cannonTowing;
 }

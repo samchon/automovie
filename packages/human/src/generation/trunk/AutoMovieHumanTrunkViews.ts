@@ -1,10 +1,14 @@
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyBox,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanTrunkConnection,
+  IAutoMovieHumanTrunkViewLaws,
+  IAutoMovieHumanTrunkViews,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyBox } from "../AutoMovieHumanBodyBox";
 import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import type { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
-import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
  * The trunk base's views from a person's measures: every site's height, half
@@ -55,46 +59,6 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * same chest depth; this is an explicit thorax transfer convention.
  */
 export namespace AutoMovieHumanTrunkViews {
-  /** A breadth and depth of a level, mm. */
-  export interface IBox {
-    /** Whole breadth. */
-    breadth: number;
-
-    /** Whole depth. */
-    depth: number;
-  }
-
-  /** The laws the views read beyond the published measures, each a pure function of the person in calibration millimetres. */
-  export interface ILaws {
-    /** Shared chest/bust-apex height from the generating placement, calibration mm; the interim caller still transfers its old course solve. */
-    chest: number;
-
-    /** The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock. */
-    back(y: number): number;
-
-    /** Retained stations of the same back law. Bare-wall offsets transfer between neighbouring named sites without a new fit. */
-    backStations?: readonly { site: string; y: number }[];
-
-    /** The navel section's box at a girth (top hip). */
-    lumbar(girth: number): IBox;
-
-    /** The thorax's box without the breasts at a girth (the underbust). */
-    chestWall(girth: number): IBox;
-
-    /** The perineum's forward place, mm. */
-    perineum: number;
-
-    /** The sites above the chest, by rising height: each with its half breadth, front, back (the back profile's where absent) and sourced shoulder; the last the trunk's open top inside the neck. */
-    upper: {
-      site: string;
-      y: number;
-      half: number;
-      front: number;
-      back?: number;
-      shoulder: number;
-    }[];
-  }
-
   /**
    * The views.
    *
@@ -109,26 +73,26 @@ export namespace AutoMovieHumanTrunkViews {
     measures: IAutoMovieHumanBodyMeasures,
     crotch: number,
     scale: number,
-    laws: ILaws,
-    amplitudes: { breast: number; gluteal: number },
-    connection?: AutoMovieHumanTrunkConnection.IDefinition,
+    laws: IAutoMovieHumanTrunkViewLaws.ILaws,
+    amplitudes: IAutoMovieHumanTrunkViewLaws.IOfAmplitudes,
+    connection?: IAutoMovieHumanTrunkConnection.IDefinition,
   ): IAutoMovieHumanTrunkViews {
     const cervicale: number = measures.cervicaleHeight * scale;
     const at = (share: number): number =>
       AutoMovieHumanTrunkLandmarks.at(crotch, cervicale, share);
     const boxes: Record<
-      AutoMovieHumanBodyBox.Level,
-      AutoMovieHumanBodyBox.IBox
+      IAutoMovieHumanBodyBox.Level,
+      IAutoMovieHumanBodyBox.IBox
     > = Object.fromEntries(
       AutoMovieHumanBodyBox.of(measures).map(
         (
-          b: AutoMovieHumanBodyBox.IBox,
-        ): [AutoMovieHumanBodyBox.Level, AutoMovieHumanBodyBox.IBox] => [
+          b: IAutoMovieHumanBodyBox.IBox,
+        ): [IAutoMovieHumanBodyBox.Level, IAutoMovieHumanBodyBox.IBox] => [
           b.level,
           b,
         ],
       ),
-    ) as Record<AutoMovieHumanBodyBox.Level, AutoMovieHumanBodyBox.IBox>;
+    ) as Record<IAutoMovieHumanBodyBox.Level, IAutoMovieHumanBodyBox.IBox>;
 
     // Heights of the published sites.
     const buttock: number = at(AutoMovieHumanTrunkLandmarks.BUTTOCK);
@@ -150,8 +114,10 @@ export namespace AutoMovieHumanTrunkViews {
       const back: number = laws.back(y);
       return { site: name, y, half, front: back + depth, back, fullness };
     };
-    const topHipBox: IBox = laws.lumbar(measures.highHipCircumference * scale);
-    const underbust: IBox = laws.chestWall(
+    const topHipBox: IAutoMovieHumanTrunkViewLaws.IBox = laws.lumbar(
+      measures.highHipCircumference * scale,
+    );
+    const underbust: IAutoMovieHumanTrunkViewLaws.IBox = laws.chestWall(
       measures.underbustCircumference * scale,
     );
     const ellipse: { shoulder: number } = {
@@ -191,7 +157,9 @@ export namespace AutoMovieHumanTrunkViews {
         ellipse,
       ),
       ...laws.upper.map(
-        (u: ILaws["upper"][number]): IAutoMovieHumanTrunkViews.ISite => {
+        (
+          u: IAutoMovieHumanTrunkViewLaws.ILaws["upper"][number],
+        ): IAutoMovieHumanTrunkViews.ISite => {
           const back: number = u.back ?? laws.back(u.y);
 
           // The whole-skin table includes the breast envelope. Continue

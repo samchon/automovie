@@ -1,12 +1,17 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanFoot,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,10 +50,10 @@ export function test_human_motion_base_kneeling_poses(): void {
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   rows.forEach((row: string, r: number): void => {
     const name: "m-average" | "f-small" = names[r % 2]!;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const label: string = `${name} ${row}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "poses",
@@ -72,8 +77,8 @@ export function test_human_motion_base_kneeling_poses(): void {
       );
       return;
     }
-    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -88,7 +93,7 @@ export function test_human_motion_base_kneeling_poses(): void {
       (y("leftUpperLeg", t) + y("rightUpperLeg", t)) / 2;
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-        (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+        (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
       )!.point;
 
     // 1. No declared plant slips.

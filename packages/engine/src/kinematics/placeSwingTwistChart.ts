@@ -1,6 +1,8 @@
 import type {
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -9,7 +11,7 @@ import { rotationBetween } from "../math/rotationBetween";
 import { toRigAngle } from "../rom/toRigAngle";
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { swingTwistBasis } from "./swingTwistBasis";
-import type { swingTwistRange } from "./swingTwistRange";
+import { swingTwistRange } from "./swingTwistRange";
 
 /** A disc coordinate pair and clinical-degree twist, as the chart produces. */
 type IPlace = ReturnType<typeof swingTwistRange.chart>;
@@ -20,7 +22,7 @@ type IRadius = typeof swingTwistRange.radius;
 /** One fixed chart inversion's successful, lazily prepared scalar metadata. */
 interface IState {
   /** Admitted swing frame first read at the original placed entry site. */
-  basis?: swingTwistBasis.IBasis;
+  basis?: IAutoMovieSwingTwistBasis.IBasis;
 
   /** Source normalization first reached after the actual direction calculation. */
   aim?: ReturnType<typeof rotationBetween.prepare>;
@@ -49,11 +51,11 @@ interface IState {
 export function placeSwingTwistChart(
   place: IPlace,
   constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
   radius: IRadius,
   state?: IState,
 ): IAutoMovieQuaternion {
-  const basis: swingTwistBasis.IBasis = state?.basis ??
+  const basis: IAutoMovieSwingTwistBasis.IBasis = state?.basis ??
     SwingTwistFramePreparation.basis(joint);
   if (state !== undefined) state.basis = basis;
   const k: number = Math.hypot(place.x, place.y);
@@ -86,7 +88,7 @@ export namespace placeSwingTwistChart {
   /** Release this lazy reader with its fixed endpoint pair and unchanged rig. */
   export function prepare(
     constraint: IAutoMovieJointConstraint,
-    joint: swingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
     radius: IRadius,
   ): (place: IPlace) => IAutoMovieQuaternion {
     const state: IState = {};

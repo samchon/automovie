@@ -1,25 +1,28 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanTouch } from "../compose/IAutoMovieMotionHumanTouch";
-import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
-import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { touchHold } from "./touchHold";
 
 /**
@@ -55,12 +58,12 @@ export namespace touchReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Metadata is created only for a real hand and released on return or throw. No goal, pose, map, projector, query callback or history escapes the scalar duration result.
    */
   export function duration(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     entry: IAutoMoviePose,
-    reached: IHumanPosture,
-    hands: readonly (readonly [HumanHand.Side, AutoMovieMotionTarget])[],
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    region: (target: AutoMovieMotionTarget) => IAutoMovieMotionHumanTouch["region"],
+    reached: IAutoMovieMotionHumanPosture,
+    hands: readonly (readonly [AutoMovieHumanSide, IAutoMovieMotionTarget])[],
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    region: (target: IAutoMovieMotionTarget) => IAutoMovieMotionHumanTouch.ITouch["region"],
     laid: touchHold.Lay,
   ): number {
     let longest: number = 0;
@@ -69,7 +72,7 @@ export namespace touchReach {
     for (const [side, target] of hands) {
       const read: ReturnType<typeof prepareHumanPoseResolution> = resolution ??= prepareHumanPoseResolution();
       const project: ReturnType<typeof prepareHumanPostureProjection> = projection ??= prepareHumanPostureProjection(body);
-      const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
         body,
         reached,
         side,
@@ -79,7 +82,7 @@ export namespace touchReach {
         AutoMovieMotionHumanBend.hang(body, reached, side),
         "arm",
       );
-      const arrival: AutoMovieMotionHumanArm.IAngles =
+      const arrival: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(
           resolveHumanPosture.seeded(body, {
             ...reached,
@@ -125,10 +128,10 @@ export namespace touchReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function meeting(
-    body: IHumanBody,
-    bones: AutoMovieMotionMeeting.IRole["bones"],
-    entry: AutoMovieMotionMeeting.IRole["entry"],
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    bones: IAutoMovieMotionMeetingRole["bones"],
+    entry: IAutoMovieMotionMeetingRole["entry"],
+    side: AutoMovieHumanSide,
     surface: "palm" | "fist",
     point: IAutoMovieVector3,
   ): number {
@@ -163,21 +166,21 @@ export namespace touchReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function place(
-    body: IHumanBody,
-    entry: { posture: IHumanPosture; pose: IAutoMoviePose },
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
+    body: IAutoMovieMotionHumanBody,
+    entry: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose },
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     point: IAutoMovieVector3,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
   ): number {
-    const reached: IHumanPosture = entry.posture;
+    const reached: IAutoMovieMotionHumanPosture = entry.posture;
     const back: IAutoMovieVector3 = { x: reached.root.x - point.x, y: 0, z: reached.root.z - point.z };
     const length: number = Math.hypot(back.x, back.z);
     const yaw: number = (reached.yaw * Math.PI) / 180;
     const normal: IAutoMovieVector3 = length > 1e-6
       ? { x: back.x / length, y: 0, z: back.z / length }
       : { x: -Math.sin(yaw), y: 0, z: -Math.cos(yaw) };
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       reached,
       side,
@@ -187,7 +190,7 @@ export namespace touchReach {
       AutoMovieMotionHumanBend.hang(body, reached, side),
       "arm",
     );
-    const arrival: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
+    const arrival: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
       resolveHumanPosture.seeded(body, {
         ...reached,
         limbs: { ...reached.limbs, [`${side}Arm`]: goal },

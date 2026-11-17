@@ -1,12 +1,14 @@
 import {
-  type IAutoMovieCut,
-  type IAutoMoviePlaybackSample,
-  type IAutoMoviePlaybackTimeline,
   cutSequence,
   resolveFromTimeline,
   sequenceTimeline,
 } from "@automovie/engine";
-import { type IAutoMovieShot } from "@automovie/interface";
+import type {
+  IAutoMovieCut,
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

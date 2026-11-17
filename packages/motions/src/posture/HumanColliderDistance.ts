@@ -4,7 +4,10 @@ import {
   closestPointsBetweenSegments,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanColliderBound } from "./HumanColliderBound";
 import type { HumanColliders } from "./HumanColliders";
@@ -24,15 +27,15 @@ import type { HumanColliders } from "./HumanColliders";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain no placement/scratch; an explicit synchronous prepared operation owns one closure, its borrowed unchanged placement and at most F lazy world spheres/shape readers until release or throw. No queried point, result, global map, task or handle is retained.
  */
 export function HumanColliderDistance(
-  placements: readonly HumanColliders.IPlaced[],
+  placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   widest: number,
   bounds?: IWorldBall[],
   readers?: IDistanceReader[],
-): HumanColliders.IDistance {
-  let best: HumanColliders.IDistance | undefined;
+): IAutoMovieMotionHumanColliders.IDistance {
+  let best: IAutoMovieMotionHumanColliders.IDistance | undefined;
   let cursor: number = 0;
   for (const { bone, pose, shapes } of placements)
     for (const shape of shapes) {
@@ -91,11 +94,11 @@ export namespace HumanColliderDistance {
    * The operation owns one closure, borrowed placement and at most F spheres/readers until return or throw; no global map, point/result history, task or handle is added.
    */
   export function prepare(
-    placements: readonly HumanColliders.IPlaced[],
-  ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => HumanColliders.IDistance {
+    placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => IAutoMovieMotionHumanColliders.IDistance {
     const bounds: IWorldBall[] = [];
     const readers: IDistanceReader[] = [];
-    return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): HumanColliders.IDistance =>
+    return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): IAutoMovieMotionHumanColliders.IDistance =>
       HumanColliderDistance(
         placements,
         a,

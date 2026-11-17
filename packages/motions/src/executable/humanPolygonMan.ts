@@ -1,9 +1,10 @@
 import { measureAutoMovieHumanoidBody } from "@automovie/engine";
-import {
-  AutoMovieHumanCanonicalBody,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
-import type { IAutoMovieBodyMeasure } from "@automovie/interface";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 
 /**
  * A polygon man of any Human parameters on the canonical rig, for local
@@ -36,7 +37,7 @@ export function humanPolygonMan(
   params: IAutoMovieHumanParameters,
   mass: number,
 ): humanPolygonMan.IPolygonMan {
-  const body: AutoMovieHumanCanonicalBody.IBody =
+  const body: IAutoMovieHumanCanonicalBody.IBody =
     AutoMovieHumanCanonicalBody.prepare(params, { mass, id });
   return {
     id,
@@ -60,7 +61,7 @@ export namespace humanPolygonMan {
     id: string;
 
     /** The canonical body. */
-    body: AutoMovieHumanCanonicalBody.IBody;
+    body: IAutoMovieHumanCanonicalBody.IBody;
 
     /** Its measure. */
     measure: IAutoMovieBodyMeasure;

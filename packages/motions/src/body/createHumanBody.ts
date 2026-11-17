@@ -1,22 +1,21 @@
 import {
-  indexSkeletonTopology,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   clampPose,
+  indexSkeletonTopology,
+  measureAutoMovieHumanoidBody,
   prepareChainConstants,
   prepareSkeletonPoseResolution,
-  measureAutoMovieHumanoidBody,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "./IHumanBody";
 
 /**
  * Derive a performer's body from a canonical rig and profile.
@@ -36,7 +35,7 @@ import type { IHumanBody } from "./IHumanBody";
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
-): IHumanBody {
+): IAutoMovieMotionHumanBody {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(bone.bone, {
@@ -50,16 +49,16 @@ export function createHumanBody(
         (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
         bone.rest.translation.z,
     });
-  const { measure, surfaces }: Pick<IHumanBody, "measure" | "surfaces"> =
+  const { measure, surfaces }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
     measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
-  const topology: IHumanBody["topology"] = indexSkeletonTopology(skeleton);
-  const poseResolution: IHumanBody["poseResolution"] = prepareSkeletonPoseResolution(
+  const topology: IAutoMovieMotionHumanBody["topology"] = indexSkeletonTopology(skeleton);
+  const poseResolution: IAutoMovieMotionHumanBody["poseResolution"] = prepareSkeletonPoseResolution(
     skeleton,
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
     topology,
   );
-  const chains: Partial<Record<keyof IHumanBody["chains"], prepareChainConstants.IConstants>> = {};
+  const chains: Partial<Record<keyof IAutoMovieMotionHumanBody["chains"], prepareChainConstants.IConstants>> = {};
   for (const side of ["left", "right"] as const)
     for (const [limb, upper, lower, effector] of [
       ["Arm", "UpperArm", "LowerArm", "Hand"],
@@ -80,8 +79,8 @@ export function createHumanBody(
       });
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
-  let massModel: IHumanBody["massModel"] | undefined;
-  const body: IHumanBody = {
+  let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
+  const body: IAutoMovieMotionHumanBody = {
     skeleton,
     profile,
     measure,
@@ -93,7 +92,7 @@ export function createHumanBody(
     // The rig's ROM projection is a constant of the body like its FK
     // prerequisites: one pose clamp on this rig, read by every consumer.
     projection: clampPose.prepare(skeleton),
-    get massModel(): IHumanBody["massModel"] {
+    get massModel(): IAutoMovieMotionHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;
     },

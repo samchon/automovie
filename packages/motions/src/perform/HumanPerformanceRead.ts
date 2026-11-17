@@ -1,25 +1,25 @@
 import type {
-  IAutoMovieIntent,
-  IAutoMovieResolvedBone,
-} from "@automovie/engine";
-import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentShown } from "./HumanSegmentShown";
-import type { IHumanProp } from "./IHumanProp";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -49,7 +49,7 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores no state and returns the evaluator's original pose reference, including its existing cached ownership.
    */
   export function pose(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -80,13 +80,13 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the initial posture stays borrowed and an action result keeps that plan's existing ownership.
    */
   export function posture(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
     axis?: string | (() => string),
-  ): IHumanPosture {
-    const person: HumanSegment.IPerson = axis === undefined
+  ): IAutoMovieMotionHumanPosture {
+    const person: IAutoMovieMotionHumanSegment.IPerson = axis === undefined
       ? HumanPerformanceRead.person(self, subject) : available(self, subject, seconds, axis);
     return placedPosture(person, seconds, channels);
   }
@@ -107,7 +107,7 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous query owns one lazy rig/FK preparation until return or throw; no returned map or transform retains it. The caller owns the fresh FK map and nested transforms.
    */
   export function bones(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -128,10 +128,10 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied names share only static FK-demand and genuine ROM metadata. Each exact second issues a separate empty FK workspace and reads current placement/stop state; edited source names cannot change the copied demand, and poses/results never share between query contexts here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person, at most K names, fixed demand metadata and one lazy genuine ROM mapper until return/throw. Each call releases its independent FK workspace; no returned map or factory retains prior workspaces, query poses, frames or times.
    */
-  export function prepareBones(self: HumanPerformanceState, subject: string,
+  export function prepareBones(self: IAutoMovieMotionHumanPerformanceState, subject: string,
     requested?: ReadonlySet<AutoMovieHumanoidBone>):
     (seconds: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
     const names: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested === undefined ? undefined : new Set(requested);
     const read: Parameters<typeof HumanSegmentShown.bones>[4] = names === undefined ? undefined : {
@@ -196,7 +196,7 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains nothing; the delegated frame or motion provider preserves its original result ownership and existing state-cache lifetime.
    */
   export function prop(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     own?: {
@@ -205,7 +205,7 @@ export namespace HumanPerformanceRead {
         requested?: ReadonlySet<AutoMovieHumanoidBone>,
       ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
-  ): IHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return HumanPerformanceHold.prop(self, subject, seconds, own);
   }
 
@@ -224,9 +224,9 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Adds no retention and returns the existing borrowed array through a readonly view, without making its records immutable.
    */
   export function segments(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly HumanSegment.ISegment[] {
+  ): readonly IAutoMovieMotionHumanSegment[] {
     return HumanPerformanceRead.person(self, subject).segments;
   }
 
@@ -246,9 +246,9 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no additional state; the readonly result is the state's borrowed array and existing record references.
    */
   export function overlays(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly HumanSegment.IOverlay[] {
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
@@ -264,9 +264,9 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; returned cached or newly published arrays keep the grip owner's existing ownership and resolved-state lifetime.
    */
   export function grips(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): HumanPerformanceState.IGrip[] {
+  ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
     return HumanPerformanceGrips.of(self, subject);
   }
 
@@ -282,12 +282,12 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous preparation releases on return or throw and no frame retains it; the returned frame keeps HumanPropHold.frame's existing value ownership.
    */
   export function hand(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     side: "left" | "right",
     seconds: number,
-  ): IHumanProp.IFrame {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+  ): IAutoMovieRigidTransform {
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
       self,
       subject,
     );
@@ -325,21 +325,21 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores nothing; the returned wrapper is fresh while its position retains the selected posture's existing vector reference.
    */
   export function root(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     axis: string | (() => string),
-  ): IHumanActionContext.IRoot {
-    const person: HumanSegment.IPerson = available(self, subject, seconds, axis);
-    const posture: IHumanPosture = placedPosture(person, seconds, ["root"]);
+  ): IAutoMovieMotionHumanActionContext.IRoot {
+    const person: IAutoMovieMotionHumanSegment.IPerson = available(self, subject, seconds, axis);
+    const posture: IAutoMovieMotionHumanPosture = placedPosture(person, seconds, ["root"]);
     return { position: posture.root, yaw: posture.yaw };
   }
 
   /** Apply the original unresolved-future refusal without evaluating a raw posture. */
-  function available(self: HumanPerformanceState, subject: string, seconds: number,
-    axis: string | (() => string)): HumanSegment.IPerson {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
-    const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
+  function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
+    axis: string | (() => string)): IAutoMovieMotionHumanSegment.IPerson {
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
@@ -375,10 +375,10 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Adds no state on a hit and returns the borrowed person; an error owns its newly collected alternatives array.
    */
   export function person(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): HumanSegment.IPerson {
-    const person: HumanSegment.IPerson | undefined = self.people.get(subject);
+  ): IAutoMovieMotionHumanSegment.IPerson {
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(subject);
     if (person === undefined)
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
@@ -398,11 +398,11 @@ export namespace HumanPerformanceRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a fresh scalar/string location record.
    */
   export function where(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
-  ): HumanRefusal.IWhere {
+  ): IAutoMovieMotionHumanRefusal.IWhere {
     const id: string = intent.anchor ?? intent.capability;
-    const person: HumanSegment.IPerson | undefined = self.people.get(
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(
       intent.subject,
     );
     let instance: number = 1;
@@ -435,7 +435,7 @@ export namespace HumanPerformanceRead {
     subject: string,
     known: readonly string[],
     axis: string = what,
-  ): HumanRefusal {
+  ): IAutoMovieMotionHumanRefusal {
     return new HumanRefusal({
       kind: what === "prop" ? "affordance" : "participant",
       axis,
@@ -448,11 +448,11 @@ export namespace HumanPerformanceRead {
 
   /** The raw active posture of an already resolved person, before layers. */
   function placedPosture(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
-  ): IHumanPosture {
-    const active: HumanSegment.ISegment | undefined =
+  ): IAutoMovieMotionHumanPosture {
+    const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     return active === undefined
       ? person.initial
@@ -464,7 +464,7 @@ export namespace HumanPerformanceRead {
 
   /** Fresh demanded bones of an already resolved person's displayed pose (`HumanSegmentShown.bones`); never stores a bone map. */
   function placedBones(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     bound?: Parameters<typeof HumanSegmentShown.bones>[4],

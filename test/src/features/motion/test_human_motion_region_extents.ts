@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -29,7 +29,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_region_extents(): void {
   const findings: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const entries = Object.entries(body.surfaces.regions) as [
       AutoMovieHumanoidRegion,
       (typeof body.surfaces.regions)[AutoMovieHumanoidRegion],

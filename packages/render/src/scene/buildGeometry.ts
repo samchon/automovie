@@ -1,12 +1,9 @@
-import {
-  type ITessellation,
-  realizeAutoMovieBicubicAtlas64,
-  tessellate,
-} from "@automovie/engine";
-import {
+import { realizeAutoMovieBicubicAtlas64, tessellate } from "@automovie/engine";
+import type {
   IAutoMovieGeometry,
-  type IAutoMovieMesh,
-  type IAutoMovieMeshMorphTarget,
+  IAutoMovieMesh,
+  IAutoMovieMeshMorphTarget,
+  IAutoMovieTessellation,
 } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -49,7 +46,7 @@ export const buildGeometry: (
         THREE.BufferGeometryEventMap
       > = own(new THREE.BufferGeometry());
       if (geometry.type === "primitive") {
-        const t: ITessellation = tessellate(geometry.shape);
+        const t: IAutoMovieTessellation = tessellate(geometry.shape);
         geo.setAttribute(
           "position",
           new THREE.Float32BufferAttribute(t.positions, 3),

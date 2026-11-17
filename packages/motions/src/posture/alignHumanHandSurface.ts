@@ -1,5 +1,13 @@
-import { Quaternion, Vector3, quaternionFromAutoMovieBasis } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  quaternionFromAutoMovieBasis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanHand } from "./HumanHand";
 
@@ -16,8 +24,8 @@ import type { HumanHand } from "./HumanHand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold alignment retains no state. A prepared action owns two fixed direction vectors and at most one successful inverse until release, returning fresh quaternions and retaining no body, world input, time history or external handle.
  */
 export function alignHumanHandSurface(
-  rest: Pick<HumanHand.IFrame, "normal" | "forward">,
-  world: Pick<HumanHand.IFrame, "normal" | "forward">,
+  rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+  world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
 ): IAutoMovieQuaternion {
   return composed(basis(world), Quaternion.inverse(basis(rest)));
 }
@@ -43,13 +51,13 @@ export namespace alignHumanHandSurface {
    * The owning action retains two fixed direction vectors and at most one completed inverse until release; no body, time history, world input or external handle is retained.
    */
   export function prepare(
-    rest: Pick<HumanHand.IFrame, "normal" | "forward">,
-  ): (world: Pick<HumanHand.IFrame, "normal" | "forward">) => IAutoMovieQuaternion {
-    const fixed: Pick<HumanHand.IFrame, "normal" | "forward"> = {
+    rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+  ): (world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">) => IAutoMovieQuaternion {
+    const fixed: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward"> = {
       normal: { ...rest.normal }, forward: { ...rest.forward },
     };
     let inverse: IAutoMovieQuaternion | undefined;
-    return (world: Pick<HumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion => {
+    return (world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion => {
       const into: IAutoMovieQuaternion = basis(world);
       return composed(into, inverse ??= Quaternion.inverse(basis(fixed)));
     };
@@ -57,7 +65,7 @@ export namespace alignHumanHandSurface {
 }
 
 /** Complete the original projected normal/forward basis, retaining its parallel refusal. */
-function basis(frame: Pick<HumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion {
+function basis(frame: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion {
   const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
   const across: IAutoMovieVector3 = Vector3.subtract(frame.forward,
     Vector3.scale(n, Vector3.dot(frame.forward, n)));

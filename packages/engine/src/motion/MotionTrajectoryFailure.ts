@@ -1,4 +1,8 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieLoftSectionSource,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** An actual angular RHS reading at a rejected trial's endpoint. */
 interface IEndpoint {
@@ -37,9 +41,9 @@ export class MotionTrajectoryFailure extends Error {
       /** Which admission condition rejected this trial. */
       kind: "rms" | "numeric-dense" | "physical";
       /** Actual first-stage angular RHS reading, absent without orientation. */
-      start?: IEndpoint;
+      start?: IAutoMovieLoftSectionSource.IEndpoint;
       /** Actual final-stage angular RHS reading, absent without orientation. */
-      end?: IEndpoint;
+      end?: IAutoMovieLoftSectionSource.IEndpoint;
       /** The first failed physical probe, copied only on rejection. */
       probe?: {
         /** Actual film second passed to the physical callback. */

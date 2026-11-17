@@ -1,5 +1,11 @@
 import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanInteractionMesh,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanInteractionMeshLaplacian as Laplacian } from "./HumanInteractionMeshLaplacian";
@@ -57,59 +63,6 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The constraints are met by the merit's own steps, never projected after the solve.
  */
 export namespace HumanInteractionMesh {
-  /** A bone: two points and the length it keeps. */
-  export interface IBone {
-    /** One end's index. */
-    from: number;
-
-    /** The other end's index. */
-    to: number;
-
-    /** Metres. */
-    length: number;
-  }
-
-  /** A contact: two points, usually of different bodies, held at a fixed offset. */
-  export interface IContact {
-    /** One point's index. */
-    a: number;
-
-    /** The other point's index. */
-    b: number;
-
-    /** `a` minus `b`, world metres; they coincide when absent. */
-    offset?: IAutoMovieVector3;
-  }
-
-  /** The tetrahedra over the points (`tetrahedralizeAutoMovieDelaunay`). */
-  export type IMesh = tetrahedralizeAutoMovieDelaunay.IMesh;
-
-  /** The adaptation's input. */
-  export interface IProps {
-    /** The key pose's points, world metres. */
-    reference: readonly IAutoMovieVector3[];
-
-    /** The target bodies' bones. */
-    bones: readonly IBone[];
-
-    /** The contacts to keep. */
-    contacts: readonly IContact[];
-
-    /** The points to start from; the reference when absent or when this guess inverts a recorded tetrahedron. */
-    start?: readonly IAutoMovieVector3[];
-
-    /** The reference's mesh, when built before; built here when absent. */
-    mesh?: IMesh;
-  }
-
-  /** The adaptation's result. */
-  export interface IResult {
-    /** The adapted points, world metres. */
-    points: IAutoMovieVector3[];
-
-    /** The mesh it kept. */
-    mesh: IMesh;
-  }
 
   /**
    * Adapt a key pose.
@@ -126,7 +79,7 @@ export namespace HumanInteractionMesh {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The Laplacian, dimensions and objective flag fix P throughout one adapt call. At fixed x/e/objective, bone/contact/side coefficients and q do not depend on mu: fresh penalty shells change only existing soft weights, retain hard side rows and reset local warm state while sharing numeric preparation. Accepted-step keyed multipliers and radius warm policy remain unchanged; mesh reuse stays explicit through props.mesh.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One adapt call owns at most two fixed curvatures; its current linearization owns coefficients, one numeric preparation and bounded scratch shared by fresh penalty shells without linked history. Returned points/mesh remain caller-owned, with no cached deformation or query history.
    */
-  export function adapt(props: IProps): IResult {
+  export function adapt(props: IAutoMovieMotionHumanInteractionMesh.IProps): IAutoMovieMotionHumanInteractionMesh.IResult {
     const n: number = props.reference.length;
     if (n < 4)
       throw new Error("An interaction mesh needs at least four points");
@@ -140,7 +93,7 @@ export namespace HumanInteractionMesh {
     for (const contact of props.contacts)
       if (!inside(contact.a) || !inside(contact.b))
         throw new Error(`A contact ${contact.a}-${contact.b} needs two points`);
-    const mesh: IMesh =
+    const mesh: IAutoMovieTetrahedralizeDelaunay.IMesh =
       props.mesh ?? tetrahedralizeAutoMovieDelaunay(props.reference);
     const neighbours: number[][] = tetrahedralizeAutoMovieDelaunay.neighbours(
       mesh,
@@ -190,9 +143,9 @@ export namespace HumanInteractionMesh {
         return 3 * (b - a);
       }),
       ...props.bones.map(
-        (bone: IBone): number => 3 * Math.abs(bone.from - bone.to) + 2,
+        (bone: IAutoMovieMotionHumanInteractionMesh.IBone): number => 3 * Math.abs(bone.from - bone.to) + 2,
       ),
-      ...props.contacts.map((c: IContact): number => 3 * Math.abs(c.a - c.b)),
+      ...props.contacts.map((c: IAutoMovieMotionHumanInteractionMesh.IContact): number => 3 * Math.abs(c.a - c.b)),
       // A side's row couples every axis of its four corners.
       ...mesh.tetrahedra.map(
         (t: readonly [number, number, number, number]): number =>
@@ -235,7 +188,7 @@ export namespace HumanInteractionMesh {
         flipped,
       };
     };
-    const problem: SCO.IProblem<Float64Array, IEvaluation> = {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
       evaluate,
       feasible: (e: IEvaluation): boolean =>
         e.worst <= accuracy && e.flipped === 0,
@@ -245,7 +198,7 @@ export namespace HumanInteractionMesh {
         mu: number,
         _radius: number,
         objective: boolean,
-      ): SCO.IModel<Float64Array> => {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
         const retained: Float64Array[] | undefined = curvatures[objective ? 1 : 0];
         const p: Float64Array[] = retained ?? Array.from(
           { length: 3 * n },
@@ -268,8 +221,8 @@ export namespace HumanInteractionMesh {
             }
         }
         curvatures[objective ? 1 : 0] = p;
-        const held: QP.IRow[] = [
-          ...props.bones.map((bone: IBone, b: number): QP.IRow => {
+        const held: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [
+          ...props.bones.map((bone: IAutoMovieMotionHumanInteractionMesh.IBone, b: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
             const d: number[] = [0, 1, 2].map(
               (k: number): number =>
                 x[3 * bone.from + k]! - x[3 * bone.to + k]!,
@@ -294,9 +247,9 @@ export namespace HumanInteractionMesh {
               weight: mu,
             };
           }),
-          ...props.contacts.flatMap((c: IContact, h: number): QP.IRow[] => {
+          ...props.contacts.flatMap((c: IAutoMovieMotionHumanInteractionMesh.IContact, h: number): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
             const off: number[] = offset(c);
-            return [0, 1, 2].map((k: number): QP.IRow => {
+            return [0, 1, 2].map((k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
               const r: number = off[k]! - (x[3 * c.a + k]! - x[3 * c.b + k]!);
               return {
                 key: `c|${h}|${k}`,
@@ -310,28 +263,28 @@ export namespace HumanInteractionMesh {
           }),
           // Each side kept, its signed volume linearised.
           ...sided.map(
-            (t: Side.ISide, s: number): QP.IRow =>
+            (t: Side.ISide, s: number): IAutoMovieMotionHumanQuadraticProgram.IRow =>
               Side.row(x, t, extent, `o|${s}`),
           ),
         ];
         let prepared: ReturnType<typeof QP.prepare> | undefined;
-        const priced: (price: number) => SCO.IModel<Float64Array> = (price: number): SCO.IModel<Float64Array> => {
-          const current: QP.IRow[] = price === mu ? held : held.map((row: QP.IRow): QP.IRow =>
+        const priced: (price: number) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (price: number): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+          const current: IAutoMovieMotionHumanQuadraticProgram.IRow[] = price === mu ? held : held.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow =>
             row.weight === undefined ? row : { ...row, weight: price });
-          const model: QP.IProblem = { n: 3 * n, band, p, q, rows: current };
+          const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = { n: 3 * n, band, p, q, rows: current };
           let zero: number | undefined;
-          let trusted: QP.IProblem | undefined;
-          let warm: QP.IState | undefined;
+          let trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem | undefined;
+          let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
           return {
             reprice: priced,
-            solve: (r: number): SCO.IStep<Float64Array> => {
+            solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
               trusted = {
                 ...model,
                 rows: [
                   ...current,
                   ...Array.from(
                     { length: 3 * n },
-                    (_: unknown, i: number): QP.IRow => ({
+                    (_: unknown, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                       index: [i],
                       coef: [1],
                       l: -r,
@@ -349,7 +302,7 @@ export namespace HumanInteractionMesh {
                 longest = Math.max(longest, Math.abs(warm.x[i]!));
               // The constraints the step leaves unmet on their linearisation,
               // which the steered penalty reads.
-              const left: number[] = current.map((row: QP.IRow): number => {
+              const left: number[] = current.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): number => {
                 let s: number = 0;
                 for (let a: number = 0; a < row.index.length; ++a)
                   s += row.coef[a]! * warm!.x[row.index[a]!]!;
@@ -399,7 +352,7 @@ export namespace HumanInteractionMesh {
       Math.ceil(Math.log(extent / accuracy) / Math.log(1 / SHRINK)),
     );
     const guess: Float64Array = flat(props.start ?? props.reference);
-    const solved: SCO.IResult<Float64Array, IEvaluation> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IEvaluation> = SCO.minimise(
       problem,
       evaluate(guess).flipped === 0 ? guess : reference,
       {
@@ -455,7 +408,7 @@ export namespace HumanInteractionMesh {
   const EXPAND: number = 2;
 
   /** An iterate's reading: the objective, the summed violation, the worst and the sides lost. */
-  interface IEvaluation extends SCO.IEvaluation {
+  interface IEvaluation extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     /** The worst constraint's violation, metres. */
     worst: number;
 
@@ -478,7 +431,7 @@ export namespace HumanInteractionMesh {
     });
 
   /** A contact's offset as an array. */
-  const offset = (c: IContact): number[] => [
+  const offset = (c: IAutoMovieMotionHumanInteractionMesh.IContact): number[] => [
     c.offset?.x ?? 0,
     c.offset?.y ?? 0,
     c.offset?.z ?? 0,

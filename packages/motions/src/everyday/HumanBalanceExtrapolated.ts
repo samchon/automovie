@@ -1,10 +1,14 @@
 import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanForceSite,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -36,12 +40,12 @@ export namespace HumanBalanceExtrapolated {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous FK workspace and genuine ROM projector serve all three actual fits; current scalar dependencies and every authored joint remain admitted. No prior dynamic margin, pose or time sample is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local metadata, callback adapter and centre reader end with this call or throw; only a scalar escapes and no body, posture, frame, projector or history is retained here.
    */
-  export function of(body: IHumanBody, at: (seconds: number) => IHumanPosture,
+  export function of(body: IAutoMovieMotionHumanBody, at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
     const centre: ReturnType<typeof prepareHumanBalanceCentre> = prepareHumanBalanceCentre(body);
-    return observed(body, (t: number): IHumanPosture => at(t), seconds,
+    return observed(body, (t: number): IAutoMovieMotionHumanPosture => at(t), seconds,
       resolution, projection, centre);
   }
 
@@ -59,7 +63,7 @@ export namespace HumanBalanceExtrapolated {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged canonical body establishes fixed rig/profile/surface membership. Each invocation lends its own or a parent's exact FK workspace and genuine ROM metadata; every changed root/joint/goal and mass placement remains actual and no sample identity keys a result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning search/plan retains body and two bounded static readers until release. Current movement functions, postures, returned maps, mass centres, FK/ROM loans and time samples remain invocation-local and are never saved by the returned closure.
    */
-  export function prepare(body: IHumanBody): (at: At, seconds: number,
+  export function prepare(body: IAutoMovieMotionHumanBody): (at: AutoMovieHumanForceSite, seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>) => number {
     const centre: ReturnType<typeof prepareHumanBalanceCentre> = prepareHumanBalanceCentre(body);
@@ -67,7 +71,7 @@ export namespace HumanBalanceExtrapolated {
       ...HumanColliders.bones(body), ...HumanFoot.bones(body),
     ]);
     const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-    return (at: At, seconds: number, source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    return (at: AutoMovieHumanForceSite, seconds: number, source?: Parameters<typeof prepareHumanPoseResolution>[0],
       supplied?: ReturnType<typeof prepareHumanPostureProjection>): number => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const projection: ReturnType<typeof prepareHumanPostureProjection> = supplied ?? prepareHumanPostureProjection(body);
@@ -78,10 +82,10 @@ export namespace HumanBalanceExtrapolated {
 
 /** Current raw movement construction may borrow metadata only during this call. */
 type At = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  projection?: ReturnType<typeof prepareHumanPostureProjection>) => IHumanPosture;
+  projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanPosture;
 
 /** The original central difference, current full solve and support margin. */
-function observed(body: IHumanBody, at: At, seconds: number,
+function observed(body: IAutoMovieMotionHumanBody, at: AutoMovieHumanForceSite, seconds: number,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   centre: ReturnType<typeof prepareHumanBalanceCentre>, frames?: ReturnType<typeof poseBones.prepare>): number {

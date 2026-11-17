@@ -1,5 +1,4 @@
-/** One finite point in a face's native station/phase chart. */
-type Point = readonly [number, number];
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /** Exact integer significand multiplied by two to exponent. */
 interface Dyadic {
@@ -40,10 +39,10 @@ interface Dyadic {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one module-local eight-byte decoding view; integer scratch is call-local and no input reference survives.
  */
 export function incircleAutoMovieSolidChart(
-  a: Point,
-  b: Point,
-  c: Point,
-  d: Point,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  c: Readonly<AutoMovieVector2Tuple>,
+  d: Readonly<AutoMovieVector2Tuple>,
 ): number {
   const values: number[] = [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]];
   if (!values.every(Number.isFinite))

@@ -1,5 +1,8 @@
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -45,9 +48,9 @@ export function test_motion_contact_events_live_span(): void {
   const run = (
     n: number,
     spans: boolean,
-  ): { events: resolveAutoMovieContactEvents.IEvent[]; calls: number } => {
+  ): { events: IAutoMovieResolveContactEvents.IEvent[]; calls: number } => {
     let calls: number = 0;
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
+    const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
     for (let k: number = 1; k <= n; k++) {
       const reach: number = k % 2 === 1 ? 0.5 : -0.2;
       weapons.push({
@@ -61,7 +64,7 @@ export function test_motion_contact_events_live_span(): void {
             : { x: Math.min(reach, -1 + 2 * (t - k)), y: 0, z: 0 },
       });
     }
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons,
         bodies: [
@@ -92,15 +95,15 @@ export function test_motion_contact_events_live_span(): void {
     TestValidator.predicate(
       `${n} strikes: the odd ones meet the wall at k + 0.475 s, with or without spans`,
       [live.events, whole.events].every(
-        (events: resolveAutoMovieContactEvents.IEvent[]): boolean =>
+        (events: IAutoMovieResolveContactEvents.IEvent[]): boolean =>
           events.length === expected.length &&
           events.every(
-            (e: resolveAutoMovieContactEvents.IEvent, i: number): boolean =>
+            (e: IAutoMovieResolveContactEvents.IEvent, i: number): boolean =>
               e.against === "wall" && Math.abs(e.seconds - expected[i]!) < 1e-6,
           ),
       ) &&
         live.events.every(
-          (e: resolveAutoMovieContactEvents.IEvent, i: number): boolean =>
+          (e: IAutoMovieResolveContactEvents.IEvent, i: number): boolean =>
             e.seconds === whole.events[i]!.seconds &&
             e.weapon === whole.events[i]!.weapon,
         ),
@@ -120,11 +123,11 @@ export function test_motion_contact_events_live_span(): void {
   );
 
   // 4. A crossing outside the declared span is no contact.
-  const plate: resolveAutoMovieContactEvents.IBody = {
+  const plate: IAutoMovieResolveContactEvents.IBody = {
     id: "plate",
     distance: (p: IAutoMovieVector3): number => Math.abs(p.x) - 0.01,
   };
-  const outside: resolveAutoMovieContactEvents.IEvent[] =
+  const outside: IAutoMovieResolveContactEvents.IEvent[] =
     resolveAutoMovieContactEvents({
       weapons: [
         {

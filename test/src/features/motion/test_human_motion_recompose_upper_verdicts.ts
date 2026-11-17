@@ -1,4 +1,5 @@
-import { HUMAN_LEXICON, type IHumanActionLaw } from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
+import { HUMAN_LEXICON } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { LexiconRowNet } from "../internal/LexiconRowNet";
@@ -30,7 +31,7 @@ export function test_human_motion_recompose_upper_verdicts(): void {
   let rows: number = 0;
   for (const family of ["emblem", "habit"])
     for (const law of HUMAN_LEXICON[family] ??
-      ([] as readonly IHumanActionLaw<never>[])) {
+      ([] as readonly IAutoMovieMotionHumanActionLaw<never>[])) {
       // A row that needs a parameter, or a prop its own test stages
       // (`LexiconRowNet.STAGED`, a photograph's camera), is that test's.
       if (

@@ -1,9 +1,9 @@
 import type { AutoMovieConstructionContinuity } from "./AutoMovieConstructionContinuity";
 import type { AutoMovieConstructionJoinKind } from "./AutoMovieConstructionJoinKind";
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
-import type { AutoMovieConstructionParameter } from "./AutoMovieConstructionParameter";
-import type { AutoMovieConstructionSeed } from "./AutoMovieConstructionSeed";
-import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
+import type { IAutoMovieConstructionParameter } from "./IAutoMovieConstructionParameter";
+import type { IAutoMovieConstructionSeed } from "./IAutoMovieConstructionSeed";
+import type { IAutoMovieConstructionWidth } from "./IAutoMovieConstructionWidth";
 
 /**
  * A part joined onto a host: a merge (the union of the two solids) or a diff (the part cut from the host), along the curve where their surfaces meet, with a blend of declared continuity between a rail on each.
@@ -28,22 +28,22 @@ export interface IAutoMovieConstructionJoin {
   name: string;
 
   /** The solid the part joins: its whole subtree, whose faces the curve may cross. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The joined solid: its whole subtree, of which `seed.partFace` meets the host. */
-  part: AutoMovieConstructionNode;
+  part: IAutoMovieConstructionNode;
 
   /** Where the trace starts, from the landmarks that locate the contact. */
-  seed: AutoMovieConstructionSeed;
+  seed: IAutoMovieConstructionSeed;
 
   /** The curve's parameter: how one turn of the loop is measured. */
-  parameter: AutoMovieConstructionParameter;
+  parameter: IAutoMovieConstructionParameter;
 
   /** Chord from the curve to the part's rail, as a function of the curve's parameter. */
-  partWidth: AutoMovieConstructionWidth;
+  partWidth: IAutoMovieConstructionWidth;
 
   /** Chord from the curve to the host's rail; a `station` width is refused here. */
-  hostWidth: AutoMovieConstructionWidth;
+  hostWidth: IAutoMovieConstructionWidth;
 
   /** The continuity the blend keeps across both rails. */
   continuity: AutoMovieConstructionContinuity;

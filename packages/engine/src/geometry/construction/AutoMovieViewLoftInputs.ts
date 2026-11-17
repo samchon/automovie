@@ -1,22 +1,13 @@
-import type { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
+import type {
+  AutoMovieViewLoftInputsQuarters,
+  AutoMovieViewLoftInputsScalar,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewLoftInputsInputs,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
-
-/** Existing signed scalar value reader in physical station mm. */
-type Scalar = (station: number) => number;
-
-/** Ordered source-quarter values, before the cap owner acts. */
-type Quarters = (station: number) => IAutoMovieViewPart.IQuarters<number>;
-
-/** Existing raw scalar readers for source admission and ring density. */
-interface Inputs {
-  lateral: Scalar;
-  medial: Scalar;
-  ahead: Scalar;
-  behind: Scalar;
-  owner: Scalar;
-  shoulders: Quarters;
-}
 
 /**
  * Prepare ViewLoft's existing value readers, reusing retained direct sources.
@@ -31,10 +22,10 @@ interface Inputs {
  */
 export function AutoMovieViewLoftInputs(
   part: IAutoMovieViewPart,
-  source: AutoMovieLoftViewSource.ISource | null,
+  source: IAutoMovieLoftViewSource.ISource | null,
   report: (contract: string, detail: string) => void,
-): Inputs | null {
-  const reused: Partial<Record<string, AutoMovieViewOutline.IOutline>> = {};
+): IAutoMovieViewLoftInputsInputs | null {
+  const reused: Partial<Record<string, IAutoMovieViewOutline.IOutline>> = {};
   if (source !== null) {
     for (const [q, name] of [
       "front positive",
@@ -46,18 +37,18 @@ export function AutoMovieViewLoftInputs(
     if (source.fullness.kind === "shoulder") {
       reused.shoulder = source.fullness.owner;
       source.fullness.departures?.forEach(
-        (outline: AutoMovieViewOutline.IOutline, q: number): void => {
+        (outline: IAutoMovieViewOutline.IOutline, q: number): void => {
           reused[`departure ${q}`] = outline;
         },
       );
     } else
       source.fullness.shoulders.forEach(
-        (outline: AutoMovieViewOutline.IOutline, q: number): void => {
+        (outline: IAutoMovieViewOutline.IOutline, q: number): void => {
           reused[`top shoulder ${q}`] = outline;
         },
       );
   }
-  const ends: AutoMovieViewOutline.IEnds = {};
+  const ends: IAutoMovieViewOutline.IEnds = {};
   if (part.pole === "bottom" || part.pole === "both")
     ends.bottom = part.stations[0]!;
   if (part.pole === "top" || part.pole === "both")
@@ -68,14 +59,14 @@ export function AutoMovieViewLoftInputs(
     name: string,
     outline: IAutoMovieViewPart.IOutline,
     closing?: boolean,
-  ) => Scalar | null = (
+  ) => AutoMovieViewLoftInputsScalar | null = (
     name: string,
     outline: IAutoMovieViewPart.IOutline,
     closing: boolean = false,
-  ): Scalar | null => {
+  ): AutoMovieViewLoftInputsScalar | null => {
     const prepared:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure =
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure =
       reused[name] ?? AutoMovieViewOutline.create(outline, closing ? ends : {});
     if ("detail" in prepared) {
       report(prepared.contract, `${name}: ${prepared.detail}`);
@@ -100,49 +91,60 @@ export function AutoMovieViewLoftInputs(
     outlines:
       | IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>
       | undefined,
-  ) => Quarters | null = (
+  ) => AutoMovieViewLoftInputsQuarters | null = (
     name: string,
     outlines:
       | IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>
       | undefined,
-  ): Quarters | null => {
+  ): AutoMovieViewLoftInputsQuarters | null => {
     if (outlines === undefined)
       return (): IAutoMovieViewPart.IQuarters<number> => [0, 0, 0, 0];
-    const readers: (Scalar | null)[] = outlines.map(
-      (outline: IAutoMovieViewPart.IOutline, q: number): Scalar | null =>
-        curve(`${name} ${q}`, outline),
+    const readers: (AutoMovieViewLoftInputsScalar | null)[] = outlines.map(
+      (
+        outline: IAutoMovieViewPart.IOutline,
+        q: number,
+      ): AutoMovieViewLoftInputsScalar | null => curve(`${name} ${q}`, outline),
     );
-    if (readers.some((reader: Scalar | null): boolean => reader === null))
+    if (
+      readers.some(
+        (reader: AutoMovieViewLoftInputsScalar | null): boolean =>
+          reader === null,
+      )
+    )
       return null;
     return (station: number): IAutoMovieViewPart.IQuarters<number> =>
-      readers.map((reader: Scalar | null): number =>
+      readers.map((reader: AutoMovieViewLoftInputsScalar | null): number =>
         reader!(station),
       ) as IAutoMovieViewPart.IQuarters<number>;
   };
-  const lateral: Scalar | null = curve(
+  const lateral: AutoMovieViewLoftInputsScalar | null = curve(
     "front positive",
     part.front.positive,
     true,
   );
-  const medial: Scalar | null = curve(
+  const medial: AutoMovieViewLoftInputsScalar | null = curve(
     "front negative",
     part.front.negative,
     true,
   );
-  const ahead: Scalar | null = curve("side positive", part.side.positive, true);
-  const behind: Scalar | null = curve(
+  const ahead: AutoMovieViewLoftInputsScalar | null = curve(
+    "side positive",
+    part.side.positive,
+    true,
+  );
+  const behind: AutoMovieViewLoftInputsScalar | null = curve(
     "side negative",
     part.side.negative,
     true,
   );
   const fullness: IAutoMovieViewPart.Fullness = part.fullness;
-  const owner: Scalar | null =
+  const owner: AutoMovieViewLoftInputsScalar | null =
     fullness.kind === "girth"
       ? curve("girth", fullness.girth, true)
       : fullness.kind === "shoulder"
         ? curve("shoulder", fullness.shoulder)
         : (): number => 0;
-  const shoulders: Quarters | null =
+  const shoulders: AutoMovieViewLoftInputsQuarters | null =
     fullness.kind === "top"
       ? quarters("top shoulder", fullness.shoulders)
       : quarters("departure", fullness.departures);

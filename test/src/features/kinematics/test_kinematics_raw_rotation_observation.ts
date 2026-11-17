@@ -1,5 +1,15 @@
-import { decomposeJointRotationOnBasis as inverse, swingTwistRange } from "@automovie/engine";
-import type { IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  decomposeJointRotationOnBasis as inverse,
+  swingTwistRange,
+} from "@automovie/engine";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieQuaternion,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -30,13 +40,13 @@ import { vclose } from "../internal/vclose";
 export function test_kinematics_raw_rotation_observation(): void {
   const basis: IAutoMovieJointAxes = { flexion: { x: 1, y: 0, z: 0 },
     abduction: { x: 0, y: 1, z: 0 }, twist: { x: 0, y: 0, z: 1 }, twistPlacement: "proximal" };
-  const joint: swingTwistRange.IJoint = new Proxy<swingTwistRange.IJoint>({ axes: basis }, {
-    has(_target: swingTwistRange.IJoint, _key: string | symbol): never {
+  const joint: IAutoMovieJointRotationFrame = new Proxy<IAutoMovieJointRotationFrame>({ axes: basis }, {
+    has(_target: IAutoMovieJointRotationFrame, _key: string | symbol): never {
       throw new Error("an ordinary joint has no private membership observation");
     },
   });
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const reading: swingTwistRange.IReading = swingTwistRange.read(identity, joint);
+  const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(identity, joint);
   TestValidator.predicate("identity swing reading never probes private membership on a raw joint",
     vclose(reading.direction, { x: 0, y: 0, z: 1 }, 1e-12) &&
     nclose(reading.swing, 0, 1e-12) && nclose(reading.twist, 0, 1e-12));

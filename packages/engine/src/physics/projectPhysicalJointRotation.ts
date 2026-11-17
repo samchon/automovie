@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 
 /**
  * Admit a relative joint rotation to Rapier's independent twist coordinates.
@@ -16,9 +20,9 @@ import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function projectPhysicalJointRotation(
-  joint: P.IJoint,
-  rotation: P.ITransform["rotation"],
-): P.ITransform["rotation"] {
+  joint: IAutoMoviePhysicalJoint,
+  rotation: IAutoMovieRigidTransform["rotation"],
+): IAutoMovieRigidTransform["rotation"] {
   const norm: number = Math.hypot(
     rotation.x,
     rotation.y,
@@ -36,8 +40,9 @@ export function projectPhysicalJointRotation(
     w: 1,
   };
   for (const axis of ["x", "y", "z"] as const) {
-    const range: P.IAxis | undefined = joint.axes.find(
-      (candidate: P.IAxis): boolean => candidate.axis === axis,
+    const range: IAutoMoviePhysicalJointAxis | undefined = joint.axes.find(
+      (candidate: IAutoMoviePhysicalJointAxis): boolean =>
+        candidate.axis === axis,
     );
     if (!range) continue;
     const angle: number =

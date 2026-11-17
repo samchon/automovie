@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMoviePlantingChild } from "./IAutoMoviePlantingChild";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePlantingChild } from "./IAutoMoviePlantingChild";
 
 /**
  * Recursive branching parameters in the recipe frame.

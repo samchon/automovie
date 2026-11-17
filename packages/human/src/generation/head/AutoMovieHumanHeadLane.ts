@@ -1,17 +1,20 @@
-import {
-  type AutoMovieLoftFrame,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanHeadComposer,
+  IAutoMovieHumanHeadInputs,
+  IAutoMovieHumanHeadLane,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPlacement,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanHermiteCurve,
+  IAutoMovieHumanNeckSource,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
-import type { IAutoMovieHumanHermiteCurve } from "../../lofting/IAutoMovieHumanHermiteCurve";
-import type { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { AutoMovieHumanNeckSource } from "../AutoMovieHumanNeckSource";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHeadInputs } from "../IAutoMovieHumanHeadInputs";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadAnchors } from "./AutoMovieHumanHeadAnchors";
 import { AutoMovieHumanHeadComposer } from "./AutoMovieHumanHeadComposer";
 import { AutoMovieHumanHeadLayout } from "./AutoMovieHumanHeadLayout";
@@ -43,116 +46,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  */
 export namespace AutoMovieHumanHeadLane {
   /**
-   * Canonical original material and records, before regional composition.
-   *
-   * @evidence contracts/common.md#principled-implementation Body and head consumers borrow the same actual mass/neck and records derived from its closed layout.
-   * @evidence contracts/common.md#clear-and-simple-design The complete lane adds only its regional tree, source collection and lip colour curve.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This source stage is not a fallback or a successful partial head tree.
-   * @evidence contracts/common.md#meaningful-documentation Requires the same immutable invocation inputs; all records retain calibration-mm meanings.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Full creation reuses the identical canonical source and records without rebuilding them.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the base, records and transitive source dependencies.
-   */
-  export interface IPrepared extends Omit<
-    IOutput,
-    "root" | "source" | "vermilion"
-  > {
-    /** Actual canonical mass and neck, without any regional face source. */
-    source: AutoMovieHumanHeadComposer.IBase;
-
-    /** The same selected laws used for the mass and the regional builders. */
-    places: AutoMovieHumanHeadComposer.IPlaces;
-
-    /**
-     * Call-owned lazy original definitions, independent of complete realization.
-     *
-     * @evidence contracts/common.md#principled-implementation The actual regional builders borrow the identical canonical mass and selected placement context.
-     * @evidence contracts/common.md#clear-and-simple-design One definition supplies selected-original observation and complete creation.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed original attempts stay explicit and no substitute part or successful partial tree is manufactured.
-     * @evidence contracts/common.md#meaningful-documentation Includes valid originals, actual parent/source references, attempt failures and separate existing studies; creates no regional loft.
-     * @evidence contracts/performance.md#efficient-algorithms Empty requests and unknown-name admission construct no source. Exact top-level requests author only selected factories; their result lists/maps take O(selected sources) to publish. A first complete or known nested/ear request retains the existing whole-catalogue costs; the completed definition itself is subsequently reused.
-     * @evidence contracts/performance.md#reuse-equivalent-work Selected and complete requests reuse identical authored top-level objects and the paired lip contact. Selected definition containers are rebuilt; complete creation borrows the retained complete definition and source map.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
-     */
-    originals(
-      names?: readonly string[],
-    ): AutoMovieHumanHeadComposer.IDefinition;
-  }
-
-  /**
-   * The complete head subtree, its source context and shared records.
-   *
-   * @evidence contracts/common.md#principled-implementation The tree and records share one canonical mass/neck preparation; actual sources remain available to the body's realization context.
-   * @evidence contracts/common.md#clear-and-simple-design Separates source stage, tree operators, raw composition and appearance/skeleton records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A complete result is not published after a failed regional original; neither source presence nor raw loft establishes final skin success.
-   * @evidence contracts/common.md#meaningful-documentation Fields state calibration-mm records, metre operator rules and the independent study boundary.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The prepared source and records are retained unchanged by both body and head consumers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the tree, map, original-source dependencies, raw lofts and records until releasing the definition.
-   */
-  export interface IOutput {
-    /** The head's subtree, metres. */
-    root: AutoMovieConstructionNode;
-
-    /** The same composed source object used to make root; studies remain explicitly outside that tree. */
-    source: AutoMovieHumanHeadComposer.IOutput;
-
-    /** The head's face the body meets. */
-    face: string;
-
-    /** The seed's search on that face: its phase and the shares of its station range. */
-    search: { phase: number; from: number; to: number };
-
-    /** The fold's rolling radius, mm: the neck tape's radius. */
-    radius: number;
-
-    /** The lip colour boundary, round both lips' bases. */
-    vermilion: IAutoMovieHumanHermiteCurve;
-
-    /** The widest chord either side, mm: half the neck tape's radius. */
-    cap: number;
-
-    /** The neck and head joint references of this lane, calibration mm. */
-    skeleton: ISkeleton;
-
-    /** Globe frames from the same profile/recess definition as the tree's orbit cutters, calibration mm. */
-    eyes: IAutoMovieHumanBodyCalibration.IEye[];
-
-    /** Attachment sites on this lane's generating profile and planned eye margins. */
-    landmarks: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
-
-    /** Crown height in calibration mm. */
-    stature: number;
-  }
-
-  /**
-   * Joint references from the lane's generating neck and head axis. The head
-   * joint lies between the ears at their tragion height; it is not read from
-   * a second set of head or ear chains.
-   *
-   * @evidence contracts/common.md#principled-implementation Neck base is on the actual mass axis at the original lower overlap height, crown is the head mass's top axis and the head joint is on that same axis at the tragion height.
-   * @evidence contracts/common.md#clear-and-simple-design A fixed-size record gives the skeleton actual lane references without publishing old head chains.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The same generating axes serve every head and both sides.
-   * @evidence contracts/common.md#meaningful-documentation States calibration units, joint convention and which generating curves own the points.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A data type has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Readers share one lane's record.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The lane output owns four fixed-size fields.
-   */
-  export interface ISkeleton {
-    /** Actual generating mass axis at the lower overlap height, mm; not a named base-tape point. */
-    neckBase: [number, number, number];
-
-    /** Head mass's axis at the midpoint of the ears' tragia, mm. */
-    occiput: [number, number, number];
-
-    /** Head mass's crown pole, mm. */
-    crown: [number, number, number];
-
-    /** Neck tape radius in calibration mm. */
-    neckRadius: number;
-  }
-
-  /**
    * The head lane of a person.
    *
    * @param inputs The head construction's inputs (`AutoMovieHumanBodyLaw.headInputs`).
@@ -170,12 +63,13 @@ export namespace AutoMovieHumanHeadLane {
    */
   export function create(
     inputs: IAutoMovieHumanHeadInputs,
-    sex: AutoMovieHumanSex,
-    neck: AutoMovieHumanNeckSource.IOutput,
-    prepared?: IPrepared,
-  ): IOutput {
-    const canonical: IPrepared = prepared ?? prepare(inputs, sex, neck);
-    const composed: AutoMovieHumanHeadComposer.IOutput =
+    sex: AutoMovieHumanSexType,
+    neck: IAutoMovieHumanNeckSource.IOutput,
+    prepared?: IAutoMovieHumanHeadLane.IPrepared,
+  ): IAutoMovieHumanHeadLane.IOutput {
+    const canonical: IAutoMovieHumanHeadLane.IPrepared =
+      prepared ?? prepare(inputs, sex, neck);
+    const composed: IAutoMovieHumanHeadComposer.IOutput =
       AutoMovieHumanHeadComposer.compose(
         canonical.source.closed().tape.plan,
         inputs.head.earPair,
@@ -212,38 +106,36 @@ export namespace AutoMovieHumanHeadLane {
    */
   export function prepare(
     inputs: IAutoMovieHumanHeadInputs,
-    sex: AutoMovieHumanSex,
-    neck: AutoMovieHumanNeckSource.IOutput,
-    shared?: AutoMovieHumanHeadPose.IOutput,
-  ): IPrepared {
-    const pose: AutoMovieHumanHeadPose.IOutput =
+    sex: AutoMovieHumanSexType,
+    neck: IAutoMovieHumanNeckSource.IOutput,
+    shared?: IAutoMovieHumanHeadPlacement.IOutput,
+  ): IAutoMovieHumanHeadLane.IPrepared {
+    const pose: IAutoMovieHumanHeadPlacement.IOutput =
       shared ?? AutoMovieHumanHeadPose.create(inputs, sex, neck);
     const layout: IAutoMovieHumanHeadLayout = pose.neck.layout;
-    const places: AutoMovieHumanHeadComposer.IPlaces = pose.places;
+    const places: IAutoMovieHumanHeadComposer.IPlaces = pose.places;
     const tragion: number = places.tragion!;
-    const source: AutoMovieHumanHeadComposer.IBase =
+    const source: IAutoMovieHumanHeadComposer.IBase =
       AutoMovieHumanHeadComposer.prepare(
         layout,
         inputs.head.earPair,
         neck.bottom[1],
         places,
       );
-    const originals: IPrepared["originals"] =
+    const originals: IAutoMovieHumanHeadLane.IPrepared["originals"] =
       AutoMovieHumanHeadOriginalSources.create(
         source,
         inputs.head.earPair,
         places,
       ).request;
     const plan: IAutoMovieHumanHeadLayout = source.layout;
-    const face: AutoMovieHumanHeadPrior.IFace =
+    const face: IAutoMovieHumanHeadPrior.IFace =
       AutoMovieHumanHeadPrior.PRIOR.face;
     const seat: number =
       AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
       face.eyeRecess * plan.scale;
-    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = (
-      ["left", "right"] as const
-    ).map(
-      (side: "left" | "right"): IAutoMovieHumanBodyCalibration.IEye => ({
+    const eyes: IAutoMovieHumanEyeSeat[] = (["left", "right"] as const).map(
+      (side: "left" | "right"): IAutoMovieHumanEyeSeat => ({
         side,
         centre: [
           seat - face.marginForward * plan.scale,
@@ -312,7 +204,7 @@ export namespace AutoMovieHumanHeadLane {
    * Empty when either source lip is missing.
    */
   function vermilion(
-    composed: AutoMovieHumanHeadComposer.IOutput,
+    composed: IAutoMovieHumanHeadComposer.IOutput,
   ): IAutoMovieHumanHermiteCurve {
     const out: IAutoMovieHumanHermiteCurve = {
       name: "vermilion",
@@ -322,27 +214,27 @@ export namespace AutoMovieHumanHeadLane {
     };
     const lip = (
       name: string,
-    ): AutoMovieHumanHeadComposer.IPlaced | undefined =>
+    ): IAutoMovieHumanHeadComposer.IPlaced | undefined =>
       composed.parts.find(
-        (p: AutoMovieHumanHeadComposer.IPlaced): boolean =>
+        (p: IAutoMovieHumanHeadComposer.IPlaced): boolean =>
           p.feature.part.name === name,
       );
-    const upper: AutoMovieHumanHeadComposer.IPlaced | undefined =
+    const upper: IAutoMovieHumanHeadComposer.IPlaced | undefined =
       lip("lip.upper");
-    const lower: AutoMovieHumanHeadComposer.IPlaced | undefined =
+    const lower: IAutoMovieHumanHeadComposer.IPlaced | undefined =
       lip("lip.lower");
     if (upper === undefined || lower === undefined) return out;
     const half: (
-      placed: AutoMovieHumanHeadComposer.IPlaced,
+      placed: IAutoMovieHumanHeadComposer.IPlaced,
       upper: boolean,
     ) => [number, number, number][] = (
-      placed: AutoMovieHumanHeadComposer.IPlaced,
+      placed: IAutoMovieHumanHeadComposer.IPlaced,
       upper: boolean,
     ): [number, number, number][] => {
       const part: IAutoMovieViewPart = placed.feature.part;
       return (upper ? part.front.positive : part.front.negative).knots.map(
         (k: IAutoMovieViewPart.IKnot): [number, number, number] => {
-          const frame: AutoMovieLoftFrame.IFrame = part.axis.at(k.station);
+          const frame: IAutoMovieLoftSectionFrame = part.axis.at(k.station);
           return [
             frame.origin[0] + k.value * frame.u[0],
             frame.origin[1] + k.value * frame.u[1],

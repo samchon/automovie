@@ -1,5 +1,16 @@
-import { Quaternion, type IAutoMovieResolvedBone, integrateAirborneRotation, type resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  integrateAirborneRotation,
+  type resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -57,7 +68,7 @@ export function test_engine_airborne_momentum_conditioning(): void {
   const findings: string[] = [];
   const epsilon: number = 1e-5;
   const limit: number = 1e-6;
-  const instant: integrateAirborneRotation.IInstant = {
+  const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
     inertia: {
       moments: { x: 1, y: 1, z: 2 },
       rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
@@ -65,8 +76,8 @@ export function test_engine_airborne_momentum_conditioning(): void {
     relative: { x: 0, y: -2, z: 0 },
   };
   let reads: number = 0;
-  const history: integrateAirborneRotation.IHistory =
-    (_seconds: number): integrateAirborneRotation.IInstant => {
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
+    (_seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
       reads++;
       return instant;
     };
@@ -76,7 +87,7 @@ export function test_engine_airborne_momentum_conditioning(): void {
   if (!(nclose(rate.x, 0.01, 1e-12) && nclose(rate.y, 1.001, 1e-12) &&
     nclose(rate.z, 0, 1e-12)))
     findings.push("the actual tensor/spin did not give the hand-derived rate");
-  const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation({
+  const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
     history,
     t0: 0,
     t1: 1,
@@ -179,7 +190,7 @@ function counterspin(
 ): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 1,
     segments: [{ bone: "hips", mass: 1, point: zero,
       inertia: { x: 2, y: 2, z: 2 }, axes: identity }],
@@ -193,9 +204,9 @@ function counterspin(
 
   // The geometry supplies the spherical tensor. Rotor spin is a declared
   // independent numeric gyrostat input through the existing mutable field.
-  const history: integrateAirborneRotation.IHistory = (seconds: number): integrateAirborneRotation.IInstant => {
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory = (seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
     reads++;
-    const instant: integrateAirborneRotation.IInstant = numeric(seconds);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = numeric(seconds);
     instant.relative = { x: 2, y: 0, z: 0 };
     return instant;
   };
@@ -204,7 +215,7 @@ function counterspin(
     if (!(nclose(rate.x, -1, 0) && nclose(rate.y, 0, 0) && nclose(rate.z, 0, 0) &&
       nclose(2 * rate.x + 2, 0, 0)))
       findings.push(`zero-momentum diagonal counterspin has wrong exact rate ${JSON.stringify(rate)}`);
-    let flight: integrateAirborneRotation.IFlight;
+    let flight: IAutoMovieIntegrateAirborneRotation.IFlight;
     try {
       flight = integrateAirborneRotation({
         history, t0: 0, t1: 1, q0: identity, momentum: zero, h: 0.25,

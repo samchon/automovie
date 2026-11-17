@@ -1,33 +1,40 @@
 import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieBodyMeasure,
   IAutoMovieModel,
-  IAutoMovieModelPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../internal/ARMOUR_RECORDS";
+import { armourActual } from "../internal/armourActual";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Each piece of armour's plate and padding sit at their band ends and are refused past them, its read pieces are drawn whole, and it carries its record's mass and its `wear` place.
+ * Actual armour walls retain every original band, whole-record draw and contact.
  *
  * Scenarios:
- * 1. Every plated kind, fitted to the sweep's first body with its plate fixed at 1.5 mm and at 3 mm, the ends of Williams's breastplate band, clears its body part by exactly that plate (twice it across a cuirass); fixed 1 µm thinner or thicker it is refused on `thickness`.
- * 2. A helmet's padding fixed at ¾ in, the only value of its band, is admitted; ½ in is refused on `pad`. A cuirass, which has no padding, refuses a padding; a mail shirt, which has no plate band, refuses a plate.
- * 3. A read piece of another kind is refused on `model`; a mass or a height, which every record gives, is refused on that dimension.
- * 4. Seedless, each kind is its first record, its plate the band's middle, 2.25 mm; over 200 seeds every record of every kind is drawn and every plate stays in its band.
- * 5. Fitted or not, every piece weighs its record, and its `wear` place is the origin, upright.
- * 6. A brimmed helmet's brim is a disc as wide as its record's depth and as thick as its plate, for both read pieces.
- * 7. Every plate piece's body glances a projectile struck beyond 60 degrees from its normal, Jones's bodkin test on 1.5 mm plate as Hardy's Longbow quotes it; a mail shirt declares no glance; a cuirass with it is admitted, and a glance of -1, 91 or NaN degrees is refused by `validateModel`.
+ * 1. Every plated kind has exact actual normal gauge at both1.5/3mm band ends;
+ *    a1um step outside either end refuses on thickness.
+ * 2. Every helmet retains the literal0.75inch pad;0.5inch refuses. Cuirass pad
+ *    and mail thickness remain unsupported and refuse their original axes.
+ * 3. Cross-kind models and author overrides of measured mass/height refuse.
+ * 4. Every kind's seedless first record and midpoint plate remain unchanged;
+ *    two hundred seeds cover all original records and stay in their bands.
+ * 5. Every record fitted/unfitted retains its exact mass and upright wear origin.
+ * 6. Both brimmed records at both band ends have actual full-depth brim extrema
+ *    and exact vertical plate gauge, with a real head opening.
+ * 7. Plate-only provisional glance60 and invalid -1/91/NaN admission are intact.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds real pieces at and past their band ends and reads the produced parts' shapes, the refusals' axes, the drawn records and the `wear` frame; a plate clamped instead of refused, a band end off by a step, a record never drawn or a brim of the wrong width is caught.
- * @evidence contracts/development/testing.md#independent-expectations The band ends are Williams's 1.5 and 3 mm and the US Army's ¾ in pad, written here; the masses, depths and the records' order the Metropolitan Museum's records, written in `ARMOUR_RECORDS`, not read from the producer.
- * @evidence contracts/development/testing.md#distinguishing-cases Both ends of every plated kind and a step past each, a pad off its value, four kinds of misplaced parameter, the seedless and seeded draws, fitted and unfitted, and both brimmed records.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man of the sweep and builds the pieces in memory; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
+ * A hollow finite polyhedron measures plate at its actual normal wall planes;
+ * the original band's numbers/tolerance are retained, while filled sphere/box/
+ * cylinder representation assertions are replaced for the actual product form.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists all seven original scenarios and the justified actual-wall observation migration.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public pieces, actual hull/mesh observations, original refusal axes, record draws, masses and wear/glance metadata; a clamped band, wrong gauge/pad/brim or missing record fails.
+ * @evidence contracts/development/testing.md#independent-expectations Original1.5/3mm,0.75inch,1um and literal museum ARMOUR_RECORDS expectations remain independent of the producer profile; actual signed distances verify padding.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both ends and past ends, every plated kind, all helmets, unsupported params, all records, two hundred seeds, fitted/unfitted and both brims.
+ * @evidence contracts/development/testing.md#execution-ownership Portable actual in-memory producers and engine admission; no render or external host.
  */
 export function test_archetype_armour_bands(): void {
   const findings: string[] = [];
@@ -38,146 +45,96 @@ export function test_archetype_armour_bands(): void {
   const m: IAutoMovieBodyMeasure = motionHumanBody(
     motionHumanBody.SWEEP[0]!,
   ).measure;
-  const part: (
-    piece: ReturnType<typeof createArmour>,
-    id: string,
-  ) => AutoMoviePrimitiveShape | undefined = (
-    piece: ReturnType<typeof createArmour>,
-    id: string,
-  ): AutoMoviePrimitiveShape | undefined => {
-    const found: IAutoMovieModelPart | undefined = piece.parts.find(
-      (p: IAutoMovieModelPart): boolean => p.id === id,
-    );
-    return found?.geometry.type === "primitive"
-      ? found.geometry.shape
-      : undefined;
-  };
-  const refusal: (build: () => unknown) => string | null = (
-    build: () => unknown,
-  ): string | null => {
-    try {
-      build();
-    } catch (thrown) {
-      return thrown instanceof ArchetypeRefusal
-        ? thrown.axis
-        : "a non-refusal error";
-    }
-    return null;
-  };
-
-  // 1. The plate at both ends of its band, and a step past each.
-  const clearance: (
-    kind: createArmour.Kind,
-    s: AutoMoviePrimitiveShape | undefined,
-  ) => number | null = (
-    kind: createArmour.Kind,
-    s: AutoMoviePrimitiveShape | undefined,
-  ): number | null => {
-    if (s === undefined) return null;
-    if (
-      kind === "openHelmet" ||
-      kind === "closedHelmet" ||
-      kind === "brimmedHelmet"
-    )
-      return s.type === "sphere" ? s.radius - m.headRadius - PAD : null;
-    if (kind === "cuirass")
-      return s.type === "box" ? (s.width - m.chestBreadth) / 2 : null;
-    if (kind === "greave")
-      return s.type === "cylinder" ? s.radius - m.shankRadius : null;
-    return s.type === "cylinder" ? s.radius - m.forearmRadius : null;
-  };
   for (const kind of createArmour.KINDS) {
     if (kind === "mail") continue;
     for (const thickness of PLATE) {
-      const got: number | null = clearance(
+      const piece: ReturnType<typeof createArmour> = createArmour({
         kind,
-        part(createArmour({ kind, measure: m, thickness }), "piece"),
-      );
-      if (got === null || !(Math.abs(got - thickness) <= EPSILON))
+        measure: m,
+        thickness,
+      });
+      const gauge: number = armourActual.plate(kind, piece, m);
+      if (!(Math.abs(gauge - thickness) <= EPSILON))
         findings.push(
-          `${kind} with a ${thickness} m plate clears its body part by ${got} m`,
+          kind + " actual gauge " + gauge + ", expected " + thickness,
         );
+      if (kind === "cuirass") {
+        const side: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece, "side-1");
+        const front: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece, "front-body");
+        if (
+          !(
+            Math.abs(2 * side.low.x - m.chestBreadth) <= EPSILON &&
+            Math.abs(2 * front.low.z - m.chestDepth) <= EPSILON
+          )
+        )
+          findings.push(
+            "a cuirass changed its exact body boundary at a plate band end",
+          );
+      }
     }
-    for (const thickness of [PLATE[0] - STEP, PLATE[1] + STEP]) {
-      const axis: string | null = refusal(() =>
-        createArmour({ kind, measure: m, thickness }),
-      );
-      if (axis !== "thickness")
-        findings.push(
-          `${kind} with a ${thickness} m plate: refused on ${axis}`,
-        );
-    }
+    for (const thickness of [PLATE[0] - STEP, PLATE[1] + STEP])
+      if (
+        refusal(() => createArmour({ kind, measure: m, thickness })) !==
+        "thickness"
+      )
+        findings.push(kind + " did not refuse outside its plate band");
   }
-
-  // 2. The padding, and dimensions a kind does not have.
   for (const kind of ["openHelmet", "closedHelmet", "brimmedHelmet"] as const) {
-    const s: AutoMoviePrimitiveShape | undefined = part(
-      createArmour({ kind, measure: m, pad: PAD }),
-      "piece",
-    );
+    const piece: ReturnType<typeof createArmour> = createArmour({
+      kind,
+      measure: m,
+      pad: PAD,
+    });
     if (
-      s?.type !== "sphere" ||
-      !(s.radius - m.headRadius - PAD >= PLATE[0] - EPSILON)
+      !(
+        armourActual.distance(piece, { x: 0, y: 0, z: 0 }, "bowl") >=
+        m.headRadius + PAD - EPSILON
+      )
     )
-      findings.push(`${kind} with a ¾ in pad: ${JSON.stringify(s)}`);
-    const axis: string | null = refusal(() =>
-      createArmour({ kind, measure: m, pad: 0.5 * 0.0254 }),
-    );
-    if (axis !== "pad")
-      findings.push(`${kind} with a ½ in pad: refused on ${axis}`);
+      findings.push(kind + " does not retain its actual padding cavity");
+    if (
+      refusal(() => createArmour({ kind, measure: m, pad: 0.5 * 0.0254 })) !==
+      "pad"
+    )
+      findings.push(kind + " did not refuse the unsupported pad");
   }
   for (const [kind, params, expected] of [
     ["cuirass", { pad: PAD }, "pad"],
     ["mail", { thickness: PLATE[0] }, "thickness"],
-  ] as const) {
-    const axis: string | null = refusal(() =>
-      createArmour({ kind, ...params }),
-    );
-    if (axis !== expected)
-      findings.push(
-        `${kind} given ${JSON.stringify(params)}: refused on ${axis}`,
-      );
-  }
-
-  // 3. Another kind's record, and a figure every record gives.
+  ] as const)
+    if (refusal(() => createArmour({ kind, ...params })) !== expected)
+      findings.push(kind + " accepted an unsupported dimension");
   for (const [label, build, expected] of [
     [
-      "a helmet given a gauntlet's record",
+      "helmet/gauntlet record",
       () => createArmour({ kind: "openHelmet", model: "met23255" }),
       "model",
     ],
     [
-      "a greave given a cuirass's record",
+      "greave/cuirass record",
       () => createArmour({ kind: "greave", model: "met22359" }),
       "model",
     ],
     [
-      "a cuirass given a mass",
+      "measured mass override",
       () => createArmour({ kind: "cuirass", mass: 4 }),
       "mass",
     ],
     [
-      "a mail shirt given a length",
+      "measured height override",
       () => createArmour({ kind: "mail", height: 0.9 }),
       "height",
     ],
-  ] as const) {
-    const axis: string | null = refusal(build);
-    if (axis !== expected) findings.push(`${label}: refused on ${axis}`);
-  }
-
-  // 4. Seedless and seeded draws.
-  const grams: (kind: createArmour.Kind, record: string) => number = (
-    kind: createArmour.Kind,
-    record: string,
-  ): number => ARMOUR_RECORDS[kind]![record]![3] / 1000;
+  ] as const)
+    if (refusal(build) !== expected)
+      findings.push(label + " has the wrong refusal");
   for (const kind of createArmour.KINDS) {
     const records: string[] = Object.keys(ARMOUR_RECORDS[kind]!);
     const seedless: ReturnType<typeof createArmour> = createArmour({ kind });
     if (!(Math.abs(seedless.body.mass - grams(kind, records[0]!)) <= EPSILON))
-      findings.push(
-        `${kind} seedless weighs ${seedless.body.mass} kg, not its first record's ${grams(kind, records[0]!)} kg`,
-      );
+      findings.push(kind + " changed its seedless record");
     if (
       kind !== "mail" &&
       !(
@@ -185,33 +142,34 @@ export function test_archetype_armour_bands(): void {
         EPSILON
       )
     )
-      findings.push(
-        `${kind} seedless has a ${seedless.dimensions.thickness} m plate`,
-      );
+      findings.push(kind + " changed its seedless midpoint plate");
     const drawn: Set<number> = new Set();
-    for (let seed: number = 0; seed < 200; ++seed) {
+    for (let seed: number = 0; seed < 200; seed++) {
       const piece: ReturnType<typeof createArmour> = createArmour(
         { kind },
         seed,
       );
       drawn.add(piece.body.mass);
-      const t: number | undefined = piece.dimensions.thickness;
+      const thickness: number | undefined = piece.dimensions.thickness;
       if (
         kind !== "mail" &&
-        !(t !== undefined && t >= PLATE[0] && t <= PLATE[1])
+        !(
+          thickness !== undefined &&
+          thickness >= PLATE[0] &&
+          thickness <= PLATE[1]
+        )
       )
-        findings.push(`${kind} seed ${seed} has a ${t} m plate`);
+        findings.push(kind + " seed " + seed + " left its plate band");
     }
-    for (const record of records) {
-      const mass: number = grams(kind, record);
+    for (const record of records)
       if (
-        ![...drawn].some((d: number): boolean => Math.abs(d - mass) <= EPSILON)
+        ![...drawn].some(
+          (value: number): boolean =>
+            Math.abs(value - grams(kind, record)) <= EPSILON,
+        )
       )
-        findings.push(`${kind} ${record} is never drawn over 200 seeds`);
-    }
+        findings.push(kind + " " + record + " never drawn over200 seeds");
   }
-
-  // 5. The record's mass and the `wear` place, fitted or not.
   for (const kind of createArmour.KINDS)
     for (const record of Object.keys(ARMOUR_RECORDS[kind]!))
       for (const measure of [undefined, m]) {
@@ -220,11 +178,8 @@ export function test_archetype_armour_bands(): void {
           model: record as createArmour.Model,
           measure,
         });
-        const label: string = `${kind} ${record} ${measure === undefined ? "unfitted" : "fitted"}`;
         if (!(Math.abs(piece.body.mass - grams(kind, record)) <= EPSILON))
-          findings.push(
-            `${label} weighs ${piece.body.mass} kg, its record ${grams(kind, record)} kg`,
-          );
+          findings.push(kind + " " + record + " changed its mass");
         const wear: (typeof piece.affordances)[number] | undefined =
           piece.affordances.find(
             (a: { id: string }): boolean => a.id === "wear",
@@ -236,46 +191,41 @@ export function test_archetype_armour_bands(): void {
           JSON.stringify(wear.frame.rotation) !==
             JSON.stringify({ x: 0, y: 0, z: 0, w: 1 })
         )
-          findings.push(`${label}: wear ${JSON.stringify(wear?.frame)}`);
+          findings.push(kind + " " + record + " changed its wear frame");
       }
-
-  // 6. The brim.
-  for (const record of ["met26512", "met21972"] as const) {
+  for (const record of ["met26512", "met21972"] as const)
     for (const thickness of PLATE) {
-      const brim: AutoMoviePrimitiveShape | undefined = part(
-        createArmour({
-          kind: "brimmedHelmet",
-          model: record,
-          measure: m,
-          thickness,
-        }),
+      const piece: ReturnType<typeof createArmour> = createArmour({
+        kind: "brimmedHelmet",
+        model: record,
+        measure: m,
+        thickness,
+      });
+      const brim: ReturnType<typeof armourActual.bounds> = armourActual.bounds(
+        piece,
         "brim",
       );
       const depth: number = ARMOUR_RECORDS.brimmedHelmet![record]![2] / 100;
       if (
-        brim?.type !== "cylinder" ||
         !(
-          Math.abs(2 * brim.radius - depth) <= EPSILON &&
-          Math.abs(brim.height - thickness) <= EPSILON
+          Math.abs(brim.high.x - brim.low.x - depth) <= EPSILON &&
+          Math.abs(brim.high.z - brim.low.z - depth) <= EPSILON &&
+          Math.abs(brim.high.y - brim.low.y - thickness) <= EPSILON
         )
       )
-        findings.push(
-          `a brimmed helmet ${record} with a ${thickness} m plate: brim ${JSON.stringify(brim)}, ${depth} m deep`,
-        );
+        findings.push(record + " has the wrong actual brim dimensions");
     }
-  }
-  // 7. A plate glances a projectile struck beyond 60 degrees from its normal (Jones's bodkin on 1.5 mm plate, quoted in Hardy's Longbow); mail declares no glance; the engine admits the angle only from 0 to 90 degrees.
   for (const kind of createArmour.KINDS) {
-    const piece: ReturnType<typeof createArmour> = createArmour({ kind });
-    const glance: number | undefined = piece.body.contact?.glance;
+    const glance: number | undefined = createArmour({ kind }).body.contact
+      ?.glance;
     if (kind === "mail" ? glance !== undefined : glance !== 60)
-      findings.push(`${kind} glances at ${glance} degrees`);
+      findings.push(kind + " changed its glance");
   }
   const cuirass: IAutoMovieModel = JSON.parse(
     JSON.stringify(createArmour({ kind: "cuirass" })),
   ) as IAutoMovieModel;
   if (!validateModel({ model: cuirass }).success)
-    findings.push("a cuirass with its glance is not admitted");
+    findings.push("valid cuirass was refused");
   for (const bad of [-1, 91, Number.NaN]) {
     const model: IAutoMovieModel = {
       ...cuirass,
@@ -285,11 +235,28 @@ export function test_archetype_armour_bands(): void {
       },
     };
     if (validateModel({ model }).success)
-      findings.push(`a glance of ${bad} degrees is admitted`);
+      findings.push("invalid glance admitted");
   }
   TestValidator.equals(
-    "armour stays in its bands and is drawn whole",
+    "actual armour retains its source bands and records",
     findings,
     [],
   );
+
+  /** Literal museum table rather than producer metadata owns expected mass. */
+  function grams(kind: createArmour.Kind, record: string): number {
+    return ARMOUR_RECORDS[kind]![record]![3] / 1000;
+  }
+
+  /** A different thrown error is not the requested semantic refusal. */
+  function refusal(build: () => unknown): string | null {
+    try {
+      build();
+    } catch (thrown) {
+      return thrown instanceof ArchetypeRefusal
+        ? thrown.axis
+        : "a non-refusal error";
+    }
+    return null;
+  }
 }

@@ -1,7 +1,6 @@
 import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_REST_FRAME,
-  type IAutoMovieRestFrame,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
@@ -13,10 +12,11 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,7 +60,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios with their inputs, bounds and the behaviour each pins.
  */
 export function test_human_motion_core_twist_miss(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const random: () => number = seeded(20261119);
   const identity: string[] = [];
   const above: string[] = [];

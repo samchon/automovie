@@ -1,11 +1,9 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionKnot,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
@@ -55,7 +53,7 @@ export function test_construction_view_girth(): void {
       departures: null,
     },
   };
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: part }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);

@@ -1,20 +1,20 @@
 ---
 name: image-diffusion
-description: Chooses image generators, writes prompts, conditions images on renders and references, preserves subjects, edits images and finishes accepted results. Use when generating or editing an image with an external model, or choosing its model and input method.
+description: Generates, conditions, edits and finishes images with an external model.
 ---
 
 # Image diffusion
 
-Generate and edit the images [image work](../SKILL.md) needs. The input method determines how references and rendered structure reach the model; accepted images follow [every image](../SKILL.md#every-image).
+Generate and edit the images that image work needs. The input method determines how references and rendered structure reach the model; accepted images follow the image skill's rules for every image.
 
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Compare generators and compatible controls | [Models](models.md) |
-| Write an image prompt | [Prompting](prompting.md) |
-| Hold an image to a render's pose, camera or shape | [Conditioning](conditioning.md) |
-| Keep a subject consistent across images | [Consistency](consistency.md) |
-| Change part of an accepted image | [Editing](editing.md) |
-| Upscale an image or give it transparency | [Finishing](finishing.md) |
+| [Models](models.md) | Compare generators and compatible controls |
+| [Prompting](prompting.md) | Write an image prompt |
+| [Conditioning](conditioning.md) | Hold an image to a render's pose, camera or shape |
+| [Consistency](consistency.md) | Keep a subject consistent across images |
+| [Editing](editing.md) | Change part of an accepted image |
+| [Finishing](finishing.md) | Upscale an image or give it transparency |
 
 ## Model documentation
 

@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanTarget,
+} from "@automovie/interface";
 import {
-  type AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanVariation,
   AutoMovieMotionHumanVariationForm,
   AutoMovieMotionHumanVariationPlace,
@@ -34,7 +37,10 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the throwing series and lists the 4 scenarios.
  */
 export function test_motion_compose_variation_identity(): void {
-  const skill: HumanSkill.ISkill = HumanSkill.resolve({ p: 0.25 }, "film");
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+    { p: 0.25 },
+    "film",
+  );
   const context: Parameters<typeof AutoMovieMotionHumanVariation.of>[0] = {
     skill,
     series: (): never => {
@@ -51,7 +57,7 @@ export function test_motion_compose_variation_identity(): void {
       }) === undefined,
   );
 
-  const record: AutoMovieMotionHumanTarget.IDefault = {
+  const record: IAutoMovieMotionHumanTarget.IDefault = {
     height: 0.72,
     range: 0.8,
     facing: "performer",

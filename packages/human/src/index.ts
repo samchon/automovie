@@ -3,6 +3,7 @@ export * from "./lofting";
 export * from "./skeleton";
 export * from "./structures";
 export * from "./typings";
+export * from "./schema";
 export * from "./generation/conic/AutoMovieHumanConicLoft";
 export * from "./generation/conic/AutoMovieHumanConicPose";
 export * from "./generation/conic/AutoMovieHumanConicRelief";

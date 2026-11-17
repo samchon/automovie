@@ -1,17 +1,23 @@
-import type { IAutoMovieCaptureCell } from "../capture/IAutoMovieCaptureCell.js";
-import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieCapturePlan } from "../capture/IAutoMovieCapturePlan.js";
-import type { IAutoMovieCaptureSubject } from "../capture/IAutoMovieCaptureSubject.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
+import type {
+  AutoMovieInspectionShade,
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureSubject,
+  IAutoMovieDrawCall,
+  IAutoMovieDrawDescription,
+  IAutoMovieDrawResult,
+  IAutoMovieDrawnPass,
+  IAutoMovieDrawnPicture,
+  IAutoMovieInspectionRequest,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
+
 import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
 import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
-import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
-import type { IAutoMovieDrawDescription } from "./IAutoMovieDrawDescription.js";
 import type { IAutoMovieDrawPage } from "./IAutoMovieDrawPage.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
-import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
 import { decodeAutoMovieDrawPixels } from "./decodeAutoMovieDrawPixels.js";
 import { planAutoMovieDrawCall } from "./planAutoMovieDrawCall.js";
 import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
@@ -148,7 +154,7 @@ export class AutoMovieDrawSession {
   public async draw(
     call: IAutoMovieDrawCall,
     what: string,
-  ): Promise<{ picture: IAutoMovieRasterImage; result: IAutoMovieDrawResult }> {
+  ): Promise<IAutoMovieDrawnPicture> {
     const result: IAutoMovieDrawResult = await bounded(
       this.timeout,
       what,
@@ -211,18 +217,13 @@ export class AutoMovieDrawSession {
    */
   public async frame(
     seconds: number,
-    passes: readonly IAutoMovieInspectionRequest.Shade[],
-  ): Promise<
-    {
-      pass: IAutoMovieInspectionRequest.Shade;
-      picture: IAutoMovieRasterImage;
-    }[]
-  > {
+    passes: readonly AutoMovieInspectionShade[],
+  ): Promise<IAutoMovieDrawnPass[]> {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
     );
     const pictures: {
-      pass: IAutoMovieInspectionRequest.Shade;
+      pass: AutoMovieInspectionShade;
       picture: IAutoMovieRasterImage;
     }[] = [];
     for (const pass of passes) {

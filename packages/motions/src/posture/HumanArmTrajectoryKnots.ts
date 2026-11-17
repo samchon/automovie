@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -99,8 +101,8 @@ export namespace HumanArmTrajectoryKnots {
   export function reduce(
     c: M.IContext,
     w: readonly (readonly number[])[],
-    model: QP.IProblem,
-  ): QP.IProblem {
+    model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const width: number = c.width;
     const vars: number = (c.open ? c.n - 1 : c.n - 2) * width;
 
@@ -167,7 +169,7 @@ export namespace HumanArmTrajectoryKnots {
           }
       }
     }
-    const rows: QP.IRow[] = [];
+    const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
     for (const row of model.rows) {
       const sum: Map<number, number> = new Map();
       row.index.forEach((r: number, at: number): void => {

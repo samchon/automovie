@@ -1,21 +1,23 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
+import {
+  AutoMovieMotionHumanAuditTangleModel,
+  AutoMovieMotionHumanAuditTangleModel as M,
+} from "./AutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoMovieMotionHumanAuditExemption";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
 /**
@@ -80,43 +82,6 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * the body stands at rest cannot be told apart by their corners.
    */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
-
-  /** One pair of segments that pass into each other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the probe-owning bone, containing bone, positive excess metres and film second.
-   * @evidence contracts/development/design.md#principled-representation One directed deepest penetration at an instant; self-pair results choose the deeper direction while across results keep the requested direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measure, pose and across share this result; callers read actual bone identities and scalar depth/time without another shape representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No display proxy, combined slack or untyped part identifier replaces the actual posed bones.
-   */
-  export interface IPair {
-    /** The segment whose probe lies deepest. */
-    a: AutoMovieHumanoidBone;
-
-    /** The segment it lies in. */
-    b: AutoMovieHumanoidBone;
-
-    /** How deep beyond the rest pose, metres, positive. */
-    depth: number;
-
-    /** The film second of that depth; zero for a single pose. */
-    seconds: number;
-  }
-
-  /** The reading of {@link measure}.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the worst sampled finding and deepest-per-unordered-pair results in descending depth.
-   * @evidence contracts/development/design.md#principled-representation The worst audit measure accompanies actual pair records so its depth, time and location can be traced to the same sampled geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measure constructs these two fields for audit consumers using the existing measure and pair owners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An empty reading keeps the original zero/none measure and empty pair list instead of a fabricated collision.
-   */
-  export interface IResult {
-    /** The deepest pair. */
-    worst: IAutoMovieMotionHumanAuditMeasure;
-
-    /** Every unordered pair that passed into each other at some instant, its deepest instant, deepest first. */
-    pairs: IPair[];
-  }
-
   /**
    * Read a person's self-penetration over the whole motion.
    *
@@ -137,12 +102,12 @@ export namespace AutoMovieMotionHumanAuditTangle {
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditTangle.IResult {
     const exempt: IExemption[] = exemptions(motion, subject, body);
-    const deepest: Map<string, IPair> = new Map();
-    for (const t of IAutoMovieMotionHumanAuditMotion.grid(
+    const deepest: Map<string, IAutoMovieMotionHumanAuditTangle.IPair> = new Map();
+    for (const t of HumanAuditMotion.grid(
       0,
       motion.duration,
       rate,
@@ -156,13 +121,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
             else pressed.set(key, Math.max(pressed.get(key) ?? 0, e.depth));
       for (const pair of pose(body, motion.bones(subject, t), skip, pressed)) {
         const key: string = unordered(pair.a, pair.b);
-        const known: IPair | undefined = deepest.get(key);
+        const known: IAutoMovieMotionHumanAuditTangle.IPair | undefined = deepest.get(key);
         if (known === undefined || pair.depth > known.depth)
           deepest.set(key, { ...pair, seconds: t });
       }
     }
-    const pairs: IPair[] = [...deepest.values()].sort(
-      (x: IPair, y: IPair): number => y.depth - x.depth,
+    const pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [...deepest.values()].sort(
+      (x: IAutoMovieMotionHumanAuditTangle.IPair, y: IAutoMovieMotionHumanAuditTangle.IPair): number => y.depth - x.depth,
     );
     return {
       worst:
@@ -195,17 +160,17 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh pair records and releases local placements/centres; the existing model lifetime belongs to its weak body owner.
    */
   export function pose(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     skip: ReadonlySet<string> = new Set(),
     pressed: ReadonlyMap<string, number> = new Map(),
-  ): IPair[] {
+  ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const m: M.IModel =
       M.model(body);
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const out: IPair[] = [];
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     const centres: IAutoMovieVector3[] = placed.map(
-      (p: HumanColliders.IPlaced, i: number): IAutoMovieVector3 =>
+      (p: IAutoMovieMotionHumanColliders.IPlaced, i: number): IAutoMovieVector3 =>
         M.centre(p, m.parts[i]!),
     );
 
@@ -258,21 +223,21 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local placements and results are released or returned with this call; only the existing weak per-body models survive.
    */
   export function across(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IHumanBody,
+    other: IAutoMovieMotionHumanBody,
     otherBones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IPair[] {
+  ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const m: M.IModel =
       M.model(body);
     const o: M.IModel =
       M.model(other);
-    const mine: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const theirs: HumanColliders.IPlaced[] = HumanColliders.placed(
+    const mine: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const theirs: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
       other,
       otherBones,
     );
-    const out: IPair[] = [];
+    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
 
     // Each of the other body's segments is prepared once for this placement.
     const read: NonNullable<Parameters<typeof M.beyond>[4]> = [];
@@ -317,15 +282,15 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps at most S centres and the queried model probes' world points only through this synchronous arm read; no borrowed pose, geometry workspace or scalar score survives return. The existing weak body model still owns reference lifetime.
    */
   export function arm(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
-    prepared?: readonly HumanColliders.IPlaced[],
+    prepared?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     targets: NonNullable<Parameters<typeof M.beyond>[4]> = [],
   ): number {
     const m: M.IModel =
       M.model(body);
-    const placed: readonly HumanColliders.IPlaced[] = prepared ?? HumanColliders.placed(body, bones);
+    const placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] = prepared ?? HumanColliders.placed(body, bones);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -416,14 +381,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
 const exemptions: (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ) => IExemption[] = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): IExemption[] => {
   const out: IExemption[] = [];
-  for (const window of IAutoMovieMotionHumanAuditMotion.windows(
+  for (const window of HumanAuditMotion.windows(
     motion,
     subject,
   )) {

@@ -1,10 +1,14 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,8 +44,8 @@ export function test_human_motion_travel_box_jump(): void {
   const complaints: string[] = [];
   const BOX: number = 0.4;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const perform = (apex?: number): HumanPerformance =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const perform = (apex?: number): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "box-jump",
         performers: [
@@ -81,7 +85,7 @@ export function test_human_motion_travel_box_jump(): void {
       );
 
     // 1 to 3. Up and down.
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform();
     } catch (error) {
@@ -90,13 +94,13 @@ export function test_human_motion_travel_box_jump(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
-    const [, up, down]: readonly HumanSegment.ISegment[] =
+    const [, up, down]: readonly IAutoMovieMotionHumanSegment[] =
       performance.segments("a");
     const hips = (t: number): number =>
       (HumanSignature.joint(reader, t, "leftUpperLeg").y +

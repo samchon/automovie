@@ -1,12 +1,14 @@
 import { physicalShapeBounds } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -27,10 +29,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns bounded demanded-name and neutral-geometry preparation until release. Current loan wrappers, pose and placed records end on return or throw; only a clearance scalar returns, without a retained posed answer or query history.
  */
 export function workoutFloorClearance(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
 ): (
-  posture: IHumanPosture,
+  posture: IAutoMovieMotionHumanPosture,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
 ) => number {
@@ -41,7 +43,7 @@ export function workoutFloorClearance(
   const place: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(body, requested);
   return (
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): number => {

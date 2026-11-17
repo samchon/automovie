@@ -1,9 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanTiming,
-} from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
@@ -102,7 +103,7 @@ export namespace staggerStep {
         ? LATERAL.footOff * forth - AutoMovieMotionHumanTiming.seconds(REACTION)
         : AutoMovieMotionHumanTiming.seconds(TRANSFER),
     );
-    const from: HumanFoot.IPlacement = pendulum.feet[side];
+    const from: IAutoMovieMotionHumanFoot.IPlacement = pendulum.feet[side];
     const swing: number = unloaded
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
@@ -215,7 +216,7 @@ export namespace staggerStep {
         chosen = toward(lo);
       }
     }
-    const to: HumanFoot.IPlacement = stepTo(chosen).to;
+    const to: IAutoMovieMotionHumanFoot.IPlacement = stepTo(chosen).to;
     pendulum.steps.push({ side, from, to, start, land: pendulum.t });
     pendulum.feet[side] = to;
 

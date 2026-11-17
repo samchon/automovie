@@ -1,21 +1,21 @@
 import {
-  type IAutoMovieActorContext,
-  type IAutoMoviePerformedShot,
-  type IAutoMovieStagedSet,
   makeActorSynthesizer,
   performShot,
   stageScene,
 } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
+  type IAutoMovieActorContext,
   IAutoMovieCameraAction,
   IAutoMovieConstraintViolation,
   IAutoMovieGait,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieLocomoteAction,
+  type IAutoMoviePerformedShot,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HUMANOID_GAITS } from "@automovie/motions";

@@ -1,10 +1,8 @@
-import {
-  IAutoMovieActionSynthesizer,
-  compilePerformance,
-} from "@automovie/engine";
+import { compilePerformance } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
   IAutoMovieExpression,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,

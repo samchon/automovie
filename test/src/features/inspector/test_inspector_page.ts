@@ -1,4 +1,4 @@
-import type { IAutoMovieCapturePlanRequest } from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
   type IAutoMovieInspectorState,
   createAutoMovieInspectorAddressWriter,

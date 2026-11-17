@@ -1,10 +1,19 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanStagger,
+  IAutoMovieMotionHumanTiming,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -13,15 +22,10 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
@@ -134,41 +138,22 @@ import { staggerShift } from "./staggerShift";
  */
 export namespace stagger {
   /** The action's name. */
-  export const name: HumanActionName = "stagger";
+  export const name: AutoMovieMotionHumanActionName = "stagger";
 
   /** Cancel table: a stagger flows into a guard or a knockdown. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
       knockdown: ["anytime", "quick"],
     });
 
   /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target and its default, the push's direction, the speed's unit and what the manner changes.
-   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union, the speed metres per second, checked positive and capturable when planning, and the manner the shared manner record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union and the shared manner.
-   */
-  export interface IParams {
-    /** Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent. */
-    from?: AutoMovieMotionTarget;
-
-    /** The centre of mass's speed after the blow, m/s. */
-    speed: number;
-
-    /** How it is performed: the tempo scales the trunk's righting after the last step. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** A forward recovery step's landing after the push (`staggerBounds.LANDING`), the step's time `perturb` reads. */
-  export const LANDING: AutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
+  export const LANDING: IAutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
 
   /**
    * Plan a stagger.
@@ -187,14 +172,14 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION }: typeof staggerBounds =
       staggerBounds;
-    const p: IParams = context.params;
+    const p: IAutoMovieMotionHumanStagger.IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
-    const body: IHumanActionContext["body"] = context.body;
-    const entry: IHumanPosture = context.entry.posture;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const righting: number =
       AutoMovieMotionManner.of(context, p.manner).tempo *
       AutoMovieMotionHumanTiming.seconds(RIGHTING);
@@ -250,7 +235,7 @@ export namespace stagger {
     }
     // The first step's landing, the instant the clock names the catch by.
     const swing: number = recovery.steps[0]!.land;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       recovery.settled,
       [
         { name: "tipped", seconds: 0.5 * swing },
@@ -262,7 +247,7 @@ export namespace stagger {
     const duration: number = clock.duration;
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
-    const entryLegs: IHumanPosture["limbs"] = entry.limbs;
+    const entryLegs: IAutoMovieMotionHumanPosture["limbs"] = entry.limbs;
 
     // The root's level shift at a second, `balanced` interpolated; the feet
     // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
@@ -278,11 +263,11 @@ export namespace stagger {
       from: 0,
       to: duration,
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      ): IHumanPosture => {
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => {
         // The root carries the plan-time residual of the displayed centre of
         // mass from the pendulum's course (`balanced`), interpolated, and the
         // pelvis is settled where that puts it, under the trunk's tilt: the
@@ -290,7 +275,7 @@ export namespace stagger {
         const shift: IAutoMovieVector3 = shiftAt(seconds);
         const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> =
           lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           const key: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
 
@@ -307,7 +292,7 @@ export namespace stagger {
           // over the reaction, so the first pose is the entry's: the walk's
           // stance reader may stand the same foot otherwise (its heel, its
           // contact point), and the leg would jump at the cut.
-          const entered: IHumanPosture["limbs"][typeof key] = entryLegs[key];
+          const entered: IAutoMovieMotionHumanPosture["limbs"][typeof key] = entryLegs[key];
           const unstepped: boolean = !recovery.steps.some(
             (step: staggerRecover.IStep): boolean => step.side === side && step.start < seconds,
           );
@@ -351,7 +336,7 @@ export namespace stagger {
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
     // into the body by its plan-time carriage (`carried`).
-    const held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
+    const held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
@@ -370,7 +355,7 @@ export namespace stagger {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const more: number = raised(seconds);
 
         // The let-out's envelope between the two samples around this second.
@@ -383,9 +368,9 @@ export namespace stagger {
           const b: number = series[Math.min(series.length - 1, k + 1)]!;
           return a + (b - a) * (at - k);
         };
-        const abducted: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (
+        const abducted: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles = (
           side: "left" | "right",
-        ): AutoMovieMotionHumanArm.IAngles => ({
+        ): IAutoMovieMotionHumanArmAngles.IAngles => ({
           ...held[side],
           upper: [
             held[side].upper[0],
@@ -411,7 +396,7 @@ export namespace stagger {
     let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
     let balanced: IAutoMovieVector3[] = [];
     let lent: { seconds: number; solved: ReturnType<StaggerFeet["solve"]> } | undefined;
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(duration, {
           root: entry.root,
@@ -491,7 +476,7 @@ export namespace stagger {
     feet.shifted(shiftAt);
     return {
       ...composed,
-      get contacts(): IHumanContactWindow[] {
+      get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return staggerContacts(recovery, duration);
       },
     };

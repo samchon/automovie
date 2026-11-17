@@ -1,11 +1,11 @@
 import {
   AutoMovieHumanoidBone,
+  type AutoMovieSkeletonParentKey,
   IAutoMovieBone,
   IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
-import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 
 /**

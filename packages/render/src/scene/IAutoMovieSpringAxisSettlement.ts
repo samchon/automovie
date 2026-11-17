@@ -1,4 +1,4 @@
-import type { ISpringStep } from "@automovie/engine";
+import type { IAutoMovieSpringStep } from "@automovie/interface";
 
 /**
  * One axis's displayed angle and the solver state carried to the next frame.
@@ -17,5 +17,5 @@ export interface IAutoMovieSpringAxisSettlement {
   angle: number | null;
 
   /** Axis value and velocity retained by this player's per-joint spring map. */
-  next: ISpringStep;
+  next: IAutoMovieSpringStep;
 }

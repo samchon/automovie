@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryScalarProfilesFittingOperation } from "@automovie/interface";
+
 /**
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
  * Unpivoted Householder QR acts on the original design and all right-hand sides;
@@ -15,16 +17,10 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Design/right-hand-side scratch expires synchronously; only O(spans F) controls and the scalar rank diagnostic transfer, without a global cache, image or file handle.
  */
 export function fitRecoveryScalarProfiles(
-  samples: readonly { yMm: number; values: readonly number[] }[],
-  spans: number,
-  minimumRankRatio: number,
-): {
-  spans: {
-    interval: [number, number];
-    profiles: [number, number, number, number][];
-  }[];
-  rankRatio: number;
-} {
+  samples: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[0],
+  spans: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[1],
+  minimumRankRatio: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> {
   const fields: number = samples[0]?.values.length ?? 0;
   if (
     !fields ||

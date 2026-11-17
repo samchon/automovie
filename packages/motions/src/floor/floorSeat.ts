@@ -1,21 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -110,13 +108,13 @@ export namespace floorSeat {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local reader and current bones end on return or throw, without entering the returned authored goals or retaining either parent loan.
    */
   export function place(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     kind: Kind,
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
     return prepare(body, kind)(posture, share, resolution, projection);
   }
@@ -138,14 +136,14 @@ export namespace floorSeat {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan retains four fixed local target vectors and one bounded name reader until release. Current frame/pose/map and borrowed FK/ROM end with each write; fresh goals retain neither reader nor prior-query data.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     kind: Kind,
   ): (
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IHumanPosture {
+  ) => IAutoMovieMotionHumanPosture {
     const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
       kind === "side" ? SIDE_BONES : LEG_BONES,
@@ -175,11 +173,11 @@ export namespace floorSeat {
       },
     };
     return (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       share: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       if (share <= 0) return posture;
       const s: number = Math.min(1, share);
       const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -202,7 +200,7 @@ export namespace floorSeat {
         left: at("leftUpperLeg"),
         right: at("rightUpperLeg"),
       };
-      const frame: HumanFrame.IFrame = {
+      const frame: IAutoMovieMotionHumanFrame = {
         origin: {
           x: (hips.left.x + hips.right.x) / 2,
           y: 0,
@@ -212,7 +210,7 @@ export namespace floorSeat {
       };
       const floor: ReturnType<typeof HumanFrame.prepare> =
         HumanFrame.prepare(frame);
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = {
           point: Vector3.lerp(

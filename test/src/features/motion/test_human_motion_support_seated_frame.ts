@@ -1,12 +1,17 @@
 import { createCart } from "@automovie/archetypes";
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -36,11 +41,11 @@ export function test_human_motion_support_seated_frame(): void {
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const perform: (floor: number) => HumanPerformance = (
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const perform: (floor: number) => IAutoMovieMotionHumanPerformance = (
       floor: number,
-    ): HumanPerformance => {
-      const seat: seated.ISeat = {
+    ): IAutoMovieMotionHumanPerformance => {
+      const seat: IAutoMovieMotionHumanSeated.ISeat = {
         at: {
           x: 0,
           y: floor + seated.popliteal(body),
@@ -74,15 +79,16 @@ export function test_human_motion_support_seated_frame(): void {
           .stand({ seconds: 0.3, sway: 0 }).node,
       });
     };
-    const reference: HumanPerformance = perform(0);
+    const reference: IAutoMovieMotionHumanPerformance = perform(0);
     for (const floor of [0, 0.3, -0.2]) {
-      const moved: HumanPerformance = floor === 0 ? reference : perform(floor);
-      const expected: readonly HumanSegment.ISegment[] =
+      const moved: IAutoMovieMotionHumanPerformance =
+        floor === 0 ? reference : perform(floor);
+      const expected: readonly IAutoMovieMotionHumanSegment[] =
         reference.segments("a");
       moved
         .segments("a")
-        .forEach((segment: HumanSegment.ISegment, i: number): void => {
-          const original: HumanSegment.ISegment = expected[i]!;
+        .forEach((segment: IAutoMovieMotionHumanSegment, i: number): void => {
+          const original: IAutoMovieMotionHumanSegment = expected[i]!;
           const cell: string = `${name} at ${floor} m ${segment.name}`;
           for (const contact of segment.plan.contacts)
             if (contact.part.endsWith("Foot") || contact.part === "seat")
@@ -109,7 +115,11 @@ export function test_human_motion_support_seated_frame(): void {
                 Vector3.length(
                   Vector3.subtract(
                     posed.worldPosition,
-                    Vector3.add(before.worldPosition, { x: 0, y: floor, z: 0 }),
+                    Vector3.add(before.worldPosition, {
+                      x: 0,
+                      y: floor,
+                      z: 0,
+                    }),
                   ),
                 ),
               );

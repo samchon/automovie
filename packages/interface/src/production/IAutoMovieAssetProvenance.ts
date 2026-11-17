@@ -1,9 +1,9 @@
-import { IAutoMovieGeneratedAcquisition } from "../architecture/IAutoMovieGeneratedAcquisition";
-import { IAutoMovieAssetLicense } from "./IAutoMovieAssetLicense";
-import { IAutoMovieAssetProcessingStep } from "./IAutoMovieAssetProcessingStep";
-import { IAutoMovieAssetUse } from "./IAutoMovieAssetUse";
-import { IAutoMovieExternalModelProvenance } from "./IAutoMovieExternalModelProvenance";
-import { IAutoMovieExternalMotionProvenance } from "./IAutoMovieExternalMotionProvenance";
+import type { IAutoMovieGeneratedAcquisition } from "../architecture/IAutoMovieGeneratedAcquisition";
+import type { IAutoMovieAssetLicense } from "./IAutoMovieAssetLicense";
+import type { IAutoMovieAssetProcessingStep } from "./IAutoMovieAssetProcessingStep";
+import type { IAutoMovieAssetUse } from "./IAutoMovieAssetUse";
+import type { IAutoMovieExternalModelProvenance } from "./IAutoMovieExternalModelProvenance";
+import type { IAutoMovieExternalMotionProvenance } from "./IAutoMovieExternalMotionProvenance";
 
 /**
  * Declared byte identity, acquisition metadata and typed uses of one project asset. Current bytes must be verified by the host; original-source and licence facts are descriptive.

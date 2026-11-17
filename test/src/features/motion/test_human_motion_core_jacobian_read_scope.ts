@@ -1,23 +1,20 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  getConstraint,
-} from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanJacobian,
-  type IHumanBody,
-  type IHumanPosture,
   createHumanBody,
   poseBones,
   resolveHumanPosture,
@@ -64,7 +61,7 @@ import { nclose } from "../internal/nclose";
  */
 export function test_human_motion_core_jacobian_read_scope(): void {
   const findings: string[] = [];
-  const source: IHumanBody = motionHumanBody("m-average");
+  const source: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const skeleton: IAutoMovieSkeleton = structuredClone(source.skeleton);
   const lower: IAutoMovieBone | undefined = skeleton.bones.find(
     (bone: IAutoMovieBone): boolean => bone.bone === "leftLowerArm",
@@ -86,9 +83,9 @@ export function test_human_motion_core_jacobian_read_scope(): void {
     max: { enumerable: true, get: (): number => { boundReads++; return maximum; } },
   });
   lower.constraint = constraint;
-  const body: IHumanBody = createHumanBody(skeleton, structuredClone(source.profile));
-  const entry: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 37);
-  const variables: readonly HumanJacobian.IVariable[] = [
+  const body: IAutoMovieMotionHumanBody = createHumanBody(skeleton, structuredClone(source.profile));
+  const entry: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 37);
+  const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] = [
     { kind: "angle", bone: "leftLowerArm", axis: 0 },
     { kind: "angle", bone: "leftLowerArm", axis: 2 },
     { kind: "angle", bone: "leftLowerArm", axis: 0 },
@@ -101,7 +98,7 @@ export function test_human_motion_core_jacobian_read_scope(): void {
   let poisonedAngular: IAutoMovieVector3 | undefined;
 
   /** Resolve real full-body FK independently of the Jacobian preparation. */
-  function posed(posture: IHumanPosture): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  function posed(posture: IAutoMovieMotionHumanPosture): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, resolveHumanPosture(body, posture));
     motionHumanFrame(bones, "Jacobian read-scope finite difference");
@@ -115,7 +112,7 @@ export function test_human_motion_core_jacobian_read_scope(): void {
 
   for (const [label, f, t] of [["A", 55, 12], ["B", 75, -8], ["restored A", 55, 12]] as const) {
     try {
-      const posture: IHumanPosture = {
+      const posture: IAutoMovieMotionHumanPosture = {
         ...entry,
         limbs: {},
         joints: { ...entry.joints, leftLowerArm: [f, 0, t] },
@@ -138,7 +135,7 @@ export function test_human_motion_core_jacobian_read_scope(): void {
 
       for (const [index, variable] of variables.entries()) {
         if (variable.kind !== "angle") throw new Error("Expected an elbow angle variable");
-        const motion: HumanJacobian.IMotion | undefined = reading.motions[index];
+        const motion: IAutoMovieMotionHumanJacobian.IMotion | undefined = reading.motions[index];
         if (motion === undefined) {
           findings.push(`${label} column ${index}: the actual motion is missing`);
           continue;

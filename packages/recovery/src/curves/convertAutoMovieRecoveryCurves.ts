@@ -1,13 +1,15 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieCurveMath64 as M,
-} from "@automovie/engine";
+import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieRecoveryCurveData,
+  AutoMovieRecoveryCurveFormat,
+  AutoMovieVector3Tuple,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryHermiteSpan,
+} from "@automovie/interface";
 
 import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveAuthorities";
-import type { IAutoMovieRecoveryHermiteCurve } from "../structures/curve/IAutoMovieRecoveryHermiteCurve";
-import type { IAutoMovieRecoveryHermiteSpan } from "../structures/curve/IAutoMovieRecoveryHermiteSpan";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
 
 /**
  * Copy a plain saved recovery artifact into the selected cubic coefficient basis.
@@ -124,22 +126,30 @@ export function convertAutoMovieRecoveryCurves<
         throw new Error(
           "Finite cubic spans and their original positive phase widths are required",
         );
-      const curve: C.Cubic | IAutoMovieRecoveryHermiteCurve =
-        result as unknown as C.Cubic | IAutoMovieRecoveryHermiteCurve;
-      const vector: (point: unknown) => point is C.Vector = (
+      const curve:
+        | IAutoMovieCubicBezierCurve64
+        | IAutoMovieRecoveryHermiteCurve = result as unknown as
+        | IAutoMovieCubicBezierCurve64
+        | IAutoMovieRecoveryHermiteCurve;
+      const vector: (
         point: unknown,
-      ): point is C.Vector =>
+      ) => point is Readonly<AutoMovieVector3Tuple> = (
+        point: unknown,
+      ): point is Readonly<AutoMovieVector3Tuple> =>
         Array.isArray(point) &&
         point.length === 3 &&
         point.every(
           (component: unknown): boolean =>
             typeof component === "number" && Number.isFinite(component),
         );
-      const spans: (C.Span | IAutoMovieRecoveryHermiteSpan)[] = curve.spans.map(
+      const spans: (
+        | AutoMovieCubicBezierControls3
+        | IAutoMovieRecoveryHermiteSpan
+      )[] = curve.spans.map(
         (
-          span: C.Span | IAutoMovieRecoveryHermiteSpan,
+          span: AutoMovieCubicBezierControls3 | IAutoMovieRecoveryHermiteSpan,
           index: number,
-        ): C.Span | IAutoMovieRecoveryHermiteSpan => {
+        ): AutoMovieCubicBezierControls3 | IAutoMovieRecoveryHermiteSpan => {
           const width: number = curve.phaseIntervals[index]!;
           let endpoints: IAutoMovieRecoveryHermiteSpan;
           if (curve.type === "cubicBezier") {
@@ -151,8 +161,12 @@ export function convertAutoMovieRecoveryCurves<
               throw new Error(
                 "Four finite three-dimensional Bernstein controls are required",
               );
-            if (format === "bezier") return span as C.Span;
-            endpoints = M.toHermite(span as C.Span, width);
+            if (format === "bezier")
+              return span as AutoMovieCubicBezierControls3;
+            endpoints = M.toHermite(
+              span as AutoMovieCubicBezierControls3,
+              width,
+            );
           } else {
             const saved: IAutoMovieRecoveryHermiteSpan =
               span as IAutoMovieRecoveryHermiteSpan;
@@ -182,7 +196,7 @@ export function convertAutoMovieRecoveryCurves<
               "Cubic basis conversion exceeds finite binary64 coefficients",
             );
           if (format === "hermite") return endpoints;
-          const controls: C.Span = M.hermite(
+          const controls: AutoMovieCubicBezierControls3 = M.hermite(
             M.clone(endpoints.start),
             M.clone(endpoints.end),
             M.clone(endpoints.startDerivative),

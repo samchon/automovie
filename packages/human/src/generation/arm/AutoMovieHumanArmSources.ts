@@ -1,10 +1,18 @@
-import type { AutoMovieHumanArmConstruction } from "../AutoMovieHumanArmConstruction";
-import type { AutoMovieHumanBodyLane } from "../AutoMovieHumanBodyLane";
-import type { AutoMovieHumanLimbRest } from "../AutoMovieHumanLimbRest";
+import type {
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmHandControls,
+  IAutoMovieHumanArmSources,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanHandBones,
+  IAutoMovieHumanHandParent,
+  IAutoMovieHumanSourceDefinition,
+} from "@automovie/interface";
+
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanHandAttachment } from "../hand/AutoMovieHumanHandAttachment";
-import type { AutoMovieHumanHandBones } from "../hand/AutoMovieHumanHandBones";
 import { AutoMovieHumanDigitInterim } from "../limb/AutoMovieHumanDigitInterim";
 import { AutoMovieHumanDigitWalk } from "../limb/AutoMovieHumanDigitWalk";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
@@ -15,44 +23,10 @@ import { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
 
 /** Arm and hand original factories from direct rest/attachment definitions, before any trunk or skeleton assembly. */
 export namespace AutoMovieHumanArmSources {
-  /** The arm's actual inputs; no other source, curve or mesh is required. */
-  export interface IInput {
-    /** Side-qualified source names. */
-    side: "left" | "right";
-
-    /** The same direct rest definition later used by bind bones. */
-    rest: AutoMovieHumanLimbRest.IArm;
-
-    /** Public arm/hand dimensions, calibration mm. */
-    arms: AutoMovieHumanArmConstruction.IInputs & { bideltoid: number };
-
-    /** Resolved public measures used by the original digit law. */
-    measures: IAutoMovieHumanBodyMeasures;
-
-    /** Calibration scale. */
-    scale: number;
-  }
-
-  /** Source-only capabilities; no full body, raw loft or proximal join is implied. */
-  export interface IOutput {
-    /** Same arm definition used by production and the hand contact owner. */
-    definition(): AutoMovieHumanSiteViewPart.IDefinition;
-
-    /** Explicit production arm metadata; its trunk fold is assembly-owned. */
-    arm(): Omit<AutoMovieHumanBodyLane.ISide["arm"], "trunk">;
-
-    /** Existing digit names without authoring their geometry. */
-    digitNames: readonly string[];
-
-    /** Request one actual digit while reusing its shared palm controls. */
-    digit(name: string): AutoMovieHumanBodyLane.IDigit | undefined;
-
-    /** Explicit all-digit request used only by full assembly. */
-    fingers(): AutoMovieHumanBodyLane.IDigit[];
-  }
-
   /** Enumerate the same digit keys the source factories use, without preparing geometry. */
-  export function names(side: IInput["side"]): string[] {
+  export function names(
+    side: IAutoMovieHumanArmSources.IInput["side"],
+  ): string[] {
     return [
       ...FINGERS.map(
         (finger: (typeof FINGERS)[number]): string =>
@@ -63,12 +37,17 @@ export namespace AutoMovieHumanArmSources {
   }
 
   /** Prepare this side's actual arm laws once; no leg, foot, trunk or opposite arm is evaluated. */
-  export function create(input: IInput): IOutput {
-    const side: IInput["side"] = input.side;
+  export function create(
+    input: IAutoMovieHumanArmSources.IInput,
+  ): IAutoMovieHumanArmSources.IOutput {
+    const side: IAutoMovieHumanArmSources.IInput["side"] = input.side;
     const measures: IAutoMovieHumanBodyMeasures = input.measures;
-    const { shoulder, elbow, wrist }: IInput["rest"]["bones"] =
-      input.rest.bones;
-    const hand: AutoMovieHumanHandBones.IOutput = input.rest.hand;
+    const {
+      shoulder,
+      elbow,
+      wrist,
+    }: IAutoMovieHumanArmSources.IInput["rest"]["bones"] = input.rest.bones;
+    const hand: IAutoMovieHumanHandBones.IOutput = input.rest.hand;
     const knuckle: Vec3 = hand.knuckle;
     const crease: Vec3 = hand.crease;
 
@@ -76,7 +55,7 @@ export namespace AutoMovieHumanArmSources {
     const humerus: number = Math.hypot(
       ...shoulder.map((value: number, c: number): number => value - elbow[c]!),
     );
-    const arm: AutoMovieHumanArmWalk.ISiteLaw[] =
+    const arm: IAutoMovieHumanArmWalk.ISiteLaw[] =
       AutoMovieHumanArmInterim.sites(
         side,
         input.arms,
@@ -90,24 +69,24 @@ export namespace AutoMovieHumanArmSources {
         hand.radialCenter,
       );
     const depth: (site: string) => number = (site: string): number => {
-      const s: AutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find(
-        (l: AutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site,
+      const s: IAutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find(
+        (l: IAutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site,
       );
       if (s === undefined)
         throw new Error(`The ${side} arm lacks its sided ${site} source law`);
       return s.edges[0] - s.edges[2];
     };
-    const palm: AutoMovieHumanArmWalk.ISiteLaw = arm.find(
-      (site: AutoMovieHumanArmWalk.ISiteLaw): boolean =>
+    const palm: IAutoMovieHumanArmWalk.ISiteLaw = arm.find(
+      (site: IAutoMovieHumanArmWalk.ISiteLaw): boolean =>
         site.site === "knuckles",
     )!;
     const palmDepth: number = palm.edges[1] - palm.edges[3];
 
     // The common chart is skeletal geometry only. Its local palm controls
     // close no upper-arm tape or bideltoid constraint for a digit request.
-    const frame: () => AutoMovieHumanArmFrame.IOutput = lazy(
-      (): AutoMovieHumanArmFrame.IOutput => {
-        const value: AutoMovieHumanArmFrame.IOutput | string =
+    const frame: () => IAutoMovieHumanArmFrame.IOutput = lazy(
+      (): IAutoMovieHumanArmFrame.IOutput => {
+        const value: IAutoMovieHumanArmFrame.IOutput | string =
           AutoMovieHumanArmFrame.create({
             name: `arm.${side}`,
             bones: { shoulder, elbow, wrist },
@@ -124,13 +103,13 @@ export namespace AutoMovieHumanArmSources {
         return value;
       },
     );
-    const shared: () => AutoMovieHumanArmHandControls.IOutput = lazy(
-      (): AutoMovieHumanArmHandControls.IOutput =>
+    const shared: () => IAutoMovieHumanArmHandControls.IOutput = lazy(
+      (): IAutoMovieHumanArmHandControls.IOutput =>
         AutoMovieHumanArmHandControls.create(frame()),
     );
 
-    const armControls: () => AutoMovieHumanArmWalk.IPrepared = lazy(
-      (): AutoMovieHumanArmWalk.IPrepared =>
+    const armControls: () => IAutoMovieHumanArmWalk.IPrepared = lazy(
+      (): IAutoMovieHumanArmWalk.IPrepared =>
         AutoMovieHumanArmWalk.prepare(
           `arm.${side}`,
           { shoulder, elbow, wrist },
@@ -149,20 +128,20 @@ export namespace AutoMovieHumanArmSources {
           { frame: frame(), hand: shared() },
         ),
     );
-    const armDefinition: () => AutoMovieHumanSiteViewPart.IDefinition = lazy(
-      (): AutoMovieHumanSiteViewPart.IDefinition =>
+    const armDefinition: () => IAutoMovieHumanSourceDefinition = lazy(
+      (): IAutoMovieHumanSourceDefinition =>
         AutoMovieHumanSiteViewPart.fromControls(armControls()),
     );
-    const handParent: () => AutoMovieHumanHandAttachment.IParent = lazy(
-      (): AutoMovieHumanHandAttachment.IParent =>
+    const handParent: () => IAutoMovieHumanHandParent.IOutput = lazy(
+      (): IAutoMovieHumanHandParent.IOutput =>
         AutoMovieHumanHandAttachment.fromControls(shared().hand),
     );
     const branch: (
-      walk: AutoMovieHumanDigitWalk.IInput,
-    ) => AutoMovieHumanBodyLane.IDigit = (
-      walk: AutoMovieHumanDigitWalk.IInput,
-    ): AutoMovieHumanBodyLane.IDigit => {
-      const digit: AutoMovieHumanDigitWalk.IInput =
+      walk: IAutoMovieHumanDigitWalk.IInput,
+    ) => IAutoMovieHumanBodyLane.IDigit = (
+      walk: IAutoMovieHumanDigitWalk.IInput,
+    ): IAutoMovieHumanBodyLane.IDigit => {
+      const digit: IAutoMovieHumanDigitWalk.IInput =
         AutoMovieHumanHandAttachment.attach(handParent(), walk);
       return {
         digit,
@@ -183,11 +162,11 @@ export namespace AutoMovieHumanArmSources {
     const finger: (
       f: "Index" | "Middle" | "Ring" | "Little",
       digit: 2 | 3 | 4 | 5,
-    ) => AutoMovieHumanBodyLane.IDigit = (
+    ) => IAutoMovieHumanBodyLane.IDigit = (
       f: "Index" | "Middle" | "Ring" | "Little",
       digit: 2 | 3 | 4 | 5,
-    ): AutoMovieHumanBodyLane.IDigit => {
-      const source: AutoMovieHumanHandBones.IDigit = hand.fingers[f];
+    ): IAutoMovieHumanBodyLane.IDigit => {
+      const source: IAutoMovieHumanHandBones.IDigit = hand.fingers[f];
       return branch(
         AutoMovieHumanDigitInterim.finger(
           `finger.${side}.${f.toLowerCase()}`,
@@ -200,15 +179,15 @@ export namespace AutoMovieHumanArmSources {
         ),
       );
     };
-    const digits: Map<string, () => AutoMovieHumanBodyLane.IDigit> = new Map(
+    const digits: Map<string, () => IAutoMovieHumanBodyLane.IDigit> = new Map(
       FINGERS.map(
         (
           f: (typeof FINGERS)[number],
           k: number,
-        ): [string, () => AutoMovieHumanBodyLane.IDigit] => [
+        ): [string, () => IAutoMovieHumanBodyLane.IDigit] => [
           `finger.${side}.${f.toLowerCase()}`,
           lazy(
-            (): AutoMovieHumanBodyLane.IDigit =>
+            (): IAutoMovieHumanBodyLane.IDigit =>
               finger(f, (k + 2) as 2 | 3 | 4 | 5),
           ),
         ],
@@ -217,7 +196,7 @@ export namespace AutoMovieHumanArmSources {
     digits.set(
       `thumb.${side}`,
       lazy(
-        (): AutoMovieHumanBodyLane.IDigit =>
+        (): IAutoMovieHumanBodyLane.IDigit =>
           branch(
             AutoMovieHumanDigitInterim.finger(
               `thumb.${side}`,
@@ -234,7 +213,7 @@ export namespace AutoMovieHumanArmSources {
 
     return {
       definition: armDefinition,
-      arm: (): Omit<AutoMovieHumanBodyLane.ISide["arm"], "trunk"> => ({
+      arm: (): Omit<IAutoMovieHumanBodyLane.ISide["arm"], "trunk"> => ({
         definition: armDefinition(),
         bones: { shoulder, elbow, wrist },
         knuckle,
@@ -250,14 +229,14 @@ export namespace AutoMovieHumanArmSources {
         joints: { elbow: depth("elbow"), wrist: depth("wrist") },
       }),
       digitNames: [...digits.keys()],
-      digit(part: string): AutoMovieHumanBodyLane.IDigit | undefined {
+      digit(part: string): IAutoMovieHumanBodyLane.IDigit | undefined {
         return digits.get(part)?.();
       },
-      fingers: (): AutoMovieHumanBodyLane.IDigit[] =>
+      fingers: (): IAutoMovieHumanBodyLane.IDigit[] =>
         [...digits.values()].map(
           (
-            read: () => AutoMovieHumanBodyLane.IDigit,
-          ): AutoMovieHumanBodyLane.IDigit => read(),
+            read: () => IAutoMovieHumanBodyLane.IDigit,
+          ): IAutoMovieHumanBodyLane.IDigit => read(),
         ),
     };
   }

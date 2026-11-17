@@ -1,8 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { stand } from "../actions/stand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { stand } from "../actions/stand";
 
 /**
  * Prepare the two feet drawn beneath a seated body before rising. Each
@@ -39,7 +41,7 @@ export function prepareRiseFeet(props: {
 
   /** Fixed-yaw standing geometry with current-root knee goals. */
   legged: ReturnType<typeof stand.prepareLegs>;
-}): (root: IAutoMovieVector3, seconds: number) => IHumanPosture["limbs"] {
+}): (root: IAutoMovieVector3, seconds: number) => IAutoMovieMotionHumanPosture["limbs"] {
   const straight: Partial<
     Record<"left" | "right", ReturnType<typeof Vector3.prepareLerp>>
   > = {};
@@ -61,12 +63,12 @@ export function prepareRiseFeet(props: {
     ankle.y = ankle.y + props.lift * Math.sin(Math.PI * u);
     return { ankle, planted: false };
   }
-  return (root: IAutoMovieVector3, seconds: number): IHumanPosture["limbs"] => {
+  return (root: IAutoMovieVector3, seconds: number): IAutoMovieMotionHumanPosture["limbs"] => {
     const placed: Record<"left" | "right", ReturnType<typeof footAt>> = {
       left: footAt("left", seconds),
       right: footAt("right", seconds),
     };
-    const legs: IHumanPosture["limbs"] = props.legged(root, {
+    const legs: IAutoMovieMotionHumanPosture["limbs"] = props.legged(root, {
       left: placed.left.ankle,
       right: placed.right.ankle,
     });

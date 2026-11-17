@@ -1,17 +1,17 @@
 import { createDrinkware } from "@automovie/archetypes";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
   StrikingHeld,
   stand,
 } from "@automovie/motions";
@@ -44,10 +44,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership One polygon Human and actual glass, owned registered callbacks and ordinary stand plans in memory; no engine function, global or private API is replaced.
  */
 export function test_human_motion_core_ahead_lifetime(): void {
-  type Aim = IHumanActionContext["aim"];
+  type Aim = IAutoMovieMotionHumanActionContext["aim"];
   type Goal = ReturnType<Aim>;
-  const body: IHumanBody = { ...motionHumanBody("f-small") };
-  const target: AutoMovieMotionTarget = { kind: "self", region: "mouth" };
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("f-small") };
+  const target: IAutoMovieMotionTarget = { kind: "self", region: "mouth" };
   const shift: IAutoMovieVector3 = { x: 0.7, y: 0, z: -0.4 };
   const complaints: string[] = [];
   const branches: Set<string> = new Set();
@@ -64,13 +64,13 @@ export function test_human_motion_core_ahead_lifetime(): void {
     read: retained,
     goal: observed,
   });
-  const posture: (at: IAutoMovieVector3) => IHumanPosture = (
+  const posture: (at: IAutoMovieVector3) => IAutoMovieMotionHumanPosture = (
     at: IAutoMovieVector3,
-  ): IHumanPosture => {
-    const actual: IHumanPosture = stand.posture(body, at, 0);
+  ): IAutoMovieMotionHumanPosture => {
+    const actual: IAutoMovieMotionHumanPosture = stand.posture(body, at, 0);
     return {
       ...actual,
-      get joints(): IHumanPosture["joints"] {
+      get joints(): IAutoMovieMotionHumanPosture["joints"] {
         jointReads++;
         return actual.joints;
       },
@@ -103,12 +103,12 @@ export function test_human_motion_core_ahead_lifetime(): void {
     if (!(gap <= 1e-9 && normal <= 1e-9))
       complaints.push(`${label}: point ${gap} m, normal ${normal}`);
   };
-  const inspect: IHumanActionLaw = {
+  const inspect: IAutoMovieMotionHumanActionLaw = {
     name: "inspectDemands",
     interrupts: stand.interrupts,
     demands: (
-      ahead: IHumanActionLaw.IAhead,
-    ): readonly IHumanActionLaw.IDemand[] => {
+      ahead: IAutoMovieMotionHumanActionLaw.IAhead,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
       retained = ahead.aim;
       const first: Goal = ahead.aim(target, ahead.start);
       if (aims === 2)
@@ -122,24 +122,24 @@ export function test_human_motion_core_ahead_lifetime(): void {
       if (throwing) throw sentinel;
       return [];
     },
-    plan: (context: IHumanActionContext): IHumanActionPlan =>
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan =>
       stand.plan({ ...context, params: { seconds: 0.1 } }),
   };
-  const ask: IHumanActionLaw = {
+  const ask: IAutoMovieMotionHumanActionLaw = {
     name: "askGrips",
     interrupts: stand.interrupts,
-    plan: (context: IHumanActionContext): IHumanActionPlan => {
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => {
       for (const fails of [false, true]) {
         throwing = false;
         retained = undefined;
         observed = undefined;
-        const grip: IHumanActionLaw.IGrip = {
+        const grip: IAutoMovieMotionHumanActionLaw.IGrip = {
           prop: "glass",
           side: "right",
           posture: posture({ x: 0, y: 0, z: 0 }),
           tool: (
-            points: Parameters<IHumanActionLaw.IGrip["tool"]>[0],
-          ): ReturnType<IHumanActionLaw.IGrip["tool"]> =>
+            points: Parameters<IAutoMovieMotionHumanActionLaw.IGrip["tool"]>[0],
+          ): ReturnType<IAutoMovieMotionHumanActionLaw.IGrip["tool"]> =>
             StrikingHeld.of(context, "right", "glass", points),
         };
         aims = 1;

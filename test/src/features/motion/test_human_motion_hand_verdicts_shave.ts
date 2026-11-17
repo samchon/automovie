@@ -1,12 +1,17 @@
 import { createCareItem } from "@automovie/archetypes";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanActionLaw,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,12 +50,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the bounds, why the row stands alone, what it was, what a complaint carries and the scenario.
  */
 export function test_human_motion_hand_verdicts_shave(): void {
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const body = motionHumanBody("m-average");
   // A toothbrush stands in for the razor: a handle and a working head at
   // its far end, the razor's own shape (no razor archetype exists yet).
   const razor = createCareItem({ kind: "toothbrush" });
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws,
     props: [
@@ -84,7 +90,10 @@ export function test_human_motion_hand_verdicts_shave(): void {
         grasp: { handle: "grip", line: "along" },
       }).node,
   });
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 24);
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    performance,
+    24,
+  );
 
   TestValidator.equals(
     "a shave holds the physical bounds",
@@ -92,11 +101,12 @@ export function test_human_motion_hand_verdicts_shave(): void {
       ? "clean"
       : [
           HumanVerdicts.describe(report),
-          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
-            [f.seconds - 1 / 48, f.seconds].map(
-              (seconds: number): string =>
-                `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
-            ),
+          ...report.findings.flatMap(
+            (f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
+              [f.seconds - 1 / 48, f.seconds].map(
+                (seconds: number): string =>
+                  `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
+              ),
           ),
           // The row's phase instants and, around each finding, the
           // offending joint's world path and its own and its parent's angles.
@@ -107,20 +117,21 @@ export function test_human_motion_hand_verdicts_shave(): void {
                 `${e.name} ${(performance.segments("a")[1]!.start + e.share * performance.segments("a")[1]!.plan.duration).toFixed(3)}`,
             )
             .join(", ")}`,
-          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
-            Array.from({ length: 13 }, (_: unknown, i: number): string => {
-              const seconds: number = f.seconds + (i - 6) / 48;
-              const bones = performance.bones("a", seconds);
-              const bone = bones.get(f.where as "rightLowerArm");
-              const pose = performance.pose("a", seconds);
-              const angles = (name: string): string =>
-                JSON.stringify(
-                  pose.joints.find((j): boolean => j.bone === name) ?? null,
-                  (_k: string, v: unknown): unknown =>
-                    typeof v === "number" ? Math.round(v * 100) / 100 : v,
-                );
-              return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
-            }),
+          ...report.findings.flatMap(
+            (f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
+              Array.from({ length: 13 }, (_: unknown, i: number): string => {
+                const seconds: number = f.seconds + (i - 6) / 48;
+                const bones = performance.bones("a", seconds);
+                const bone = bones.get(f.where as "rightLowerArm");
+                const pose = performance.pose("a", seconds);
+                const angles = (name: string): string =>
+                  JSON.stringify(
+                    pose.joints.find((j): boolean => j.bone === name) ?? null,
+                    (_k: string, v: unknown): unknown =>
+                      typeof v === "number" ? Math.round(v * 100) / 100 : v,
+                  );
+                return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
+              }),
           ),
         ].join("\n"),
     "clean",
@@ -128,7 +139,7 @@ export function test_human_motion_hand_verdicts_shave(): void {
 }
 
 /** A posture as text for a complaint: root, yaw, pitch, roll, every set joint and every limb goal, numbers to four places, a goal's colliders left out. */
-function dump(posture: IHumanPosture): string {
+function dump(posture: IAutoMovieMotionHumanPosture): string {
   return JSON.stringify(
     {
       root: posture.root,
@@ -138,7 +149,7 @@ function dump(posture: IHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
+          ([limb, goal]: [string, IAutoMovieHumanLimbGoal | undefined]): [
             string,
             object | undefined,
           ] => [

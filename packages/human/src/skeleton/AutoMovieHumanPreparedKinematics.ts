@@ -1,36 +1,24 @@
-import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
-import type { AutoMovieHumanJointCentres as Centres } from "./AutoMovieHumanJointCentres";
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeutral,
+  IAutoMovieHumanPose,
+  IAutoMovieHumanPoseClamp,
+  IAutoMovieHumanPoseProjection,
+  IAutoMovieHumanPreparedKinematics,
+  IAutoMovieHumanSkeletonMath,
+} from "@automovie/interface";
+
 import { AutoMovieHumanNeutral as Neutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigControls";
-import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleton";
 import { AutoMovieHumanSkeletonMath as M } from "./AutoMovieHumanSkeletonMath";
 
 /** One body's clinical FK law, shared by complete snapshots and fixed-bone projections. */
 export namespace AutoMovieHumanPreparedKinematics {
-  /** A body-local selection retains requested outputs and every required ancestor. */
-  export interface ISelection {
-    /** Parent-before-child calculation population, including girdle dependencies. */
-    work: readonly number[];
-
-    /** Requested placement identities; ancestors need not escape the kernel. */
-    output: ReadonlySet<string>;
-  }
-
-  /** Explicit body lifetime; no input poses or public output arrays are retained. */
-  export interface IPrepared {
-    /** Read every clinical channel and return independent placements and clamp rows. */
-    evaluate: (
-      pose: IAutoMovieHumanPose,
-      clamp: boolean,
-      selection?: ISelection,
-    ) => Skeleton.IProjection;
-
-    /** Compile and admit a nonempty fixed set of existing bone identities once. */
-    select: (bones: readonly string[]) => ISelection;
-  }
-
   /**
    * Compile neutral anatomy once. Projections only omit unused output and branch
    * work: the channel/clamp law and quaternion operation order are identical.
@@ -39,31 +27,38 @@ export namespace AutoMovieHumanPreparedKinematics {
    * nor earlier public snapshots can be overwritten by subsequent trials.
    */
   export function prepare(
-    joints: Centres.IJoint[],
-    neutral: Neutral.IOutput,
+    joints: IAutoMovieHumanJointCentres.IJoint[],
+    neutral: IAutoMovieHumanNeutral.IOutput,
     scale: number,
     mmScale: number,
-  ): IPrepared {
-    const byBone: Map<string, Centres.IJoint> = new Map(
-      joints.map((joint: Centres.IJoint): [string, Centres.IJoint] => [
-        joint.bone,
-        joint,
-      ]),
+  ): IAutoMovieHumanPreparedKinematics.IPrepared {
+    const byBone: Map<string, IAutoMovieHumanJointCentres.IJoint> = new Map(
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+        ): [string, IAutoMovieHumanJointCentres.IJoint] => [joint.bone, joint],
+      ),
     );
     const indices: Map<string, number> = new Map(
-      joints.map((joint: Centres.IJoint, index: number): [string, number] => [
-        joint.bone,
-        index,
-      ]),
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+          index: number,
+        ): [string, number] => [joint.bone, index],
+      ),
     );
-    const directions: Map<string, M.Vector> = new Map(
-      joints.map((joint: Centres.IJoint): [string, M.Vector] => [
-        joint.bone,
-        M.unit(M.sub(joint.toward, joint.position)),
-      ]),
+    const directions: Map<string, AutoMovieVector3Tuple> = new Map(
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+        ): [string, AutoMovieVector3Tuple] => [
+          joint.bone,
+          M.unit(M.sub(joint.toward, joint.position)),
+        ],
+      ),
     );
     const bones: IBone[] = joints.map(
-      (joint: Centres.IJoint): IBone => ({
+      (joint: IAutoMovieHumanJointCentres.IJoint): IBone => ({
         joint,
         parent: joint.parent === null ? undefined : indices.get(joint.parent)!,
         offset:
@@ -100,7 +95,9 @@ export namespace AutoMovieHumanPreparedKinematics {
     );
 
     return {
-      select: (names: readonly string[]): ISelection => {
+      select: (
+        names: readonly string[],
+      ): IAutoMovieHumanPreparedKinematics.ISelection => {
         if (names.length === 0)
           throw new Error("Human FK projection requires existing bones");
         const output: Set<string> = new Set(names);
@@ -122,10 +119,10 @@ export namespace AutoMovieHumanPreparedKinematics {
       evaluate: (
         input: IAutoMovieHumanPose,
         clamp: boolean,
-        selection?: ISelection,
-      ): Skeleton.IProjection => {
+        selection?: IAutoMovieHumanPreparedKinematics.ISelection,
+      ): IAutoMovieHumanPoseProjection => {
         const rig: Map<string, Record<string, number>> = new Map();
-        const clamped: Skeleton.IClamp[] = [];
+        const clamped: IAutoMovieHumanPoseClamp[] = [];
         for (const { row, path, bone, parts, sign } of channels) {
           const requested: number | undefined = read(input, parts);
           if (requested === undefined) continue;
@@ -172,9 +169,10 @@ export namespace AutoMovieHumanPreparedKinematics {
           const arm: string = `${side}UpperArm`;
           const r: Record<string, number> | undefined = rig.get(arm);
           if (r === undefined) continue;
-          const a: M.IAxes = bones[indices.get(arm)!]!.axes;
-          const direction: M.Vector = directions.get(arm)!;
-          const raised: M.Vector = M.rotate(
+          const a: IAutoMovieHumanSkeletonMath.IAxes =
+            bones[indices.get(arm)!]!.axes;
+          const direction: AutoMovieVector3Tuple = directions.get(arm)!;
+          const raised: AutoMovieVector3Tuple = M.rotate(
             M.multiply(
               M.multiply(
                 M.fromAxisAngle(a.twist, r.twist ?? 0),
@@ -199,11 +197,11 @@ export namespace AutoMovieHumanPreparedKinematics {
           rig.get("leftUpperLeg")?.flexion ?? 0,
           rig.get("rightUpperLeg")?.flexion ?? 0,
         );
-        const posed: Skeleton.IPlacement[] = [];
+        const posed: IAutoMovieHumanBonePlacement[] = [];
         for (const index of selection?.work ?? all) {
           const compiled: IBone = bones[index]!;
-          const j: Centres.IJoint = compiled.joint;
-          const a: M.IAxes = compiled.axes;
+          const j: IAutoMovieHumanJointCentres.IJoint = compiled.joint;
+          const a: IAutoMovieHumanSkeletonMath.IAxes = compiled.axes;
           const r: Record<string, number> | undefined = rig.get(j.bone);
           const flexion: number = r?.flexion ?? 0;
           const abduction: number = r?.abduction ?? 0;
@@ -215,12 +213,12 @@ export namespace AutoMovieHumanPreparedKinematics {
             ? (rig.get(j.parent!)?.twist ?? 0)
             : 0;
           const tilt: number = compiled.parent === undefined ? pelvicTilt : 0;
-          const back: M.Quaternion | undefined =
+          const back: AutoMovieQuaternionTuple | undefined =
             compiled.parent === undefined
               ? undefined
               : locals[compiled.parent]?.back;
           const cached: ILocal | undefined = locals[index];
-          let local: M.Quaternion;
+          let local: AutoMovieQuaternionTuple;
           if (
             cached &&
             cached.flexion === flexion &&
@@ -235,13 +233,19 @@ export namespace AutoMovieHumanPreparedKinematics {
           )
             local = cached.rotation;
           else {
-            const qf: M.Quaternion = M.fromAxisAngle(a.flexion, flexion);
-            const qa: M.Quaternion = M.fromAxisAngle(a.abduction, abduction);
-            const qt: M.Quaternion = M.fromAxisAngle(
+            const qf: AutoMovieQuaternionTuple = M.fromAxisAngle(
+              a.flexion,
+              flexion,
+            );
+            const qa: AutoMovieQuaternionTuple = M.fromAxisAngle(
+              a.abduction,
+              abduction,
+            );
+            const qt: AutoMovieQuaternionTuple = M.fromAxisAngle(
               a.twist,
               twist * (compiled.lowerArm ? 1 - Neutral.WRIST_TWIST : 1),
             );
-            const own: M.Quaternion = compiled.lowerArm
+            const own: AutoMovieQuaternionTuple = compiled.lowerArm
               ? M.multiply(M.multiply(qa, qf), qt)
               : M.multiply(M.multiply(qt, qa), qf);
             local = compiled.hand
@@ -253,9 +257,9 @@ export namespace AutoMovieHumanPreparedKinematics {
                   own,
                 )
               : own;
-            let returned: M.Quaternion | undefined;
+            let returned: AutoMovieQuaternionTuple | undefined;
             if (lift !== undefined) {
-              const raised: M.Quaternion = M.multiply(
+              const raised: AutoMovieQuaternionTuple = M.multiply(
                 M.multiply(qt, M.fromAxisAngle(a.abduction, abduction + lift)),
                 qf,
               );
@@ -272,7 +276,7 @@ export namespace AutoMovieHumanPreparedKinematics {
             )
               local = M.multiply(back, local);
             if (tilt > 0) {
-              const turned: M.Quaternion = M.multiply(
+              const turned: AutoMovieQuaternionTuple = M.multiply(
                 M.fromAxisAngle(a.flexion, -tilt),
                 local,
               );
@@ -296,7 +300,7 @@ export namespace AutoMovieHumanPreparedKinematics {
               back: returned,
             };
           }
-          const parent: Skeleton.IPlacement | undefined =
+          const parent: IAutoMovieHumanBonePlacement | undefined =
             compiled.parent === undefined
               ? undefined
               : worlds[compiled.parent]!.placement;
@@ -306,12 +310,12 @@ export namespace AutoMovieHumanPreparedKinematics {
             previous.local !== local ||
             previous.parent !== parent
           ) {
-            const shifted: M.Vector = [
+            const shifted: AutoMovieVector3Tuple = [
               compiled.offset[0] + forward * mmScale,
               compiled.offset[1],
               compiled.offset[2] + lateral * mmScale,
             ];
-            const placement: Skeleton.IPlacement =
+            const placement: IAutoMovieHumanBonePlacement =
               parent === undefined
                 ? {
                     bone: j.bone,
@@ -368,16 +372,16 @@ interface IChannel {
 /** Compiled fixed anatomical metadata for a parent-before-child joint. */
 interface IBone {
   /** Neutral anatomical centre and direction. */
-  joint: Centres.IJoint;
+  joint: IAutoMovieHumanJointCentres.IJoint;
 
   /** Parent index; undefined identifies the root. */
   parent: number | undefined;
 
   /** Neutral parent-relative offset in source millimetres. */
-  offset: M.Vector;
+  offset: AutoMovieVector3Tuple;
 
   /** Existing registered clinical axes. */
-  axes: M.IAxes;
+  axes: IAutoMovieHumanSkeletonMath.IAxes;
 
   /** Forearm twist is shared with its hand. */
   lowerArm: boolean;
@@ -416,28 +420,28 @@ interface ILocal {
   tilt: number;
 
   /** Parent girdle's return quaternion, compared component by component. */
-  incoming: M.Quaternion | undefined;
+  incoming: AutoMovieQuaternionTuple | undefined;
 
   /** Local neutral-relative rotation. */
-  rotation: M.Quaternion;
+  rotation: AutoMovieQuaternionTuple;
 
   /** This girdle's own return rotation for its child. */
-  back: M.Quaternion | undefined;
+  back: AutoMovieQuaternionTuple | undefined;
 }
 
 /** Exact local/parent identity reuses both world and bind-composed arithmetic. */
 interface IWorld {
   /** Private immutable local quaternion identity. */
-  local: M.Quaternion;
+  local: AutoMovieQuaternionTuple;
 
   /** Private immutable parent placement identity. */
-  parent: Skeleton.IPlacement | undefined;
+  parent: IAutoMovieHumanBonePlacement | undefined;
 
   /** Private world position and neutral-relative rotation. */
-  placement: Skeleton.IPlacement;
+  placement: IAutoMovieHumanBonePlacement;
 
   /** Same placement rotation composed with the fixed bind-to-neutral turn. */
-  bound: M.Quaternion;
+  bound: AutoMovieQuaternionTuple;
 }
 
 /** Clavicle share of Inman's scapulohumeral rhythm, degrees per elevated arm degree. */
@@ -451,8 +455,8 @@ const EASE: number = 10;
 
 /** Match the old scalar key's zero equivalence without allocating a joined string. */
 function sameBack(
-  a: M.Quaternion | undefined,
-  b: M.Quaternion | undefined,
+  a: AutoMovieQuaternionTuple | undefined,
+  b: AutoMovieQuaternionTuple | undefined,
 ): boolean {
   return (
     a === b ||
@@ -466,7 +470,7 @@ function sameBack(
 }
 
 /** Arm elevation from the downward plumb line, preserving the original rhythm law. */
-function fromVertical(direction: M.Vector): number {
+function fromVertical(direction: AutoMovieVector3Tuple): number {
   return (Math.acos(Math.max(-1, Math.min(1, -direction[1]))) * 180) / Math.PI;
 }
 

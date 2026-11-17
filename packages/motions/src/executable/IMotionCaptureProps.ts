@@ -1,7 +1,9 @@
-import type { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IMotionCaptureOverlays } from "../capture/IMotionCaptureOverlays";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieMotionHumanMotionCaptureOverlays,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One motion case as the draw page receives it: everything the page needs to draw the case, computed in Node where the case is built and judged, and handed over as JSON before the page loads.
@@ -13,7 +15,7 @@ import type { IMotionCaptureOverlays } from "../capture/IMotionCaptureOverlays";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Written by `planMotionCaptureProps`, read by `subjects` and `markMotionCaptureCase`; verdicts and metrics stay in Node, in the record's section.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses Human's canonical body and the interface's pose and vector; that every performer has one pose per second is kept by the writer.
  */
-export interface IMotionCaptureProps extends IMotionCaptureOverlays {
+export interface IMotionCaptureProps extends IAutoMovieMotionHumanMotionCaptureOverlays {
   /** The case's name, which is the subject's name. */
   name: string;
 
@@ -42,7 +44,11 @@ export interface IMotionCaptureProps extends IMotionCaptureOverlays {
   })[];
 
   /** Static boxes the figures meet, such as a bag or a seat: centre and half extents, metres. */
-  boxes: { centre: IAutoMovieVector3; half: IAutoMovieVector3; color: number }[];
+  boxes: {
+    centre: IAutoMovieVector3;
+    half: IAutoMovieVector3;
+    color: number;
+  }[];
 }
 export namespace IMotionCaptureProps {
   /**
@@ -58,7 +64,7 @@ export namespace IMotionCaptureProps {
     id: string;
 
     /** The canonical body drawn. */
-    body: AutoMovieHumanCanonicalBody.IBody;
+    body: IAutoMovieHumanCanonicalBody.IBody;
 
     /** sRGB hex colour of every part, or null for clay. */
     color: number | null;

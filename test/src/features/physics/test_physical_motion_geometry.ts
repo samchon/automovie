@@ -1,8 +1,10 @@
-import {
-  AutoMovieMotionAudit as Audit,
-  type AutoMoviePhysicsCache as Cache,
-} from "@automovie/engine";
-import type { IAutoMovieMotionGeometry as Geometry } from "@automovie/interface";
+import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
+import type {
+  IAutoMovieMotionGeometry as Geometry,
+  IAutoMovieMotionAudit,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
+} from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -34,13 +36,15 @@ export async function test_physical_motion_geometry(): Promise<void> {
     joints: [],
     witnesses: ["observed-origin"],
   };
-  const state: (x: number) => Cache.ISegment = (x: number): Cache.ISegment => ({
+  const state: (x: number) => IAutoMoviePhysicalSegmentState = (
+    x: number,
+  ): IAutoMoviePhysicalSegmentState => ({
     position: { x, y: 1, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     velocity: { x: 0, y: 0, z: 0 },
     angularVelocity: { x: 0, y: 0, z: 0 },
   });
-  const input: Audit.IInput = {
+  const input: IAutoMovieMotionAudit.IInput = {
     bodies: [
       {
         id: "observed",
@@ -68,7 +72,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
     end: 0,
     rate: 120,
     floor: 0,
-    sample: (): Cache.IFrame => ({
+    sample: (): IAutoMoviePhysicalFrame => ({
       seconds: 0,
       bodies: {
         observed: {
@@ -145,7 +149,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
         {
           ...input.bodies[0]!,
           profile: PhysicalFixtures.sphere(),
-        } as Audit.IBody,
+        } as IAutoMovieMotionAudit.IBody,
       ],
     }),
     /body/,
@@ -165,7 +169,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
   await assert.rejects(
     Audit.run({
       ...input,
-      sample: (): Cache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: { observed: { first: state(1), second: state(2) } },
       }),
@@ -175,7 +179,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
   await assert.rejects(
     Audit.run({
       ...input,
-      sample: (): Cache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: {
           observed: {

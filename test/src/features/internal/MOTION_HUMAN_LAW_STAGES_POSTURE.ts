@@ -1,20 +1,19 @@
 import { createKeyboard } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
-import {
-  type HumanChain,
-  HumanObject,
-  type IHumanBody,
-  type IHumanProp,
-  seated,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+import { HumanObject, seated } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
 
 /** A keyboard whose home row stands at standing elbow height a forearm and half a hand ahead of the shoulders, its typist's side toward the body. */
-const keyboard = (a: IHumanBody): IHumanProp => {
+const keyboard = (a: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp => {
   const board: ReturnType<typeof createKeyboard> = createKeyboard({
     kind: "keyboard",
   });
@@ -42,7 +41,7 @@ const keyboard = (a: IHumanBody): IHumanProp => {
 };
 
 /** A chair under the body: its popliteal height, 0.1 m behind the heels. */
-const seat = (a: IHumanBody): object => ({
+const seat = (a: IAutoMovieMotionHumanBody): object => ({
   at: {
     x: 0,
     y: seated.popliteal(a),
@@ -53,7 +52,10 @@ const seat = (a: IHumanBody): object => ({
 });
 
 /** Sitting down on the chair for half a second. */
-const sitting = (a: IHumanBody, params: object = {}): HumanChain =>
+const sitting = (
+  a: IAutoMovieMotionHumanBody,
+  params: object = {},
+): IAutoMovieMotionHumanChain =>
   S.chain().act("sit", { seat: seat(a), seconds: 0.5, ...params });
 
 /**
@@ -81,7 +83,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
 > = {
   look: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -92,7 +94,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   gesture: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const region: string | undefined = pick("region");
     const kind: string =
@@ -111,7 +113,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
   },
   rest: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const place: string | undefined = pick("place");
     return S.solo(
@@ -124,7 +126,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
   },
   brace: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -135,7 +137,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   bend: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const strategy: string | undefined = pick("strategy");
     const side: string | undefined = pick("side");
@@ -158,7 +160,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
   },
   crouch: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -166,7 +168,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   kneel: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -174,12 +176,12 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   lieDown: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("lieDown", S.set(pick, "position"))),
   support: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -210,7 +212,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   getUp: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -220,7 +222,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   sit: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -233,16 +235,16 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     ),
   shift: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, sitting(a).act("shift", { by: 0.12 })),
   rise: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => S.solo(a, sitting(a).act("rise", {})),
   typeText: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,

@@ -1,11 +1,16 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -39,9 +44,10 @@ export function motionRowVerdicts(
   name: motionHumanBody.Name,
   half: 1 | 2,
 ): string {
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const body: IHumanBody = motionHumanBody(name);
-  const performance: HumanPerformance = new HumanPerformance({
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws,
     performers: [
@@ -59,7 +65,7 @@ export function motionRowVerdicts(
   });
   const rate: number = 24;
   const middle: number = Math.round((performance.duration / 2) * rate) / rate;
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
     performance,
     rate,
     half === 1
@@ -72,7 +78,7 @@ export function motionRowVerdicts(
     performance.bones("a", 0.1),
   )
     .map(
-      (pair: AutoMovieMotionHumanAuditTangle.IPair): string =>
+      (pair: IAutoMovieMotionHumanAuditTangle.IPair): string =>
         `${pair.a} in ${pair.b} ${(pair.depth * 1000).toFixed(1)} mm`,
     )
     .join(", ");

@@ -1,13 +1,19 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieCompileSweepFeatureOutput,
+  type IAutoMovieCompileSweepGuideOutput,
+  type IAutoMovieParameterizeSweepSection,
+  IAutoMovieQuaternion,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepOrientation,
+  type IAutoMovieSweepPath,
+  type IAutoMovieSweepSection,
+  type IAutoMovieSweepSurface,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
-import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
-import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
 import { compileAutoMovieSweepGuide } from "./compileAutoMovieSweepGuide";
@@ -188,12 +194,10 @@ export const compileAutoMovieSweep: (
             ),
           0,
         ) / Math.max(1, radii.length * DIRECTIONS);
-  const features: ReturnType<typeof compileAutoMovieSweepFeature>[] = (
+  const features: IAutoMovieCompileSweepFeatureOutput[] = (
     sweep.features ?? []
   ).map(
-    (
-      f: IAutoMovieSweep.IFeature,
-    ): ReturnType<typeof compileAutoMovieSweepFeature> =>
+    (f: IAutoMovieSweep.IFeature): IAutoMovieCompileSweepFeatureOutput =>
       compileAutoMovieSweepFeature(f, {
         length: path.length,
         // the sweep's mean station radius, which spaces a feature's knots in metres
@@ -352,9 +356,8 @@ export const compileAutoMovieSweep: (
     step: STEP,
     loops: byParameter ? loops.length : 1,
     feature: (index: number, t: number): { u: number; v: number } => {
-      const feature:
-        | ReturnType<typeof compileAutoMovieSweepFeature>
-        | undefined = features[index];
+      const feature: IAutoMovieCompileSweepFeatureOutput | undefined =
+        features[index];
       if (feature === undefined)
         throw new Error(`sweep has no feature ${index}`);
       return feature.point(t);
@@ -407,7 +410,7 @@ function compileLoop(
         throw new Error(
           `sweep station ${k} loop ${loop} must be a polygon of ${count} corners like station 0, or a curve like it`,
         );
-      const curve: ReturnType<typeof parameterizeAutoMovieSweepSection> =
+      const curve: IAutoMovieParameterizeSweepSection.IResult =
         parameterizeAutoMovieSweepSection(section);
       return Array.from(
         { length: count },
@@ -444,7 +447,7 @@ function compileLoop(
 }
 
 /** One compiled silhouette guide. */
-type ICompiledGuide = ReturnType<typeof compileAutoMovieSweepGuide>;
+type ICompiledGuide = IAutoMovieCompileSweepGuideOutput;
 
 /**
  * Correct a row of section radii by the guides, the Gordon surface's guide term less its tensor term.

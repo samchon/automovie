@@ -3,11 +3,11 @@ import type {
   IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieModelPart,
+  IAutoMovieRigLocalTransform,
 } from "@automovie/interface";
 import {
   AutoMovieSkinnedMesh,
   type IAutoMovieModelObject,
-  type IAutoMovieRigLocalTransform,
   applyAutoMovieRigLocals,
   buildModel,
   collectAutoMovieOwnedResources,

@@ -6,9 +6,8 @@ import {
   IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieServiceSystem,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
-
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 const DISCIPLINES: readonly AutoMovieServiceDiscipline[] = [
   "plumbing",
@@ -83,12 +82,12 @@ const MEDIUM_UNITS: Record<
 export function appendServiceNetworkSystems(
   network: IAutoMovieServiceNetwork,
   root: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   positive: (
     value: number,
     path: string,
     label: string,
-    out: ViolationCollector,
+    out: IAutoMovieViolationCollector,
   ) => void,
 ): void {
   network.systems.forEach(

@@ -1,11 +1,19 @@
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import {
+  AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanChannel as HumanChannels,
+} from "./AutoMovieMotionHumanChannel";
 
 /**
  * An action composed of part primitives over a base.
@@ -45,8 +53,8 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains base/clock/primitives, masks/mergers and stable readers only. Each query owns up to 512*(P+1)*T posture references for its actual T seconds, without global history or arbitrary eviction. Every ordinary or changed-loan query finally restores enclosing map/FK/projector on success/throw; failed writes publish nothing and retained readers capture no completed map or loan.
  */
 export function composeAutoMovieMotionHumanAction(
-  props: composeAutoMovieMotionHumanAction.IProps,
-): IHumanActionPlan {
+  props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
+): IAutoMovieMotionHumanActionPlan {
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
@@ -55,7 +63,7 @@ export function composeAutoMovieMotionHumanAction(
   ): number =>
     Math.min(
       ...p.channels.map((c: AutoMovieMotionHumanChannel): number =>
-        AutoMovieMotionHumanChannel.ORDER.indexOf(c),
+        HumanChannels.ORDER.indexOf(c),
       ),
     );
   const primitives: IAutoMovieMotionHumanPrimitive[] = props.primitives
@@ -103,22 +111,22 @@ export function composeAutoMovieMotionHumanAction(
           fix: "give one of the two movements another body part or another time",
         });
     }
-  const contacts: IHumanContactWindow[] = [
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [
     ...props.base.contacts,
     ...primitives.flatMap(
-      (p: IAutoMovieMotionHumanPrimitive): readonly IHumanContactWindow[] =>
+      (p: IAutoMovieMotionHumanPrimitive): readonly IAutoMovieMotionHumanContactWindow[] =>
         p.contacts ?? [],
     ),
   ];
-  const weapons: IHumanActionPlan.IWeapon[] = [
+  const weapons: IAutoMovieMotionWeaponPath[] = [
     ...(props.base.weapons ?? []),
     ...primitives.flatMap(
       (
         p: IAutoMovieMotionHumanPrimitive,
-      ): readonly IHumanActionPlan.IWeapon[] => p.weapons ?? [],
+      ): readonly IAutoMovieMotionWeaponPath[] => p.weapons ?? [],
     ),
   ];
-  const base: IHumanActionPlan = props.base;
+  const base: IAutoMovieMotionHumanActionPlan = props.base;
 
   /** Completed demanded prefixes at each exact second of one evaluation: the first second read and its prefixes, and every other second's prefixes in `later`, made when a second one is read. */
   interface Evaluation {
@@ -126,10 +134,10 @@ export function composeAutoMovieMotionHumanAction(
     seconds: number | undefined;
 
     /** That second's completed prefixes by prefix and demand. */
-    first: Map<number, IHumanPosture> | undefined;
+    first: Map<number, IAutoMovieMotionHumanPosture> | undefined;
 
     /** Every other second's completed prefixes, the map `Map`'s own key equality finds a second in. */
-    later: Map<number, Map<number, IHumanPosture>> | undefined;
+    later: Map<number, Map<number, IAutoMovieMotionHumanPosture>> | undefined;
   }
 
   /** Fixed-claim posture merge retained by each primitive's plan. */
@@ -139,7 +147,7 @@ export function composeAutoMovieMotionHumanAction(
   type Resolution = Parameters<typeof prepareHumanPoseResolution>[0];
 
   /** Genuine direct ROM metadata borrowed with the same synchronous query. */
-  type Projection = Parameters<IHumanActionPlan["posture"]>[3];
+  type Projection = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
 
   // Nine owned channels fit in one integer. A write may replace a channel
   // without reading it; only its declared prerequisites propagate backward.
@@ -175,11 +183,11 @@ export function composeAutoMovieMotionHumanAction(
         channels?: readonly AutoMovieMotionHumanChannel[],
         source?: Resolution,
         projector?: Projection,
-      ): IHumanPosture =>
+      ): IAutoMovieMotionHumanPosture =>
         scope === undefined || (source !== undefined && source !== resolution) ||
           (projector !== undefined && projector !== projection)
           ? evaluate(
-              (current: Evaluation): IHumanPosture =>
+              (current: Evaluation): IAutoMovieMotionHumanPosture =>
                 so(index, seconds, current, channels === undefined ? all : mask(channels)),
               source ?? resolution,
               projector ?? projection,
@@ -198,7 +206,7 @@ export function composeAutoMovieMotionHumanAction(
     duration,
     events: props.clock.events(),
     contacts,
-    channels: AutoMovieMotionHumanChannel.ORDER.filter(
+    channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
           p.channels.includes(c),
@@ -213,7 +221,7 @@ export function composeAutoMovieMotionHumanAction(
     ...(base.stop === undefined
       ? {}
       : {
-          stop: (events: readonly IHumanActionPlan.IContactEvent[]): void =>
+          stop: (events: readonly IAutoMovieMotionWeaponContact[]): void =>
             base.stop!(events),
         }),
     posture: (
@@ -221,9 +229,9 @@ export function composeAutoMovieMotionHumanAction(
       channels?: readonly AutoMovieMotionHumanChannel[],
       source?: Resolution,
       projector?: Projection,
-    ): IHumanPosture =>
+    ): IAutoMovieMotionHumanPosture =>
       evaluate(
-        (current: Evaluation): IHumanPosture =>
+        (current: Evaluation): IAutoMovieMotionHumanPosture =>
           so(primitives.length, seconds, current, channels === undefined ? all : mask(channels)),
         source,
         projector,
@@ -253,7 +261,7 @@ export function composeAutoMovieMotionHumanAction(
   function mask(channels: readonly AutoMovieMotionHumanChannel[]): number {
     let result: number = 0;
     for (const channel of channels)
-      result |= 1 << AutoMovieMotionHumanChannel.ORDER.indexOf(channel);
+      result |= 1 << HumanChannels.ORDER.indexOf(channel);
     return result;
   }
 
@@ -263,12 +271,12 @@ export function composeAutoMovieMotionHumanAction(
     seconds: number,
     current: Evaluation,
     demand: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const t: number = Math.min(duration, Math.max(0, seconds));
 
     // One evaluation reads one second, apart from a primitive that reads its
     // prefix at others: the first second's prefixes stand in the scope itself.
-    let postures: Map<number, IHumanPosture> | undefined;
+    let postures: Map<number, IAutoMovieMotionHumanPosture> | undefined;
     if (current.first === undefined) {
       postures = new Map();
       current.seconds = t;
@@ -277,7 +285,7 @@ export function composeAutoMovieMotionHumanAction(
       // The same second as a `Map` key is: equal, or both not a number.
       postures = current.first;
     else {
-      const later: Map<number, Map<number, IHumanPosture>> = (current.later ??= new Map());
+      const later: Map<number, Map<number, IAutoMovieMotionHumanPosture>> = (current.later ??= new Map());
       postures = later.get(t);
       if (postures === undefined) {
         postures = new Map();
@@ -285,15 +293,15 @@ export function composeAutoMovieMotionHumanAction(
       }
     }
     const key: number = index * width + demand;
-    const known: IHumanPosture | undefined =
+    const known: IAutoMovieMotionHumanPosture | undefined =
       postures.get(key) ?? postures.get(index * width + all);
     if (known !== undefined) return known;
     if (index === 0) {
-      const initial: IHumanPosture = base.posture(
+      const initial: IAutoMovieMotionHumanPosture = base.posture(
         t,
         demand === all
           ? undefined
-          : AutoMovieMotionHumanChannel.ORDER.filter(
+          : HumanChannels.ORDER.filter(
               (_: AutoMovieMotionHumanChannel, index: number): boolean =>
                 (demand & (1 << index)) !== 0,
             ),
@@ -316,7 +324,7 @@ export function composeAutoMovieMotionHumanAction(
           ? dependency(Math.min(p.to, Math.max(p.from, t)))
           : dependency)
       : demand;
-    let posture: IHumanPosture = so(previous, t, current, needed);
+    let posture: IAutoMovieMotionHumanPosture = so(previous, t, current, needed);
     if (contributes)
       posture = mergers[previous]!(
         posture,
@@ -324,29 +332,5 @@ export function composeAutoMovieMotionHumanAction(
       );
     postures.set(key, posture);
     return posture;
-  }
-}
-/**
- * Companion types of {@link composeAutoMovieMotionHumanAction}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what `IProps` is composed of; each member states its meaning and its constraint.
- * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One interface of four members; contacts and weapons come from the base and the primitives and are not stated a second time.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
- */
-export namespace composeAutoMovieMotionHumanAction {
-  /** What an action is composed of. */
-  export interface IProps {
-    /** The plan whose posture the unclaimed channels keep; as long as the clock. */
-    base: IHumanActionPlan;
-
-    /** The action's clock: its duration and its events. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The part primitives, in any order. */
-    primitives: readonly IAutoMovieMotionHumanPrimitive[];
-
-    /** The clock instant that is the action's decisive instant, when it has one. */
-    contact?: string;
   }
 }

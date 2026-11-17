@@ -1,5 +1,5 @@
-import { AutoMovieSubjectReviewDescription } from "./AutoMovieSubjectReviewDescription";
-import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
+import type { IAutoMovieSubjectReviewDescription } from "./IAutoMovieSubjectReviewDescription";
+import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 
 /**
  * Resolved review unit for one compiled subject.
@@ -17,7 +17,7 @@ export interface IAutoMovieSubjectReviewUnit {
   target: IAutoMovieSubjectReviewTarget;
 
   /** Compiled description and revision that define the unit. */
-  description: AutoMovieSubjectReviewDescription;
+  description: IAutoMovieSubjectReviewDescription;
 
   /** Viewpoint authority, fixed to the inspection rather than the work. */
   viewpointOwner: "inspection";

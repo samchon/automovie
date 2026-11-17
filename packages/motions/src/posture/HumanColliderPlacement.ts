@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   physicalHullFaces,
@@ -7,11 +6,15 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * Profile placement and the existing per-body neutral mirrored metadata.
@@ -23,24 +26,8 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed names/offsets, first-observed reflected shapes and current posed frames, with their transform convention and unchanged-body cache ownership.
  */
 export namespace HumanColliderPlacement {
-  /**
-   * One profile segment placed by its current resolved bone.
-   *
-   * @evidence contracts/development/design.md#principled-representation Couples a canonical bone name, world-metre segment pose and its shape definitions, whose local transforms compose with that pose.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Collider distance/bounds and floor candidate readers consume exactly these three fields through the existing HumanColliders.IPlaced alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the actual current bone transform and ordered profile geometry; no nearest answer or previous posed frame is represented.
-   * @evidence contracts/development/common.md#meaningful-documentation States frame, metre units, local-shape composition and borrowed geometry.
-   */
-  export interface IPlaced {
-    /** The resolved rig bone carrying this segment. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Current world segment frame, including its neutral offset and turn. */
-    pose: P.ITransform;
-
-    /** Existing neutral shape definitions, borrowed without mutation. */
-    shapes: readonly P.IShape[];
-  }
+  /** One placed collider segment: the interface contract (`IAutoMovieMotionHumanColliders.IPlaced`). */
+  export type IPlaced = IAutoMovieMotionHumanColliders.IPlaced;
 
   /**
    * Place the profile in its original order, skipping absent posed bones.
@@ -58,7 +45,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/common.md#meaningful-documentation Defines current-input stability, canonical placement, mirror/skip order, cold and warm costs and ownership.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IPlaced[] {
     return place(sided(body).segments, bones);
@@ -80,7 +67,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one callback and R borrowed immutable neutral entries until its fixed-demand operation ends. Temporary name indexing releases after binding; no bone map, placed frame or query history is retained, and the established neutral-body cache keeps its weak lifetime.
    */
   export function preparePlaced(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IPlaced[] {
     const names: Set<string> = new Set();
@@ -104,7 +91,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four temporary O(S) arrays end on return/throw, and only a scalar escapes. No bone map, posed frame or floor result is cached.
    */
   export function lowest(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
     return minima(sided(body).segments, bones)[0]!;
@@ -124,7 +111,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns selected neutral references and O(K) private name/index metadata until its operation ends. Each call releases staging and returns G fresh numbers; no body, input set, bone map, posed frame or result history is retained by the binder.
    */
   export function prepareMinima(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[],
   ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => number[] {
     if (groups === undefined) return bindMinima(sided(body).segments);
@@ -161,7 +148,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Introduces no new cache population: the moved neutral WeakMap and hull owner's existing cache keep their established body/points lifetimes.
    * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, traversal order, delegated geometry cost and absence of posed-result retention.
    */
-  export function prepare(body: IHumanBody): void {
+  export function prepare(body: IAutoMovieMotionHumanBody): void {
     for (const segment of sided(body).segments)
       for (const shape of segment.shapes)
         if (shape.kind === "hull") physicalHullFaces(shape.points);
@@ -179,7 +166,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged-body neutral cache owns names and offsets; each mirrored shape list is separately materialized only when geometry is observed. Any body/profile change requires a new body under the established cache contract.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak body entry retains at most B canonical names with its neutral segment list, released with that body; callers borrow the set and no posed result/history is retained.
    */
-  export function bones(body: IHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
+  export function bones(body: IAutoMovieMotionHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
     return sided(body).bones;
   }
 }
@@ -211,8 +198,8 @@ function minima(
   const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
   const names: AutoMovieHumanoidBone[] = [];
   const positions: number[] = [];
-  const rotations: P.ITransform["rotation"][] = [];
-  const shapes: (readonly P.IShape[])[] = [];
+  const rotations: IAutoMovieRigidTransform["rotation"][] = [];
+  const shapes: (readonly IAutoMoviePhysicalShape[])[] = [];
   for (const segment of segments) {
     const posed: IAutoMovieResolvedBone | undefined = byName.get(segment.bone);
     if (posed === undefined) continue;
@@ -220,7 +207,7 @@ function minima(
     const origin: IAutoMovieVector3 = posed.worldPosition;
     const offset: number = Quaternion.rotateVectorY(posed.worldRotation, segment.offset);
     const position: number = origin.y + offset;
-    const rotation: P.ITransform["rotation"] = Quaternion.multiply(posed.worldRotation, segment.rotation);
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(posed.worldRotation, segment.rotation);
     names.push(name);
     positions.push(position);
     rotations.push(rotation);
@@ -279,14 +266,14 @@ interface ISided {
   offset: IAutoMovieVector3;
 
   /** Original neutral rotation. */
-  rotation: P.ITransform["rotation"];
+  rotation: IAutoMovieRigidTransform["rotation"];
 
   /** Original shapes, or one lazy median-reflected list on first actual geometry observation. */
-  shapes: P.IShape[];
+  shapes: IAutoMoviePhysicalShape[];
 }
 
 /** The existing neutral list cache, moved with its sole owner; no posed frame is stored. */
-const SIDED: WeakMap<IHumanBody, INeutral> = new WeakMap();
+const SIDED: WeakMap<IAutoMovieMotionHumanBody, INeutral> = new WeakMap();
 
 /** Existing neutral records and the exact canonical names their placement consumes. */
 interface INeutral {
@@ -295,11 +282,11 @@ interface INeutral {
 }
 
 /** Read unchanged neutral data, lazily indexing first profile names in original scan order. */
-function sided(body: IHumanBody): INeutral {
+function sided(body: IAutoMovieMotionHumanBody): INeutral {
   const known: INeutral | undefined = SIDED.get(body);
   if (known !== undefined) return known;
   const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
-  const own: (segment: P.ISegment) => ISided | null = (segment: P.ISegment): ISided | null => {
+  const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (segment: IAutoMoviePhysicalSegment): ISided | null => {
     const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
     return rest === undefined
       ? null
@@ -310,13 +297,13 @@ function sided(body: IHumanBody): INeutral {
           shapes: segment.shapes,
         };
   };
-  const first: Map<string, P.ISegment> = new Map();
+  const first: Map<string, IAutoMoviePhysicalSegment> = new Map();
   let scanned: number = 0;
-  const twin: (name: string) => P.ISegment | undefined = (name: string): P.ISegment | undefined => {
-    const found: P.ISegment | undefined = first.get(name);
+  const twin: (name: string) => IAutoMoviePhysicalSegment | undefined = (name: string): IAutoMoviePhysicalSegment | undefined => {
+    const found: IAutoMoviePhysicalSegment | undefined = first.get(name);
     if (found !== undefined) return found;
     while (scanned < body.profile.segments.length) {
-      const segment: P.ISegment = body.profile.segments[scanned++]!;
+      const segment: IAutoMoviePhysicalSegment = body.profile.segments[scanned++]!;
       const bone: string = segment.bone;
       if (!first.has(bone)) first.set(bone, segment);
       if (bone === name) return segment;
@@ -325,7 +312,7 @@ function sided(body: IHumanBody): INeutral {
   };
   const out: ISided[] = [];
   for (const segment of body.profile.segments) {
-    const mirroredFrom: P.ISegment | undefined = segment.bone.startsWith("left")
+    const mirroredFrom: IAutoMoviePhysicalSegment | undefined = segment.bone.startsWith("left")
       ? twin(`right${segment.bone.slice(4)}`)
       : undefined;
     const read: ISided | null = own(mirroredFrom ?? segment);
@@ -348,17 +335,17 @@ function sided(body: IHumanBody): INeutral {
 
 /** Fixed offsets turn immediately; pure shape reflection waits for actual geometry demand. */
 function mirrored(segment: ISided, bone: string): ISided {
-  let shapes: P.IShape[] | undefined;
+  let shapes: IAutoMoviePhysicalShape[] | undefined;
   return {
     bone,
     offset: mirrorPoint(segment.offset),
     rotation: mirrorTurn(segment.rotation),
 
     /** Materialize this actual left collider list once; failed preparation stays uncached. */
-    get shapes(): P.IShape[] {
+    get shapes(): IAutoMoviePhysicalShape[] {
       if (shapes !== undefined) return shapes;
-      shapes = segment.shapes.map((shape: P.IShape): P.IShape => {
-        const transform: P.ITransform = {
+      shapes = segment.shapes.map((shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+        const transform: IAutoMovieRigidTransform = {
           position: mirrorPoint(shape.transform.position),
           rotation: mirrorTurn(shape.transform.rotation),
         };
@@ -377,6 +364,6 @@ function mirrorPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
 }
 
 /** M R M keeps quaternion X/W and negates Y/Z, without changing normalization. */
-function mirrorTurn(rotation: P.ITransform["rotation"]): P.ITransform["rotation"] {
+function mirrorTurn(rotation: IAutoMovieRigidTransform["rotation"]): IAutoMovieRigidTransform["rotation"] {
   return { x: rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w };
 }

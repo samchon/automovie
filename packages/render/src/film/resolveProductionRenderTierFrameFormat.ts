@@ -5,9 +5,9 @@ import {
 import type {
   IAutoMovieProductionDesign,
   IAutoMovieProductionFrameRate,
+  IAutoMovieProductionRenderTier,
 } from "@automovie/interface";
 
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
 
 /**

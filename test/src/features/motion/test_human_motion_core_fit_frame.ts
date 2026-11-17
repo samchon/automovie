@@ -1,17 +1,15 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,14 +52,14 @@ export function test_human_motion_core_fit_frame(): void {
     };
   };
   const reaching = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
     yaw: number,
     pivoting: boolean,
-  ): IHumanPosture => {
-    const base: IHumanPosture = stand.posture(body, at, yaw);
+  ): IAutoMovieMotionHumanPosture => {
+    const base: IAutoMovieMotionHumanPosture = stand.posture(body, at, yaw);
     const reach: number = 0.8 * (body.measure.upperArm + body.measure.forearm);
-    const goal: IHumanPosture.IGoal = {
+    const goal: IAutoMovieHumanLimbGoal = {
       point: turn(
         {
           x: -0.25,
@@ -89,7 +87,7 @@ export function test_human_motion_core_fit_frame(): void {
     return { ...base, limbs: { ...base.limbs, rightArm: goal } };
   };
   const world = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, pose);
@@ -100,7 +98,7 @@ export function test_human_motion_core_fit_frame(): void {
     ["m-average", true],
     ["f-small", true],
   ] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const first: IAutoMoviePose = resolveHumanPosture(
       body,

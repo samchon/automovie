@@ -1,16 +1,17 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanJumpAirborne,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { jumpState } from "./jumpState";
 
 /**
@@ -29,25 +30,6 @@ import type { jumpState } from "./jumpState";
  */
 export namespace jumpAirborne {
   /**
-   * A flight's requested turns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, sign and default.
-   * @evidence contracts/development/design.md#principled-representation Turns about the somersault and long axes and the way, as the author writes them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `turning`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The way is a closed union.
-   */
-  export interface IRotation {
-    /** Somersault turns, whole or half; 0 when absent. */
-    somersault?: number & tags.Minimum<0> & HumanUnit<"">;
-
-    /** Twist turns, signed; 0 when absent. */
-    twist?: number & HumanUnit<"">;
-
-    /** Which way the somersault turns; `forward` when absent. */
-    way?: "forward" | "backward" | "left" | "right";
-  }
-
-  /**
    * What the airborne shape is drawn from.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
@@ -57,7 +39,7 @@ export namespace jumpAirborne {
    */
   export interface IShape {
     /** The body whose hip height scales the existing free-foot arch. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The foot that pushed off. */
     takeoff: "left" | "right";
@@ -91,7 +73,7 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two knee and H pole readers holding copied scalar terms until released; H is the supplied finite array length, with no query-driven growth. Every call returns fresh vectors and retains no body, input root or previous pole.
    */
   export function knee(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     heading: number,
     poleHeadings: readonly number[] = [],
   ): (root: IAutoMovieVector3, side: "left" | "right", yaw: number) => IAutoMovieVector3 {
@@ -152,7 +134,7 @@ export namespace jumpAirborne {
     const fromToe: number = fixed.start.joints[toe]?.[0] ?? 0;
     const toeDelta: number = (fixed.end.joints[toe]?.[0] ?? 0) - fromToe;
     const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
-    const frame: HumanFrame.IFrame = { origin: fixed.start.root, yaw: heading };
+    const frame: IAutoMovieMotionHumanFrame = { origin: fixed.start.root, yaw: heading };
     const points: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
       left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.point, fixed.end.legs.left.point),
       right: HumanFrame.prepareLerp(frame, fixed.start.legs.right.point, fixed.end.legs.right.point),
@@ -165,9 +147,9 @@ export namespace jumpAirborne {
       left: Quaternion.prepareSlerp(fixed.start.legs.left.rotation, fixed.end.legs.left.rotation),
       right: Quaternion.prepareSlerp(fixed.start.legs.right.rotation, fixed.end.legs.right.rotation),
     };
-    const posture: (root: IAutoMovieVector3, u: number) => IHumanPosture = (root: IAutoMovieVector3, u: number): IHumanPosture => {
+    const posture: (root: IAutoMovieVector3, u: number) => IAutoMovieMotionHumanPosture = (root: IAutoMovieVector3, u: number): IAutoMovieMotionHumanPosture => {
       const s: number = minimumJerk.share(u);
-      const joints: IHumanPosture["joints"] = { ...fixed.start.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...fixed.start.joints };
       for (const track of tracks)
         joints[track.bone] = [
           track.from[0] + track.delta[0] * s,
@@ -175,7 +157,7 @@ export namespace jumpAirborne {
           track.from[2] + track.delta[2] * s,
         ];
       joints[toe] = [fromToe + toeDelta * s, 0, 0];
-      const limbs: IHumanPosture["limbs"] = {};
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const arch: number = archHeight * Math.sin(Math.PI * u);
       for (const side of ["left", "right"] as const) {
         const point: IAutoMovieVector3 = points[side](s, root, arch);
@@ -201,7 +183,7 @@ export namespace jumpAirborne {
    */
   export interface IPrepared {
     /** Original actual world target at a root and normalized flight share. */
-    (root: IAutoMovieVector3, u: number): IHumanPosture;
+    (root: IAutoMovieVector3, u: number): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -214,7 +196,7 @@ export namespace jumpAirborne {
    */
   export interface ITurning {
     /** The plan's flight members, none for a flight with no turns. */
-    declared: Pick<IHumanActionPlan, "flight" | "airborne">;
+    declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
 
     /**
      * A posture in flight with the rotation handed back, unchanged before
@@ -232,7 +214,7 @@ export namespace jumpAirborne {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses exactly the rotation supplied by the real performance flight pass.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its existing handed-back reader; each call preserves unchanged posture identity or returns one new record with no added global state.
      */
-    turned(posture: IHumanPosture, seconds: number): IHumanPosture;
+    turned(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -255,7 +237,7 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one rotation the pass hands back, for as long as the plan.
    */
   export function turning(
-    rotation: IRotation | undefined,
+    rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
     takeoff: number,
     touchdown: number,
     duration: number,
@@ -265,8 +247,8 @@ export namespace jumpAirborne {
     const twist: number = rotation?.twist ?? 0;
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
-    let rotated: ((seconds: number) => IHumanPosture.IRotation) | null = null;
-    const declared: Pick<IHumanActionPlan, "flight" | "airborne"> =
+    let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null = null;
+    const declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne"> =
       somersault === 0 && twist === 0
         ? {}
         : {
@@ -288,14 +270,14 @@ export namespace jumpAirborne {
               },
             },
             airborne: (
-              handed: (seconds: number) => IHumanPosture.IRotation,
+              handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
               rotated = handed;
             },
           };
     return {
       declared,
-      turned: (posture: IHumanPosture, t: number): IHumanPosture =>
+      turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
         rotated === null || t <= takeoff || t >= touchdown
           ? posture
           : HumanPosturePreparation.turned(posture, rotated(t)),

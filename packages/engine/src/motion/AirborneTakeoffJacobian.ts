@@ -1,5 +1,6 @@
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -30,7 +31,7 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned numeric rows escape; input angles, axes and tangent arrays are read without mutation and no cache is held.
  */
 export function AirborneTakeoffJacobian(
-  end: solveAirborneTakeoff.IAngles,
+  end: IAutoMovieSolveAirborneTakeoff.IAngles,
   axes: IAutoMovieQuaternion,
   variations: readonly IAutoMovieVector3[],
 ): number[][] {

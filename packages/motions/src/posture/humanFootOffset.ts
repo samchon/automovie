@@ -1,7 +1,13 @@
-import { Quaternion, Vector3, type resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
+import {
+  Quaternion,
+  Vector3,
+  type resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Read a sole point in ankle-local metres with its actual toe articulation.
@@ -21,14 +27,14 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A caller-owned reader retains one bounded joint/socket description until released with its action; the private axis has module lifetime. No body-keyed cache, pose, query angle/result history, handle or task is retained.
  */
 export function humanFootOffset(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   point: "heel" | "ball" | "toe" | "sole" | "mtp",
   toes: number = 0,
 ): IAutoMovieVector3 {
   const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   if (point === "mtp") return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
-  const socket: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
+  const socket: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
   if (socket.bone === `${side}Foot`) return socket.point;
   const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
   return articulated(joint, socket.point, toes);
@@ -50,7 +56,7 @@ export namespace humanFootOffset {
    * the caller releases this bounded reader with its action; no query is stored.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
   ): (toes: number) => IAutoMovieVector3 {
@@ -59,7 +65,7 @@ export namespace humanFootOffset {
       const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
       return (_toes: number): IAutoMovieVector3 => ({ ...joint });
     }
-    const socket: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
+    const socket: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
     if (socket.bone === `${side}Foot`) return (_toes: number): IAutoMovieVector3 => socket.point;
     const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
     return (toes: number): IAutoMovieVector3 => articulated(joint, socket.point, toes);

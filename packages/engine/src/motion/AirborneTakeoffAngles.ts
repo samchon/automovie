@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -41,7 +43,7 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 export function AirborneTakeoffAngles(
   into: IAutoMovieQuaternion,
   q: IAutoMovieQuaternion,
-): solveAirborneTakeoff.IAngles {
+): IAutoMovieSolveAirborneTakeoff.IAngles {
   const m: IAutoMovieQuaternion = Quaternion.multiply(into, q);
   const long: IAutoMovieVector3 = Quaternion.rotateVector(m, LONGITUDINAL);
   const tilt: number = -Math.asin(Math.max(-1, Math.min(1, long.x)));
@@ -86,9 +88,9 @@ export namespace AirborneTakeoffAngles {
    * Only current numeric angles survive each read; no history is retained.
    */
   export function unwrapped(
-    flight: integrateAirborneRotation.IFlight,
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     frame: IAutoMovieQuaternion,
-  ): solveAirborneTakeoff.IAngles {
+  ): IAutoMovieSolveAirborneTakeoff.IAngles {
     const into: IAutoMovieQuaternion = Quaternion.inverse(frame);
     let somersault: number = 0;
     let twist: number = 0;
@@ -97,7 +99,7 @@ export namespace AirborneTakeoffAngles {
     const count: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
     for (let k: number = 0; k < count; k++) {
       const seconds: number = k === count - 1 ? flight.t1 : flight.t0 + k * step;
-      const angles: solveAirborneTakeoff.IAngles = AirborneTakeoffAngles(into, flight.orientation(seconds));
+      const angles: IAutoMovieSolveAirborneTakeoff.IAngles = AirborneTakeoffAngles(into, flight.orientation(seconds));
       somersault = angles.somersault + 2 * Math.PI * Math.round((somersault - angles.somersault) / (2 * Math.PI));
       twist = angles.twist + 2 * Math.PI * Math.round((twist - angles.twist) / (2 * Math.PI));
       tilt = angles.tilt;

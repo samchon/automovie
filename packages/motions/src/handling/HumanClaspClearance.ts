@@ -1,7 +1,18 @@
-import { type IAutoMovieResolvedBone, Vector3, Quaternion, type curlChainUntilContact } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  type curlChainUntilContact,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import { HumanGrip } from "./HumanGrip";
@@ -47,11 +58,11 @@ export namespace HumanClaspClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged candidate pose/body/side determines these segments; the synchronous pair search releases them before any input can change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fifteen segment records, held only by the current pair search and released with its candidate arrays; no global cache or history exists.
    */
-  export function digits(body: IHumanBody,
+  export function digits(body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
   ): readonly IPhalanx[] {
-    return placedDigits(bones, (digit: HumanGrip.Digit): curlChainUntilContact.IChain =>
+    return placedDigits(bones, (digit: IAutoMovieMotionHumanGrip.Digit): IAutoMovieCurlChainUntilContact.IChain =>
       HumanGrip.chain(body, side, digit));
   }
 
@@ -66,11 +77,11 @@ export namespace HumanClaspClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/profile/side establish chain equivalence; no current bone map, segment result or pair verdict is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases at most five fresh chain/name/tip records with its synchronous search. Fresh segment arrays borrow each actual map's joint positions and retain no producer or body; no global history or handle exists.
    */
-  export function prepareDigits(body: IHumanBody, side: HumanHand.Side):
+  export function prepareDigits(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide):
     (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => readonly IPhalanx[] {
-    const chains: Map<HumanGrip.Digit, curlChainUntilContact.IChain> = new Map();
-    const chain: (digit: HumanGrip.Digit) => curlChainUntilContact.IChain = (digit: HumanGrip.Digit): curlChainUntilContact.IChain => {
-      let current: curlChainUntilContact.IChain | undefined = chains.get(digit);
+    const chains: Map<IAutoMovieMotionHumanGrip.Digit, IAutoMovieCurlChainUntilContact.IChain> = new Map();
+    const chain: (digit: IAutoMovieMotionHumanGrip.Digit) => IAutoMovieCurlChainUntilContact.IChain = (digit: IAutoMovieMotionHumanGrip.Digit): IAutoMovieCurlChainUntilContact.IChain => {
+      let current: IAutoMovieCurlChainUntilContact.IChain | undefined = chains.get(digit);
       if (current === undefined) {
         current = HumanGrip.chain(body, side, digit);
         chains.set(digit, current);
@@ -92,9 +103,9 @@ export namespace HumanClaspClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate readbacks and ordered closure use the same required-name owner, without storing any pose or solution.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh name set without retaining body, pose, reader, history or handle.
    */
-  export function bones(side: HumanHand.Side): ReadonlySet<AutoMovieHumanoidBone> {
+  export function bones(side: AutoMovieHumanSide): ReadonlySet<AutoMovieHumanoidBone> {
     return new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`,
-      ...HumanGrip.CLOSING.power.flatMap((digit: HumanGrip.Digit): AutoMovieHumanoidBone[] => HumanGrip.bones(side, digit))]);
+      ...HumanGrip.CLOSING.power.flatMap((digit: IAutoMovieMotionHumanGrip.Digit): AutoMovieHumanoidBone[] => HumanGrip.bones(side, digit))]);
   }
 
   /**
@@ -108,9 +119,9 @@ export namespace HumanClaspClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, profile and candidate's forearm frame remain unchanged through this synchronous pair search; distinct forearm candidates get separate readers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search releases the one-bone subset and lazy distance reader with its candidate arrays; no queried segment or result is retained.
    */
-  export function forearm(body: IHumanBody,
+  export function forearm(body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
   ): ReturnType<typeof HumanColliders.reading> {
     const bone: AutoMovieHumanoidBone = `${side}LowerArm`;
     return HumanColliders.reading(body, new Map([[bone, bones.get(bone)!]]));
@@ -139,10 +150,10 @@ export namespace HumanClaspClearance {
 
 /** Place every original capsule from its current frames, preserving cold admission order. */
 function placedDigits(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  chainAt: (digit: HumanGrip.Digit) => curlChainUntilContact.IChain): readonly HumanClaspClearance.IPhalanx[] {
+  chainAt: (digit: IAutoMovieMotionHumanGrip.Digit) => IAutoMovieCurlChainUntilContact.IChain): readonly HumanClaspClearance.IPhalanx[] {
   const out: HumanClaspClearance.IPhalanx[] = [];
   for (const digit of HumanGrip.CLOSING.power) {
-    const chain: curlChainUntilContact.IChain = chainAt(digit);
+    const chain: IAutoMovieCurlChainUntilContact.IChain = chainAt(digit);
     const count: number = chain.bones.length;
     for (let index: number = 0; index < count; ++index) {
       const bone: AutoMovieHumanoidBone = chain.bones[index]!;

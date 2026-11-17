@@ -1,20 +1,25 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelSeed,
-  type IFitChainToTargetProps,
   fitHingedChainAt,
   readHingedChainSeed,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
 /**
@@ -56,10 +61,10 @@ export namespace HumanLimbAt {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     swivel: number,
     branch: number,
   ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
@@ -68,8 +73,8 @@ export namespace HumanLimbAt {
     const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, goal, []);
     const left: boolean = limb.startsWith("left");
     const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
-    const chain: IHumanPosture.Limb = left ? HumanLimbMirror.limb(limb) : limb;
-    const carried: IHumanPosture.IGoal = HumanLimbFit.world(
+    const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
+    const carried: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
       body, image, chain, left ? HumanLimbMirror.goal(goal) : goal);
     HumanLimbView.admitted(body, pose);
     const posed: (IAutoMovieSeededChainFit & { shortfall: number }) | null =
@@ -98,9 +103,9 @@ export namespace HumanLimbAt {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
+    limb: AutoMovieHumanLimb,
   ): IAutoMovieSwivelSeed | null {
     // Read on the records the chain's frames depend on (`HumanLimbView`), a
     // left limb's in their mirror image; the whole pose is admitted first.
@@ -108,7 +113,7 @@ export namespace HumanLimbAt {
     const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, NOWHERE, []);
     const left: boolean = limb.startsWith("left");
     const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
-    const side: IHumanPosture.Limb = left ? HumanLimbMirror.limb(limb) : limb;
+    const side: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(side);
     const end: IAutoMovieResolvedBone | undefined =
       poseBones(body, image, undefined, new Set([chain.effector])).get(chain.effector);
@@ -127,18 +132,18 @@ export namespace HumanLimbAt {
 }
 
 /** A goal that rides no bone, for a reading that has none: only its absent attachment is read. */
-const NOWHERE: IHumanPosture.IGoal = {
+const NOWHERE: IAutoMovieHumanLimbGoal = {
   point: { x: 0, y: 0, z: 0 },
   bend: { x: 0, y: 0, z: 0 },
 };
 
 /** The fit's own request for a limb toward a world goal. */
 function request(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  limb: IHumanPosture.Limb,
-  goal: Pick<IHumanPosture.IGoal, "point" | "bend" | "rotation">,
-): IFitChainToTargetProps {
+  limb: AutoMovieHumanLimb,
+  goal: Pick<IAutoMovieHumanLimbGoal, "point" | "bend" | "rotation">,
+): IAutoMovieFitChainToTargetProps {
   return {
     skeleton: body.skeleton,
     pose,

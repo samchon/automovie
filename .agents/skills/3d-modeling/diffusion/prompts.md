@@ -1,6 +1,6 @@
 # Text prompts
 
-A text prompt is the weakest hint. Use it alone only when no image or shape describes the subject, and beside them only as far as the model's guide asks, since some guides say to omit it for image-to-3D. Beside an image, give only what the image lacks, such as materials, style and the unseen sides, because a long prompt dilutes the image.
+A text prompt is the weakest hint. Use it alone only when no image or shape describes the subject, and beside them only as far as the model's guide asks, since some guides say to omit it for image-to-3D. Beside an image, give only what the image lacks, such as materials and the unseen sides, because a long prompt dilutes the image.
 
 Describe the subject, then its materials, its style and any technical constraint, most important detail first, unless the model's guide sets another order. Name shape, material and scale concretely: a vague prompt such as "a box" fails, and more words do not help. Leave out contradictions, mood words and long lists of materials.
 

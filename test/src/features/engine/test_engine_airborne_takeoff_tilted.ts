@@ -1,14 +1,17 @@
 import {
   Quaternion,
   Vector3,
-  type IAutoMovieResolvedBone,
   integrateAirborneRotation,
   type resolveAutoMovieCenterOfMass,
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -48,12 +51,12 @@ export function test_engine_airborne_takeoff_tilted(): void {
     y: 0,
     z: 0,
   });
-  const history: integrateAirborneRotation.IHistory =
-    (): integrateAirborneRotation.IInstant => ({
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
+    (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
       inertia: { moments: { x: 1, y: 2, z: 3 }, rotation: principal },
       relative: { x: 0, y: 0, z: 0 },
     });
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 1,
     segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 1, y: 2, z: 3 }, axes: identity }],
@@ -64,10 +67,10 @@ export function test_engine_airborne_takeoff_tilted(): void {
     ]),
   );
   const observe: (
-    flight: integrateAirborneRotation.IFlight,
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     q0: IAutoMovieQuaternion,
   ) => { winding: number; landing: number } = (
-    flight: integrateAirborneRotation.IFlight,
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     q0: IAutoMovieQuaternion,
   ): { winding: number; landing: number } => {
     let winding: number = 0;
@@ -95,11 +98,11 @@ export function test_engine_airborne_takeoff_tilted(): void {
     Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 97),
   ])
     for (const adaptive of [false, true]) {
-      const selected: integrateAirborneRotation.IHistory = adaptive && q0 === identity ? native : history;
+      const selected: IAutoMovieIntegrateAirborneRotation.IHistory = adaptive && q0 === identity ? native : history;
       const precision: NonNullable<
-        integrateAirborneRotation.IProps["tolerance"]
+        IAutoMovieIntegrateAirborneRotation.IProps["tolerance"]
       > = { relative: 0.005, absolute: 0 };
-      const known: integrateAirborneRotation.IFlight =
+      const known: IAutoMovieIntegrateAirborneRotation.IFlight =
         integrateAirborneRotation({
           history: selected,
           t0: 0,
@@ -111,7 +114,7 @@ export function test_engine_airborne_takeoff_tilted(): void {
           ),
           ...(adaptive ? { tolerance: precision } : {}),
         });
-      const solved: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+      const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
         history: selected,
         t0: 0,
         t1: 1,

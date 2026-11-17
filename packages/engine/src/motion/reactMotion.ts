@@ -4,10 +4,10 @@ import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMoviePose,
+  type IAutoMovieRecoilPush,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
 import { impactRecoil } from "../physics/impactRecoil";
 
 /**

@@ -1,6 +1,10 @@
 import { derivePhysicalProfile } from "@automovie/engine";
 import type {
   IAutoMovieModel,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -50,14 +54,14 @@ export namespace PhysicalModelFixtures {
     const component: (
       bone: string,
       dimensions: [number, number, number],
-      position: P.ITransform["position"],
+      position: IAutoMovieRigidTransform["position"],
       density: number,
-    ) => P.ISegment = (
+    ) => IAutoMoviePhysicalSegment = (
       bone: string,
       dimensions: [number, number, number],
       position: IAutoMovieVector3,
       density: number,
-    ): P.ISegment => {
+    ): IAutoMoviePhysicalSegment => {
       const model: IAutoMovieModel = makeProp([
         primitivePart(bone, {
           type: "box",
@@ -88,15 +92,15 @@ export namespace PhysicalModelFixtures {
         neutral: { position, rotation: { x: 0, y: 0, z: 0, w: 1 } },
       };
     };
-    const root: P.ISegment = component(
+    const root: IAutoMoviePhysicalSegment = component(
       "body",
       [0.7, 0.2, 0.6],
       { x: 0, y: 1.05, z: 0 },
       4 / (0.7 * 0.2 * 0.6),
     );
-    const supports: P.ISegment[] = Array.from(
+    const supports: IAutoMoviePhysicalSegment[] = Array.from(
       { length: 4 },
-      (_: unknown, index: number): P.ISegment[] => {
+      (_: unknown, index: number): IAutoMoviePhysicalSegment[] => {
         const x: number = index < 2 ? 0.35 : -0.35;
         const z: number = index % 2 === 0 ? 0.3 : -0.3;
         return [
@@ -121,11 +125,11 @@ export namespace PhysicalModelFixtures {
         ];
       },
     ).flat();
-    const segments: P.ISegment[] = [root, ...supports];
-    const joints: P.IJoint[] = supports.map(
-      (segment: (typeof supports)[number]): P.IJoint => {
+    const segments: IAutoMoviePhysicalSegment[] = [root, ...supports];
+    const joints: IAutoMoviePhysicalJoint[] = supports.map(
+      (segment: (typeof supports)[number]): IAutoMoviePhysicalJoint => {
         const index: string = segment.bone.split("-")[1]!;
-        const parent: P.ISegment = segments.find(
+        const parent: IAutoMoviePhysicalSegment = segments.find(
           (candidate: (typeof segments)[number]): boolean =>
             candidate.bone ===
             (segment.bone.startsWith("upper")
@@ -156,7 +160,7 @@ export namespace PhysicalModelFixtures {
             rotation: { x: 0, y: 0, z: 0, w: 1 },
           },
           axes: (["x", "z"] as const).map(
-            (axis: "x" | "z"): P.IAxis => ({
+            (axis: "x" | "z"): IAutoMoviePhysicalJointAxis => ({
               axis,
               minimum: -1.5,
               maximum: 1.5,

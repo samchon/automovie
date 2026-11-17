@@ -1,3 +1,5 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { distalEndSwivelReadings } from "./distalEndSwivelReadings";
 import { swivelArcs } from "./swivelArcs";
@@ -36,14 +38,14 @@ export function distalEndSwivelArcs(
     /** How far past a bound, in sine or projected units, a reading must lie to be refused; negative keeps the result strictly inside. */
     margin: number;
   },
-): swivelArcs.IArc[] | "all" | null {
+): IAutoMovieSwivelArcs.IArc[] | "all" | null {
   const read: distalEndSwivelReadings.IReadings | null = distalEndSwivelReadings.of(props);
   if (read === null) return null;
   const { onFlexion, onAbduction, onTwist }: distalEndSwivelReadings.IReadings = read;
 
-  const arcs: swivelArcs.IArc[] = [];
-  const refuse = (f: swivelArcs.ISinusoid): boolean => {
-    const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(f, props.margin);
+  const arcs: IAutoMovieSwivelArcs.IArc[] = [];
+  const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(f, props.margin);
     if (arc === "all") return true;
     if (arc !== null) arcs.push(arc);
     return false;
@@ -53,7 +55,7 @@ export function distalEndSwivelArcs(
   // a quarter turn either way.
   if (read.abduction !== null) {
     const [lo, hi]: readonly [number, number] = read.abduction;
-    const sine: swivelArcs.ISinusoid = swivelArcs.scaled(onFlexion, -1);
+    const sine: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.scaled(onFlexion, -1);
     if (hi < 90 && refuse({ ...sine, a: sine.a - Math.sin(hi * Quaternion.DEG2RAD) })) return "all";
     if (lo > -90 && refuse(swivelArcs.scaled({ ...sine, a: sine.a - Math.sin(lo * Quaternion.DEG2RAD) }, -1)))
       return "all";

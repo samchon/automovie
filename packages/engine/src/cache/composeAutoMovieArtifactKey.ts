@@ -1,5 +1,6 @@
+import type { IAutoMovieArtifactKey } from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import type { IAutoMovieArtifactKey } from "./IAutoMovieArtifactKey";
 
 /**
  * Hash one stage's complete key record into a `sha256:` cache key.
@@ -23,7 +24,9 @@ import type { IAutoMovieArtifactKey } from "./IAutoMovieArtifactKey";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned string outlives the call.
  * @evidence contracts/development/common.md#meaningful-documentation States the canonical text, order independence, format invalidation and the output form.
  */
-export function composeAutoMovieArtifactKey(key: IAutoMovieArtifactKey): string {
+export function composeAutoMovieArtifactKey(
+  key: IAutoMovieArtifactKey,
+): string {
   return autoMovieRenderDigest(
     JSON.stringify([
       FORMAT,

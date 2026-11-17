@@ -1,14 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -37,14 +42,14 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props and at most one fifteen-entry finger writer. Its current source target is an invocation local; no posture, world target/rotation, time, curl, weight or completed goal/finger result is retained.
    */
   export function move(
-    props: AutoMovieMotionHumanArmTarget.IMove,
+    props: IAutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
-    let shaped: { side: HumanHand.Side; shape: HumanHand.Shape;
+    let shaped: { side: AutoMovieHumanSide; shape: IAutoMovieMotionHumanHand.Shape;
       write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter> } | undefined;
-    const fingers: (joints: IHumanPosture["joints"], side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+    const fingers: (joints: IAutoMovieMotionHumanPosture["joints"], side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape, curl: number,
       weight: number) => void =
-      (joints: IHumanPosture["joints"], side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+      (joints: IAutoMovieMotionHumanPosture["joints"], side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape, curl: number,
         weight: number): void => {
         if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
           shaped = { side, shape, write: AutoMovieMotionHumanHand.prepareFingerWriter(side, shape) };
@@ -54,18 +59,18 @@ export namespace AutoMovieMotionHumanArmMove {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number,
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
-        projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3]): IHumanPosture => {
-        const target: AutoMovieMotionHumanArmTarget.ITarget = props.target(
+        resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+        projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3]): IAutoMovieMotionHumanPosture => {
+        const target: IAutoMovieMotionHumanArmTarget.ITarget = props.target(
           posture,
           seconds,
           resolution,
           projection,
         );
         const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        const placed: AutoMovieMotionHumanArmTarget.ITarget =
+        const placed: IAutoMovieMotionHumanArmTarget.ITarget =
           s >= 1
             ? target
             : {
@@ -87,7 +92,7 @@ export namespace AutoMovieMotionHumanArmMove {
                   s,
                 ),
               };
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
         fingers(joints, props.side, target.shape, target.curl ?? 0, s);
         return {
           ...posture,
@@ -109,8 +114,8 @@ export namespace AutoMovieMotionHumanArmMove {
    * right, less its part along the path; a path that runs sideways bows up.
    */
   const bowed = (
-    posture: Pick<IHumanPosture, "yaw">,
-    side: HumanHand.Side,
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
+    side: AutoMovieHumanSide,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     share: number,
@@ -161,12 +166,12 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and at most one constant-size fixed-window reader until release, with no progress/time/result history.
    */
   export function reach(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    from: AutoMovieMotionHumanArmTarget.IOrigin,
-    target: AutoMovieMotionHumanArmTarget.Frame,
+    from: IAutoMovieMotionHumanArmTarget.IOrigin,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
     const progress: (seconds: number) => number = progressOn(clock, window);
     return move({
@@ -200,11 +205,11 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its original arguments and move's fixed shape metadata, with no sampled target or time history.
    */
   export function hold(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    target: AutoMovieMotionHumanArmTarget.Frame,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
     return move({
       body,
@@ -238,12 +243,12 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and one lazy constant-size interval reader until release, with no progress, target or time history.
    */
   export function retract(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    target: AutoMovieMotionHumanArmTarget.Frame,
-    to: AutoMovieMotionHumanArmTarget.IOrigin,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
+    to: IAutoMovieMotionHumanArmTarget.IOrigin,
   ): IAutoMovieMotionHumanPrimitive {
     const progress: (seconds: number) => number = progressOn(clock, window);
     return move({
@@ -260,7 +265,7 @@ export namespace AutoMovieMotionHumanArmMove {
 }
 
 /** Share numeric metadata only for current names; legacy borrowed windows stay live. */
-function progressOn(clock: AutoMovieMotionClock.IClock, window: readonly [string, string]):
+function progressOn(clock: IAutoMovieMotionClock, window: readonly [string, string]):
   (seconds: number) => number {
   let current: { from: string; to: string; read: ReturnType<typeof AutoMovieMotionClock.prepare> } | undefined;
   return (seconds: number): number => {

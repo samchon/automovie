@@ -1,12 +1,15 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +41,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPickUpLift(name: motionHumanBody.Name): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
@@ -48,7 +51,7 @@ export function motionPickUpLift(name: motionHumanBody.Name): void {
     y: 0.9 * body.measure.hipHeight,
     z: 0.35,
   };
-  const perform = (lift: number): HumanPerformance =>
+  const perform = (lift: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "lift",
       props: [HumanObject.prop("glass", glass, { at, yaw: 0 })],
@@ -72,8 +75,8 @@ export function motionPickUpLift(name: motionHumanBody.Name): void {
 
   // 1. What is asked is done.
   try {
-    const film: HumanPerformance = perform(0.1);
-    const pick: HumanSegment.ISegment = film.segments("a")[0]!;
+    const film: IAutoMovieMotionHumanPerformance = perform(0.1);
+    const pick: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
     const lifted: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "lifted")?.share ??

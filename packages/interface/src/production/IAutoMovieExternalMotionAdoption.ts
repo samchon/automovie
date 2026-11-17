@@ -1,6 +1,6 @@
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
-import { IAutoMovieExternalMotionAdoptionMode } from "./IAutoMovieExternalMotionAdoptionMode";
-import { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalMotionMappingEntry";
+import type { IAutoMovieExternalMotionAdoptionMode } from "./IAutoMovieExternalMotionAdoptionMode";
+import type { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalMotionMappingEntry";
 
 /**
  * User-owned decision to adopt one external motion take in one shot.

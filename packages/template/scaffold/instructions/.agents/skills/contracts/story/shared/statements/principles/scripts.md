@@ -1,7 +1,5 @@
 # Script statements
 
-Contract: [principles/scripts.md](../../principles/scripts.md).
-
 ## Executable scene
 
 Execution:
@@ -12,12 +10,12 @@ Execution:
 4. Blocks follow meaningful changes of action, response, process, time, space, form or view.
 5. Speakers are separated, and interruption, silence and simultaneous action sit beside the operation they change.
 6. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their repeated patterns.
-7. Consequential questions, lies, bargains, refusals, interruptions and silences have the actual words, tactics, actions and reactions that change choice, knowledge, power or relationship.
+7. Consequential questions, lies, bargains, refusals, interruptions and silences have the words, tactics, actions and reactions that change choice, knowledge, power or relationship.
 8. Delivery is specified where tone, volume, pace or interruption changes meaning.
 9. Movement, objects, environment, physical limits and time that affect the exchange are included.
-10. Preparation, interaction, response and resulting state are executable, with no isolated pose and no result the next author must invent.
-11. An observational, ritual, nonhuman or formal process has its actual operation, not an invented conflict.
-12. No redundant explanation or incidental instruction conceals the decisive operation.
+10. Each action runs from its preparation to its resulting state, with no isolated pose and no result the next author must invent.
+11. An observational, ritual, nonhuman or formal process has its operation, not an invented conflict.
+12. No redundant explanation conceals the decisive operation.
 
 Staging:
 
@@ -39,7 +37,7 @@ Staging:
     - an impossible position or sightline;
     - an unsupported core appearance;
     - a habitual composition that conceals the scene's changing force.
-19. Lens numbers, music composition and inconsequential acting detail are left to production unless the work requires them.
+19. Lens numbers, music composition and other incidental instruction, such as inconsequential acting detail, are left to production unless the work requires them.
 20. A change of mood is expressed through its conditions, never by an interpretive label alone, and inner meaning through visible action, sound, or an explicitly adopted voiceover, caption or inserted form. Exception: a declared theatrical, experimental or fixed-view form expresses both in its declared notation.
-21. Each participant's knowledge, belief, doubt and error has an actual path such as speech, observation, document, silence or absence. A camera view grants a participant no knowledge.
+21. Each participant's knowledge, belief, doubt and error has a path such as speech or absence. A camera view grants a participant no knowledge.
 22. Finished realization, transitions, attention and duration are left to the final screenplay.

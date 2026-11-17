@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieInspectionSweepProps,
+  IAutoMovieInspectionSweepUnit,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
@@ -23,20 +27,9 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
-export function expandAutoMovieInspectionSweep(props: {
-  /** Drawn objects by path, with their world-space boxes in metres. */
-  objects: readonly {
-    path: string;
-    min: IAutoMovieVector3;
-    max: IAutoMovieVector3;
-  }[];
-
-  /** Path pattern of the units, under the inspection path grammar. */
-  pattern: string;
-
-  /** Distance in metres a neighbour's box may lie from the unit's box. */
-  margin: number;
-}): { unit: string; alone: string[]; neighbours: string[] }[] {
+export function expandAutoMovieInspectionSweep(
+  props: IAutoMovieInspectionSweepProps,
+): IAutoMovieInspectionSweepUnit[] {
   if (!(Number.isFinite(props.margin) && props.margin >= 0))
     throw new Error(
       `Sweep margin ${props.margin} is not a finite distance of zero or more`,

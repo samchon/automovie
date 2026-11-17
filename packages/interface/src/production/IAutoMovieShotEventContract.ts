@@ -1,4 +1,4 @@
-import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
+import type { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
  * A semantic event the shot source must realize once inside an inclusive shot-local window.

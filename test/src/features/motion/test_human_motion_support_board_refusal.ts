@@ -1,10 +1,13 @@
 import { createCart } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,10 +31,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_support_board_refusal(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const board = (speed: number): unknown => {
     try {
-      const motion = (seconds: number): HumanObject.Placement => ({
+      const motion = (
+        seconds: number,
+      ): IAutoMovieMotionHumanObject.Placement => ({
         at: { x: 0, y: 0, z: 1 + speed * seconds },
         yaw: 0,
       });

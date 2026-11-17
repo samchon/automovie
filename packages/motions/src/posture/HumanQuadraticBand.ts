@@ -1,6 +1,7 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
 import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import { HumanQuadraticPolish } from "./HumanQuadraticPolish";
 import { HumanQuadraticResiduals } from "./HumanQuadraticResiduals";
 import { HumanQuadraticRow } from "./HumanQuadraticRow";
@@ -102,10 +103,10 @@ export namespace HumanQuadraticBand {
     };
 
     /** Original index/coef layout for exceptional zero restoration; one-shot wrappers borrow admitted rows, fixed models copy only zero-bearing rows. Absence means CSR already preserves that entire original row. */
-    raw: readonly (Pick<Q.IRow, "index" | "coef"> | undefined)[];
+    raw: readonly (Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> | undefined)[];
 
     /** Lazily restored exceptional rows for this one-shot solve or fixed model; O(R) original-layout storage, excluded from prepared core and public iterates. */
-    restored?: Map<number, Pick<Q.IRow, "index" | "coef">>;
+    restored?: Map<number, Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">>;
 
     /** Each row's scaled lower end. */
     lo: Float64Array;

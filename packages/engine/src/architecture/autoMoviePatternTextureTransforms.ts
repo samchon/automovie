@@ -1,10 +1,13 @@
+import type {
+  IAutoMoviePatternPoint,
+  IAutoMoviePatternTextureSheet,
+  IAutoMoviePatternTextureTransform,
+  IAutoMoviePatternTextureTransforms,
+  IAutoMoviePatternTexturing,
+} from "@automovie/interface";
+
 import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
-import { AutoMoviePatternTextureSheet } from "./AutoMoviePatternTextureSheet";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
-import { IAutoMoviePatternTextureTransform } from "./IAutoMoviePatternTextureTransform";
-import { IAutoMoviePatternTexturing } from "./IAutoMoviePatternTexturing";
-import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /** Greatest relative skew a UV transform is still counted as free of. */
 const SHEAR_EPSILON: number = 1e-9;
@@ -53,25 +56,14 @@ const SHEAR_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map over one run's placements for one sheet; nothing coordinates work across calls, and a caller texturing several materials reuses the same run result.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned transforms and sheared ids, together bounded by the placement count.
  */
-export const autoMoviePatternTextureTransforms: (props: {
-  result: IAutoMovieSurfacePatternResult;
-  tile: { u: number; v: number };
-  sheet: AutoMoviePatternTextureSheet;
-}) => IAutoMoviePatternTexturing = (props: {
-  result: IAutoMovieSurfacePatternResult;
-  /** Metres one turn of the texture covers along its own two axes. */
-  tile: {
-    /** Metres one turn covers along the sheet's own U axis. */
-    u: number;
-    /** Metres one turn covers along the sheet's own V axis. */
-    v: number;
-  };
-  /** Where the sheet is pinned. */
-  sheet: AutoMoviePatternTextureSheet;
-}): IAutoMoviePatternTexturing => {
+export const autoMoviePatternTextureTransforms: (
+  props: IAutoMoviePatternTextureTransforms.IProps,
+) => IAutoMoviePatternTexturing = (
+  props: IAutoMoviePatternTextureTransforms.IProps,
+): IAutoMoviePatternTexturing => {
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
-  const sheet: AutoMoviePatternTextureSheet = props.sheet;
+  const sheet: IAutoMoviePatternTextureSheet = props.sheet;
   if (sheet.kind === "face")
     finitePoint(sheet.origin, "pattern texture sheet origin");
   const transforms: IAutoMoviePatternTextureTransform[] = [];

@@ -1,13 +1,13 @@
 import {
+  type IAutoMovieCurrentSubjectReviewObservation,
   IAutoMovieSubjectReviewCoverage,
+  type IAutoMovieSubjectReviewCurrentContext,
   IAutoMovieSubjectReviewTarget,
   IAutoMovieSubjectReviewUnit,
   IAutoMovieSubjectReviewViewpoint,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
-import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReviewCurrentContext";
 import { compareCodeUnits } from "./text/compareCodeUnits";
 import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATTERN";
 import { isRecord } from "./validation/isRecord";

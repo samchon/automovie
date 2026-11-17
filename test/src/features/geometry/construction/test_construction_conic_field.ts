@@ -1,19 +1,25 @@
 import {
-  AutoMovieConicArcField,
   AutoMovieConicFieldJet,
   AutoMovieViewConic,
   AutoMovieViewOutline,
   AutoMovieViewSectionField,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewOutline,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 
 import { ConstructionConicFieldBoundary } from "../../internal/construction/ConstructionConicFieldBoundary";
 import { ConstructionConicFieldOracle } from "../../internal/construction/ConstructionConicFieldOracle";
 
 /** Actual scalar station value/first/second, with the test station span one mm. */
-type Scalar = AutoMovieViewSectionField.IStationJet;
+type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /** Caller-owned preparation or its explicit refusal. */
-type Prepared = AutoMovieViewSectionField.IPrepared;
+type Prepared = IAutoMovieViewSectionField.IPrepared;
 
 /** Expected radial partials, with polar phi distinct from source p. */
 type Radial = readonly [number, number, number, number, number, number];
@@ -78,14 +84,14 @@ export function test_construction_conic_field(): void {
         });
       }
   for (const scale of [0.001, 1, 1000]) {
-    const a: AutoMovieViewOutline.IOutline = outline(
+    const a: IAutoMovieViewOutline.IOutline = outline(
       scale,
       2 * scale,
       0,
       2 * scale,
       2 * scale,
     );
-    const b: AutoMovieViewOutline.IOutline = outline(
+    const b: IAutoMovieViewOutline.IOutline = outline(
       2 * scale,
       3 * scale,
       scale,
@@ -171,7 +177,7 @@ function prepared(
   extents: readonly Scalar[],
   shoulders: readonly Scalar[],
 ): Prepared {
-  const value: Prepared | AutoMovieConicArcField.IFailure =
+  const value: Prepared | IAutoMovieConicArcField.IFailure =
     AutoMovieViewSectionField.prepare(extents, shoulders);
   if (value.kind === "failure") throw new Error(value.detail);
   return value;
@@ -181,10 +187,13 @@ function prepared(
 function radial(
   at: Prepared,
   phi: number,
-): AutoMovieViewSectionField.IRadialJet {
+): IAutoMovieViewSectionField.IRadialJet {
   const value:
-    | AutoMovieViewSectionField.IRadialJet
-    | AutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(at, phi);
+    | IAutoMovieViewSectionField.IRadialJet
+    | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+    at,
+    phi,
+  );
   if ("kind" in value) throw new Error(value.detail);
   return value;
 }
@@ -238,7 +247,7 @@ function algebra(failures: string[]): void {
     1e-12,
   );
   const E: number = Math.exp(0.7);
-  const exponential: AutoMovieConicFieldJet.IJet = [
+  const exponential: IAutoMovieConicFieldJet.IJet = [
     E,
     E,
     2 * E,
@@ -271,8 +280,8 @@ function outline(
   firstA: number,
   firstB: number,
   second: number,
-): AutoMovieViewOutline.IOutline {
-  const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+): IAutoMovieViewOutline.IOutline {
+  const curve: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "start", station: 0, value: a, jet: { first: firstA, second } },
@@ -284,8 +293,8 @@ function outline(
 }
 
 /** Read the original source owner, never fitted final phase samples. */
-function scalar(source: AutoMovieViewOutline.IOutline, s: number): Scalar {
-  const reading: AutoMovieViewOutline.IReading | string =
+function scalar(source: IAutoMovieViewOutline.IOutline, s: number): Scalar {
+  const reading: IAutoMovieViewOutline.IReading | string =
     AutoMovieViewOutline.at(source, s);
   if (typeof reading === "string") throw new Error(reading);
   if (reading.stationJet === null)
@@ -307,12 +316,13 @@ function ellipses(
   const at: Prepared = prepared([a, b, a, b], [r, r, r, r]);
   const e: number[] = [a[0], b[0], a[0], b[0]];
   const rs: number[] = [r[0], r[0], r[0], r[0]];
-  const numeric: AutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    AutoMovieConicFieldJet.NUMBER,
-    e,
-    rs,
-    AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, rs),
-  );
+  const numeric: IAutoMovieViewConic.ICurve =
+    AutoMovieViewConic.prepareGeometry(
+      AutoMovieConicFieldJet.NUMBER,
+      e,
+      rs,
+      AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, rs),
+    );
   const phases: number[] = [
     0,
     0.13,
@@ -327,7 +337,7 @@ function ellipses(
     2 * Math.PI + 0.13,
   ];
   for (const phi of phases) {
-    const value: AutoMovieViewSectionField.IRadialJet = radial(at, phi);
+    const value: IAutoMovieViewSectionField.IRadialJet = radial(at, phi);
     close(
       value,
       ConstructionConicFieldOracle.ellipse(a, b, phi),
@@ -354,7 +364,7 @@ function ellipses(
 function homothety(failures: string[]): void {
   const e: number[] = [3, 2, 4, 1];
   const r: number[] = [0.2, 0.4, 0.6, 0.3];
-  const base: AutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
+  const base: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
     AutoMovieConicFieldJet.NUMBER,
     e,
     r,
@@ -362,7 +372,7 @@ function homothety(failures: string[]): void {
   );
   const phases: number[] = [0.13, -0.21];
   for (let q: number = 0; q < 4; q++) {
-    const arc: AutoMovieViewConic.IQuarter = base.quarters[q]!;
+    const arc: IAutoMovieViewConic.IQuarter = base.quarters[q]!;
     if (arc.start !== null)
       phases.push((q * Math.PI) / 2 + 0.37 * arc.start.angle);
     if (arc.end !== null)
@@ -418,8 +428,8 @@ function copies(failures: string[]): void {
     JSON.parse(JSON.stringify(at)) as Prepared,
   ])
     compare(copy, 0.37, expected, 1, "cold value copy", failures);
-  const value: AutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
-  const ray: AutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
+  const value: IAutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
+  const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
     at.geometry,
     0.37,
   );
@@ -466,7 +476,7 @@ function costs(): void {
     [r, r, r, r],
   );
   const preparedAt: number = performance.now();
-  const first: AutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
+  const first: IAutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
   const firstAt: number = performance.now();
   let checksum: number = first[0];
   for (let i: number = 0; i < 1024; i++)

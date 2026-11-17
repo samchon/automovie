@@ -1,5 +1,5 @@
-import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
+import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * One compact compiled formation projected into subject-review identity.

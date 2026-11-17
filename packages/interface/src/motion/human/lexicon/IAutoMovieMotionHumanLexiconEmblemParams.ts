@@ -1,0 +1,114 @@
+import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
+import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
+import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+
+/**
+ * Open parameters of the emblem lexicon family, keyed by each runtime export name.
+ * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
+ * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
+ * @evidence contracts/development/design.md#principled-representation The emblem family is a closed export-name map with the exact Omit projection of each source law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the emblem row parameter map used by the family registry and schema generator.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
+ */
+export interface IAutoMovieMotionHumanLexiconEmblemParams {
+  /** The military hand salute (US Army TC 3-21.5): the forefinger's end at the right brow, the hand in line with the forearm, the upper arm level. */
+  salute: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "target" | "with" | "kind" | "side" | "elbow"
+  >;
+
+  /** Hush: the forefinger upright across the lips, its middle on them and the palm turned to the other side, so the thumb's side of the finger meets the mouth and the wrist stays near straight (provisional: the hold, the fifth of a hand the tip stands above the lips, and the twentieth of a hand, the finger's half thickness, its axis stands off them). */
+  hush: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+
+  /** Palms together ahead of the chest, as a prayer or a greeting (wai, gassho): the gesture's held meeting of the two palms. */
+  palmsTogether: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
+
+  /** A hand on the heart: the right palm on the left chest. */
+  handOnHeart: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "target" | "with" | "kind" | "side"
+  >;
+
+  /** The blown kiss's send, performed after `blownKiss`: the open hand, palm up, swept forward from the lips to a point ahead of the chin and held a moment (first pass: the point is 1.3 m above the floor and 0.45 m ahead of the performer in metres, not yet scaled to the body, provisional). */
+  blownKissSend: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "target" | "with" | "kind" | "hold"
+  >;
+
+  /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). The hand leans half way between upright and level, the fingers pointing up and back at the mouth with the palm toward the chin, so the forearm comes from below. */
+  blownKiss: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+
+  /** A facepalm: the palm over the face, the head bowed into it (15 degrees, provisional). */
+  facepalm: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+
+  /** Both hands raised in surrender. */
+  handsUp: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
+
+  /** A stop sign: the palm held out. */
+  halt: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
+
+  /** A summons: the beckoning hand. */
+  comeHere: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
+
+  /** "I do not know": the shrug with the palms turned up. */
+  dontKnow: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
+
+  /** A thumbs up: the fist held out before the shoulder, turned a quarter in its palm's plane and then aimed so the straight thumb itself stands up (it lies about 35 degrees off the knuckle line, so the quarter turn alone left it 42 degrees off). */
+  thumbsUp: Omit<
+    IAutoMovieMotionHumanGesture.IParams,
+    "kind" | "shape" | "turn" | "aim"
+  >;
+
+  /** A thumbs down: the fist ahead of the shoulder with the forearm turned over and the elbow raised outward, aimed so the straight thumb itself points down. */
+  thumbsDown: Omit<
+    IAutoMovieMotionHumanGesture.IParams,
+    "kind" | "shape" | "aim"
+  >;
+
+  /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */
+  okSign: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** The V sign: forefinger and middle finger spread, held out (first pass, provisional attitude). */
+  victorySign: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Crossed fingers, held out (first pass, provisional attitude). */
+  crossedFingers: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Counting one on the fingers, from the forefinger on (one convention; cultures differ). */
+  countOne: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Counting two on the fingers. */
+  countTwo: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Counting three on the fingers. */
+  countThree: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Counting four on the fingers. */
+  countFour: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Counting five on the fingers: the open hand. */
+  countFive: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** A shaken fist: the raised fist swung from side to side (first pass on the wave's stroke, provisional). */
+  shakeFist: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** The hand set for a finger snap: the middle fingertip on the thumb's, held out (first pass: the snap's release is not moved). */
+  fingerSnap: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** Air quotes: both hands raised with two fingers hooked (first pass on the raised hands of a cheer; the fingers do not flex twice yet). */
+  airQuotes: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "shape">;
+
+  /** A hand over the mouth, as at a gasp or a yawn. */
+  coverMouth: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "target" | "with" | "kind" | "side"
+  >;
+
+  /** Both hands over the ears. */
+  coverEars: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "target" | "other" | "with" | "kind" | "side"
+  >;
+}

@@ -1,12 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  preparePoseResolution,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import { preparePoseResolution } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionWeaponPath,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -43,21 +45,21 @@ export namespace HumanSegmentStop {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The first actual stop creates this reader; its outer evaluation releases it on return or throw. At most W distinct stop poses from that actual loop and one successful FK tuple per visited name are retained locally; singleweapon loops retain no pose map. Returned goals keep fresh numeric frame values and no reader, map, global cache or task.
    */
   export function reader(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     source?: prepareHumanSegmentPose.IPrepared,
   ): (
-    weapon: IHumanActionPlan.IWeapon,
+    weapon: IAutoMovieMotionWeaponPath,
     seconds: number,
-  ) => IHumanPosture.IGoal {
-    const body: IHumanBody = person.performer.body;
+  ) => IAutoMovieHumanLimbGoal {
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
     const shared: boolean = (segment.plan.weapons?.length ?? 0) > 1;
     let prepared: ReturnType<typeof preparePoseResolution> | undefined;
     let poses: Map<number, IAutoMoviePose> | undefined;
     return (
-      weapon: IHumanActionPlan.IWeapon,
+      weapon: IAutoMovieMotionWeaponPath,
       seconds: number,
-    ): IHumanPosture.IGoal => {
+    ): IAutoMovieHumanLimbGoal => {
       const side: "left" | "right" = weapon.limb.startsWith("left")
         ? "left"
         : "right";

@@ -1,12 +1,16 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryOperator,
+  IAutoMovieRecoveryCameraSceneAdmissionOperation,
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoveryCameraSceneInput,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraScene } from "../internal/admitRecoveryCameraScene";
 import { createRecoveryCameraScene } from "../internal/createRecoveryCameraScene";
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryOperator } from "../typings/AutoMovieRecoveryOperator";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Estimate one bounded sparse component from fixed calibrated RGB images.
@@ -20,7 +24,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  * null poses, coverage and stopReason. Supplied corrected pinhole K and rigidity
  * remain caller assertions. Keep borrowed RGB bytes stable until return.
  * Cancellation/progress are synchronous cooperative checkpoints; a blocked
- * event loop cannot deliver a later abort. Observer exceptions publish no value.
+ * event loop cannot deliver a later event-loop cancellation. Observer exceptions publish no value.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Closed image/work admission, once-observed classical features and bidirectional global tracks precede complete seed and incremental point/camera geometry. Only whole qualified transactions update one common similarity gauge.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This acquisition-free resident owner snapshots metadata and coordinates shared observations with the scene workflow; Node owns file acquisition/publication separately.
@@ -32,7 +36,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  */
 export function estimateAutoMovieRecoveryCameraScene(
   input: IAutoMovieRecoveryCameraSceneInput,
-  options: Pick<IAutoMovieRecoveryOptions, "signal" | "onProgress"> = {},
+  options: Pick<IAutoMovieRecoveryOptions, "cancelled" | "onProgress"> = {},
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryCameraSceneEstimate> {
   const operator: AutoMovieRecoveryOperator = "calibrated-camera-scene-v1";
   const cancellation: Error = new Error(
@@ -48,23 +52,30 @@ export function estimateAutoMovieRecoveryCameraScene(
       Array.isArray(options) ||
       Reflect.ownKeys(options).some(
         (key: string | symbol): boolean =>
-          key !== "signal" && key !== "onProgress",
+          key !== "cancelled" && key !== "onProgress",
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.signal !== undefined &&
-        (options.signal === null ||
-          typeof options.signal !== "object" ||
-          Array.isArray(options.signal) ||
-          typeof options.signal.aborted !== "boolean"))
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       throw new Error(
-        "invalid-camera-scene-options: only signal and synchronous progress supported",
+        "invalid-camera-scene-options: only cancellation callback and synchronous progress supported",
       );
-    const signal: AbortSignal | undefined = options.signal;
+    const probe: typeof options.cancelled = options.cancelled;
     const observer: typeof options.onProgress = options.onProgress;
-    if (signal?.aborted) throw cancellation;
-    const charts: ReturnType<typeof admitRecoveryCameraScene> =
+    const cancelled: () => boolean = (): boolean => {
+      callback = true;
+      const requested: boolean | undefined = probe?.();
+      if (probe !== undefined && typeof requested !== "boolean")
+        throw new Error(
+          "Cancellation callback must return a boolean synchronously",
+        );
+      callback = false;
+      return requested === true;
+    };
+    if (cancelled()) throw cancellation;
+    const charts: ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> =
       admitRecoveryCameraScene(input);
     const stable: IAutoMovieRecoveryCameraSceneInput = {
       ...input,
@@ -89,7 +100,7 @@ export function estimateAutoMovieRecoveryCameraScene(
       completed: number,
       total: number,
     ) => void = (phase: string, completed: number, total: number): void => {
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
       callback = true;
       try {
         observer?.(phase, completed, total);
@@ -101,9 +112,9 @@ export function estimateAutoMovieRecoveryCameraScene(
         throw failure;
       }
       callback = false;
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
     };
-    const observed: ReturnType<typeof observeRecoveryCameraSet> =
+    const observed: ReturnType<IAutoMovieRecoveryCameraSetObservationOperation.Operation> =
       observeRecoveryCameraSet(
         stable.views,
         stable.seedPolicy,

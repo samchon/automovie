@@ -1,18 +1,19 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-} from "@automovie/engine";
+import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanWalkParams,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { run } from "../../actions/run";
 import { walk } from "../../actions/walk";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -75,7 +76,10 @@ export function* locomotionCases(
     const names = [who] as const;
     // The bodies are prepared on the first case the filter keeps.
     let prepared:
-      | { men: humanPolygonMan.IPolygonMan[]; bodies: IHumanBody[] }
+      | {
+          men: humanPolygonMan.IPolygonMan[];
+          bodies: IAutoMovieMotionHumanBody[];
+        }
       | undefined;
     const prepare = (): NonNullable<typeof prepared> => {
       if (prepared === undefined) {
@@ -97,7 +101,7 @@ export function* locomotionCases(
       froude: number;
       label: string;
       to: IAutoMovieVector3;
-      extra: Omit<walk.IParams, "to" | "pace">;
+      extra: Omit<IAutoMovieMotionHumanWalkParams, "to" | "pace">;
     }[] = [
       ...(["slow", "normal", "fast"] as const).map((pace) => ({
         law: "walk" as const,
@@ -143,9 +147,9 @@ export function* locomotionCases(
         const goals: IAutoMovieVector3[] = names.map(
           (): IAutoMovieVector3 => to,
         );
-        let chain: HumanChain | undefined;
+        let chain: IAutoMovieMotionHumanChain | undefined;
         names.forEach((_, i: number): void => {
-          const one: HumanChain =
+          const one: IAutoMovieMotionHumanChain =
             law === "walk"
               ? HumanChain.subject(`w${i}`).walk({
                   to: goals[i]!,
@@ -159,17 +163,20 @@ export function* locomotionCases(
                 });
           chain = chain === undefined ? one : chain.with(one);
         });
-        const performance: HumanPerformance = new HumanPerformance({
-          seed: "walk",
-          performers: bodies.map((body: IHumanBody, i: number) => ({
-            subject: `w${i}`,
-            body,
-            at: { x: lanes[i]!, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" as const },
-          })),
-          composition: chain!.node,
-        });
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "walk",
+            performers: bodies.map(
+              (body: IAutoMovieMotionHumanBody, i: number) => ({
+                subject: `w${i}`,
+                body,
+                at: { x: lanes[i]!, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" as const },
+              }),
+            ),
+            composition: chain!.node,
+          });
         const end: number = performance.duration;
         const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
         const drift: { at: IAutoMovieVector3; drift: number }[] = [];
@@ -203,7 +210,7 @@ export function* locomotionCases(
         let speedOk: boolean = true;
         names.forEach((_, i: number): void => {
           const subject: string = `w${i}`;
-          const body: IHumanBody = bodies[i]!;
+          const body: IAutoMovieMotionHumanBody = bodies[i]!;
           const segment = performance.segments(subject)[0]!;
           const at = (name: string): number =>
             segment.start +
@@ -343,11 +350,8 @@ export function* locomotionCases(
                   }
                 }
               }
-              const sole: HumanFoot.ISocket[] = HumanFoot.sockets(
-                body,
-                bones,
-                side,
-              );
+              const sole: IAutoMovieMotionHumanFoot.ISocket[] =
+                HumanFoot.sockets(body, bones, side);
               for (const { socket, point } of sole)
                 if (-point.y > sink.value)
                   sink = {
@@ -355,7 +359,8 @@ export function* locomotionCases(
                     where: `${names[i]} ${side} ${socket} ${phase} t=${t.toFixed(2)}`,
                   };
               // The planted point on the floor during a stance must not move across it.
-              const planted: HumanFoot.ISocket = FootSlip.contact(sole);
+              const planted: IAutoMovieMotionHumanFoot.ISocket =
+                FootSlip.contact(sole);
               if (n >= 0 && planted.point.y <= 0.01) {
                 const d: number = FootSlip.drift(
                   touched,
@@ -534,7 +539,7 @@ export function* locomotionCases(
 
 /** Every 0.2 s, and every heel strike and toe-off, labelled. */
 function instants(
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
   end: number,
 ): IMotionCaptureCase.ITime[] {
   const segment = performance.segments("w0")[0]!;

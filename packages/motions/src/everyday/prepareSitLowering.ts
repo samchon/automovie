@@ -1,12 +1,12 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
@@ -14,7 +14,7 @@ import { seated } from "./seated";
 /** The sitting law's unchanged entry, target and descent geometry. */
 interface IProps {
   /** The body whose socket and planted legs are read. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
 
   /** Initial heading, degrees about world +Y. */
   yaw: number;
@@ -38,10 +38,10 @@ interface IProps {
   goal: IAutoMovieVector3;
 
   /** Direct standing angles before the final-back additions. */
-  joints: IHumanPosture["joints"];
+  joints: IAutoMovieMotionHumanPosture["joints"];
 
   /** Final back inclination and additive clinical joint angles, degrees. */
-  final: { pitch: number; joints: IHumanPosture["joints"] };
+  final: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] };
 
   /** Both original planted ankle points used by the pelvis limit, world metres. */
   feet: Record<"left" | "right", IAutoMovieVector3>;
@@ -51,7 +51,7 @@ interface IProps {
     root: IAutoMovieVector3,
     yaw: number,
     seconds: number,
-  ): IHumanPosture["limbs"];
+  ): IAutoMovieMotionHumanPosture["limbs"];
 }
 
 /**
@@ -77,7 +77,7 @@ export function prepareSitLowering(
   seconds: number,
   back: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-) => IHumanPosture {
+) => IAutoMovieMotionHumanPosture {
   const { body, descent, contact, peak, start, goal, final, feet }: IProps =
     props;
   const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
@@ -100,7 +100,7 @@ export function prepareSitLowering(
     t: number,
     back: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IHumanPosture => {
+  ): IAutoMovieMotionHumanPosture => {
     const across: number = minimumJerk.share(t / acrossDuration);
     const down: number = minimumJerk.share((t - downFrom) / downDuration);
     const socket: IAutoMovieVector3 = {
@@ -114,7 +114,7 @@ export function prepareSitLowering(
         ? peak * minimumJerk.share(t / peakDuration)
         : peak + (final.pitch - peak) * settle;
     const yaw: number = props.yaw + props.turn * across;
-    const joints: IHumanPosture["joints"] = { ...props.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...props.joints };
     for (const [bone, a] of finish) {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       joints[bone] = [

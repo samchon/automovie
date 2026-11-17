@@ -1,11 +1,18 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,9 +38,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds fixed arguments/name demand/surface metadata only. Goal calls borrow dynamic FK/projector only until synchronous return or throw, and local workspaces/maps end there too; neither loan enters returned goal data, the primitive or a time-history cache.
  */
 export function braceOnThigh(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
-  rest: AutoMovieMotionHumanArm.IAngles,
+  rest: IAutoMovieMotionHumanArmAngles.IAngles,
   duration: number,
   weight: (seconds: number) => number,
 ): IAutoMovieMotionHumanPrimitive {
@@ -41,7 +48,7 @@ export function braceOnThigh(
     `${side}UpperLeg`, `${side}LowerLeg`,
   ]);
   const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-  const region: IHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
+  const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
     body.surfaces.regions[side === "left" ? "thighFrontLeft" : "thighFrontRight"];
   return AutoMovieMotionHumanArm.carried({
     body,
@@ -51,11 +58,11 @@ export function braceOnThigh(
     rest,
     weight,
     goal: (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       _seconds: number,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IHumanPosture.IGoal => {
+    ): IAutoMovieHumanLimbGoal => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body, posture, undefined, {}, resolution, requested, projection,

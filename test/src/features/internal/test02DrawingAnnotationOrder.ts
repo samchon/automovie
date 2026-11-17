@@ -1,7 +1,7 @@
-import type { IAutoMovieDrawingFeatureResolution } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawingFeature,
+  IAutoMovieDrawingFeatureResolution,
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieVector3,

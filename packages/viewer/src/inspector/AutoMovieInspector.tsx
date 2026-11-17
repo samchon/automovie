@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieDrawSubject,
-  type IAutoMovieInspectionLegendEntry,
-  selectAutoMovieDrawSubject,
-} from "@automovie/render";
+import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type IAutoMovieDrawSubject, selectAutoMovieDrawSubject } from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,

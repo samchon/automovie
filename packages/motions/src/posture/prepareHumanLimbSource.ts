@@ -1,11 +1,14 @@
 import {
   fitSeededChainToTarget,
-  type IFitChainToTargetProps,
   preparePoseResolution,
 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
@@ -23,7 +26,7 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak private-reader ownership bounds retention to one body and four source snapshots/factories, with no replacement history. The owning search retains its private getter until release; incoming readers never enter the pool. A weak set identifies actual private roots without retaining them. Workspaces hold current options only until completion and no reader enters a result.
  */
 export function prepareHumanLimbSource(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   source?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): ReturnType<typeof prepareHumanPoseResolution> {
   if (source !== undefined) return prepareHumanPoseResolution(source);
@@ -79,8 +82,8 @@ export namespace prepareHumanLimbSource {
 
   /** Bind current goal options to matching first-source geometry, or decline to ordinary preparation. */
   export function workspace(
-    body: IHumanBody,
-    source: Omit<IFitChainToTargetProps, "target">,
+    body: IAutoMovieMotionHumanBody,
+    source: Omit<IAutoMovieFitChainToTargetProps, "target">,
     _readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
     resolution?: ReturnType<typeof preparePoseResolution>,
   ): IWorkspace | undefined {
@@ -92,7 +95,7 @@ export namespace prepareHumanLimbSource {
     if (entry === undefined) {
       const pose: IAutoMoviePose = structuredClone(source.pose);
       if (pose.root !== null) ROOTS.add(pose.root);
-      const chain: IFitChainToTargetProps["chain"] = { ...source.chain };
+      const chain: IAutoMovieFitChainToTargetProps["chain"] = { ...source.chain };
       const fixed: fitSeededChainToTarget.ISource = {
         skeleton: source.skeleton, pose, chain, topology: source.topology,
         jointAxes: source.jointAxes, restFrames: source.restFrames,
@@ -156,11 +159,11 @@ export namespace prepareHumanLimbSource {
 }
 
 /** One actual private unchanged-body reader's bounded first-source baselines. */
-interface IPool { body: IHumanBody; entries: Map<string, ISource>; }
+interface IPool { body: IAutoMovieMotionHumanBody; entries: Map<string, ISource>; }
 /** No goal, obstruction, target or answer belongs to these source-only fields. */
 interface ISource {
   fixed: fitSeededChainToTarget.ISource;
-  rig: IHumanBody["poseResolution"];
+  rig: IAutoMovieMotionHumanBody["poseResolution"];
   bind: ReturnType<typeof fitSeededChainToTarget.prepareSource>;
 }
 

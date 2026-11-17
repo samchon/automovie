@@ -1,8 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanSupport } from "../law/HumanSupport";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
@@ -12,10 +15,10 @@ import { supportKey } from "./supportKey";
 /** A support key's immutable authored posture and contact order. */
 interface IKey {
   /** The key's joint-space posture, world metres and clinical degrees. */
-  posture: IHumanPosture;
+  posture: IAutoMovieMotionHumanPosture;
 
   /** The existing ordered contacts that choose the interval's first common pin. */
-  contacts: readonly HumanSupport.IContact[];
+  contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
 }
 
 /** One interval's writer and standard scheduling invalidation boundary. */
@@ -25,7 +28,7 @@ interface IInterval {
     w: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture;
+  ): IAutoMovieMotionHumanPosture;
 
   /** Drop target-dependent observations made before the performance settled. */
   settle(): void;
@@ -51,16 +54,16 @@ interface IInterval {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend/common contact and at most one fixed collider reader until release, plus at most one schedule-dependent target/source-point record until settle or release. Query FK/ROM loans end with write; no share, interpolated pose, current point, floor result or workspace is retained.
  */
 export function prepareSupportInterval(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   a: IKey,
   b: IKey,
-  place: (contact: HumanSupport.IContact) => IAutoMovieVector3 | null,
+  place: (contact: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null,
 ): IInterval {
   const blend: ReturnType<typeof supportKey.prepareBlended> =
     supportKey.prepareBlended(body, a.posture, b.posture);
-  const pin: HumanSupport.IContact | undefined = a.contacts.find(
-    (p: HumanSupport.IContact): boolean =>
-      b.contacts.some((q: HumanSupport.IContact): boolean =>
+  const pin: IAutoMovieMotionHumanSupport.IContact | undefined = a.contacts.find(
+    (p: IAutoMovieMotionHumanSupport.IContact): boolean =>
+      b.contacts.some((q: IAutoMovieMotionHumanSupport.IContact): boolean =>
         supportContact.same(p, q),
       ),
   );
@@ -76,14 +79,14 @@ export function prepareSupportInterval(
     w: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture => {
-    const shaped: IHumanPosture = blend(w);
+  ): IAutoMovieMotionHumanPosture => {
+    const shaped: IAutoMovieMotionHumanPosture = blend(w);
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const project: ReturnType<typeof prepareHumanPostureProjection> =
       projection ?? prepareHumanPostureProjection(body);
-    const rest: (posture: IHumanPosture) => number = (
-      posture: IHumanPosture,
+    const rest: (posture: IAutoMovieMotionHumanPosture) => number = (
+      posture: IAutoMovieMotionHumanPosture,
     ): number => {
       floor ??= knockdown.prepareRest(body);
       return floor(posture, read, project);
@@ -109,7 +112,7 @@ export function prepareSupportInterval(
       };
     }
     const now: IAutoMovieVector3 = fixed.point(shaped, read, project)[0]!;
-    const moved: IHumanPosture = {
+    const moved: IAutoMovieMotionHumanPosture = {
       ...shaped,
       root: {
         x: shaped.root.x + fixed.held.x - now.x,

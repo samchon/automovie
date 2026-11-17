@@ -1,9 +1,4 @@
 import {
-  type IAutoMovieBoundaryWallCut,
-  type IAutoMovieMeshTopology,
-  type IAutoMovieOpeningPanelPlacement,
-  type IAutoMovieOpeningSweep,
-  type IAutoMovieWallOpening,
   buildAutoMovieWall,
   builtBoundaryWallCut,
   builtOpeningPanelPlacements,
@@ -13,10 +8,15 @@ import {
   validateBuiltEnvironment,
 } from "@automovie/engine";
 import type {
+  IAutoMovieBoundaryWallCut,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieMesh,
+  IAutoMovieMeshTopology,
+  IAutoMovieOpeningPanelPlacement,
+  IAutoMovieOpeningSweep,
   IAutoMovieStageSetPiece,
+  IAutoMovieWallOpening,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

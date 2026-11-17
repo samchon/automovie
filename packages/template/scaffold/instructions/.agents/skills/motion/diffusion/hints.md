@@ -13,17 +13,29 @@ Bring the performance into the model's frame rate, skeleton and body in this ord
 
 ## Techniques
 
-| Technique | Give the model | Keeps the hint |
-| --- | --- | --- |
-| Keyframe in-betweening | Full or partial poses at the beat's instants | Exactly in a tool that preserves keys; otherwise near them, so correct afterwards |
-| Joint and path control | Global positions of chosen joints, or the root's path on the ground, per frame with a mask | Close, more loosely when several joints conflict |
-| Interval regeneration | The whole clip, with a time window or a body part to regenerate | Outside the window or part, as the model documents it |
-| Style transfer | The clip and a reference of the style | The timing and path, while the manner changes |
-| Text or music | A description of the manner, or the score | Nothing of the performance, so use it only beside one of the above |
+With any technique, give the model the beat's [manner](../compose/composition.md#action-axes) as text where it takes text.
 
-Keep the keys few and far enough apart for the model to fill, within its documented gap and length, and give it the beat's [manner](../compose/composition.md#action-axes) as text where it takes text.
+### Keyframe in-betweening
+
+Give the model full or partial poses at the beat's instants. A tool that preserves keys keeps them exactly; any other lands near them, so correct afterwards. Keep the keys few and far enough apart for the model to fill, within its documented gap and length.
 
 Plain imputation of keys at every step leaves jumps around each key, and loose guidance drifts off them. Prefer a model trained for in-betweening, or one that enforces its constraints by a final optimization, and check the result either way.
+
+### Joint and path control
+
+Give the model the global positions of chosen joints, or the root's path on the ground, per frame with a mask. The result stays close to them, more loosely when several joints conflict.
+
+### Interval regeneration
+
+Give the model the whole clip, with a time window or a body part to regenerate. The clip is kept outside the window or part, as the model documents it.
+
+### Style transfer
+
+Give the model the clip and a reference of the style. The timing and path are kept, while the manner changes.
+
+### Text or music
+
+Give the model a description of the manner, or the score. This keeps nothing of the performance, so use it only beside one of the techniques above.
 
 ## Checks
 

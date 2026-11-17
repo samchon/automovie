@@ -1,26 +1,26 @@
-import {
-  type IAutoMovieResolvedBone,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearing } from "./HumanArmClearing";
-import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
+import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmSwing } from "./HumanArmSwing";
 import { HumanColliders } from "./HumanColliders";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanJointRom } from "./prepareHumanJointRom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.
@@ -66,11 +66,11 @@ export namespace HumanArmClearance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trunk(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): HumanColliders.IPlaced[] {
+  ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return HumanColliders.placed(body, bones).filter(
-      (segment: HumanColliders.IPlaced): boolean => HumanArmObstacleBones.TRUNK.has(segment.bone),
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => HumanArmObstacleBones.TRUNK.has(segment.bone),
     );
   }
 
@@ -93,14 +93,14 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh filtered array borrowing its actual placed segments; stores no placement, pose or body beyond the call.
    */
   export function obstacles(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     arms: readonly ("left" | "right")[] = [],
-    placed?: readonly HumanColliders.IPlaced[],
-  ): HumanColliders.IPlaced[] {
+    placed?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): IAutoMovieMotionHumanColliders.IPlaced[] {
     const limbs: ReadonlySet<AutoMovieHumanoidBone> = HumanArmObstacleBones(arms);
     return (placed ?? HumanColliders.placed(body, bones)).filter(
-      (segment: HumanColliders.IPlaced): boolean =>
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
         limbs.has(segment.bone),
     );
   }
@@ -130,16 +130,16 @@ export namespace HumanArmClearance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function overshoot(
-    body: IHumanBody,
-    shapes: readonly HumanColliders.IPlaced[],
+    body: IAutoMovieMotionHumanBody,
+    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     elbow: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
     side: "left" | "right",
-    others: readonly HumanColliders.IPlaced[] = [],
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
-    rests: readonly HumanColliders.IPlaced[] = [],
+    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
   ): number {
     return HumanArmOvershoot.of(
       body,
@@ -174,26 +174,6 @@ export namespace HumanArmClearance {
   }
 
   /**
-   * An arm's joint angles: `[flexion, abduction, twist]` of the upper arm,
-   * the lower arm and the hand, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three members, their order and unit.
-   * @evidence contracts/development/design.md#principled-representation The clinical triples a pose holds for the three joints of an arm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all written into the pose `room` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No side and no bone name: the functions that read it take the side.
-   */
-  export interface IArm {
-    /** The upper arm's angles. */
-    upper: readonly [number, number, number];
-
-    /** The lower arm's angles. */
-    lower: readonly [number, number, number];
-
-    /** The hand's angles. */
-    hand: readonly [number, number, number];
-  }
-
-  /**
    * A pose with one arm's three joints replaced.
    *
    * @param pose The pose.
@@ -212,7 +192,7 @@ export namespace HumanArmClearance {
   export function posed(
     pose: IAutoMoviePose,
     side: "left" | "right",
-    arm: IArm,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): IAutoMoviePose {
     const written: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -311,15 +291,15 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows but never retains the optional FK reader; the caller releases it when its synchronous search ends. Local fresh bones/placements and every query temporary end with this call.
    */
   export function room(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     side: "left" | "right",
-    arm: IArm,
-    others: readonly HumanColliders.IPlaced[] = [],
-    baseline: IBaseline = NONE,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
     prepared?: ReturnType<typeof preparePoseResolution>,
   ): number {
-    const terms: IBaseline = roomTerms(body, pose, side, arm, others, baseline, prepared);
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, baseline, prepared);
     return Math.max(0, terms.forearm, terms.segments);
   }
 
@@ -334,31 +314,12 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit caller fixes body, pose, arm, external colliders and reader for this synchronous paired observation; only that one unchanged observation is shared, without pose or metric caching.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh two-number record and retains no pose, placement, input, reader or query history.
    */
-  export function baseline(body: IHumanBody, pose: IAutoMoviePose, side: "left" | "right",
-    arm: IArm, others: readonly HumanColliders.IPlaced[] = [],
-    prepared?: ReturnType<typeof preparePoseResolution>): IBaseline {
-    const terms: IBaseline = roomTerms(body, pose, side, arm, others, NONE, prepared);
+  export function baseline(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
+    arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, NONE, prepared);
     return { forearm: Math.max(0, terms.forearm, terms.segments - Infinity),
       segments: Math.max(0, terms.forearm - Infinity, terms.segments) };
-  }
-
-  /**
-   * What each reading of `room` may keep: the forearm's needed room and the
-   * arm's segments by the tangle audit, degrees. Each is measured against
-   * its own value in a reference posture, since one reading's slack is not
-   * room for the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two members, their unit and why they are apart.
-   * @evidence contracts/development/design.md#principled-representation One allowance per reading, so a thick flank that the hanging forearm already touches lends no depth to the fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `room`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No combined slack.
-   */
-  export interface IBaseline {
-    /** The forearm's needed room `overshoot` reads, degrees. */
-    forearm: number;
-
-    /** The arm's segments' depth the tangle audit reads, degrees. */
-    segments: number;
   }
 
   /**
@@ -398,19 +359,19 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous search releases its FK snapshots, local ROM reader and at most two bone records on return or throw. Only the chosen clinical arm escapes; no pose, callback, target, candidate or reader history is retained.
    */
   export function cleared(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     side: "left" | "right",
-    arm: IArm,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
     allowed: number,
-    others: readonly HumanColliders.IPlaced[] = [],
-    baseline: IBaseline = NONE,
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IArm {
+  ): IAutoMovieMotionHumanArmClearance.IArm {
     let prepared: ReturnType<typeof preparePoseResolution> | undefined;
     let borrowed: ReturnType<typeof prepareHumanPoseResolution> | undefined;
     let first: boolean = true;
-    const over: (of: IArm) => number = (of: IArm): number => {
+    const over: (of: IAutoMovieMotionHumanArmClearance.IArm) => number = (of: IAutoMovieMotionHumanArmClearance.IArm): number => {
       const value: number = room(body, pose, side, of, others, baseline,
         source === undefined ? first ? undefined : (prepared ??= preparePoseResolution()) :
           (borrowed ??= prepareHumanPoseResolution(source))());
@@ -421,7 +382,7 @@ export namespace HumanArmClearance {
     return HumanArmClearing.of({
       arm,
       over,
-      range: (of: IArm): number =>
+      range: (of: IAutoMovieMotionHumanArmClearance.IArm): number =>
         outside(`${side}UpperArm`, of.upper) +
         outside(`${side}LowerArm`, of.lower),
     });
@@ -451,23 +412,23 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the existing numeric stance rooms persist weakly per body; current FK/ROM loans end with the synchronous owner and enter no returned posture or cache.
    */
   export function swung(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return HumanArmSwing.of(body, posture, sides, source, projection);
   }
 }
 
 /** Keep overshoot, its allowance read, tangle and its allowance read in original order. */
-function roomTerms(body: IHumanBody, pose: IAutoMoviePose, side: "left" | "right",
-  arm: HumanArmClearance.IArm, others: readonly HumanColliders.IPlaced[],
-  baseline: HumanArmClearance.IBaseline, prepared?: ReturnType<typeof preparePoseResolution>): HumanArmClearance.IBaseline {
+function roomTerms(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
+  arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  baseline: IAutoMovieMotionHumanArmClearance.IBaseline, prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, HumanArmClearance.posed(pose, side, arm), prepared);
-  const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
   return {
     forearm: HumanArmClearance.overshoot(body,
       HumanArmClearance.obstacles(body, bones, [side === "left" ? "right" : "left"], placed),
@@ -478,5 +439,5 @@ function roomTerms(body: IHumanBody, pose: IAutoMoviePose, side: "left" | "right
 }
 
 /** No baseline: every reading of an arm's room counts from zero. */
-const NONE: HumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
+const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
 

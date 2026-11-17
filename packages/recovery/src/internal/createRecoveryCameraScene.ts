@@ -1,21 +1,24 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraSceneCreationOperation,
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionConsensusFittingOperation,
+  IAutoMovieRecoverySceneAttempt,
+  IAutoMovieRecoverySceneCandidate,
+  IAutoMovieRecoverySceneCheckpointCompletionOperation,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneQueue,
+  IAutoMovieRecoverySceneSeedInitializationOperation,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneAttempt } from "../structures/image/IAutoMovieRecoverySceneAttempt";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoverySceneCandidate } from "../structures/internal/IAutoMovieRecoverySceneCandidate";
-import type { IAutoMovieRecoverySceneFeasibleRouting } from "../structures/internal/IAutoMovieRecoverySceneFeasibleRouting";
-import type { IAutoMovieRecoverySceneQueue } from "../structures/internal/IAutoMovieRecoverySceneQueue";
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { createRecoverySceneSeedReportObserver } from "./createRecoverySceneSeedReportObserver";
 import { describeRecoverySceneRegistration } from "./describeRecoverySceneRegistration";
-import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { fitRecoveryResectionConsensus } from "./fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
@@ -42,14 +45,14 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Accepted JSON and bounded attempt ledgers transfer to the caller; proposed geometry/factors expire after failure. An explicit route reserves64 fixed slots from every growth/resection/checkpoint/fit admission, including two17-field budgets and the nested option snapshot. One cumulative ledger serves setup and all transactions. RGB, descriptors, callbacks, method options and transient factors do not enter returned geometry or a global cache. A feasible scene additionally reserves512*(A+2) reporting slots once, with at most A+1 persisted distinct reports and one current raw/encoded/previous/trace envelope. Every later numerical stage shares the remaining capacity, and accepted scene/attempt report aliases share objects. A refused seed may transfer one existing plain report reference; successful seed qualification removes it before candidate work, so no seed-report history survives.
  */
 export function createRecoveryCameraScene(
-  input: IAutoMovieRecoveryCameraSceneInput,
-  features: readonly ReturnType<typeof extractRecoveryImageFeatures>[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  pairs: Parameters<typeof linkRecoveryCameraTracks>[1],
-  descriptorComparisons: number,
-  checkpoint: (phase: string, completed: number, total: number) => void,
-  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
-): IAutoMovieRecoveryCameraSceneEstimate {
+  input: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[0],
+  features: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[1],
+  charts: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[2],
+  pairs: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[3],
+  descriptorComparisons: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[4],
+  checkpoint: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[5],
+  feasible?: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[6],
+): ReturnType<IAutoMovieRecoveryCameraSceneCreationOperation.Operation> {
   // An absent request keeps the original post-seed ledger allocation. An
   // explicit request owns the same single ledger before its setup charge.
   const routingWork: IAutoMovieRecoverySceneWork | null =
@@ -90,7 +93,7 @@ export function createRecoveryCameraScene(
             throw error;
           }
         };
-  const linked: ReturnType<typeof linkRecoveryCameraTracks> =
+  const linked: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation> =
     linkRecoveryCameraTracks(
       features,
       pairs,
@@ -103,7 +106,7 @@ export function createRecoveryCameraScene(
       ): [number, (typeof linked.tracks)[number]] => [track.id, track],
     ),
   );
-  const seed: ReturnType<typeof initializeRecoverySceneSeed> =
+  const seed: ReturnType<IAutoMovieRecoverySceneSeedInitializationOperation.Operation> =
     initializeRecoverySceneSeed(
       input,
       features,
@@ -186,9 +189,9 @@ export function createRecoveryCameraScene(
       return result;
     };
   const commit: (
-    proposal: ReturnType<typeof completeRecoverySceneCheckpoint>,
+    proposal: ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>,
   ) => void = (
-    proposal: ReturnType<typeof completeRecoverySceneCheckpoint>,
+    proposal: ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>,
   ): void => {
     result.poses = proposal.poses;
     result.landmarks = proposal.landmarks;
@@ -233,7 +236,7 @@ export function createRecoveryCameraScene(
   try {
     if (routing !== null)
       prepareRecoverySceneReportCapacity(routing, result.work);
-    const initial: ReturnType<typeof completeRecoverySceneCheckpoint> =
+    const initial: ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation> =
       completeRecoverySceneCheckpoint(
         initialPoses,
         [],
@@ -340,7 +343,7 @@ export function createRecoveryCameraScene(
           result.landmarks.length,
           128 * item.candidates.length + 2048,
         );
-        const resection: ReturnType<typeof fitRecoveryResectionConsensus> =
+        const resection: ReturnType<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation> =
           fitRecoveryResectionConsensus(
             item.candidates.map(
               (
@@ -391,7 +394,7 @@ export function createRecoveryCameraScene(
           result.poses.slice();
         proposedPoses[item.view] = resection.pose;
         attempt.outcome = "joint-refused";
-        const proposal: ReturnType<typeof completeRecoverySceneCheckpoint> =
+        const proposal: ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation> =
           completeRecoverySceneCheckpoint(
             proposedPoses,
             result.landmarks,

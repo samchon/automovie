@@ -1,5 +1,5 @@
-import { IAutoMovieCollisionProxyReference } from "./IAutoMovieCollisionProxyReference";
-import { IAutoMovieMeasurementProxyReference } from "./IAutoMovieMeasurementProxyReference";
+import type { IAutoMovieCollisionProxyReference } from "./IAutoMovieCollisionProxyReference";
+import type { IAutoMovieMeasurementProxyReference } from "./IAutoMovieMeasurementProxyReference";
 
 /**
  * Explicit ingest and proxy choices for an external 3D model.

@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaceRegions,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,85 +27,30 @@ const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed region union.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
-  /**
-   * Where on a segment a region's ray starts: a share of the way from a
-   * bone's joint toward a child joint, or the centre of the bone's collider
-   * bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two forms a station takes.
-   * @evidence contracts/development/design.md#principled-representation A bone, the joint it leans toward or the bounds centre, and a share.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members the surface resolver reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bones are the interface's closed bone union.
-   */
-  export interface IStation {
-    /** The bone. */
-    bone: AutoMovieHumanoidBone;
+  
 
-    /** A child joint to interpolate toward, or the colliders' bounds centre. */
-    toward: AutoMovieHumanoidBone | "centre";
+  /** The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`). */
+  export type ILevel = IAutoMovieHumanoidSurfaceRegions.ILevel;
 
-    /** Share of the way toward the child joint. */
-    share: number;
-  }
-
-  /**
-   * Where on a segment a region's ray starts by the body's own measure: the
-   * point of the segment from a bone's joint toward a child joint that stands,
-   * at rest, at a share of the body's stature above the floor. A landmark
-   * that anthropometry measures as a height (the tenth rib's) lies between
-   * two joints at a share of the segment that differs from body to body, so
-   * it is placed by its height and not by a share of the bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the level means, its frame (rest, floor at zero) and why a landmark is placed by it.
-   * @evidence contracts/development/design.md#principled-representation A bone, the child joint it leans toward and a dimensionless share of stature; the surface resolver reads the stature off the body's colliders as `measureAutoMovieHumanoidBody` does.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members the surface resolver reads; the trunk's lower rib regions use it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bones are the interface's closed bone union; a level outside the segment's span is refused by the resolver, not clamped.
-   */
-  export interface ILevel {
-    /** The bone. */
-    bone: AutoMovieHumanoidBone;
-
-    /** The child joint the segment runs toward. */
-    toward: AutoMovieHumanoidBone;
-
-    /** Height above the floor at rest, as a share of the body's stature. */
-    level: number;
-  }
-
-  /**
-   * A region's station and rest-frame outward direction: the ray whose exit
-   * through the segment's colliders is the region's point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the pair defines.
-   * @evidence contracts/development/design.md#principled-representation A ray: an origin on the segment, by a share of it or by a level of the body's stature, and a direction in the rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members a region needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the point itself is read from the colliders, never stored.
-   */
-  export interface IDefinition {
-    /** Ray origin. */
-    station: IStation | ILevel;
-
-    /** Outward direction in the T-pose rest frame. */
-    direction: IAutoMovieVector3;
-  }
+  
 
   /** Every region's definition, both sides from one table: +X is the body's left. */
   export const TABLE: Readonly<
-    Partial<Record<AutoMovieHumanoidRegion, IDefinition>>
+    Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>>
   > = (() => {
     const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
       x,
       y,
       z,
     });
-    const head: IStation = { bone: "head", toward: "centre", share: 0 };
-    const neck: IStation = { bone: "neck", toward: "head", share: 0.5 };
-    const chest = (share: number): IStation => ({
+    const head: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "head", toward: "centre", share: 0 };
+    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "neck", toward: "head", share: 0.5 };
+    const chest = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "chest",
       toward: "neck",
       share,
     });
-    const spine = (share: number): IStation => ({
+    const spine = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "spine",
       toward: "chest",
       share,
@@ -115,7 +61,7 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     // on or just above. The rig's spine runs from the omphalion to the
     // xiphion, so the margin lies on it, at the tenth rib's height.
     const costal: ILevel = { bone: "spine", toward: "chest", level: COSTAL_MARGIN };
-    const table: Partial<Record<AutoMovieHumanoidRegion, IDefinition>> = {
+    const table: Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>> = {
       crown: { station: head, direction: v(0, 1, 0) },
       forehead: { station: head, direction: v(0, 0.45, 1) },
       face: { station: head, direction: v(0, 0, 1) },
@@ -149,7 +95,7 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     ] as const) {
       const s = (name: string): AutoMovieHumanoidBone =>
         `${Side.toLowerCase()}${name}` as AutoMovieHumanoidBone;
-      const set = (name: string, def: IDefinition): void => {
+      const set = (name: string, def: IAutoMovieHumanoidSurfaceRegions.IDefinition): void => {
         table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
       };
       set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });

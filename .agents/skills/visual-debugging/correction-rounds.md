@@ -4,7 +4,7 @@ A correction round gathers every finding of one capture, traces each to its caus
 
 ## Measuring and looking
 
-Settle by measurement what a number decides, because an eye on a picture misjudges position, depth and timing; the skill of each subject names its measures. Then [plan the capture](capture.md#plan) from questions with a yes or no answer.
+Settle by measurement what a number decides, because an eye on a picture misjudges position, depth and timing; the skill of each subject names its measures. Then [plan the capture](capture.md#plan).
 
 ## Inspection
 
@@ -16,7 +16,7 @@ Trace causes through generation and display, including shared boundaries and der
 
 ## One combined change
 
-Fix all identified causes in one combined change at their sources, and judge it on the assembled subject. A cause that crosses an ownership boundary is changed by both owners in the same round, or reported to an owner the project cannot change.
+Fix all identified causes in one combined change at their sources, and judge it on the assembled subject. A cause that crosses an ownership boundary is changed by both owners in the same round, or told to the user where the project cannot change an owner.
 
 However cheap a capture is, this replaces fixing one finding at a time:
 
@@ -27,7 +27,7 @@ However cheap a capture is, this replaces fixing one finding at a time:
 
 ## Comparing again
 
-Repeat the round's capture after the change and [compare](comparison.md) it with the earlier one across every affected part, view, time, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; a new or unexplained defect keeps it open.
+Repeat the round's capture after the change and compare it with the earlier one across every affected part, view, time, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; a new or unexplained defect keeps it open.
 
 When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers.
 

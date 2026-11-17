@@ -1,18 +1,23 @@
 import {
-  type AutoMovieLoftContract,
   AutoMovieSolidBlend,
   AutoMovieSolidBlendChain,
   AutoMovieSolidChain,
-  type AutoMovieSolidJoin,
   AutoMovieSolidMerge,
   AutoMovieSolidMesh,
-  type AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
 
 /**
@@ -44,7 +49,7 @@ export function test_construction_operator_mesh(): void {
     [0, 1, 0],
     [0, 0, 1],
   );
-  const merged: AutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
+  const merged: IAutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
     part,
     host,
     seed: { phi: 0, s: 0.5, y: r - 0.4, theta: 0.3 },
@@ -55,25 +60,25 @@ export function test_construction_operator_mesh(): void {
   });
   if (merged.join === null)
     throw new Error(
-      `no join: ${merged.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`,
+      `no join: ${merged.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`,
     );
 
   // The blend published as a chain: at every column it is the blend, with
   // both ribbons' 2-jets.
   const count: number = 64;
-  const blend: AutoMovieSolidBlendChain.IBlend | null =
+  const blend: IAutoMovieSolidBlendChain.IBlend | null =
     AutoMovieSolidBlendChain.of("blend", merged.join, count);
   if (blend === null) throw new Error("the join has no rail at a column");
   const blendSurface: IAutoMovieSolidSurface | null =
     AutoMovieSolidChain.surface(blend.chain);
   if (blendSurface === null) throw new Error("the blend chain carries no jets");
   for (const k of [0, 9, 31, 50]) {
-    const c: AutoMovieSolidJoin.IColumn = merged.join.column(
+    const c: IAutoMovieSolidJoin.IColumn = merged.join.column(
       blend.seed + (2 * Math.PI * k) / count,
     )!;
     const phase: number = (2 * Math.PI * k) / count;
     for (const w of [0, 0.3, 0.7, 1]) {
-      const exact: AutoMovieSolidBlend.IJet = AutoMovieSolidBlend.jet(
+      const exact: IAutoMovieBlendCrossJet = AutoMovieSolidBlend.jet(
         c.start,
         c.end,
         w,
@@ -99,8 +104,8 @@ export function test_construction_operator_mesh(): void {
   }
 
   // The mesh: the seam's rails and blend, then both faces trimmed by them.
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
-  const joined: AutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(mesh, {
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const joined: IAutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(mesh, {
     host,
     part,
     blend: blendSurface,
@@ -114,13 +119,13 @@ export function test_construction_operator_mesh(): void {
       { length: Math.round((to - from) / step) + 1 },
       (_: unknown, k: number): number => from + k * step,
     );
-  const plate: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+  const plate: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
     surface: host,
     stations: range(-60, 60, 3),
     phases: range(-60, 60, 3),
     loops: [joined.host],
   });
-  const tube: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+  const tube: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
     surface: part,
     stations: range(0, 60, 2),
     phases: range(0, 47, 1).map((k: number): number => (2 * Math.PI * k) / 48),
@@ -137,7 +142,7 @@ export function test_construction_operator_mesh(): void {
 
   // Green, then the three made defects, each listed by its own check.
   failures.push(...audit(mesh).map((f: string): string => `merged mesh: ${f}`));
-  const seam: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const seam: IAutoMovieSolidMesh.IMesh = copy(mesh);
   const shared: number = joined.host.vertices[0]!;
   const twin: number = seam.positions.length / 3;
   seam.positions.push(
@@ -161,15 +166,15 @@ export function test_construction_operator_mesh(): void {
   for (let k: number = 0; k < 3; k++)
     if (seam.indices[3 * blendTriangle + k] === shared)
       seam.indices[3 * blendTriangle + k] = twin;
-  const turned: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const turned: IAutoMovieSolidMesh.IMesh = copy(mesh);
   [turned.indices[0], turned.indices[1]] = [
     turned.indices[1]!,
     turned.indices[0]!,
   ];
-  const moved: AutoMovieSolidMesh.IMesh = copy(mesh);
+  const moved: IAutoMovieSolidMesh.IMesh = copy(mesh);
   moved.coordinates[3 * joined.part.vertices[5]! + 2] =
     moved.coordinates[3 * joined.part.vertices[5]! + 2]! + 0.01;
-  const red: [string, AutoMovieSolidMesh.IMesh, string][] = [
+  const red: [string, IAutoMovieSolidMesh.IMesh, string][] = [
     ["an unshared seam", seam, "edge"],
     ["a turned triangle", turned, "inward"],
     ["a moved coordinate", moved, "coordinates"],
@@ -187,7 +192,7 @@ export function test_construction_operator_mesh(): void {
    * Every finding on a mesh of the merged cylinder, each led by its check's
    * name: `edge`, `inward`, `coordinates`, `duplicate`, `inside`.
    */
-  function audit(m: AutoMovieSolidMesh.IMesh): string[] {
+  function audit(m: IAutoMovieSolidMesh.IMesh): string[] {
     const out: string[] = [];
     const point = (v: number): Vec3 => [
       m.positions[3 * v]!,
@@ -253,7 +258,8 @@ export function test_construction_operator_mesh(): void {
       if (other !== undefined && distance(p, point(other)) <= 1e-9)
         out.push(`duplicate vertices ${other} and ${v} at ${p.join(", ")}`);
       seen.set(key, v);
-      const owner: AutoMovieSolidMesh.IOwner = m.owners[m.coordinates[3 * v]!]!;
+      const owner: IAutoMovieSolidMesh.IOwner =
+        m.owners[m.coordinates[3 * v]!]!;
       if (owner.name === "floor" && Math.hypot(p[0], p[1]) < 28 - 1e-9)
         out.push(
           `inside the cut: plane vertex ${v} at radius ${Math.hypot(p[0], p[1])}`,
@@ -266,7 +272,7 @@ export function test_construction_operator_mesh(): void {
 }
 
 /** A mesh's triangles as index triples. */
-function triangles(m: AutoMovieSolidMesh.IMesh): number[][] {
+function triangles(m: IAutoMovieSolidMesh.IMesh): number[][] {
   return Array.from(
     { length: m.indices.length / 3 },
     (_: unknown, k: number): number[] => m.indices.slice(3 * k, 3 * k + 3),
@@ -274,7 +280,7 @@ function triangles(m: AutoMovieSolidMesh.IMesh): number[][] {
 }
 
 /** A mesh's copy whose buffers can be changed. */
-function copy(m: AutoMovieSolidMesh.IMesh): AutoMovieSolidMesh.IMesh {
+function copy(m: IAutoMovieSolidMesh.IMesh): IAutoMovieSolidMesh.IMesh {
   return {
     positions: [...m.positions],
     indices: [...m.indices],

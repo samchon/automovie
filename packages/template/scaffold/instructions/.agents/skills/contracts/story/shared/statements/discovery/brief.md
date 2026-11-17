@@ -1,7 +1,5 @@
 # Brief discovery statements
 
-Contract: [discovery/brief.md](../../discovery/brief.md).
-
 ## Instructions and backcast
 
 1. Every instruction is broken into its consequential elements:

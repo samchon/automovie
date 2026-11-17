@@ -1,4 +1,4 @@
-import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
+import type { IAutoMovieProductionSoundRaster } from "@automovie/interface";
 
 /**
  * Default pixel size of each delivered sound-evidence picture.

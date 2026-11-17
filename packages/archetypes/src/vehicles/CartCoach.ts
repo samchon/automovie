@@ -246,7 +246,7 @@ const WOOD: string = "#8b6a43";
 const CLOTH: string = "#6b2f2f";
 
 /**
- * Add the running gear: the rear pair under the origin, the front pair `wheelbase` ahead on a `frontAxle` that turns about the pivot over it, and the pole on the front axle, its end the `coupling`.
+ * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the actual front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
  *
  * @param builder The carrier under construction.
  * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and `wheelbase` are read.
@@ -299,13 +299,27 @@ function gear(
     ),
     extent: null,
     travel: gear.lock,
-    parts: [...axle, "pole"],
+    parts: [...axle],
+  });
+  builder.affordance({
+    id: "drawbarPitch",
+    kind: "hinge",
+    frame: ArchetypeFrame.facing(
+      v(0, front, wheelbase),
+      v(1, 0, 0),
+      v(0, 1, 0),
+    ),
+    extent: null,
+    travel: 180,
+    reverse: 180,
+    parts: ["pole"],
+    rides: "frontAxle",
   });
   builder.affordance({
     id: "coupling",
     kind: "hook",
     frame: ArchetypeFrame.upright(tip),
     extent: null,
-    rides: "frontAxle",
+    rides: "drawbarPitch",
   });
 }

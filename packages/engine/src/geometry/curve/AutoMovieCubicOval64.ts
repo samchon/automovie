@@ -1,3 +1,5 @@
+import type { IAutoMovieCubicOval64 } from "@automovie/interface";
+
 /** Four-quarter affine cubic-oval sizing in consistent caller units. The quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical admissibility remains with consumers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Input/output lengths use the same arbitrary unit; the inverse retains its strict positive feasibility premise and fixed iteration count.
@@ -129,12 +131,12 @@ export namespace AutoMovieCubicOval64 {
     return (4 * sum) / (3 * intervals);
   }
 
-  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Both inputs must be positive finite values; circumference and returned diameters are in millimetres.
+  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Girth and returned diameters are positive finite millimetre values; breadthOverDepth is a positive finite dimensionless ratio. An unrepresentable positive result throws RangeError.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Uniform scaling by target circumference divided by the unit-aspect cubic perimeter preserves the supplied aspect.
+   * @evidence contracts/development/implementation.md#principled-implementation Normalize the larger diameter to one before Simpson quadrature, then use perimeter homogeneity to scale both diameters to the requested girth; this avoids extreme-aspect accumulation overflow.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
-   * @evidence contracts/development/common.md#meaningful-documentation Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Both inputs must be positive finite values; circumference and returned diameters are in millimetres.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same cubic handle and Simpson weights determine the curve; positive finite output admission refuses underflow instead of publishing a collapsed zero diameter. Anatomical admission remains with callers.
+   * @evidence contracts/development/common.md#meaningful-documentation States aspect preservation, millimetre units, positive finite inputs and RangeError for unrepresentable positive output.
    * @evidence contracts/development/implementation.md#efficient-algorithms One default 256-interval quadrature and fixed scalar scaling.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
@@ -142,21 +144,29 @@ export namespace AutoMovieCubicOval64 {
   export function axesBySimpson(
     girthMm: number,
     breadthOverDepth: number = 1,
-  ): {
-    /** Positive lateral support separation of the normalized cubic oval, mm. */
-    breadthMm: number;
-
-    /** Positive anterior/posterior support separation of that same oval, mm. */
-    depthMm: number;
-  } {
+  ): IAutoMovieCubicOval64.IAxesBySimpsonResult {
     if (
       ![girthMm, breadthOverDepth].every(Number.isFinite) ||
       girthMm <= 0 ||
       breadthOverDepth <= 0
     )
       throw new Error("Positive girth and independent breadth/depth required");
-    const scale: number = girthMm / perimeterBySimpson(breadthOverDepth, 1);
-    return { breadthMm: breadthOverDepth * scale, depthMm: scale };
+    // Homogeneity lets the quadrature use a largest diameter of one, so a
+    // representable aspect ratio cannot overflow its derivative accumulation.
+    const breadth: number = breadthOverDepth >= 1 ? 1 : breadthOverDepth;
+    const depth: number = breadthOverDepth >= 1 ? 1 / breadthOverDepth : 1;
+    const scale: number = girthMm / perimeterBySimpson(breadth, depth);
+    const breadthMm: number = breadth * scale;
+    const depthMm: number = depth * scale;
+    if (
+      ![breadthMm, depthMm].every(
+        (value: number): boolean => Number.isFinite(value) && value > 0,
+      )
+    )
+      throw new RangeError(
+        "Cubic oval diameters must be representable positive finite lengths",
+      );
+    return { breadthMm, depthMm };
   }
 
   /** Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.

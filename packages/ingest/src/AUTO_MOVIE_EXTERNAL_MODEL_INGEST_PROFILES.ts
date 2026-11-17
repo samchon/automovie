@@ -1,4 +1,4 @@
-import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
+import type { AutoMovieExternalModelIngestProfile } from "@automovie/interface";
 
 /** Runtime registry whose `Record` type requires exactly the union's keys. */
 const INGEST_PROFILE_REGISTRY: Readonly<

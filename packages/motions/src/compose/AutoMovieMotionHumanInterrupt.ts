@@ -1,5 +1,8 @@
-import type { HumanActionKey } from "../HumanActionKey";
-import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanInterrupt,
+  IAutoMovieMotionHumanInterruptRow,
+} from "@automovie/interface";
 
 /**
  * Cancel rows by name: when an action may be cancelled, as a window of its
@@ -14,47 +17,32 @@ import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
  * @evidence contracts/development/common.md#meaningful-documentation States what a row is and what the names replace.
  * @evidence contracts/development/design.md#principled-representation A window is named by the phrase instant that opens it, the way the action clock names time; a blend is named by how abrupt the cancel is.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Two unions, one table and two functions; the only owner of named cancel rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The result is the existing `IHumanInterruptRow`, so a row no name states is still written by hand beside the named ones.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The result is the existing `HumanInterruptRow`, so a row no name states is still written by hand beside the named ones.
  */
 export namespace AutoMovieMotionHumanInterrupt {
-  /**
-   * When an action may be cancelled: at any time, or from a phrase instant
-   * to the end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the four windows.
-   * @evidence contracts/development/design.md#principled-representation The standard instants of a phrase a cancel opens at: its stroke, its stroke's end and its relax.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each used by a shipped cancel table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A window that opens at an action's own instant is written as a row, not added as a name here.
-   */
-  export type Window = (typeof WINDOWS)[number];
-
   /** The windows of {@link Window}, as data. */
   export const WINDOWS = [
     "anytime",
     "fromStroke",
     "fromStrokeEnd",
     "fromRelax",
-  ] as const;
-
-  /**
-   * How fast the next action blends in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is named; `BLENDS` gives each time.
-   * @evidence contracts/development/design.md#principled-representation Three speeds of an inertialized transition, from a reflex that overrides the body to a voluntary change.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three names, each used by a shipped cancel table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union keyed into one table.
-   */
-  export type Blend = (typeof BLEND_NAMES)[number];
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Window>[];
 
   /** The blends of {@link Blend}, as data. */
-  export const BLEND_NAMES = ["reflex", "quick", "smooth"] as const;
+  export const BLEND_NAMES = [
+    "reflex",
+    "quick",
+    "smooth",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Blend>[];
 
   /**
    * The seconds of each blend (the values the reaction laws shipped with):
    * `reflex` 0.08, a blow that overrides what the body was doing; `quick`
    * 0.1, a defence; `smooth` 0.15, a voluntary change.
    */
-  export const BLENDS: Readonly<Record<Blend, number>> = {
+  export const BLENDS: Readonly<
+    Record<IAutoMovieMotionHumanInterrupt.Blend, number>
+  > = {
     reflex: 0.08,
     quick: 0.1,
     smooth: 0.15,
@@ -75,8 +63,11 @@ export namespace AutoMovieMotionHumanInterrupt {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function row(window: Window, blend: Blend): IHumanInterruptRow {
-    const opens = (): IHumanInterruptRow["window"] => {
+  export function row(
+    window: IAutoMovieMotionHumanInterrupt.Window,
+    blend: IAutoMovieMotionHumanInterrupt.Blend,
+  ): IAutoMovieMotionHumanInterruptRow {
+    const opens = (): IAutoMovieMotionHumanInterruptRow["window"] => {
       switch (window) {
         case "anytime":
           return [0, 1];
@@ -111,13 +102,33 @@ export namespace AutoMovieMotionHumanInterrupt {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function table(
-    rows: Partial<Record<HumanActionKey | "any", readonly [Window, Blend]>>,
-  ): Partial<Record<HumanActionKey | "any", IHumanInterruptRow[]>> {
-    const out: Partial<Record<HumanActionKey | "any", IHumanInterruptRow[]>> =
-      {};
+    rows: Partial<
+      Record<
+        AutoMovieMotionHumanActionKey | "any",
+        readonly [
+          IAutoMovieMotionHumanInterrupt.Window,
+          IAutoMovieMotionHumanInterrupt.Blend,
+        ]
+      >
+    >,
+  ): Partial<
+    Record<
+      AutoMovieMotionHumanActionKey | "any",
+      IAutoMovieMotionHumanInterruptRow[]
+    >
+  > {
+    const out: Partial<
+      Record<
+        AutoMovieMotionHumanActionKey | "any",
+        IAutoMovieMotionHumanInterruptRow[]
+      >
+    > = {};
     for (const [name, spec] of Object.entries(rows) as [
-      HumanActionKey | "any",
-      readonly [Window, Blend],
+      AutoMovieMotionHumanActionKey | "any",
+      readonly [
+        IAutoMovieMotionHumanInterrupt.Window,
+        IAutoMovieMotionHumanInterrupt.Blend,
+      ],
     ][])
       out[name] = [row(spec[0], spec[1])];
     return out;

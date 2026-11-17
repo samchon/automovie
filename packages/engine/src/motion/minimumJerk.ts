@@ -1,3 +1,5 @@
+import type { IAutoMovieMinimumJerk } from "@automovie/interface";
+
 /**
  * The minimum-jerk normalized profile and its first two derivatives: the
  * share of a point-to-point movement completed at normalized time `u`.
@@ -27,13 +29,13 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete profiles and their share/rate consumers share exact admission, endpoints and selected polynomial expressions. Every current u is evaluated normally; no profile, time or result is cached across requests.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Complete reads return one fresh three-number profile and scalar reads return one number. No demand retains time, caller state or outputs, and no collection, handle, task or global cache is acquired.
  */
-export function minimumJerk(u: number): minimumJerk.IProfile {
-  return evaluate(u, "profile") as minimumJerk.IProfile;
+export function minimumJerk(u: number): IAutoMovieMinimumJerk.IProfile {
+  return evaluate(u, "profile") as IAutoMovieMinimumJerk.IProfile;
 }
 
 /** Actual output demands selected only by this module's public reads. */
 type IDemand = "profile" | "share" | "rate";
-type IReading = minimumJerk.IProfile | number;
+type IReading = IAutoMovieMinimumJerk.IProfile | number;
 
 /** One admission/clipping/polynomial owner, evaluating only demanded fields. */
 function evaluate(u: number, demand: IDemand): IReading {
@@ -82,17 +84,5 @@ export namespace minimumJerk {
    */
   export function rate(u: number): number {
     return evaluate(u, "rate") as number;
-  }
-
-  /** The profile at one instant. */
-  export interface IProfile {
-    /** Share of the movement done, in [0, 1]. */
-    s: number;
-
-    /** Rate of the share per unit normalized time. */
-    ds: number;
-
-    /** Acceleration of the share per unit normalized time squared. */
-    dds: number;
   }
 }

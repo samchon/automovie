@@ -1,13 +1,11 @@
-import {
-  IAutoMovieTextureImageFacts,
-  validateTextureAssets,
-} from "@automovie/engine";
+import { validateTextureAssets } from "@automovie/engine";
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieAssetUse,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieSceneEnvironment,
+  type IAutoMovieTextureImageFacts,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

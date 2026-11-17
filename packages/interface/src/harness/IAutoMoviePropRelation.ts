@@ -1,5 +1,5 @@
-import { AutoMoviePropRelationKind } from "./AutoMoviePropRelationKind";
-import { IAutoMoviePropRelationTarget } from "./IAutoMoviePropRelationTarget";
+import type { AutoMoviePropRelationKind } from "./AutoMoviePropRelationKind";
+import type { IAutoMoviePropRelationTarget } from "./IAutoMoviePropRelationTarget";
 
 /**
  * What a prop claims about where it sits, as one typed relation.

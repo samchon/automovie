@@ -1,11 +1,7 @@
-import {
-  type IAutoMovieSpringState,
-  Matrix4,
-  createSpringState,
-  stepSpring,
-} from "@automovie/engine";
+import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
+  type IAutoMovieSpringState,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

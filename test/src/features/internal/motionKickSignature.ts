@@ -1,8 +1,9 @@
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot, type IHumanBody } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -33,7 +34,7 @@ export function motionKickSignature(
   name: motionHumanBody.Name,
   rows: readonly string[],
 ): void {
-  const partner: IHumanBody = motionHumanBody("m-average");
+  const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const row of rows) {
     const cell: string = `kick ${row} ${name}`;
     const s: M.IStaged = M.stage("kick", row, name);

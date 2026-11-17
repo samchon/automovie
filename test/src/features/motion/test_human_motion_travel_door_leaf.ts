@@ -1,5 +1,11 @@
 import { createDoor } from "@automovie/archetypes";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -9,10 +15,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
   HumanTravelLeaf,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -65,7 +69,10 @@ export function test_human_motion_travel_door_leaf(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const where: HumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
+  const where: IAutoMovieMotionHumanObject.Placement = {
+    at: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+  };
   const bar: IAutoMovieVector3 = door.placed("pull", placement).translation;
   const full: number = door.affordance("hinge").travel!;
   const OPEN: number = 0.5;
@@ -76,7 +83,10 @@ export function test_human_motion_travel_door_leaf(): void {
       const u: number = Math.min(1, Math.max(0, (seconds - OPEN) / SWING));
       return degrees * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
     };
-  const perform = (body: IHumanBody, degrees: number): HumanPerformance =>
+  const perform = (
+    body: IAutoMovieMotionHumanBody,
+    degrees: number,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "door",
       laws: [HumanTravelLeaf.openDoor],
@@ -108,8 +118,8 @@ export function test_human_motion_travel_door_leaf(): void {
       }).node,
     });
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(body, 30);
     } catch (error) {
@@ -118,18 +128,18 @@ export function test_human_motion_travel_door_leaf(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       180,
     );
-    const hold: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const hold: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
       Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-        (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+        (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
       )!.point;
     const first: Record<"left" | "right", IAutoMovieVector3> = {
       left: ball("left", hold.entryTime + 0.05),
@@ -171,7 +181,7 @@ export function test_human_motion_travel_door_leaf(): void {
 
     // 4. The whole swing: followed with the hand on the handle, or refused
     // naming the largest swing followed.
-    let whole: HumanPerformance | null = null;
+    let whole: IAutoMovieMotionHumanPerformance | null = null;
     let thrown: unknown = null;
     try {
       whole = perform(body, full);
@@ -179,13 +189,9 @@ export function test_human_motion_travel_door_leaf(): void {
       thrown = error;
     }
     if (whole !== null) {
-      const followed: HumanSignature.IReader = HumanSignature.of(
-        whole,
-        "a",
-        body,
-        180,
-      );
-      const held: HumanSegment.ISegment = whole.segments("a")[0]!;
+      const followed: IAutoMovieMotionHumanSignature.IReader =
+        HumanSignature.of(whole, "a", body, 180);
+      const held: IAutoMovieMotionHumanSegment = whole.segments("a")[0]!;
       let away: number = 0;
       for (const t of HumanSignature.times(
         held.entryTime + HumanTravelLeaf.TAKE + 0.05,

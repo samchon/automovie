@@ -1,22 +1,18 @@
-import {
-  IAutoMovieActionSynthesizer,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  performShot,
-  sampleClip,
-  stageScene,
-} from "@automovie/engine";
+import { performShot, sampleClip, stageScene } from "@automovie/engine";
 import {
   AutoMovieInteractionEventKind,
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
   IAutoMovieActionTarget,
   IAutoMovieClip,
   IAutoMovieInteractionEvent,
   IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
   IAutoMovieScript,
   IAutoMovieShotPerformance,
   IAutoMovieSkeleton,
   IAutoMovieStage,
+  type IAutoMovieStagedSet,
   IAutoMovieTrack,
   IAutoMovieTransform,
   IAutoMovieVector3,

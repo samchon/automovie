@@ -1,8 +1,12 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditSpin,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every bone turns continuously: the orientation counterpart of the
@@ -50,22 +54,6 @@ export namespace AutoMovieMotionHumanAuditSpin {
   export const SNAP: number = 5;
 
   /**
-   * The two readings of {@link measure}.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what its second and bone mean.
-   * @evidence contracts/development/design.md#principled-representation A discontinuity and a rate, the two ways a turn is wrong.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The largest turn left at full resolution, degrees, with the bone and the start of its final interval; zero at `none` when every bone turns continuously at the limit. */
-    turn: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The fastest turn over a grid interval, degrees per second, with the bone and the interval's start. */
-    spin: IAutoMovieMotionHumanAuditMeasure;
-  }
-
-  /**
    * Read how a person's bones turn over the whole motion.
    *
    * @param motion The motion.
@@ -80,7 +68,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The grid pass decides, the bisection measures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A resolved turn below the limit is not reported, so the reading is zero exactly when no snap of that size exists.
    * @evidence contracts/development/implementation.md#efficient-algorithms Grid poses are resolved once; inner poses once per interval.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inner poses live in one interval's map.
    */
   export function measure(
@@ -88,8 +76,8 @@ export namespace AutoMovieMotionHumanAuditSpin {
     subject: string,
     rate: number = 24,
     limit: number = SNAP,
-  ): IResult {
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  ): IAutoMovieMotionHumanAuditSpin.IResult {
+    const times: number[] = HumanAuditMotion.grid(
       0,
       motion.duration,
       rate,
@@ -97,7 +85,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
     const frames: IBones[] = times.map(
       (t: number): IBones => motion.bones(subject, t),
     );
-    const result: IResult = {
+    const result: IAutoMovieMotionHumanAuditSpin.IResult = {
       turn: { value: 0, seconds: 0, where: "none" },
       spin: { value: 0, seconds: 0, where: "none" },
     };

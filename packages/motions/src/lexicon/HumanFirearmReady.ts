@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
@@ -79,7 +83,7 @@ export namespace HumanFirearmReady {
   /** What a ready pose is placed by. */
   export interface IProps {
     /** The held weapon. */
-    tool: StrikingHeld.ITool;
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
     /** The arm's length, metres. */
     arm: number;
@@ -97,7 +101,7 @@ export namespace HumanFirearmReady {
     low: boolean;
 
     /** The body as it stands at the decisive instant. */
-    posture: StrikingRoll.IChoice["posture"];
+    posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
   }
 
   /**
@@ -116,14 +120,16 @@ export namespace HumanFirearmReady {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pose(
-    context: Pick<IHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     props: IProps,
-  ): StrikingHeld.IHandFrame {
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const { tool, arm, chest, line, low, posture } = props;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const region: IReady = READY[low ? "lowReady" : "highReady"];
     const sights: IAutoMovieVector3 = low ? line : Vector3.scale(line, -1);
-    const frame = (values: readonly number[]): StrikingHeld.IHandFrame => {
+    const frame = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [elevation, roll, ahead, rise] = values as readonly [
         number,
         number,

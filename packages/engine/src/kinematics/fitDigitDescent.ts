@@ -1,3 +1,5 @@
+import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
+
 import { descendDigitTasks } from "./descendDigitTasks";
 
 /**
@@ -55,41 +57,7 @@ import { descendDigitTasks } from "./descendDigitTasks";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure fixed-dimension callbacks make unchanged x/residual/Jacobian/tolerance/active-set data equivalent throughout damping rejection. Acceptance replaces x/residuals/Jacobians together. The internal owner additionally returns final primary data to digit continuation; this wrapper selects the same variable array and releases unused metadata. One retry's identical primary matrix shares factors across right-hand sides, and no point, solution or workspace crosses descents.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
+export function fitDigitDescent(props: IAutoMovieFitDigitDescent.IProps): number[] {
   return descendDigitTasks(props).values;
-}
-
-/**
- * Companion of {@link fitDigitDescent}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's meaning and unit.
- * @evidence contracts/development/design.md#principled-representation The two tasks as residual functions of the variables, the projection into the range, the resolution and the primary's tolerance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What one descent reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain functions of number arrays; no rig type leaks in.
- */
-export namespace fitDigitDescent {
-  /** What one descent reads. */
-  export interface IProps {
-    /** The start, the variables' values. */
-    start: readonly number[];
-
-    /** The pure primary residual, metres, with a fixed dimension; boundary probes use feasible coordinates. */
-    primary: (x: readonly number[]) => number[];
-
-    /** The pure secondary residual, metres, with a fixed dimension; empty when there is none. */
-    secondary: (x: readonly number[]) => number[];
-
-    /** Pure same-dimension projection into the range; returned numerical arrays may be reused after the caller copies them. */
-    project: (x: readonly number[]) => number[];
-
-    /** Positive finite variable resolution: the finite-difference step and the stop. */
-    step: number;
-
-    /** The primary residual's length at which the primary counts as met, at `x` with its Jacobian. */
-    tolerance: (
-      x: readonly number[],
-      J1: readonly (readonly number[])[],
-    ) => number;
-  }
 }
 

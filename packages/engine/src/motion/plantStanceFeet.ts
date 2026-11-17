@@ -1,21 +1,23 @@
-import {
+import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
   IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  type IAutoMovieFootLeg,
+  type IAutoMovieFootPlant,
+  type IAutoMovieMotionSample,
+  type IAutoMoviePinStanceTargets,
+  type IAutoMoviePlantStanceFeet,
+  type IAutoMoviePlantedFeet,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+} from "@automovie/interface";
 
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
-import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
-import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
-import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
 import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { pinStanceTargets } from "./pinStanceTargets";
@@ -53,62 +55,12 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Completed poses/maps feed detection. One exact operation reader and topology serve detection/correction; a genuine immutable rig must match this skeleton/clinical tables and supplies target-chain preparation. Raw omission preserves full live admission. Each changed parent pose and target still receives its actual solve.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned frames/plants belong to the caller. Sample/FK/target arrays are call-local; raw factor workspaces and optional immutable-rig current dependency rows release with the synchronous reader on return or throw. A supplied immutable rig remains caller-owned, without continuing tasks or handles.
  */
-export const plantStanceFeet: (props: {
-  /** Rig for forward kinematics. */ skeleton: IAutoMovieSkeleton;
-  /** The humanoid gait/motion to correct. */ motion: IAutoMovieMotion;
-  /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */ groundY?:
-    | number
-    | ((x: number, z: number) => number);
-  /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */ tolerance?: number;
-  /** Legs to plant. Defaults to both humanoid legs. */ legs?: readonly IAutoMovieFootLeg[];
-  /** Optional clinical-axis remap used consistently by detection and IK. */ jointAxes?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Optional clinical rest frames used consistently by detection and IK. */ restFrames?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-  /** Samples/second for detection and re-keying. Defaults to `24`. */ sampleRate?: number;
-  /** Explicit immutable snapshot of this exact rig and clinical tables; omitted keeps full raw FK admission. */ poseResolution?: prepareSkeletonPoseResolution.IRig;
-  /** Prior beat plants expressed in this motion's model frame. When a detected stance begins at the opening sample, its first pin resumes this authoritative position instead of deriving a nearby replacement. */ openingPlants?: ReadonlyArray<
-    Pick<IAutoMovieFootPlant, "foot" | "position">
-  >;
-}) => IAutoMoviePlantedFeet = (props: {
-  /** Rig for forward kinematics. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** The humanoid gait/motion to correct. */
-  motion: IAutoMovieMotion;
-
-  /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */
-  groundY?: number | ((x: number, z: number) => number);
-
-  /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */
-  tolerance?: number;
-
-  /** Legs to plant. Defaults to both humanoid legs. */
-  legs?: readonly IAutoMovieFootLeg[];
-
-  /** Optional clinical-axis remap used consistently by detection and IK. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional clinical rest frames used consistently by detection and IK. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /** Samples/second for detection and re-keying. Defaults to `24`. */
-  sampleRate?: number;
-
-  /** Explicit immutable snapshot of this exact rig and clinical tables; omitted keeps full raw FK admission. */
-  poseResolution?: prepareSkeletonPoseResolution.IRig;
-
-  /**
-   * Prior beat plants expressed in this motion's model frame.
-   *
-   * When a detected stance begins at the opening sample, its first pin resumes
-   * this authoritative position instead of deriving a nearby replacement.
-   */
-  openingPlants?: ReadonlyArray<Pick<IAutoMovieFootPlant, "foot" | "position">>;
-}): IAutoMoviePlantedFeet => {
-  const groundAt: ReturnType<typeof groundFunction> = groundFunction(
+export const plantStanceFeet: (
+  props: plantStanceFeet.IProps,
+) => IAutoMoviePlantedFeet = (
+  props: plantStanceFeet.IProps,
+): IAutoMoviePlantedFeet => {
+  const groundAt: (x: number, z: number) => number = groundFunction(
     props.groundY ?? DEFAULT_GROUND_Y,
   );
   const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
@@ -132,14 +84,14 @@ export const plantStanceFeet: (props: {
       legs.map((leg: IAutoMovieFootLeg): AutoMovieHumanoidBone => leg.foot),
     ));
   const times: number[] = sampleTimes(props.motion.duration, sampleRate);
-  const poses: ReturnType<typeof sampleMotion>[] = times.map(
-    (time: number): ReturnType<typeof sampleMotion> =>
+  const poses: IAutoMovieMotionSample[] = times.map(
+    (time: number): IAutoMovieMotionSample =>
       sampleMotion(props.motion, time),
   );
-  const resolved: ReturnType<typeof resolveBoneMap>[] = poses.map(
+  const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] = poses.map(
     (
-      sampled: ReturnType<typeof sampleMotion>,
-    ): ReturnType<typeof resolveBoneMap> => {
+      sampled: IAutoMovieMotionSample,
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       if (demand === undefined) return resolveBoneMap(
         props.skeleton,
         sampled.pose,
@@ -153,7 +105,7 @@ export const plantStanceFeet: (props: {
   );
 
   // A stance run per leg pinned to its start contact; per-frame solve targets.
-  const { plants, targets }: ReturnType<typeof pinStanceTargets> =
+  const { plants, targets }: IAutoMoviePinStanceTargets.IResult =
     pinStanceTargets({
       legs,
       resolved,
@@ -187,3 +139,19 @@ export const plantStanceFeet: (props: {
 
   return assemblePlantedFeet(props.motion, keyframes, plants);
 };
+
+/**
+ * Companion types of {@link plantStanceFeet}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the one engine-owned extension of the interface planting props and its absence rule.
+ * @evidence contracts/development/design.md#principled-representation The canonical planting props stay in `IAutoMoviePlantStanceFeet.IProps`; this extension adds only the prepared rig, an engine object whose methods read `preparePoseResolution` operations, so it cannot live in the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `plantPerformShotStanceFeet` passes the prepared rig so detection and re-keying share one demanded-bone reader; every other caller keeps the interface props unchanged.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface contract instead of copying it; the optional rig is the genuine `prepareSkeletonPoseResolution` product, never a structural stand-in.
+ */
+export namespace plantStanceFeet {
+  /** The planting props with an optional prepared rig. */
+  export interface IProps extends IAutoMoviePlantStanceFeet.IProps {
+    /** Explicit immutable snapshot of this exact rig and clinical tables; omitted keeps full raw FK admission. */
+    poseResolution?: prepareSkeletonPoseResolution.IRig;
+  }
+}

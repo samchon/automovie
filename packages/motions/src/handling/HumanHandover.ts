@@ -1,26 +1,26 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspHand } from "./HumanGraspHand";
+import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
@@ -82,99 +82,6 @@ export namespace HumanHandover {
    */
   export const EXCHANGE: number = 0.9;
 
-  /** How the handover ends. */
-  export type Outcome = "transfer" | "withdraw" | "decline";
-
-  /** One side's state at the start. */
-  export interface IPerson {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The acting hand. */
-    side: HumanHand.Side;
-
-    /** The person's displayed world bones at the start. */
-    bones: ReadonlyMap<
-      AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
-    >;
-  }
-
-  /** The planner's input. */
-  export interface IInput {
-    /** The giver, holding the prop in its acting hand. */
-    giver: IPerson;
-
-    /** The receiver. */
-    receiver: IPerson;
-
-    /** The prop. */
-    prop: IHumanProp;
-
-    /** The prop's displayed frame at the start. */
-    frame: IHumanProp.IFrame;
-
-    /** The receiver's grip affordance id. */
-    handle: string;
-
-    /** The prop's mass, kilograms; 0.09 when absent. */
-    mass?: number;
-
-    /** The outcome; `transfer` when absent. */
-    outcome?: Outcome;
-
-    /** Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent. */
-    meet?: IAutoMovieVector3;
-  }
-
-  /** The shared plan; every time is seconds from the handover's start. */
-  export interface IPlan {
-    /** The outcome. */
-    outcome: Outcome;
-
-    /** Where the giver's hand starts. */
-    giverFrom: HumanHand.IWrist;
-
-    /** Where the giver's hand offers the prop. */
-    giverAt: HumanHand.IWrist;
-
-    /** The prop's frame at the offer. */
-    offered: IHumanProp.IFrame;
-
-    /** Where the receiver's hand starts. */
-    receiverFrom: HumanHand.IWrist;
-
-    /** The receiver's grasp target on the offered prop. */
-    target: HumanGrasp.ITarget;
-
-    /** The receiver's wrist at the grasp. */
-    receiverAt: HumanHand.IWrist;
-
-    /** The receiver's hand as its arm achieves the grasp, where the digits close. */
-    receiverShown: HumanHand.IWrist;
-
-    /** The receiver's arm solution at the grasp, which its hold and take-away keep. */
-    receiverReference: IHumanPosture.IReference;
-
-    /** The giver's transport time. */
-    offer: number;
-
-    /** When the receiver's reach starts. */
-    reachStart: number;
-
-    /** The receiver's reach time. */
-    reach: number;
-
-    /** When the receiver's grip closes (or its hand stops short). */
-    gripClosed: number;
-
-    /** Both hands' shared hold. */
-    transfer: number;
-
-    /** When the giver lets go, or starts withdrawing. */
-    release: number;
-  }
-
   /**
    * Plan a handover.
    *
@@ -190,19 +97,19 @@ export namespace HumanHandover {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged prop/handle/frame family and receiver standing body establish fixed geometry; each candidate retains its actual wrist rotation, keys and scores without a result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local grasp preparation and carry geometry live through this synchronous search; the result retains existing frame, target, wrist, reference and scalar timing records, with no search workspace, FK reader, candidate history or handle.
    */
-  export function plan(input: IInput): IPlan {
-    const outcome: Outcome = input.outcome ?? "transfer";
-    const giver: IPerson["bones"] = input.giver.bones;
-    const receiver: IPerson["bones"] = input.receiver.bones;
-    const hand: (bones: IPerson["bones"], side: HumanHand.Side) => HumanHand.IWrist = (
-      bones: IPerson["bones"],
-      side: HumanHand.Side,
-    ): HumanHand.IWrist => {
+  export function plan(input: IAutoMovieMotionHumanHandover.IInput): IAutoMovieMotionHumanHandover.IPlan {
+    const outcome: IAutoMovieMotionHumanHandover.Outcome = input.outcome ?? "transfer";
+    const giver: IAutoMovieMotionHumanHandover.IPerson["bones"] = input.giver.bones;
+    const receiver: IAutoMovieMotionHumanHandover.IPerson["bones"] = input.receiver.bones;
+    const hand: (bones: IAutoMovieMotionHumanHandover.IPerson["bones"], side: AutoMovieHumanSide) => IAutoMovieMotionHumanHand.IWrist = (
+      bones: IAutoMovieMotionHumanHandover.IPerson["bones"],
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanHand.IWrist => {
       const b: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation"> = bones.get(`${side}Hand`)!;
       return { point: b.worldPosition, rotation: b.worldRotation };
     };
-    const giverFrom: HumanHand.IWrist = hand(giver, input.giver.side);
-    const receiverFrom: HumanHand.IWrist = hand(receiver, input.receiver.side);
+    const giverFrom: IAutoMovieMotionHumanHand.IWrist = hand(giver, input.giver.side);
+    const receiverFrom: IAutoMovieMotionHumanHand.IWrist = hand(receiver, input.receiver.side);
 
     // Where: the receiving grip on the mutual goal, the prop turned as held,
     // its middle at the exchange share of the mean sternum height.
@@ -213,11 +120,11 @@ export namespace HumanHandover {
       resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart);
-    const offered: IHumanProp.IFrame = {
+    const offered: IAutoMovieRigidTransform = {
       position: Vector3.add(input.frame.position, shift),
       rotation: input.frame.rotation,
     };
-    const giverAt: HumanHand.IWrist = {
+    const giverAt: IAutoMovieMotionHumanHand.IWrist = {
       point: Vector3.add(giverFrom.point, shift),
       rotation: giverFrom.rotation,
     };
@@ -225,8 +132,8 @@ export namespace HumanHandover {
     // reach from standing, as a pick up does, and can still hold as it took
     // it at the place it then carries the prop to, so the prop is not tipped
     // on the way there.
-    const authored: HumanGrasp.ITarget = handle.at(offered);
-    const standing: IHumanPosture = HumanGrasp.standing(
+    const authored: IAutoMovieMotionHumanGrasp.ITarget = handle.at(offered);
+    const standing: IAutoMovieMotionHumanPosture = HumanGrasp.standing(
       input.receiver.body,
       receiver,
     );
@@ -236,15 +143,15 @@ export namespace HumanHandover {
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       input.receiver.body, standing, input.receiver.side,
     );
-    const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
+    const chosen: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(
       input.receiver.body,
       standing,
       input.receiver.side,
       hang,
-      (turn: number): HumanHand.IWrist =>
+      (turn: number): IAutoMovieMotionHumanHand.IWrist =>
         place(turn, 0),
       [0],
-      (wrist: HumanHand.IWrist): HumanGrasp.IKey[] => [
+      (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] => [
         {
           posture: standing,
           wrist: {
@@ -255,9 +162,9 @@ export namespace HumanHandover {
         },
       ],
     );
-    const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
-    const receiverAt: HumanHand.IWrist = chosen.wrist;
-    const receiverShown: HumanHand.IWrist = chosen.shown;
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const receiverAt: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
+    const receiverShown: IAutoMovieMotionHumanHand.IWrist = chosen.shown;
 
     // When: the giver's offer, the receiver's reach ending no earlier, the
     // shared hold by mass, then the release.
@@ -313,9 +220,9 @@ export namespace HumanHandover {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function carried(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     pitch: number = 0,
   ): IAutoMovieVector3 {
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(
@@ -360,9 +267,9 @@ export namespace HumanHandover {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains K times and K scalar turns until its action is released; actual sample postures and solver workspaces are not captured or retained.
    */
   export function upright(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    at: (seconds: number, yaw: number) => IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    at: (seconds: number, yaw: number) => IAutoMovieMotionHumanPosture,
     from: number,
     to: number,
     ends: readonly [number, number | undefined],
@@ -388,9 +295,9 @@ export namespace HumanHandover {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tipped(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
   ): number {
     const asked: IAutoMovieQuaternion | undefined =
       posture.limbs[side === "left" ? "leftArm" : "rightArm"]?.rotation;

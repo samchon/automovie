@@ -1,10 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { handshake } from "./handshake";
 
 /**
@@ -22,8 +26,8 @@ import type { handshake } from "./handshake";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both observed offsets belong to this same unchanged standing body/posture; no reading is reused across bodies or calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns four scalars and releases the synchronous prepared trunk reading without a cache or handle.
  */
-export function handshakeStance(body: IHumanBody, side: HumanHand.Side): handshake.IStance {
-  const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+export function handshakeStance(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): handshake.IStance {
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const reading: ReturnType<typeof HumanTrunk.prepare> = HumanTrunk.prepare(
     body, posture, new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, body.surfaces.regions.sternum.bone,

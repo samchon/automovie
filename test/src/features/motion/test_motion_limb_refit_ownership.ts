@@ -1,11 +1,15 @@
-import type { IAutoMovieResolvedBone, IAutoMovieSeededChainFit } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,8 +48,8 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit borrows immutable canonical geometry through fresh body wrappers and owns source poses/goals/annotations. It uses public resolver/FK APIs and adds no internal import, test-only export, foreign replacement, host or compiler.
  */
 export function test_motion_limb_refit_ownership(): void {
-  const shared: IHumanBody = motionHumanBody("m-average");
-  const body: IHumanBody = { ...shared };
+  const shared: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = { ...shared };
   const source: IAutoMoviePose = resolveHumanPosture(body, {
     root: { x: 2, y: 0.6, z: -1 }, yaw: 17, pitch: 0, roll: 0, joints: {}, limbs: {},
   });
@@ -59,22 +63,22 @@ export function test_motion_limb_refit_ownership(): void {
   const original: IAutoMoviePose = structuredClone(source);
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
   const wrist: IAutoMovieVector3 = rest.get("rightHand")!.worldPosition;
-  const goal: IHumanPosture.IGoal = {
+  const goal: IAutoMovieHumanLimbGoal = {
     point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
     bend: { ...rest.get("rightLowerArm")!.worldPosition },
     rotation: { ...rest.get("rightHand")!.worldRotation }, elbow: "strain",
   };
   const direct: IAutoMovieSeededChainFit = resolveHumanPosture.limbSeeded(body, source, "rightArm", goal);
-  const pristine: resolveHumanPosture.ISeeded = structuredClone({
+  const pristine: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = structuredClone({
     pose: direct.pose, seeds: { rightArm: direct.seed }, values: { rightArm: direct.value },
   });
-  const first: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
+  const first: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
   verify(body, first, pristine, goal);
-  let previous: resolveHumanPosture.ISeeded = first;
+  let previous: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = first;
   for (let replay: number = 0; replay < 2; replay++) {
     poison(previous);
     unchanged(source, original);
-    const current: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
+    const current: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
     verify(body, current, pristine, goal);
     const oldHead: IAutoMovieJointPose | undefined = previous.pose.joints.find(
       (joint: IAutoMovieJointPose): boolean => joint.bone === "head");
@@ -118,8 +122,8 @@ export function test_motion_limb_refit_ownership(): void {
 }
 
 /** A refit issues its own current source's exact untouched scalars and refuses malformed axes. */
-function scalarSource(shared: IHumanBody): void {
-  const body: IHumanBody = { ...shared };
+function scalarSource(shared: IAutoMovieMotionHumanBody): void {
+  const body: IAutoMovieMotionHumanBody = { ...shared };
   const source: IAutoMoviePose = resolveHumanPosture(body, {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
   });
@@ -128,13 +132,13 @@ function scalarSource(shared: IHumanBody): void {
     joint.bone === "head" ? head : joint);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
   const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
-  const goal: IHumanPosture.IGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
+  const goal: IAutoMovieHumanLimbGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
     bend: { ...bones.get("rightLowerArm")!.worldPosition } };
   const next: IAutoMoviePose = structuredClone(source);
   const nextHead: IAutoMovieJointPose = next.joints.find(
     (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
   nextHead.flexion = 7 + 1e-14;
-  const cold: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
+  const cold: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
   const coldHead: IAutoMovieJointPose = cold.pose.joints.find(
     (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
   TestValidator.predicate("a refit keeps the actual current scalar source",
@@ -170,7 +174,7 @@ function marked(joint: IAutoMovieJointPose | undefined): joint is IMarkedJoint {
 }
 
 /** Damage only issued records; later successful reads must leave these edits in place. */
-function poison(result: resolveHumanPosture.ISeeded): void {
+function poison(result: IAutoMovieMotionHumanResolveHumanPosture.ISeeded): void {
   result.pose.root!.translation.x = 123;
   result.pose.root!.rotation.w = 0;
   result.pose.root!.scale.y = 8;
@@ -212,8 +216,8 @@ function unchanged(actual: IAutoMoviePose, expected: IAutoMoviePose): void {
 }
 
 /** Replayed metadata/geometry remains the original fit and still meets its actual task. */
-function verify(body: IHumanBody, actual: resolveHumanPosture.ISeeded,
-  expected: resolveHumanPosture.ISeeded, goal: IHumanPosture.IGoal): void {
+function verify(body: IAutoMovieMotionHumanBody, actual: IAutoMovieMotionHumanResolveHumanPosture.ISeeded,
+  expected: IAutoMovieMotionHumanResolveHumanPosture.ISeeded, goal: IAutoMovieHumanLimbGoal): void {
   sameJoints(actual.pose, expected.pose, 1e-9);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, actual.pose);
   const reference: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, expected.pose);
@@ -228,10 +232,10 @@ function verify(body: IHumanBody, actual: resolveHumanPosture.ISeeded,
           qclose(after.worldRotation, before.worldRotation, 1e-9);
       }),
   );
-  const seed: resolveHumanPosture.ISeeded["seeds"]["rightArm"] = actual.seeds.rightArm;
-  const original: resolveHumanPosture.ISeeded["seeds"]["rightArm"] = expected.seeds.rightArm;
-  const value: resolveHumanPosture.ISeeded["values"]["rightArm"] = actual.values.rightArm;
-  const old: resolveHumanPosture.ISeeded["values"]["rightArm"] = expected.values.rightArm;
+  const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]["rightArm"] = actual.seeds.rightArm;
+  const original: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]["rightArm"] = expected.seeds.rightArm;
+  const value: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"]["rightArm"] = actual.values.rightArm;
+  const old: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"]["rightArm"] = expected.values.rightArm;
   TestValidator.predicate("actual strain fitting issues its original continuation seed and score",
     seed !== undefined && seed !== null && original !== undefined && original !== null &&
     seed.branch === original.branch && nclose(seed.swivel, original.swivel, 1e-9) &&
@@ -254,8 +258,8 @@ function sameJoints(actual: IAutoMoviePose, expected: IAutoMoviePose, tolerance:
 }
 
 /** A refit through a transparent Proxy input is the plain input's fit, issued detached from it. */
-function transparentInput(shared: IHumanBody): void {
-  const body: IHumanBody = { ...shared };
+function transparentInput(shared: IAutoMovieMotionHumanBody): void {
+  const body: IAutoMovieMotionHumanBody = { ...shared };
   const source: IAutoMoviePose = resolveHumanPosture(body, {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
   });
@@ -263,15 +267,15 @@ function transparentInput(shared: IHumanBody): void {
   source.joints = source.joints.map((value: IAutoMovieJointPose): IAutoMovieJointPose => value.bone === "head" ? head : value);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
   const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
-  const goal: IHumanPosture.IGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
+  const goal: IAutoMovieHumanLimbGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
     bend: { ...bones.get("rightLowerArm")!.worldPosition }, rotation: { ...bones.get("rightHand")!.worldRotation }, elbow: "strain" };
-  const plain: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
+  const plain: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
   const proxy: IAutoMovieJointPose = new Proxy(head, {});
   const next: IAutoMoviePose = { ...source, joints: source.joints.map(
     (value: IAutoMovieJointPose): IAutoMovieJointPose => value === head ? proxy : value) };
-  let previous: resolveHumanPosture.ISeeded | undefined;
+  let previous: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined;
   for (let replay: number = 0; replay < 2; replay++) {
-    const result: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
+    const result: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
     verify(body, result, plain, goal);
     TestValidator.predicate("issued records are detached from the caller's current transparent input",
       result.pose.joints.every((value: IAutoMovieJointPose): boolean => value !== proxy && value !== head));

@@ -1,7 +1,9 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,14 +33,14 @@ import { seated } from "./seated";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local borrowed/owned FK and ROM sources end with return or throw. Only the current returned posture/goals escape, without a stored workspace, body preparation callback, queried time or history.
  */
 export function riseRested(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
   yaw: number,
   share: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
-): IHumanPosture {
+): IAutoMovieMotionHumanPosture {
   if (share <= 0)
     return resolveHumanPosture.lower(body, posture, undefined, resolution);
   const read: ReturnType<typeof prepareHumanPoseResolution> =

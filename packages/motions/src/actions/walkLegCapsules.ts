@@ -1,19 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkLegClearance,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanAuditTangleModel,
-} from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { walkLegClearance } from "./walkLegClearance";
 
 /**
@@ -45,8 +41,8 @@ export namespace walkLegCapsules {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call owns a fresh bounded map/records and retains no leg, demand, query history or external handle after its caller releases them.
    */
   export function bones(
-    body: IHumanBody,
-    leg: walkLegClearance.ILeg,
+    body: IAutoMovieMotionHumanBody,
+    leg: IAutoMovieMotionHumanWalkLegClearance.ILeg,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const names: Record<string, AutoMovieHumanoidBone> = NAMES[leg.side];
@@ -99,7 +95,7 @@ export namespace walkLegCapsules {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical rest joints stay unchanged for one body, as the existing capsule/reference caches already require; another body is required for geometry edits, while no posed output is shared.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body entry owns at most two private rest offsets and releases with the body; only a fresh world point escapes and no leg, pose or query history is retained.
    */
-  export function toes(body: IHumanBody, leg: walkLegClearance.ILeg): IAutoMovieVector3 {
+  export function toes(body: IAutoMovieMotionHumanBody, leg: IAutoMovieMotionHumanWalkLegClearance.ILeg): IAutoMovieVector3 {
     let sides: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined = TOES.get(body);
     if (sides === undefined) {
       sides = {};
@@ -145,7 +141,7 @@ export namespace walkLegCapsules {
    * is its joint.
    */
   export function capsules(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): ReadonlyMap<AutoMovieHumanoidBone, ICapsule> {
     const known: Map<AutoMovieHumanoidBone, ICapsule> | undefined =
       CAPSULES.get(body);
@@ -158,7 +154,7 @@ export namespace walkLegCapsules {
         const matched: RegExpExecArray | null = LEG.exec(part.bone);
         if (matched === null) return;
         const joint: IAutoMovieVector3 = body.rest.get(part.bone)!;
-        const pose: IAutoMoviePhysicalProfile.ITransform = m.rest[i]!.pose;
+        const pose: IAutoMovieRigidTransform = m.rest[i]!.pose;
         const points: IAutoMovieVector3[] = part.probes.map(
           (probe: IAutoMovieVector3): IAutoMovieVector3 =>
             Vector3.subtract(
@@ -235,7 +231,7 @@ export namespace walkLegCapsules {
   }
 
   /** Each segment's index among the audit model's parts, read once per body. */
-  export function indices(body: IHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
+  export function indices(body: IAutoMovieMotionHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
     const known: Map<AutoMovieHumanoidBone, number> | undefined =
       INDICES.get(body);
     if (known !== undefined) return known;
@@ -270,7 +266,7 @@ export namespace walkLegCapsules {
    */
   export function readable(
     m: AutoMovieMotionHumanAuditTangleModel.IModel,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     i: number,
     j: number,
   ): IReadable {
@@ -296,21 +292,21 @@ export namespace walkLegCapsules {
   }
 
   /** Each body's bounding capsules of its leg segments (`capsules`). */
-  const CAPSULES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
+  const CAPSULES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
     new WeakMap();
 
   /** Intrinsic toes-minus-foot rest offsets only, at most two per weak body. */
-  const TOES: WeakMap<IHumanBody, Partial<Record<"left" | "right", IAutoMovieVector3>>> = new WeakMap();
+  const TOES: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<"left" | "right", IAutoMovieVector3>>> = new WeakMap();
 
   /** Each body's segment indices among the audit model's parts (`indices`). */
-  const INDICES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, number>> =
+  const INDICES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, number>> =
     new WeakMap();
 
   /** Each body's readable probes by ordered pair of segments (`readable`). */
-  const READABLE: WeakMap<IHumanBody, Map<number, IReadable>> = new WeakMap();
+  const READABLE: WeakMap<IAutoMovieMotionHumanBody, Map<number, IReadable>> = new WeakMap();
 
   /** The identity frame a shape's distance is read in. */
-  export const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+  export const IDENTITY: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };

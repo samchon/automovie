@@ -1,8 +1,10 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapTriangularMetric,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
-import type { IAutoMovieRecoveryMapCurvatureFit } from "../structures/internal/IAutoMovieRecoveryMapCurvatureFit";
-import type { IAutoMovieRecoveryMapTriangularMetric } from "../structures/internal/IAutoMovieRecoveryMapTriangularMetric";
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";

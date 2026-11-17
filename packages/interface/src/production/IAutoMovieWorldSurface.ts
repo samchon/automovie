@@ -1,4 +1,4 @@
-import { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
+import type { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
 
 /**
  * Bounded world-XZ polygon with a deterministic terrain height law and explicit traversability.

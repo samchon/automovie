@@ -1,6 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
+import type {
+  IAutoMovieInspectionView,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Write an inspection view as the text `parseAutoMovieInspectionView` reads, so a view chosen in one host repeats in another.

@@ -3,6 +3,8 @@ import { validateModel } from "@automovie/engine";
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { armourActual } from "../internal/armourActual";
+
 /**
  * A fitted armour piece requires only the body measures it actually consumes,
  * and refuses missing, non-finite, nonpositive or inverted torso inputs.
@@ -13,12 +15,13 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Each required field independently missing, zero, negative, NaN or either
  *    infinity is refused with the actual measure field as its repair axis.
  * 3. A cuirass refuses shoulders at or below the waist; a positive separation
- *    makes the box's height their difference. A mail shirt needs no heights.
+ *    makes the actual transformed hollow mesh's height their difference.
+ *    A mail shirt needs no heights.
  * 4. Unused missing or malformed fields never become dependencies of a kind.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the fitting prerequisites, malformed and relative-height cases, and the authored fixture's distinction from anthropometric data.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public createArmour and engine admission, observes structured refusals and the actual torso primitive; catches incomplete Partial measures leaking NaN/invalid geometry and accidental dependence on unused body fields.
- * @evidence contracts/development/testing.md#independent-expectations A helmet uses head radius, torso armour uses chest breadth/depth, a cuirass spans waist to shoulders, and each limb solid uses its radius and length; these geometric dependencies follow the documented fit contract. Authored positive SI inputs isolate admission, while the existing armour_fit unit owns measured body sweeps and museum comparisons.
+ * @evidence contracts/development/common.md#meaningful-documentation States the fitting prerequisites, malformed and relative-height cases, the actual transformed hollow-mesh height observation and the authored fixture's distinction from anthropometric data.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public createArmour and engine admission, observes structured refusals and actual transformed torso mesh vertices through armourActual.bounds; catches incomplete Partial measures leaking NaN/invalid geometry and accidental dependence on unused body fields, without substituting a filled primitive or metadata dimension for the hollow artifact.
+ * @evidence contracts/development/testing.md#independent-expectations A helmet uses head radius, torso armour uses chest breadth/depth, a cuirass's actual mesh envelope spans waist to shoulders, and each limb solid uses its radius and length; these geometric dependencies follow the documented fit contract. The authored heights 1.4 and 0.9 m require an observed 0.5 m span within the unchanged 1e-12 m allowance. Authored positive SI inputs isolate admission, while the existing armour_fit unit owns measured body sweeps and museum comparisons.
  * @evidence contracts/development/testing.md#distinguishing-cases Eight kind-specific minimal records and unfitted counterparts, every missing/zero/negative/non-finite dependency, equal and reversed torso heights, a valid height difference, and malformed unused fields.
  * @evidence contracts/development/testing.md#execution-ownership One portable discovered in-memory unit uses authored measures and actual armour construction; it starts no Human generation, compiler, runner, renderer or host.
  */
@@ -86,13 +89,9 @@ export function test_archetype_armour_measure(): void {
     kind: "cuirass",
     measure: cases.cuirass,
   });
-  const geometry: (typeof cuirass.parts)[number]["geometry"] | undefined =
-    cuirass.parts[0]?.geometry;
-  if (
-    geometry?.type !== "primitive" ||
-    geometry.shape.type !== "box" ||
-    !(Math.abs(geometry.shape.height - 0.5) <= 1e-12)
-  )
+  const bounds: ReturnType<typeof armourActual.bounds> =
+    armourActual.bounds(cuirass);
+  if (!(Math.abs(bounds.high.y - bounds.low.y - 0.5) <= 1e-12))
     findings.push(
       "the cuirass height is not the positive shoulder-to-waist difference",
     );

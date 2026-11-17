@@ -1,8 +1,8 @@
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
-
-/** One actual face-chart address, independent of its shared vertex's original owner. */
-type Point = readonly [number, number];
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
 
 /**
  * Admit authoritative indexed trim and original-domain chart occurrences.
@@ -30,10 +30,10 @@ export namespace AutoMovieSolidMeshAuthorities {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no arrays, mesh or source; the caller owns the supplied endpoint values.
    */
   export function consumedByCell(
-    a: Point,
-    b: Point,
-    u: Point,
-    v: Point,
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
+    u: Readonly<AutoMovieVector2Tuple>,
+    v: Readonly<AutoMovieVector2Tuple>,
   ): boolean {
     if (
       a[0] === b[0] &&
@@ -73,23 +73,19 @@ export namespace AutoMovieSolidMeshAuthorities {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function domainSegments(
-    mesh: AutoMovieSolidMesh.IMesh,
-    input: AutoMovieSolidMesh.IFace,
-    chart: Map<number, Point>,
+    mesh: IAutoMovieSolidMesh.IMesh,
+    input: IAutoMovieSolidMesh.IFace,
+    chart: Map<number, Readonly<AutoMovieVector2Tuple>>,
     period: number | undefined,
-  ): AutoMovieSolidMeshConstraints.ISegment[] | string {
-    const declared: AutoMovieSolidMesh.ILoop[] | undefined = input.domainLoops;
+  ): IAutoMovieSolidMeshConstraints.ISegment[] | string {
+    const declared: IAutoMovieSolidMesh.ILoop[] | undefined = input.domainLoops;
     if (declared === undefined) return [];
     if (!Array.isArray(declared))
       return "face domain authorities must be an array, or omitted";
-    const loops: readonly AutoMovieSolidMesh.ILoop[] = declared;
+    const loops: readonly IAutoMovieSolidMesh.ILoop[] = declared;
     if (loops.length === 0) return [];
-    const segments: AutoMovieSolidMeshConstraints.ISegment[] | string = collect(
-      mesh,
-      loops,
-      chart,
-      period,
-    );
+    const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string =
+      collect(mesh, loops, chart, period);
     if (typeof segments === "string")
       return "face domain authorities: " + segments;
     const low: number = input.stations[0]!;
@@ -114,8 +110,8 @@ export namespace AutoMovieSolidMeshAuthorities {
           return "face domain authority is outside its declared sampling side";
     }
     for (const edge of segments) {
-      const a: Point = chart.get(edge.a)!;
-      const b: Point = chart.get(edge.b)!;
+      const a: Readonly<AutoMovieVector2Tuple> = chart.get(edge.a)!;
+      const b: Readonly<AutoMovieVector2Tuple> = chart.get(edge.b)!;
       if (
         !(
           (a[0] === low && b[0] === low) ||
@@ -141,12 +137,12 @@ export namespace AutoMovieSolidMeshAuthorities {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function collect(
-    mesh: AutoMovieSolidMesh.IMesh,
-    loops: readonly AutoMovieSolidMesh.ILoop[],
-    chart: Map<number, Point>,
+    mesh: IAutoMovieSolidMesh.IMesh,
+    loops: readonly IAutoMovieSolidMesh.ILoop[],
+    chart: Map<number, Readonly<AutoMovieVector2Tuple>>,
     period: number | undefined,
-  ): AutoMovieSolidMeshConstraints.ISegment[] | string {
-    const result: AutoMovieSolidMeshConstraints.ISegment[] = [];
+  ): IAutoMovieSolidMeshConstraints.ISegment[] | string {
+    const result: IAutoMovieSolidMeshConstraints.ISegment[] = [];
     for (const loop of loops) {
       if (
         loop.vertices.length !== loop.chart.length ||
@@ -158,7 +154,7 @@ export namespace AutoMovieSolidMeshAuthorities {
         return "face trim needs matching nondegenerate indices/charts and a periodic winding kind";
       for (let k: number = 0; k < loop.vertices.length; k++) {
         const id: number = loop.vertices[k]!;
-        const point: Point = loop.chart[k]!;
+        const point: Readonly<AutoMovieVector2Tuple> = loop.chart[k]!;
         if (
           !Number.isSafeInteger(id) ||
           id < 0 ||
@@ -168,7 +164,8 @@ export namespace AutoMovieSolidMeshAuthorities {
           !mesh.positions.slice(3 * id, 3 * id + 3).every(Number.isFinite)
         )
           return "face trim has an unavailable authoritative vertex or nonfinite chart";
-        const known: Point | undefined = chart.get(id);
+        const known: Readonly<AutoMovieVector2Tuple> | undefined =
+          chart.get(id);
         if (known === undefined) chart.set(id, [point[0], point[1]]);
         else {
           const turn: number =
@@ -187,8 +184,8 @@ export namespace AutoMovieSolidMeshAuthorities {
       let winding: number = 0;
       for (let k: number = 0; k < loop.vertices.length; k++) {
         const next: number = (k + 1) % loop.vertices.length;
-        const a: Point = loop.chart[k]!;
-        const raw: Point = loop.chart[next]!;
+        const a: Readonly<AutoMovieVector2Tuple> = loop.chart[k]!;
+        const raw: Readonly<AutoMovieVector2Tuple> = loop.chart[next]!;
         const closing: boolean =
           next === 0 && (loop.kind === "start" || loop.kind === "end");
         if (

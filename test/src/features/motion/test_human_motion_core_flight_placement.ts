@@ -1,19 +1,18 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
+import { Quaternion, solveAirborneTakeoff } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   type HumanSegment,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,10 +56,10 @@ import { qunit } from "../internal/qunit";
  */
 export function test_human_motion_core_flight_placement(): void {
   const findings: string[] = [];
-  const canonical: IHumanBody = motionHumanBody("m-average");
-  const perform: (moved: boolean) => HumanPerformance = (
+  const canonical: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const perform: (moved: boolean) => IAutoMovieMotionHumanPerformance = (
     moved: boolean,
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "flight",
       flight: "physical",
@@ -84,12 +83,12 @@ export function test_human_motion_core_flight_placement(): void {
           "leap",
         ).node,
     });
-  const here: HumanPerformance = perform(false);
-  const there: HumanPerformance = perform(true);
-  const span: (film: HumanPerformance) => readonly [number, number] = (
-    film: HumanPerformance,
+  const here: IAutoMovieMotionHumanPerformance = perform(false);
+  const there: IAutoMovieMotionHumanPerformance = perform(true);
+  const span: (film: IAutoMovieMotionHumanPerformance) => readonly [number, number] = (
+    film: IAutoMovieMotionHumanPerformance,
   ): readonly [number, number] => {
-    const segment: HumanSegment.ISegment = film.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
     const at: (name: string) => number = (name: string): number => {
       const event: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
         (value: IAutoMovieMotionEvent): boolean => value.name === name,
@@ -118,8 +117,8 @@ export function test_human_motion_core_flight_placement(): void {
     "placed turn has finite positive observed flight",
     Number.isFinite(from) && Number.isFinite(to) && to - from > 2e-6,
   );
-  const root: (film: HumanPerformance, t: number) => IAutoMovieQuaternion = (
-    film: HumanPerformance,
+  const root: (film: IAutoMovieMotionHumanPerformance, t: number) => IAutoMovieQuaternion = (
+    film: IAutoMovieMotionHumanPerformance,
     t: number,
   ): IAutoMovieQuaternion => film.pose("a", t).root!.rotation;
   const takeoffs: readonly IAutoMovieQuaternion[] = [

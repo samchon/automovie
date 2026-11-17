@@ -1,6 +1,10 @@
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureSampling,
+  IAutoMovieInspectionRequest,
+} from "@automovie/interface";
+
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
 import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanRequest.js";
 
 /**
@@ -34,7 +38,7 @@ export function formatAutoMovieCapturePlanRequest(
   if (request.sampling.kind === "at")
     values.push(["at", request.sampling.seconds.map(String).join(",")]);
   else {
-    const fallback: IAutoMovieCapturePlanRequest.Sampling = absent.sampling;
+    const fallback: IAutoMovieCaptureSampling = absent.sampling;
     if (fallback.kind !== "even" || request.sampling.from !== fallback.from)
       values.push(["from", String(request.sampling.from)]);
     if (request.sampling.to !== null)

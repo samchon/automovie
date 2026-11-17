@@ -6,9 +6,9 @@ import {
   IAutoMovieExpression,
   IAutoMovieJointPose,
   IAutoMovieLookAt,
+  type IAutoMovieMotionSample,
 } from "@automovie/interface";
 
-import { IAutoMovieMotionSample } from "../motion/IAutoMovieMotionSample";
 import { GAZE_PRESET_CHANNELS } from "./constants/GAZE_PRESET_CHANNELS";
 
 /** One eye's four gaze channels. */

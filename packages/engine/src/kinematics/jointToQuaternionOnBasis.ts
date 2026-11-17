@@ -1,4 +1,9 @@
 import {
+  type AutoMovieClinicalAxis,
+  type IAutoMovieAxisFrame,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
+import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -6,14 +11,11 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
-import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
 /** The three clinical coordinates, read in their existing admission order. */
-type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
 
 /** One raw inner-product writer; its prepared form retains fixed axis support only. */
 type IInnerProductWriter = ReturnType<typeof multiplyQuaternionInto.prepareCardinal>;

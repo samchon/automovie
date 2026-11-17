@@ -1,7 +1,8 @@
-import {
-  AutoMovieSolidMesh,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import { AutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /** Original face-chart coordinates, independent of a shared vertex's owner. */
 type Point = [number, number];
@@ -69,7 +70,7 @@ function inspect(
       .map((u: number): Point => [u, 1]),
     [0, 0.5],
   ];
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const foreign: number = AutoMovieSolidMesh.owner(mesh, {
     ...surface,
     name: "foreign-domain-owner",

@@ -1,3 +1,5 @@
+import type { IAutoMovieLoftSectionFrame } from "@automovie/interface";
+
 /**
  * Section planes of a chain: where each harmonic section lies in the world.
  *
@@ -49,26 +51,6 @@
  */
 export namespace AutoMovieLoftFrame {
   /**
-   * Section origin and two axes; geometric rotation frames require an orthonormal pair.
-   * The same shape also stores component derivatives in layer jet fields.
-   *
-   * @evidence contracts/development/design.md#principled-representation Three triples encode origin, planar x axis and planar z axis in world coordinates; geometric orthonormality is a caller premise, not a structural type guarantee.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The explicit basis record serves placement and interpolation without a hidden matrix convention.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This interface neither validates nor normalizes its axes; derivative-valued frame fields intentionally use the same shape without unit axes.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives origin units, geometric axis roles and the distinction between a rotation frame and its component derivatives.
-   */
-  export interface IFrame {
-    /** World position of the section's planar origin, mm. */
-    origin: [number, number, number];
-
-    /** Unit in-plane axis carrying the harmonic x coordinate. */
-    u: [number, number, number];
-
-    /** Unit in-plane axis carrying the harmonic z coordinate, orthogonal to `u`. */
-    v: [number, number, number];
-  }
-
-  /**
    * Horizontal frame at a world height in mm: the default of an unframed layer.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Origin (0,y,0) with +X/+Z planar axes makes station equal world height and v-cross-u point upward.
@@ -79,7 +61,7 @@ export namespace AutoMovieLoftFrame {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure frame constructor owns no coordinated or cached work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns all returned tuples; the function retains none.
    */
-  export function horizontal(y: number): IFrame {
+  export function horizontal(y: number): IAutoMovieLoftSectionFrame {
     return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
   }
 
@@ -95,7 +77,7 @@ export namespace AutoMovieLoftFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world tuple and keeps no reference to the frame.
    */
   export function place(
-    frame: IFrame,
+    frame: IAutoMovieLoftSectionFrame,
     x: number,
     z: number,
   ): [number, number, number] {
@@ -122,7 +104,7 @@ export namespace AutoMovieLoftFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new pair escapes; frame and point remain unmodified and unretained.
    */
   export function local(
-    frame: IFrame,
+    frame: IAutoMovieLoftSectionFrame,
     p: readonly [number, number, number],
   ): [number, number] {
     const d: [number, number, number] = [
@@ -154,14 +136,14 @@ export namespace AutoMovieLoftFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rotation matrices and vectors are local; the output owns its origin and normally new axes, but borrows a's axes in the still branch.
    */
   export function interpolate(
-    a: IFrame,
-    b: IFrame,
+    a: IAutoMovieLoftSectionFrame,
+    b: IAutoMovieLoftSectionFrame,
     ta: readonly [number, number, number],
     tb: readonly [number, number, number],
     t: number,
     wa?: readonly [number, number, number],
     wb?: readonly [number, number, number],
-  ): IFrame {
+  ): IAutoMovieLoftSectionFrame {
     // Cubic Hermite origin.
     const h00: number = 2 * t ** 3 - 3 * t ** 2 + 1;
     const h10: number = t ** 3 - 2 * t ** 2 + t;
@@ -227,8 +209,8 @@ export namespace AutoMovieLoftFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new angular-velocity triple escapes; endpoint frames and local matrices are not retained.
    */
   export function rate(
-    a: IFrame,
-    b: IFrame,
+    a: IAutoMovieLoftSectionFrame,
+    b: IAutoMovieLoftSectionFrame,
     span: number,
   ): [number, number, number] {
     const Ra: number[][] = matrix(a);
@@ -240,7 +222,7 @@ export namespace AutoMovieLoftFrame {
   }
 
   /** Rotation matrix of a frame: columns u, w = v x u, v (images of +X, +Y, +Z). */
-  function matrix(frame: IFrame): number[][] {
+  function matrix(frame: IAutoMovieLoftSectionFrame): number[][] {
     const u: [number, number, number] = frame.u;
     const v: [number, number, number] = frame.v;
     const w: [number, number, number] = [

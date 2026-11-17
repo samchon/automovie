@@ -1,3 +1,5 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import type { distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { swivelArcs } from "./swivelArcs";
 
@@ -33,7 +35,7 @@ import { swivelArcs } from "./swivelArcs";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function distalEndSwivelNearest(
-  arcs: readonly swivelArcs.IArc[] | "all",
+  arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
   range: distalTwistSwivelRange.IRange | null,
   desired: number,
 ): number | null {
@@ -45,7 +47,7 @@ export function distalEndSwivelNearest(
   const refused = (swivel: number): boolean => {
     const at: number = swivel - 360 * Math.floor(swivel / 360);
     return arcs.some(
-      (arc: swivelArcs.IArc): boolean => arc.from < at && at < arc.to,
+      (arc: IAutoMovieSwivelArcs.IArc): boolean => arc.from < at && at < arc.to,
     );
   };
   const admitted = (swivel: number): boolean =>

@@ -1,4 +1,5 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+
 import { KickForm } from "./KickForm";
 
 /**
@@ -31,9 +32,9 @@ export namespace StrikingWeaponGirth {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legRadii(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): [readonly [number, number], readonly [number, number], number] {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const foot: number = KickForm.FOOT_RADIUS_SHARE * m.ankleHeight;
     return [[m.thighRadius, m.shankRadius], [m.shankRadius, foot], foot];
   }
@@ -57,9 +58,9 @@ export namespace StrikingWeaponGirth {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function armRadii(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): [readonly [number, number], number, number] {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return [
       [m.upperArmRadius, m.forearmRadius],
       m.forearmRadius,

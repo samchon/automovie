@@ -1,14 +1,16 @@
 import {
   IAutoMovieDiagnostic,
   IAutoMovieFormationMotion,
+  type IAutoMovieFormationPlacement,
   IAutoMovieFormationSlotMotion,
-  IAutoMovieScene,
+  type IAutoMovieFormationSlotPlacement,
+  type IAutoMovieSampledFormationMotion,
   IAutoMovieShotContract,
   IAutoMovieSpace,
+  type IAutoMovieValidateFormationGround,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieFormationPlacement } from "../IAutoMovieFormationPlacement";
 import {
   formationSlotPosition,
   heightAt,
@@ -16,8 +18,6 @@ import {
   sampleFormationMotion,
   sampleFormationSlotMotion,
 } from "../index";
-import type { IAutoMovieFormationSlotPlacement } from "./../IAutoMovieFormationSlotPlacement";
-import type { IAutoMovieSampledFormationMotion } from "./../IAutoMovieSampledFormationMotion";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /** Target travel resolution in metres, subject to the capped step count and cue reach/easing estimation limits. */
@@ -297,20 +297,10 @@ const formationGroundEscape: (
  */
 export const validateAutoMovieFormationGround: (
   contract: Pick<IAutoMovieShotContract, "id">,
-  value: {
-    scene: Pick<IAutoMovieScene, "space">;
-    formations: readonly IAutoMovieFormationPlacement[];
-    formationMotions?: readonly IAutoMovieFormationMotion[];
-    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationGround.IValue,
 ) => IAutoMovieDiagnostic[] = (
   contract: Pick<IAutoMovieShotContract, "id">,
-  value: {
-    scene: Pick<IAutoMovieScene, "space">;
-    formations: readonly IAutoMovieFormationPlacement[];
-    formationMotions?: readonly IAutoMovieFormationMotion[];
-    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationGround.IValue,
 ): IAutoMovieDiagnostic[] => {
   const space: IAutoMovieSpace | null | undefined = value.scene.space;
   if (space === undefined || space === null) return [];

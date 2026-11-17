@@ -1,17 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-} from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 
@@ -57,7 +57,7 @@ export namespace HumanGraspReach {
    * key is fitted with the grasp's own arm solution as its reference, the way
    * the law will show it. The returned `reference` is that solution, for the
    * law to pass on every goal of the stroke
-   * (`IHumanPosture.IGoal.reference`).
+   * (`HumanPosture.IGoal.reference`).
    *
    * @param body The body.
    * @param posture The posture the arm is fitted in (its other limbs and trunk).
@@ -80,16 +80,16 @@ export namespace HumanGraspReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate poses/report closures, fixed name readers and one exact FK workspace are local to the search; report hints are scalar snapshots and no report closure escapes. Only the chosen original pose, wrist, reference and scalar reports are returned without a reader or search map.
    */
   export function reachable(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     bend: IAutoMovieVector3,
-    goal: (turn: number, tilt: number) => HumanHand.IWrist,
+    goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0],
     stroke?: (
-      wrist: HumanHand.IWrist,
-      shown: HumanHand.IWrist,
-    ) => Iterable<HumanGrasp.IKey>,
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+      shown: IAutoMovieMotionHumanHand.IWrist,
+    ) => Iterable<IAutoMovieMotionHumanGrasp.IKey>,
     turns: readonly number[] = HumanGrasp.TURNS,
     required?: {
       bound: number;
@@ -99,8 +99,8 @@ export namespace HumanGraspReach {
         bounds: readonly number[],
       ) => number;
     },
-    admits?: (wrist: HumanHand.IWrist) => boolean,
-  ): HumanGrasp.IReach {
+    admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
+  ): IAutoMovieMotionHumanGrasp.IReach {
     return HumanGraspSearch(body, posture, side, bend)(goal, tilts, stroke, turns, required, admits);
   }
 
@@ -116,12 +116,12 @@ export namespace HumanGraspReach {
    * @returns The posture.
    */
   export function standing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const yaw: number = HumanFrame.heading(bones.get("hips")!.worldRotation);
     const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
     const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
@@ -147,9 +147,9 @@ export namespace HumanGraspReach {
    * @returns The turned target.
    */
   export function around(
-    target: HumanGrasp.ITarget,
+    target: IAutoMovieMotionHumanGrasp.ITarget,
     turn: number,
-  ): HumanGrasp.ITarget;
+  ): IAutoMovieMotionHumanGrasp.ITarget;
   /** The same wrapped-axis rotation for the hand-only target view. */
   export function around(target: HumanGrasp.IFrame, turn: number): HumanGrasp.IFrame;
   /**

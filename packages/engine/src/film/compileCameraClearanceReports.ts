@@ -1,9 +1,14 @@
 import {
   IAutoMovieCamera,
+  type IAutoMovieCameraClearanceEvaluation,
   IAutoMovieCameraClearanceReport,
+  type IAutoMovieCameraClearanceRuntime,
   IAutoMovieClip,
+  type IAutoMovieCompileCameraClearanceReports,
   IAutoMovieModel,
   IAutoMovieMotion,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
   IAutoMovieScene,
   IAutoMovieShot,
   IAutoMovieShotCoverage,
@@ -12,16 +17,13 @@ import {
   IAutoMovieTransform,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateModel } from "../validation/validateModel";
-import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { cameraClearanceDeformationRadius } from "./cameraClearanceDeformationRadius";
 import { cameraClearanceSampleTimes } from "./cameraClearanceSampleTimes";
 import { computeModelRestExtent } from "./computeModelRestExtent";
@@ -31,7 +33,7 @@ import { nodeSubjectBox } from "./nodeSubjectBox";
 import { resolveCameraAt } from "./resolveCameraAt";
 
 /** One take's input to the evaluator. */
-type IEvaluation = Parameters<typeof evaluateCameraClearance>[0];
+type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
 
 /** One obstacle's world box at one instant, as the evaluator reads it. */
 type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
@@ -79,34 +81,9 @@ interface ITake {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Obstacle states depend only on the shot-local instant, the staged nodes and the shot's motions, which every take shares, so they are cached by exact instant across takes; the actor and object part of the clock is built once per call, and models are measured once per node rather than per take.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The obstacle-state cache and measured obstacles are locals released when the call returns, bounded by distinct instants across takes times staged nodes; returned reports are owned by the caller and hold only their sample times and findings, not the cached boxes.
  */
-export function compileCameraClearanceReports(props: {
-  /** The staged scene whose cameras and nodes are read. */
-  scene: IAutoMovieScene;
-
-  /** The hero camera and its compiled clip, or null for a locked-off camera. */
-  hero: { camera: IAutoMovieCamera; motion: IAutoMovieShot["cameraMotion"] };
-
-  /** The shot's coverage takes, each naming a staged camera. */
-  coverage: readonly IAutoMovieShotCoverage[];
-
-  /** Shot length in seconds. */
-  duration: number;
-
-  /** Actor motion per node id. */
-  motions: Readonly<Record<string, IAutoMovieMotion>>;
-
-  /** Object clips in producer order, which decides channel authority. */
-  objectMotions: readonly IAutoMovieClip[];
-
-  /** Runtime models the staged nodes name. */
-  models: readonly IAutoMovieModel[];
-
-  /** Builder-owned revision and clock, required once any take has an envelope. */
-  runtime: IAutoMovieCameraClearanceRuntime | undefined;
-
-  /** Collector that receives every refusal, after any items it already holds. */
-  out: ViolationCollector;
-}): IAutoMovieCameraClearanceReport[] | undefined {
+export function compileCameraClearanceReports(
+  props: IAutoMovieCompileCameraClearanceReports.IProps,
+): IAutoMovieCameraClearanceReport[] | undefined {
   const baseline: number = props.out.items.length;
   function refused(): boolean {
     return props.out.items.length > baseline;
@@ -289,7 +266,7 @@ function measureObstacles(props: {
   motions: Readonly<Record<string, IAutoMovieMotion>>;
   objectMotions: readonly IAutoMovieClip[];
   models: readonly IAutoMovieModel[];
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
 }): IMeasuredObstacle[] {
   const models: Map<string, IAutoMovieModel> = new Map(
     props.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
@@ -403,7 +380,7 @@ function movingBounds(
 
 /** Address a take whose clock or evaluation threw. */
 function refuseEvaluation(
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   take: ITake,
   error: unknown,
 ): void {

@@ -8,6 +8,7 @@ import {
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieConstraintViolation,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -39,8 +40,8 @@ const TABLE: [number, number][] = [
  * @returns The fixture at rest.
  */
 function fixture(
-  flap: IAutoMovieAffordance.Follows = { id: "slide", table: TABLE },
-  swing: IAutoMovieAffordance.Follows = { id: "slide", ratio: RATIO },
+  flap: IAutoMovieAffordanceCoupling = { id: "slide", table: TABLE },
+  swing: IAutoMovieAffordanceCoupling = { id: "slide", ratio: RATIO },
 ): Archetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
   return new ArchetypeBuilder<Id, never>({
@@ -128,7 +129,7 @@ function faults(model: IAutoMovieModel): string[] {
  * 6. The engine admits the fixture and refuses, each at its own path: a leader that does not resolve, a `follows` on a contact that does not travel, a rule with both a ratio and a table, a ratio that is not finite, a table that stops short of its leader's range, a table whose leader travels do not increase, a ratio that drives its follower past its range, a ratio on an endless crank leading a bounded hinge, and a follows cycle.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Articulates a built archetype and reads its moved parts and travels, and runs the engine's model admission on copies broken one way each; a follower left at rest, set by the wrong rule, admitted in a state, resolved through a cycle, or driven out of its range unrefused is caught, as is an admission that lets a malformed rule through.
- * @evidence contracts/development/testing.md#independent-expectations Each leaf's place is the rest centre turned about its hinge's upright by the rule's angle, computed here: the ratio's product and the table's linear interpolation written in this test, the turn by the engine's quaternion arithmetic, not by the articulation code. The rules the engine enforces are those `IAutoMovieAffordance.Follows` states.
+ * @evidence contracts/development/testing.md#independent-expectations Each leaf's place is the rest centre turned about its hinge's upright by the rule's angle, computed here: the ratio's product and the table's linear interpolation written in this test, the turn by the engine's quaternion arithmetic, not by the articulation code. The rules the engine enforces are those `IAutoMovieAffordanceCoupling` states.
  * @evidence contracts/development/testing.md#distinguishing-cases A ratio and a non-monotone table, the slider's two ends and nine travels between, a follower and a leader in the state, a cycle, a table inside and outside its follower's range, and one engine copy per rule; the car's road wheels, a real producer's followers, belong to `test_archetype_ride_car`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
@@ -273,7 +274,7 @@ export function test_archetype_contract_follows(): void {
         // Both forms at once, which the type forbids, as a model read from JSON may still carry.
         a[1]!.follows = JSON.parse(
           JSON.stringify({ id: "slide", ratio: 1, table: TABLE }),
-        ) as IAutoMovieAffordance.Follows;
+        ) as IAutoMovieAffordanceCoupling;
       },
       at(1, ""),
     ],

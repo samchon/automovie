@@ -1,19 +1,19 @@
 import type {
+  IAutoMovieRecoveryFeasibleDirection,
+  IAutoMovieRecoveryFeasibleDirectionReport,
+  IAutoMovieRecoveryFeasibleFit,
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieRecoveryFeasibleTrialSelection,
+  IAutoMovieRecoveryFeasibleTrials,
+  IAutoMovieRecoverySqpArc,
+  IAutoMovieRecoverySqpOptions,
+  IAutoMovieRecoverySqpReport,
+  IAutoMovieRecoveryUntiltedEstimate,
   IAutoMovieSimplexAtom,
   IAutoMovieSimplexBudget,
-} from "@automovie/engine";
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryFeasibleDirection } from "../structures/internal/IAutoMovieRecoveryFeasibleDirection";
-import type { IAutoMovieRecoveryFeasibleDirectionReport } from "../structures/internal/IAutoMovieRecoveryFeasibleDirectionReport";
-import type { IAutoMovieRecoveryFeasibleFit } from "../structures/internal/IAutoMovieRecoveryFeasibleFit";
-import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../structures/internal/IAutoMovieRecoveryFeasibleTrials";
-import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
-import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
-import type { IAutoMovieRecoverySqpReport } from "../structures/internal/IAutoMovieRecoverySqpReport";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
 import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";

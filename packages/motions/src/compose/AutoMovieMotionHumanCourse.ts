@@ -3,11 +3,13 @@ import {
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanCourse,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 
@@ -44,59 +46,7 @@ export namespace AutoMovieMotionHumanCourse {
   export const CORRECTIONS: number = 2;
 
   /**
-   * What a course is solved from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its unit.
-   * @evidence contracts/development/design.md#principled-representation A posture builder, a target and a time span.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `solve`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is a function of time, so no foot path is assumed.
-   */
-  export interface IProps {
-    /** The body. */
-    body: IHumanBody;
 
-    /** The heading the course runs along, degrees about +Y. */
-    yaw: number;
-
-    /**
-     * The posture at a second with the hips a distance along the heading, metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the second, hips' place in metres along the heading and returned actual posture. An optional same-body FK source belongs only to this synchronous course solve and must not enter the posture or a retained callback.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per correction at each knot.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
-     */
-    posture: (
-      seconds: number,
-      along: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ) => IHumanPosture;
-
-    /**
-     * Where the extrapolated centre of mass is asked at a second, world metres along the heading.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument in seconds and the returned place in world metres along the heading.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per knot.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
-     */
-    target: (seconds: number) => number;
-
-    /** The span's first second. */
-    from: number;
-
-    /** The span's last second. */
-    to: number;
-
-    /** The hips' place at the span's first second, metres along the heading. */
-    start: number;
-  }
 
   /**
    * Solve a course.
@@ -112,7 +62,7 @@ export namespace AutoMovieMotionHumanCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot keeps its original previous-place/centre-step initialization. Unchanged body/profile/rig establish fixed mass demand and genuine ROM metadata; the actual posture builder may borrow that synchronous FK source for its raw hip observation, while all current joints/limb/digit fits and mass placements remain evaluated. Companion interpolate: The fixed solved knot array and numeric span coefficients belong to this course; every supplied second computes the same current interpolation and no time/result is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Course construction releases its bounded FK/name/ROM sources and actual posed maps on return or throw. The returned cubic retains only one scalar per knot, count, step and start second; neither posture callbacks, body, source getters nor current solved poses enter it. Companion interpolate: The course owns only its numeric knots, count, step and start second until release; no body, posture callback, mass reader, FK source, ROM projector or prior result is reachable through this factory's lexical scope.
    */
-  export function solve(props: IProps): (seconds: number) => number {
+  export function solve(props: IAutoMovieMotionHumanCourse.IProps): (seconds: number) => number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
       { x: 0, y: 0, z: 1 },
@@ -130,7 +80,7 @@ export namespace AutoMovieMotionHumanCourse {
           seconds: number,
           along: number,
         ): number => {
-          const posture: IHumanPosture = props.posture(
+          const posture: IAutoMovieMotionHumanPosture = props.posture(
             seconds,
             along,
             resolution,

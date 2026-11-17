@@ -2,11 +2,12 @@ import {
   IAutoMovieMaterialAssembly,
   IAutoMovieMaterialLayer,
   IAutoMovieMaterialSubstance,
+  type IAutoMovieValidateMaterialAssembly,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
 
 const AXES: readonly IAutoMovieMaterialAssembly["axis"][] = ["x", "y", "z"];
 
@@ -65,22 +66,13 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
  */
-export const validateAutoMovieMaterialAssembly: (props: {
-  /** Layered build-up to judge. */ assembly: IAutoMovieMaterialAssembly;
-  /** Substances the layers may cite; omitted skips reference resolution. */ substances?: readonly IAutoMovieMaterialSubstance[];
-  /** Host dimension the layers must sum to; omitted skips the comparison. */ host?: IAutoMovieAssemblyHost;
-}) => IAutoMovieValidation = (props: {
-  /** Layered build-up to judge. */
-  assembly: IAutoMovieMaterialAssembly;
-
-  /** Substances the layers may cite; omitted skips reference resolution. */
-  substances?: readonly IAutoMovieMaterialSubstance[];
-
-  /** Host dimension the layers must sum to; omitted skips the comparison. */
-  host?: IAutoMovieAssemblyHost;
-}): IAutoMovieValidation => {
+export const validateAutoMovieMaterialAssembly: (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+): IAutoMovieValidation => {
   const assembly: IAutoMovieMaterialAssembly = props.assembly;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
 
@@ -261,11 +253,11 @@ export const validateAutoMovieMaterialAssembly: (props: {
  */
 const appendFinishDefects: (
   assembly: IAutoMovieMaterialAssembly,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   root: string,
 ) => void = (
   assembly: IAutoMovieMaterialAssembly,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   root: string,
 ): void => {
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
@@ -321,11 +313,11 @@ const appendFinishDefects: (
  */
 const appendWrapDefects: (
   layers: readonly IAutoMovieMaterialLayer[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   root: string,
 ) => void = (
   layers: readonly IAutoMovieMaterialLayer[],
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   root: string,
 ): void => {
   // The wrapping runs that start at the first and at the last face; the tail

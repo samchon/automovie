@@ -1,12 +1,20 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
+  IAutoMovieMotionHumanFlightTurns,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   type HumanSegment,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
   jump,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -39,16 +47,16 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous unit obtains a canonical average-man standing entry once, then calls the public law planner without composing any turned performance or integrating flight dynamics. Owned callbacks observe their real queries; no source-boundary import, extra product export, renderer, host, process or foreign-method replacement is used.
  */
 export function test_motion_jump_turning(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const standing: HumanPerformance = new HumanPerformance({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const standing: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "jump-turn-request",
     performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
     composition: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }).node,
   });
-  const entry: HumanSegment.ISegment = standing.segments("a")[0]!;
-  const plan: (rotation?: jump.IParams["rotation"]) => IHumanActionPlan = (
-    rotation?: jump.IParams["rotation"],
-  ): IHumanActionPlan => jump.plan({
+  const entry: IAutoMovieMotionHumanSegment = standing.segments("a")[0]!;
+  const plan: (rotation?: IAutoMovieMotionHumanJump.IParams["rotation"]) => IAutoMovieMotionHumanActionPlan = (
+    rotation?: IAutoMovieMotionHumanJump.IParams["rotation"],
+  ): IAutoMovieMotionHumanActionPlan => jump.plan({
     ...entry.context,
     params: { to: { x: 0, y: 0, z: 1 }, apex: 0.5, ...(rotation === undefined ? {} : { rotation }) },
   });
@@ -63,8 +71,8 @@ export function test_motion_jump_turning(): void {
   for (const somersault of [0, 0.5, 1, 2])
     for (const way of ["forward", "backward", "left", "right"] as const) {
       const label: string = `${somersault} ${way}`;
-      const current: IHumanActionPlan = plan({ somersault, way });
-      const flight: IHumanActionPlan.IFlight | undefined = current.flight;
+      const current: IAutoMovieMotionHumanActionPlan = plan({ somersault, way });
+      const flight: IAutoMovieMotionHumanFlight | undefined = current.flight;
       if (somersault === 0) {
         check(`${label}: no unnecessary flight`, flight === undefined);
         check(`${label}: no unnecessary handback`, current.airborne === undefined);
@@ -79,7 +87,7 @@ export function test_motion_jump_turning(): void {
       );
       check(`${label}: declares turns`, flight.momentum.kind === "turns");
       if (flight.momentum.kind !== "turns") continue;
-      const request: IHumanActionPlan.IFlightTurns = flight.momentum;
+      const request: IAutoMovieMotionHumanFlightTurns = flight.momentum;
       check(`${label}: signed somersault request`,
         nclose(request.somersault, way === "backward" ? -somersault : somersault, 0),
       );
@@ -99,37 +107,37 @@ export function test_motion_jump_turning(): void {
     }
 
   for (const twist of [-1, 1]) {
-    const flight: IHumanActionPlan.IFlight | undefined = plan({ twist }).flight;
+    const flight: IAutoMovieMotionHumanFlight | undefined = plan({ twist }).flight;
     check(`twist ${twist}: independently signed request`,
       flight?.momentum.kind === "turns" &&
       nclose(flight.momentum.somersault, 0, 0) && nclose(flight.momentum.twist, twist, 0),
     );
   }
   for (const rotation of [undefined, {}, { somersault: -0, twist: -0 }]) {
-    const current: IHumanActionPlan = plan(rotation);
+    const current: IAutoMovieMotionHumanActionPlan = plan(rotation);
     check("absent/empty/signed-zero request declares no flight or handback",
       current.flight === undefined && current.airborne === undefined,
     );
   }
 
-  const current: IHumanActionPlan = plan({ somersault: 1 });
-  const other: IHumanActionPlan = plan({ somersault: 1 });
+  const current: IAutoMovieMotionHumanActionPlan = plan({ somersault: 1 });
+  const other: IAutoMovieMotionHumanActionPlan = plan({ somersault: 1 });
   if (current.flight === undefined || current.airborne === undefined)
     failures.push("nonzero request has no result receiver or flight");
   else {
     const from: number = current.flight.from * current.duration;
     const to: number = current.flight.to * current.duration;
     const middle: number = (from + to) / 2;
-    const original: IHumanPosture = current.posture(middle);
+    const original: IAutoMovieMotionHumanPosture = current.posture(middle);
     check("before handback has no result", original.rotation === undefined);
     const queries: number[] = [];
-    current.airborne((seconds: number): IHumanPosture.IRotation => {
+    current.airborne((seconds: number): IAutoMovieHumanPostureRotation => {
       queries.push(seconds);
       return { about: { x: seconds, y: 5, z: -2 }, turn: { x: 0, y: 0, z: 0, w: 1 } };
     });
     for (const seconds of [0, from, to, current.duration])
       check(`outside/at boundary ${seconds} has no result`, current.posture(seconds).rotation === undefined);
-    const shown: IHumanPosture = current.posture(middle);
+    const shown: IAutoMovieMotionHumanPosture = current.posture(middle);
     check("interior result receives the actual local time",
       shown.rotation !== undefined && vclose(shown.rotation.about, { x: middle, y: 5, z: -2 }, 0),
     );

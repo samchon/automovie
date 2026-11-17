@@ -1,11 +1,23 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanGrasp, type HumanHand, type IHumanBody, type IHumanPosture, resolveHumanPosture } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanGrasp,
+  type HumanHand,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,22 +55,22 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit borrows canonical immutable geometry through a fresh body owner and owns its posture, goal, judge, wrapper and counters. It calls public grasp/resolver/FK APIs, replaces no foreign function/global and starts no renderer, process or compiler.
  */
 export function test_motion_grasp_judge_full_observation(): void {
-  const body: IHumanBody = { ...motionHumanBody("m-average") };
-  const posture: IHumanPosture = { root: { x: 0.5, y: 0, z: -1 }, yaw: -31, pitch: 0, roll: 0,
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("m-average") };
+  const posture: IAutoMovieMotionHumanPosture = { root: { x: 0.5, y: 0, z: -1 }, yaw: -31, pitch: 0, roll: 0,
     joints: { head: [7, 0, 0], leftUpperArm: [20, 5, 0], leftLowerArm: [30, 0, 0],
       rightUpperArm: [15, 10, 0], rightLowerArm: [35, 0, 0] }, limbs: {} };
   const original: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = full(body, resolveHumanPosture(body, posture));
   const names: AutoMovieHumanoidBone[] = Array.from(original.keys());
   const opposite: IAutoMovieVector3 = original.get("leftHand")!.worldPosition;
   const site: IAutoMovieVector3 = { x: opposite.x, y: opposite.y + 0.02, z: opposite.z };
-  const wrist: HumanHand.IWrist = { point: { ...original.get("rightHand")!.worldPosition },
+  const wrist: IAutoMovieMotionHumanHand.IWrist = { point: { ...original.get("rightHand")!.worldPosition },
     rotation: { ...original.get("rightHand")!.worldRotation } };
   const elbow: IAutoMovieVector3 = original.get("rightLowerArm")!.worldPosition;
   const bend: IAutoMovieVector3 = { x: elbow.x, y: elbow.y + 0.1, z: elbow.z + 0.15 };
   for (const wrapped of [false, true]) {
     let calls: number = 0;
     let keyDeparture: number | undefined;
-    const observe: NonNullable<HumanGrasp.IKey["judge"]> = (
+    const observe: NonNullable<IAutoMovieMotionHumanGrasp.IKey["judge"]> = (
       bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ): number => {
       calls++;
@@ -72,12 +84,12 @@ export function test_motion_grasp_judge_full_observation(): void {
       const hand: IAutoMovieVector3 = bones.get("leftHand")!.worldPosition;
       return Math.hypot(hand.x - site.x, hand.y - site.y, hand.z - site.z);
     };
-    const judge: NonNullable<HumanGrasp.IKey["judge"]> = wrapped
+    const judge: NonNullable<IAutoMovieMotionHumanGrasp.IKey["judge"]> = wrapped
       ? (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => observe(bones)
       : observe;
-    const reached: HumanGrasp.IReach = HumanGrasp.reachable(body, posture, "right", bend,
-      (): HumanHand.IWrist => wrist, [0],
-      (): Iterable<HumanGrasp.IKey> => [{ posture, wrist, bend, judge, bound: 0.03 }], [0], {
+    const reached: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(body, posture, "right", bend,
+      (): IAutoMovieMotionHumanHand.IWrist => wrist, [0],
+      (): Iterable<IAutoMovieMotionHumanGrasp.IKey> => [{ posture, wrist, bend, judge, bound: 0.03 }], [0], {
         bound: 0.03,
         measure: (keys: readonly number[], judged: readonly number[], bounds: readonly number[]): number => {
           TestValidator.predicate("required metric observes the original ordered key reports",
@@ -103,7 +115,7 @@ export function test_motion_grasp_judge_full_observation(): void {
 }
 
 /** Read complete ordinary canonical FK independently of a demanded-output adapter. */
-function full(body: IHumanBody, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+function full(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
     (bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone.bone, bone]));
 }
@@ -132,26 +144,26 @@ function departure(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedB
 }
 
 /** Original raw callbacks can change one posture object's current clinical inputs between fits. */
-function liveCallbacks(body: IHumanBody, base: IHumanPosture, wrist: HumanHand.IWrist, bend: IAutoMovieVector3): void {
+function liveCallbacks(body: IAutoMovieMotionHumanBody, base: IAutoMovieMotionHumanPosture, wrist: IAutoMovieMotionHumanHand.IWrist, bend: IAutoMovieVector3): void {
   for (const admitted of [false, true]) {
-    const live: IHumanPosture = structuredClone(base);
+    const live: IAutoMovieMotionHumanPosture = structuredClone(base);
     const trace: string[] = [];
     let currentHead: number = 7;
     Object.defineProperty(live.joints, "head", { enumerable: true, configurable: true,
       get: (): readonly [number, number, number] => { trace.push(`head:${currentHead}`); return [currentHead, 0, 0]; } });
-    const labels: WeakMap<HumanHand.IWrist, number> = new WeakMap();
-    const goal: (turn: number, tilt: number) => HumanHand.IWrist = (turn: number, _tilt: number): HumanHand.IWrist => {
+    const labels: WeakMap<IAutoMovieMotionHumanHand.IWrist, number> = new WeakMap();
+    const goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist = (turn: number, _tilt: number): IAutoMovieMotionHumanHand.IWrist => {
       trace.push(`goal:${turn}`);
       currentHead = 10 + turn;
-      const candidate: HumanHand.IWrist = { point: { ...wrist.point }, rotation: { ...wrist.rotation } };
+      const candidate: IAutoMovieMotionHumanHand.IWrist = { point: { ...wrist.point }, rotation: { ...wrist.rotation } };
       labels.set(candidate, turn);
       return candidate;
     };
-    const admits: (candidate: HumanHand.IWrist) => boolean = (candidate: HumanHand.IWrist): boolean => {
+    const admits: (candidate: IAutoMovieMotionHumanHand.IWrist) => boolean = (candidate: IAutoMovieMotionHumanHand.IWrist): boolean => {
       trace.push(`admit:${labels.get(candidate)}`);
       return true;
     };
-    const reached: HumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend, goal, [0], undefined,
+    const reached: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend, goal, [0], undefined,
       [0, 10], undefined, admitted ? admits : undefined);
     TestValidator.equals(`arbitrary callback schedule retains actual goal/admit/fit order, admits=${admitted}`, trace,
       admitted ? ["goal:0", "admit:0", "goal:10", "admit:10", "goal:0", "head:10", "goal:10", "head:20"] :
@@ -163,11 +175,11 @@ function liveCallbacks(body: IHumanBody, base: IHumanPosture, wrist: HumanHand.I
       Math.hypot(shown.x - wrist.point.x, shown.y - wrist.point.y, shown.z - wrist.point.z) <= 0.001);
   }
 
-  const live: IHumanPosture = structuredClone(base);
+  const live: IAutoMovieMotionHumanPosture = structuredClone(base);
   const trace: string[] = [];
-  const reached: HumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend,
-    (_turn: number, _tilt: number): HumanHand.IWrist => { trace.push("goal"); return wrist; }, [0],
-    function* (_wanted: HumanHand.IWrist, _shown: HumanHand.IWrist): IterableIterator<HumanGrasp.IKey> {
+  const reached: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend,
+    (_turn: number, _tilt: number): IAutoMovieMotionHumanHand.IWrist => { trace.push("goal"); return wrist; }, [0],
+    function* (_wanted: IAutoMovieMotionHumanHand.IWrist, _shown: IAutoMovieMotionHumanHand.IWrist): IterableIterator<IAutoMovieMotionHumanGrasp.IKey> {
       trace.push("stroke");
       for (const angle of [20, 30]) {
         live.joints.head = [angle, 0, 0];

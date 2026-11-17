@@ -1,22 +1,30 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanReceive,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionMeeting,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrip } from "./HumanGrip";
@@ -55,10 +63,10 @@ import { handshake } from "./handshake";
  */
 export namespace receive {
   /** The action's name. */
-  export const name: HumanActionName = "receive";
+  export const name: AutoMovieMotionHumanActionName = "receive";
 
   /** Cancel table: once taken the prop is held. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -67,30 +75,6 @@ export namespace receive {
 
   /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
   export const PITCHES: readonly number[] = [0, 15, 30, 45];
-
-  /** Parameters. */
-  export interface IParams {
-    /** The offered prop's subject id. */
-    prop: string;
-
-    /** The giver's subject id. */
-    from: string;
-
-    /** The prop's grip affordance taken. */
-    handle: string;
-
-    /** The receiver's taking hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** The giver's holding hand; `right` when absent. */
-    giverHand?: HumanHand.Side;
-
-    /** The prop's mass, kilograms; 0.09 when absent. */
-    mass?: number;
-
-    /** How the handover ends; `transfer` when absent. */
-    outcome?: HumanHandover.Outcome;
-  }
 
   /**
    * Plan the receiver's half.
@@ -107,18 +91,18 @@ export namespace receive {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains original base/transports/digits, selected grip/reference and scalar course. Planning maps and actual fit scratch release synchronously, without fixed-source base/frame readers, queried-time pose history or external handles.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const side: HumanHand.Side = context.params.hand ?? "right";
-    const body: IHumanBody = context.body;
-    const held: IHumanPosture = context.entry.posture;
-    const giver: IHumanActionContext.IPerformer = context.performer(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanReceive.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const held: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const giver: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.from,
     );
-    const prop: IHumanActionContext.IProp = context.prop(context.params.prop);
-    const giverSide: HumanHand.Side = context.params.giverHand ?? "right";
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(context.params.prop);
+    const giverSide: AutoMovieHumanSide = context.params.giverHand ?? "right";
     // The place both partners read from one meeting record.
-    const met: AutoMovieMotionMeeting.IMeeting = context.meeting(
+    const met: IAutoMovieMotionMeeting = context.meeting(
       HumanHandoverMeeting.kind({
         giver: giverSide,
         receiver: side,
@@ -130,7 +114,7 @@ export namespace receive {
       HumanHandoverMeeting.RECEIVER,
       { role: HumanHandoverMeeting.GIVER, subject: context.params.from },
     );
-    const shared: HumanHandover.IPlan = HumanHandover.plan({
+    const shared: IAutoMovieMotionHumanHandover.IPlan = HumanHandover.plan({
       meet: HumanFrame.point(met.frame, met.contacts.meet!),
       giver: {
         body: giver.body,
@@ -166,7 +150,7 @@ export namespace receive {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
+    const lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[]; } =
       shared.outcome === "decline"
         ? { share: 0, joints: [] }
         : HumanSeatedReach.need(
@@ -177,14 +161,14 @@ export namespace receive {
               posture: held,
               bones: entered,
               seated: context.entry.supports.some(
-                (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+                (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
               ),
             },
             shoulder,
             shared.receiverAt.point,
             handshake.arm(body, side, shoulder).limit,
           );
-    const leaned = (share: number): IHumanPosture =>
+    const leaned = (share: number): IAutoMovieMotionHumanPosture =>
       HumanSeatedReach.posed(body, held, lean.joints, lean.share * share);
     const setback: number = HumanPrehension.aperture(shared.target.width);
     const short: IAutoMovieVector3 = Vector3.subtract(
@@ -192,7 +176,7 @@ export namespace receive {
       Vector3.scale(shared.target.approach, setback),
     );
     const arrive: IAutoMovieVector3 = takes ? shared.receiverAt.point : short;
-    const out: HumanPrehension.ITransport = HumanPrehension.transport(
+    const out: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
       shared.receiverFrom.point,
       arrive,
       shared.target.approach,
@@ -216,7 +200,7 @@ export namespace receive {
       const carryAt: (pitch?: number) => IAutoMovieVector3 = (pitch: number = 0): IAutoMovieVector3 =>
         HumanHandover.carried(body, held, side, pitch);
       carry = carryAt();
-      const tipped: (goal: IHumanPosture.IGoal) => number = (goal: IHumanPosture.IGoal): number =>
+      const tipped: (goal: IAutoMovieHumanLimbGoal) => number = (goal: IAutoMovieHumanLimbGoal): number =>
         HumanHandover.tipped(body, side, { ...held, limbs: { ...held.limbs, [`${side}Arm`]: goal } });
       let least: number = Infinity;
       for (const pitch of PITCHES) {
@@ -246,7 +230,7 @@ export namespace receive {
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
 
-    const home: HumanPrehension.ITransport = HumanPrehension.transport(
+    const home: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,
       { x: 0, y: 0, z: 0 },
@@ -265,7 +249,7 @@ export namespace receive {
     const duration: number =
       shared.outcome === "decline" ? shared.release : leave + back;
 
-    const closed: IHumanPosture["joints"] = takes
+    const closed: IAutoMovieMotionHumanPosture["joints"] = takes
       ? HumanGrip.close(
           body,
           side,
@@ -274,7 +258,7 @@ export namespace receive {
           shared.target.colliders,
         ).joints
       : HumanHand.shape(side, "relaxed");
-    const open: IHumanPosture["joints"] = HumanPreshape.open(
+    const open: IAutoMovieMotionHumanPosture["joints"] = HumanPreshape.open(
       body,
       side,
       takes ? closed : HumanHand.shape(side, "relaxed"),
@@ -301,7 +285,7 @@ export namespace receive {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
-      let digits: IHumanPosture["joints"];
+      let digits: IAutoMovieMotionHumanPosture["joints"];
       let share: number = 0;
       if (shared.outcome === "decline" || t <= shared.reachStart) {
         wrist = shared.receiverFrom.point;
@@ -327,7 +311,7 @@ export namespace receive {
           ? closed
           : returnShape!(minimumJerk.share((t - leave) / back));
       }
-      const base: IHumanPosture = leaned(share);
+      const base: IAutoMovieMotionHumanPosture = leaned(share);
       return {
         posture: { ...base, joints: { ...base.joints, ...digits } },
         goal: {
@@ -368,11 +352,11 @@ export namespace receive {
     };
     const turn: (seconds: number) => number = takes
       ? HumanHandover.upright(body, side,
-          (seconds: number, yaw: number): IHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
+          (seconds: number, yaw: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
           leave, duration, [0, undefined])
       : (): number => 0;
 
-    const part: IHumanContactWindow["part"] =
+    const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
@@ -427,7 +411,7 @@ export namespace receive {
         : {}),
       hands: [side],
       contact: shared.gripClosed,
-      posture: (seconds: number): IHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
     };
   }
 }

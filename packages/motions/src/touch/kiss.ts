@@ -1,11 +1,19 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
@@ -20,11 +28,6 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { kissPose } from "./kissPose";
@@ -63,10 +66,10 @@ import { kissPose } from "./kissPose";
  */
 export namespace kiss {
   /** The action's name. */
-  export const name: HumanActionName = "kiss";
+  export const name: AutoMovieMotionHumanActionName = "kiss";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       touch: ["fromRelax", "smooth"],
@@ -90,56 +93,6 @@ export namespace kiss {
   export const NEAR: number = 0.005;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The partner and region as the target union's person case, the turn side as a closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's regions.
-   */
-  export interface IParams {
-    /** The partner. */
-    partner: string;
-
-    /** The partner's region. */
-    region: AutoMovieHumanoidRegion;
-
-    /** Which way the head turns for a cheek or the lips; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Seconds the lips stay; `HOLD` when absent. */
-    hold?: number;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
-   * A solved kiss: how the body brings the mouth to the point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The four angles the plan raises on its envelope and the distance they leave.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the plan or the verdicts.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The miss is a member, so an unreachable target is reported and not hidden.
-   */
-  export interface ISolved {
-    /** The lean forward from the hips, degrees. */
-    pitch: number;
-
-    /** The lean toward the body's right from the hips, degrees. */
-    roll: number;
-
-    /** The neck's and the head's flexion, degrees. */
-    flexion: number;
-
-    /** The heels' raise, degrees. */
-    raise: number;
-
-    /** The mouth's distance to the point, metres. */
-    miss: number;
-  }
-
-  /**
    * The lean, the neck flexion and the heel raise that bring the mouth
    * nearest a point.
    *
@@ -161,26 +114,26 @@ export namespace kiss {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns one lazy exact reader, fixed mouth-name producer and primitive head constants until return or throw. Each current posture/map/displacement ends with its observation; only selected angles and miss escape, with no raw offset, rise-group answer or candidate history retained.
    */
   export function solve(
-    context: Pick<IHumanActionContext, "body">,
-    entry: IHumanPosture,
-    stance: AutoMovieMotionHumanRise.Stance,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    entry: IAutoMovieMotionHumanPosture,
+    stance: IAutoMovieMotionHumanRise.Stance,
     twist: number,
     at: IAutoMovieVector3,
     seated: boolean = false,
     behind: number = 0,
-  ): ISolved {
-    const body: IHumanActionContext["body"] = context.body;
+  ): IAutoMovieMotionHumanKiss.ISolved {
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, behind);
     const mouth: ReturnType<typeof HumanTrunk.preparePoint> = HumanTrunk.preparePoint(body, "mouth");
-    const miss = (s: Omit<ISolved, "miss">): number =>
+    const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
       Vector3.distance(
           mouth(postureAt(s), resolution),
           at,
         );
-    const least = (candidates: Omit<ISolved, "miss">[]): ISolved => {
-      let best: ISolved | null = null;
+    const least = (candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[]): IAutoMovieMotionHumanKiss.ISolved => {
+      let best: IAutoMovieMotionHumanKiss.ISolved | null = null;
       for (const c of candidates) {
         const m: number = miss(c);
         if (best === null || m < best.miss) best = { ...c, miss: m };
@@ -192,8 +145,8 @@ export namespace kiss {
       for (let v: number = from; v <= to; v += step) out.push(v);
       return out;
     };
-    const sagittal = (s: ISolved): ISolved => {
-      const coarse: ISolved = least([
+    const sagittal = (s: IAutoMovieMotionHumanKiss.ISolved): IAutoMovieMotionHumanKiss.ISolved => {
+      const coarse: IAutoMovieMotionHumanKiss.ISolved = least([
         s,
         ...span(-10, 45, 5).flatMap((pitch: number) =>
           span(-30, 45, 5).map((flexion: number) => ({ ...s, pitch, flexion })),
@@ -209,7 +162,7 @@ export namespace kiss {
         ),
       ]);
     };
-    let best: ISolved = sagittal({
+    let best: IAutoMovieMotionHumanKiss.ISolved = sagittal({
       pitch: 0,
       roll: 0,
       flexion: 0,
@@ -221,15 +174,15 @@ export namespace kiss {
     );
     // A seated body has no heels to raise: the lean from the seat is all.
     if (best.miss <= NEAR || seated) return best;
-    const raised: ISolved[] = span(0, RAISE, 1).map(
-      (raise: number): ISolved => {
+    const raised: IAutoMovieMotionHumanKiss.ISolved[] = span(0, RAISE, 1).map(
+      (raise: number): IAutoMovieMotionHumanKiss.ISolved => {
         const c = { ...best, raise };
         return { ...c, miss: miss(c) };
       },
     );
-    const closest: number = Math.min(...raised.map((c: ISolved) => c.miss));
+    const closest: number = Math.min(...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss));
     return sagittal(
-      raised.find((c: ISolved): boolean => c.miss <= closest + NEAR / 5)!,
+      raised.find((c: IAutoMovieMotionHumanKiss.ISolved): boolean => c.miss <= closest + NEAR / 5)!,
     );
   }
 
@@ -249,16 +202,16 @@ export namespace kiss {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the solved angles, the stance and the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanKiss.IParams = context.params;
     const body = context.body;
     const hold: number = p.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const entry: IHumanPosture = context.entry.posture;
-    const target: AutoMovieMotionTarget = {
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const target: IAutoMovieMotionTarget = {
       kind: "person",
       subject: p.partner,
       region: p.region,
@@ -270,7 +223,7 @@ export namespace kiss {
       p.region.startsWith("jaw");
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
     const at: IAutoMovieVector3 = context.aim(target, context.start).point;
-    const stance: AutoMovieMotionHumanRise.Stance = {
+    const stance: IAutoMovieMotionHumanRise.Stance = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -284,7 +237,7 @@ export namespace kiss {
     // it and the legs keep their place, so neither the heels rise nor the
     // root is lowered onto the feet.
     const seated: boolean = context.entry.supports.some(
-      (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
     );
     const forward: IAutoMovieVector3 = {
       x: Math.sin((entry.yaw * Math.PI) / 180),
@@ -295,12 +248,12 @@ export namespace kiss {
     // moved back by `behind` along the heading, and, standing, lowered onto
     // the planted legs.
     const written = (
-      posture: IHumanPosture,
-      s: ISolved,
+      posture: IAutoMovieMotionHumanPosture,
+      s: IAutoMovieMotionHumanKiss.ISolved,
       k: number,
       behind: number,
-    ): IHumanPosture => {
-      const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+    ): IAutoMovieMotionHumanPosture => {
+      const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
         body,
         {
           ...posture,
@@ -339,20 +292,20 @@ export namespace kiss {
     // move back by the static balance's shift at the solved lean
     // (`HumanBalance.shift`, as a bow's do), and the lean is solved again
     // with them there; seated, the seat bears the body.
-    const first: ISolved = solve(context, entry, stance, twist, at, seated);
+    const first: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
     const behind: number = seated
       ? 0
       : HumanBalance.shift(
           body,
-          (back: number): IHumanPosture => written(entry, first, 1, back),
+          (back: number): IAutoMovieMotionHumanPosture => written(entry, first, 1, back),
         );
-    const solved: ISolved =
+    const solved: IAutoMovieMotionHumanKiss.ISolved =
       behind === 0
         ? first
         : solve(context, entry, stance, twist, at, seated, behind);
     const travel: number = Vector3.distance(HumanTrunk.region(body, entry, "mouth").point, at);
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: approach,
         attack: 0,
@@ -361,7 +314,7 @@ export namespace kiss {
       }),
       modifiers,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -381,7 +334,7 @@ export namespace kiss {
           channels: ["root", "trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+          write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
             written(posture, solved, share(seconds), behind),
         },
         ...(solved.raise > 0

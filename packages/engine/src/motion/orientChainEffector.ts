@@ -1,21 +1,21 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieChainBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -51,9 +51,9 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local frames end with this call and the returned pose owns a new joint array. A supplied rig/projector is borrowed until its caller releases the workspace; standalone projection ends with this call. No query history, external handle or task is retained.
  */
 export function orientChainEffector(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   fitted: IAutoMoviePose,
-  prepared?: IPreparedChainPlant,
+  prepared?: IAutoMoviePreparedChainPlant,
   rig?: prepareChainFit.IRig,
 ): IAutoMoviePose {
   if (props.effectorRotation === undefined) return fitted;

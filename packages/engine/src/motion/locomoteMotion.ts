@@ -1,4 +1,5 @@
-import { IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieQuaternion } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -83,7 +84,7 @@ export const locomoteMotion: (
     heading,
     distance / (cycles * base.duration),
   );
-  const facing: ReturnType<typeof Quaternion.fromAxisAngle> | undefined =
+  const facing: IAutoMovieQuaternion | undefined =
     faceTravel
       ? (yawRotation ??= Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 }))(
           (Math.atan2(heading.x, heading.z) * 180) / Math.PI,

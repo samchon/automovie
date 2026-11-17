@@ -1,12 +1,14 @@
 import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -61,7 +63,7 @@ export function reactionCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
@@ -73,8 +75,12 @@ export function reactionCases(
     ];
 
     for (const [label, at] of threats) {
-      const from: AutoMovieMotionTarget = { kind: "point", at, frame: "world" };
-      const performance: HumanPerformance = perform(
+      const from: IAutoMovieMotionTarget = {
+        kind: "point",
+        at,
+        frame: "world",
+      };
+      const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").flinch({ from }),
       );
@@ -141,7 +147,7 @@ export function reactionCases(
     }
 
     for (const [label, at] of threats) {
-      const performance: HumanPerformance = perform(
+      const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").stagger({
           from: { kind: "point", at, frame: "world" },
@@ -177,7 +183,7 @@ export function reactionCases(
 
     {
       const at: IAutoMovieVector3 = threats[0]![1];
-      const performance: HumanPerformance = perform(
+      const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").knockdown({
           from: { kind: "point", at, frame: "world" },
@@ -253,8 +259,8 @@ export function reactionCases(
 
 /** A planted foot stays on the floor: within 5 mm in its plant windows. */
 function planted(
-  performance: HumanPerformance,
-  body: IHumanBody,
+  performance: IAutoMovieMotionHumanPerformance,
+  body: IAutoMovieMotionHumanBody,
 ): IMotionCaptureCase.IVerdict {
   const off = everydayVerdicts.grounded(performance, "a", body);
   const verdict: IMotionCaptureCase.IVerdict = everydayVerdicts.within(
@@ -267,7 +273,10 @@ function planted(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IHumanBody, chain: HumanChain): HumanPerformance {
+function perform(
+  body: IAutoMovieMotionHumanBody,
+  chain: IAutoMovieMotionHumanChain,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "reaction",
     performers: [
@@ -285,7 +294,7 @@ function perform(body: IHumanBody, chain: HumanChain): HumanPerformance {
 
 /** The drawn performer. */
 function figure(
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
   man: humanPolygonMan.IPolygonMan,
 ): IMotionCaptureCase.IPerformer {
   return {
@@ -296,7 +305,10 @@ function figure(
 }
 
 /** The film second of an event of the first action. */
-function event(performance: HumanPerformance, name: string): number {
+function event(
+  performance: IAutoMovieMotionHumanPerformance,
+  name: string,
+): number {
   const segment = performance.segments("a")[0]!;
   return (
     segment.start +
@@ -307,7 +319,7 @@ function event(performance: HumanPerformance, name: string): number {
 
 /** The whole performance at a fixed step, with named instants in their order. */
 function times(
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
   step: number,
   named: [number, string][],
 ): IMotionCaptureCase.ITime[] {

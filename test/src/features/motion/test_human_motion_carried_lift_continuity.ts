@@ -1,12 +1,11 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import {
-  HumanCarried,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import { HumanCarried, HumanChain, HumanPerformance } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,14 +42,14 @@ export function test_human_motion_carried_lift_continuity(): void {
     ["m-average", "f-small"],
     ["m-large", "f-tall"],
   ] as const) {
-    const bearer: IHumanBody = motionHumanBody(carrier);
-    const body: IHumanBody = motionHumanBody(carried);
+    const bearer: IAutoMovieMotionHumanBody = motionHumanBody(carrier);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(carried);
     for (const [carry, lift, setDown] of [
       ["overShoulder", 1, 0],
       ["piggyback", 0.5, 0.5],
     ] as const) {
       const label: string = `${carrier} carrying ${carried} ${carry}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "lift",
@@ -90,7 +89,8 @@ export function test_human_motion_carried_lift_continuity(): void {
         );
         continue;
       }
-      const placed: HumanSegment.ISegment = performance.segments("b")[0]!;
+      const placed: IAutoMovieMotionHumanSegment =
+        performance.segments("b")[0]!;
       const spans: [number, number][] = [
         [placed.start, placed.start + lift],
         ...(setDown > 0

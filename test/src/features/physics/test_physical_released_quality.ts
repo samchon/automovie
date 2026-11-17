@@ -1,4 +1,8 @@
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +45,7 @@ const EDIT: number = 9;
  */
 export async function test_physical_released_quality(): Promise<void> {
   for (const reflex of [false, true]) {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       reflex ? "articulation" : "ball",
       reflex
         ? PhysicalModelFixtures.stickman().profile
@@ -70,7 +74,8 @@ export async function test_physical_released_quality(): Promise<void> {
     if (reflex)
       for (const target of body.targets)
         target.jointStrength = { [body.profile.joints[0]!.id]: 0.2 };
-    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], DURATION);
     input.checkpointEvery = CHECKPOINT;
     input.impulses.push({
       step: IMPULSE,
@@ -79,7 +84,8 @@ export async function test_physical_released_quality(): Promise<void> {
       point: { x: 0, y: 1, z: 0 },
       impulse: { x: 1, y: 0, z: 0 },
     });
-    const baseline: Simulation = await Simulation.compute(input);
+    const baseline: IAutoMoviePhysicalSimulation =
+      await Simulation.compute(input);
     const findings: string[] = [];
     for (const [step, expected] of [
       [RELEASED, [8, 7]],
@@ -101,7 +107,8 @@ export async function test_physical_released_quality(): Promise<void> {
         world.free();
       }
     }
-    const edited: Simulation.IInput = structuredClone(input);
+    const edited: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     edited.impulses.push({
       step: EDIT,
       body: body.id,
@@ -109,8 +116,12 @@ export async function test_physical_released_quality(): Promise<void> {
       point: { x: 0, y: 1, z: 0 },
       impulse: { x: 0.2, y: 0, z: 0 },
     });
-    const fresh: Simulation = await Simulation.compute(edited);
-    const resumed: Simulation = await Simulation.compute(edited, baseline);
+    const fresh: IAutoMoviePhysicalSimulation =
+      await Simulation.compute(edited);
+    const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+      edited,
+      baseline,
+    );
     if (
       resumed.recomputedSteps !==
         input.maximumSteps - Math.floor(EDIT / CHECKPOINT) * CHECKPOINT ||

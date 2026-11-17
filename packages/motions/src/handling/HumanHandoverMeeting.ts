@@ -2,15 +2,22 @@ import {
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrasp } from "./HumanGrasp";
-import type { HumanHandover } from "./HumanHandover";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
@@ -52,10 +59,10 @@ export namespace HumanHandoverMeeting {
     height: number;
 
     /** The giver's acting arm. */
-    a: resolveAutoMovieMutualGoal.ISide;
+    a: IAutoMovieResolveMutualGoal.ISide;
 
     /** The receiver's acting arm. */
-    b: resolveAutoMovieMutualGoal.ISide;
+    b: IAutoMovieResolveMutualGoal.ISide;
   }
 
   /**
@@ -75,17 +82,17 @@ export namespace HumanHandoverMeeting {
    */
   export function goal(
     input: Pick<
-      HumanHandover.IInput,
+      IAutoMovieMotionHumanHandover.IInput,
       "giver" | "receiver" | "prop" | "frame" | "handle"
     >,
     exchange: number,
   ): IGoal {
-    const atStart: HumanGrasp.ITarget = HumanGrasp.at(
+    const atStart: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.at(
       input.prop,
       input.handle,
       input.frame,
     );
-    const sternum = (person: HumanHandover.IPerson): number =>
+    const sternum = (person: IAutoMovieMotionHumanHandover.IPerson): number =>
       resolveAutoMovieHumanoidSurfaces.place(
         person.body.surfaces.regions.sternum,
         person.bones.get(person.body.surfaces.regions.sternum.bone)!,
@@ -127,16 +134,16 @@ export namespace HumanHandoverMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The kind closes over its props only.
    */
   export function kind(props: {
-    giver: HumanHand.Side;
-    receiver: HumanHand.Side;
-    prop: IHumanProp;
-    frame: IHumanProp.IFrame;
+    giver: AutoMovieHumanSide;
+    receiver: AutoMovieHumanSide;
+    prop: IAutoMovieMotionHumanProp;
+    frame: IAutoMovieRigidTransform;
     handle: string;
     exchange: number;
-  }): AutoMovieMotionMeeting.IKind {
+  }): IAutoMovieMotionMeetingKind {
     const person = (
-      role: AutoMovieMotionMeeting.IRole,
-    ): HumanHandover.IPerson => ({
+      role: IAutoMovieMotionMeetingRole,
+    ): IAutoMovieMotionHumanHandover.IPerson => ({
       body: role.body,
       side: role.name === GIVER ? props.giver : props.receiver,
       bones: role.bones,
@@ -146,13 +153,13 @@ export namespace HumanHandoverMeeting {
       roles: [GIVER, RECEIVER],
       contacts: { meet: AutoMovieMotionHumanTarget.DEFAULTS.ahead },
       place: (
-        roles: readonly AutoMovieMotionMeeting.IRole[],
+        roles: readonly IAutoMovieMotionMeetingRole[],
       ): Record<string, IAutoMovieVector3> => {
-        const giver: AutoMovieMotionMeeting.IRole = roles.find(
-          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === GIVER,
+        const giver: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === GIVER,
         )!;
-        const receiver: AutoMovieMotionMeeting.IRole = roles.find(
-          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === RECEIVER,
+        const receiver: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === RECEIVER,
         )!;
         const inputs: IGoal = goal(
           {
@@ -169,17 +176,17 @@ export namespace HumanHandoverMeeting {
             [giver, receiver],
             [inputs.a, inputs.b],
             (
-              a: resolveAutoMovieMutualGoal.ISide,
-              b: resolveAutoMovieMutualGoal.ISide,
+              a: IAutoMovieResolveMutualGoal.ISide,
+              b: IAutoMovieResolveMutualGoal.ISide,
             ): IAutoMovieVector3 =>
               resolveAutoMovieMutualGoal({ height: inputs.height, a, b }).point,
           ),
         };
       },
       timing: (
-        role: AutoMovieMotionMeeting.IRole,
-      ): AutoMovieMotionMeeting.ITiming => {
-        const side: HumanHand.Side =
+        role: IAutoMovieMotionMeetingRole,
+      ): IAutoMovieMotionMeetingTiming => {
+        const side: AutoMovieHumanSide =
           role.name === GIVER ? props.giver : props.receiver;
         const reach: number = HumanPrehension.nominal(
           handshake.arm(

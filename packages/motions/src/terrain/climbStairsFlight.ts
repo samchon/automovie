@@ -1,10 +1,15 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbStairsFlight,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The flight of stairs a climb is planned on: its shape as the author gives
@@ -25,31 +30,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace climbStairsFlight {
   /**
-   * The stairs as an author describes them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The flight's architecture.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by `flight`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers and one closed union.
-   */
-  export interface IStairs {
-    /** How many treads. */
-    count: number;
-
-    /** Each riser's height, metres; 0.17 when absent. */
-    riser?: number;
-
-    /** Each tread's depth, metres; 0.28 when absent. */
-    tread?: number;
-
-    /** Up the flight or down it; `up` when absent. */
-    direction?: "up" | "down";
-
-    /** The first nosing's distance ahead of the toes, metres; 0.05 when absent. */
-    start?: number;
-  }
-
-  /**
    * The flight's surface height under a point, in the performer's floor
    * frame at the start (`z` forward from the toes' middle).
    *
@@ -57,7 +37,7 @@ export namespace climbStairsFlight {
    * @param z Metres forward in that frame.
    * @returns The height of the floor, tread or landing there, metres.
    */
-  export function surface(flight: IFlight, z: number): number {
+  export function surface(flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight, z: number): number {
     return surfaceAt(flight.direction === "up" ? 1 : -1, flight.first, flight.count, flight.tread, flight.riser, z);
   }
 
@@ -75,41 +55,13 @@ export namespace climbStairsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The climb fixes its resolved flight throughout path construction and playback; a changed flight requires another preparation, and raw surface still reads current fields each call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One path-owned closure retains five fixed scalar geometry values until released, without query coordinates, heights, poses or external handles.
    */
-  export function prepareSurface(flight: IFlight): (z: number) => number {
+  export function prepareSurface(flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight): (z: number) => number {
     const sign: number = flight.direction === "up" ? 1 : -1;
     const first: number = flight.first;
     const count: number = flight.count;
     const tread: number = flight.tread;
     const riser: number = flight.riser;
     return (z: number): number => surfaceAt(sign, first, count, tread, riser, z);
-  }
-
-  /**
-   * A flight as the plan resolved it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The flight in the performer's starting floor frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `surface` and the capture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers.
-   */
-  export interface IFlight {
-    /** The frame: origin on the floor under the feet's middle, the heading. */
-    frame: HumanFrame.IFrame;
-
-    /** The first nosing's distance ahead in that frame, metres. */
-    first: number;
-
-    /** Treads. */
-    count: number;
-
-    /** Riser, metres. */
-    riser: number;
-
-    /** Tread, metres. */
-    tread: number;
-
-    /** Up or down. */
-    direction: "up" | "down";
   }
 
   /**
@@ -123,11 +75,11 @@ export namespace climbStairsFlight {
    * @throws {HumanRefusal} When the count is not a positive integer, or the riser or the tread is outside what the body can climb.
    */
   export function flight(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    params: IStairs,
-  ): IFlight {
-    const m: IHumanBody["measure"] = body.measure;
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    params: IAutoMovieMotionHumanClimbStairsFlight.IStairs,
+  ): IAutoMovieMotionHumanClimbStairsFlight.IFlight {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
     HumanBound.whole("count", params.count);
@@ -135,7 +87,7 @@ export namespace climbStairsFlight {
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
     const feet: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }[] = (["left", "right"] as const).map((side: "left" | "right"): { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 } => {
-      const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         toe: HumanFoot.point(body, side, "toe", {
@@ -149,7 +101,7 @@ export namespace climbStairsFlight {
       y: 0,
       z: (feet[0]!.ankle.z + feet[1]!.ankle.z) / 2,
     };
-    const frame: HumanFrame.IFrame = { origin, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin, yaw };
     const toe: number = Math.max(
       ...feet.map((f: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }): number => HumanFrame.local(frame, f.toe).z),
     );

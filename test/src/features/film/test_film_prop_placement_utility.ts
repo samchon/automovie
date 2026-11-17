@@ -1,6 +1,4 @@
 import {
-  type IAutoMoviePropClearanceBounds,
-  type IAutoMoviePropSupportFace,
   footprintRing,
   propAnchorFrame,
   propBoundsOverlap,
@@ -13,7 +11,9 @@ import {
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMoviePropBox,
+  IAutoMoviePropClearanceBounds,
   IAutoMoviePropSpec,
+  IAutoMoviePropSupportFace,
   IAutoMovieStageSetPiece,
   IAutoMovieTransform,
 } from "@automovie/interface";

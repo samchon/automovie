@@ -1,10 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
-  type IHumanBody,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -40,16 +44,16 @@ import { nclose } from "../internal/nclose";
  */
 export function test_human_motion_core_pose_read_order(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const height: number = seated.popliteal(body);
   const aside: number = body.measure.chestBreadth / 2 + 0.08;
   const perform: (
-    composition: HumanPerformance.IInput["composition"],
-    who: IHumanBody,
-  ) => HumanPerformance = (
-    composition: HumanPerformance.IInput["composition"],
-    who: IHumanBody,
-  ): HumanPerformance =>
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+    who: IAutoMovieMotionHumanBody,
+  ) => IAutoMovieMotionHumanPerformance = (
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+    who: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "fit-memory",
       laws: [...HUMAN_LEXICON.pose!],
@@ -66,18 +70,18 @@ export function test_human_motion_core_pose_read_order(): void {
     });
   const films: readonly (readonly [
     string,
-    () => HumanPerformance.IInput["composition"],
+    () => IAutoMovieMotionHumanPerformance.IInput["composition"],
   ])[] = [
     [
       "a brief kneel",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a")
           .stand({ seconds: 0.3 })
           .registered("kneelBriefly").node,
     ],
     [
       "sitting into an armchair",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a").sit({
           seat: {
             at: { x: 0, y: height, z: -0.1 },
@@ -93,20 +97,20 @@ export function test_human_motion_core_pose_read_order(): void {
     ],
     [
       "a walk with a wave",
-      (): HumanPerformance.IInput["composition"] =>
+      (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a")
           .walk({ to: { x: 0, y: 0, z: 2 } })
-          .over((o: HumanChain): HumanChain => o.gesture({ kind: "wave" }))
+          .over((o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => o.gesture({ kind: "wave" }))
           .node,
     ],
   ];
 
   // Copy scalars now so later workspace writes cannot change the oracle.
   const shown: (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     t: number,
   ) => Map<AutoMovieHumanoidBone, readonly number[]> = (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     t: number,
   ): Map<AutoMovieHumanoidBone, readonly number[]> => {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -134,7 +138,7 @@ export function test_human_motion_core_pose_read_order(): void {
   };
   for (const [label, compose] of films)
     try {
-      const forward: HumanPerformance = perform(compose(), { ...body });
+      const forward: IAutoMovieMotionHumanPerformance = perform(compose(), { ...body });
       const end: number = forward.segments("a").at(-1)!.end;
       const instants: number[] = [0.1, 0.3, 0.5, 0.7, 0.9].map(
         (share: number): number => share * end,
@@ -144,7 +148,7 @@ export function test_human_motion_core_pose_read_order(): void {
           (t: number): Map<AutoMovieHumanoidBone, readonly number[]> =>
             shown(forward, t),
         );
-      const backward: HumanPerformance = perform(compose(), { ...body });
+      const backward: IAutoMovieMotionHumanPerformance = perform(compose(), { ...body });
       for (let i: number = instants.length - 1; i >= 0; --i) {
         const actual: Map<AutoMovieHumanoidBone, readonly number[]> = shown(
           backward,

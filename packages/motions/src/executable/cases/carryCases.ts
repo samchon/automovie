@@ -1,12 +1,13 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidSocket,
+  IAutoMovieMotionHumanCarry,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { carry } from "../../carrying/carry";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -50,17 +51,18 @@ export function carryCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const how of ["oneHand", "twoHands", "hip", "push"] as const) {
       const loaded: "left" | "right" = how === "hip" ? "left" : "right";
-      const params: carry.IParams = {
+      const params: IAutoMovieMotionHumanCarry.IParams = {
         to: { x: 0, y: 0, z: 2.5 },
         how,
         side: loaded,
         load: 0.15,
       };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
-        "carry",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("carry", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "carry",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("carry", params),
+        );
       const segment = performance.segments("a")[0]!;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", who.body),

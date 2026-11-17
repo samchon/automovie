@@ -1,4 +1,7 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAnnularChartPreparation,
+} from "@automovie/interface";
 
 /**
  * Cut a private oriented annular triangle chart along an observed edge path.
@@ -15,20 +18,9 @@ import type { IAutoMovieCurve64 as C } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One oriented edge registry serves path adjacency, vertex-link separation and boundary checks; no source-wide extraction or duplicate chart solve occurs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All graph and heap state expires on return or failure; at most one duplicate per seam vertex plus remapped private triangles transfers to the observation caller. Nothing is published to the reconstruction consumer.
  */
-export function RecoveryAnnularChart(input: {
-  verticesMm: readonly C.Vector[];
-  triangles: readonly (readonly [number, number, number])[];
-  vertexKeys: readonly string[];
-  before: readonly number[];
-  after: readonly number[];
-}): {
-  verticesMm: C.Vector[];
-  triangles: [number, number, number][];
-  vertexKeys: string[];
-  sides: [number[], number[], number[], number[]];
-  seam: number[];
-  seamLengthMm: number;
-} {
+export function RecoveryAnnularChart(
+  input: Parameters<IAutoMovieRecoveryAnnularChartPreparation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAnnularChartPreparation.Operation> {
   if (
     input.verticesMm.length !== input.vertexKeys.length ||
     input.before.length < 3 ||
@@ -68,8 +60,8 @@ export function RecoveryAnnularChart(input: {
         const a: number = triangle[k]!,
           b: number = triangle[(k + 1) % 3]!,
           key: string = edgeKey(a, b),
-          p: C.Vector = input.verticesMm[a]!,
-          q: C.Vector = input.verticesMm[b]!;
+          p: Readonly<AutoMovieVector3Tuple> = input.verticesMm[a]!,
+          q: Readonly<AutoMovieVector3Tuple> = input.verticesMm[b]!;
         const distance: number = Math.hypot(
           p[0] - q[0],
           p[1] - q[1],
@@ -256,7 +248,7 @@ export function RecoveryAnnularChart(input: {
   const firstFace: number = edges.get(edgeKey(bottom[0]!, bottom[1]!))![0]!
       .face,
     left: 0 | 1 = labels.get(start)!.get(firstFace)!;
-  const verticesMm: C.Vector[] = [...input.verticesMm],
+  const verticesMm: Readonly<AutoMovieVector3Tuple>[] = [...input.verticesMm],
     vertexKeys: string[] = [...input.vertexKeys],
     duplicate: Map<number, number> = new Map();
   for (const vertex of seam) {

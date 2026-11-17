@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanFoot } from "../posture/HumanFoot";
 
@@ -137,7 +140,7 @@ export namespace walkStanceOutline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the unchanged rotation, and the complete placement when both translations are zero; no history is retained.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a moved placement and the function retains nothing.
    */
-  export function slid(foot: HumanFoot.IPlacement, dx: number, dz: number): HumanFoot.IPlacement {
+  export function slid(foot: IAutoMovieMotionHumanFoot.IPlacement, dx: number, dz: number): IAutoMovieMotionHumanFoot.IPlacement {
     return dx === 0 && dz === 0
       ? foot
       : { ankle: { x: foot.ankle.x + dx, y: foot.ankle.y, z: foot.ankle.z + dz }, rotation: foot.rotation };

@@ -86,10 +86,28 @@ export const builtEnvironmentWorldMatrices: (
 /** The element-local displacement every moving member carries in one state. */
 const operationDeltas: (
   environment: IAutoMovieBuiltEnvironment,
-  stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1],
+  stateId: [
+    IAutoMovieBuiltEnvironment,
+    (
+      | string
+      | ((
+          member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+        ) => string | null)
+      | undefined
+    ),
+  ][1],
 ) => Map<string, number[]> = (
   environment: IAutoMovieBuiltEnvironment,
-  stateId: Parameters<typeof builtEnvironmentWorldMatrices>[1],
+  stateId: [
+    IAutoMovieBuiltEnvironment,
+    (
+      | string
+      | ((
+          member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+        ) => string | null)
+      | undefined
+    ),
+  ][1],
 ): Map<string, number[]> => {
   const choose: (
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,

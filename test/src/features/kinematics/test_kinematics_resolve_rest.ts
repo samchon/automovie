@@ -1,6 +1,7 @@
-import { IAutoMovieResolvedBone, resolvePose } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieResolvedBone,
   type IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

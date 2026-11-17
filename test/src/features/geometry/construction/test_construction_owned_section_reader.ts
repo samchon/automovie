@@ -1,9 +1,13 @@
 import {
   AutoMovieLoftSectionNative,
-  type AutoMovieLoftViewRead,
   AutoMovieViewConic,
   AutoMovieViewSectionField,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
@@ -86,11 +90,11 @@ function detail(error: unknown): string {
 }
 
 /** Independent circle station jets, with a constant exact ellipse shoulder. */
-function inputs(scale: number = 1): AutoMovieLoftViewRead.IJets {
+function inputs(scale: number = 1): IAutoMovieLoftViewRead.IJets {
   return {
     extents: Array.from(
       { length: 4 },
-      (): AutoMovieViewSectionField.IStationJet => [
+      (): IAutoMovieViewSectionField.IStationJet => [
         2 * scale,
         3 * scale,
         8 * scale,
@@ -98,7 +102,7 @@ function inputs(scale: number = 1): AutoMovieLoftViewRead.IJets {
     ),
     shoulders: Array.from(
       { length: 4 },
-      (): AutoMovieViewSectionField.IStationJet => [Math.SQRT2 - 1, 0, 0],
+      (): IAutoMovieViewSectionField.IStationJet => [Math.SQRT2 - 1, 0, 0],
     ),
   };
 }
@@ -130,7 +134,7 @@ function close(actual: Jet, target: Jet, scale: number): void {
 
 /** Neither original tuple storage nor earlier returned vectors are aliases of the retained preparation. */
 function circle(scale: number): void {
-  const data: AutoMovieLoftViewRead.IJets = inputs(scale);
+  const data: IAutoMovieLoftViewRead.IJets = inputs(scale);
   const read: ReturnType<typeof AutoMovieLoftSectionNative.jet> =
     AutoMovieLoftSectionNative.jet(data);
   data.extents[0] = [99, 99, 99];
@@ -149,8 +153,8 @@ function circle(scale: number): void {
 
 /** Obtain a successful public record without replacing a numeric refusal. */
 function prepared(
-  data: AutoMovieLoftViewRead.IJets,
-): AutoMovieViewSectionField.IPrepared {
+  data: IAutoMovieLoftViewRead.IJets,
+): IAutoMovieViewSectionField.IPrepared {
   const value: ReturnType<typeof AutoMovieViewSectionField.prepare> =
     AutoMovieViewSectionField.prepare(data.extents, data.shoulders);
   if (value.kind === "failure") throw new Error(value.detail);
@@ -159,9 +163,9 @@ function prepared(
 
 /** Public records remain value-copyable and are rechecked on every call, including error order. */
 function copies(): void {
-  const at: AutoMovieViewSectionField.IPrepared = prepared(inputs());
-  const copy: AutoMovieViewSectionField.IPrepared = structuredClone(at);
-  const ray: AutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
+  const at: IAutoMovieViewSectionField.IPrepared = prepared(inputs());
+  const copy: IAutoMovieViewSectionField.IPrepared = structuredClone(at);
+  const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
     copy.geometry,
     0.3,
   );
@@ -199,7 +203,7 @@ function thrown(job: () => unknown): unknown {
 
 /** A copying-time NaN is not promoted into valid geometry or a cached exception. */
 function malformed(): void {
-  const data: AutoMovieLoftViewRead.IJets = inputs();
+  const data: IAutoMovieLoftViewRead.IJets = inputs();
   const tuple: [number, number, number] = [2, 3, 8];
   let reads: number = 0;
   Object.defineProperty(tuple, "1", {
@@ -242,7 +246,7 @@ function originals(): void {
     undefined,
   ];
   for (const value of values) {
-    const data: AutoMovieLoftViewRead.IJets = inputs();
+    const data: IAutoMovieLoftViewRead.IJets = inputs();
     const tuple: [number, number, number] = [2, 3, 8];
     Object.defineProperty(tuple, "0", {
       get: (): number => {
@@ -269,8 +273,8 @@ async function work(): Promise<{ phases: number; validations: number }[]> {
   let started: boolean = false;
   let failed: boolean = false;
   let primary: unknown;
-  const control: AutoMovieViewSectionField.IPrepared = prepared(inputs());
-  const ray: AutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
+  const control: IAutoMovieViewSectionField.IPrepared = prepared(inputs());
+  const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
     control.geometry,
     0.3,
   );

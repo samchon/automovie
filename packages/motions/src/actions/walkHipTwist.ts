@@ -1,4 +1,4 @@
-import type { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 /**

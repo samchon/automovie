@@ -1,10 +1,14 @@
-import type { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
-import type { IAutoMovieSwivelSeed } from "../kinematics/IAutoMovieSwivelSeed";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
 /**
@@ -30,7 +34,7 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function readHingedChainSeed(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   upper: IAutoMovieJointPose,
   lower: IAutoMovieJointPose,
 ): IAutoMovieSwivelSeed | null {
@@ -40,7 +44,7 @@ export function readHingedChainSeed(
   const mid: IAutoMovieQuaternion = jointToQuaternionOnBasis(lower, at.lowerBasis, props.restFrames?.[props.chain.lower]);
   let branch: number = 0;
   let nearest: number = Infinity;
-  at.branches.forEach((stop: hingedArmSwivel.IStop, index: number): void => {
+  at.branches.forEach((stop: IAutoMovieHingedArmSwivel.IStop, index: number): void => {
     const apart: number = Quaternion.angle(hingedArmSwivel.pose(at.chain, stop.theta)(0).lower, mid);
     if (apart < nearest) {
       nearest = apart;

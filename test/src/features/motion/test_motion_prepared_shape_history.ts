@@ -1,12 +1,18 @@
 import {
-  type IAutoMovieResolvedBone,
   integrateAirborneRotation as F,
   prepareAutoMovieMassModel as M,
   Quaternion,
-  resolvePose,
   type resolveAutoMovieCenterOfMass,
+  resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -66,7 +72,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns finite single-part models, pure shape callbacks, native observer tokens/snapshots and issued bones. It edits only its issued numeric instant, explicitly supplies a declared relative spin for the isolated-axis algebra check and mutates owned result vectors/snapshots. It starts no numerical run until invoked by the existing runner, and no renderer/compiler/foreign replacement is involved; prepared model and histories release in finally.
  */
 export function test_motion_prepared_shape_history(): void {
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 1,
     segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 2, y: 3, z: 5 }, axes: { x: 0, y: 0, z: 0, w: 1 } }],
@@ -143,7 +149,7 @@ export function test_motion_prepared_shape_history(): void {
 }
 
 /** Reach the native fixed-history and exact-dispatch boundaries through complete public FK. */
-function fixedInput(model: resolveAutoMovieCenterOfMass.IModel): void {
+function fixedInput(model: IAutoMovieResolveCenterOfMass.IModel): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const skeleton: IAutoMovieSkeleton = { id: "fixed-inertia-owner", bones: [{
     bone: "hips", parent: null, constraint: null,
@@ -152,7 +158,7 @@ function fixedInput(model: resolveAutoMovieCenterOfMass.IModel): void {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
   for (const bone of resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton))
     bones.set(bone.bone, bone);
-  const source: resolveAutoMovieCenterOfMass.IModel = structuredClone(model);
+  const source: IAutoMovieResolveCenterOfMass.IModel = structuredClone(model);
   const span: { from: number; to: number } = { from: 0, to: 1 };
   const observation: ReturnType<typeof F.observe> = F.observe();
   const failures: string[] = [];
@@ -276,7 +282,7 @@ function fixedInput(model: resolveAutoMovieCenterOfMass.IModel): void {
 
 /** A coupled tensor can still own an exactly independent scalar axis. */
 function isolatedInput(): void {
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 1,
     segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 2, y: 4, z: 2 }, axes: { x: 0, y: 0, z: 0, w: 1 } }],
@@ -305,7 +311,7 @@ function isolatedInput(): void {
 /** Check an unobserved factory tensor and later ordinary public replacement against hand-inverted equations. */
 function factorInput(): void {
   for (const [scale, repeated] of [[1e-100, false], [1, false], [1e100, false], [1, true]] as const) {
-    const model: resolveAutoMovieCenterOfMass.IModel = {
+    const model: IAutoMovieResolveCenterOfMass.IModel = {
       mass: 1,
       segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
         inertia: { x: 2 * scale, y: (repeated ? 2 : 3) * scale, z: (repeated ? 3 : 5) * scale },

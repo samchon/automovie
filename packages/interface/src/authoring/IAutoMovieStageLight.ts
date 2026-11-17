@@ -1,6 +1,6 @@
-import { IAutoMovieColor } from "../color/IAutoMovieColor";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
 
 /**
  * One physical light placed on the authored set.

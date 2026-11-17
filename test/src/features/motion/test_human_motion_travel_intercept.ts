@@ -1,11 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,18 +47,21 @@ export function test_human_motion_travel_intercept(): void {
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ] as const) {
-    const bodies: readonly [IHumanBody, IHumanBody] = [
-      motionHumanBody(names[0]),
-      motionHumanBody(names[1]),
-    ];
+    const bodies: readonly [
+      IAutoMovieMotionHumanBody,
+      IAutoMovieMotionHumanBody,
+    ] = [motionHumanBody(names[0]), motionHumanBody(names[1])];
     const label: string = `${names[0]} heading off ${names[1]}`;
-    const walking: HumanChain = HumanChain.subject("b")
+    const walking: IAutoMovieMotionHumanChain = HumanChain.subject("b")
       .stand({ seconds: 0.3 })
       .walk({ to: { x: 3, y: 0, z: 5 } });
-    const running: HumanChain = HumanChain.subject("a")
+    const running: IAutoMovieMotionHumanChain = HumanChain.subject("a")
       .stand({ seconds: 0.3 })
       .registered("intercept", { target: "b" });
-    const perform = (first: HumanChain, second: HumanChain): HumanPerformance =>
+    const perform = (
+      first: IAutoMovieMotionHumanChain,
+      second: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "intercept",
         laws: [...HUMAN_LEXICON.pursuit!],
@@ -89,7 +97,7 @@ export function test_human_motion_travel_intercept(): void {
       );
 
     // 1 to 3. Within reach of where they are.
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(walking, running);
     } catch (error) {
@@ -99,13 +107,13 @@ export function test_human_motion_travel_intercept(): void {
       continue;
     }
     const end: number = performance.segments("a")[1]!.end;
-    const a: HumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       bodies[0],
       0,
     );
-    const b: HumanSignature.IReader = HumanSignature.of(
+    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "b",
       bodies[1],
@@ -116,7 +124,7 @@ export function test_human_motion_travel_intercept(): void {
     const gap: number = Math.hypot(mine.x - theirs.x, mine.z - theirs.z);
     const arms: number = bodies
       .map(
-        (body: IHumanBody): number =>
+        (body: IAutoMovieMotionHumanBody): number =>
           body.measure.upperArm + body.measure.forearm + body.measure.hand,
       )
       .reduce((sum: number, arm: number): number => sum + arm, 0);

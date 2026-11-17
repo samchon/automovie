@@ -1,4 +1,5 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -41,9 +42,12 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * sections). Regenerated through the engine's view loft from these numbers alone, the vertices of each section lie 0.24 mm from it
  * on average and at most 1.05 mm. 39 independent numbers.
  */
-export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1Concha: IAutoMovieHumanConicLoft.IFamily = {
   name: "concha",
-  centres: [AutoMovieHumanF1Joints.conchaRoot, AutoMovieHumanF1Joints.conchaTip],
+  centres: [
+    AutoMovieHumanF1Joints.conchaRoot,
+    AutoMovieHumanF1Joints.conchaTip,
+  ],
   halves: [],
   up: AutoMovieHumanF1Placement.direction("concha.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -76,5 +80,8 @@ export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [{from: 3, tip: -6}, {from: 11, tip: 19}],
+  tips: [
+    { from: 3, tip: -6 },
+    { from: 11, tip: 19 },
+  ],
 };

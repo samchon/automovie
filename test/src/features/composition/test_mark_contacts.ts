@@ -1,5 +1,8 @@
-import { type IAutoMovieMark, markAutoMovieContacts } from "@automovie/engine";
-import type { IAutoMovieContactReceipt } from "@automovie/interface";
+import { markAutoMovieContacts } from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

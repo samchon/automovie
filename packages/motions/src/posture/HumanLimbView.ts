@@ -1,13 +1,14 @@
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
 /**
@@ -83,10 +84,10 @@ export namespace HumanLimbView {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned records and retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[],
   ): IView {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -148,7 +149,7 @@ export namespace HumanLimbView {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Reads through a reader of its own that ends with the call.
    */
   export function admitted(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     admission?: IAdmission,
   ): void {

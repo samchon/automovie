@@ -1,4 +1,10 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanPrehension,
+} from "@automovie/interface";
 
 import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -34,7 +40,7 @@ export namespace HumanArmTrajectoryLaid {
    */
   export interface IAdmitted {
     /** Each arm's trajectory through the course, in the problem's order. */
-    trajectories: HumanArmTrajectory.Trajectory[];
+    trajectories: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
 
     /** Whether the model admits the course. */
     admitted: boolean;
@@ -101,7 +107,7 @@ export namespace HumanArmTrajectoryLaid {
    */
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
-    held: readonly (readonly (HumanArmClearance.IArm | undefined)[])[],
+    held: readonly (readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[])[],
   ): IAdmitted {
     // Read in the mirror image when the first arm is the left, as `solve`
     // reads it, so a course and its mirror are admitted alike to the bit;
@@ -121,13 +127,13 @@ export namespace HumanArmTrajectoryLaid {
     const times: readonly number[] = context.times;
     const hold: number[] = [];
     for (let k: number = 0; k < n; ++k)
-      if (held.every((arm: readonly (HumanArmClearance.IArm | undefined)[]): boolean => arm[k] !== undefined))
+      if (held.every((arm: readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[]): boolean => arm[k] !== undefined))
         hold.push(k);
     const first: number = hold.length === 0 ? n - 1 : hold[0]!;
     const last: number = hold.length === 0 ? n - 1 : hold[hold.length - 1]!;
     const x: number[][][] = held.map(
-      (course: readonly (HumanArmClearance.IArm | undefined)[], a: number): number[][] =>
-        course.map((arm: HumanArmClearance.IArm | undefined, k: number): number[] =>
+      (course: readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[], a: number): number[][] =>
+        course.map((arm: IAutoMovieMotionHumanArmClearance.IArm | undefined, k: number): number[] =>
           k === 0
             ? [...context.rest[a]!]
             : k === n - 1 && !context.open
@@ -166,15 +172,15 @@ export namespace HumanArmTrajectoryLaid {
         }
         return out;
       };
-      const placed = (share: number): G.IPlaced[] =>
-        ends.map((_: [readonly number[], readonly number[]], a: number): G.IPlaced =>
+      const placed = (share: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
+        ends.map((_: [readonly number[], readonly number[]], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
           G.placed(context.setups[a]!, context.frames[a]![from]!, M.ranged(context, a, path(a, share))));
       const along: number[] = [0];
-      let before: G.IPlaced[] = placed(0);
+      let before: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(0);
       for (let s: number = 1; s <= ARC; ++s) {
-        const now: G.IPlaced[] = placed(s / ARC);
+        const now: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(s / ARC);
         let step: number = 0;
-        now.forEach((arm: G.IPlaced, a: number): void => {
+        now.forEach((arm: IAutoMovieMotionHumanArmGeometry.IPlaced, a: number): void => {
           for (const p of T.SPEED)
             step = Math.max(step, Vector3.length(
               Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0])));
@@ -223,9 +229,9 @@ export namespace HumanArmTrajectoryLaid {
       const fastest = (): number => {
         let most: number = 0;
         x.forEach((arm: number[][], a: number): void => {
-          let before: G.IPlaced = G.placed(context.setups[a]!, context.frames[a]![from]!, arm[from]!);
+          let before: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![from]!, arm[from]!);
           for (let k: number = from; k < to; ++k) {
-            const next: G.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k + 1]!, arm[k + 1]!);
+            const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k + 1]!, arm[k + 1]!);
             const dt: number = times[k + 1]! - times[k]!;
             for (const p of T.SPEED)
               most = Math.max(most, Vector3.length(V.step(
@@ -272,8 +278,8 @@ export namespace HumanArmTrajectoryLaid {
       depth?: number;
       done: boolean;
     };
-    const transports: ITransport[] = [[0, first], [last, n - 1]].map(
-      ([from, to]: number[]): ITransport => ({
+    const transports: IAutoMovieMotionHumanPrehension.ITransport[] = [[0, first], [last, n - 1]].map(
+      ([from, to]: number[]): IAutoMovieMotionHumanPrehension.ITransport => ({
         from: from!,
         to: to!,
         detours: [],
@@ -313,7 +319,7 @@ export namespace HumanArmTrajectoryLaid {
     const worst: M.IEvaluation["worst"] = reading.worst;
     return {
       trajectories: problem.arms.map(
-        (_: HumanArmTrajectory.IArm, a: number): HumanArmTrajectory.Trajectory =>
+        (_: HumanArmTrajectory.IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
           HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
       ),
       admitted: worst.value <= M.TOLERANCE,

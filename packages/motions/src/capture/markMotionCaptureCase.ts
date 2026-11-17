@@ -1,7 +1,8 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IMotionCaptureOverlays } from "./IMotionCaptureOverlays";
+import type {
+  IAutoMovieMark,
+  IAutoMovieMotionHumanMotionCaptureOverlays,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Colour of the drift kind: a violet no case overlay uses and the inspection reserves for nothing. */
 const DRIFT: number = 0x7b4fa8;
@@ -23,18 +24,24 @@ const DRIFT: number = 0x7b4fa8;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
 export function markMotionCaptureCase(
-  props: IMotionCaptureOverlays,
+  props: IAutoMovieMotionHumanMotionCaptureOverlays,
 ): IAutoMovieMark[] {
   // A kind per colour, labelled by the overlays drawn in it.
   const uses: Map<number, Set<string>> = new Map();
-  const use: (color: number, what: string) => void = (color: number, what: string): void => {
+  const use: (color: number, what: string) => void = (
+    color: number,
+    what: string,
+  ): void => {
     const known: Set<string> | undefined = uses.get(color);
     if (known === undefined) uses.set(color, new Set([what]));
     else known.add(what);
   };
-  for (const trail of props.trails) if (trail.points.length !== 0) use(trail.color, "trail");
+  for (const trail of props.trails)
+    if (trail.points.length !== 0) use(trail.color, "trail");
   for (const target of props.targets) use(target.color, "target");
-  const kind: (color: number) => Pick<IAutoMovieMark, "kind" | "label" | "color"> = (
+  const kind: (
+    color: number,
+  ) => Pick<IAutoMovieMark, "kind" | "label" | "color"> = (
     color: number,
   ): Pick<IAutoMovieMark, "kind" | "label" | "color"> => {
     const hex: string = color.toString(16).padStart(6, "0");
@@ -46,11 +53,15 @@ export function markMotionCaptureCase(
   };
   const flat: (points: readonly IAutoMovieVector3[]) => number[] = (
     points: readonly IAutoMovieVector3[],
-  ): number[] => points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]);
+  ): number[] =>
+    points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]);
 
   const marks: IAutoMovieMark[] = [];
   props.trails.forEach(
-    (trail: IMotionCaptureOverlays["trails"][number], index: number): void => {
+    (
+      trail: IAutoMovieMotionHumanMotionCaptureOverlays["trails"][number],
+      index: number,
+    ): void => {
       if (trail.points.length === 0) return;
       marks.push({
         path: `case/trail/${index}`,
@@ -65,7 +76,10 @@ export function markMotionCaptureCase(
     },
   );
   props.targets.forEach(
-    (target: IMotionCaptureOverlays["targets"][number], index: number): void => {
+    (
+      target: IAutoMovieMotionHumanMotionCaptureOverlays["targets"][number],
+      index: number,
+    ): void => {
       marks.push({
         path: `case/target/${index}`,
         ...kind(target.color),
@@ -76,14 +90,22 @@ export function markMotionCaptureCase(
     },
   );
   props.drift.forEach(
-    (set: IMotionCaptureOverlays["drift"][number], index: number): void => {
+    (
+      set: IAutoMovieMotionHumanMotionCaptureOverlays["drift"][number],
+      index: number,
+    ): void => {
       for (const beyond of [false, true]) {
         const samples: IAutoMovieVector3[] = set.samples
           .filter(
             (sample: { at: IAutoMovieVector3; drift: number }): boolean =>
               sample.drift > set.limit === beyond,
           )
-          .map((sample: { at: IAutoMovieVector3; drift: number }): IAutoMovieVector3 => sample.at);
+          .map(
+            (sample: {
+              at: IAutoMovieVector3;
+              drift: number;
+            }): IAutoMovieVector3 => sample.at,
+          );
         if (samples.length === 0) continue;
         marks.push({
           path: `case/drift/${index}/${beyond ? "beyond" : "within"}`,

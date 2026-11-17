@@ -1,9 +1,14 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanNeutralKnuckle,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Hand primitives: the fingers and the thumb of one hand formed into a shape,
@@ -22,47 +27,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanHand {
   /**
-   * One hand's shaping over a window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation The span the hand is written over, the shape it goes to and how far it has gone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `shape`; `form` fills them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing.
-   */
-  export interface IShape {
-    /** The hand. */
-    side: HumanHand.Side;
-
-    /** The shape at weight 1. */
-    shape: HumanHand.Shape;
-
-    /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
-    curl?: number;
-
-    /** Seconds since the action's start from which the hand is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the hand is written. */
-    to: number;
-
-    /**
-     * How far the hand is from the relaxed cascade to the shape.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by the function that writes the part; the builders from a clock fill it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader clamps the result to [0, 1] instead of trusting the member, so an implementation that overshoots cannot push the part past its ends.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-  }
-
-  /**
    * The finger joints of a hand on its way to a shape.
    *
    * @param side The hand.
@@ -80,14 +44,14 @@ export namespace AutoMovieMotionHumanHand {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fingers(
-    side: HumanHand.Side,
-    shape: HumanHand.Shape,
+    side: AutoMovieHumanSide,
+    shape: IAutoMovieMotionHumanHand.Shape,
     curl: number,
     weight: number,
-  ): IHumanPosture["joints"] {
-    const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const out: IHumanPosture["joints"] = {};
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[])
       out[bone] = interpolated(asked[bone]![0], relaxed[bone]![0], !bone.includes("Thumb"), curl, weight);
     return out;
@@ -109,11 +73,11 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains one bounded fifteen-entry array and reader until its primitive ends; returned joint maps/triples are fresh and no body, posture or time history is retained.
    */
   export function prepareFingers(
-    side: HumanHand.Side,
-    shape: HumanHand.Shape,
-  ): (curl: number, weight: number) => IHumanPosture["joints"] {
-    const fixed: readonly IFinger[] = entries(side, shape);
-    return (curl: number, weight: number): IHumanPosture["joints"] => shaped(fixed, curl, weight);
+    side: AutoMovieHumanSide,
+    shape: IAutoMovieMotionHumanHand.Shape,
+  ): (curl: number, weight: number) => IAutoMovieMotionHumanPosture["joints"] {
+    const fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] = entries(side, shape);
+    return (curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] => shaped(fixed, curl, weight);
   }
 
   /**
@@ -131,10 +95,10 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same fixed side/shape determines immutable asked/relaxed prerequisites. Curl, weight and the owned output target are current inputs; neither map nor completed triple is retained or reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning primitive retains one fifteen-entry array and writer until release. Every call retains no output map, posture, angle result, body, callback context or time history.
    */
-  export function prepareFingerWriter(side: HumanHand.Side, shape: HumanHand.Shape):
-    (joints: IHumanPosture["joints"], curl: number, weight: number) => void {
-    const fixed: readonly IFinger[] = entries(side, shape);
-    return (joints: IHumanPosture["joints"], curl: number, weight: number): void => {
+  export function prepareFingerWriter(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape):
+    (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number) => void {
+    const fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] = entries(side, shape);
+    return (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void => {
       written(fixed, joints, curl, weight);
     };
   }
@@ -153,17 +117,17 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingerWriter shares prepareFingers/fingers' same scalar interpolation. Exact current side/shape keys guard one last preparation, preserving live props and recomputing changed configurations without a growing cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fixed fifteen-entry reader until release, retaining no per-second posture, weight, curl, result or time history.
    */
-  export function shape(props: IShape): IAutoMovieMotionHumanPrimitive {
-    let fixed: { side: HumanHand.Side; shape: HumanHand.Shape; write: ReturnType<typeof prepareFingerWriter> } | undefined;
+  export function shape(props: IAutoMovieMotionHumanHand.IShape): IAutoMovieMotionHumanPrimitive {
+    let fixed: { side: AutoMovieHumanSide; shape: IAutoMovieMotionHumanHand.Shape; write: ReturnType<typeof prepareFingerWriter> } | undefined;
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const out: IHumanPosture = { ...posture, joints: { ...posture.joints } };
-        const side: HumanHand.Side = props.side;
-        const asked: HumanHand.Shape = props.shape;
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        const out: IAutoMovieMotionHumanPosture = { ...posture, joints: { ...posture.joints } };
+        const side: AutoMovieHumanSide = props.side;
+        const asked: IAutoMovieMotionHumanHand.Shape = props.shape;
         const curl: number = props.curl ?? 0;
         const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
         if (fixed === undefined || fixed.side !== side || fixed.shape !== asked)
@@ -196,11 +160,11 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned shape primitive retains these fixed arguments, its clock and the one bounded named-shape reader documented by shape, without time or joint-result history.
    */
   export function form(
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    asked: HumanHand.Shape,
+    asked: IAutoMovieMotionHumanHand.Shape,
     curl: number = 0,
   ): IAutoMovieMotionHumanPrimitive {
     return shape({
@@ -223,19 +187,19 @@ interface IFinger {
 }
 
 /** Compile only unchanged named-shape scalars; every output remains independent. */
-function entries(side: HumanHand.Side, shape: HumanHand.Shape): readonly IFinger[] {
-  const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
-  const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+function entries(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape): readonly IAutoMovieHumanNeutralKnuckle.IFinger[] {
+  const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
   return (Object.keys(asked) as AutoMovieHumanoidBone[]).map(
-    (bone: AutoMovieHumanoidBone): IFinger => ({
+    (bone: AutoMovieHumanoidBone): IAutoMovieHumanNeutralKnuckle.IFinger => ({
       bone, asked: asked[bone]![0], relaxed: relaxed[bone]![0], curls: !bone.includes("Thumb"),
     }),
   );
 }
 
 /** The original curl-then-subtract interpolation shared by cold and prepared reads. */
-function shaped(fixed: readonly IFinger[], curl: number, weight: number): IHumanPosture["joints"] {
-  const out: IHumanPosture["joints"] = {};
+function shaped(fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[], curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] {
+  const out: IAutoMovieMotionHumanPosture["joints"] = {};
   written(fixed, out, curl, weight);
   return out;
 }
@@ -249,7 +213,7 @@ function shaped(fixed: readonly IFinger[], curl: number, weight: number): IHuman
  * a seated body had laid flat on its thigh into the thigh at the action's
  * first and last instants.
  */
-function written(fixed: readonly IFinger[], joints: IHumanPosture["joints"], curl: number, weight: number): void {
+function written(fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[], joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void {
   for (const entry of fixed)
     joints[entry.bone] = interpolated(entry.asked, joints[entry.bone]?.[0] ?? entry.relaxed, entry.curls, curl, weight);
 }

@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   MotionTrajectoryFailure,
   Quaternion,
   Vector3,
@@ -12,23 +11,29 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
+  IAutoMovieMotionHumanFlightTurns,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
-import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
-import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
+import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPoseKnots } from "./HumanPoseKnots";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * Hand each placed flight its rigid turn after placement and contacts.
@@ -129,8 +134,8 @@ export namespace HumanPerformanceFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Staged retains only completed numeric table/angle data after its body/FK workspace ends. Physical flights separately clear temporary histories and the person's O(S) mass token releases in finally. No performance, body, displayed reader or physical history enters either completed playback.
    */
   export function flights(
-    self: HumanPerformanceState,
-    people: Iterable<HumanSegment.IPerson>,
+    self: IAutoMovieMotionHumanPerformanceState,
+    people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): void {
     for (const person of people) {
@@ -139,7 +144,7 @@ export namespace HumanPerformanceFlight {
       let readBones: ReturnType<typeof poseBones.prepare> | undefined;
       try {
         for (const segment of person.segments) {
-          const plan: IHumanActionPlan = segment.plan;
+          const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
           if (plan.flight === undefined || plan.airborne === undefined) continue;
 
           // A body stays unchanged for the pass, but people without a flight
@@ -160,7 +165,7 @@ export namespace HumanPerformanceFlight {
               act: segment.name,
               instance:
                 [...person.segments, ...person.overlays].filter(
-                  (s: HumanSegment.ISegment): boolean =>
+                  (s: IAutoMovieMotionHumanSegment): boolean =>
                     s.id === segment.id && s.entry < segment.entry,
                 ).length + 1,
             });
@@ -174,18 +179,18 @@ export namespace HumanPerformanceFlight {
 
   /** Hand back authored turns without constructing a physical history or take-off problem. */
   function staged(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
-    turns: IHumanActionPlan.IFlightTurns,
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+    turns: IAutoMovieMotionHumanFlightTurns,
   ): void {
-    const body: IHumanBody = person.performer.body;
-    const model: resolveAutoMovieCenterOfMass.IModel = body.massModel;
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const part of model.segments) requested.add(part.bone);
     const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
     const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
-    const declared: IHumanActionPlan.IFlight = segment.plan.flight!;
+    const declared: IAutoMovieMotionHumanFlight = segment.plan.flight!;
     const t0: number = segment.start + declared.from * segment.plan.duration;
     const t1: number = segment.start + declared.to * segment.plan.duration;
     const data: IPlayback = samples(t0, t1, (seconds: number): IPlayback["table"][number] => {
@@ -210,19 +215,19 @@ export namespace HumanPerformanceFlight {
    * @throws {HumanRefusal} When the flight's turns cannot be met.
    */
   function flight(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     prepared: prepareAutoMovieMassModel.IPrepared,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
     readBones: ReturnType<typeof poseBones.prepare>,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): void {
-    const plan: IHumanActionPlan = segment.plan;
-    const declared: IHumanActionPlan.IFlight = plan.flight!;
+    const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
+    const declared: IAutoMovieMotionHumanFlight = plan.flight!;
     const subject: string = person.performer.subject;
-    const body: IHumanBody = person.performer.body;
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       body.massModel;
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
@@ -326,13 +331,13 @@ export namespace HumanPerformanceFlight {
 
       // The momentum: given, or solved from the turns.
       let momentum: IAutoMovieVector3;
-      let solvedFlight: integrateAirborneRotation.IFlight | undefined;
+      let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
       if (declared.momentum.kind === "momentum")
         momentum = declared.momentum.momentum;
       else {
-        const turns: IHumanActionPlan.IFlightTurns = declared.momentum;
+        const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
         const maximum: number = turns.maximum ?? ceiling(t0);
-        const solved: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+        const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
           history,
           t0,
           t1,
@@ -359,7 +364,7 @@ export namespace HumanPerformanceFlight {
         momentum = solved.momentum;
         solvedFlight = solved.flight;
       }
-      const turned: integrateAirborneRotation.IFlight =
+      const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
         solvedFlight ??
         integrateAirborneRotation({
           history,

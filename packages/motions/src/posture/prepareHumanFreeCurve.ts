@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSwivelNear,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
@@ -10,17 +8,27 @@ import {
   samplePoseVelocity,
   swingTwistRange,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
+import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { HumanPostureRaw } from "./HumanPostureRaw";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -44,8 +52,8 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. No pose, output history, FK loan, callback handle or task is retained in interval data.
  */
 export function prepareHumanFreeCurve(
-  body: IHumanBody,
-  at: (share: number) => IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  at: (share: number) => IAutoMovieMotionHumanPosture,
   duration: number,
 ): (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => HumanPosturePreparation.IPrepared {
   const unchanged: (() => boolean) | undefined = prepareHumanPostureRigCheck(body);
@@ -72,10 +80,10 @@ export function prepareHumanFreeCurve(
   }
 
   /** Observe native output independently; no seed or fitted endpoint is a target substitute. */
-  function observe(prepared: HumanPosturePreparation.IPrepared, raw: IHumanPosture,
-    knownSeeds?: resolveHumanPosture.ISeeded["seeds"]): IAnchor | undefined {
+  function observe(prepared: HumanPosturePreparation.IPrepared, raw: IAutoMovieMotionHumanPosture,
+    knownSeeds?: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]): IAnchor | undefined {
     if (raw.rotation !== undefined || !HumanPostureRaw.eligible(raw)) return undefined;
-    const limbs: [IHumanPosture.Limb, IHumanPosture.IGoal][] = Object.entries(raw.limbs) as [IHumanPosture.Limb, IHumanPosture.IGoal][];
+    const limbs: [AutoMovieHumanLimb, IAutoMovieHumanLimbGoal][] = Object.entries(raw.limbs) as [AutoMovieHumanLimb, IAutoMovieHumanLimbGoal][];
     if (limbs.length === 0) return undefined;
     const names: Set<AutoMovieHumanoidBone> = new Set();
     for (const [limb] of limbs) {
@@ -117,8 +125,8 @@ export function prepareHumanFreeCurve(
       if (!(Vector3.length(bent) > precision) || !(Vector3.length(asked) > precision) || !(Vector3.dot(bent, asked) > 0)) return undefined;
       rotations.push(hip.worldRotation, knee.worldRotation, foot.worldRotation);
     }
-    const seeds: resolveHumanPosture.ISeeded["seeds"] = knownSeeds ?? HumanPosturePreparation.seeds(prepared);
-    if (limbs.some(([limb]: [IHumanPosture.Limb, IHumanPosture.IGoal]): boolean => seeds[limb] === null || seeds[limb] === undefined)) return undefined;
+    const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = knownSeeds ?? HumanPosturePreparation.seeds(prepared);
+    if (limbs.some(([limb]: [AutoMovieHumanLimb, IAutoMovieHumanLimbGoal]): boolean => seeds[limb] === null || seeds[limb] === undefined)) return undefined;
     return { seeds, rotations };
   }
 
@@ -136,16 +144,16 @@ export function prepareHumanFreeCurve(
   function correct(share: number, prior: IAnchor,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): ICorrection {
-    const raw: IHumanPosture = at(share);
-    const near: resolveHumanPosture.INear = Object.fromEntries(Object.entries(prior.seeds).flatMap(
-      ([limb, seed]: [string, resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb]]): [IHumanPosture.Limb, IAutoMovieSwivelNear][] =>
-        seed === null || seed === undefined ? [] : [[limb as IHumanPosture.Limb, { ...seed, tolerance }]],
+    const raw: IAutoMovieMotionHumanPosture = at(share);
+    const near: IAutoMovieMotionHumanResolveHumanPosture.INear = Object.fromEntries(Object.entries(prior.seeds).flatMap(
+      ([limb, seed]: [string, IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb]]): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] =>
+        seed === null || seed === undefined ? [] : [[limb as AutoMovieHumanLimb, { ...seed, tolerance }]],
     ));
     HumanLimbFitFrame.work(body, "curveProbes");
     const prepared: HumanPosturePreparation.IPrepared = HumanPosturePreparation.continued(body, raw, near, resolution, projection);
-    const seeds: resolveHumanPosture.ISeeded["seeds"] = HumanPosturePreparation.seeds(prepared);
-    const interior: boolean = Object.entries(seeds).every(([limb, seed]: [string, resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb]]): boolean => {
-      const before: resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb] = prior.seeds[limb as IHumanPosture.Limb];
+    const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = HumanPosturePreparation.seeds(prepared);
+    const interior: boolean = Object.entries(seeds).every(([limb, seed]: [string, IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb]]): boolean => {
+      const before: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb] = prior.seeds[limb as AutoMovieHumanLimb];
       return seed !== null && seed !== undefined && before !== null && before !== undefined && seed.branch === before.branch &&
         Math.abs(seed.swivel - before.swivel) < hingedArmSwivel.STEP - tolerance;
     });
@@ -285,7 +293,7 @@ export function prepareHumanFreeCurve(
     }
     if (!originRead) {
       originRead = true;
-      const initial: IHumanPosture = at(0);
+      const initial: IAutoMovieMotionHumanPosture = at(0);
       if (initial.rotation !== undefined || !HumanPostureRaw.eligible(initial) || Object.keys(initial.limbs).length === 0) {
         supported = false; return cold(share, resolution, projection);
       }
@@ -304,7 +312,7 @@ export function prepareHumanFreeCurve(
 /** Only primitive fit seeds and native quaternion observations survive a query. */
 interface IAnchor {
   /** Actual branch and degree swivel of the validated canonical predecessor. */
-  seeds: resolveHumanPosture.ISeeded["seeds"];
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
   /** Actual postclamp chain world rotations, in supported goal insertion order. */
   rotations: readonly IAutoMovieQuaternion[];
 }

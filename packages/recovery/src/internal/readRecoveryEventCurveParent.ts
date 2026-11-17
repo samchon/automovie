@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-
-import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAutoMovieRecoveryEventCurveSource";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventCurveSource,
+} from "@automovie/interface";
 
 /**
  * Admit the single complete Bernstein curve supplying an event occurrence.
@@ -16,7 +18,7 @@ import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAu
  */
 export function readRecoveryEventCurveParent(
   source: IAutoMovieRecoveryEventCurveSource,
-): C.Span {
+): AutoMovieCubicBezierControls3 {
   const curve: IAutoMovieRecoveryEventCurveSource["curve"] = source.curve;
   if (
     !curve ||
@@ -30,12 +32,12 @@ export function readRecoveryEventCurveParent(
     throw new Error(
       "A native event authority requires one millimetre cubic and its original positive phase width",
     );
-  const net: C.Span = curve.spans[0]!;
+  const net: AutoMovieCubicBezierControls3 = curve.spans[0]!;
   if (
     !Array.isArray(net) ||
     net.length !== 4 ||
     net.some(
-      (point: C.Vector): boolean =>
+      (point: Readonly<AutoMovieVector3Tuple>): boolean =>
         !Array.isArray(point) ||
         point.length !== 3 ||
         !point.every(Number.isFinite),

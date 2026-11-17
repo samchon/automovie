@@ -1,8 +1,9 @@
-import {
-  type IAutoMovieCurve64 as C,
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourLoft64,
-} from "@automovie/engine";
+import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  IAutoMovieContourLoft64,
+  IAutoMovieCubicBezierCurve64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -26,7 +27,7 @@ export function assertContourLoftBoundaryCompletion(
   const { sections, input, mergeAligned, mergeInserted }: typeof context =
     context;
 
-  const coneSections: L.ISection[] = [
+  const coneSections: IAutoMovieContourLoft64.ISection[] = [
     { coordinateMm: 0, loops: [] },
     {
       coordinateMm: 2,
@@ -35,8 +36,8 @@ export function assertContourLoftBoundaryCompletion(
     { coordinateMm: 4, loops: [] },
   ];
 
-  const extrema: L.IEvent[] = ["minimum", "maximum"].map(
-    (kind: string, i: number): L.IEvent => ({
+  const extrema: IAutoMovieContourLoft64.IEvent[] = ["minimum", "maximum"].map(
+    (kind: string, i: number): IAutoMovieContourLoft64.IEvent => ({
       name: kind,
       kind: kind as "minimum" | "maximum",
       coordinateMm: 1 + 2 * i,
@@ -49,19 +50,23 @@ export function assertContourLoftBoundaryCompletion(
     }),
   );
 
-  const cones: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: coneSections,
-    events: extrema,
-    chordToleranceMm: 0.25,
-  });
+  const cones: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: coneSections,
+      events: extrema,
+      chordToleranceMm: 0.25,
+    });
 
   TestValidator.predicate(
     "only explicit isolated terminals close the finite ring",
     cones.unresolved.length === 0 &&
       cones.primitiveRanges?.length === 2 &&
       cones.primitiveRanges.every(
-        (range: NonNullable<L.IResult["primitiveRanges"]>[number]): boolean =>
-          range.kind === "cap",
+        (
+          range: NonNullable<
+            IAutoMovieContourLoft64.IResult["primitiveRanges"]
+          >[number],
+        ): boolean => range.kind === "cap",
       ) &&
       [...edges(cones).values()].every(
         (record: { uses: number; orientation: number }): boolean =>
@@ -69,11 +74,12 @@ export function assertContourLoftBoundaryCompletion(
       ),
   );
 
-  const unmatched: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: coneSections,
-    events: [],
-    chordToleranceMm: 0.25,
-  });
+  const unmatched: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: coneSections,
+      events: [],
+      chordToleranceMm: 0.25,
+    });
 
   TestValidator.predicate(
     "an unmatched finite ring is unresolved and receives no cap",
@@ -83,7 +89,7 @@ export function assertContourLoftBoundaryCompletion(
   // Different rectangle depths force a strict interior closest slit. The linear
   // trace has position fraction 3t²-2t³, so chord fraction is not its source phase.
   for (const winding of [1, -1] as const) {
-    const mergeSections: L.ISection[] = [
+    const mergeSections: IAutoMovieContourLoft64.ISection[] = [
       {
         coordinateMm: 0,
         loops: [
@@ -96,49 +102,52 @@ export function assertContourLoftBoundaryCompletion(
         loops: [{ curve: O.curve("merged", rectangle(2, 0, 4, 3)), winding }],
       },
     ];
-    const merge: L.IResult = tessellateAutoMovieContourLoft64({
-      sections: mergeSections,
-      intervals: [
-        {
-          beforeMm: 0,
-          afterMm: 2,
-          groups: [
-            { before: [0, 1], after: [0], supported: true, reason: null },
-          ],
-        },
-      ],
-      events: [
-        {
-          name: "merge",
-          coordinateMm: 1,
-          beforeMm: 0,
-          afterMm: 2,
-          before: [0, 1],
-          after: [0],
-          kind: "saddle",
-          regular: true,
-          terminal: null,
-        },
-      ],
-      chordToleranceMm: 0.25,
-    });
+    const merge: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: mergeSections,
+        intervals: [
+          {
+            beforeMm: 0,
+            afterMm: 2,
+            groups: [
+              { before: [0, 1], after: [0], supported: true, reason: null },
+            ],
+          },
+        ],
+        events: [
+          {
+            name: "merge",
+            coordinateMm: 1,
+            beforeMm: 0,
+            afterMm: 2,
+            before: [0, 1],
+            after: [0],
+            kind: "saddle",
+            regular: true,
+            terminal: null,
+          },
+        ],
+        chordToleranceMm: 0.25,
+      });
     mergeInserted.push(
       merge.construction
         .slice(0, 2)
         .some(
-          (ring: L.IResult["construction"][number]): boolean =>
-            ring.points.length > 4,
+          (
+            ring: IAutoMovieContourLoft64.IResult["construction"][number],
+          ): boolean => ring.points.length > 4,
         ),
     );
     mergeAligned.push(aligned(merge, mergeSections));
   }
 
-  const empty: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: [],
-    events: [],
-    intervals: [],
-    chordToleranceMm: 1,
-  });
+  const empty: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: [],
+      events: [],
+      intervals: [],
+      chordToleranceMm: 1,
+    });
 
   TestValidator.predicate(
     "empty input is an empty admitted result",
@@ -152,7 +161,7 @@ export function assertContourLoftBoundaryCompletion(
     TestValidator.predicate(
       "nonpositive or nonfinite tolerance refuses",
       throwsError(
-        (): L.IResult =>
+        (): IAutoMovieContourLoft64.IResult =>
           tessellateAutoMovieContourLoft64({
             ...input,
             chordToleranceMm: tolerance,
@@ -164,7 +173,7 @@ export function assertContourLoftBoundaryCompletion(
   TestValidator.predicate(
     "nonincreasing section addresses refuse",
     throwsError(
-      (): L.IResult =>
+      (): IAutoMovieContourLoft64.IResult =>
         tessellateAutoMovieContourLoft64({
           ...input,
           sections: [...sections].reverse(),
@@ -173,12 +182,15 @@ export function assertContourLoftBoundaryCompletion(
     ),
   );
 
-  const original: C.Cubic = sections[0].loops[0].curve;
+  const original: IAutoMovieCubicBezierCurve64 = sections[0].loops[0].curve;
 
-  const disconnected: C.Cubic = {
+  const disconnected: IAutoMovieCubicBezierCurve64 = {
     ...original,
     spans: original.spans.map(
-      (span: C.Span, i: number): C.Span =>
+      (
+        span: AutoMovieCubicBezierControls3,
+        i: number,
+      ): AutoMovieCubicBezierControls3 =>
         i === 0
           ? [
               [span[0][0] + 1, span[0][1], span[0][2]],
@@ -190,13 +202,14 @@ export function assertContourLoftBoundaryCompletion(
     ),
   };
 
-  const failed: L.IResult = tessellateAutoMovieContourLoft64({
-    ...input,
-    sections: [
-      { ...sections[0], loops: [{ curve: disconnected, winding: 1 }] },
-      ...sections.slice(1),
-    ],
-  });
+  const failed: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      ...input,
+      sections: [
+        { ...sections[0], loops: [{ curve: disconnected, winding: 1 }] },
+        ...sections.slice(1),
+      ],
+    });
 
   TestValidator.predicate(
     "C0-disconnected source remains a diagnosed local gap beside the valid interval",

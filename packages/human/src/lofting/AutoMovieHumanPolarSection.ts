@@ -1,22 +1,15 @@
+import type { IAutoMovieHumanPolarSection } from "@automovie/interface";
+
 /**
  * Star-shaped closed section read in polar form about its area centroid,
  * the form a limb's construction works in: a neighbouring chain's ring
  * becomes the same radial function as the limb's own sections.
  */
 export namespace AutoMovieHumanPolarSection {
-  /** Polar measures of one closed polygon. */
-  export interface ISection {
-    /** Area centroid `[x, z]`, mm. */
-    centre: [number, number];
-
-    /** Radius of the circle of the same area, mm. */
-    radius: number;
-  }
-
   /** Area centroid and equivalent radius of a closed polygon `[x, z]`. */
   export function measure(
-    polygon: readonly (readonly [number, number])[],
-  ): ISection {
+    polygon: IAutoMovieHumanPolarSection.MeasurePolygon,
+  ): IAutoMovieHumanPolarSection.ISection {
     let area: number = 0;
     let cx: number = 0;
     let cz: number = 0;
@@ -42,8 +35,8 @@ export namespace AutoMovieHumanPolarSection {
    * @returns Distance along the ray, 0 when it meets nothing.
    */
   export function radius(
-    polygon: readonly (readonly [number, number])[],
-    origin: readonly [number, number],
+    polygon: IAutoMovieHumanPolarSection.RadiusPolygon,
+    origin: IAutoMovieHumanPolarSection.RadiusOrigin,
     angle: number,
   ): number {
     const dx: number = Math.cos(angle);
@@ -84,7 +77,10 @@ export namespace AutoMovieHumanPolarSection {
     const half = (list: [number, number][]): [number, number][] => {
       const out: [number, number][] = [];
       for (const p of list) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0)
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
           out.pop();
         out.push(p);
       }

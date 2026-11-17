@@ -1,7 +1,6 @@
 import {
   AutoMovieSubject,
   AutoMovieSubjectGroup,
-  type IAutoMovieSubjectContribution,
   lowerBuiltEnvironment,
 } from "@automovie/engine";
 import type {
@@ -11,6 +10,7 @@ import type {
   IAutoMovieShotBuildContext,
   IAutoMovieSpace,
   IAutoMovieStageSetPiece,
+  IAutoMovieSubjectContribution,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

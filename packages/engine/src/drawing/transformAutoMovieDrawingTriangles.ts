@@ -1,4 +1,5 @@
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
+import type { IAutoMovieDrawingTriangle } from "@automovie/interface";
+
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
 /**

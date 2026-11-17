@@ -4,14 +4,15 @@ import {
   IAutoMoviePlantingCluster,
   IAutoMoviePlantingDomain,
   IAutoMoviePlantingInstallation,
+  type IAutoMovieRenderSubject,
+  type IAutoMovieRenderSubjectOfCompiledShot,
+  type IAutoMovieRenderTextureResidency,
+  type IAutoMovieRenderTextureSource,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftFurnishing,
   IAutoMovieWaterFeature,
 } from "@automovie/interface";
 
-import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { autoMovieRenderSubjectOfShot } from "./autoMovieRenderSubjectOfShot";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -45,18 +46,11 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each binding/recipe index is built once per conversion and used by all related rows; mutable compiled artifacts and host texture observations prevent a cross-call identity-only cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned rows reference compiled laws and host facts rather than owning simulations; local indices disappear after completion/failure and no renderer handle is retained.
  */
-export const autoMovieRenderSubjectOfCompiledShot: (props: {
-  compiled: IAutoMovieCompiledShotSource;
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}) => IAutoMovieRenderSubject = (props: {
-  /** Fully builder-owned shot artifact. */
-  compiled: IAutoMovieCompiledShotSource;
-  /** Actual host-decoded upload and sharing facts for resolved source assets. */
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  /** Other live scopes and context-retained texture storage, when not fresh. */
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}): IAutoMovieRenderSubject => {
+export const autoMovieRenderSubjectOfCompiledShot: (
+  props: IAutoMovieRenderSubjectOfCompiledShot.IProps,
+) => IAutoMovieRenderSubject = (
+  props: IAutoMovieRenderSubjectOfCompiledShot.IProps,
+): IAutoMovieRenderSubject => {
   const {
     compiled,
   }: {

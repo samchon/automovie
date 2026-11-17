@@ -1,5 +1,7 @@
-import type { IAutoMovieRenderTextureResidency } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieFormationViewerStats } from "./IAutoMovieFormationViewerStats.js";

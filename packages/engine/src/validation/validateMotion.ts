@@ -5,7 +5,9 @@ import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
+  type IAutoMovieValidateMotion,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
@@ -26,18 +28,13 @@ const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Closed easing vocabularies are shared, while each frame's current values are validated anew.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector owns output rows; no sampled pose sequence, animation clip or host task is retained.
  */
-export const validateMotion: (props: {
-  motion: IAutoMovieMotion;
-  skeleton: IAutoMovieSkeleton;
-}) => IAutoMovieValidation = (props: {
-  /** Borrowed clip with second-valued timestamps and degree-valued joints. */
-  motion: IAutoMovieMotion;
-
-  /** Current target rig supplying joint membership and effective ROM overrides. */
-  skeleton: IAutoMovieSkeleton;
-}): IAutoMovieValidation => {
+export const validateMotion: (
+  props: IAutoMovieValidateMotion.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateMotion.IProps,
+): IAutoMovieValidation => {
   const path: string = "$input";
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const {
     motion,
     skeleton,
@@ -141,12 +138,12 @@ const checkAngularSpeed: (
   motion: IAutoMovieMotion,
   i: number,
   kp: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   motion: IAutoMovieMotion,
   i: number,
   kp: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const prev: IAutoMovieKeyframe = motion.keyframes[i - 1]!;
   const cur: IAutoMovieKeyframe = motion.keyframes[i]!;
@@ -200,11 +197,11 @@ const checkAngularSpeed: (
 const validateKeyframeBezier: (
   kf: IAutoMovieKeyframe,
   kp: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   kf: IAutoMovieKeyframe,
   kp: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (kf.easing !== "cubicBezier") {
     if (kf.bezier !== null)

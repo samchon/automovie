@@ -1,5 +1,8 @@
-import { IAutoMovieActionSynthesizer } from "@automovie/engine";
-import { IAutoMovieActionCall, IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 
 import { validSynthesizer } from "./filmFixtures";
 

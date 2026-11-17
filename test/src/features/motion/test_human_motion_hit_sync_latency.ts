@@ -1,10 +1,13 @@
 import { AutoMovieComposition } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBlast,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
-  HumanBlast,
   HumanChain,
   HumanHitTrack,
   HumanPerformance,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,8 +36,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios.
  */
 export function test_human_motion_hit_sync_latency(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const blast: HumanBlast.IBlast = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const blast: IAutoMovieMotionHumanBlast.IBlast = {
     id: "shell",
     point: { x: 0, y: 0.2, z: 0 },
     at: 1,
@@ -42,7 +45,7 @@ export function test_human_motion_hit_sync_latency(): void {
     impulse: 300,
   };
   const ids: string[] = [0, 1, 2, 3, 4, 5].map((k: number) => `p${k}`);
-  const make = (): HumanPerformance =>
+  const make = (): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "volley",
       blasts: [blast],
@@ -67,7 +70,7 @@ export function test_human_motion_hit_sync_latency(): void {
         ),
       ),
     });
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = make();
   } catch (error) {
@@ -95,7 +98,7 @@ export function test_human_motion_hit_sync_latency(): void {
     "the latencies are drawn per bystander",
     new Set(starts).size > 1,
   );
-  const again: HumanPerformance = make();
+  const again: IAutoMovieMotionHumanPerformance = make();
   TestValidator.equals(
     "a replay places every flinch at the same second",
     ids.map((subject: string) => again.segments(subject).at(-1)!.entryTime),

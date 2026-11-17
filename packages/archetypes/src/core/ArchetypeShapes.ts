@@ -1,16 +1,20 @@
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
+
 /**
- * The colliders of an archetype: one solid per primitive part, in the model's space, in the shape vocabulary the engine's contact queries read (`IAutoMoviePhysicalProfile.IShape`).
+ * Actual primitive or declared convex-cell colliders in the model's space, using the engine's contact-query vocabulary.
  *
  * A hand closes its fingers on these and a grasp reads a grip's width from them, so each collider is the part's own solid, never a padded one: a box is a box, a sphere a sphere, a capsule a capsule. A cylinder at least four radii long becomes a capsule inside it, its round ends ending where the cylinder ends, which keeps the width across it exact and costs the queries least; a shorter cylinder and a cone become the convex hull of a ring of `SIDES` points on each rim, exact along the part's own X and Z and inside the true circle by less than 4 % of the radius between them. A plane has no solid and gives none.
+ * A declared cell uses its exact local generating points under the visible part's current rigid transform; separate wall cells preserve cavities. An arbitrary mesh or atlas still has no inferred collider.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the mapping per primitive, its exactness and what a plane gives.
+ * @evidence contracts/development/common.md#meaningful-documentation States primitive approximation bounds, exact actual-cell correspondence, current rigid placement, absent arbitrary-mesh inference and planar null output.
  * @evidence contracts/development/design.md#principled-representation The engine's own collider type, placed in the model's space with the part's transform, so nothing is converted again before a contact query.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function over parts; the archetype calls it at its current articulation state.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No collider is hand-placed: each follows from its part, so the picture and the contact cannot disagree.
@@ -26,26 +30,27 @@ export namespace ArchetypeShapes {
    * The colliders of parts.
    *
    * @param parts The model's parts at their current transforms, with unit scale.
-   * @returns One collider per primitive part with a volume, its id the part's id.
+   * @param cells Explicit actual convex cells bound to their visible parts; omitted for primitives.
+   * @returns One collider per supported solid part, preserving its id.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the premise on scale and the ids.
-   * @evidence contracts/development/implementation.md#principled-implementation Each primitive maps to the engine shape with the same solid, or to the hull or inner capsule this namespace's doc bounds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the primitive kinds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mesh or atlas part gives no collider, since archetypes are built of primitives only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts, with a fixed number of hull points.
+   * @evidence contracts/development/implementation.md#principled-implementation Declared actual cells use the same local hull boundary as their visible polyhedron, under the part's current TRS. Primitives retain their original exact or explicitly bounded shape mappings.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit declared cell correspondence first; otherwise use the unchanged primitive-kind switch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A replaced declared-cell geometry is refused. Arbitrary mesh/atlas parts still give no collider; no whole-shell envelope fills an opening.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus the total declared cell corners; primitive hull point counts remain fixed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Computed on request for one state.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent collider point buffers so a caller cannot mutate the source cell through its collider. Retains no request data or handle.
    */
   export function of(
     parts: readonly IAutoMovieModelPart[],
-  ): IAutoMoviePhysicalProfile.IShape[] {
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = [];
+    cells: ArchetypeConvexCell.Table = new Map(),
+  ): IAutoMoviePhysicalShape[] {
+    const shapes: IAutoMoviePhysicalShape[] = [];
     for (const part of parts) {
-      if (part.geometry.type !== "primitive") continue;
       const base: {
         id: string;
         material: string;
-        transform: IAutoMoviePhysicalProfile.ITransform;
+        transform: IAutoMovieRigidTransform;
       } = {
         id: part.id,
         material: MATERIAL,
@@ -54,7 +59,23 @@ export namespace ArchetypeShapes {
           rotation: part.transform?.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
         },
       };
-      const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+      const cell: ArchetypeConvexCell.ICell | undefined = cells.get(part.id);
+      if (cell !== undefined) {
+        if (part.geometry !== cell.geometry)
+          throw new Error(
+            `Convex cell ${part.id} no longer matches its visible geometry`,
+          );
+        shapes.push({
+          ...base,
+          kind: "hull",
+          points: cell.points.map(
+            (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
+          ),
+        });
+        continue;
+      }
+      if (part.geometry.type !== "primitive") continue;
+      const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
       switch (shape.type) {
         case "box":
           shapes.push({

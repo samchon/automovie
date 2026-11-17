@@ -1,14 +1,13 @@
 import {
-  type IAutoMovieResolvedBone,
-  type preparePoseResolution,
+  preparePoseResolution,
   type prepareSkeletonPoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * Every bone of a canonical pose placed in the world, by name: forward
@@ -38,7 +37,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps/nested transforms are fresh caller-owned values. A prepared closure retains only its bounded name demand and body-rig reference until caller release; dynamic rows remain under weak operation keys and end with those readers. Neither path retains a pose, query-result history, handle or task.
  */
 export function poseBones(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   prepared?: ReturnType<typeof preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -70,7 +69,7 @@ export namespace poseBones {
    * output or history enters the factory and no task or handle is created.
    */
   export function prepareTuples(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): prepareSkeletonPoseResolution.ITupleReader {
     return body.poseResolution.prepareTuples(requested);
@@ -88,7 +87,7 @@ export namespace poseBones {
    * @returns The reading; it holds the admitted values, so a later edit of the pose does not reach it.
    */
   export function read(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     prepared?: ReturnType<typeof preparePoseResolution>,
   ): prepareSkeletonPoseResolution.IReading {
@@ -105,10 +104,10 @@ export namespace poseBones {
    * @returns The bound reader of this body's readings.
    */
   export function prepareRead(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): (reading: prepareSkeletonPoseResolution.IReading) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const demand: ReturnType<IHumanBody["poseResolution"]["prepareBones"]> =
+    const demand: ReturnType<IAutoMovieMotionHumanBody["poseResolution"]["prepareBones"]> =
       body.poseResolution.prepareBones(requested);
     return (reading: prepareSkeletonPoseResolution.IReading): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       demand.read(reading);
@@ -128,10 +127,10 @@ export namespace poseBones {
    * closure with its caller; no pose, source set or query history is retained.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): (pose: IAutoMoviePose, prepared?: ReturnType<typeof preparePoseResolution>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const demand: ReturnType<IHumanBody["poseResolution"]["prepareBones"]> =
+    const demand: ReturnType<IAutoMovieMotionHumanBody["poseResolution"]["prepareBones"]> =
       body.poseResolution.prepareBones(requested);
     return (pose: IAutoMoviePose, prepared?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       demand.map(pose, prepared);

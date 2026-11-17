@@ -1,11 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
 /**
  * The single parent-first arm-chain FK used by cold placement and an explicit
@@ -29,21 +30,21 @@ import type { HumanArmGeometry as G } from "./HumanArmGeometry";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no callback, input or result; the caller owns the fresh fixed-size chain record and its six world vectors/quaternions.
  */
 export function resolveHumanArmChain(
-  setup: G.ISetup,
-  at: G.IFrame,
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+  at: IAutoMovieMotionHumanArmGeometry.IFrame,
   c: readonly number[],
   readShoulder: typeof G.shoulder,
   readRotation: typeof G.rotation,
   readScalars?: (
-    setup: G.ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     flexion: number,
     abduction: number,
     twist: number,
   ) => IAutoMovieQuaternion,
-): Omit<G.IPlaced, "probes"> {
-  const rest: G.ISetup["rest"] = setup.rest;
-  const parent: G.IFrame["parent"] = at.parent;
+): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
+  const rest: IAutoMovieMotionHumanArmGeometry.ISetup["rest"] = setup.rest;
+  const parent: IAutoMovieMotionHumanArmGeometry.IFrame["parent"] = at.parent;
   const wu: IAutoMovieQuaternion = Quaternion.multiply(
     parent.rotation,
     Quaternion.multiply(rest.upper.rotation, readShoulder(setup, c)),

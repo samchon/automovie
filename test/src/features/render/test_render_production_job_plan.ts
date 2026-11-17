@@ -1,14 +1,12 @@
 import type {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
+  IAutoMovieProductionAudioAssetIdentity,
   IAutoMovieProductionDesign,
+  IAutoMovieProductionRenderJobPlan,
+  IAutoMovieProductionRenderRuntimeIdentity,
 } from "@automovie/interface";
-import {
-  type IAutoMovieProductionAudioAssetIdentity,
-  type IAutoMovieProductionRenderJobPlan,
-  type IAutoMovieProductionRenderRuntimeIdentity,
-  planProductionRenderJob,
-} from "@automovie/render";
+import { planProductionRenderJob } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import {

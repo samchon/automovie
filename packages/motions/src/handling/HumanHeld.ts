@@ -1,17 +1,20 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanHeldEffector } from "./HumanHeldEffector";
 
 /**
@@ -44,25 +47,6 @@ import { HumanHeldEffector } from "./HumanHeldEffector";
  */
 export namespace HumanHeld {
   /**
-   * What an act states of how it uses a held prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and the meaning of its absence.
-   * @evidence contracts/development/design.md#principled-representation The hand's attitude as an effector, whether the prop stands upright, and the prop's point by its id.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `effector`; a hand-to-face row satisfies it as it is.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the prop's own id, never coordinates.
-   */
-  export interface IUse {
-    /** The hand's attitude without a prop: its surface and shape are kept, and its facing and along directions say which side of the prop meets the region. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /** `true` when the prop stands on the world's up at the region, as a vessel does. */
-    upright?: boolean;
-
-    /** The prop's point that meets the region; the caller names it when absent. */
-    point?: string;
-  }
-
-  /**
    * The effector that lays a held prop's point on the act's region.
    *
    * @param context The action's context; the prop is read in the hand at the action's entry (`AutoMovieMotionHumanHeld.of`).
@@ -83,13 +67,13 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    row: IUse,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
     subject: string,
     point?: string,
     turn: number = 0,
-  ): AutoMovieMotionHumanTouchEffector.IEffector {
+  ): IAutoMovieMotionHumanTouchEffector.IEffector {
     return HumanHeldEffector(context, row, side, subject, point)(turn);
   }
 
@@ -108,7 +92,7 @@ export namespace HumanHeld {
    * the right tries 45, so of two sides that hold the vessel alike the two
    * hands took sides that are not each other's mirror.
    */
-  function turns(side: HumanHand.Side): readonly number[] {
+  function turns(side: AutoMovieHumanSide): readonly number[] {
     return side === "right"
       ? SIDES
       : SIDES.map((turn: number): number => (turn === 0 ? 0 : -turn));
@@ -136,12 +120,12 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh effector weights and retains nothing.
    */
   export function sides(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    row: IUse,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
     subject: string,
     point: string | undefined,
-  ): AutoMovieMotionHumanTouchEffector.IEffector[] {
+  ): IAutoMovieMotionHumanTouchEffector.IEffector[] {
     const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
       context,
       row,
@@ -150,7 +134,7 @@ export namespace HumanHeld {
       point,
     );
     return turns(side).map(
-      (turn: number): AutoMovieMotionHumanTouchEffector.IEffector =>
+      (turn: number): IAutoMovieMotionHumanTouchEffector.IEffector =>
         effect(turn),
     );
   }
@@ -182,15 +166,15 @@ export namespace HumanHeld {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local geometry producer/hint are released on return or throw; only the best fresh effector weights escape, without body/prop readers, fits, time history or handles.
    */
   export function steadiest(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    row: IUse,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
     subject: string,
     point: string | undefined,
-    posture: IHumanPosture,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    posture: IAutoMovieMotionHumanPosture,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     leans: boolean = false,
-  ): AutoMovieMotionHumanTouchEffector.IEffector {
+  ): IAutoMovieMotionHumanTouchEffector.IEffector {
     const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
       context,
       row,
@@ -198,12 +182,12 @@ export namespace HumanHeld {
       subject,
       point,
     );
-    let best: AutoMovieMotionHumanTouchEffector.IEffector = effect();
+    let best: IAutoMovieMotionHumanTouchEffector.IEffector = effect();
     if (row.upright !== true) return best;
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(context.body, posture, side);
     let least: number = Infinity;
     for (const turn of turns(side)) {
-      const candidate: AutoMovieMotionHumanTouchEffector.IEffector = effect(turn);
+      const candidate: IAutoMovieMotionHumanTouchEffector.IEffector = effect(turn);
       const facing: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
         context.body,
         posture,
@@ -289,12 +273,12 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan it wraps and nothing else.
    */
   export function kept(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    plan: IHumanActionPlan,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    plan: IAutoMovieMotionHumanActionPlan,
+    side: AutoMovieHumanSide,
     subject: string,
-  ): IHumanActionPlan {
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  ): IAutoMovieMotionHumanActionPlan {
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
       subject,

@@ -1,6 +1,11 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryCameraPoseRefinementOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryPoseModelCreationOperation,
+  IAutoMovieRecoveryPoseResidualsLinearizeOperation,
+} from "@automovie/interface";
 
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { createRecoveryPoseModel } from "./createRecoveryPoseModel";
 import { linearizeRecoveryPoseResiduals } from "./linearizeRecoveryPoseResiduals";
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
@@ -22,32 +27,13 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner retains only its current/trial pose, local arrays and scalar diagnostics. Returned pose and counters transfer without input observations, image buffers, processes or global cache.
  */
 export function refineRecoveryCameraPose(
-  initial: {
-    rotation: readonly number[];
-    translation: readonly [number, number, number];
-  },
-  firstPoints: readonly (readonly [number, number])[],
-  secondPoints: readonly (readonly [number, number])[],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  policy: {
-    lossScalePx: number;
-    minimumDesignRatio: number;
-    maxIterations: number;
-    maxSweeps: number;
-  },
-): {
-  rotation: number[];
-  translation: [number, number, number];
-  fundamental: number[];
-  converged: boolean;
-  termination: "gradient" | "step" | "cost" | "iteration-budget";
-  iterations: number;
-  acceptedSteps: number;
-  initialCost: number;
-  finalCost: number;
-  minimumLocalDesignRatio: number;
-} {
+  initial: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[0],
+  firstPoints: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[1],
+  secondPoints: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[2],
+  first: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[3],
+  second: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[4],
+  policy: Parameters<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[5],
+): ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation> {
   if (
     firstPoints.length !== secondPoints.length ||
     firstPoints.length < 8 ||
@@ -76,9 +62,9 @@ export function refineRecoveryCameraPose(
       throw new Error("camera-refinement: nonrepresentable robust objective");
     return sum;
   };
-  let model: ReturnType<typeof createRecoveryPoseModel> =
+  let model: ReturnType<IAutoMovieRecoveryPoseModelCreationOperation.Operation> =
     createRecoveryPoseModel(pose, first, second);
-  let linear: ReturnType<typeof linearizeRecoveryPoseResiduals> =
+  let linear: ReturnType<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation> =
     linearizeRecoveryPoseResiduals(model, firstPoints, secondPoints);
   let cost: number = costOf(linear.residuals);
   const initialCost: number = cost;
@@ -86,7 +72,7 @@ export function refineRecoveryCameraPose(
   let iterations: number = 0,
     acceptedSteps: number = 0,
     minimumLocalDesignRatio: number = Infinity;
-  let termination: ReturnType<typeof refineRecoveryCameraPose>["termination"] =
+  let termination: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>["termination"] =
     "iteration-budget";
   let prepared: {
     rows: number[][];
@@ -178,9 +164,9 @@ export function refineRecoveryCameraPose(
       model.tangent,
       step,
     );
-    const candidateModel: ReturnType<typeof createRecoveryPoseModel> =
+    const candidateModel: ReturnType<IAutoMovieRecoveryPoseModelCreationOperation.Operation> =
       createRecoveryPoseModel(candidate, first, second);
-    const errors: ReturnType<typeof measureRecoveryEpipolarErrors> =
+    const errors: ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> =
       measureRecoveryEpipolarErrors(
         candidateModel.matrix,
         firstPoints,

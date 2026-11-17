@@ -1,9 +1,13 @@
-import { type IAutoMovieRandom, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBreath,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Breathing as an additive layer: the chest, the upper chest and the lumbar
@@ -59,26 +63,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module owns the fixed five-entry tidal metadata. Each live layer owns its options and two bounded last-seed/scalar records until release, with no retained body, context, random stream, posture, time sample or performer history; standalone scalar/add functions retain nothing.
  */
 export namespace HumanBreath {
-  /** Layer options. */
-  export interface IOptions {
-    /** Breaths a minute at rest; a seeded draw from the adult band when absent. */
-    rate?: number;
-
-    /** Bouts of exertion. */
-    exertion?: IExertion[];
-  }
-
-  /** One bout of exertion, ending at `at`. */
-  export interface IExertion {
-    /** Film second the bout ends and recovery starts. */
-    at: number;
-
-    /** Level in [0, 1]: 0 at rest, 1 at hard exercise. */
-    level: number;
-
-    /** Recovery seconds; 60 when absent (provisional). */
-    recovery?: number;
-  }
 
   /** Resting band, breaths a minute (Cretikos et al. 2008). */
   export const BAND: readonly [number, number] = [12, 20];
@@ -140,10 +124,10 @@ export namespace HumanBreath {
   export function state(
     seconds: number,
     rate: number,
-    exertion: readonly IExertion[],
+    exertion: readonly IAutoMovieMotionHumanBreath.IExertion[],
     phase0: number,
     sigh: IAutoMovieRandom,
-  ): { rate: number; phase: number; volume: number } {
+  ): IAutoMovieMotionHumanBreath.IStateResult {
     HumanBound.above("rate", rate, 0, "breaths per minute");
     let perMinute: number = rate;
     let cycles: number = phase0 + (rate * seconds) / 60;
@@ -200,7 +184,7 @@ export namespace HumanBreath {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work IAutoMovieRandom is the canonical pure counter-based stream whose seed and index determine its values; each fixed-draw reader holds only its last exact seed/result. Current time, exertion, volume, posture and sigh results are never reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains options and two last-seed/scalar records until released, with no retained body, context, stream object, time sample or growing performer map.
    */
-  export function layer(options: IOptions = {}): IHumanLayer {
+  export function layer(options: IAutoMovieMotionHumanBreath.IOptions = {}): IAutoMovieMotionHumanLayer {
     const rateAt: (random: IAutoMovieRandom) => number = fixedDraw(restingRate);
     const phaseAt: (random: IAutoMovieRandom) => number = fixedDraw(
       (random: IAutoMovieRandom): number => random.float(0),
@@ -211,10 +195,10 @@ export namespace HumanBreath {
       // The spine, the chest and the shoulder girdles (`TIDAL`).
       channels: ["trunk"],
       apply: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        context: IHumanLayer.IContext,
-      ): IHumanPosture => {
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture => {
         const rate: number =
           options.rate ?? rateAt(context.random("breath.rate"));
         const phase0: number = phaseAt(context.random("breath.phase"));
@@ -237,8 +221,8 @@ export namespace HumanBreath {
    * @param volume Volume in tidal breaths above the end of exhalation.
    * @returns The posture with breathing added; its limb goals unchanged.
    */
-  export function add(posture: IHumanPosture, volume: number): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+  export function add(posture: IAutoMovieMotionHumanPosture, volume: number): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     for (const [bone, angles] of TIDAL_ENTRIES) {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       joints[bone] = [

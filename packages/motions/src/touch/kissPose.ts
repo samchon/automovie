@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { kiss } from "./kiss";
 
 /**
@@ -29,17 +32,17 @@ import type { kiss } from "./kiss";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns this reader and fixed cervical constants until return or throw. It stores no candidate pose, derived raw offset, FK workspace, time, displacement or history; only selected scalar angles/miss escape the enclosing solve.
  */
 export function kissPose(
-  body: IHumanBody,
-  entry: IHumanPosture,
-  stance: AutoMovieMotionHumanRise.Stance,
+  body: IAutoMovieMotionHumanBody,
+  entry: IAutoMovieMotionHumanPosture,
+  stance: IAutoMovieMotionHumanRise.Stance,
   twist: number,
   behind: number,
-): (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IHumanPosture {
+): (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IAutoMovieMotionHumanPosture {
   const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(2, twist);
-  return (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IHumanPosture => {
+  return (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IAutoMovieMotionHumanPosture => {
     const yaw: number = (entry.yaw * Math.PI) / 180;
     const offset: IAutoMovieVector3 = { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind };
-    const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+    const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
       body,
       {
         ...entry,

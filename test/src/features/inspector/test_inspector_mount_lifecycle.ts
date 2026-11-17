@@ -1,8 +1,10 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionLegendEntry,
+} from "@automovie/interface";
+import type {
   IAutoMovieDrawScene,
   IAutoMovieDrawSubject,
-  IAutoMovieInspectionLegendEntry,
 } from "@automovie/render";
 import {
   AutoMovieInspectorPlayhead,

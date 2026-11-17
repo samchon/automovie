@@ -1,7 +1,8 @@
-import {
-  type AutoMovieSolidMeshConstraints,
-  AutoMovieSolidMeshIncidence,
-} from "@automovie/engine";
+import { AutoMovieSolidMeshIncidence } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -37,7 +38,7 @@ export function test_construction_chart_incidence(): void {
       [3, [0, 4 * scale]],
       [4, [2 * scale, 2 * scale]],
     ];
-    const edges: AutoMovieSolidMeshConstraints.ISegment[] = [
+    const edges: IAutoMovieSolidMeshConstraints.ISegment[] = [
       [0, 1],
       [1, 2],
       [2, 3],
@@ -47,26 +48,26 @@ export function test_construction_chart_incidence(): void {
       [2, 4],
       [3, 4],
     ].map(
-      ([a, b]: number[]): AutoMovieSolidMeshConstraints.ISegment => ({
+      ([a, b]: number[]): IAutoMovieSolidMeshConstraints.ISegment => ({
         a: a!,
         b: b!,
         turn: 0,
       }),
     );
-    const made: AutoMovieSolidMeshIncidence.IWalk[] | string =
+    const made: IAutoMovieSolidMeshIncidence.IWalk[] | string =
       AutoMovieSolidMeshIncidence.walks(new Map(square), edges);
     if (typeof made === "string") failures.push(`square ${scale}: ${made}`);
     else {
       const sizes: number[] = made
         .map(
-          (walk: AutoMovieSolidMeshIncidence.IWalk): number =>
+          (walk: IAutoMovieSolidMeshIncidence.IWalk): number =>
             walk.vertices.length,
         )
         .sort((a: number, b: number): number => a - b);
       if (
         sizes.join(",") !== "3,3,3,3,4" ||
         made.some(
-          (walk: AutoMovieSolidMeshIncidence.IWalk): boolean =>
+          (walk: IAutoMovieSolidMeshIncidence.IWalk): boolean =>
             walk.winding !== 0,
         )
       )
@@ -86,7 +87,7 @@ export function test_construction_chart_incidence(): void {
       [2, [4 * scale, 0]],
       [3, [4 * scale, 3 * scale]],
     ];
-    const rails: AutoMovieSolidMeshConstraints.ISegment[] = [
+    const rails: IAutoMovieSolidMeshConstraints.ISegment[] = [
       { a: 0, b: 1, turn: 0 },
       { a: 1, b: 0, turn: 1 },
       { a: 2, b: 3, turn: 0 },
@@ -96,12 +97,12 @@ export function test_construction_chart_incidence(): void {
     ];
     const period: number = 6 * scale;
     const before: string = JSON.stringify({ band, rails });
-    const wrapped: AutoMovieSolidMeshIncidence.IWalk[] | string =
+    const wrapped: IAutoMovieSolidMeshIncidence.IWalk[] | string =
       AutoMovieSolidMeshIncidence.walks(new Map(band), rails, period);
     if (typeof wrapped === "string") failures.push(`band ${scale}: ${wrapped}`);
     else {
       const winding: number[] = wrapped
-        .map((walk: AutoMovieSolidMeshIncidence.IWalk): number => walk.winding)
+        .map((walk: IAutoMovieSolidMeshIncidence.IWalk): number => walk.winding)
         .sort((a: number, b: number): number => a - b);
       if (winding.join(",") !== "-1,0,0,1")
         failures.push(
@@ -119,7 +120,7 @@ export function test_construction_chart_incidence(): void {
       const original: string = JSON.stringify(wrapped);
       wrapped[0]!.vertices.push(999);
       wrapped[0]!.lifts.push(999);
-      const repeated: AutoMovieSolidMeshIncidence.IWalk[] | string =
+      const repeated: IAutoMovieSolidMeshIncidence.IWalk[] | string =
         AutoMovieSolidMeshIncidence.walks(new Map(band), rails, period);
       if (JSON.stringify(repeated) !== original)
         failures.push(`band ${scale}: shared mutable output`);
@@ -132,7 +133,7 @@ export function test_construction_chart_incidence(): void {
     [1, [1, 0]],
     [2, [2, 0]],
   ];
-  const dangling: AutoMovieSolidMeshIncidence.IWalk[] | string =
+  const dangling: IAutoMovieSolidMeshIncidence.IWalk[] | string =
     AutoMovieSolidMeshIncidence.walks(new Map(line), [{ a: 0, b: 1, turn: 0 }]);
   if (
     typeof dangling === "string" ||
@@ -140,7 +141,7 @@ export function test_construction_chart_incidence(): void {
     dangling[0]!.vertices.join(",") !== "0,1"
   )
     failures.push("dangling edge lost directed incidences");
-  const empty: AutoMovieSolidMeshIncidence.IWalk[] | string =
+  const empty: IAutoMovieSolidMeshIncidence.IWalk[] | string =
     AutoMovieSolidMeshIncidence.walks(new Map(), []);
   if (typeof empty === "string" || empty.length !== 0)
     failures.push("empty graph did not remain empty");
@@ -183,7 +184,7 @@ export function test_construction_chart_incidence(): void {
 
 /** Ordinary signed shoelace area, used only for zero-winding finite elementary faces. */
 function area(
-  walk: AutoMovieSolidMeshIncidence.IWalk,
+  walk: IAutoMovieSolidMeshIncidence.IWalk,
   points: ReadonlyMap<number, readonly [number, number]>,
   period: number = 0,
 ): number {
@@ -203,18 +204,18 @@ function area(
 function incidence(
   failures: string[],
   label: string,
-  walks: AutoMovieSolidMeshIncidence.IWalk[],
+  walks: IAutoMovieSolidMeshIncidence.IWalk[],
   edges: number,
 ): void {
   if (
     walks.reduce(
-      (sum: number, walk: AutoMovieSolidMeshIncidence.IWalk): number =>
+      (sum: number, walk: IAutoMovieSolidMeshIncidence.IWalk): number =>
         sum + walk.vertices.length,
       0,
     ) !==
       2 * edges ||
     walks.some(
-      (walk: AutoMovieSolidMeshIncidence.IWalk): boolean =>
+      (walk: IAutoMovieSolidMeshIncidence.IWalk): boolean =>
         walk.vertices.length !== walk.lifts.length ||
         walk.lifts[0] !== 0 ||
         !walk.lifts.every(Number.isSafeInteger),
@@ -248,7 +249,7 @@ function check(
 function refuse(
   failures: string[],
   label: string,
-  result: AutoMovieSolidMeshIncidence.IWalk[] | string,
+  result: IAutoMovieSolidMeshIncidence.IWalk[] | string,
   expected: string,
 ): void {
   if (typeof result !== "string" || !result.includes(expected))

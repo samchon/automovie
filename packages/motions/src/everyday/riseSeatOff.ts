@@ -1,9 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
+import { stand } from "../actions/stand";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -32,7 +34,7 @@ import { seated } from "./seated";
  */
 export function riseSeatOff(props: {
   /** Unchanged body of the rise. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
   /** Seat socket after edging, world metres. */
   begin: IAutoMovieVector3;
   /** Upright root under that socket, world metres. */
@@ -40,7 +42,7 @@ export function riseSeatOff(props: {
   /** Fixed entry heading, degrees. */
   yaw: number;
   /** Original relaxed authored joint angles. */
-  relaxed: IHumanPosture["joints"];
+  relaxed: IAutoMovieMotionHumanPosture["joints"];
   /** Original ordered, nonempty shank-angle candidates in degrees. */
   angles: readonly number[];
   /** Original rise duration, seconds. */
@@ -65,7 +67,7 @@ export function riseSeatOff(props: {
   type Candidate = (
     seconds: number,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ) => IHumanPosture;
+  ) => IAutoMovieMotionHumanPosture;
   function seatedAt(
     peak: number,
     feet: Record<"left" | "right", IAutoMovieVector3>,
@@ -74,7 +76,7 @@ export function riseSeatOff(props: {
     return (
       seconds: number,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
         props.relaxed,
         props.pitchAt(seconds, peak),

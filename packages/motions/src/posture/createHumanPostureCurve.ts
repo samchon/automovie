@@ -1,6 +1,11 @@
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -24,12 +29,12 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callback and weak entry own one O(J) immutable source until the callback releases. Each prepared acquisition owns one actual resolver preparation and genuine rig checker. The placement consumer replaces its current acquisition on invalidation and releases it with its plan, without query history, FK workspace or external handles.
  */
 export function createHumanPostureCurve(
-  posture: IHumanPosture,
-): IHumanActionPlan["posture"] {
-  const saved: IHumanPosture | undefined = snapshot(posture);
-  if (saved === undefined) return (): IHumanPosture => posture;
+  posture: IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanActionPlan["posture"] {
+  const saved: IAutoMovieMotionHumanPosture | undefined = snapshot(posture);
+  if (saved === undefined) return (): IAutoMovieMotionHumanPosture => posture;
 
-  const at: IHumanActionPlan["posture"] = (): IHumanPosture => structuredClone(saved);
+  const at: IAutoMovieMotionHumanActionPlan["posture"] = (): IAutoMovieMotionHumanPosture => structuredClone(saved);
   ISSUED.set(at, saved);
   return at;
 }
@@ -50,10 +55,10 @@ export namespace createHumanPostureCurve {
    * unchanged before reusing this acquisition after a later body observation.
    */
   export function prepared(
-    body: IHumanBody,
-    source: IHumanActionPlan["posture"],
+    body: IAutoMovieMotionHumanBody,
+    source: IAutoMovieMotionHumanActionPlan["posture"],
   ): ICaptured | undefined {
-    const saved: IHumanPosture | undefined = ISSUED.get(source);
+    const saved: IAutoMovieMotionHumanPosture | undefined = ISSUED.get(source);
     if (saved === undefined) return undefined;
     const unchanged: (() => boolean) | undefined = prepareHumanPostureRigCheck(body);
     if (unchanged === undefined) return undefined;
@@ -83,14 +88,14 @@ export namespace createHumanPostureCurve {
 }
 
 /** Copy the complete supported authoring before checking or retaining any scalar. */
-function snapshot(posture: IHumanPosture): IHumanPosture | undefined {
+function snapshot(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture | undefined {
   try {
-    const saved: IHumanPosture = structuredClone(posture);
+    const saved: IAutoMovieMotionHumanPosture = structuredClone(posture);
     if (Object.keys(saved).some((key: string): boolean => !FIELDS.has(key)) ||
       Object.keys(saved.root).some((key: string): boolean => key !== "x" && key !== "y" && key !== "z") ||
       ![saved.root.x, saved.root.y, saved.root.z, saved.yaw, saved.pitch, saved.roll].every(Number.isFinite) ||
-      Object.values(saved.limbs).some((goal: IHumanPosture.IGoal | undefined): boolean => goal !== undefined) ||
-      Object.values(saved.digits ?? {}).some((goal: IHumanPosture.IDigitGoal | undefined): boolean => goal !== undefined) ||
+      Object.values(saved.limbs).some((goal: IAutoMovieHumanLimbGoal | undefined): boolean => goal !== undefined) ||
+      Object.values(saved.digits ?? {}).some((goal: IAutoMovieHumanDigitGoal | undefined): boolean => goal !== undefined) ||
       saved.rotation !== undefined) return undefined;
 
     for (const joint of Object.values(saved.joints)) {
@@ -115,4 +120,4 @@ const FIELDS: ReadonlySet<string> = new Set([
 ]);
 
 /** Weak membership locates constructor-owned coefficients without retaining released curves. */
-const ISSUED: WeakMap<IHumanActionPlan["posture"], IHumanPosture> = new WeakMap();
+const ISSUED: WeakMap<IAutoMovieMotionHumanActionPlan["posture"], IAutoMovieMotionHumanPosture> = new WeakMap();

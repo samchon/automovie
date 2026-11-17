@@ -1,12 +1,12 @@
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Write the standing law's planted leg goals, either directly for one query
@@ -29,7 +29,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns only fresh goals and vectors and retains no preparation, body cache, evaluated pose or query history.
  */
 export function standingLegs(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   root: IAutoMovieVector3,
   yaw: number,
   feet: Record<"left" | "right", IAutoMovieVector3>,
@@ -52,8 +52,8 @@ export function standingLegs(
       }
     >
   >,
-): IHumanPosture["limbs"] {
-  const limbs: IHumanPosture["limbs"] = {};
+): IAutoMovieMotionHumanPosture["limbs"] {
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const side of ["left", "right"] as const) {
     const prepared: NonNullable<typeof fixed>["left"] | undefined =
       fixed?.[side];

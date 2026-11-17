@@ -1,13 +1,15 @@
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_step_timing(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
 
   /** One take: its named heel strikes and a reader of its displayed body. */
   interface ITake {
@@ -51,13 +53,13 @@ export function test_human_motion_travel_step_timing(): void {
     strikes: { seconds: number; side: "left" | "right" }[];
 
     /** The reader. */
-    reader: HumanSignature.IReader;
+    reader: IAutoMovieMotionHumanSignature.IReader;
 
     /** The film second the walk ends. */
     end: number;
   }
   const take = (seed: string): ITake => {
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed,
       performers: [
         {
@@ -72,7 +74,7 @@ export function test_human_motion_travel_step_timing(): void {
         .stand({ seconds: 0.3 })
         .walk({ to: { x: 0, y: 0, z: 6 } }).node,
     });
-    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     return {
       strikes: segment.plan.events
         .filter((e: IAutoMovieMotionEvent): boolean =>

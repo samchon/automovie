@@ -1,4 +1,4 @@
-import { IAutoMovieGait } from "@automovie/interface";
+import type { IAutoMovieGait } from "@automovie/interface";
 
 /**
  * The five canonical humanoid gaits, the locomotion the `locomote` verb's

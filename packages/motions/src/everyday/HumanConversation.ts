@@ -1,8 +1,11 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanConversation,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionTarget,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import { HumanGaze } from "./HumanGaze";
 
 /**
  * Where a person in a conversation looks: at the partner's face for
@@ -37,17 +40,6 @@ import { HumanGaze } from "./HumanGaze";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanConversation {
-  /** One speaking turn. */
-  export interface ITurn {
-    /** The speaker's subject id. */
-    speaker: string;
-
-    /** Film second the turn starts. */
-    from: number;
-
-    /** Film second the turn ends. */
-    to: number;
-  }
 
   /** Mean glance and away durations, seconds, by role. */
   export const GLANCES: Readonly<
@@ -70,16 +62,16 @@ export namespace HumanConversation {
   export function gaze(
     subject: string,
     partner: string,
-    turns: readonly ITurn[],
+    turns: readonly IAutoMovieMotionHumanConversation.ITurn[],
     random: IAutoMovieRandom,
     eyes: number,
-  ): HumanGaze.ILayer[] {
-    const face: AutoMovieMotionTarget = {
+  ): IAutoMovieMotionHumanGaze.ILayer[] {
+    const face: IAutoMovieMotionTarget = {
       kind: "person",
       subject: partner,
       region: "face",
     };
-    const out: HumanGaze.ILayer[] = [];
+    const out: IAutoMovieMotionHumanGaze.ILayer[] = [];
     let draw: number = 0;
     const exponential = (mean: number): number =>
       -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
@@ -116,12 +108,12 @@ export namespace HumanConversation {
    * @returns The share in [0, 1].
    */
   export function share(
-    requests: readonly HumanGaze.ILayer[],
+    requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
     from: number,
     to: number,
   ): number {
     let on: number = 0;
-    requests.forEach((r: HumanGaze.ILayer, i: number): void => {
+    requests.forEach((r: IAutoMovieMotionHumanGaze.ILayer, i: number): void => {
       const a: number = Math.max(from, r.from);
       const b: number = Math.min(to, requests[i + 1]?.from ?? to);
       if (b > a && r.target.kind === "person") on += b - a;
@@ -131,7 +123,7 @@ export namespace HumanConversation {
 }
 
 /** A look-away point 2 m out, 25 degrees to a side of the looker's heading and 10 degrees below the eyes, in the looker's own frame. */
-function away(eyes: number, side: number): AutoMovieMotionTarget {
+function away(eyes: number, side: number): IAutoMovieMotionTarget {
   return {
     kind: "point",
     at: {

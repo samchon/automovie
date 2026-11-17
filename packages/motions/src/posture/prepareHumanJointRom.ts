@@ -3,9 +3,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { readHumanBone } from "../body/readHumanBone";
 
 /**
@@ -26,7 +26,7 @@ import { readHumanBone } from "../body/readHumanBone";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns this synchronous reader and at most U borrowed records/null markers, releasing them with the evaluation. It creates no map if never called and keeps no global body, pose or result cache.
  */
 export function prepareHumanJointRom(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): (bone: AutoMovieHumanoidBone, angles: readonly [number, number, number]) => number {
   let records: Map<AutoMovieHumanoidBone, IAutoMovieBone | null> | undefined;
   return (bone: AutoMovieHumanoidBone, angles: readonly [number, number, number]): number => {

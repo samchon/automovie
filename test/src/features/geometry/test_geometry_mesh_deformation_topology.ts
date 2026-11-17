@@ -1,13 +1,13 @@
 import {
-  type IAutoMovieMeshDeformationInfluence,
   assertAutoMovieDeformedTriangles,
   createAutoMovieMeshDeformer,
 } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieMeshDeformationField,
-  type IAutoMovieMeshPhysicalVertices,
-  type IAutoMovieMeshSkin,
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshDeformationField,
+  IAutoMovieMeshDeformationInfluence,
+  IAutoMovieMeshPhysicalVertices,
+  IAutoMovieMeshSkin,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

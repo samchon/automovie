@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
+
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
@@ -24,7 +26,7 @@ export function AutoMovieMotionHumanArmStated(
   weight: (seconds: number) => number,
   from: number,
   to: number,
-): AutoMovieMotionHumanArmPlanned.ISpan | undefined {
+): IAutoMovieMotionHumanArmPlanned.ISpan | undefined {
   const count: number = Math.max(1, Math.ceil((to - from) * 240));
   const at = (i: number): number => from + ((to - from) * i) / count;
   const w: number[] = Array.from(

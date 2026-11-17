@@ -1,6 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
+import type { IAutoMovieMark, IAutoMovieMarkSlip } from "@automovie/interface";
 
 /**
  * Turn the slip of planted or held contacts at one instant into inspection marks: a segment from where each contact was planted to where it is now, flagged when it has moved farther than its limit.
@@ -21,12 +19,7 @@ import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
 export function markAutoMovieSlip(
-  entries: readonly {
-    path: string;
-    planted: IAutoMovieVector3;
-    at: IAutoMovieVector3;
-    limit: number;
-  }[],
+  entries: IAutoMovieMarkSlip.IEntries,
 ): IAutoMovieMark[] {
   const marks: IAutoMovieMark[] = [];
   for (const entry of entries) {

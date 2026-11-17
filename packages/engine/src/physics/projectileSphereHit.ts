@@ -1,9 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHit,
+  IAutoMovieProjectile,
+  IAutoMovieSphere,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieHit } from "./IAutoMovieHit";
-import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import { IAutoMovieSphere } from "./IAutoMovieSphere";
 import { projectileAt } from "./projectileAt";
 import { segmentSphere } from "./segmentSphere";
 

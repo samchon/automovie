@@ -1,13 +1,17 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
-import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
@@ -18,7 +22,6 @@ import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
-import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import { solveAirborneInvariant } from "./solveAirborneInvariant";
 
@@ -77,8 +80,8 @@ import { solveAirborneInvariant } from "./solveAirborneInvariant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the RHS scope from numeric trajectory/tangent count only; accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse until return/throw. An engine history with N exact queries and S parts owns O(N) I/h/inverses and at most 3N+6 numeric mass nodes, O(N*S), until clear. Raw bones/full poses are released after posing and never enter those maps. Companion observe: The caller owns the small handle; private weak registration retains no observer after callers and histories release it. It contains no body, pose, query log or process.
  */
 export function integrateAirborneRotation(
-  props: integrateAirborneRotation.IProps,
-): integrateAirborneRotation.IFlight {
+  props: IAutoMovieIntegrateAirborneRotation.IProps,
+): IAutoMovieIntegrateAirborneRotation.IFlight {
   const { history, momentum } = props;
   const requestedScope: symbol | undefined = props.errorScope;
   if (requestedScope !== undefined && typeof requestedScope !== "symbol")
@@ -92,7 +95,7 @@ export function integrateAirborneRotation(
   // requires its history owner's whole-curve constant proof. Unsupported
   // controls, tangents and physical classes keep the original numeric path.
   if (AirborneShapeHistory.owned(history)) {
-    const invariant: integrateAirborneRotation.IFlight | undefined = solveAirborneInvariant(props);
+    const invariant: IAutoMovieIntegrateAirborneRotation.IFlight | undefined = solveAirborneInvariant(props);
     if (invariant !== undefined) return invariant;
   }
 
@@ -138,22 +141,22 @@ export function integrateAirborneRotation(
   // Sensitivities guide Newton but do not feed the physical orientation.
   // A same-unit matrix block controls their Frobenius error independently;
   // the maximum with q's original RMS can never dilute its physical budget.
-  const tolerance: integrateMotionTrajectory.ITolerance | undefined =
+  const tolerance: IAutoMovieIntegrateMotionTrajectory.ITolerance | undefined =
     props.tolerance === undefined
       ? undefined
       : {
           ...props.tolerance,
           blocks: variations.length === 0 ? [] : [3 * variations.length],
         };
-  let trajectory: integrateMotionTrajectory.ITrajectory;
+  let trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
   try {
     trajectory = integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
         q: IAutoMovieQuaternion | null,
-      ): integrateMotionTrajectory.IRate => {
-        const instant: integrateAirborneRotation.IInstant = history(t);
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+        const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(t);
         const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
         const carried: IAutoMovieVector3 = Quaternion.rotateVector(
           back,
@@ -270,58 +273,9 @@ export namespace integrateAirborneRotation {
    */
   export const DELTA: number = 1e-3;
 
-  /**
-   * What a torque-free flight and its optional momentum tangents are integrated from.
-   *
-   * Members state seconds, root/world frames, momentum units, integration budgets and body-frame tangent outputs.
-   * The history supplies root-frame inertia and relative momentum; world momentum is constant and q0 is the takeoff attitude. Interval and state dimensions are admitted by the trajectory integrator; positive principal moments and a pure history remain caller premises.
-   * The flight pass supplies physical inputs and the shooting solver additionally supplies same-unit momentum directions; this wrapper owns the internal tangent partition and accepts only relative/absolute budgets.
-   * The optional matrix contains the requested directions without a second body model; its Frobenius budget does not promise invariance under independently rescaled parameter columns.
-   */
-  export interface IProps {
-    /** The shape's history (`history`). */
-    history: IHistory;
+  
 
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds, after `t0`. */
-    t1: number;
-
-    /** The root's world orientation at take-off, unit. */
-    q0: IAutoMovieQuaternion;
-
-    /** The whole-body angular momentum about the centre of mass, world frame, kg m²/s; constant through the flight. */
-    momentum: IAutoMovieVector3;
-
-    /** The integrator's step, seconds; its default when absent. Under a `tolerance`, the first step tried. */
-    h?: number;
-
-    /** Relative and absolute integration error budgets; fixed-step when absent. The physical orientation and the same-unit tangent matrix use independent norms. A nonzero absolute number acts in each block's own units, not a shared physical unit. */
-    tolerance?: Pick<
-      integrateMotionTrajectory.ITolerance,
-      "relative" | "absolute"
-    >;
-
-    /** Optional dense angular-momentum error control, requiring adaptive integration. Relative is a share of the requested world momentum and absolute is kg m²/s; they are separate from the orientation budget. A zero resulting scale admits only zero defect. Sampled dense control does not certify a separate finite-difference pose observation. */
-    momentumTolerance?: Pick<integrateMotionTrajectory.ITolerance, "relative" | "absolute">;
-
-    /** Optional caller-owned unique token correlating this flight's trajectory failures with its caller. Omitted, this integration creates its own token. Histories receive no token; nested failures with another scope pass through unchanged. */
-    errorScope?: symbol;
-
-    /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
-    variations?: readonly IAutoMovieVector3[];
-
-    /** Optional time partition shared by one owned-history shooting operation. Each momentum still receives its original error checks; playback retains no partition. */
-    partition?: MotionTrajectoryPartition.IPartition;
-  }
-
-  /**
-   * The shape's mass distribution at a second, in the root's own frame: its
-   * composite inertia's principal frame and the relative angular momentum of
-   * its segments' motion with respect to the root.
-   */
-  export type IHistory = (seconds: number) => IInstant;
+  
 
   /**
    * A shape history with an explicitly owned numeric memo.
@@ -331,43 +285,14 @@ export namespace integrateAirborneRotation {
    * The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
    * Shares IHistory instead of duplicating the callback contract; exact I/h and numeric mass nodes have no eviction cap or rounded time grid and belong only to this pure history operation.
    */
-  export type ICachedHistory = IHistory & {
+  export type ICachedHistory = IAutoMovieIntegrateAirborneRotation.IHistory & {
   /** Release all I/h instants, numeric mass nodes and their rated tensor/derivative packets, boundary moments and inverse preparation; a new query recomputes them while completed flights remain valid. */
     clear(): void;
   };
 
-  /** The shape's mass distribution at one instant, root frame. */
-  export interface IInstant {
-    /** The composite inertia about the centre of mass, as its principal frame, kg m². */
-    inertia: resolveAutoMovieMomentum.IPrincipal;
+  
 
-    /** The angular momentum of the segments' motion relative to the root, about the centre of mass, kg m²/s. */
-    relative: IAutoMovieVector3;
-  }
-
-  /** A flight's orientation, read by time. */
-  export interface IFlight {
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds. */
-    t1: number;
-
-    /** The numerical integrator's first step tried, seconds; the requested/default step metadata for a supported exact curve. */
-    h: number;
-
-    /** Numerical stored-knot count (accepted steps plus one adaptively), or two logical interval boundaries for an exact closed curve. Exact boundaries are not RK/DP stages or stored orientation samples. */
-    knots: number;
-
-    /**
-     * The root's world orientation at a second, held at the ends outside the flight.
-     *
-     */
-    orientation: (seconds: number) => IAutoMovieQuaternion;
-
-    /** Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested. */
-    variations: (seconds: number) => readonly IAutoMovieVector3[];
-  }
+  
 
   /**
    * A shape's history: at each second, the composite inertia of the posed
@@ -408,11 +333,11 @@ export namespace integrateAirborneRotation {
    * For N distinct I/h queries and S fixed model parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two boundary moments. Private moments share 3S numeric fields after exact checks, leaving at most 8S+3 per node; exact unchanged principal quaternions can additionally share their four fields. O(S) last-value references and map keys/object/array overhead depend on runtime. clear releases every node/shared-vector list/map/inverse registration; no raw bone map/full pose is retained. The caller separately releases its borrowed O(S) model.
    */
   export function history(
-    model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
     shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    span?: { from: number; to: number },
+    span?: IAutoMovieIntegrateAirborneRotation.IHistorySpan,
     observer?: AirborneShapeStatistics.IObserver,
   ): ICachedHistory {
     return AirborneShapeHistory(model, shape, DELTA, span, observer);
@@ -420,10 +345,10 @@ export namespace integrateAirborneRotation {
 
   /** Build a history from actual simultaneous bone rates where the explicit producer supplies them; unsupported instants retain the original millisecond stencil and general history callbacks are unchanged. Every first numeric-node construction calls the producer with that actual shape evaluation, including stencil neighbors, and caches only numeric tensor/momentum or unavailability. Revisited nodes never reread shape/rate callbacks, so query order cannot select a different derivative path. The producer must derive rates for the supplied current root-frame bones under unchanged model/curve prerequisites; this data interface creates no constant/smoothness capability. */
   export function rated(
-    model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
     shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     analytic: AirborneShapeHistory.IRates,
-    span?: { from: number; to: number },
+    span?: IAutoMovieIntegrateAirborneRotation.IHistorySpan,
     observer?: AirborneShapeStatistics.IObserver,
   ): ICachedHistory {
     return AirborneShapeHistory(model, shape, DELTA, span, observer, analytic);
@@ -433,7 +358,7 @@ export namespace integrateAirborneRotation {
    * Build a history tabulated once on uniform knots no farther apart than `span.step` seconds and interpolated between them (`AirborneTabulatedShapeHistory`): the shape is read at the knots only, inside the span, where `history` reads it up to three times for each new query second. An interval across which some mass part turns more than `span.turn` radians is divided into equal parts that keep every part's turn within it; omitted, no interval is divided. The inertia and relative momentum are fourth order in the knot spacing for a smooth shape (second order under four intervals). The table is built at the first query; the observer's counters keep their meaning, `uniqueNumericNodes` counting the knots read.
    */
   export function tabulated(
-    model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
     shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     span: { from: number; to: number; step: number; turn?: number },
     observer?: AirborneShapeStatistics.IObserver,
@@ -452,7 +377,7 @@ export namespace integrateAirborneRotation {
    * @returns The root's angular velocity in its own frame, radians per second.
    */
   export function rate(
-    instant: IInstant,
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
     momentum: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
@@ -467,7 +392,7 @@ export namespace integrateAirborneRotation {
  * it in place preserves each component's arithmetic without another record.
  */
 function inverse(
-  frame: resolveAutoMovieMomentum.IPrincipal,
+  frame: IAutoMoviePrincipalTensorFrame,
   vector: IAutoMovieVector3,
   back: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation),
 ): IAutoMovieVector3 {

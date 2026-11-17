@@ -1,4 +1,4 @@
-import { type IAutoMovieStagedSet, stageScene } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import type {
   IAutoMovieCameraClearanceEnvelope,
   IAutoMovieCameraDepthPrecisionConstraint,
@@ -6,6 +6,7 @@ import type {
   IAutoMoviePointTarget,
   IAutoMovieStage,
   IAutoMovieStageCamera,
+  IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

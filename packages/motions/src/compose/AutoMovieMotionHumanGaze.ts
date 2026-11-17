@@ -1,10 +1,12 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanGaze } from "../everyday/HumanGaze";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Gaze primitives: the eyes, and the head and neck when they may join,
@@ -23,77 +25,9 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The recruitment is a closed union and the trunk is excluded by the channel partition, not by a flag.
  */
 export namespace AutoMovieMotionHumanGaze {
-  /**
-   * Which segments a gaze primitive may recruit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Says what the union decides.
-   * @evidence contracts/development/design.md#principled-representation A gaze shift is made by the eyes alone or by the eyes and the head, the two cases the head channel can write.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `look`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed literal union; the trunk is not a member because this primitive does not own it.
-   */
-  export type Recruit = (typeof RECRUITS)[number];
 
   /** The recruitments of {@link Recruit}, as data. */
-  export const RECRUITS = ["eyes", "head"] as const;
-
-  /**
-   * What is looked at, as a frame of the action.
-   *
-   * @param posture The posture so far at this second.
-   * @param seconds Seconds since the action's start.
-   * @returns The world point, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each argument, when the function is called and the result's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation What is looked at may move or ride on the performer, so it is a function of the posture so far and the time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by both gaze primitives.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed point is the constant function, so there is no second form for it.
-   */
-  export type Frame = (
-    posture: IHumanPosture,
-    seconds: number,
-  ) => IAutoMovieVector3;
-
-  /**
-   * A gaze over a window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
-   * @evidence contracts/development/design.md#principled-representation The span the head is written over, what is looked at, which segments join and how far they have gone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `look`; `glance` fills them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing.
-   */
-  export interface ILook {
-    /** The body. */
-    body: IHumanBody;
-
-    /** Which segments may join. */
-    recruit: Recruit;
-
-    /** Seconds since the action's start from which the head is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the head is written. */
-    to: number;
-
-    /** What is looked at. */
-    target: Frame;
-
-    /**
-     * How far the eyes and the head have moved from where the posture has
-     * them toward the target.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by the function that writes the part; the builders from a clock fill it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader clamps the result to [0, 1] instead of trusting the member, so an implementation that overshoots cannot push the part past its ends.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-  }
+  export const RECRUITS = ["eyes", "head"] as const satisfies readonly NonNullable< IAutoMovieMotionHumanGaze.HeadRecruit>[];
 
   /**
    * The eyes and the head brought toward a target by a weight.
@@ -109,14 +43,14 @@ export namespace AutoMovieMotionHumanGaze {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to HumanGaze.aim and lends the current composer operation's exact FK workspace; the arbitrary target callback and actual gaze remain evaluated in their original order.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its live props only. A synchronous write may borrow its composer's exact FK workspace, which never enters a target, retained callback or returned posture.
    */
-  export function look(props: ILook): IAutoMovieMotionHumanPrimitive {
+  export function look(props: IAutoMovieMotionHumanGaze.ILook): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["head"],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number,
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3]): IHumanPosture => {
+        resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3]): IAutoMovieMotionHumanPosture => {
         const w: number = Math.min(1, Math.max(0, props.weight(seconds)));
 
         // Eyes recruited alone leave the neck and the head where the
@@ -157,12 +91,12 @@ export namespace AutoMovieMotionHumanGaze {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function glance(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    target: Frame,
-    recruit: Recruit = "head",
+    target: IAutoMovieMotionHumanGaze.Frame,
+    recruit: IAutoMovieMotionHumanGaze.HeadRecruit = "head",
   ): IAutoMovieMotionHumanPrimitive {
     return look({
       body,

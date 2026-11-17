@@ -1,25 +1,29 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsFlight,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
@@ -49,16 +53,6 @@ import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
  */
 export namespace GymnasticsFlight {
   /**
-   * The engine's segment mass model of one unchanged body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original engine model supplying segment masses, local centres and inertias in SI units; model(body) borrows the body's actual canonical instance.
-   * @evidence contracts/development/design.md#principled-representation The alias preserves the engine's physical model directly, without reinterpreting posed FK or authored posture demands.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The same model type serves actual COM placement, flight launch and gymnastics floor/placement preparations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no alternative mass table, manually asserted canonical flag, numerical cache key or ownership wrapper.
-   */
-  export type Model = ReturnType<typeof resolveAutoMovieCenterOfMass>;
-
-  /**
    * The mass model of a body.
    *
    * @param body The body.
@@ -72,7 +66,7 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every action of the same unchanged body shares its actual canonical model; recreate the body after skeleton/profile edits as IHumanBody requires.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body-owned model; this adapter retains no cache or external resource.
    */
-  export function model(body: IHumanBody): Model {
+  export function model(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
     return body.massModel;
   }
 
@@ -95,11 +89,11 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh joint table/triples and original borrowed raw fields escape. FK/projector loans stay with the synchronous lender, never entering a result, retained callback, pose history or pair wrapper.
    */
   export function frozen(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return frozenView(posture, resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution, undefined, projection).pose);
   }
 
@@ -122,18 +116,18 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one actual resolver pose, fresh raw joint table/triples and bounded pair wrapper. Optional FK/projector loans stay with their synchronous lender and never enter either output, callback, history or external handle.
    */
   export function freeze(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): { posture: IHumanPosture; pose: IAutoMoviePose } {
+  ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } {
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution, undefined, projection).pose;
     return { posture: frozenView(posture, pose), pose };
   }
 
   /** Copy actual canonical clinical values under the original limb-only freeze policy. */
-  function frozenView(posture: IHumanPosture, pose: IAutoMoviePose): IHumanPosture {
-    const joints: IHumanPosture["joints"] = {};
+  function frozenView(posture: IAutoMovieMotionHumanPosture, pose: IAutoMoviePose): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const joint of pose.joints as readonly IAutoMovieJointPose[])
       // A joint the pose leaves unset stands at clinical zero, as the
       // resolver itself reads it.
@@ -164,9 +158,9 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded static canonical-demand reader is weakly owned per body, replacing itself after an FK-owner change without history. The local lazy reader ends on return/throw; optional borrowed FK/projector sources stay with their synchronous parent. No pose, workspace, projector, bone map or query history escapes in the returned centre vector or enters that weak metadata.
    */
   export function centre(
-    body: IHumanBody,
-    model: Model,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
@@ -205,11 +199,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function placed(
-    body: IHumanBody,
-    model: Model,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    posture: IAutoMovieMotionHumanPosture,
     at: IAutoMovieVector3,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const c: IAutoMovieVector3 = centre(body, model, posture);
     return {
       ...posture,
@@ -241,11 +235,11 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary preparation releases at synchronous return/throw; the returned raw posture preserves the existing borrowed unchanged articulation and attached goals, retaining no preparation or reader.
    */
   export function turned(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     pivot: IAutoMovieVector3,
     yaw: number,
     pitch: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return prepareTurned(posture, pivot)(yaw, pitch);
   }
 
@@ -268,17 +262,17 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original source/pivot, one fixed inverse quaternion and one owned three-scalar root displacement until release. Each query returns fresh root/world-goal records with the original borrowed articulation/attached-goal ownership, retaining no query, FK reader, history or external handle.
    */
   export function prepareTurned(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     pivot: IAutoMovieVector3,
-  ): (yaw: number, pitch: number) => IHumanPosture {
+  ): (yaw: number, pitch: number) => IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
     let before: IAutoMovieQuaternion | undefined;
     let rootOffset: IAutoMovieVector3 | undefined;
     const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (turn: IAutoMovieQuaternion): IAutoMovieVector3 =>
       Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset ??= Vector3.subtract(posture.root, pivot)));
-    return (yaw: number, pitch: number): IHumanPosture => {
-      const after: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+    return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
+      const after: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
         yaw: posture.yaw + yaw,
         pitch: posture.pitch + pitch,
         roll: 0,
@@ -292,10 +286,10 @@ export namespace GymnasticsFlight {
           pivot,
           Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
         );
-      const limbs: IHumanPosture["limbs"] = {};
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const [limb, goal] of Object.entries(posture.limbs) as [
-        IHumanPosture.Limb,
-        IHumanPosture.IGoal,
+        AutoMovieHumanLimb,
+        IAutoMovieHumanLimbGoal,
       ][])
         limbs[limb] =
           goal.on !== undefined
@@ -383,7 +377,7 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses knockdown.rest; optional explicit touchdown-search FK/projector sources share only unchanged FK prerequisites and static ROM metadata between actual bisection queries, while every current joint and collider bound still evaluates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor borrowed FK/projector sources, which belong to the synchronous search and never a returned plan, token or callback.
    */
-  export function lowest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
+  export function lowest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
     return posture.root.y - knockdown.rest(body, posture, resolution, projection);
   }
 
@@ -402,13 +396,13 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body/profile establishes only static demand/neutral-entry equivalence. Every current root and posture still evaluates; incoming FK/ROM loans share only current prerequisites and never supply a cached floor answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns one bounded native rest reader until return/throw. Each call returns one number, retaining no raw pose, FK/projector loan, bone map, bound or query/time history.
    */
-  export function prepareLowest(body: IHumanBody): (
-    posture: IHumanPosture,
+  export function prepareLowest(body: IAutoMovieMotionHumanBody): (
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => number {
     const rest: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body);
-    return (posture: IHumanPosture,
+    return (posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>): number =>
       posture.root.y - rest(posture, resolution, projection);
@@ -433,11 +427,11 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary preparation, bounded demand, local FK getter/workspace and genuine projector release on synchronous return/throw; none enters a retained plan, source token or output. Only fresh centre/velocity vectors escape without query history.
    */
   export function launch(
-    body: IHumanBody,
-    model: Model,
-    plan: IHumanActionPlan,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    plan: IAutoMovieMotionHumanActionPlan,
     seconds: number,
-  ): { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanGymnasticsFlight.ILaunchResult {
     return prepareGymnasticsLaunch(body, model)(plan, seconds);
   }
 
@@ -477,13 +471,13 @@ export namespace GymnasticsFlight {
 }
 
 /** Canonical mass-name metadata only; no model, pose, workspace or query result is retained. */
-const MASS_READERS: WeakMap<IHumanBody, {
-  rig: IHumanBody["poseResolution"];
+const MASS_READERS: WeakMap<IAutoMovieMotionHumanBody, {
+  rig: IAutoMovieMotionHumanBody["poseResolution"];
   read: ReturnType<typeof poseBones.prepare>;
 }> = new WeakMap();
 
 /** Bind the actual body's canonical demand after its current full solve; replace metadata on FK-owner change. */
-function massReader(body: IHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones.prepare> {
+function massReader(body: IAutoMovieMotionHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones.prepare> {
   let known: ReturnType<typeof MASS_READERS.get> = MASS_READERS.get(body);
   if (known === undefined || known.rig !== body.poseResolution) {
     known = { rig: body.poseResolution, read: poseBones.prepare(body, requested) };

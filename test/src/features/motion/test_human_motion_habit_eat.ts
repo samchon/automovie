@@ -6,6 +6,12 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -13,10 +19,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanVerdicts,
-  type IHumanBody,
-  type IHumanProp,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +27,10 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A prop's named contact in the world, read from its rest frame. */
-const contact = (prop: IHumanProp, id: string): IAutoMovieVector3 => {
+const contact = (
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+): IAutoMovieVector3 => {
   const a: IAutoMovieAffordance = prop.affordances!.find(
     (x: IAutoMovieAffordance): boolean => x.id === id,
   )!;
@@ -68,10 +74,10 @@ const contact = (prop: IHumanProp, id: string): IAutoMovieVector3 => {
  */
 export function test_human_motion_habit_eat(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const reach: number = m.upperArm + m.forearm + m.hand;
-  const seat: seated.ISeat = {
+  const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
       y: seated.popliteal(body),
@@ -80,7 +86,7 @@ export function test_human_motion_habit_eat(): void {
     yaw: 0,
     depth: 0.45,
   };
-  const table: IHumanProp = HumanObject.prop(
+  const table: IAutoMovieMotionHumanProp = HumanObject.prop(
     "table",
     createTable({ kind: "dining" }, 1),
     {
@@ -91,9 +97,12 @@ export function test_human_motion_habit_eat(): void {
   );
   const top: IAutoMovieVector3 = contact(table, "top");
 
-  const scene = (side: "left" | "right", ahead: number): HumanPerformance => {
+  const scene = (
+    side: "left" | "right",
+    ahead: number,
+  ): IAutoMovieMotionHumanPerformance => {
     const out: number = (side === "left" ? 1 : -1) * m.shoulderHalfWidth;
-    const plate: IHumanProp = HumanObject.prop(
+    const plate: IAutoMovieMotionHumanProp = HumanObject.prop(
       "plate",
       createTableware({ kind: "plate" }, 1),
       {
@@ -101,7 +110,7 @@ export function test_human_motion_habit_eat(): void {
         yaw: 0,
       },
     );
-    const fork: IHumanProp = HumanObject.prop(
+    const fork: IAutoMovieMotionHumanProp = HumanObject.prop(
       "fork",
       createTool({ kind: "fork" }, 1),
       {
@@ -132,8 +141,8 @@ export function test_human_motion_habit_eat(): void {
         }).node,
     });
   };
-  const closest = (p: HumanPerformance): number => {
-    const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
+  const closest = (p: IAutoMovieMotionHumanPerformance): number => {
+    const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
     let best: number = Infinity;
     for (let t: number = s.start; t <= s.start + s.plan.duration; t += 1 / 60) {
       const bones = p.bones("a", t);
@@ -145,7 +154,7 @@ export function test_human_motion_habit_eat(): void {
           mouth.point,
         ),
       );
-      const f: IHumanProp.IFrame = p.prop("fork", t);
+      const f: IAutoMovieRigidTransform = p.prop("fork", t);
       const tip: IAutoMovieVector3 = Vector3.add(
         f.position,
         Quaternion.rotateVector(f.rotation, forkFace),
@@ -154,7 +163,7 @@ export function test_human_motion_habit_eat(): void {
     }
     return best;
   };
-  const forkModel: IHumanProp = HumanObject.prop(
+  const forkModel: IAutoMovieMotionHumanProp = HumanObject.prop(
     "fork",
     createTool({ kind: "fork" }, 1),
     {
@@ -174,7 +183,7 @@ export function test_human_motion_habit_eat(): void {
     ["far plate", "right", reach - m.hand],
   ] as const)
     try {
-      const p: HumanPerformance = scene(side, ahead);
+      const p: IAutoMovieMotionHumanPerformance = scene(side, ahead);
       const miss: number = closest(p);
       if (!(miss <= HumanVerdicts.SKIN))
         complaints.push(

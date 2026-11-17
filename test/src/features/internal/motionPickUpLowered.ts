@@ -1,16 +1,20 @@
 import { createBag, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,14 +64,17 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPickUpLowered(name: motionHumanBody.Name): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
   const tote: ReturnType<typeof createBag> = createBag({ kind: "tote" });
-  const perform = (prop: IHumanProp, chain: HumanChain): HumanPerformance =>
+  const perform = (
+    prop: IAutoMovieMotionHumanProp,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "reach",
       props: [prop],
@@ -82,12 +89,15 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
       ],
       composition: chain.node,
     });
-  const instant = (segment: HumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
   const joint = (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     seconds: number,
     bone: "hips" | "rightUpperArm" | "rightHand",
   ): IAutoMovieVector3 =>
@@ -109,7 +119,7 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     Vector3.add(at, model.affordance(handle).frame.translation);
 
   // The standing shoulder, from a standing film.
-  const still: HumanPerformance = perform(
+  const still: IAutoMovieMotionHumanPerformance = perform(
     HumanObject.prop("glass", glass, { at: { x: 0, y: 0, z: 3 }, yaw: 0 }),
     HumanChain.subject("a").stand({ seconds: 0.5 }),
   );
@@ -136,13 +146,15 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
   // A pick up read: within reach at the grasp, lifted, and straight again.
   const picked = (
     label: string,
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     from: number,
     upright: boolean,
     straight: boolean,
   ): void => {
-    const segment: HumanSegment.ISegment = performance.segments("a").at(-1)!;
+    const segment: IAutoMovieMotionHumanSegment = performance
+      .segments("a")
+      .at(-1)!;
     const closed: number = instant(segment, "gripClosed");
     const lifted: number = instant(segment, "lifted");
     const reach: number = Vector3.length(
@@ -233,7 +245,7 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     ],
   ] as const)
     try {
-      const performance: HumanPerformance = perform(
+      const performance: IAutoMovieMotionHumanPerformance = perform(
         HumanObject.prop("tote", tote, { at: floor, yaw: 0 }),
         chain,
       );

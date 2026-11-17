@@ -1,9 +1,9 @@
-import type { IAutoMovieRestFrame } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBeatEndState,
   IAutoMovieGait,
   IAutoMovieJointAxes,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

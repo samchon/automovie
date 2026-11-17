@@ -1,9 +1,15 @@
-import { type IAutoMovieResolvedBone, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
@@ -31,21 +37,21 @@ import { StrikingStance } from "./StrikingStance";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The unchanged body's weak metadata owner retains at most eight requested names; each fresh trunk map and optional borrowed reader end on return or throw. Returned goals own their new vectors and retain no map, getter or query history.
  */
 export function StrikingGuard(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  stance: Pick<StrikingStance.IStance, "lead">,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
   drop: Partial<Record<"left" | "right", number>>,
   posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
+): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed ?? StrikingBody.trunk(
     body, posture, resolution, StrikingGuardBones(body),
   );
-  const m: IHumanBody["measure"] = body.measure;
-  const faceFrame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, "face");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const faceFrame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, "face");
   const forward: IAutoMovieVector3 = horizontal(resolveAutoMovieHumanoidSurfaces.normal(faceFrame, bones.get(faceFrame.bone)!));
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+  const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
   for (const side of ["left", "right"] as const) {
     const lead: boolean = side === stance.lead;
     const jaw: ReturnType<typeof StrikingBody.region> = StrikingBody.region(

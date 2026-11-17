@@ -1,7 +1,5 @@
 # Common expression population statements
 
-Contract: [naturalness/obligations/common.md](../../../naturalness/obligations/common.md).
-
 ## Recurrent frames
 
 1. Sentence and direction patterns, closing formulas, gestures, reactions, block shapes and repeated modifiers are compared against the circumstances they serve.
@@ -9,7 +7,7 @@ Contract: [naturalness/obligations/common.md](../../../naturalness/obligations/c
 3. A preserved refrain, speech habit, contrast or declared regularity is compared with a workable population without that pattern, and the lost function is shown.
 4. The whole discovered cause and its members are repaired before the next full reading.
 5. Bulk synonym replacement, rotated endings, syntax varied to equalize counts or other padding is no repair.
-6. The complete population was read in its actual language for:
+6. The complete population was read in its own language for:
     - recurring translation interference;
     - awkward combinations;
     - unnecessary pronouns;

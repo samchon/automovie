@@ -25,7 +25,7 @@ import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
  * The hierarchy is rebuilt over mapped joints only: a bone's parent is its nearest mapped ancestor in the node tree, and the local TRS of every skipped helper node between them composes into the bone's rest, because {@link IAutoMovieBone.rest} is relative to `parent` and a dropped helper offset or roll would misplace every bone beneath it. With finite unit-quaternion TRS inputs, composition represents the affine product up to floating-point rounding when each helper scale commutes with its child rotation; otherwise it drops shear. This mapper does not admit or normalize raw node TRS. A root bone keeps its own local TRS, since armature and scene transforms belong to the imported object rather than the skeleton. Bones carry no constraint.
  *
  * @param doc Parsed document; it is only read.
- * @param skeletonId Id for the returned skeleton.
+ * @param skeletonId Id copied verbatim to the returned skeleton; defaults to "skeleton" and is not validated here.
  * @returns The skeleton with bones in first-claim order, or `null` when no skin joint maps to the required `hips` slot.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Slots come from a normalized alias table, the hierarchy from a child-to-parent map walked to the nearest mapped ancestor, and each rest from composing skipped helper TRS with `composeLocalTransform`; that composition drops the shear a non-uniform helper scale under a rotated child would need, the limitation the documentation states.

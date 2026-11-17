@@ -1,13 +1,13 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 
 /**

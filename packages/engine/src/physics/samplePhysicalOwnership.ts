@@ -1,4 +1,4 @@
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
+import type { IAutoMoviePhysicalOwnershipEvent } from "@automovie/interface";
 
 /**
  * Resolve the last causal native authority change for one segment. Live caches and solver-free archives share this exact arbitrary-time selection; no authored clock reconstructs contact activation or return completion.
@@ -12,16 +12,16 @@ import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalOwnership(
-  events: readonly Cache.IOwnership[],
+  events: readonly IAutoMoviePhysicalOwnershipEvent[],
   duration: number,
   body: string,
   bone: string,
   seconds: number,
-): Cache.IOwnership["kind"] {
+): IAutoMoviePhysicalOwnershipEvent["kind"] {
   if (!Number.isFinite(seconds) || seconds < 0 || seconds > duration)
     throw new Error("Physics ownership read outside completed film");
   for (let index: number = events.length - 1; index >= 0; index--) {
-    const entry: Cache.IOwnership = events[index]!;
+    const entry: IAutoMoviePhysicalOwnershipEvent = events[index]!;
     if (entry.body === body && entry.bone === bone && entry.seconds <= seconds)
       return entry.kind;
   }

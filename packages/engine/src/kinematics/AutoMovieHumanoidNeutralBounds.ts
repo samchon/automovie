@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -57,7 +58,7 @@ export namespace AutoMovieHumanoidNeutralBounds {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Handle ownership, exact profile/segment identities and the explicit unchanged synchronous epoch establish the reuse premise; no mutable global profile-identity cache is introduced.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only six numbers per observed segment enter the operation map. Each caller owns detached min/max vectors; release drops the profile and all entries, and reads after release throw.
    */
-  export function read(profile: P, segment: P.ISegment, handle?: IPrepared): IBounds {
+  export function read(profile: P, segment: IAutoMoviePhysicalSegment, handle?: IPrepared): IBounds {
     if (handle === undefined) return calculate(segment);
     const state: IState | undefined = LIVE.get(handle);
     if (state === undefined || state.profile !== profile || !state.segments.has(segment))
@@ -104,10 +105,10 @@ interface IState {
   profile: P;
 
   /** Actual permitted segment objects, including duplicate-name entries. */
-  segments: Set<P.ISegment>;
+  segments: Set<IAutoMoviePhysicalSegment>;
 
   /** One private six-coordinate result per observed segment. */
-  bounds: Map<P.ISegment, IBounds>;
+  bounds: Map<IAutoMoviePhysicalSegment, IBounds>;
 }
 
 /** No strong module-owned profile or operation population remains after release. */
@@ -117,7 +118,7 @@ const LIVE: WeakMap<AutoMovieHumanoidNeutralBounds.IPrepared, IState> = new Weak
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 /** Every original collider contributes in original shape/component order. */
-function calculate(segment: P.ISegment): IBounds {
+function calculate(segment: IAutoMoviePhysicalSegment): IBounds {
   const bounds: IBounds = {
     min: { x: Infinity, y: Infinity, z: Infinity },
     max: { x: -Infinity, y: -Infinity, z: -Infinity },

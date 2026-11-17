@@ -1,5 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-import type { IAutoMovieRecoveryInput } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+} from "@automovie/interface";
 
 /**
  * Prepare declared source aliases and original edge/vertex face incidence.
@@ -13,23 +16,12 @@ import type { IAutoMovieRecoveryInput } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned maps borrow source arrays and remain owned by one extraction call; no handles or global cache are created.
  */
 export function prepareRecoveryMeshIncidence(
-  input: Pick<IAutoMovieRecoveryInput, "triangles" | "exactCoordinateAliases">,
-  vertices: IAutoMovieRecoveryInput["verticesMm"],
-): {
-  aliases: Map<string, number>;
-  canon: Int32Array;
-  mesh: {
-    vertices: typeof vertices;
-    triangles: typeof input.triangles;
-    canon: Int32Array;
-  };
-  faceEdges: Map<string, Set<number>>;
-  vertexFaces: Map<number, Set<number>>;
-  edgeKey: (a: number, b: number) => string;
-} {
+  input: Parameters<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>[0],
+  vertices: Parameters<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> {
   const aliases: Map<string, number> = new Map();
   const canon: Int32Array = Int32Array.from(
-    vertices.map((p: C.Vector, i: number): number => {
+    vertices.map((p: Readonly<AutoMovieVector3Tuple>, i: number): number => {
       if (!input.exactCoordinateAliases) return i;
       const key: string = JSON.stringify(p);
       if (!aliases.has(key)) aliases.set(key, i);
@@ -37,8 +29,8 @@ export function prepareRecoveryMeshIncidence(
     }),
   );
   const mesh: {
-    vertices: typeof vertices;
-    triangles: typeof input.triangles;
+    vertices: IAutoMovieRecoveryInput["verticesMm"];
+    triangles: IAutoMovieRecoveryInput["triangles"];
     canon: Int32Array;
   } = { vertices, triangles: input.triangles, canon };
   const faceEdges: Map<string, Set<number>> = new Map();

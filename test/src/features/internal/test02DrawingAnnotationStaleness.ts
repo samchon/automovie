@@ -1,8 +1,8 @@
-import type { IAutoMovieDrawingFeatureResolution } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawingFeature,
+  IAutoMovieDrawingFeatureResolution,
   IAutoMovieModel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

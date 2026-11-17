@@ -1,10 +1,10 @@
 import {
-  IAutoMovieRenderReport,
+  type IAutoMovieCompareRenderTarget,
   IAutoMovieRenderTarget,
   IAutoMovieRenderTargetAsset,
+  type IAutoMovieRenderTargetDrift,
 } from "@automovie/interface";
 
-import { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**
@@ -25,20 +25,11 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Asset maps serve all lookups in one comparison and each caller reuses the returned drift; no persistent cache assumes mutable sealed records remain unchanged.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only drift rows transfer to the caller; target assets remain borrowed and no asset handle, renderer or asynchronous work is retained.
  */
-export const compareAutoMovieRenderTarget: (props: {
-  report: IAutoMovieRenderReport;
-  current: IAutoMovieRenderTarget;
-}) => { fresh: boolean; drift: IAutoMovieRenderTargetDrift[] } = (props: {
-  /** The report being re-used as evidence. */
-  report: IAutoMovieRenderReport;
-  /** The target a consumer is about to render with. */
-  current: IAutoMovieRenderTarget;
-}): {
-  /** Whether the report still describes the current target. */
-  fresh: boolean;
-  /** Every differing field, ascending; empty when fresh. */
-  drift: IAutoMovieRenderTargetDrift[];
-} => {
+export const compareAutoMovieRenderTarget: (
+  props: IAutoMovieCompareRenderTarget.IProps,
+) => IAutoMovieCompareRenderTarget.IResult = (
+  props: IAutoMovieCompareRenderTarget.IProps,
+): IAutoMovieCompareRenderTarget.IResult => {
   const reported: IAutoMovieRenderTarget = props.report.target;
   const current: IAutoMovieRenderTarget = props.current;
   const drift: IAutoMovieRenderTargetDrift[] = [];

@@ -1,16 +1,18 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanGymnastics,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,11 +55,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_gymnastics_supported(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     for (const row of ["roundOffLeft", "roundOffRight"] as const) {
       const label: string = `${name} ${row}`;
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = new HumanPerformance({
           seed: "round-off",
@@ -81,15 +83,15 @@ export function test_human_motion_gymnastics_supported(): void {
         );
         continue;
       }
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
         0,
       );
-      const wheel: HumanSegment.ISegment = film
+      const wheel: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const at = (share: number): number =>
         wheel.start + share * wheel.plan.duration;
       const joint = (
@@ -120,9 +122,11 @@ export function test_human_motion_gymnastics_supported(): void {
           );
 
       // 2. A bearing hand stays where it came down.
-      const hands: IHumanContactWindow[] = wheel.plan.contacts.filter(
-        (window: IHumanContactWindow): boolean => window.part.endsWith("Hand"),
-      );
+      const hands: IAutoMovieMotionHumanContactWindow[] =
+        wheel.plan.contacts.filter(
+          (window: IAutoMovieMotionHumanContactWindow): boolean =>
+            window.part.endsWith("Hand"),
+        );
       if (hands.length !== 2)
         complaints.push(
           `${label}: ${hands.length} hand supports are declared, one for each hand expected`,

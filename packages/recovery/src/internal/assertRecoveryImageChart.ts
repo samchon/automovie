@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
+import type { IAutoMovieRecoveryImageChartAssertOperation } from "@automovie/interface";
 
 /**
  * Admit the finite metric pixel chart and verify measured row/cell coordinates.
@@ -16,16 +16,8 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A constant-size borrowed-camera closure survives for one synchronous operation; no image, handle, global cache or task is retained.
  */
 export function assertRecoveryImageChart(
-  view: Pick<
-    IAutoMovieRecoveryImageInput["views"][number],
-    "width" | "height" | "camera"
-  >,
-): {
-  assertRow: (
-    row: { yMm: number; lowerMm: number; upperMm: number },
-    previous?: { yMm: number; lowerMm: number; upperMm: number },
-  ) => void;
-} {
+  view: Parameters<IAutoMovieRecoveryImageChartAssertOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> {
   const pitch: number = view.camera.pixelPitchMm;
   const [u0, v0]: [number, number] = view.camera.principalPointPx;
   const scale: number = Math.max(

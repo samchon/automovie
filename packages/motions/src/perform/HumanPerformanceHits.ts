@@ -1,26 +1,26 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanBlast } from "./HumanBlast";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * The hit record of a performance: every contact that strikes a person or a
@@ -66,7 +66,7 @@ export namespace HumanPerformanceHits {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. Separate weak body keys own only R fixed region-name/local-frame pairs and at most four distal scalar masses or absences until body release; at most two immutable profile/region owner-name sets also weakly follow that body. Lazy per-person/demand query producers exist only during one synchronous hit build and retain no prior pose, map, world point, endpoint history or external resource.
    */
   export function hits(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject?: string,
   ): readonly IAutoMovieInteractionEvent[] {
     let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
@@ -91,9 +91,9 @@ export namespace HumanPerformanceHits {
   }
 
   /** The melee stops. */
-  function melee(self: HumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
+  function melee(self: IAutoMovieMotionHumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
     return self.strikes.map(
-      (strike: HumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
+      (strike: IAutoMovieMotionHumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
         const t: number = strike.seconds;
         const [point, tail]: StrikingWeapon.IAxis = StrikingWeapon.read(strike.weapon, t);
         const end: IAutoMovieVector3 = tail ?? point;
@@ -105,7 +105,7 @@ export namespace HumanPerformanceHits {
           1 / (2 * HumanPerformanceContacts.STEP),
         );
         const struck = person(self, strike.against, t, point, end, read);
-        const striker: IHumanBody = HumanPerformanceRead.person(
+        const striker: IAutoMovieMotionHumanBody = HumanPerformanceRead.person(
           self,
           strike.subject,
         ).performer.body;
@@ -140,7 +140,7 @@ export namespace HumanPerformanceHits {
   }
 
   /** The blasts' hits. */
-  function blasts(self: HumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
+  function blasts(self: IAutoMovieMotionHumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const blast of self.blasts) {
       const t: number = HumanPerformanceLayers.instant(self, blast.at);
@@ -177,14 +177,14 @@ export namespace HumanPerformanceHits {
   }
 
   /** The flights' first contacts, with what each did and the velocity it left with. */
-  function flights(self: HumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
+  function flights(self: IAutoMovieMotionHumanPerformanceState, read: IReadBones): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const prop of self.props.values())
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
-        const c: HumanPropFlight.IContact | undefined = f.contact;
+        const c: IAutoMovieMotionHumanPropFlight.IContact | undefined = f.contact;
         if (c === undefined) continue;
-        const next: HumanPropOutcome.ILeg | undefined = f.legs?.[0];
-        const struck: HumanSegment.IPerson | undefined = c.struck.kind === "person"
+        const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined = f.legs?.[0];
+        const struck: IAutoMovieMotionHumanSegment.IPerson | undefined = c.struck.kind === "person"
           ? HumanPerformanceRead.person(self, c.struck.subject) : undefined;
         const region: AutoMovieHumanoidRegion | undefined = struck === undefined
           ? undefined : nearestRegion(struck.performer.body, read(struck, f.end, "regions"), c.point);
@@ -218,7 +218,7 @@ export namespace HumanPerformanceHits {
 
   /** Where a segment meets a person at a second: the bone, the surface point, its normal and the nearest region. */
   function person(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     a: IAutoMovieVector3,
@@ -231,7 +231,7 @@ export namespace HumanPerformanceHits {
     normal: IAutoMovieVector3;
     region?: AutoMovieHumanoidRegion;
   } {
-    const who: HumanSegment.IPerson = HumanPerformanceRead.person(
+    const who: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
       self,
       subject,
     );
@@ -248,15 +248,15 @@ export namespace HumanPerformanceHits {
 
   /** Actual per-person observation, with outputs dictated by the current hit consumer. */
   type IReadBones = (
-    who: HumanSegment.IPerson,
+    who: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     kind: "regions" | "contact",
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /** Static demand producers live only for this synchronous hit-record build, never their query results. */
-  function reading(self: HumanPerformanceState): IReadBones {
-    let readers: Map<HumanSegment.IPerson, Partial<Record<"regions" | "contact", ReturnType<typeof HumanPerformanceRead.prepareBones>>>> | undefined;
-    return (who: HumanSegment.IPerson, seconds: number, kind: "regions" | "contact"): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+  function reading(self: IAutoMovieMotionHumanPerformanceState): IReadBones {
+    let readers: Map<IAutoMovieMotionHumanSegment.IPerson, Partial<Record<"regions" | "contact", ReturnType<typeof HumanPerformanceRead.prepareBones>>>> | undefined;
+    return (who: IAutoMovieMotionHumanSegment.IPerson, seconds: number, kind: "regions" | "contact"): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       readers ??= new Map();
       let sources: Partial<Record<"regions" | "contact", ReturnType<typeof HumanPerformanceRead.prepareBones>>> | undefined = readers.get(who);
       if (sources === undefined) {
@@ -273,7 +273,7 @@ export namespace HumanPerformanceHits {
   }
 
   /** Only immutable profile/region owner names, with no pose, ROM mapper or sampled point retained. */
-  function demand(body: IHumanBody, kind: "regions" | "contact"): ReadonlySet<AutoMovieHumanoidBone> {
+  function demand(body: IAutoMovieMotionHumanBody, kind: "regions" | "contact"): ReadonlySet<AutoMovieHumanoidBone> {
     let names: Partial<Record<"regions" | "contact", ReadonlySet<AutoMovieHumanoidBone>>> | undefined = DEMANDS.get(body);
     if (names === undefined) {
       names = {};
@@ -293,7 +293,7 @@ export namespace HumanPerformanceHits {
 
   /** The body's named region whose point lies nearest a world point. */
   function nearestRegion(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     point: IAutoMovieVector3,
   ): AutoMovieHumanoidRegion | undefined {
@@ -319,7 +319,7 @@ export namespace HumanPerformanceHits {
   type IDistal = "leftLowerArm" | "rightLowerArm" | "leftLowerLeg" | "rightLowerLeg";
 
   /** First-declared canonical profile mass; no pose, time or hit outcome is retained. */
-  function distalMass(body: IHumanBody, bone: IDistal): number | undefined {
+  function distalMass(body: IAutoMovieMotionHumanBody, bone: IDistal): number | undefined {
     let masses: Map<IDistal, number | undefined> | undefined = MASSES.get(body);
     if (masses === undefined) {
       masses = new Map();
@@ -327,17 +327,17 @@ export namespace HumanPerformanceHits {
     }
     if (masses.has(bone)) return masses.get(bone);
     const mass: number | undefined = body.profile.segments.find(
-      (segment: IHumanBody["profile"]["segments"][number]): boolean => segment.bone === bone,
+      (segment: IAutoMovieMotionHumanBody["profile"]["segments"][number]): boolean => segment.bone === bone,
     )?.mass;
     masses.set(bone, mass);
     return mass;
   }
 
   /** Immutable profile metadata has at most the four actual melee distal names per body. */
-  const MASSES: WeakMap<IHumanBody, Map<IDistal, number | undefined>> = new WeakMap();
+  const MASSES: WeakMap<IAutoMovieMotionHumanBody, Map<IDistal, number | undefined>> = new WeakMap();
 
   /** Fixed canonical region order and bone-local frames, never world-posed answers. */
-  function regionFrames(body: IHumanBody): IRegions {
+  function regionFrames(body: IAutoMovieMotionHumanBody): IRegions {
     let regions: IRegions | undefined = REGIONS.get(body);
     if (regions === undefined) {
       regions = Object.entries(body.surfaces.regions) as IRegions;
@@ -347,16 +347,16 @@ export namespace HumanPerformanceHits {
   }
 
   /** The body's original entry order, used unchanged by strict first-minimum selection. */
-  type IRegions = readonly (readonly [AutoMovieHumanoidRegion, resolveAutoMovieHumanoidSurfaces.IFrame])[];
+  type IRegions = readonly (readonly [AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame])[];
 
   /** At most two actual profile/region FK name demands per immutable canonical body. */
-  const DEMANDS: WeakMap<IHumanBody, Partial<Record<"regions" | "contact", ReadonlySet<AutoMovieHumanoidBone>>>> = new WeakMap();
+  const DEMANDS: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<"regions" | "contact", ReadonlySet<AutoMovieHumanoidBone>>>> = new WeakMap();
 
   /** Weak immutable body metadata only; no posed bone, observation or time survives here. */
-  const REGIONS: WeakMap<IHumanBody, IRegions> = new WeakMap();
+  const REGIONS: WeakMap<IAutoMovieMotionHumanBody, IRegions> = new WeakMap();
   /** The hits kept per placed performance. */
   const KEPT: WeakMap<
-    HumanPerformanceState,
+    IAutoMovieMotionHumanPerformanceState,
     readonly IAutoMovieInteractionEvent[]
   > = new WeakMap();
 }

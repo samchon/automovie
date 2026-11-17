@@ -1,5 +1,5 @@
-import { IAutoMovieDrawingDashes } from "./IAutoMovieDrawingDashes";
-import { IAutoMovieDrawingWeights } from "./IAutoMovieDrawingWeights";
+import type { IAutoMovieDrawingDashes } from "./IAutoMovieDrawingDashes";
+import type { IAutoMovieDrawingWeights } from "./IAutoMovieDrawingWeights";
 
 /**
  * The pen a view is drawn with, in page millimetres rather than model metres.

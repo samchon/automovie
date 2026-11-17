@@ -1,10 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -30,10 +31,10 @@ import { ExerciseKey } from "./ExerciseKey";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns bounded FK/name/ROM metadata and its body until return or throw. No source pose, candidate history, output or reader enters the returned action/key; current raw views and fresh maps retain no workspace.
  */
 export function prepareWorkoutKeyFrames(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
-): (key: ExerciseKey.IKey) => {
-  posture: IHumanPosture;
+): (key: IAutoMovieMotionHumanExerciseKey.IKey) => {
+  posture: IAutoMovieMotionHumanPosture;
   bones: ReturnType<typeof poseBones>;
 } {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -43,9 +44,9 @@ export function prepareWorkoutKeyFrames(
   const frames: ReturnType<typeof poseBones.prepare> | undefined =
     requested === undefined ? undefined : poseBones.prepare(body, requested);
   return (
-    key: ExerciseKey.IKey,
-  ): { posture: IHumanPosture; bones: ReturnType<typeof poseBones> } => {
-    const posture: IHumanPosture = ExerciseKey.posed(key, 0);
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+  ): { posture: IAutoMovieMotionHumanPosture; bones: ReturnType<typeof poseBones> } => {
+    const posture: IAutoMovieMotionHumanPosture = ExerciseKey.posed(key, 0);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
       posture,

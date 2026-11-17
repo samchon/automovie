@@ -1,7 +1,7 @@
-import { IAutoMovieGait } from "../motion/IAutoMovieGait";
-import { IAutoMovieChannelLimit } from "./IAutoMovieChannelLimit";
-import { IAutoMovieDriver } from "./IAutoMovieDriver";
-import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
+import type { IAutoMovieGait } from "../motion/IAutoMovieGait";
+import type { IAutoMovieChannelLimit } from "./IAutoMovieChannelLimit";
+import type { IAutoMovieDriver } from "./IAutoMovieDriver";
+import type { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 
 /**
  * A profile (a USD applied schema): a declarative capability layered onto a subtree of the node graph, contributing drivers, channel limits, typed traits and gaits.

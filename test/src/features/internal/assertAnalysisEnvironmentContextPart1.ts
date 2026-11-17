@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieAnalysisSolid,
   autoMovieContextSolids,
   autoMovieEnvironmentInstant,
   validateAutoMovieEnvironmentContext,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAnalysisSolid,
   IAutoMovieEnvironmentContext,
   IAutoMovieEnvironmentInstant,
   IAutoMovieHalfSpacePlane,

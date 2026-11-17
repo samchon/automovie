@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   minimumJerk,
@@ -7,16 +6,25 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmCarry,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
@@ -27,9 +35,6 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
-import type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
-import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 
 /**
  * The touch stroke: one hand effector brought onto a surface region, moved on
@@ -60,14 +65,7 @@ import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
  */
 export namespace AutoMovieMotionHumanTouch {
   /**
-   * The touch's clock, effector, region and contact declaration.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The dedicated record owner documents each original member and optional default.
-   * @evidence contracts/development/design.md#principled-representation Retains the existing action-local seconds, world frames and declared contact fields unchanged.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This compatibility name refers to the sole touch record consumed by the generator and its action laws.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The inherited record keeps the original interface declaration and its augmentation surface without duplicating its members.
-   */
-  export interface ITouch extends IAutoMovieMotionHumanTouch {}
+
 
   /**
    * A region of a target as a frame: a person's region or a prop's point
@@ -91,15 +89,15 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function region(
-    context: Pick<IHumanActionContext, "aim" | "body">,
-    target: AutoMovieMotionTarget,
+    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body">,
+    target: IAutoMovieMotionTarget,
     seconds: number,
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     entry:
       | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
       | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>),
-    resolution?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[2],
-  ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+    resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
+  ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     if (target.kind === "self") {
       const frame = context.body.surfaces.regions[target.region];
       if (!TRUNK.has(frame.bone)) {
@@ -146,9 +144,9 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
-  export function touch(props: ITouch): IAutoMovieMotionHumanPrimitive[] {
+  export function touch(props: IAutoMovieMotionHumanTouch.ITouch): IAutoMovieMotionHumanPrimitive[] {
     const { body, clock, side } = props;
-    const form: AutoMovieMotionHumanTouchForm.IForm =
+    const form: IAutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
@@ -195,7 +193,7 @@ export namespace AutoMovieMotionHumanTouch {
     // the body there, and nothing excuses its fingers' depth in it.
     const tool: boolean =
       props.held !== undefined || props.effector.tool !== undefined;
-    const contacts: IHumanContactWindow[] =
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanTouchContacts.windows(
         clock,
         side,
@@ -240,7 +238,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function share(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     seconds: number,
   ): number {
     return clock.envelope(["start", "ready"], ["relax", "end"], seconds);
@@ -270,17 +268,17 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function retains props, fixed entry-frame hints and at most one count-bound wave reader until release. Query metadata remains callback arguments and never enters the retained reader or returned goal; no time/result history is stored.
    */
   export function goal(
-    props: ITouch,
-  ): IAutoMovieMotionHumanArmCarry["goal"] {
+    props: IAutoMovieMotionHumanTouch.ITouch,
+  ): IAutoMovieMotionHumanArmCarry.ICarry["goal"] {
     HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
-    const form: AutoMovieMotionHumanTouchForm.IForm =
+    const form: IAutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];
     const hand: number = body.measure.hand * (props.extent ?? 1);
     const standoff: number =
       (props.standoff ?? 0) +
       AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
-    const held: HumanFrame.IFrame = {
+    const held: IAutoMovieMotionHumanFrame = {
       origin: props.entry.root,
       yaw: props.entry.yaw,
     };
@@ -294,10 +292,10 @@ export namespace AutoMovieMotionHumanTouch {
           read: AutoMovieMotionClock.prepareWave(clock, ["strokeStart", "strokeEnd"], props.count) };
       return wave.read(seconds);
     };
-    return (posture: IHumanPosture, seconds: number,
-      resolution?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[3]): IHumanPosture.IGoal => {
-      const place: ReturnType<ITouch["region"]> = props.region(posture, seconds, resolution, projection);
+    return (posture: IAutoMovieMotionHumanPosture, seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[3]): IAutoMovieHumanLimbGoal => {
+      const place: ReturnType<IAutoMovieMotionHumanTouch.ITouch["region"]> = props.region(posture, seconds, resolution, projection);
       const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
       const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
         normal,
@@ -323,11 +321,11 @@ export namespace AutoMovieMotionHumanTouch {
         Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
         Vector3.scale(along, travel),
       );
-      const frame: HumanFrame.IFrame = {
+      const frame: IAutoMovieMotionHumanFrame = {
         origin: posture.root,
         yaw: posture.yaw,
       };
-      const laid: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
+      const laid: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
         body,
         side,
         props.effector,

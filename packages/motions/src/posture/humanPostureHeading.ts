@@ -1,7 +1,9 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Compose the existing world-Y yaw, local-X pitch and local-Z roll using
@@ -16,7 +18,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Unit-axis literals remain private and unchanged, proving reusable direction/length independently of every current yaw/pitch/roll input; each call reads angles in original order and returns fresh numerical output.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module owns exactly three tiny axis-reader states for its lifetime. No body, authoring record, completed quaternion, reader loan, result history or handle is retained.
  */
-export function humanPostureHeading(posture: Pick<IHumanPosture, "yaw" | "pitch" | "roll">): IAutoMovieQuaternion {
+export function humanPostureHeading(posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">): IAutoMovieQuaternion {
   return Quaternion.normalize(Quaternion.multiply(YAW(posture.yaw), Quaternion.multiply(PITCH(posture.pitch), ROLL(posture.roll))));
 }
 
@@ -30,7 +32,7 @@ export function humanPostureHeading(posture: Pick<IHumanPosture, "yaw" | "pitch"
  */
 export namespace humanPostureHeading {
   /** Read the original three world axes, then apply the same degree atan2/asin formulas in order. */
-  export function angles(rotation: IAutoMovieQuaternion): Pick<IHumanPosture, "yaw" | "pitch" | "roll"> {
+  export function angles(rotation: IAutoMovieQuaternion): Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
     const left: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
     const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });

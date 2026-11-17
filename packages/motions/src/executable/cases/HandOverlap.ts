@@ -1,13 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  physicalShapePairDistance,
-} from "@automovie/engine";
+import { physicalShapePairDistance } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalShape,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
 import { HumanColliders } from "../../posture/HumanColliders";
 
 /**
@@ -28,9 +28,9 @@ export namespace HandOverlap {
    * @returns Metres, negative when overlapping; positive when apart.
    */
   export function deepest(
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
     aBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    b: IHumanBody,
+    b: IAutoMovieMotionHumanBody,
     bBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
     let least: number = Infinity;
@@ -48,28 +48,28 @@ export namespace HandOverlap {
 /** One collider with the posed frame of the segment that carries it. */
 interface IPlaced {
   /** The segment's posed frame, world metres. */
-  pose: IAutoMoviePhysicalProfile.ITransform;
+  pose: IAutoMovieRigidTransform;
 
   /** The shape, placed by `pose` composed with its own transform. */
-  shape: IAutoMoviePhysicalProfile.IShape;
+  shape: IAutoMoviePhysicalShape;
 }
 
 /** A person's right-hand phalanx, palm and forearm colliders, placed. */
 function colliders(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ): IPlaced[] {
   const digit: RegExp = /^right(Thumb|Index|Middle|Ring|Little)/;
   return HumanColliders.placed(body, bones)
     .filter(
-      (segment: HumanColliders.IPlaced): boolean =>
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
         digit.test(segment.bone) ||
         segment.bone === "rightHand" ||
         segment.bone === "rightLowerArm",
     )
-    .flatMap((segment: HumanColliders.IPlaced): IPlaced[] =>
+    .flatMap((segment: IAutoMovieMotionHumanColliders.IPlaced): IPlaced[] =>
       segment.shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): IPlaced => ({
+        (shape: IAutoMoviePhysicalShape): IPlaced => ({
           pose: segment.pose,
           shape,
         }),

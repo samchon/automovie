@@ -1,12 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
-import { IHumanPosture } from "./IHumanPosture";
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * Select world limb fits needed by explicit bone observations.
@@ -23,11 +25,11 @@ import { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Parent/ancestor sets end with this synchronous selection; the returned at-most-four-member record borrows original goals only and retains no body, reader, numerical answer or external handle.
  */
 export function selectHumanPostureGoals(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
-): IHumanPosture["limbs"] {
-  const limbs: IHumanPosture["limbs"] = posture.limbs;
+): IAutoMovieMotionHumanPosture["limbs"] {
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = posture.limbs;
   if (posture.digits !== undefined) return limbs;
   try {
     for (const [name, goal] of Object.entries(limbs)) {
@@ -46,9 +48,9 @@ export function selectHumanPostureGoals(
       current = byName.get(current)?.parent;
     }
   }
-  const selected: IHumanPosture["limbs"] = {};
-  for (const limb of IHumanPosture.LIMBS) {
-    const goal: IHumanPosture.IGoal | undefined = limbs[limb];
+  const selected: IAutoMovieMotionHumanPosture["limbs"] = {};
+  for (const limb of HumanPosture.LIMBS) {
+    const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
     if (goal === undefined) continue;
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
     const changed: AutoMovieHumanoidBone[] = [chain.upper, chain.lower, chain.effector];
@@ -64,7 +66,7 @@ export function selectHumanPostureGoals(
 }
 
 /** Admit only the fields whose free-world independence the selector proves. */
-function simple(goal: IHumanPosture.IGoal, leg: boolean): boolean {
+function simple(goal: IAutoMovieHumanLimbGoal, leg: boolean): boolean {
   return Object.keys(goal).every((key: string): boolean =>
     FIELDS.has(key) || (leg && LEG_FIELDS.has(key)),
   ) &&
@@ -82,7 +84,7 @@ function finite(point: IAutoMovieVector3): boolean {
 }
 
 /** Canonical goal names; unknown raw properties conservatively keep full resolution. */
-const LIMBS: ReadonlySet<string> = new Set(IHumanPosture.LIMBS);
+const LIMBS: ReadonlySet<string> = new Set(HumanPosture.LIMBS);
 
 /** Arm contacts, attachments, reference, strain and external geometry fall back. */
 const FIELDS: ReadonlySet<string> = new Set(["point", "bend", "rotation"]);

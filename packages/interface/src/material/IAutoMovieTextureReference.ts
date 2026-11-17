@@ -1,4 +1,4 @@
-import { AutoMovieTextureCoordinateSource } from "./AutoMovieTextureCoordinateSource";
+import type { AutoMovieTextureCoordinateSource } from "./AutoMovieTextureCoordinateSource";
 
 /**
  * One renderer-resolved texture and its deterministic sampling intent.
@@ -38,10 +38,22 @@ export interface IAutoMovieTextureReference {
    */
   transform?: {
     /** Finite image-turn offset applied after rotation and scale. */
-    offset: { x: number; y: number };
+    offset: {
+      /** Horizontal image-turn translation after scale and rotation. */
+      x: number;
+
+      /** Vertical image-turn translation after scale and rotation. */
+      y: number;
+    };
 
     /** Finite nonzero image turns per coordinate unit; negative mirrors. */
-    scale: { x: number; y: number };
+    scale: {
+      /** Horizontal image turns per source U unit; negative mirrors U. */
+      x: number;
+
+      /** Vertical image turns per source V unit; negative mirrors V. */
+      y: number;
+    };
 
     /** Finite counterclockwise rotation in degrees about the UV origin. */
     rotationDeg: number;

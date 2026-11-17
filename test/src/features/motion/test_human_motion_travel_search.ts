@@ -1,15 +1,17 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanPursuit,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,13 +40,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_search(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const places: readonly IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 3 },
     { x: 3, y: 0, z: 3 },
   ];
   const PAUSE: number = 1.6;
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "search",
@@ -73,13 +75,14 @@ export function test_human_motion_travel_search(): void {
     );
     return;
   }
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     performance,
     "a",
     body,
     0,
   );
-  const segments: readonly HumanSegment.ISegment[] = performance.segments("a");
+  const segments: readonly IAutoMovieMotionHumanSegment[] =
+    performance.segments("a");
   if (segments.length !== 1 + 2 * places.length)
     complaints.push(
       `the search places ${segments.length} actions, a stand and then a walk and a stand per place expected (${1 + 2 * places.length})`,
@@ -104,7 +107,8 @@ export function test_human_motion_travel_search(): void {
   const left = (seconds: number): number =>
     ((heading("head", seconds) - heading("hips", seconds) + 540) % 360) - 180;
   places.forEach((place: IAutoMovieVector3, index: number): void => {
-    const stop: HumanSegment.ISegment | undefined = segments[2 + 2 * index];
+    const stop: IAutoMovieMotionHumanSegment | undefined =
+      segments[2 + 2 * index];
     if (stop === undefined) return;
     const middle: number = (stop.entryTime + stop.end) / 2;
     const l: IAutoMovieVector3 = HumanSignature.joint(

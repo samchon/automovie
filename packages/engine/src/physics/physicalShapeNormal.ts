@@ -1,7 +1,8 @@
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -33,8 +34,8 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries release on return. A prepared callback owns one numeric frame, optional axis/inverse, O(F) planes and one O(F) height workspace until its operation ends. Every present plane height is overwritten at each point; no point, fallback, normal result or query population is retained. Only six unit normals live for the module; outputs remain fresh except the original borrowed fallback.
  */
 export function physicalShapeNormal(
-  frame: P.ITransform,
-  shape: P.IShape,
+  frame: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   point: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 {
@@ -60,8 +61,8 @@ export namespace physicalShapeNormal {
    * for F faces; every current height is computed, without a normal cache.
    */
   export function prepare(
-    frame: P.ITransform,
-    shape: P.IShape,
+    frame: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
   ): (point: IAutoMovieVector3, fallback: IAutoMovieVector3) => IAutoMovieVector3 {
     const prepared: IPrepared = {};
     return (point: IAutoMovieVector3, fallback: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -117,8 +118,8 @@ interface IPrepared {
 
 /** The same current-point normal equations serve direct and fixed-geometry readers. */
 function normal(
-  frame: P.ITransform,
-  shape: P.IShape,
+  frame: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   point: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
   prepared?: IPrepared,
@@ -207,7 +208,7 @@ function radial(point: IAutoMovieVector3, from: IAutoMovieVector3, fallback: IAu
 }
 
 /** The rotated offset is exclusively owned, so parent translation needs no second vector. */
-function centreOfShape(frame: P.ITransform, shape: P.IShape): IAutoMovieVector3 {
+function centreOfShape(frame: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape): IAutoMovieVector3 {
   const origin: IAutoMovieVector3 = frame.position;
   const centre: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, shape.transform.position);
   centre.x = origin.x + centre.x;

@@ -4,6 +4,8 @@ import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieBuiltSurface,
+  type IAutoMovieMatrix4,
+  type IAutoMoviePropAnchorFrame,
   IAutoMoviePropRelationTarget,
   IAutoMoviePropSpec,
   IAutoMovieStageSetPiece,
@@ -13,11 +15,11 @@ import {
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { footprintInteriorPoint } from "../space/footprintInteriorPoint";
 import { surfaceFootprint } from "../space/surfaceFootprint";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
-import { Transform } from "../math/Transform";
 
 /**
  * The world frame a placement relation anchors to, or `null` when it has none.
@@ -49,12 +51,9 @@ import { Transform } from "../math/Transform";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one target per call and coordinates no work across calls; a caller anchoring many props to one building may keep the returned frames.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The matrix lookup is dropped on return and nothing is retained; the caller owns the returned transform.
  */
-export function propAnchorFrame(props: {
-  target: IAutoMoviePropRelationTarget;
-  environments: readonly IAutoMovieBuiltEnvironment[];
-  props?: readonly IAutoMoviePropSpec[];
-  set?: readonly IAutoMovieStageSetPiece[];
-}): IAutoMovieTransform | null {
+export function propAnchorFrame(
+  props: IAutoMoviePropAnchorFrame.IProps,
+): IAutoMovieTransform | null {
   const target: IAutoMoviePropRelationTarget = props.target;
   if (target.kind === "prop-affordance") {
     const spec: IAutoMoviePropSpec | undefined = (props.props ?? []).find(
@@ -124,11 +123,14 @@ export function propAnchorFrame(props: {
         surfaceFootprint(entry.surface),
       );
       if (anchor === null) return null;
-      return Transform.of({
+      return Transform.of(
+        {
           x: anchor.x,
           y: surfaceHeightAt(entry.surface, anchor.x, anchor.z),
           z: anchor.z,
-        }, { x: 0, y: 0, z: 0, w: 1 });
+        },
+        { x: 0, y: 0, z: 0, w: 1 },
+      );
     }
   }
 }
@@ -144,7 +146,7 @@ function elementFrame(
 
 /** Decompose a world matrix into a transform with a renormalized rotation. */
 function transformOf(matrix: number[]): IAutoMovieTransform {
-  const world: ReturnType<typeof Matrix4.decompose> = Matrix4.decompose(matrix);
+  const world: IAutoMovieMatrix4.IDecomposeResult = Matrix4.decompose(matrix);
   return {
     translation: world.position,
     rotation: Quaternion.normalize(world.rotation),

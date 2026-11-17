@@ -1,5 +1,7 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalSupportPatch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,40 +21,6 @@ import { convexHull2D } from "../math/convexHull2D";
  */
 export namespace AutoMoviePhysicalBalance {
   /**
-   * Current resolved support points in world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Current resolved support points in world metres.
-   * @evidence contracts/development/design.md#principled-representation Represents Current resolved support points in world metres: interface of 3 members (`bone`, `points`, `position`); units and frames named in its text: world. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ISupport` in packages/engine/src/physics/AutoMoviePhysicalBalance.ts; its surface is the 3 members listed and the text shows 15 other files naming it, mostly packages/engine (6), movies (3), packages/human (3), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface ISupport {
-    /** Endpoint bone from the footfall pattern. */ bone: string;
-    /** Contact patch vertices, not an invented standing footprint. */ points: IAutoMovieVector3[];
-    /** Current endpoint world position. */ position: IAutoMovieVector3;
-  }
-  /**
-   * A prediction remains separate from the observed simulation outcome.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A prediction remains separate from the observed simulation outcome.
-   * @evidence contracts/development/design.md#principled-representation Represents A prediction remains separate from the observed simulation outcome: interface of 5 members (`state`, `capturePoint`, `polygon`, `outside`, `step`); units and frames named in its text: world, metres. Optional members `step` express documented absence, and the ranges its member docs state are left to runtime validation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IResult` in packages/engine/src/physics/AutoMoviePhysicalBalance.ts; its surface is the 5 members listed and the text shows 176 other files naming it, mostly packages/human (64), test (54), movies (27), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IResult {
-    /** Stable support, reachable recovery, or predicted loss of recovery. */ state:
-      | "supported"
-      | "recovery"
-      | "unrecoverable";
-    /** Horizontal COM plus velocity/sqrt(g/height), world metres. */ capturePoint: IAutoMovieVector3;
-    /** Actual convex support hull. */ polygon: IAutoMovieVector3[];
-    /** Metres outside the support polygon, zero when inside. */ outside: number;
-    /** Recovery request goes back to the step planner; absent otherwise. */ step?: {
-      bone: string;
-      target: IAutoMovieVector3;
-    };
-  }
-  /**
    * Order reachable recovery supports by travel distance, then declared footfall phase.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Order reachable recovery supports by travel distance, then declared footfall phase.
@@ -63,17 +31,9 @@ export namespace AutoMoviePhysicalBalance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function assess(input: {
-    center: IAutoMovieVector3;
-    velocity: IAutoMovieVector3;
-    gravity: number;
-    floor: number;
-    supports: ISupport[];
-    pattern: IAutoMovieFootfallPattern;
-    maximumStep: number;
-    margin: number;
-    unavailable: readonly string[];
-  }): IResult {
+  export function assess(
+    input: IAutoMoviePhysicalBalance.IAssessInput,
+  ): IAutoMoviePhysicalBalance.IResult {
     const height: number = input.center.y - input.floor;
     if (
       !(input.gravity > 0) ||
@@ -136,7 +96,7 @@ export namespace AutoMoviePhysicalBalance {
         inside = false;
     }
     if (inside) outside = 0;
-    const result: IResult = {
+    const result: IAutoMoviePhysicalBalance.IResult = {
       state: "unrecoverable",
       capturePoint,
       polygon,
@@ -146,8 +106,10 @@ export namespace AutoMoviePhysicalBalance {
     if (outside <= input.margin) return { ...result, state: "supported" };
     const centroid: IAutoMovieVector3 = Vector3.scale(
       input.supports.reduce(
-        (sum: IAutoMovieVector3, support: ISupport): IAutoMovieVector3 =>
-          Vector3.add(sum, support.position),
+        (
+          sum: IAutoMovieVector3,
+          support: IAutoMoviePhysicalSupportPatch,
+        ): IAutoMovieVector3 => Vector3.add(sum, support.position),
         { x: 0, y: 0, z: 0 },
       ),
       1 / input.supports.length,
@@ -159,7 +121,7 @@ export namespace AutoMoviePhysicalBalance {
     };
     const denominator: number = direction.x ** 2 + direction.z ** 2;
     const candidates: {
-      support: ISupport;
+      support: IAutoMoviePhysicalSupportPatch;
       phase: number;
       distance: number;
       target: IAutoMovieVector3;
@@ -168,7 +130,7 @@ export namespace AutoMoviePhysicalBalance {
         (
           support: (typeof input.supports)[number],
         ): {
-          support: ISupport;
+          support: IAutoMoviePhysicalSupportPatch;
           phase: number;
           distance: number;
           target: IAutoMovieVector3;
@@ -203,13 +165,13 @@ export namespace AutoMoviePhysicalBalance {
       .sort(
         (
           a: {
-            support: ISupport;
+            support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
             target: IAutoMovieVector3;
           },
           b: {
-            support: ISupport;
+            support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
             target: IAutoMovieVector3;

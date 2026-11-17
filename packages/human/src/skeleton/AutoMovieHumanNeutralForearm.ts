@@ -1,4 +1,10 @@
-import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanNeutralBody,
+  IAutoMovieHumanNeutralForearm,
+} from "@automovie/interface";
+
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -12,18 +18,6 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * the wrist end of the one forearm bone.
  */
 export namespace AutoMovieHumanNeutralForearm {
-  /** One forearm's neutral. */
-  export interface IOutput {
-    /** The forearm bone's world turn, which carries its share of the twist. */
-    lower: Math3D.Quaternion;
-
-    /** The hand's world turn, which carries the rest. */
-    hand: Math3D.Quaternion;
-
-    /** The achieved pronation from thumbs forward, degrees. */
-    pronation: number;
-  }
-
   /** Share of the forearm's twist the wrist carries. */
   export const WRIST_TWIST: number = 0.5;
 
@@ -40,15 +34,15 @@ export namespace AutoMovieHumanNeutralForearm {
   export function derive(
     body: IAutoMovieHumanNeutralBody,
     side: "left" | "right",
-    straight: Math3D.Quaternion,
-    bent: Math3D.Quaternion,
-    down: Math3D.Vector,
-  ): IOutput {
+    straight: AutoMovieQuaternionTuple,
+    bent: AutoMovieQuaternionTuple,
+    down: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanNeutralForearm.IOutput {
     const s: number = side === "left" ? 1 : -1;
 
     // The hand's radial side comes to the front; the turn is the achieved
     // forearm rotation.
-    const radial: Math3D.Vector = Math3D.unit(
+    const radial: AutoMovieVector3Tuple = Math3D.unit(
       Turn.perpendicular(
         Math3D.rotate(
           bent,
@@ -61,9 +55,9 @@ export namespace AutoMovieHumanNeutralForearm {
       Turn.dot(Turn.cross(radial, Turn.FORWARD), down),
       Turn.dot(radial, Turn.FORWARD),
     );
-    const twist: (share: number) => Math3D.Quaternion = (
+    const twist: (share: number) => AutoMovieQuaternionTuple = (
       share: number,
-    ): Math3D.Quaternion =>
+    ): AutoMovieQuaternionTuple =>
       Math3D.fromAxisAngle(down, (rotation * share * 180) / Math.PI);
     return {
       lower: Math3D.multiply(twist(1 - WRIST_TWIST), straight),

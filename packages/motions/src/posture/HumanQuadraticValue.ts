@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
 /**
@@ -22,9 +24,9 @@ import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
  * @evidence contracts/development/common.md#meaningful-documentation Defines both evaluation modes, the finite-admission proof, units, ordered soft-row observer, side-effect premise and retained-data lifetime.
  */
 export function HumanQuadraticValue(
-  problem: Q.IProblem,
+  problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   x?: Float64Array,
-  observe?: (row: Q.IRow, miss: number) => void,
+  observe?: (row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number) => void,
   curvatureBand: number = problem.band,
 ): number {
   let v: number = 0;

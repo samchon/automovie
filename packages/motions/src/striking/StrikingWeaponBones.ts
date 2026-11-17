@@ -1,7 +1,10 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -32,13 +35,13 @@ import type { StrikingWeapon } from "./StrikingWeapon";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most four current fixed-demand producers and their bounded bone-name/index metadata; no pose/source set snapshot mutation, numerical history or handles grow. Each call lazily owns one genuine ROM mapper only within its unchanged-table course/final-fit operation; it releases that mapper and its local workspace/pose on return or throw, outputs own fresh frames, and body release permits collection of the producers.
  */
 export function StrikingWeaponBones(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   course: StrikingWeapon.Course,
   seconds: number,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
   channels?: readonly AutoMovieMotionHumanChannel[],
-  near?: resolveHumanPosture.INear,
-  kept?: (seeds: resolveHumanPosture.ISeeded["seeds"]) => void,
+  near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
+  kept?: (seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]) => void,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   let demands: Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>> | undefined = KEPT.get(body);
   if (demands === undefined) {
@@ -54,7 +57,7 @@ export function StrikingWeaponBones(
   let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
   const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
     (projector ??= prepareHumanPostureProjection(body));
-  const solved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+  const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
     body, course(seconds, channels, resolution, projection), undefined, near ?? {}, resolution, requested, projection(),
   );
   kept?.(solved.seeds);
@@ -62,4 +65,4 @@ export function StrikingWeaponBones(
 }
 
 /** Only real fixed-demand producers; no current numerical pose or FK workspace. */
-const KEPT: WeakMap<IHumanBody, Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>>> = new WeakMap();
+const KEPT: WeakMap<IAutoMovieMotionHumanBody, Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>>> = new WeakMap();

@@ -1,13 +1,22 @@
-import { type IAutoMovieResolvedBone, type resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { type resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -49,7 +58,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the canonical Human fixture and actual public extension laws. The captured performer reader is invoked only inside the observer's posture at that same film second, as its supported contract requires; no internal module, test-only export, replacement or host is used.
  */
 export function test_motion_partial_observation_cache(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const neutral: IAutoMoviePose = resolveHumanPosture(body, {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
   });
@@ -63,15 +72,15 @@ export function test_motion_partial_observation_cache(): void {
   const target: IAutoMovieVector3 = { x: foot.x, y: foot.y + 0.06, z: foot.z + 0.04 };
   const selected: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
   const observed: {
-    reader?: IHumanActionContext.IPerformer;
+    reader?: IAutoMovieMotionHumanPerformerReader;
     partial?: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     demand: ReadonlySet<AutoMovieHumanoidBone>;
   } = { demand: selected };
-  const moving: IHumanActionLaw = {
+  const moving: IAutoMovieMotionHumanActionLaw = {
     name: "observedFreeLeg", interrupts: {}, yields: ["rightArm"],
-    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
       duration: 1, events: [], contacts: [],
-      posture: (): IHumanPosture => ({
+      posture: (): IAutoMovieMotionHumanPosture => ({
         root: { ...context.entry.posture.root }, yaw: 0, pitch: 0, roll: 0,
         joints: { head: [15, 0, 0] },
         limbs: { leftLeg: { point: { ...target },
@@ -79,19 +88,19 @@ export function test_motion_partial_observation_cache(): void {
       }),
     }),
   };
-  const observer: IHumanActionLaw = {
+  const observer: IAutoMovieMotionHumanActionLaw = {
     name: "captureBoneReader", interrupts: {},
-    plan: (context: IHumanActionContext): IHumanActionPlan => {
-      const reader: IHumanActionContext.IPerformer = context.performer("A");
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => {
+      const reader: IAutoMovieMotionHumanPerformerReader = context.performer("A");
       observed.reader = reader;
       return { duration: 1, events: [], contacts: [],
-        posture: (seconds: number): IHumanPosture => {
+        posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           observed.partial = reader.bones(context.start + seconds, observed.demand);
           return context.entry.posture;
         } };
     },
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "partial-observation-cache",
     performers: [
       { subject: "A", body: { ...body }, at: { x: 0, y: 0, z: 0 }, yaw: 0,
@@ -124,7 +133,7 @@ export function test_motion_partial_observation_cache(): void {
   partialAt(secondTime);
   complete(secondTime);
   const massBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(body.massModel.segments.map(
-    (segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone,
+    (segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone,
   ));
   observed.demand = massBones;
   const massTime: number = 0.612345;
@@ -143,22 +152,22 @@ export function test_motion_partial_observation_cache(): void {
     }),
   );
 
-  const armOverlay: IHumanActionLaw = {
+  const armOverlay: IAutoMovieMotionHumanActionLaw = {
     name: "observedArmOverlay", interrupts: {}, overlay: true,
-    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
       duration: 1, events: [], contacts: [], channels: ["rightArm"],
-      posture: (): IHumanPosture => ({ ...context.entry.posture,
+      posture: (): IAutoMovieMotionHumanPosture => ({ ...context.entry.posture,
         joints: { ...context.entry.posture.joints, rightUpperArm: [10, 0, 0] }, limbs: {} }),
     }),
   };
   observed.demand = selected;
-  const overlaid: HumanPerformance = new HumanPerformance({
+  const overlaid: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "partial-observation-overlay",
-    performers: performance.performers.map((performer: HumanPerformance["performers"][number]): HumanPerformance["performers"][number] => ({ ...performer })),
+    performers: performance.performers.map((performer: IAutoMovieMotionHumanPerformance["performers"][number]): IAutoMovieMotionHumanPerformance["performers"][number] => ({ ...performer })),
     laws: [moving, observer, armOverlay],
     composition: { kind: "parallel", parts: [
       HumanChain.subject("A").registered("observedFreeLeg").over(
-        (upper: HumanChain): HumanChain => upper.registered("observedArmOverlay"),
+        (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => upper.registered("observedArmOverlay"),
       ).node,
       HumanChain.subject("B").registered("captureBoneReader").node,
     ] },
@@ -179,15 +188,15 @@ export function test_motion_partial_observation_cache(): void {
   );
 
   const cutTarget: IAutoMovieVector3 = { x: foot.x, y: foot.y + 0.09, z: foot.z + 0.02 };
-  const sourceLaw: IHumanActionLaw = {
+  const sourceLaw: IAutoMovieMotionHumanActionLaw = {
     ...moving, name: "observedCutSource",
     interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.2 }] },
   };
-  const targetLaw: IHumanActionLaw = {
+  const targetLaw: IAutoMovieMotionHumanActionLaw = {
     name: "observedCutTarget", interrupts: {},
-    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
       duration: 1, events: [], contacts: [],
-      posture: (): IHumanPosture => ({
+      posture: (): IAutoMovieMotionHumanPosture => ({
         root: { ...context.entry.posture.root }, yaw: 0, pitch: 0, roll: 0,
         joints: { head: [-10, 0, 0] },
         limbs: { leftLeg: { point: { ...cutTarget },
@@ -195,9 +204,9 @@ export function test_motion_partial_observation_cache(): void {
       }),
     }),
   };
-  const cut: HumanPerformance = new HumanPerformance({
+  const cut: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "partial-observation-cut",
-    performers: performance.performers.map((performer: HumanPerformance["performers"][number]): HumanPerformance["performers"][number] => ({ ...performer })),
+    performers: performance.performers.map((performer: IAutoMovieMotionHumanPerformance["performers"][number]): IAutoMovieMotionHumanPerformance["performers"][number] => ({ ...performer })),
     laws: [sourceLaw, targetLaw, observer],
     composition: { kind: "parallel", parts: [
       HumanChain.subject("A").registered("observedCutSource").until({ share: 0.4 })
@@ -205,7 +214,7 @@ export function test_motion_partial_observation_cache(): void {
       HumanChain.subject("B").registered("captureBoneReader").node,
     ] },
   });
-  const fullCut: HumanPerformance = new HumanPerformance({
+  const fullCut: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "partial-observation-cut",
     performers: [{ ...performance.performers[0]!, body: { ...body } }],
     laws: [sourceLaw, targetLaw],
@@ -220,7 +229,7 @@ export function test_motion_partial_observation_cache(): void {
     const whole: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = fullCut.bones("A", seconds);
     cut.posture("B", seconds);
     TestValidator.equals("cut observations expose only the requested head", Array.from(observed.partial!.keys()), ["head"]);
-    const raw: IHumanPosture = cut.posture("A", seconds);
+    const raw: IAutoMovieMotionHumanPosture = cut.posture("A", seconds);
     const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = cut.bones("A", seconds);
     const point: IAutoMovieVector3 = frames.get("leftFoot")!.worldPosition;
     const wanted: IAutoMovieVector3 = raw.limbs.leftLeg!.point;

@@ -1,6 +1,8 @@
-import { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
-import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
-import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
+import type {
+  IAutoMovieSampleSurfaceNetwork,
+  IAutoMovieSurfaceCage,
+} from "@automovie/interface";
+
 import { rigAutoMovieSurfaceNetwork } from "./rigAutoMovieSurfaceNetwork";
 
 /**
@@ -26,12 +28,8 @@ import { rigAutoMovieSurfaceNetwork } from "./rigAutoMovieSurfaceNetwork";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call samples one tier once; posing callers keep the rig instead.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the rig and its buffers are released on return and the cage arrays are transferred to the caller.
  */
-export const sampleAutoMovieSurfaceNetwork: (props: {
-  network: IAutoMovieSurfaceNetwork;
-  tier: AutoMovieSurfaceTier;
-  fit?: boolean;
-}) => IAutoMovieSurfaceCage = (props: {
-  network: IAutoMovieSurfaceNetwork;
-  tier: AutoMovieSurfaceTier;
-  fit?: boolean;
-}): IAutoMovieSurfaceCage => rigAutoMovieSurfaceNetwork(props).cage;
+export const sampleAutoMovieSurfaceNetwork: (
+  props: IAutoMovieSampleSurfaceNetwork.IProps,
+) => IAutoMovieSurfaceCage = (
+  props: IAutoMovieSampleSurfaceNetwork.IProps,
+): IAutoMovieSurfaceCage => rigAutoMovieSurfaceNetwork(props).cage;

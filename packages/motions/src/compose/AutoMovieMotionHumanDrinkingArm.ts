@@ -1,25 +1,30 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   getConstraint,
   rotationBetween,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanTouch,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { isHumanArmAlone } from "../posture/isHumanArmAlone";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -27,7 +32,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The arm a held vessel is brought to the lips with, read as a person
@@ -54,29 +58,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   export const ABDUCTION: number = 39.3 + 2 * 13.0;
 
   /**
-   * What a fitted arm reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The readings the admission and the facing's choice compare.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members: the admission reads three, the choice the tilt, the refusal the twist it states with the room.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Each is read off the fitted pose, never off the goal.
-   */
-  export interface IArm {
-    /** How far the reached hand carries the vessel's axis off the asked one, degrees. */
-    tilt: number;
 
-    /** The shoulder's flexion, degrees, as the source measures it (`measured`). */
-    flexion: number;
-
-    /** The shoulder's abduction, degrees, as the source measures it (`measured`). */
-    abduction: number;
-
-    /** How far the forearm's twist lies inside its range, degrees; negative outside. */
-    room: number;
-
-    /** The forearm's clinical twist, degrees, pronation positive (`HUMANOID_REST_FRAME`); what `room` is measured from, read by the refusal. */
-    twist: number;
-  }
 
   /**
    * The shoulder's flexion and abduction as Alt Murphy et al. 2006 measure
@@ -112,9 +94,9 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition">
     >,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
-  ): { flexion: number; abduction: number } {
+  ): IAutoMovieMotionHumanDrinkingArm.IMeasuredResult {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -178,16 +160,16 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The four-name demand and lazy exact FK preparation end on synchronous return/throw; the scalar result retains no pose, reader or candidate history.
    */
   export function read(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    goal: IHumanPosture.IGoal,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieHumanLimbGoal,
     referred: boolean,
     axis?: IAutoMovieVector3,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    base?: (posture: IHumanPosture) => IAutoMoviePose,
-  ): IArm {
+    base?: (posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose,
+  ): IAutoMovieMotionHumanDrinkingArm.IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
@@ -200,15 +182,15 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     // fitted on it, as the posture solve fits it. The referred fit's
     // reference is the same posture's solve of the unreferred goal, so it
     // is that one arm fit on the same base too.
-    const lent: ((posture: IHumanPosture) => IAutoMoviePose) | undefined =
+    const lent: ((posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose) | undefined =
       isHumanArmAlone(posture.limbs, side) ? base : undefined;
-    const only: ((fitted: IHumanPosture.IGoal) => IAutoMoviePose) | undefined =
+    const only: ((fitted: IAutoMovieHumanLimbGoal) => IAutoMoviePose) | undefined =
       lent === undefined
         ? undefined
-        : (fitted: IHumanPosture.IGoal): IAutoMoviePose =>
+        : (fitted: IAutoMovieHumanLimbGoal): IAutoMoviePose =>
             HumanLimbFit.fit(body, lent(posture), limb, fitted, ["left", "right"],
               undefined, undefined, resolution).pose;
-    const attached: IHumanPosture.IGoal = referred
+    const attached: IAutoMovieHumanLimbGoal = referred
       ? {
           ...goal,
           reference: AutoMovieMotionHumanTouchLaid.reference(
@@ -286,17 +268,17 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/side and unchanged rig/canonical mappings establish only metadata equivalence; changed postures/goals still execute read independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one getter/projector until completion or throw; its callback retains no candidate pose, goal or query history and never enters the returned drinking answer.
    */
-  export function prepareRead(body: IHumanBody, side: HumanHand.Side):
-    (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3) => IArm {
+  export function prepareRead(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide):
+    (posture: IAutoMovieMotionHumanPosture, goal: IAutoMovieHumanLimbGoal, referred: boolean, axis?: IAutoMovieVector3) => IAutoMovieMotionHumanDrinkingArm.IArm {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
 
     // The body without this arm, posed once for the posture the search is
     // on: the candidates of one search differ only in this arm's goal.
-    let based: { posture: IHumanPosture; pose: IAutoMoviePose } | undefined;
-    const base = (posture: IHumanPosture): IAutoMoviePose => {
+    let based: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } | undefined;
+    const base = (posture: IAutoMovieMotionHumanPosture): IAutoMoviePose => {
       if (based === undefined || based.posture !== posture) {
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
         delete limbs[`${side}Arm`];
         based = {
           posture,
@@ -306,7 +288,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       }
       return based.pose;
     };
-    return (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3): IArm =>
+    return (posture: IAutoMovieMotionHumanPosture, goal: IAutoMovieHumanLimbGoal, referred: boolean, axis?: IAutoMovieVector3): IAutoMovieMotionHumanDrinkingArm.IArm =>
       read(body, posture, side, goal, referred, axis, resolution, projection, base);
   }
 
@@ -345,12 +327,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    */
   export function carried(
     touch: Pick<
-      AutoMovieMotionHumanTouch.ITouch,
+      IAutoMovieMotionHumanTouch.ITouch,
       "body" | "side" | "rest" | "effector" | "held"
     >,
     tipped: (weight: number) => number,
   ): (
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     hand: IAutoMovieQuaternion,
     start: IAutoMovieQuaternion,
@@ -368,7 +350,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             z: 0,
           });
     return (
-      _posture: IHumanPosture,
+      _posture: IAutoMovieMotionHumanPosture,
       _seconds: number,
       hand: IAutoMovieQuaternion,
       start: IAutoMovieQuaternion,
@@ -419,29 +401,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function drinks(arm: IArm): boolean {
+  export function drinks(arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean {
     return (
       arm.flexion <= FLEXION &&
       arm.abduction <= ABDUCTION &&
       arm.room >= AutoMovieMotionHumanTouchLaid.MARGIN
     );
-  }
-
-  /**
-   * The arm a search tried that lies least past the drinking range, for its
-   * refusal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The readings and where they were tried, what a refusal reports.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `refused`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readings are a fitted arm's, never a goal's.
-   */
-  export interface INearest {
-    /** Its fitted arm. */
-    arm: IArm;
-
-    /** Where it was tried, in words. */
-    at: string;
   }
 
   /**
@@ -471,12 +436,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function nearer(
-    nearest: INearest | undefined,
-    arm: IArm,
+    nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined,
+    arm: IAutoMovieMotionHumanDrinkingArm.IArm,
     at: string,
     tilt: number,
-  ): INearest {
-    const past = (of: IArm): number =>
+  ): IAutoMovieMotionHumanDrinkingArm.INearest {
+    const past = (of: IAutoMovieMotionHumanDrinkingArm.IArm): number =>
       Math.max(
         of.flexion - FLEXION,
         of.abduction - ABDUCTION,
@@ -505,10 +470,10 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function refused(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     sought: string,
-    closest: INearest | undefined,
-  ): HumanRefusal {
+    closest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined,
+  ): IAutoMovieMotionHumanRefusal {
     return new HumanRefusal({
       kind: "reach",
       axis: "facing",
@@ -522,7 +487,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 /** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */
 function angle(
   reached: IAutoMovieQuaternion,
-  goal: IHumanPosture.IGoal,
+  goal: IAutoMovieHumanLimbGoal,
 ): number {
   const asked: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(Quaternion.normalize(goal.rotation!)),

@@ -3,16 +3,21 @@ import {
   Transform,
   Vector3,
   prepareChainPlant,
-  type skeletonJointAxes,
+  skeletonJointAxes,
 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
-import type { HumanColliders } from "../posture/HumanColliders";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
@@ -37,12 +42,12 @@ export namespace AutoMovieMotionHumanBendChain {
   /** Actual unchanged body/frame prerequisites shared by the two arm preparations. */
   interface ISource {
     /** Body identity and its borrowed immutable definition dependencies. */
-    body: IHumanBody;
-    skeleton: IHumanBody["skeleton"];
-    profile: IHumanBody["profile"];
-    topology: IHumanBody["topology"];
-    poseResolution: IHumanBody["poseResolution"];
-    rest: IHumanBody["rest"];
+    body: IAutoMovieMotionHumanBody;
+    skeleton: IAutoMovieMotionHumanBody["skeleton"];
+    profile: IAutoMovieMotionHumanBody["profile"];
+    topology: IAutoMovieMotionHumanBody["topology"];
+    poseResolution: IAutoMovieMotionHumanBody["poseResolution"];
+    rest: IAutoMovieMotionHumanBody["rest"];
 
     /** Copied world-metre root and heading values establish frame equivalence. */
     root: IAutoMovieVector3;
@@ -56,10 +61,10 @@ export namespace AutoMovieMotionHumanBendChain {
 
     /** Borrowed operation workspace ends after both sides have been visited. */
     resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
-    sides: Set<AutoMovieMotionHumanBend.Side>;
+    sides: Set<AutoMovieHumanSide>;
 
     /** Private actual trunk placement, copied before an outward chain receives it. */
-    shapes?: HumanColliders.IPlaced[];
+    shapes?: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
   /**
@@ -97,7 +102,7 @@ export namespace AutoMovieMotionHumanBendChain {
     axes: ReturnType<typeof skeletonJointAxes>;
 
     /** The trunk's placed colliders, world metres. */
-    shapes: HumanColliders.IPlaced[];
+    shapes: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
   /**
@@ -118,9 +123,9 @@ export namespace AutoMovieMotionHumanBendChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordinary lazy reader ends at return/throw. A bilateral token borrows its one workspace until both sides have been attempted, then drops that reference; the token's fixed source/placement ends with its synchronous owner. Returned chains retain fresh geometry/collider frames and borrowed immutable shapes, with no reader or time-keyed result.
    */
   export function of(
-    body: IHumanBody,
-    posture: AutoMovieMotionHumanBend.ISolve["posture"],
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
+    side: AutoMovieHumanSide,
     source?: IPrepared,
   ): IChain | null {
     const shared: ISource | undefined = source === undefined
@@ -160,7 +165,7 @@ export namespace AutoMovieMotionHumanBendChain {
         body.poseResolution,
       );
       if (prepared === null) return null;
-      const shapes: HumanColliders.IPlaced[] = shared?.shapes ??
+      const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = shared?.shapes ??
         HumanArmClearance.trunk(
           body,
           poseBones(body, pose, resolution(), HumanArmObstacleBones.TRUNK),
@@ -195,8 +200,8 @@ export namespace AutoMovieMotionHumanBendChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases one token with its synchronous pair. Its weak entry retains one fixed pose, O(S) private trunk placements and at most one operation reader; after both side attempts the reader/supplier reference is dropped even on throw. Returned chains contain no token or reader.
    */
   export function prepare(
-    body: IHumanBody,
-    posture: AutoMovieMotionHumanBend.ISolve["posture"],
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IPrepared {
     const token: IPrepared = Object.freeze<IPrepared>({ [BRAND]: true });
@@ -225,8 +230,8 @@ export namespace AutoMovieMotionHumanBendChain {
   /** Reject foreign/replaced sources and any actual root/heading edit. */
   function matchingSource(
     token: IPrepared,
-    body: IHumanBody,
-    posture: AutoMovieMotionHumanBend.ISolve["posture"],
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
   ): ISource | undefined {
     const source: ISource | undefined = SOURCES.get(token);
     return source !== undefined && source.body === body &&
@@ -239,12 +244,12 @@ export namespace AutoMovieMotionHumanBendChain {
   }
 
   /** Keep private source placement independent of every public chain's mutation. */
-  function copyShapes(shapes: readonly HumanColliders.IPlaced[]): HumanColliders.IPlaced[] {
+  function copyShapes(shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[]): IAutoMovieMotionHumanColliders.IPlaced[] {
     return shapes.map(copyShape);
   }
 
   /** One fresh outward collider frame; only the original immutable shape geometry is shared. */
-  function copyShape(shape: HumanColliders.IPlaced): HumanColliders.IPlaced {
+  function copyShape(shape: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced {
     return {
       bone: shape.bone,
       pose: { position: { ...shape.pose.position }, rotation: { ...shape.pose.rotation } },

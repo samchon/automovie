@@ -1,17 +1,17 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
@@ -47,16 +47,16 @@ export namespace KickCarriage {
    */
   export interface IProps {
     /** The kicking body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The posture the kick starts from. */
-    entry: IHumanPosture;
+    entry: IAutoMovieMotionHumanPosture;
 
     /** The entry joints with the fixed fighting hand/neck posture already applied, when prepared by the kick planner. */
-    joints?: IHumanPosture["joints"];
+    joints?: IAutoMovieMotionHumanPosture["joints"];
 
     /** The feet the kick starts on. */
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The kicking side. */
     side: "left" | "right";
@@ -65,7 +65,7 @@ export namespace KickCarriage {
     line: IAutoMovieVector3;
 
     /** The kick's timing. */
-    timing: IKickGeometry.ITiming;
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming;
 
     /** The skill's range share: how much of the support foot's pivot is shown. */
     amplitude: number;
@@ -100,12 +100,12 @@ export namespace KickCarriage {
    */
   export function posture(
     props: IProps,
-    carriage: IKickGeometry.ICarriage,
+    carriage: IAutoMovieMotionHumanKickGeometry.ICarriage,
     seconds: number,
     turning: number = seconds,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
     const support: "left" | "right" = side === "left" ? "right" : "left";
@@ -146,7 +146,7 @@ export namespace KickCarriage {
 
     // The support foot turns with the pelvis (at most the pivot's own
     // range), so the support hip's twist stays where the stance had it.
-    const supportFoot: HumanFoot.IPlacement = StrikingTarget.pivot(
+    const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
       body,
       support,
       StrikingTarget.slide(feet[support], line, stepped, 0),
@@ -158,7 +158,7 @@ export namespace KickCarriage {
         w,
       KickForm.PIVOT.raise * w,
     );
-    const flat: IHumanPosture = {
+    const flat: IAutoMovieMotionHumanPosture = {
       root: { x: centre.x, y: entry.root.y + props.rise * w, z: centre.z },
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
@@ -169,7 +169,7 @@ export namespace KickCarriage {
       ),
       limbs: {},
     };
-    const tilted: IHumanPosture =
+    const tilted: IAutoMovieMotionHumanPosture =
       carriage.lean * w === 0
         ? flat
         : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w, read, projection);
@@ -209,8 +209,8 @@ export namespace KickCarriage {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No pose/map/reader/projector is retained here; only the actual fresh hip vector escapes its temporary trunk map.
    */
   export function hip(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     side: "left" | "right",
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
@@ -226,21 +226,21 @@ export namespace KickCarriage {
    * stays where it was.
    */
   function tilt(
-    body: IHumanBody,
-    flat: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    flat: IAutoMovieMotionHumanPosture,
     support: "left" | "right",
     axis: IAutoMovieVector3,
     degrees: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle(axis, degrees),
         resolveHumanPosture.heading(flat),
       ),
     );
-    const turned: IHumanPosture = {
+    const turned: IAutoMovieMotionHumanPosture = {
       ...flat,
       ...resolveHumanPosture.angles(rotation),
     };

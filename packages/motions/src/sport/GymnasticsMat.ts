@@ -1,14 +1,17 @@
 import { carriedRate, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsMat,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { lieDown } from "../floor/lieDown";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
@@ -55,22 +58,16 @@ export namespace GymnasticsMat {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the private joint union/start/delta and original scalar kernels at clipped t=SETTLE. Fresh triples isolate output mutations; current velocity/root requests and every actual body/ROM/profile/context reading remain evaluated. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original inputs and O(J) copied tracks. Query frame, bone map and floor reader release on return/throw; optional FK/projector loans stay with the synchronous parent and neither enters the returned posture, frame floor callback or retained landing closure.
    */
-  export function lie(props: {
-    body: IHumanBody;
-    model: GymnasticsFlight.Model;
-    from: IHumanPosture;
-    velocity: IAutoMovieVector3;
-    height: number;
-  }): (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IHumanPosture {
-    const body: IHumanBody = props.body;
-    const model: GymnasticsFlight.Model = props.model;
+  export function lie(props: IAutoMovieMotionHumanGymnasticsMat.ILieProps ): (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanPosture {
+    const body: IAutoMovieMotionHumanBody = props.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel = props.model;
     const prepareFrame: ReturnType<typeof prepareGymnasticsFrame> = prepareGymnasticsFrame(body, model);
-    const from: IHumanPosture = props.from;
+    const from: IAutoMovieMotionHumanPosture = props.from;
     // The lying tip nearest the landing tip, an odd multiple of 90 degrees:
     // on the back at -90 plus whole turns, on the front at +90.
     const tip: number = 180 * Math.round((from.pitch - 90) / 180) + 90;
     const back: boolean = Math.abs((((tip + 90) % 360) + 360) % 360) < 1;
-    const lain: lieDown.IPose = back
+    const lain: IAutoMovieMotionHumanLieDown.IPose = back
       ? lieDown.POSES.supine
       : lieDown.POSES.prone;
     const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
@@ -91,11 +88,11 @@ export namespace GymnasticsMat {
     }
     const settledProgress: number = minimumJerk.share(1);
     const settledCarry: number = carriedRate(SETTLE, SETTLE);
-    return (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
+    return (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const resting: boolean = t === SETTLE;
       const u: number = resting ? settledProgress : minimumJerk.share(t / SETTLE);
-      const joints: IHumanPosture["joints"] = {};
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const track of tracks) {
         joints[track.bone] = resting
           ? [track.settled[0], track.settled[1], track.settled[2]]
@@ -105,7 +102,7 @@ export namespace GymnasticsMat {
               track.from[2] + track.delta[2] * u,
             ];
       }
-      const posed: IHumanPosture = {
+      const posed: IAutoMovieMotionHumanPosture = {
         ...from,
         pitch: from.pitch + (tip - from.pitch) * u,
         joints,

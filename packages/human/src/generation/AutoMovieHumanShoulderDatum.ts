@@ -1,7 +1,11 @@
-import type { AutoMovieHumanLimbRest } from "./AutoMovieHumanLimbRest";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLimbRest,
+  IAutoMovieHumanTrunkInputs,
+} from "@automovie/interface";
+
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
-import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
 
 /** Shared shoulder attachment from public dimensions and the original neck cut, before either adjoining part. */
 export namespace AutoMovieHumanShoulderDatum {
@@ -20,9 +24,9 @@ export namespace AutoMovieHumanShoulderDatum {
       "acromion" | "biacromial" | "scale"
     >,
     stature: number,
-    neckSupport: readonly [number, number, number],
+    neckSupport: Readonly<AutoMovieVector3Tuple>,
     halfBreadth: number = inputs.biacromial / 2,
-  ): AutoMovieHumanLimbRest.IShoulder {
+  ): IAutoMovieHumanLimbRest.IShoulder {
     const shoulder: [number, number, number] = [
       AutoMovieHumanTrunkShapes.SHOULDER.middle * stature,
       inputs.acromion,

@@ -1,6 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";
@@ -45,8 +47,8 @@ export namespace staggerLimit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only scalar bracket/grid state, the fixed geometry and local callbacks until return or failure.
    */
   export function of(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
     fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),

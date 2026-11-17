@@ -1,5 +1,6 @@
 import { Quaternion, integrateMotionTrajectory } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -34,16 +35,16 @@ export function test_engine_motion_trajectory_blocks(): void {
     { x: 0, y: 1, z: 0 },
     { x: 0, y: 0, z: 1 },
   ];
-  const tight: integrateMotionTrajectory.ITolerance = {
+  const tight: IAutoMovieIntegrateMotionTrajectory.ITolerance = {
     relative: 1e-10,
     absolute: 0,
   };
   const rate: (t: number) => IAutoMovieVector3 = (
     t: number,
   ): IAutoMovieVector3 => ({ x: 1 + Math.sin(2 * Math.PI * t), y: 0, z: 0 });
-  const primal: integrateMotionTrajectory.ITrajectory =
+  const primal: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
-      f: (t: number): integrateMotionTrajectory.IRate => ({
+      f: (t: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [],
         w: rate(t),
       }),
@@ -75,9 +76,9 @@ export function test_engine_motion_trajectory_blocks(): void {
         Array.from({ length: 9 }, (_: unknown, i: number): number =>
           i < 3 ? scale * columns[i]!.y * t ** 5 : 0,
         );
-      const flight: integrateMotionTrajectory.ITrajectory =
+      const flight: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
-          f: (t: number): integrateMotionTrajectory.IRate => ({
+          f: (t: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
             dx: rhs(t),
             w: rate(t),
           }),
@@ -89,7 +90,7 @@ export function test_engine_motion_trajectory_blocks(): void {
         });
       for (let k: number = 0; k <= 20; k++) {
         const t: number = k / 20;
-        const state: integrateMotionTrajectory.IState = flight.at(t);
+        const state: IAutoMovieIntegrateMotionTrajectory.IState = flight.at(t);
         const angle: number =
           t + (1 - Math.cos(2 * Math.PI * t)) / (2 * Math.PI);
         const expectedQ: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -123,7 +124,7 @@ export function test_engine_motion_trajectory_blocks(): void {
     let refused: boolean = false;
     try {
       integrateMotionTrajectory({
-        f: (): integrateMotionTrajectory.IRate => {
+        f: (): IAutoMovieIntegrateMotionTrajectory.IRate => {
           invoked = true;
           return { dx: Array.from({ length: 9 }, (): number => 0) };
         },

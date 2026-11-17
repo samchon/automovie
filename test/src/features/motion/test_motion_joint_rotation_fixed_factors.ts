@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRestFrame,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
 } from "@automovie/engine";
@@ -7,6 +6,7 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

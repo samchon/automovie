@@ -14,7 +14,7 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
  * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
  * archetype that carries it, and an opening as `HumanObstacle.apertures`.
- * Each person's body is read from `bodies`, declared as the `IHumanBody`
+ * Each person's body is read from `bodies`, declared as the `IAutoMovieMotionHumanBody`
  * of each of the site's body ids, since a body is prepared from measures
  * the code does not show.
  *
@@ -152,13 +152,12 @@ export function formatSceneChain(
   // The performance is built from the people, the composition, the props
   // and the laws, each list given only where the scene has one.
   imports.add("HumanPerformance");
-  imports.add("IHumanBody");
   body.push(
     "",
-    "// Each body id's `IHumanBody`, prepared by @automovie/human from the site's measures.",
-    "declare const bodies: Record<string, IHumanBody>;",
+    "// Each body id's motion body, prepared from the site's measures.",
+    "declare const bodies: Record<string, IAutoMovieMotionHumanBody>;",
     "",
-    "const input: HumanPerformance.IInput = {",
+    "const input: IAutoMovieMotionHumanPerformance.IInput = {",
     `  seed: ${JSON.stringify(composition.seed)},`,
     "  performers: [",
     ...composition.performers.map(
@@ -177,6 +176,7 @@ export function formatSceneChain(
   );
 
   const header: string[] = [
+    'import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";',
     `import { ${[...imports].sort().join(", ")} } from "@automovie/motions";`,
     ...(objects.length === 0
       ? []

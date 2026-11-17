@@ -1,22 +1,18 @@
 import {
   IAutoMovieActionTarget,
   IAutoMovieCamera,
+  type IAutoMovieCameraFrameEntry,
   IAutoMovieCameraIntent,
   IAutoMovieClip,
-  IAutoMovieFormationMotion,
-  IAutoMovieModel,
-  IAutoMovieMotion,
-  IAutoMovieQuaternion,
+  type IAutoMovieCompilePerformShotCameras,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMovieFramedSubject,
+  type IAutoMoviePerformShotCoverageJob,
+  type IAutoMoviePerformShotFrameJob,
   IAutoMovieShot,
   IAutoMovieShotCoverage,
 } from "@automovie/interface";
 
-import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
-import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
-import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
-import { IPerformShotCoverageJob } from "./IPerformShotCoverageJob";
-import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
@@ -51,20 +47,8 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The framer and its memo are dropped on return; the caller owns the returned clips, intents, takes and reports.
  */
 export function compilePerformShotCameras(
-  context: IPerformShotGateContext,
-  props: {
-    liveCamera: string;
-    frames: readonly IPerformShotFrameJob[];
-    coverageJobs: readonly IPerformShotCoverageJob[];
-    scope: string;
-    aspect: number | undefined;
-    models: readonly IAutoMovieModel[] | undefined;
-    formationMotions: readonly IAutoMovieFormationMotion[];
-    motions: Record<string, IAutoMovieMotion>;
-    objectMotions: readonly IAutoMovieClip[];
-    rotations: ReadonlyMap<string, IAutoMovieQuaternion>;
-    runtime: IAutoMovieCameraClearanceRuntime | undefined;
-  },
+  context: IAutoMovieEnginePerformShotGateContext,
+  props: IAutoMovieCompilePerformShotCameras.IProps,
 ): Pick<
   IAutoMovieShot,
   "cameraMotion" | "cameraIntent" | "coverage" | "cameraClearance"
@@ -79,7 +63,7 @@ export function compilePerformShotCameras(
     clipId: `cam:${props.scope}`,
     camera: hero,
     entries: props.frames.map(
-      (job: IPerformShotFrameJob): IAutoMovieCameraFrameEntry => ({
+      (job: IAutoMoviePerformShotFrameJob): IAutoMovieCameraFrameEntry => ({
         action: job.action,
         subject: frame(job.action.on),
       }),
@@ -88,7 +72,10 @@ export function compilePerformShotCameras(
     aspect: props.aspect,
   });
   const coverage: IAutoMovieShotCoverage[] = props.coverageJobs.map(
-    ({ intent, camera }: IPerformShotCoverageJob): IAutoMovieShotCoverage =>
+    ({
+      intent,
+      camera,
+    }: IAutoMoviePerformShotCoverageJob): IAutoMovieShotCoverage =>
       compileCameraCoverage({
         camera,
         clipId: `cam:${props.scope}:${camera.id}`,
@@ -132,7 +119,7 @@ export function compilePerformShotCameras(
   return {
     cameraMotion,
     cameraIntent: props.frames.map(
-      ({ action }: IPerformShotFrameJob): IAutoMovieCameraIntent => ({
+      ({ action }: IAutoMoviePerformShotFrameJob): IAutoMovieCameraIntent => ({
         start: action.start,
         framing: action.framing,
         move: action.move,

@@ -1,12 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 
 /**
  * Update one private frame of an immutable prepared rig. Every quaternion,

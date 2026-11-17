@@ -1,10 +1,10 @@
 import {
   AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES,
-  IAutoMovieRenderSubject,
   deriveAutoMovieSemanticMask,
   resolveAutoMovieSemanticMask,
 } from "@automovie/engine";
 import {
+  type IAutoMovieRenderSubject,
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,

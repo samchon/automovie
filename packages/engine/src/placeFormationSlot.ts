@@ -1,10 +1,9 @@
 import {
-  IAutoMovieFormationMotionState,
-  IAutoMovieFormationSlotState,
+  type IAutoMovieFormationSlotPlacement,
+  type IAutoMoviePlaceFormationSlot,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieFormationSlotPlacement } from "./IAutoMovieFormationSlotPlacement";
 import { rotateFormationLocalOffset } from "./rotateFormationLocalOffset";
 import { transformFormationPoint } from "./transformFormationPoint";
 
@@ -25,27 +24,11 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical formula is shared across consumers; values are recomputed from current mutable cue states rather than cached by slot identity.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inputs are borrowed and the returned position is fresh; no cue, terrain, handle or task is retained beyond the call.
  */
-export const placeFormationSlot: (props: {
-  /** Designed world-space position of this member at rest. */ position: IAutoMovieVector3;
-  /** Designed world-space heading of this member at rest, in degrees. */ facingDeg: number;
-  /** The unit's world-space origin. */ anchor: IAutoMovieVector3;
-  /** The unit's designed world-space heading in degrees. */ baseFacingDeg: number;
-  /** Sampled unit-level state. */ unit: IAutoMovieFormationMotionState;
-  /** Sampled member-level state. */ member: IAutoMovieFormationSlotState;
-}) => IAutoMovieFormationSlotPlacement = (props: {
-  /** Designed world-space position of this member at rest. */
-  position: IAutoMovieVector3;
-  /** Designed world-space heading of this member at rest, in degrees. */
-  facingDeg: number;
-  /** The unit's world-space origin. */
-  anchor: IAutoMovieVector3;
-  /** The unit's designed world-space heading in degrees. */
-  baseFacingDeg: number;
-  /** Sampled unit-level state. */
-  unit: IAutoMovieFormationMotionState;
-  /** Sampled member-level state. */
-  member: IAutoMovieFormationSlotState;
-}): IAutoMovieFormationSlotPlacement => {
+export const placeFormationSlot: (
+  props: IAutoMoviePlaceFormationSlot.IProps,
+) => IAutoMovieFormationSlotPlacement = (
+  props: IAutoMoviePlaceFormationSlot.IProps,
+): IAutoMovieFormationSlotPlacement => {
   const placed: IAutoMovieVector3 = transformFormationPoint(
     props.position,
     props.anchor,

@@ -1,13 +1,13 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  IAutoMovieActionSynthesizer,
-  IAutoMovieActorContext,
   makeActorSynthesizer,
   resolvePose,
   sampleMotion,
 } from "@automovie/engine";
 import {
+  type IAutoMovieActionSynthesizer,
+  type IAutoMovieActorContext,
   IAutoMovieMotion,
   IAutoMovieReachAction,
   IAutoMovieVector3,

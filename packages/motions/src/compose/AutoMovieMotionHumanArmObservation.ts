@@ -1,24 +1,25 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
-import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { isHumanArmAlone } from "../posture/isHumanArmAlone";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { isHumanArmAlone } from "../posture/isHumanArmAlone";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -61,16 +62,16 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base pose, three probe names and local exact FK reader live only through this synchronous measurement. Only the prior probe points and three accumulated arc lengths survive between samples; no blend-pose history, reader or callback enters the returned scalar.
    */
   export function reaching(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    from: HumanArmClearance.IArm,
-    to: HumanArmClearance.IArm,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmClearance.IArm,
+    to: IAutoMovieMotionHumanArmClearance.IArm,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
     const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
@@ -101,11 +102,11 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base and optional exact FK source only until the scalar returns, with a local getter, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained, and no source enters the scalar result.
    */
   export function reachingPose(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     base: IAutoMoviePose,
-    side: HumanHand.Side,
-    from: HumanArmClearance.IArm,
-    to: HumanArmClearance.IArm,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmClearance.IArm,
+    to: IAutoMovieMotionHumanArmClearance.IArm,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): number {
     const probes: readonly AutoMovieHumanoidBone[] = [
@@ -120,7 +121,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     const hand: ReturnType<typeof blendHumanJoint.between> =
       blendHumanJoint.between(body, `${side}Hand`, from.hand, to.hand);
     const points = (w: number): IAutoMovieVector3[] => {
-      const arm: HumanArmClearance.IArm = {
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = {
         upper: upper(w), lower: lower(w), hand: hand(w),
       };
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -165,15 +166,15 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base, the fitted pose and the reader end with the call; only the scalar escapes.
    */
   export function reachingGoal(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    from: HumanArmClearance.IArm,
-    goal: IHumanPosture.IGoal,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmClearance.IArm,
+    goal: IAutoMovieHumanLimbGoal,
   ): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[limb];
     const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
@@ -213,9 +214,9 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns its lazy exact reader until return/throw; the returned error/contact/base keeps original numerical payloads and no reader, callback or operation history.
    */
   export function moved(
-    body: IHumanBody,
-    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
@@ -225,13 +226,13 @@ export namespace AutoMovieMotionHumanArmObservation {
     base: HumanArmTrajectory.IProblem["bases"][number];
   } {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${carry.side}Arm`];
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
       limbs,
     }, undefined, undefined, resolution, undefined, projection).pose;
-    const goal: IHumanPosture.IGoal = carry.goal(posture, seconds, resolution, projection);
+    const goal: IAutoMovieHumanLimbGoal = carry.goal(posture, seconds, resolution, projection);
     const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal, resolution);
     const then: HumanArmTrajectory.ISite = site(
       body,
@@ -258,12 +259,12 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the callback's original goal ownership.
    */
   export function aim(
-    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
-    posture: IHumanPosture,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return (carry.perceived ?? carry.goal)(posture, seconds, source, projection);
   }
 
@@ -279,13 +280,13 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The fresh site borrows unchanged goal payloads and retains no operation reader, body cache or handle.
    */
   export function site(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
-    goal: IHumanPosture.IGoal,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    goal: IAutoMovieHumanLimbGoal,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): HumanArmTrajectory.ISite {
-    const world: IHumanPosture.IGoal = resolveHumanPosture.world(
+    const world: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
       body,
       pose,
       `${carry.side}Arm`,

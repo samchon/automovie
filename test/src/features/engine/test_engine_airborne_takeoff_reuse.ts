@@ -5,7 +5,9 @@ import {
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -38,16 +40,16 @@ export function test_engine_airborne_takeoff_reuse(): void {
   const complaints: string[] = [];
   for (const maximum of [Infinity, 2 * Math.PI, 0]) {
     let starts: number = 0;
-    const history: integrateAirborneRotation.IHistory = (
+    const history: IAutoMovieIntegrateAirborneRotation.IHistory = (
       seconds: number,
-    ): integrateAirborneRotation.IInstant => {
+    ): IAutoMovieIntegrateAirborneRotation.IInstant => {
       if (seconds === 0) starts++;
       return {
         inertia: { moments: { x: 2, y: 2, z: 2 }, rotation: identity },
         relative: origin,
       };
     };
-    const result: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+    const result: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
       history,
       t0: 0,
       t1: 1,

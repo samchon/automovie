@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   gazeChainJoints,
@@ -8,15 +7,16 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { HumanGazeTypes } from "./HumanGazeTypes";
 import { readHumanGazeBones } from "./readHumanGazeBones";
 
 /**
@@ -63,16 +63,6 @@ import { readHumanGazeBones } from "./readHumanGazeBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses existing body, posture, target and bone types without another rig or pose representation; operation-local FK sharing changes no gaze recruitment or timing policy.
  */
 export namespace HumanGaze {
-  /**
-   * Which segments a gaze may recruit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the existing recruitment choice and its shared type owner.
-   * @evidence contracts/development/design.md#principled-representation Preserves the same closed anatomical choice through HumanGazeTypes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing law and layer consumers keep the same HumanGaze.Recruit name.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias adds no alternative, validation or representation.
-   */
-  export type Recruit = HumanGazeTypes.Recruit;
-
   /** Final eye-in-head eccentricity before the head joins, degrees (Freedman 2008). */
   export const EYES: number = 15;
 
@@ -85,17 +75,6 @@ export namespace HumanGaze {
 
   /** The trunk's share of yaw, degrees (provisional). */
   export const TRUNK: number = 40;
-
-  /**
-   * Clinical-degree shares of one gaze direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the shares whose fields and signs are documented by HumanGazeTypes.
-   * @evidence contracts/development/design.md#principled-representation Preserves the existing eye/head/trunk share record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface split, aim and layer retain their same augmentable public ISplit interface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No extra data, proxy or alternate unit convention is added.
-   */
-  export interface ISplit extends HumanGazeTypes.ISplit {}
-
   /**
    * Split a gaze direction over the eyes, the head and the trunk.
    *
@@ -115,8 +94,8 @@ export namespace HumanGaze {
   export function split(
     yaw: number,
     pitch: number,
-    recruit: Recruit = "auto",
-  ): ISplit {
+    recruit: IAutoMovieMotionHumanGaze.Recruit = "auto",
+  ): IAutoMovieMotionHumanGaze.ISplit {
     if (recruit === "eyes")
       return { eyes: { yaw, pitch }, head: { yaw: 0, pitch: 0 }, trunk: 0 };
     const [eyeYaw, headYaw]: [number, number] = splitShare(yaw, EYES, HEAD.yaw, HEAD.yaw);
@@ -188,11 +167,11 @@ export namespace HumanGaze {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no map, target or borrowed workspace; the caller owns the angle record and the parent releases its reader with the evaluation.
    */
   export function direction(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): { yaw: number; pitch: number } {
+  ): IAutoMovieMotionHumanGaze.IDirectionResult {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readHumanGazeBones(body, posture, "direction", undefined, resolution);
     const eyes: IAutoMovieVector3 = Vector3.scale(
@@ -237,20 +216,20 @@ export namespace HumanGaze {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local dynamic getter and maps end with return or throw, and returned posture/joints retain no loan. One weak body owner holds only a bounded genuine cervical ROM reader until the body is released, without targets, angle answers, current frames or time history.
    */
   export function aim(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
-    recruit: Recruit,
-    weights: { eyes: number; head: number; trunk: number },
+    recruit: IAutoMovieMotionHumanGaze.Recruit,
+    weights: IAutoMovieMotionHumanGaze.IAimWeights,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     towards?: { yaw: number; pitch: number },
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const facingTarget: { yaw: number; pitch: number } =
       towards ?? direction(body, posture, point, read);
-    const parts: ISplit = split(facingTarget.yaw, facingTarget.pitch, recruit);
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    const parts: IAutoMovieMotionHumanGaze.ISplit = split(facingTarget.yaw, facingTarget.pitch, recruit);
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
 
     // Trunk: twist added to whatever the action holds, chest 60 %, spine 40 %.
     addGazeTwist(joints, "chest", 0.6 * parts.trunk * weights.trunk);
@@ -336,16 +315,6 @@ export namespace HumanGaze {
   }
 
   /**
-   * An authored gaze-layer request.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the existing target/time/recruitment record and its omission policies.
-   * @evidence contracts/development/design.md#principled-representation Preserves the same authored-intention record through HumanGazeTypes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing layer API and law callers retain HumanGaze.ILayer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The inheriting interface preserves declaration merging and adds no validation, timing field, cached pose or target representation.
-   */
-  export interface ILayer extends HumanGazeTypes.ILayer {}
-
-  /**
    * A gaze layer: from `from` the eyes, head and trunk turn toward the
    * target on their own timings and track it; from `to` they return.
    *
@@ -362,25 +331,25 @@ export namespace HumanGaze {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains its existing requests/name/channels only. Its local getter is created inside active apply and ends on return/throw, borrowing the host's revocable source when supplied; no target, FK map, reader or context enters retained layer state.
    */
   export function layer(
-    requests: readonly ILayer[],
+    requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
     name: string = "gaze",
-  ): IHumanLayer {
+  ): IAutoMovieMotionHumanLayer {
     return {
       name,
 
       // The eyes, the neck and the head, and the chest and lumbar spine
       // unless every gaze keeps the trunk out of the turn.
       channels: requests.every(
-        (request: ILayer): boolean =>
+        (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
           request.with === "eyes" || request.with === "head",
       )
         ? ["head"]
         : ["head", "trunk"],
       apply: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        context: IHumanLayer.IContext,
-      ): IHumanPosture => {
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture => {
         let low: number = 0;
         let high: number = requests.length;
         while (low < high) {
@@ -388,7 +357,7 @@ export namespace HumanGaze {
           if (requests[middle]!.from <= seconds) low = middle + 1;
           else high = middle;
         }
-        const active: ILayer | undefined = requests[low - 1];
+        const active: IAutoMovieMotionHumanGaze.ILayer | undefined = requests[low - 1];
         if (active === undefined) return posture;
         const point: IAutoMovieVector3 = context.aim(
           active.target,
@@ -403,7 +372,7 @@ export namespace HumanGaze {
           resolution,
         );
         const amplitude: number = Math.hypot(towards.yaw, towards.pitch);
-        const parts: ISplit = split(
+        const parts: IAutoMovieMotionHumanGaze.ISplit = split(
           towards.yaw,
           towards.pitch,
           active.with ?? "auto",
@@ -442,7 +411,7 @@ function splitShare(
 
 /** Blend one current authored joint without changing the original arithmetic grouping. */
 function blendGazeJoint(
-  joints: IHumanPosture["joints"],
+  joints: IAutoMovieMotionHumanPosture["joints"],
   bone: AutoMovieHumanoidBone,
   flexion: number,
   abduction: number,
@@ -458,14 +427,14 @@ function blendGazeJoint(
 }
 
 /** Add the same axial twist while preserving the joint's other two angles. */
-function addGazeTwist(joints: IHumanPosture["joints"], bone: AutoMovieHumanoidBone, twist: number): void {
+function addGazeTwist(joints: IAutoMovieMotionHumanPosture["joints"], bone: AutoMovieHumanoidBone, twist: number): void {
   const base: readonly [number, number, number] = joints[bone] ?? ZERO;
   joints[bone] = [base[0], base[1], base[2] + twist];
 }
 
 
 /** The same independent onset/return profile for one actual segment duration. */
-function gazeWeight(seconds: number, active: HumanGaze.ILayer, duration: number): number {
+function gazeWeight(seconds: number, active: IAutoMovieMotionHumanGaze.ILayer, duration: number): number {
   const on: number = minimumJerk.share((seconds - active.from) / duration);
   const off: number = active.to === undefined ? 0 : minimumJerk.share((seconds - active.to) / duration);
   return on * (1 - off);
@@ -475,10 +444,10 @@ function gazeWeight(seconds: number, active: HumanGaze.ILayer, duration: number)
 const ZERO: readonly [number, number, number] = [0, 0, 0];
 
 /** The canonical body keeps cervical rig/range prerequisites unchanged while in use. */
-const CERVICAL: WeakMap<IHumanBody, ReturnType<typeof gazeChainJoints.prepare>> = new WeakMap();
+const CERVICAL: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof gazeChainJoints.prepare>> = new WeakMap();
 
 /** Every actual aim reads its current angles through the genuine fixed-rig owner. */
-function cervical(body: IHumanBody, rig: IHumanBody["skeleton"], flexion: number,
+function cervical(body: IAutoMovieMotionHumanBody, rig: IAutoMovieMotionHumanBody["skeleton"], flexion: number,
   twist: number): IAutoMovieJointPose[] {
   let read: ReturnType<typeof gazeChainJoints.prepare> | undefined = CERVICAL.get(body);
   if (read === undefined) {

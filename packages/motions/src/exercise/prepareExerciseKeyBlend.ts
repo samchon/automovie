@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanJoints,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import type { ExerciseKey } from "./ExerciseKey";
@@ -19,13 +24,13 @@ import type { ExerciseKey } from "./ExerciseKey";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One prepared reader retains the two keys and their ordered endpoint tuples until its owning plan releases it; raw calls retain nothing after returning, and neither path stores queried shares or results.
  */
 export function prepareExerciseKeyBlend(
-  a: ExerciseKey.IKey,
-  b: ExerciseKey.IKey,
-): (share: number) => ExerciseKey.IKey {
-  const endpoints: IEndpoint[] = [];
+  a: IAutoMovieMotionHumanExerciseKey.IKey,
+  b: IAutoMovieMotionHumanExerciseKey.IKey,
+): (share: number) => IAutoMovieMotionHumanExerciseKey.IKey {
+  const endpoints: IAutoMovieLoftSectionSource.IEndpoint[] = [];
   for (const bone of bones(a, b))
     endpoints.push({ bone, from: a.joints[bone] ?? [0, 0, 0], to: b.joints[bone] ?? [0, 0, 0] });
-  return (share: number): ExerciseKey.IKey => blend(a, b, share, endpoints);
+  return (share: number): IAutoMovieMotionHumanExerciseKey.IKey => blend(a, b, share, endpoints);
 }
 
 /**
@@ -42,7 +47,7 @@ export namespace prepareExerciseKeyBlend {
    * time before constructing the trunk scalars in their original order.
    * No input is retained and fixed or immutable endpoints are not required.
    */
-  export function raw(a: ExerciseKey.IKey, b: ExerciseKey.IKey, share: number): ExerciseKey.IKey {
+  export function raw(a: IAutoMovieMotionHumanExerciseKey.IKey, b: IAutoMovieMotionHumanExerciseKey.IKey, share: number): IAutoMovieMotionHumanExerciseKey.IKey {
     return blend(a, b, share);
   }
 }
@@ -55,7 +60,7 @@ interface IEndpoint {
 }
 
 /** Preserve first occurrence order from a's keys followed by b's keys. */
-function bones(a: ExerciseKey.IKey, b: ExerciseKey.IKey): Set<AutoMovieHumanoidBone> {
+function bones(a: IAutoMovieMotionHumanExerciseKey.IKey, b: IAutoMovieMotionHumanExerciseKey.IKey): Set<AutoMovieHumanoidBone> {
   return new Set([
     ...Object.keys(a.joints), ...Object.keys(b.joints),
   ] as AutoMovieHumanoidBone[]);
@@ -63,12 +68,12 @@ function bones(a: ExerciseKey.IKey, b: ExerciseKey.IKey): Set<AutoMovieHumanoidB
 
 /** Keep raw observations interleaved with each complete tuple's arithmetic. */
 function blend(
-  a: ExerciseKey.IKey,
-  b: ExerciseKey.IKey,
+  a: IAutoMovieMotionHumanExerciseKey.IKey,
+  b: IAutoMovieMotionHumanExerciseKey.IKey,
   share: number,
-  endpoints?: readonly IEndpoint[],
-): ExerciseKey.IKey {
-  const joints: AutoMovieMotionHumanJoints.Angles = {};
+  endpoints?: readonly IAutoMovieLoftSectionSource.IEndpoint[],
+): IAutoMovieMotionHumanExerciseKey.IKey {
+  const joints: IAutoMovieMotionHumanJoints.Angles = {};
   if (endpoints === undefined)
     for (const bone of bones(a, b)) {
       const from: readonly [number, number, number] = a.joints[bone] ?? [0, 0, 0];

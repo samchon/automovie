@@ -2,10 +2,10 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedJointAngles,
   Quaternion,
   decomposeJointRotationOnBasis,
   getConstraint,
+  jointToQuaternion,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
   skeletonJointAxes,
@@ -16,10 +16,12 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { readHumanBone } from "../body/readHumanBone";
 
 /** One bone's canonical axes and lazy admitted conversion/chart frames. */
@@ -31,19 +33,19 @@ interface IFrame {
   basis: IAutoMovieJointAxes;
 
   /** A lazy explicit swing-twist frame, used only when the raw entry exists. */
-  joint: swingTwistRange.IJoint;
+  joint: IAutoMovieJointRotationFrame;
 }
 
 /** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
 interface ILookup {
   /** First-match override/default resolution, without reading clinical axes. */
   constraint(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null;
 
   /** Canonical frame metadata, requested only after the hinge branch. */
-  frame(body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame;
+  frame(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame;
 }
 
 /** One unchanged endpoint pair's lazy numerical preparation, never a share result. */
@@ -55,14 +57,14 @@ interface IBetween {
 /** Stateless standalone dispatch preserves targeted lookup without a per-call full index. */
 const COLD: ILookup = {
   constraint: (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
     getConstraint(
       bone,
       readHumanBone(body, bone)?.constraint ?? null,
     ),
-  frame: (body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame =>
+  frame: (body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame =>
     frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),
 };
 
@@ -72,7 +74,7 @@ function frameOf(
   axes: IAutoMovieJointAxes | undefined,
 ): IFrame {
   let basis: IAutoMovieJointAxes | undefined;
-  let joint: swingTwistRange.IJoint | undefined;
+  let joint: IAutoMovieJointRotationFrame | undefined;
   return {
     axes,
     get basis(): IAutoMovieJointAxes {
@@ -82,7 +84,7 @@ function frameOf(
       );
       return basis;
     },
-    get joint(): swingTwistRange.IJoint {
+    get joint(): IAutoMovieJointRotationFrame {
       joint ??= swingTwistRange.prepare({
         axes: axes === undefined ? DEFAULT_JOINT_AXES : axes,
         frame: HUMANOID_REST_FRAME[bone],
@@ -151,7 +153,7 @@ function frameOf(
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Callers own fresh interior triples or borrow their original endpoint. Standalone locals end with the call; prepare owns O(B+D) metadata until operation release. Each between closure borrows body/bone/two tuples and owns at most one branch reader, one rig frame and either six hinge scalars, two private normalized quaternions/one arc record or two private chart records. The inverse retains only its existing weak metadata; fixed-pair state releases with the law plan and never retains a queried share, blended result, population, handle or task.
  */
 export function blendHumanJoint(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],
@@ -177,7 +179,7 @@ export namespace blendHumanJoint {
    * original numerical branch, and every later share returns a fresh reading.
    */
   export function between(
-    body: IHumanBody, bone: AutoMovieHumanoidBone,
+    body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
     to: readonly [number, number, number],
   ): (share: number) => readonly [number, number, number] {
@@ -207,7 +209,7 @@ export namespace blendHumanJoint {
    * @returns A joint blender whose endpoint tuples retain input identity.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): (
     bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
@@ -225,7 +227,7 @@ export namespace blendHumanJoint {
     const frames: Map<AutoMovieHumanoidBone, IFrame> = new Map();
     const lookup: ILookup = {
       constraint: (
-        current: IHumanBody,
+        current: IAutoMovieMotionHumanBody,
         name: AutoMovieHumanoidBone,
       ): IAutoMovieJointConstraint | null => {
         let constraint: IAutoMovieJointConstraint | null | undefined =
@@ -242,7 +244,7 @@ export namespace blendHumanJoint {
         }
         return constraint;
       },
-      frame: (current: IHumanBody, name: AutoMovieHumanoidBone): IFrame => {
+      frame: (current: IAutoMovieMotionHumanBody, name: AutoMovieHumanoidBone): IFrame => {
         let frame: IFrame | undefined = frames.get(name);
         if (frame === undefined) {
           axes ??= skeletonJointAxes(current.skeleton, HUMANOID_JOINT_AXES);
@@ -264,7 +266,7 @@ export namespace blendHumanJoint {
 
 /** One interpolation algorithm, with all original endpoint and hinge gates before frame admission. */
 function blend(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
   from: readonly [number, number, number],
   to: readonly [number, number, number],

@@ -1,6 +1,6 @@
 # Adoption
 
-Before adding a question, compare the request and adopted instructions with the existing contracts, because most needs already have an owner. Creative user choices stay with [instructions](../story/planning/requirements.md#requirements), operating choices with [project context](../production/project-context.md), and an uncovered work requirement goes through [discovery](../story/planning/discovery.md).
+Before adding a question, compare the request and adopted instructions with the existing contracts. Creative user choices stay with [instructions](../story/planning/requirements.md#requirements), operating choices with [project context](../production/project-context.md), and an uncovered work requirement goes through the story skill's discovery.
 
 A concern on a theme an existing item covers joins that item as a [statement](../contracts/SKILL.md#items-and-statements), unless prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule splits it, because every item costs every respondent an answer. A new item names one achievement, why its recipient needs it, its observable failure and the similar legitimate case it must leave alone, and puts its checkable detail into statements.
 

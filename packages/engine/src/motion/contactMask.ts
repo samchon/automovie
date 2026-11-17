@@ -1,6 +1,11 @@
-import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  type IAutoMovieContactMask,
+  type IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 /** Contact classification observes position only; full FK frames remain valid inputs. */
 type IPoint = IAutoMovieResolvedBone | Pick<IAutoMovieResolvedBone, "worldPosition">;
@@ -16,31 +21,9 @@ type IPoint = IAutoMovieResolvedBone | Pick<IAutoMovieResolvedBone, "worldPositi
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes already completed FK positions supplied by the caller, either in full frames or position-only views. No rotation is read or manufactured. Ground callbacks are evaluated at actual effector positions and are not memoized across possibly effectful samples.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one owned boolean per input frame and retains neither callback nor maps; callback/terrain resources remain caller-owned.
  */
-export const contactMask: (props: {
-  /** End-effector bone judged against the ground. */ effector: AutoMovieHumanoidBone;
-  /** Per-frame actual FK position lookups; complete bone frames are also accepted. */ resolved: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IPoint>
-  >;
-  /** Ground height at a plan position. */ groundAt: (
-    x: number,
-    z: number,
-  ) => number;
-  /** Contact tolerance above the ground counted as stance. */ tolerance: number;
-}) => boolean[] = (props: {
-  /** End-effector bone judged against the ground. */
-  effector: AutoMovieHumanoidBone;
-
-  /** Per-frame actual FK position lookups; complete bone frames are also accepted. */
-  resolved: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IPoint>
-  >;
-
-  /** Ground height at a plan position. */
-  groundAt: (x: number, z: number) => number;
-
-  /** Contact tolerance above the ground counted as stance. */
-  tolerance: number;
-}): boolean[] => {
+export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
+  props: IAutoMovieContactMask.IProps,
+): boolean[] => {
   if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   return props.resolved.map(

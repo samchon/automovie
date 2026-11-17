@@ -1,10 +1,10 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
-
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import { AutoMovieLoftChain, AutoMovieLoftJet } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodySurfaceNormals,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 /** The skin's normals: each vertex's station jet and the blend of the normals of rings shared between chains. */
 export namespace AutoMovieHumanBodySurfaceNormals {
@@ -36,7 +36,10 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   ): number[] {
     const out: number[] = [...mesh];
     const cosine: number = Math.cos((AGREE * Math.PI) / 180);
-    const cache: Map<number, Map<number, IStationJet>> = new Map();
+    const cache: Map<
+      number,
+      Map<number, IAutoMovieHumanBodySurfaceNormals.IStationJet>
+    > = new Map();
     for (let v: number = 0; 3 * v + 2 < coordinates.length; v++) {
       const index: number = coordinates[3 * v]!;
       const s: number = coordinates[3 * v + 1]!;
@@ -70,9 +73,12 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       }
       // By chain and station (numbers, so a station's two zeros share an
       // entry as their text did).
-      let stations: Map<number, IStationJet> | undefined = cache.get(index);
+      let stations:
+        | Map<number, IAutoMovieHumanBodySurfaceNormals.IStationJet>
+        | undefined = cache.get(index);
       if (stations === undefined) cache.set(index, (stations = new Map()));
-      let jet: IStationJet | undefined = stations.get(s);
+      let jet: IAutoMovieHumanBodySurfaceNormals.IStationJet | undefined =
+        stations.get(s);
       if (jet === undefined) {
         jet = stationJet(target, s);
         stations.set(s, jet);
@@ -241,34 +247,20 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   /** Largest angle between the surface and mesh normals still replaced, degrees. */
   export const AGREE: number = 30;
 
-  /** A chain's sections at a station and its two difference neighbours. */
-  export interface IStationJet {
-    /** Actual world value/phase tangent plan, independent of physical station2. */
-    here: ReturnType<typeof AutoMovieLoftChain.phaseSampler>;
-
-    /** The station STEP mm below, clamped into the chain. */
-    lo: IStationSample;
-
-    /** The station STEP mm above, clamped into the chain. */
-    hi: IStationSample;
-  }
-
-  /** Caller-owned actual world value plan of one station. */
-  export interface IStationSample {
-    /** Actual world point reader retained by this normal calculation. */
-    at: ReturnType<typeof AutoMovieLoftChain.sampler>;
-  }
-
   /** Sections at a station and STEP mm to either side, clamped into the chain. */
   export function stationJet(
     target: IAutoMovieLoftChain,
     s: number,
-  ): IStationJet {
+  ): IAutoMovieHumanBodySurfaceNormals.IStationJet {
     const bottom: number = target.layers[0]!.y;
     const top: number = target.layers[target.layers.length - 1]!.y;
-    const sample: (y: number) => IStationSample = (
+    const sample: (
       y: number,
-    ): IStationSample => ({ at: AutoMovieLoftChain.sampler(target, y) });
+    ) => IAutoMovieHumanBodySurfaceNormals.IStationSample = (
+      y: number,
+    ): IAutoMovieHumanBodySurfaceNormals.IStationSample => ({
+      at: AutoMovieLoftChain.sampler(target, y),
+    });
     return {
       here: AutoMovieLoftChain.phaseSampler(target, s),
       lo: sample(Math.max(bottom, s - STEP)),
@@ -279,9 +271,9 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   /** World point of a phase on a sampled station. */
   export function place(
     target: IAutoMovieLoftChain,
-    sample: IStationSample,
+    sample: IAutoMovieHumanBodySurfaceNormals.IStationSample,
     t: number,
-  ): [number, number, number] {
+  ): AutoMovieVector3Tuple {
     void target;
     return sample.at(t);
   }

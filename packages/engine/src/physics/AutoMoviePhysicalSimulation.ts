@@ -1,6 +1,9 @@
 import type {
   IAutoMovieContactReceipt,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import RAPIER, {
   type PhysicsHooks,
@@ -9,7 +12,6 @@ import RAPIER, {
 } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulationInput } from "./AutoMoviePhysicalSimulationInput";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
@@ -35,9 +37,15 @@ import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /**
  * Precompute fixed-step physics, then replay by time. Inputs are sampled bytes,
- * not callbacks hidden behind a cache key. One WASM World is freed on every
- * exit. A late edit reuses a checkpoint only after every earlier input matches;
+ * not callbacks hidden behind a cache key. The run frees its assigned WASM
+ * World and event queue on exit; restoration allocates before that transfer.
+ * A late edit reuses a checkpoint only after every earlier input matches;
  * changed geometry, solver settings or modes require a complete restart.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents sampled-input ownership, checkpoint reuse conditions and native-world release; public results retain replay data, recomputed-step counts and tracking diagnostics for the completed run.
+ * @evidence contracts/development/design.md#principled-representation Represents a completed fixed-step simulation over film seconds and SI physical inputs. The private constructor follows admission and execution; the run path validates and owns the input snapshot before allocating native state.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Engine owns simulation and checkpoint admission while interface owns input, diagnostic and replay contracts. Retained input and step counts support equivalence checks and incremental-run accounting.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Sampled body and profile data carry variation instead of scene-specific members. Public readonly fields prevent reassignment, not mutation of every nested record; callers must preserve the admitted snapshot when requesting checkpoint reuse.
  */
 export class AutoMoviePhysicalSimulation {
   /** Share the one asynchronous WASM initialization, including concurrent callers. */
@@ -45,29 +53,33 @@ export class AutoMoviePhysicalSimulation {
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
   private constructor(
     /** Owned sampled inputs establishing checkpoint equivalence. */
-    public readonly input: AutoMoviePhysicalSimulation.IInput,
+    public readonly input: IAutoMoviePhysicalSimulationInput.IInput,
     /** Complete replay state. */
-    public readonly cache: Cache,
+    public readonly cache: IAutoMoviePhysicsCache,
     /** Native fixed steps performed by this run. */
     public readonly recomputedSteps: number,
     /** Pre-solve PD demands exceeding the native enforced motor torque cap. */
-    public readonly tracking: AutoMoviePhysicalSimulation.IDiagnostic[],
+    public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
   ) {}
 
   /**
-   * Query every joint's authored-relative error and the last completed step's cap forecasts.
+   * Measure authored-relative joint errors at local film seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Query every joint's authored-relative error and the last completed step's cap forecasts.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Query every joint's authored-relative error and the last completed step's cap forecasts) directly over its typed inputs (`seconds`) as a fixed number of statements with no loop or recursion in the body, delegating to `samplePhysicalTracking`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 8 lines and 1 top-level statements that reuses `samplePhysicalTracking` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `seconds`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   * Errors are shortest relative-rotation distances in radians. Saturation
+   * lists are the last completed step's pre-solve torque-cap forecasts, not
+   * measured native motor impulses. Invalid time is rejected by cache.at.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes radian joint error from cap forecasts and records the cached-time failure boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation samplePhysicalTracking samples the cached pose and authored targets, compares joint-frame relative rotations and selects forecasts from floor(seconds*rate)/rate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates target interpolation, cached-pose sampling and quaternion operations to their existing owners; the simulation supplies its admitted inputs and retained diagnostics.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recovery may intentionally depart from authored goals; reported error is not hidden by replacing the authored reference, and forecasts are not relabeled as measured torque.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For s segments, j joints and d retained diagnostics, cache/target sampling and comparison take O(s+j+d) work plus copied saturation entries, with transient maps and an O(j) result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the completed cache and recorded forecasts without rerunning the solver. Dense arbitrary-time errors are computed on demand rather than retained for every film sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The simulation owns inputs/cache/forecast history; the query returns new diagnostic records and copies saturation lists, retaining no query result or native resource.
    */
   public trackingAt(
     seconds: number,
-  ): AutoMoviePhysicalSimulation.IDiagnostic[] {
+  ): IAutoMoviePhysicalSimulationInput.IDiagnostic[] {
     return samplePhysicalTracking(
       this.input,
       this.cache,
@@ -77,25 +89,32 @@ export class AutoMoviePhysicalSimulation {
   }
 
   /**
-   * Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest.
+   * Admit an owned snapshot and identify its complete sampled input.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest) directly over its typed inputs (`input`) as a fixed number of statements with no loop or recursion in the body, delegating to `physicalInputDigest`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 3 lines and 1 top-level statements that reuses `physicalInputDigest` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   * Clones the input, supplies the same defaults as compute and rejects invalid
+   * physical settings/targets before hashing. The digest includes cache policy
+   * and solver-version identity; this path initializes no native solver.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States defensive ownership, shared defaults/admission, digest scope and the solver-free boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation admitted clones, defaults, validates and freezes the physical input; physicalInputDigest canonicalizes all admitted data and hashes it with the protocol and pinned solver version.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Identity and compute call the same admitted boundary and digest owner, so omitted defaults do not create a different runtime interpretation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key derives from actual profiles, settings, impulses and sampled targets, not an edit timestamp or caller-asserted manifest.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Work includes cloning/freezing the input, full physical admission, target canonicalization/hashing and final metadata hashing; sizes of sampled targets, profiles and impulses drive cost. Canonicalization sorts object keys and admission may scan referenced populations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The digest owner hashes each identical target object once within the cloned graph using a call-local Map; distinct equal objects are still hashed separately. No digest is cached across independently mutable input arguments.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owned snapshot, canonical strings and target-digest Map live only for this synchronous call; only the digest string escapes, with no native solver allocation.
    */
-  public static identity(input: AutoMoviePhysicalSimulation.IInput): string {
+  public static identity(
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+  ): string {
     return physicalInputDigest(this.admitted(input));
   }
 
   /** All identity callers and actual runs use exactly the same owned defaults and admission. */
   private static admitted(
-    input: AutoMoviePhysicalSimulation.IInput,
-  ): AutoMoviePhysicalSimulation.IInput {
-    const owned: AutoMoviePhysicalSimulation.IInput = structuredClone(input);
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+  ): IAutoMoviePhysicalSimulationInput.IInput {
+    const owned: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
     if (owned.internalIterations === undefined) owned.internalIterations = 1;
     if (owned.contactTolerance === undefined) owned.contactTolerance = 0.0001;
@@ -115,24 +134,31 @@ export class AutoMoviePhysicalSimulation {
   }
 
   /**
-   * Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result.
+   * Compute or resume a complete film from an admitted input snapshot.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result) directly over its typed inputs (`input`, `previous`, `signal`, `progress`) as nested iteration of depth 5 (every over owned.bodies; for-of over Object.entries( previous!.cach; for-of over previous!.cache.controllerCheckpoints.ge), delegating to `signal?.throwIfAborted`, `physicalInputDigest`, `progress`, `Math.round`, `computePhysicalKinematicFrames`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 350 lines and 14 top-level statements that reuses `signal?.throwIfAborted`, `physicalInputDigest`, `progress`, `Math.round`, `computePhysicalKinematicFrames` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 35 non-null assertion(s); these are the remaining shortcuts and are not justified here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`, `previous`, `signal`, `progress`; the dominant cost is nested iteration of depth 5 (every over owned.bodies; for-of over Object.entries( previous!.cach; for-of over previous!.cache.controllerCheckpoints.ge), performed once per call with 31 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 5 calls per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   * An equal full identity returns previous unchanged. Otherwise a compatible
+   * unchanged prefix can resume from a native/controller/balance checkpoint;
+   * fully kinematic inputs generate frames without a native dynamics world.
+   * Progress reports completed intervals synchronously. Cancellation or an
+   * error rejects rather than returning a partial successful performance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents owned admission, exact-result reuse, compatible-prefix resumption, kinematic execution and progress/cancellation behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval policy and first-substep impulses, and records completed cache frames and causal contacts. Prefix equivalence is established from actual settings/targets/impulses before restoration.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission/digest, prefix selection/restoration, world binding, tracking/contact owners and replay storage have separate responsibilities; this method coordinates their fixed-step order and native cleanup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kinematic and exaggerated modes are explicit authored policy. Admitted body/segment/target populations and selected checkpoints justify internal lookups; valid previous results must retain their original input/checkpoint consistency. Missing geometry or exceeded floor bounds remain errors.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For r recomputed steps and u substeps, native solves and tracking/contact work dominate, with segment/shape and active-contact populations as dimensions. Each substep also scans all impulses, and prefix selection serializes prior samples while scanning impulses per candidate step; replay storage grows with total steps*segments plus checkpoint and contact data.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal complete identity returns the prior object; compatible prefixes reuse prior frames/receipts and restore copied native/controller/balance state. A static promise shares concurrent WASM initialization. Changed solver/profile/settings force restart; separate effectful compute calls are otherwise not merged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Restoration copies the causal prefix before allocating its World and transfers native ownership immediately on return; nested finally blocks then free the World and EventQueue on success, error or cancellation. Returned inputs, frames, receipts and checkpoint bytes remain caller-owned; step/segment admission bounds their populations but there is no total retained-byte budget. The initialization promise persists process-wide.
    */
   public static async compute(
-    input: AutoMoviePhysicalSimulation.IInput,
-    previous?: AutoMoviePhysicalSimulation,
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+    previous?: IAutoMoviePhysicalSimulation,
     signal?: AbortSignal,
     progress?: (completed: number, total: number) => void,
-  ): Promise<AutoMoviePhysicalSimulation> {
+  ): Promise<IAutoMoviePhysicalSimulation> {
     signal?.throwIfAborted();
-    const owned: AutoMoviePhysicalSimulation.IInput = this.admitted(input);
+    const owned: IAutoMoviePhysicalSimulationInput.IInput =
+      this.admitted(input);
     const identity: string = physicalInputDigest(owned);
     if (previous?.cache.identity === identity) {
       progress?.(
@@ -142,9 +168,13 @@ export class AutoMoviePhysicalSimulation {
       signal?.throwIfAborted();
       return previous;
     }
-    const cache: Cache = new Cache(identity, owned.rate, owned.duration);
+    const cache: IAutoMoviePhysicsCache = new Cache(
+      identity,
+      owned.rate,
+      owned.duration,
+    );
     const count: number = Math.round(owned.duration * owned.rate);
-    const diagnostics: AutoMoviePhysicalSimulation.IDiagnostic[] = [];
+    const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
 
     // A fully kinematic film constructs no dynamics world and takes no native steps.
     if (
@@ -206,10 +236,10 @@ export class AutoMoviePhysicalSimulation {
           bound.supportPlanned.set(id, structuredClone(planned));
       if (
         owned.bodies.some(
-          (body: AutoMoviePhysicalSimulation.IBody): boolean =>
+          (body: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
             !!body.selfAvoidance ||
             body.targets.some(
-              (target: AutoMoviePhysicalSimulation.ITarget): boolean =>
+              (target: IAutoMoviePhysicalSimulationInput.ITarget): boolean =>
                 !!target.bindings?.length ||
                 !!target.pointBounds?.length ||
                 target.dynamicSegments !== undefined,
@@ -230,7 +260,7 @@ export class AutoMoviePhysicalSimulation {
       );
       if (start > 0)
         for (const body of owned.bodies) {
-          const target: AutoMoviePhysicalSimulation.ITarget =
+          const target: IAutoMoviePhysicalSimulationInput.ITarget =
             samplePhysicalTrackingTarget(
               body,
               body.targets[start]!,
@@ -321,10 +351,11 @@ export class AutoMoviePhysicalSimulation {
           assertPhysicalReturnPath(owned, bound, tick, "before");
           for (const impulse of owned.impulses)
             if (impulse.step === step && substep === 1) {
-              const body: AutoMoviePhysicalSimulation.IBody = owned.bodies.find(
-                (candidate: (typeof owned.bodies)[number]): boolean =>
-                  candidate.id === impulse.body,
-              )!;
+              const body: IAutoMoviePhysicalSimulationInput.IBody =
+                owned.bodies.find(
+                  (candidate: (typeof owned.bodies)[number]): boolean =>
+                    candidate.id === impulse.body,
+                )!;
               bound.bodies
                 .get(`${impulse.body}/${impulse.bone}`)!
                 .applyImpulseAtPoint(
@@ -357,7 +388,7 @@ export class AutoMoviePhysicalSimulation {
                 `${body.id}/${segment.bone}`,
               )!;
               if (rigid.isSleeping()) continue;
-              const pose: P.ITransform = {
+              const pose: IAutoMovieRigidTransform = {
                 position: rigid.translation(),
                 rotation: rigid.rotation(),
               };
@@ -402,10 +433,11 @@ export class AutoMoviePhysicalSimulation {
             if (receipt.a.body === "floor" || receipt.b.body === "floor")
               continue;
             for (const side of [receipt.a, receipt.b]) {
-              const body: AutoMoviePhysicalSimulation.IBody = owned.bodies.find(
-                (candidate: (typeof owned.bodies)[number]): boolean =>
-                  candidate.id === side.body,
-              )!;
+              const body: IAutoMoviePhysicalSimulationInput.IBody =
+                owned.bodies.find(
+                  (candidate: (typeof owned.bodies)[number]): boolean =>
+                    candidate.id === side.body,
+                )!;
               softened.set(
                 `${side.body}/${side.bone}`,
                 instant + body.complianceSeconds,
@@ -480,47 +512,4 @@ export class AutoMoviePhysicalSimulation {
       }
     }
   }
-}
-
-/**
- * Public input and diagnostic aliases keep their established simulation owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Public input and diagnostic aliases keep their established simulation owner) and documents 4 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Public input and diagnostic aliases keep their established simulation owner: companion namespace of 4 members (`ITarget`, `IBody`, `IInput`, `IDiagnostic`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalSimulation` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 4 members listed and the text shows 76 other files naming it, mostly test (39), packages/engine (34), movies (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace AutoMoviePhysicalSimulation {
-  /**
-   * Sampled authored segment goals and tracking strengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Sampled authored segment goals and tracking strengths) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Sampled authored segment goals and tracking strengths: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ITarget` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 48 other files naming it, mostly packages/engine (18), packages/human (11), movies (10), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type ITarget = AutoMoviePhysicalSimulationInput.ITarget;
-  /**
-   * One provider body and its bounded controller policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One provider body and its bounded controller policy) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents One provider body and its bounded controller policy: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IBody` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 97 other files naming it, mostly packages/engine (42), test (42), packages/human (12), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IBody = AutoMoviePhysicalSimulationInput.IBody;
-  /**
-   * Complete finite simulation work and input description.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Complete finite simulation work and input description) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Complete finite simulation work and input description: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IInput = AutoMoviePhysicalSimulationInput.IInput;
-  /**
-   * Pre-solve actuator-cap forecast at a completed cached step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pre-solve actuator-cap forecast at a completed cached step) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Pre-solve actuator-cap forecast at a completed cached step: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IDiagnostic` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 79 other files naming it, mostly packages/human (53), packages/engine (15), test (11), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IDiagnostic = AutoMoviePhysicalSimulationInput.IDiagnostic;
 }

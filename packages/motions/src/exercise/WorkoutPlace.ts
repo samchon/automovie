@@ -1,17 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieMotionHumanWorkoutPlace,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
@@ -67,14 +67,8 @@ export namespace WorkoutPlace {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' pose and mean and the knockdown's floor rest; branch-local measurements are made once only when that branch consumes them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(props: {
-    context: Pick<IHumanActionContext, "body" | "entry">;
-    kind: WorkoutKind;
-    standing: IHumanPosture;
-    first: ExerciseKey.IKey;
-    borne: IAutoMovieVector3 | null;
-  }): IAutoMovieVector3 {
-    const context: Pick<IHumanActionContext, "body" | "entry"> = props.context;
+  export function of(props: IAutoMovieMotionHumanWorkoutPlace.IOfProps ): IAutoMovieVector3 {
+    const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> = props.context;
     const unhung = (): never => {
       throw new HumanRefusal({
         kind: "affordance",
@@ -84,13 +78,13 @@ export namespace WorkoutPlace {
         fix: 'name the bar it hangs from in on, { prop, affordance: "bar" }, as createPullUpBar declares it',
       });
     };
-    const body: IHumanBody = context.body;
-    const kind: WorkoutKind = props.kind;
-    const standing: IHumanPosture = props.standing;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const kind: IAutoMovieMotionHumanWorkoutKind = props.kind;
+    const standing: IAutoMovieMotionHumanPosture = props.standing;
     const borne: IAutoMovieVector3 | null = props.borne;
     const yaw: number = standing.yaw;
-    const based: IHumanPosture = ExerciseKey.posed(props.first, yaw);
-    const pelvis = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const based: IAutoMovieMotionHumanPosture = ExerciseKey.posed(props.first, yaw);
+    const pelvis = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         resolveHumanPosture.heading(posture),
         body.rest.get("hips")!,
@@ -105,7 +99,7 @@ export namespace WorkoutPlace {
     // where the keys' own joints would stand it.
     const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(
       kind.pin.map(
-        (pin: ExerciseKey.Pin): AutoMovieHumanoidBone =>
+        (pin: IAutoMovieMotionHumanExerciseKey.Pin): AutoMovieHumanoidBone =>
           pin === "gripLeft" || pin === "gripRight"
             ? body.surfaces.sockets[pin].bone
             : pin,
@@ -116,7 +110,7 @@ export namespace WorkoutPlace {
         poseBones(body, context.entry.pose, undefined, pins);
       return Vector3.scale(
         kind.pin.reduce(
-          (sum: IAutoMovieVector3, pin: ExerciseKey.Pin): IAutoMovieVector3 =>
+          (sum: IAutoMovieVector3, pin: IAutoMovieMotionHumanExerciseKey.Pin): IAutoMovieVector3 =>
             Vector3.add(sum, ExerciseKey.at(body, entered, pin)),
           { x: 0, y: 0, z: 0 },
         ),
@@ -134,7 +128,7 @@ export namespace WorkoutPlace {
       const keyed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, based), undefined, pins);
       const soles: boolean = kind.pin.every(
-        (bone: ExerciseKey.Pin): boolean =>
+        (bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
           bone !== "gripLeft" &&
           bone !== "gripRight" &&
           /(Foot|Toes)$/.test(bone) &&
@@ -146,7 +140,7 @@ export namespace WorkoutPlace {
       );
       return soles
         ? shown().y
-        : kind.pin.every((bone: ExerciseKey.Pin): boolean =>
+        : kind.pin.every((bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
               bone.endsWith("Hand"),
             )
           ? GymnasticsWheel.laid(body)
@@ -160,7 +154,7 @@ export namespace WorkoutPlace {
     // (0.51 m on the first run of the supported test).
     const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
     const lain = (): number => {
-      const flat: IHumanPosture = ExerciseKey.posed(
+      const flat: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
         ExerciseKey.from(body, { pitch: -90 }, {}),
         yaw,
       );

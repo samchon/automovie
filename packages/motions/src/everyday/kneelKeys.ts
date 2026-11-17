@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 
 /**
@@ -122,7 +126,7 @@ export namespace kneelKeys {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tucked(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     kneeAt: IAutoMovieVector3,
     yaw: number,
@@ -287,7 +291,7 @@ export namespace kneelKeys {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lean(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hips: Record<"left" | "right", IAutoMovieVector3>,
     ankles: Record<"left" | "right", IAutoMovieVector3>,
     forward: IAutoMovieVector3,
@@ -340,8 +344,8 @@ export namespace kneelKeys {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
-    body: IHumanBody,
-    standing: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
     kind: "one" | "both" | "sitBack",
     k: "left" | "right",
   ): IKeys {
@@ -352,14 +356,16 @@ export namespace kneelKeys {
     const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
 
     // Standing feet as toes' joints on the floor with their headings.
-    const flat = (side: "left" | "right"): HumanFoot.IPlacement => {
-      const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const flat = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
       };
     };
-    const standingFeet: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const standingFeet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: flat("left"),
       right: flat("right"),
     };

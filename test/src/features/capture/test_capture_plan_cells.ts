@@ -1,7 +1,9 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureSubject,
+} from "@automovie/interface";
 import {
-  type IAutoMovieCaptureCell,
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureSubject,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
 } from "@automovie/render";

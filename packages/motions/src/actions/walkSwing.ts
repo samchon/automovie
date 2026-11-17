@@ -1,9 +1,12 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkGait,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IWalkGait } from "./IWalkGait";
 import { walkFoot } from "./walkFoot";
 
 /**
@@ -25,24 +28,24 @@ import { walkFoot } from "./walkFoot";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/gait/callback references only. Current endpoints and their interpolation closure end on return/throw, and the returned foot retains no FK loan, endpoint reader, completed-fit entry or query history.
  */
 export function walkSwing(
-  body: IHumanBody,
-  gait: Pick<IWalkGait, "lift" | "stiff" | "swing">,
-  at: (side: "left" | "right", seconds: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
+  body: IAutoMovieMotionHumanBody,
+  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing">,
+  at: (side: "left" | "right", seconds: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
 ): (
   side: "left" | "right",
   swing: { off: number; on: number },
   share: number,
-  resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-) => walkFoot.IFoot {
+  resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+) => IAutoMovieMotionHumanWalkFoot.IFoot {
   return (
     side: "left" | "right",
     swing: { off: number; on: number },
     share: number,
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-  ): walkFoot.IFoot => {
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ): IAutoMovieMotionHumanWalkFoot.IFoot => {
     const from: walkFoot.IEnd = at(side, swing.off, resolution);
     const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
-    const read: (share: number) => walkFoot.IFoot = walkFoot.prepareSwing(body, side, {
+    const read: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
         Vector3.subtract(from.ankle, before.ankle),

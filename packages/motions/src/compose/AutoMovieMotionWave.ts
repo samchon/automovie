@@ -1,4 +1,5 @@
 import { minimumJerk } from "@automovie/engine";
+import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
@@ -22,7 +23,7 @@ export namespace AutoMovieMotionWave {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold and prepared entry points use the same exact signal owner; no sample value is shared across seconds.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A cold call retains no clock, input, output or handle.
    */
-  export function sample(clock: AutoMovieMotionClock.IClock, window: readonly [string, string],
+  export function sample(clock: IAutoMovieMotionClock, window: readonly [string, string],
     cycles: number, seconds: number): number {
     validate(cycles);
     const u: number = clock.linear(window[0], window[1], seconds);
@@ -45,7 +46,7 @@ export namespace AutoMovieMotionWave {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable count, half-width and copied names are shared. World progress and custom clock callback results are always evaluated normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned action reader retains one clock and three scalar/name constants until release, without a time/result history or external handle.
    */
-  export function prepare(clock: AutoMovieMotionClock.IClock, window: readonly [string, string],
+  export function prepare(clock: IAutoMovieMotionClock, window: readonly [string, string],
     cycles: number): (seconds: number) => number {
     validate(cycles);
     const from: string = window[0];

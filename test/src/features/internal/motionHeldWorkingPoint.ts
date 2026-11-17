@@ -1,16 +1,20 @@
 import { createClub, createRacket } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -38,8 +42,9 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; each film is dropped after its reading.
  */
 export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const body: IHumanBody = motionHumanBody(name);
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
   const arm: number = body.measure.upperArm + body.measure.forearm;
@@ -49,7 +54,7 @@ export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
   const bat: ReturnType<typeof createClub> = createClub({ kind: "bat" });
   const swings: readonly {
     label: string;
-    model: HumanObject.IModel;
+    model: IAutoMovieMotionHumanObject.IModel;
     row: string;
     tip: string;
     working: IAutoMovieVector3;
@@ -94,7 +99,7 @@ export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
       y: 0.62 * stature,
       z: shoulder.z + Math.sqrt(Math.max(0, reach * reach - drop * drop)),
     };
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "swing",
@@ -135,11 +140,13 @@ export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
       );
       continue;
     }
-    const act: HumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === swing.row)!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === swing.row,
+      )!;
     const at: number = act.start + (act.plan.contact ?? Number.NaN);
-    const frame: IHumanProp.IFrame = film.prop("tool", at);
+    const frame: IAutoMovieRigidTransform = film.prop("tool", at);
     const off: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

@@ -1,14 +1,12 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
+import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
@@ -100,8 +98,8 @@ export namespace HumanFitPairs {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned bounded pair list and retains no body or geometry globally.
    * @evidence contracts/development/common.md#meaningful-documentation Names the capsule policy, measure source, pair count, shared local records and ownership.
    */
-  export function of(body: IHumanBody): IPair[] {
-    const m: IHumanBody["measure"] = body.measure;
+  export function of(body: IAutoMovieMotionHumanBody): IPair[] {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const sides: readonly ["left", "right"] = ["left", "right"];
     const capsule: (
       bone: AutoMovieHumanoidBone,
@@ -216,7 +214,7 @@ export namespace HumanFitPairs {
         key: `pair:${pair.a.bone}:${pair.b.bone}`,
         index: step.index,
         coef: step.motions.map(
-          (motion: HumanJacobian.IMotion, i: number): number =>
+          (motion: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
             Vector3.dot(
               Vector3.subtract(
                 HumanJacobian.velocity(motion, pair.a.bone, g.a),

@@ -1,6 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 
 /**
@@ -15,11 +17,11 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The input vector is read without mutation; only appended scalar findings survive in the caller's collector.
  */
 export const validateSoftVector: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   value: IAutoMovieVector3,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   value: IAutoMovieVector3,
 ): void => {

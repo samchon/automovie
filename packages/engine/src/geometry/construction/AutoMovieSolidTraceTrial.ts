@@ -1,24 +1,10 @@
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceTrialTrial,
+} from "@automovie/interface";
+
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-
-/** One actual face chart and its admitted physical2, never an exterior extension. */
-interface Trial {
-  /** Actual atlas face used by this query. */
-  face: number;
-
-  /** Admitted first chart coordinate. */
-  u: number;
-
-  /** Admitted second chart coordinate. */
-  v: number;
-
-  /** Whether the atlas supplied a boundary-foot initialization in another chart. */
-  crossed: boolean;
-
-  /** Actual map derivatives at that admitted chart point. */
-  jet: IAutoMovieSolidSurface.IJet;
-}
 
 /**
  * Read a feasible Newton host trial, using declared atlas adjacency at a closed chart boundary.
@@ -42,7 +28,7 @@ export function AutoMovieSolidTraceTrial(
   u: number,
   v: number,
   canCross: boolean,
-): Trial | null {
+): IAutoMovieSolidTraceTrialTrial | null {
   const current: IAutoMovieSolidSurface | undefined = host.faces[face];
   if (current === undefined || !Number.isFinite(u) || !Number.isFinite(v))
     return null;

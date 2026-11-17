@@ -1,21 +1,21 @@
 import type {
+  IAutoMovieChainBone,
   IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieSolvePreparedChainPlantProps,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import type { prepareChainFit } from "./prepareChainFit";
 
 /** Two supplied articulations under one unchanged prepared parent frame. */
 interface IProps extends Pick<
-  ISolvePreparedChainPlantProps,
+  IAutoMovieSolvePreparedChainPlantProps,
   "prepared" | "jointAxes" | "restFrames"
 > {
   /** Root clinical articulation, with null axes at their declared rest. */
@@ -93,7 +93,7 @@ export namespace resolvePreparedChainLower {
    * Returns one fresh frame, retaining no inputs, cache, handles or tasks after return.
    */
   export function fromRotations(
-    prepared: IPreparedChainPlant,
+    prepared: IAutoMoviePreparedChainPlant,
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieChainBone {

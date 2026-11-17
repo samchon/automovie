@@ -2,6 +2,7 @@ import { ViolationCollector, validateJointRom } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieJointConstraint,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,7 +22,7 @@ const coneItems: (
 ) => IAutoMovieConstraintViolation[] = (
   axes: Parameters<typeof joint>[1],
 ): IAutoMovieConstraintViolation[] => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", axes),
     constraint: CONE,

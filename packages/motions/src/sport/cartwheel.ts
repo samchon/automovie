@@ -1,22 +1,24 @@
-import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCartwheel,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 
@@ -52,10 +54,10 @@ import { GymnasticsWheel } from "./GymnasticsWheel";
  */
 export namespace cartwheel {
   /** The action's name. */
-  export const name: HumanActionKey = "cartwheel";
+  export const name: AutoMovieMotionHumanActionKey = "cartwheel";
 
   /** Cancel table: from the end, into standing or walking. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
@@ -85,24 +87,8 @@ export namespace cartwheel {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function wheel(body: IHumanBody): ExerciseKey.IKey {
+  export function wheel(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(body, {}, { spread: 35, raise: 150, elbow: 3 });
-  }
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The side, the seconds and the manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The side is a closed union.
-   */
-  export interface IParams {
-    /** The side the body wheels to; `left` when absent. */
-    to?: "left" | "right";
-
-    /** Seconds the cartwheel takes; `SECONDS` when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** The joints a wheel may bear on. */
@@ -129,9 +115,9 @@ export namespace cartwheel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table and one fixed key-pair reader; queried shapes retain no history or FK reader.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCartwheel.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = HumanBound.above(
       "seconds",
       context.params.seconds ?? SECONDS,
@@ -139,7 +125,7 @@ export namespace cartwheel {
       "s",
     );
     const sign: number = context.params.to === "right" ? 1 : -1;
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
@@ -147,7 +133,7 @@ export namespace cartwheel {
       ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheel(body));
 
     // The body at an angle of the turn, its root at the origin.
-    const shaped: (angle: number) => IHumanPosture = (angle: number): IHumanPosture => ({
+    const shaped: (angle: number) => IAutoMovieMotionHumanPosture = (angle: number): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
         between(ease(Math.min(angle, 360 - angle) / SHAPE)),
         standing.yaw,
@@ -160,8 +146,8 @@ export namespace cartwheel {
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]));
     const laid: number = GymnasticsWheel.laid(body);
-    const spokes: GymnasticsWheel.ISpoke[] = SPOKES.map(
-      (bone: (typeof SPOKES)[number]): GymnasticsWheel.ISpoke => ({
+    const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = SPOKES.map(
+      (bone: (typeof SPOKES)[number]): IAutoMovieMotionHumanGymnasticsWheel.ISpoke => ({
         bones: [bone],
         height: bone.endsWith("Hand")
           ? laid
@@ -169,7 +155,7 @@ export namespace cartwheel {
         support: { kind: "ground" },
       }),
     );
-    const rolling: GymnasticsWheel.IWheel = GymnasticsWheel.roll({
+    const rolling: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
       body,
       shaped,
       spokes,
@@ -181,7 +167,7 @@ export namespace cartwheel {
     // The seconds at which the turn reaches an angle.
     const when: (angle: number) => number = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
-    const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
+    const contacts: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(
       rolling,
       spokes,
       (angle: number): number => when(angle) / duration,
@@ -189,7 +175,7 @@ export namespace cartwheel {
     const inverted: number = when(180);
     const first: (suffix: string, after: number) => number = (suffix: string, after: number): number =>
       contacts.find(
-        (window: IHumanContactWindow, index: number): boolean =>
+        (window: IAutoMovieMotionHumanContactWindow, index: number): boolean =>
           index >= after && window.part.endsWith(suffix),
       )?.from ?? 0.5;
     const events: IAutoMovieMotionEvent[] = [
@@ -199,7 +185,7 @@ export namespace cartwheel {
         name: "feetDown",
         share: first(
           "Foot",
-          contacts.findIndex((window: IHumanContactWindow): boolean =>
+          contacts.findIndex((window: IAutoMovieMotionHumanContactWindow): boolean =>
             window.part.endsWith("Hand"),
           ),
         ),
@@ -211,7 +197,7 @@ export namespace cartwheel {
       events,
       contacts,
       contact: inverted,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         if (seconds >= duration)
           return { ...shaped(0), root: rolling.rows.at(-1)!.root };
         const angle: number = 360 * ease(seconds / duration);

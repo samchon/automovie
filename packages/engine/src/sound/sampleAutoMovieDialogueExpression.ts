@@ -1,8 +1,8 @@
-import { IAutoMovieExpression } from "@automovie/interface";
-
-import { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
-import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
-import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
+import type {
+  IAutoMovieDialogueExpressionLayers,
+  IAutoMovieDialogueMouthRange,
+  IAutoMovieSampleDialogueExpression,
+} from "@automovie/interface";
 
 /**
  * Sample one joined emission-clock mouth range beside the unchanged authored expression.
@@ -15,18 +15,11 @@ import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTime
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared ranges are reused across independent frame queries, and no previous cursor or cached pose can alter a backward seek.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
  */
-export const sampleAutoMovieDialogueExpression: (props: {
-  timeline: IAutoMovieDialogueVisemeTimeline;
-  frame: number;
-  authored: IAutoMovieExpression | null;
-}) => IAutoMovieDialogueExpressionLayers = (props: {
-  /** Compiled actor mouth timeline. */
-  timeline: IAutoMovieDialogueVisemeTimeline;
-  /** Film-global frame to sample. */
-  frame: number;
-  /** Authored emotion/expression, retained unchanged. */
-  authored: IAutoMovieExpression | null;
-}): IAutoMovieDialogueExpressionLayers => {
+export const sampleAutoMovieDialogueExpression: (
+  props: IAutoMovieSampleDialogueExpression.IProps,
+) => IAutoMovieDialogueExpressionLayers = (
+  props: IAutoMovieSampleDialogueExpression.IProps,
+): IAutoMovieDialogueExpressionLayers => {
   if (!Number.isSafeInteger(props.frame) || props.frame < 0)
     throw new Error("dialogue expression frame must be a non-negative integer");
   const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined =

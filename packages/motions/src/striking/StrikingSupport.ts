@@ -1,12 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBlade,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { StrikingBlade } from "./StrikingBlade";
 import { StrikingHeld } from "./StrikingHeld";
 
 /**
@@ -40,13 +44,13 @@ export namespace StrikingSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function goal(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
-    support: StrikingBlade.ISupport,
-  ): IHumanPosture.IGoal {
-    const other: HumanHand.Side = tool.side === "left" ? "right" : "left";
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    support: IAutoMovieMotionHumanStrikingBlade.ISupport,
+  ): IAutoMovieHumanLimbGoal {
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(
       frame.rotation,
       tool.axis,
@@ -102,13 +106,13 @@ export namespace StrikingSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function posture(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
-    support: StrikingBlade.ISupport | null,
-  ): IHumanPosture {
-    const other: HumanHand.Side = tool.side === "left" ? "right" : "left";
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    support: IAutoMovieMotionHumanStrikingBlade.ISupport | null,
+  ): IAutoMovieMotionHumanPosture {
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     return support === null
       ? posture
       : {

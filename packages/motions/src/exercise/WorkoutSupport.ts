@@ -1,11 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanWorkoutSupport,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 
 /**
  * The support a prop gives a workout: a bench's top under a body that lies
@@ -43,8 +45,8 @@ export namespace WorkoutSupport {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the point returns; the local frame and affordance references are released with the delegated observation.
    */
   export function at(
-    context: Pick<IHumanActionContext, "prop" | "start">,
-    on: { prop: string; affordance: string; other?: string },
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
     return placed(context, on).point;
   }
@@ -68,17 +70,17 @@ export namespace WorkoutSupport {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned point/frame/affordance record survives under the caller's ownership; this owner stores no plan, prop reader, observation, current pose or time history.
    */
   export function placed(
-    context: Pick<IHumanActionContext, "prop" | "start">,
-    on: { prop: string; affordance: string; other?: string },
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): {
     point: IAutoMovieVector3;
-    frame: ReturnType<IHumanActionContext.IProp["frame"]>;
+    frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
     affordance: IAutoMovieAffordance;
   } {
-    const read: IHumanActionContext.IProp = context.prop(on.prop);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(on.prop);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const frame: ReturnType<IHumanActionContext.IProp["frame"]> = read.frame(
+    const frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]> = read.frame(
       context.start,
     );
     const find: (id: string) => IAutoMovieAffordance = (

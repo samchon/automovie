@@ -1,4 +1,4 @@
-import { IAutoMovieSoftAnchorPose } from "./IAutoMovieSoftAnchorPose";
+import type { IAutoMovieSoftAnchorPose } from "./IAutoMovieSoftAnchorPose";
 
 /**
  * Named static override of a panel's anchor targets.

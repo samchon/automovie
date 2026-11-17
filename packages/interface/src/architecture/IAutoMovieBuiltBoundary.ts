@@ -1,4 +1,4 @@
-import { IAutoMovieBoundaryFace } from "./IAutoMovieBoundaryFace";
+import type { IAutoMovieBoundaryFace } from "./IAutoMovieBoundaryFace";
 
 /**
  * A separation that encloses one logical space or divides two.

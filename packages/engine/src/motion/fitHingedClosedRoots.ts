@@ -1,23 +1,25 @@
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieHingedArmSwivel,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
+  IAutoMovieSwivelArcs,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
-import type { IAutoMovieSwivelNear } from "../kinematics/IAutoMovieSwivelNear";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { swivelArcs } from "../kinematics/swivelArcs";
 import { swivelJointReadings } from "../kinematics/swivelJointReadings";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import type { prepareChainPlant } from "./prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * Answer a hinged fit that asks an effector rotation from the swivels its
@@ -68,7 +70,7 @@ export function fitHingedClosedRoots(
     (axis: swivelJointReadings.Axis): boolean => constraint[axis] === null,
   );
   if (immobile.length !== 1) return null;
-  const found: hingedArmSwivel.IStop[] | null = props.geometry.branches();
+  const found: IAutoMovieHingedArmSwivel.IStop[] | null = props.geometry.branches();
   if (found === null) return null;
 
   const basis: IAutoMovieJointAxes = props.end.basis;
@@ -110,7 +112,7 @@ export function fitHingedClosedRoots(
         );
       },
     );
-    const entry = (i: number, j: number): swivelArcs.ISinusoid =>
+    const entry = (i: number, j: number): IAutoMovieSwivelArcs.ISinusoid =>
       swivelArcs.fitted(
         Vector3.dot(axes[i]!, Quaternion.rotateVector(sampled[0]!, axes[j]!)),
         Vector3.dot(axes[i]!, Quaternion.rotateVector(sampled[1]!, axes[j]!)),
@@ -123,15 +125,15 @@ export function fitHingedClosedRoots(
       Quaternion.DEG2RAD;
     // The reading of each clinical axis, as `swivelJointReadings.of` gives it.
     if (axis === (distal ? "flexion" : "abduction")) {
-      const sine: swivelArcs.ISinusoid = swivelArcs.scaled(
+      const sine: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.scaled(
         distal ? entry(1, 2) : entry(2, 0),
         -1,
       );
       return swivelArcs.roots({ ...sine, a: sine.a - Math.sin(neutral) });
     }
-    const y: swivelArcs.ISinusoid =
+    const y: IAutoMovieSwivelArcs.ISinusoid =
       axis === "twist" ? entry(1, 0) : distal ? entry(0, 2) : entry(2, 1);
-    const x: swivelArcs.ISinusoid =
+    const x: IAutoMovieSwivelArcs.ISinusoid =
       axis === "twist"
         ? distal
           ? entry(1, 1)
@@ -152,7 +154,7 @@ export function fitHingedClosedRoots(
   const candidates: ICandidate[] = [];
   const probe = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
-    stop: hingedArmSwivel.IStop,
+    stop: IAutoMovieHingedArmSwivel.IStop,
     branch: number,
     swivel: number,
   ): void => {
@@ -193,7 +195,7 @@ export function fitHingedClosedRoots(
   if (near !== undefined) {
     if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance)) return null;
     const branch: number = Math.min(near.branch, found.length - 1);
-    const stop: hingedArmSwivel.IStop = found[branch]!;
+    const stop: IAutoMovieHingedArmSwivel.IStop = found[branch]!;
     const posed: ReturnType<typeof hingedArmSwivel.pose> = props.geometry.pose(
       stop.theta,
     );
@@ -211,11 +213,11 @@ export function fitHingedClosedRoots(
   } else {
     let shortfall: number = Infinity;
     for (const stop of found) shortfall = Math.min(shortfall, stop.shortfall);
-    found.forEach((stop: hingedArmSwivel.IStop, branch: number): void => {
+    found.forEach((stop: IAutoMovieHingedArmSwivel.IStop, branch: number): void => {
       if (
         stop.shortfall !== shortfall ||
         found.findIndex(
-          (other: hingedArmSwivel.IStop): boolean => other.theta === stop.theta,
+          (other: IAutoMovieHingedArmSwivel.IStop): boolean => other.theta === stop.theta,
         ) !== branch
       )
         return;
@@ -339,7 +341,7 @@ interface ICandidate extends fitHingedClosedRoots.IScore {
   lower: IAutoMovieQuaternion;
   swivel: number;
   branch: number;
-  stop: hingedArmSwivel.IStop;
+  stop: IAutoMovieHingedArmSwivel.IStop;
   shown?: boolean;
 
   /** A lower bound of the exact score: the exact score itself once measured. */

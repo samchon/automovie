@@ -1,17 +1,17 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointRotationDomain,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieSolvePreparedChainPlantProps,
+  IAutoMovieSolvedChainPlant,
+  IAutoMovieTwoBoneArticulation,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
-import type { IAutoMovieTwoBoneArticulation } from "../kinematics/IAutoMovieTwoBoneArticulation";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
-import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import type { prepareChainFit } from "./prepareChainFit";
 
 /**
@@ -31,15 +31,15 @@ import type { prepareChainFit } from "./prepareChainFit";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned articulation records; preparation and input maps are borrowed and the helper retains no solver workspace or resource.
  */
 export const solvePreparedChainPlant: (
-  props: ISolvePreparedChainPlantProps,
+  props: IAutoMovieSolvePreparedChainPlantProps,
   rig?: prepareChainFit.IRig,
   target?: twoBoneChainArticulation.IPreparedTarget,
 ) => IAutoMovieSolvedChainPlant | null = (
-  props: ISolvePreparedChainPlantProps,
+  props: IAutoMovieSolvePreparedChainPlantProps,
   rig?: prepareChainFit.IRig,
   target?: twoBoneChainArticulation.IPreparedTarget,
 ): IAutoMovieSolvedChainPlant | null => {
-  const { chain, upper, lower }: IPreparedChainPlant = props.prepared;
+  const { chain, upper, lower }: IAutoMoviePreparedChainPlant = props.prepared;
 
   const articulation: IAutoMovieTwoBoneArticulation | null =
     target === undefined
@@ -80,7 +80,7 @@ export const solvePreparedChainPlant: (
 
 /** Keep each clinical decomposition at its original post-geometry site without a new closure per candidate. */
 function angles(
-  props: ISolvePreparedChainPlantProps,
+  props: IAutoMovieSolvePreparedChainPlantProps,
   rig: prepareChainFit.IRig | undefined,
   bone: AutoMovieHumanoidBone,
   rotation: IAutoMovieQuaternion,

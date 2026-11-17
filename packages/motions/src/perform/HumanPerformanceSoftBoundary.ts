@@ -1,23 +1,20 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSoftBodyBoundarySample,
-  type IAutoMovieSoftBodyResolvedCapsule,
-  Quaternion,
-  Vector3,
-  type resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieSoftAnchorBinding,
+  IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyResolvedCapsule,
   IAutoMovieSoftCollider,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * One step's boundary of a soft prop in a performance: every moving
@@ -43,7 +40,7 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sample and retains nothing.
  */
 export function HumanPerformanceSoftBoundary(
-  state: HumanPerformanceState,
+  state: IAutoMovieMotionHumanPerformanceState,
   domain: IAutoMovieSoftBodyDomain,
   grips: readonly HumanPerformanceSoftBoundary.IGripAnchor[],
   bones: HumanPerformanceSoftBoundary.BoneReader,
@@ -55,18 +52,29 @@ export function HumanPerformanceSoftBoundary(
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
     if (binding === undefined) continue;
-    if (binding.kind === "node" && binding.node.startsWith(HumanPerformanceSoftBoundary.GRIP)) {
-      const g: HumanPerformanceSoftBoundary.IGripAnchor | undefined = HumanPerformanceSoftBoundary.owner(grips, anchor.particle, seconds);
+    if (
+      binding.kind === "node" &&
+      binding.node.startsWith(HumanPerformanceSoftBoundary.GRIP)
+    ) {
+      const g: HumanPerformanceSoftBoundary.IGripAnchor | undefined =
+        HumanPerformanceSoftBoundary.owner(grips, anchor.particle, seconds);
       if (g === undefined) released.push(anchor.particle);
       else
         anchors.push({
           particle: anchor.particle,
-          position: HumanPerformanceSoftBoundary.gripSocket(state, bones, g.person, g.side, k, seconds),
+          position: HumanPerformanceSoftBoundary.gripSocket(
+            state,
+            bones,
+            g.person,
+            g.side,
+            k,
+            seconds,
+          ),
         });
       continue;
     }
     if (binding.kind === "node") {
-      const frame: IHumanProp.IFrame = HumanPerformanceRead.prop(
+      const frame: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
         state,
         binding.node,
         seconds,
@@ -154,8 +162,10 @@ export namespace HumanPerformanceSoftBoundary {
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /** A reader of displayed bones by person and step, each read once. */
-  export const memoBones: (state: HumanPerformanceState) => BoneReader = (
-    state: HumanPerformanceState,
+  export const memoBones: (
+    state: IAutoMovieMotionHumanPerformanceState,
+  ) => BoneReader = (
+    state: IAutoMovieMotionHumanPerformanceState,
   ): BoneReader => {
     const kept: Map<
       string,
@@ -199,22 +209,23 @@ export namespace HumanPerformanceSoftBoundary {
 
   /** A hand's grip socket in the world at a step. */
   export const gripSocket: (
-    state: HumanPerformanceState,
+    state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
     side: "left" | "right",
     k: number,
     seconds: number,
   ) => IAutoMovieVector3 = (
-    state: HumanPerformanceState,
+    state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
     side: "left" | "right",
     k: number,
     seconds: number,
   ): IAutoMovieVector3 => {
-    const socket: resolveAutoMovieHumanoidSurfaces.IFrame =
-      HumanPerformanceRead.person(state, person).performer.body.surfaces.sockets[
+    const socket: IAutoMovieHumanoidSurfaces.IFrame =
+      HumanPerformanceRead.person(state, person).performer.body.surfaces
+        .sockets[
         `grip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidSocket
       ];
     const hand: IAutoMovieResolvedBone = bones(person, k, seconds).get(

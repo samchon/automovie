@@ -1,7 +1,8 @@
-import { type IAutoMovieSampledChannel, sampleClip } from "@automovie/engine";
+import { sampleClip } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
+  type IAutoMovieSampledChannel,
   IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

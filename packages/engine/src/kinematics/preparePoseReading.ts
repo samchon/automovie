@@ -1,10 +1,10 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { composePoseFrames } from "./composePoseFrames";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 

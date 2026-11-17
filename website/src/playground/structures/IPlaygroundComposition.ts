@@ -1,4 +1,4 @@
-import type { HumanForce } from "@automovie/motions";
+import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
 
 /**
  * A composition as the playground holds it: plain data that the editor
@@ -29,7 +29,7 @@ export interface IPlaygroundComposition {
   objects?: IPlaygroundComposition.IObject[];
 
   /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
-  forces?: HumanForce.IImpulse[];
+  forces?: IAutoMovieMotionHumanImpulse[];
 }
 export namespace IPlaygroundComposition {
   /** One archetype placed on the floor. */
@@ -67,7 +67,7 @@ export namespace IPlaygroundComposition {
     /** The person and bone it is worn on at the start, such as a sword in its scabbard at the hip, until a hand draws it; resting where it is placed when absent. */
     worn?: IPlaygroundComposition.IWorn;
 
-    /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IHumanProp.fixed`); a free object when absent. */
+    /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
     fixed?: boolean;
   }
 
@@ -79,7 +79,7 @@ export namespace IPlaygroundComposition {
     w: number;
   }
 
-  /** Where an object is worn, as `IHumanProp.worn` takes it. */
+  /** Where an object is worn, as `IAutoMovieMotionHumanProp.worn` takes it. */
   export interface IWorn {
     /** The wearer's subject id. */
     subject: string;

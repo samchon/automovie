@@ -1,4 +1,8 @@
-import type { IAutoMovieJointAxes } from "@automovie/interface";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieSwingTwistBasis,
+} from "@automovie/interface";
 
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
@@ -11,24 +15,24 @@ const READ_BASIS: unique symbol = Symbol("prepared swing-twist basis");
 const READ_AXES: unique symbol = Symbol("prepared normalized joint axes");
 
 /** Weak provenance of wrappers actually completed by this module's constructor. */
-const PREPARED: WeakSet<swingTwistRange.IJoint> = new WeakSet();
+const PREPARED: WeakSet<IAutoMovieJointRotationFrame> = new WeakSet();
 
 /** An ordinary joint frame plus its operation-owned lazy axis and swing readers. */
-interface IPrepared extends swingTwistRange.IJoint {
+interface IPrepared extends IAutoMovieJointRotationFrame {
   /** Admit the unchanged axes on first use, retaining only successful preparation. */
   readonly [READ_BASIS]: (
-    receiver: swingTwistRange.IJoint,
-  ) => swingTwistBasis.IBasis;
+    receiver: IAutoMovieJointRotationFrame,
+  ) => IAutoMovieSwingTwistBasis.IBasis;
 
   /** Admit at the first actual caller's diagnostic path; ordinary receivers opt out. */
   readonly [READ_AXES]: (
-    receiver: swingTwistRange.IJoint,
+    receiver: IAutoMovieJointRotationFrame,
     path: string,
   ) => IAutoMovieJointAxes | undefined;
 }
 
 /** Exact constructor provenance, without probing any caller-owned property or prototype. */
-function prepared(joint: swingTwistRange.IJoint): joint is IPrepared {
+function prepared(joint: IAutoMovieJointRotationFrame): joint is IPrepared {
   return PREPARED.has(joint);
 }
 
@@ -58,10 +62,10 @@ export namespace SwingTwistFramePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares only the basis proven invariant by the caller's unchanged axes/frame scope; every incoming rotation and chart coordinate is still computed by its numerical owner.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One wrapper owns three closures, one admitted-axis record/swing basis at most and borrowed raw axes/frame. Only completed wrappers gain a weak membership entry, which retains no wrapper strongly; release frees preparation even after failure, with no strong operation registry, target/result history or handle.
    */
-  export function of(joint: swingTwistRange.IJoint): swingTwistRange.IJoint {
+  export function of(joint: IAutoMovieJointRotationFrame): IAutoMovieJointRotationFrame {
     const axes: IAutoMovieJointAxes = joint.axes;
     let normal: IAutoMovieJointAxes | undefined;
-    let basis: swingTwistBasis.IBasis | undefined;
+    let basis: IAutoMovieSwingTwistBasis.IBasis | undefined;
     const readAxes: (path: string) => IAutoMovieJointAxes = (
       path: string,
     ): IAutoMovieJointAxes => {
@@ -72,16 +76,16 @@ export namespace SwingTwistFramePreparation {
       axes,
       frame: joint.frame,
       [READ_AXES]: (
-        receiver: swingTwistRange.IJoint,
+        receiver: IAutoMovieJointRotationFrame,
         path: string,
       ): IAutoMovieJointAxes | undefined =>
         receiver === frame ? readAxes(path) : undefined,
       [READ_BASIS]: (
-        receiver: swingTwistRange.IJoint,
-      ): swingTwistBasis.IBasis => {
+        receiver: IAutoMovieJointRotationFrame,
+      ): IAutoMovieSwingTwistBasis.IBasis => {
         if (receiver !== frame) return swingTwistBasis.of(receiver.axes);
         if (basis === undefined) {
-          const admitted: swingTwistBasis.IBasis =
+          const admitted: IAutoMovieSwingTwistBasis.IBasis =
             swingTwistBasis.fromNormalized(readAxes("swingTwistRange axes"));
           Object.freeze(admitted.e2);
           basis = Object.freeze(admitted);
@@ -114,7 +118,7 @@ export namespace SwingTwistFramePreparation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the supplied wrapper owns its optional admitted-axis reference and releases it with the operation.
    */
   export function normalized(
-    joint: swingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
     path: string,
   ): IAutoMovieJointAxes | undefined {
     return prepared(joint) ? joint[READ_AXES](joint, path) : undefined;
@@ -135,7 +139,7 @@ export namespace SwingTwistFramePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads only explicitly operation-owned completed basis work; changes to ordinary frames still reach the original live normalizer.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This dispatcher retains nothing; a supplied prepared wrapper owns its optional normalized-axis and swing-basis metadata and the numerical caller owns returned computations.
    */
-  export function basis(joint: swingTwistRange.IJoint): swingTwistBasis.IBasis {
+  export function basis(joint: IAutoMovieJointRotationFrame): IAutoMovieSwingTwistBasis.IBasis {
     return prepared(joint)
       ? joint[READ_BASIS](joint)
       : swingTwistBasis.of(joint.axes);

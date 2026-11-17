@@ -1,5 +1,8 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
@@ -33,7 +36,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one triple and retains nothing.
  */
 export function HumanArmBranch(
-  setup: G.ISetup,
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
   shoulder: IAutoMovieQuaternion,
   read: readonly [number, number, number],
   near: readonly [number, number, number],

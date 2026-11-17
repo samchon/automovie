@@ -1,18 +1,18 @@
 ---
 name: audio
-description: Plans and finishes a generated film's sound, routes separate audio generation, makes requested voice previews, and builds commissioned soundtracks for the user to accept by ear. Use when planning, generating or finishing sound, choosing an audio model or cloning a voice.
+description: Plans, generates and finishes a film's sound.
 ---
 
 # Audio
 
-Audio work serves a generated film's sound, its finishing across takes, a voice preview and a commissioned soundtrack. Work within your [observation limits](../../../AGENTS.md#what-you-can-observe): measure what the decoded bytes show and have the user accept every sound by listening. Source changes follow [development](../development/SKILL.md).
+Audio work serves a generated film's sound, its finishing across takes, a voice preview and a commissioned soundtrack. Have the user accept every sound by listening, as [listening](acquisition.md#listening) sets. Source changes follow [development](../development/SKILL.md).
 
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Decide a shot's sound for its video request | [Generated sound](generated-sound.md) |
-| Finish a generated film's sound across its takes | [Film sound](film-sound.md) |
-| Choose a generator, write audio prompts or clone a voice | [Audio generation](diffusion/SKILL.md) |
-| Make a voice preview | [Voice preview](acquisition.md#voice-preview) |
-| Build a commissioned soundtrack | [Commissioned soundtrack](soundtrack.md) |
-| Find, license and adopt speech, music or recordings | [Acquisition](acquisition.md) |
-| Build and place effects and beds | [Sound effects](sound-effects.md) |
+| [Generated sound](generated-sound.md) | Decide a shot's sound for its video request |
+| [Film sound](film-sound.md) | Finish a generated film's sound across its takes |
+| [Audio generation](diffusion/SKILL.md) | Choose a generator, write audio prompts or clone a voice |
+| [Voice preview](acquisition.md#voice-preview) | Make a voice preview |
+| [Commissioned soundtrack](soundtrack.md) | Build a commissioned soundtrack |
+| [Acquisition](acquisition.md) | Find, license and adopt speech, music or recordings |
+| [Sound effects](sound-effects.md) | Build and place effects and beds |

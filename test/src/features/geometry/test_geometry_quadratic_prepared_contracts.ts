@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 import { HumanQuadraticProgram as Q } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +39,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit directly imports the solver. All models, bounds, maps and arrays belong to this test; it starts no native artifact, process, browser or renderer and installs no replacement function.
  */
 export function test_geometry_quadratic_prepared_contracts(): void {
-  const source: Q.IProblem = {
+  const source: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 2,
     band: 1,
     p: [Float64Array.of(2, 1), Float64Array.of(2)],
@@ -46,12 +47,12 @@ export function test_geometry_quadratic_prepared_contracts(): void {
     rows: [{ index: [0, 1], coef: [1, 1], l: -Infinity, u: Infinity }],
   };
   const prepared: ReturnType<typeof Q.prepare> = Q.prepare(source);
-  const states: Q.IState[] = [];
+  const states: IAutoMovieMotionHumanQuadraticProgram.IState[] = [];
   const saved: { x: number[]; z: number[]; y: number[] }[] = [];
 
   /** Check the original coupled equations and retain every returned array. */
-  function coupled(label: string, l: number, u: number, expected: number[]): Q.IState {
-    const state: Q.IState = prepared.solve([{ l, u }]);
+  function coupled(label: string, l: number, u: number, expected: number[]): IAutoMovieMotionHumanQuadraticProgram.IState {
+    const state: IAutoMovieMotionHumanQuadraticProgram.IState = prepared.solve([{ l, u }]);
     minimum(label, state, expected);
     const sum: number = state.x[0]! + state.x[1]!;
     TestValidator.predicate(`${label}: original-unit row and KKT`,
@@ -104,12 +105,12 @@ export function test_geometry_quadratic_prepared_contracts(): void {
     { l: 3, u: Infinity, weight: 2, key: "changed-key" },
   ], undefined, new Map([["changed-key", -7]])), [1]);
 
-  const warm: Q.IState = {
+  const warm: IAutoMovieMotionHumanQuadraticProgram.IState = {
     x: Float64Array.of(7),
     z: Float64Array.of(-3),
     y: Float64Array.of(0.25),
   };
-  const warmed: Q.IState = scalar.solve([{ l: 4, u: 4 }], warm);
+  const warmed: IAutoMovieMotionHumanQuadraticProgram.IState = scalar.solve([{ l: 4, u: 4 }], warm);
   minimum("manual warm equality", warmed, [4]);
   for (const [channel, expected] of [["x", 7], ["z", -3], ["y", 0.25]] as const)
     TestValidator.predicate(`prepared solve preserves warm ${channel}`,
@@ -127,7 +128,7 @@ export function test_geometry_quadratic_prepared_contracts(): void {
     warmed.x !== warmed.y && warmed.z !== warmed.y,
   );
 
-  const invalid: readonly (readonly Pick<Q.IRow, "l" | "u" | "weight" | "key">[])[] = [
+  const invalid: readonly (readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[])[] = [
     [],
     [{ l: 0, u: 1 }, { l: 0, u: 1 }],
     [{ l: 2, u: 1 }],
@@ -137,13 +138,13 @@ export function test_geometry_quadratic_prepared_contracts(): void {
   ];
   for (const bounds of invalid)
     TestValidator.predicate("malformed refreshed row refuses",
-      throwsError((): Q.IState => scalar.solve(bounds)),
+      throwsError((): IAutoMovieMotionHumanQuadraticProgram.IState => scalar.solve(bounds)),
     );
   minimum("failed solve leaves prepared model usable", scalar.solve([
     { l: 3, u: Infinity, weight: 2 },
   ]), [1]);
 
-  const objective: Q.IProblem = {
+  const objective: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 2, band: 1,
     p: [Float64Array.of(2, 1), Float64Array.of(4)],
     q: Float64Array.of(-3, 2),
@@ -157,7 +158,7 @@ export function test_geometry_quadratic_prepared_contracts(): void {
   const observed: { key: string | undefined; miss: number }[] = [];
 
   /** Observe each actual soft-row interval excess in the public objective. */
-  function observe(row: Q.IRow, miss: number): void { observed.push({ key: row.key, miss }); }
+  function observe(row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number): void { observed.push({ key: row.key, miss }); }
 
   TestValidator.predicate("admitted exact origin retains all soft penalties",
     nclose(Q.value(objective, undefined, observe), 10, 0),
@@ -177,14 +178,14 @@ export function test_geometry_quadratic_prepared_contracts(): void {
       nclose(row.miss, [0, 3, 0][i]!, 0)),
   );
 
-  const linear: Q.IProblem = {
+  const linear: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 1, band: 0, p: [Float64Array.of(10)], q: Float64Array.of(-1),
     rows: [{ index: [0], coef: [1], l: -Infinity, u: Infinity }],
   };
   const oldLinear: ReturnType<typeof Q.prepare> = Q.prepare(linear);
   minimum("initial scalar linear objective", Q.solve(linear), [0.1]);
   linear.q[0] = -2;
-  const currentLinear: Q.IState = Q.solve(linear);
+  const currentLinear: IAutoMovieMotionHumanQuadraticProgram.IState = Q.solve(linear);
   minimum("same matrices read the changed linear objective", currentLinear, [0.2]);
   TestValidator.predicate("new solve satisfies its actual current stationarity equation",
     nclose(10 * currentLinear.x[0]! - 2, 0, 1e-7),
@@ -195,13 +196,13 @@ export function test_geometry_quadratic_prepared_contracts(): void {
   linear.q[0] = -1;
   minimum("replaying the earlier linear objective solves it again", Q.solve(linear), [0.1]);
 
-  const repeated: Q.IProblem = {
+  const repeated: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 2, band: 1, p: [Float64Array.of(2, 1), Float64Array.of(2)], q: Float64Array.of(-4, -5),
     rows: [{ index: [1, 0, 1, 0], coef: [0.75, 0.25, 0.25, 0.75], l: 5, u: 5 }],
   };
   const repeatedModel: ReturnType<typeof Q.prepare> = Q.prepare(repeated);
   for (const [l, u, expected] of [[5, 5, [2, 3]], [1, 1, [0, 1]], [-Infinity, Infinity, [1, 2]]] as const) {
-    const result: Q.IState = repeatedModel.solve([{ l, u }]);
+    const result: IAutoMovieMotionHumanQuadraticProgram.IState = repeatedModel.solve([{ l, u }]);
     minimum("unsorted duplicate terms retain their original sum-row equation", result, expected);
     TestValidator.predicate("duplicate sparse rows retain the actual coupled stationarity equations",
       nclose(2 * result.x[0]! + result.x[1]! - 4 + result.y[0]!, 0, 1e-7) &&
@@ -216,7 +217,7 @@ export function test_geometry_quadratic_prepared_contracts(): void {
 }
 
 /** Keep the existing solver's componentwise tolerance and successful statuses. */
-function minimum(label: string, state: Q.IState, expected: readonly number[]): void {
+function minimum(label: string, state: IAutoMovieMotionHumanQuadraticProgram.IState, expected: readonly number[]): void {
   TestValidator.predicate(`${label}: solved independent optimum`,
     (state.status === "solved" || state.status === "polished") &&
     state.x.length === expected.length &&

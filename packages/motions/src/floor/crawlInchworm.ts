@@ -1,15 +1,21 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrawl,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanSupport } from "../law/HumanSupport";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import type { crawl } from "./crawl";
@@ -18,7 +24,6 @@ import { crawlFrame } from "./crawlFrame";
 import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
-import type { lieDown } from "./lieDown";
 
 /**
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds
@@ -96,13 +101,13 @@ export namespace crawlInchworm {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A dedicated stance-construction scope releases all FK/ROM/preference callbacks before support planning; only original numeric preferences, contact targets and step records leave it. Returned support keys/intervals retain no construction loan, callback or query history and forward original settlement.
    */
   export function plan(
-    context: IHumanActionContext<crawl.IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
     // The reaches are measured from a stance over the entry's feet, so an
@@ -111,10 +116,10 @@ export namespace crawlInchworm {
       context,
       "inchworm",
       "feet",
-      (): IHumanPosture =>
+      (): IAutoMovieMotionHumanPosture =>
         stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
     );
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };
@@ -145,10 +150,10 @@ export namespace crawlInchworm {
       stances,
       steps,
     }: {
-      stances: HumanSupport.IStance[];
+      stances: IAutoMovieMotionHumanSupport.IStance[];
       steps: { limb: Limb; n: number; at: number }[];
     } = ((): {
-      stances: HumanSupport.IStance[];
+      stances: IAutoMovieMotionHumanSupport.IStance[];
       steps: { limb: Limb; n: number; at: number }[];
     } => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -166,7 +171,7 @@ export namespace crawlInchworm {
       };
       // A bearing hand is placed by its wrist across the floor (`support`), so
       // its place is the wrist over its flat palm, under the shoulder.
-      const point = (limb: Limb): AutoMovieMotionTarget => {
+      const point = (limb: Limb): IAutoMovieMotionTarget => {
         const side: "left" | "right" = limb.startsWith("left")
           ? "left"
           : "right";
@@ -182,15 +187,15 @@ export namespace crawlInchworm {
           }),
         };
       };
-      const targets: Record<Limb, AutoMovieMotionTarget> = {
+      const targets: Record<Limb, IAutoMovieMotionTarget> = {
         leftHand: point("leftHand"),
         rightHand: point("rightHand"),
         leftFoot: point("leftFoot"),
         rightFoot: point("rightFoot"),
       };
-      const contacts = (only?: readonly Limb[]): HumanSupport.IContact[] =>
+      const contacts = (only?: readonly Limb[]): IAutoMovieMotionHumanSupport.IContact[] =>
         (only ?? LIMBS).map(
-          (limb: Limb): HumanSupport.IContact => ({
+          (limb: Limb): IAutoMovieMotionHumanSupport.IContact => ({
             part: limb,
             target: targets[limb],
             kind: "bear",
@@ -199,7 +204,7 @@ export namespace crawlInchworm {
 
       // Each walking stance is solved from, and kept nearest, the chain's shape
       // at its placement (`crawlInchwormPose`).
-      const prefer = (): lieDown.IPose =>
+      const prefer = (): IAutoMovieMotionHumanLieDown.IPose =>
         posed(
           { left: now.leftFoot, right: now.rightFoot },
           { left: now.leftHand, right: now.rightHand },
@@ -208,7 +213,7 @@ export namespace crawlInchworm {
         );
 
       // The stances: the fold, one per step, and standing on the feet.
-      const stances: HumanSupport.IStance[] = [
+      const stances: IAutoMovieMotionHumanSupport.IStance[] = [
         {
           contacts: contacts(),
           seconds: DOWN,
@@ -262,7 +267,7 @@ export namespace crawlInchworm {
 
     // The walk's events on the support plan's keys: a limb lifts as the
     // stance before its step is left and touches down as its step bears.
-    const planned: IHumanActionPlan = support.plan({
+    const planned: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances },
     });

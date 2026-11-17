@@ -1,7 +1,9 @@
-import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
-import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
-import { IAutoMovieSurfaceLayout } from "./IAutoMovieSurfaceLayout";
-import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
+import type {
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceLayout,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/interface";
 
 /**
  * Create the face layout of a network's cage.

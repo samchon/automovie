@@ -1,19 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 
 /**
@@ -31,131 +31,15 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
  */
 export namespace AutoMovieMotionHumanArmTarget {
   /**
-   * Where a hand surface goes and how the hand is held there, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its unit and its meaning when absent.
-   * @evidence contracts/development/design.md#principled-representation The surface, its point and the hand's rotation fix the wrist; the bend hint fixes the elbow's one remaining freedom; the shape and the curl fix the fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each read by `goal` or `move`; `curl` is optional because most shapes need none.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanHand.Surface` and `HumanHand.Shape` and the interface's vector and quaternion types.
-   */
-  export interface ITarget {
-    /** The surface brought to the point. */
-    surface: HumanHand.Surface;
 
-    /** The hand shape held at the target. */
-    shape: HumanHand.Shape;
 
-    /** Where the surface goes, world metres. */
-    point: IAutoMovieVector3;
+  
 
-    /** The hand's asked world rotation from its rest. */
-    rotation: IAutoMovieQuaternion;
+  
 
-    /** The elbow's bend hint, world metres. */
-    bend: IAutoMovieVector3;
+  
 
-    /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
-    curl?: number;
-  }
-
-  /**
-   * A target with the arm that takes it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record adds to a target.
-   * @evidence contracts/development/design.md#principled-representation A target is the same for either hand; which arm takes it is a separate fact, added by extension.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One added member; the one record every law that places hands by a list reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends `ITarget` instead of repeating its members.
-   */
-  export interface ISided extends ITarget {
-    /** The arm. */
-    side: HumanHand.Side;
-  }
-
-  /**
-   * A target as a frame of the action.
-   *
-   * @param posture The posture so far at this second.
-   * @param seconds Seconds since the action's start.
-   * @param resolution Optional same-body FK metadata borrowed only during this target invocation.
-   * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
-   * @returns The target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the current posture/local seconds and optional synchronous same-body FK/genuine ROM loans; target rows contain only the actual numeric hand placement.
-   * @evidence contracts/development/design.md#principled-representation A target that rides on something (the performer's trunk, a partner, a prop) is a function of the posture so far and the time, evaluated when the row is written.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by every arm primitive.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed target is the constant function, so there is no second form for it.
-   */
-  export type Frame = (posture: IHumanPosture, seconds: number,
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IHumanActionPlan["posture"]>[3]) => ITarget;
-
-  /**
-   * Where a hand is before or after its movement, in the performer's floor
-   * frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its axes and unit.
-   * @evidence contracts/development/design.md#principled-representation A hand that has not started or has finished belongs to the body, so its place is held relative to the root and the heading and travels with them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the surface's point and the hand's rotation; produced by `origin` and read by `move`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate type from `ITarget`, whose members are in the world frame, so the two frames cannot be mixed.
-   */
-  export interface IOrigin {
-    /** The surface's point; `x` left, `y` up, `z` forward of the root, metres. */
-    point: IAutoMovieVector3;
-
-    /** The hand's rotation from its rest, relative to the heading. */
-    rotation: IAutoMovieQuaternion;
-  }
-
-  /**
-   * One arm's movement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
-   * @evidence contracts/development/design.md#principled-representation The span the arm is written over, its two ends and the weight between them: a blend of two hand states on a time course.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight members, all read by `move`, the optional `curvature` among them (a straight path when absent); `reach`, `hold` and `retract` fill them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing, so any time course fits without a new member.
-   */
-  export interface IMove {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The arm. */
-    side: HumanHand.Side;
-
-    /** Seconds since the action's start from which the arm is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the arm is written. */
-    to: number;
-
-    /** Where the hand is at weight 0. */
-    origin: IOrigin;
-
-    /** Where the hand is at weight 1. */
-    target: Frame;
-
-    /**
-     * How far the hand is from its origin to its target.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by the function that writes the part; the builders from a clock fill it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader clamps the result to [0, 1] instead of trusting the member, so an implementation that overshoots cannot push the part past its ends.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-
-    /**
-     * How far the path between the origin and the target bows out to the
-     * arm's own side at its middle, a share of the path's length; 0 when
-     * absent, a straight path.
-     */
-    curvature?: number;
-  }
+  
 
   /**
    * Where a hand surface is on a pose, as an origin in a floor frame.
@@ -176,15 +60,15 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function origin(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-    frame: HumanFrame.IFrame,
-    side: HumanHand.Side,
-    surface: HumanHand.Surface,
-  ): IOrigin {
+    frame: IAutoMovieMotionHumanFrame,
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): IAutoMovieMotionHumanArmTarget.IOrigin {
     return {
       point: HumanFrame.local(
         frame,
@@ -213,8 +97,8 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function point(
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    from: IOrigin,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    from: IAutoMovieMotionHumanArmTarget.IOrigin,
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       { origin: posture.root, yaw: posture.yaw },
@@ -241,15 +125,15 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    target: Omit<ITarget, "curl">,
-    preparedFrom?: Omit<ITarget, "curl">,
-  ): IHumanPosture.IGoal {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "curl">,
+    preparedFrom?: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "curl">,
+  ): IAutoMovieHumanLimbGoal {
     const prepared: IPreparedSurface | undefined = TARGETS.get(preparedFrom ?? target);
     if (prepared !== undefined && prepared.body === body && prepared.side === side &&
       prepared.surface === target.surface && prepared.shape === target.shape) return prepared.read(target);
-    const wrist: HumanHand.IWrist = HumanHand.place(
+    const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
       body,
       side,
       target.surface,
@@ -282,8 +166,8 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold goal and prepared Placed.arm consume the same assembly; completed wrist/hint values are shared only within their one unchanged target computation, without a result cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the fresh goal borrows its point/rotation/bend and any emitted contact exactly as the cold goal does.
    */
-  export function fromWrist(wrist: HumanHand.IWrist, bend: IAutoMovieVector3,
-    contact: IAutoMovieVector3): IHumanPosture.IGoal {
+  export function fromWrist(wrist: IAutoMovieMotionHumanHand.IWrist, bend: IAutoMovieVector3,
+    contact: IAutoMovieVector3): IAutoMovieHumanLimbGoal {
     return assembled(wrist, bend, contact, !(Vector3.length(contact) < 1e-9));
   }
 
@@ -306,19 +190,19 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns constant-size private rotated-offset, quaternion, bend and optional contact scalars until release. No body, target input object, query history or external handle is retained after preparation.
    */
   export function prepareGoal(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    target: Omit<ITarget, "point" | "curl">,
-  ): (point: IAutoMovieVector3) => IHumanPosture.IGoal {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "point" | "curl">,
+  ): (point: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
     const contact: IAutoMovieVector3 = { ...HumanHand.offset(
       body, side, target.surface, target.shape,
     ).point };
-    const place: (point: IAutoMovieVector3) => HumanHand.IWrist =
+    const place: (point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist =
       placeHumanHandSurface.prepare(contact, target.rotation);
     const bend: IAutoMovieVector3 = { ...target.bend };
     const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
-    return (point: IAutoMovieVector3): IHumanPosture.IGoal => {
-      const wrist: HumanHand.IWrist = place(point);
+    return (point: IAutoMovieVector3): IAutoMovieHumanLimbGoal => {
+      const wrist: IAutoMovieMotionHumanHand.IWrist = place(point);
       return assembled(wrist, { ...bend }, hasContact ? { ...contact } : contact, hasContact);
     };
   }
@@ -334,12 +218,12 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body/side/surface/shape geometry is shared; changing that domain requires another reader. Fresh contact copies prevent a returned goal from changing later prepared placement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains one local numeric offset and contact decision until release, without a body, target record, pose, time result or reader history; each result keeps current point/rotation/bend ownership.
    */
-  export function prepareSurfaceGoal(body: IHumanBody, side: HumanHand.Side,
-    surface: HumanHand.Surface, shape: HumanHand.Shape):
-    (target: Pick<ITarget, "point" | "rotation" | "bend">) => IHumanPosture.IGoal {
+  export function prepareSurfaceGoal(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape):
+    (target: Pick<IAutoMovieMotionHumanArmTarget.ITarget, "point" | "rotation" | "bend">) => IAutoMovieHumanLimbGoal {
     const contact: IAutoMovieVector3 = { ...HumanHand.offset(body, side, surface, shape).point };
     const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
-    return (target: Pick<ITarget, "point" | "rotation" | "bend">): IHumanPosture.IGoal =>
+    return (target: Pick<IAutoMovieMotionHumanArmTarget.ITarget, "point" | "rotation" | "bend">): IAutoMovieHumanLimbGoal =>
       assembled(placeHumanHandSurface(contact, target.point, target.rotation), target.bend,
         hasContact ? { ...contact } : contact, hasContact);
   }
@@ -355,12 +239,12 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit fixed-body producer and exact body/side/surface/shape checks establish only local geometry equivalence. Changed domains or arbitrary target rows use ordinary goal, with no sampled pose/time cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer owns one geometry reader until release. Weak row entries retain only that shared static metadata while their raw rows live; returned goals retain no source row, body, reader or query history.
    */
-  export function prepareTarget(body: IHumanBody, side: HumanHand.Side,
-    surface: HumanHand.Surface, shape: HumanHand.Shape):
-    (placement: Omit<ITarget, "surface" | "shape">) => ITarget {
+  export function prepareTarget(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape):
+    (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">) => IAutoMovieMotionHumanArmTarget.ITarget {
     const prepared: IPreparedSurface = surfacePreparation(body, side, surface, shape);
-    return (placement: Omit<ITarget, "surface" | "shape">): ITarget => {
-      const target: ITarget = { surface, shape, ...placement };
+    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ITarget => {
+      const target: IAutoMovieMotionHumanArmTarget.ITarget = { surface, shape, ...placement };
       TARGETS.set(target, prepared);
       return target;
     };
@@ -377,12 +261,12 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the explicit unchanged body/side/surface/shape domain shares metadata. The actual gesture hand producer replaces its emitter when fixed surface/shape changes and passes each current world placement to the same goal consumer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The hand factory owns one shared surface reader until release. Weak row entries follow raw request lifetime and retain only that metadata; returned requests borrow current numeric payloads and retain no prior, pose, time result or query workspace.
    */
-  export function prepareSidedTarget(body: IHumanBody, side: HumanHand.Side,
-    surface: HumanHand.Surface, shape: HumanHand.Shape):
-    (placement: Omit<ITarget, "surface" | "shape">) => ISided {
+  export function prepareSidedTarget(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape):
+    (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">) => IAutoMovieMotionHumanArmTarget.ISided {
     const prepared: IPreparedSurface = surfacePreparation(body, side, surface, shape);
-    return (placement: Omit<ITarget, "surface" | "shape">): ISided => {
-      const target: ISided = { side, surface, shape, ...placement };
+    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ISided => {
+      const target: IAutoMovieMotionHumanArmTarget.ISided = { side, surface, shape, ...placement };
       TARGETS.set(target, prepared);
       return target;
     };
@@ -390,27 +274,27 @@ export namespace AutoMovieMotionHumanArmTarget {
 }
 
 /** Sided and unsided issuance share the same fixed local-geometry owner. */
-function surfacePreparation(body: IHumanBody, side: HumanHand.Side,
-  surface: HumanHand.Surface, shape: HumanHand.Shape): IPreparedSurface {
+function surfacePreparation(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape): IPreparedSurface {
   return { body, side, surface, shape,
     read: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, surface, shape) };
 }
 
 /** Genuine fixed local geometry, independent of any emitted row's world placement. */
 interface IPreparedSurface {
-  body: IHumanBody;
-  side: HumanHand.Side;
-  surface: HumanHand.Surface;
-  shape: HumanHand.Shape;
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  surface: IAutoMovieMotionHumanHand.Surface;
+  shape: IAutoMovieMotionHumanHand.Shape;
   read: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>;
 }
 
 /** Row lifetime controls issuance retention; no target row or query result is a value. */
-const TARGETS: WeakMap<AutoMovieMotionHumanArmTarget.ITarget, IPreparedSurface> = new WeakMap();
+const TARGETS: WeakMap<IAutoMovieMotionHumanArmTarget.ITarget, IPreparedSurface> = new WeakMap();
 
 /** The one goal field assembly; preparation may share the fixed contact decision. */
-function assembled(wrist: HumanHand.IWrist, bend: IAutoMovieVector3,
-  contact: IAutoMovieVector3, hasContact: boolean): IHumanPosture.IGoal {
+function assembled(wrist: IAutoMovieMotionHumanHand.IWrist, bend: IAutoMovieVector3,
+  contact: IAutoMovieVector3, hasContact: boolean): IAutoMovieHumanLimbGoal {
   return { point: wrist.point, rotation: wrist.rotation, bend,
     ...(hasContact ? { contact } : {}) };
 }

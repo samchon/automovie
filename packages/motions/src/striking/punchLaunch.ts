@@ -1,12 +1,13 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
@@ -39,12 +40,12 @@ import type { punchGeometry } from "./punchGeometry";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the shoulder and the six posed arm joints until it is released.
  */
 export function punchLaunch(
-  context: IHumanActionContext<punch.IParams>,
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
   timing: punchGeometry.ITiming,
 ): punchLaunch.ILaunch {
   const { side, lead, which }: punchGeometry.ITiming = timing;
-  const body: IHumanBody = context.body;
-  const entry: IHumanPosture = context.entry.posture;
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const turn: number =
     (lead === "left" ? 1 : -1) *
     punchContact.TURN[context.params.technique][which] *

@@ -1,8 +1,12 @@
-import { type IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import type { HumanGrasp } from "./HumanGrasp";
@@ -27,11 +31,11 @@ export namespace HumanGraspJudgement {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The genuine canonical body owns fixed surface prerequisites, while every changed demand and current hand is actually read. No borrowed posture, evaluated contact, metric or candidate answer is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder and its callbacks retain one lazy canonical grip reader plus each original demand and hand name until released. They retain no full pose map, FK workspace, query/time history, registry or external handle.
    */
-  export function tool(body: IHumanBody, side: HumanHand.Side):
-    (demand: Omit<IHumanActionLaw.IDemand, "posture">) => IJudge {
+  export function tool(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide):
+    (demand: Omit<IAutoMovieMotionHumanActionLaw.IDemand, "posture">) => IJudge {
     const name: AutoMovieHumanoidBone = `${side}Hand`;
     const point: ReturnType<typeof HumanHand.preparePoint> = HumanHand.preparePoint(body, side, "grip");
-    return (demand: Omit<IHumanActionLaw.IDemand, "posture">): IJudge =>
+    return (demand: Omit<IAutoMovieMotionHumanActionLaw.IDemand, "posture">): IJudge =>
       (bones: Bones): number => Math.max(demand.least ?? 0, StrikingHeld.strayed(demand.tool, {
         point: point(bones), rotation: bones.get(name)!.worldRotation,
       }, demand.frame, demand.back));
@@ -39,7 +43,7 @@ export namespace HumanGraspJudgement {
 }
 
 /** The original metre-valued grasp callback; it accepts the complete map. */
-type IJudge = NonNullable<HumanGrasp.IKey["judge"]>;
+type IJudge = NonNullable<IAutoMovieMotionHumanGrasp.IKey["judge"]>;
 
 /** Original canonical displayed frames passed to actual judges. */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

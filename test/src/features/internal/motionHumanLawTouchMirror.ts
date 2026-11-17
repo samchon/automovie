@@ -1,8 +1,13 @@
 import type {
-  AutoMovieMotionTarget,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditDifference,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionTarget,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference, type touch } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditDifference,
+  type touch,
+} from "@automovie/motions";
 
 import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -31,19 +36,19 @@ import { motionHumanLaw } from "./motionHumanLaw";
  */
 export function motionHumanLawTouchMirror(
   label: string,
-  params: touch.IParams,
+  params: IAutoMovieMotionHumanTouch.IParams,
   right: motionHumanLaw.IFilm | undefined,
-  perform: (row: touch.IParams, still: boolean) => motionHumanLaw.IFilm,
+  perform: (row: IAutoMovieMotionHumanTouch.IParams, still: boolean) => motionHumanLaw.IFilm,
 ): string[] {
   if (params.other !== undefined) return [];
-  const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
+  const flip = (target: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
     ({
       ...target,
       region: (target as { region: string }).region.replace(
         /Left|Right/,
         (found: string): string => (found === "Left" ? "Right" : "Left"),
       ),
-    }) as AutoMovieMotionTarget;
+    }) as IAutoMovieMotionTarget;
   const film: motionHumanLaw.IFilm = right ?? perform(params, true);
   const left: motionHumanLaw.IFilm = perform(
     {
@@ -53,7 +58,7 @@ export function motionHumanLawTouchMirror(
     },
     true,
   );
-  const mirrored: AutoMovieMotionHumanAuditDifference.IResult =
+  const mirrored: IAutoMovieMotionHumanAuditDifference.IResult =
     AutoMovieMotionHumanAuditDifference.measure(film, left, "a", {
       mirror: 0,
       rate: 4,

@@ -6,7 +6,7 @@ Statements: [statements/principles/screenplay.md](../statements/principles/scree
 
 ## Audiovisual realization
 
-Does the unit realize its established action, performance, staging, view, speech, silence and result through deliberate image, sound, attention, duration, juxtaposition and transitions, giving each moment the time its importance and pressure need, so the audience can follow and feel it? Transcribed directions, a shot inventory, commentary, decorative expansion or a mood label cannot establish this; a named technique leaves the next recipient to invent the performance; and dialogue density, cuts or a word count cannot prove pace.
+Does the unit realize its established events and performance through deliberate image, sound, attention, duration, juxtaposition and transitions, giving each moment the time its importance and pressure need, so the audience can follow and feel it? Transcribed directions, a shot inventory, commentary, decorative expansion or a mood label cannot establish this; a named technique leaves the next recipient to invent the performance; and dialogue density, cuts or a word count cannot prove pace.
 
 ## Beat decisions
 

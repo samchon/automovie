@@ -1,14 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
@@ -25,68 +24,6 @@ import { HumanJacobian } from "./HumanJacobian";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No changed joint ranges, proxy bone or action-specific result.
  */
 export namespace HumanFitGoals {
-  /**
-   * One point carried by a bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bone-local convention and default.
-   * @evidence contracts/development/design.md#principled-representation A bone and a local point are a rigidly carried landmark.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two fields the landmark reading uses.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The bone is the canonical closed vocabulary.
-   */
-  export interface IPoint {
-    /** The bone carrying the point. */
-    bone: AutoMovieHumanoidBone;
-    /** Metres in that bone's frame; its origin when absent. */
-    point?: IAutoMovieVector3;
-  }
-
-  /**
-   * The arithmetic mean of one or more bone-carried points: a joint or,
-   * for example, the midpoint of the two shoulders.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the averaging and the single-point case.
-   * @evidence contracts/development/design.md#principled-representation A nonempty tuple of rigid points defines one affine landmark.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by each of an angle's three landmarks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type excludes an empty mean; the runtime reading checks it too.
-   */
-  export type Landmark = readonly [IPoint, ...IPoint[]];
-
-  /**
-   * An unsigned included angle or closed angle interval, strictly between zero and 180 degrees.
-   * A solve needs a noncollinear starting configuration for its analytic
-   * derivative; collinear or coincident rays are reported explicitly.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the vertex, units, range and derivative's nondegeneracy premise.
-   * @evidence contracts/development/design.md#principled-representation Three ordered landmarks define the two rays about their middle landmark.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The landmarks, desired angle and optional existing l1 price.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual geometric angle is constrained, rather than a clinical joint angle assumed equivalent to it.
-   */
-  export interface IAngle {
-    /** First endpoint, vertex, second endpoint. */
-    points: readonly [Landmark, Landmark, Landmark];
-    /** Desired included angle or ordered inclusive bounds, degrees in (0, 180). */
-    degrees: number | readonly [number, number];
-    /** Price per milliradian missed; the fit's price when absent. */
-    price?: number;
-  }
-
-  /**
-   * A world position of the body's segmental centre of mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, units, axes and price.
-   * @evidence contracts/development/design.md#principled-representation A point and selected Cartesian axes constrain the physical mass centre.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the rows and merit both read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The centre is measured by HumanFitBalance's mass model, not assigned to a bone.
-   */
-  export interface ICentre {
-    /** Desired world metres, finite on every axis. */
-    point: IAutoMovieVector3;
-    /** Projection axes held: world axes or finite nonzero world directions, normalized by the reading; all three world axes when absent. */
-    axes?: readonly ("x" | "y" | "z" | IAutoMovieVector3)[];
-    /** Price per millimetre missed; the fit's price when absent. */
-    price?: number;
-  }
-
   /**
    * The additional quantities of one displayed-body reading.
    *
@@ -121,10 +58,10 @@ export namespace HumanFitGoals {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function read(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    angles: readonly IAngle[],
-    centre?: ICentre,
+    angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[],
+    centre?: IAutoMovieMotionHumanFitGoals.ICentre,
   ): IReading {
     if (
       centre !== undefined &&
@@ -132,7 +69,7 @@ export namespace HumanFitGoals {
     )
       throw new Error("A centre-of-mass goal needs finite world coordinates");
     return {
-      angles: angles.map((target: IAngle): number => angle(bones, target)),
+      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle): number => angle(bones, target)),
       ...(centre === undefined
         ? {}
         : { centre: HumanFitBalance.centre(body, bones) }),
@@ -157,7 +94,7 @@ export namespace HumanFitGoals {
    */
   export function angle(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    target: IAngle,
+    target: IAutoMovieMotionHumanFitGoals.IAngle,
   ): number {
     bounds(target);
     const [u, v]: [IAutoMovieVector3, IAutoMovieVector3] = rays(bones, target);
@@ -178,7 +115,7 @@ export namespace HumanFitGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Rows, merit and residuals share this convention.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bounds(target: IAngle): readonly [number, number] {
+  export function bounds(target: IAutoMovieMotionHumanFitGoals.IAngle): readonly [number, number] {
     const degrees: readonly [number, number] =
       typeof target.degrees === "number"
         ? [target.degrees, target.degrees]
@@ -209,8 +146,8 @@ export namespace HumanFitGoals {
    */
   export function slopes(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    motions: readonly HumanJacobian.IMotion[],
-    target: IAngle,
+    motions: readonly IAutoMovieMotionHumanJacobian.IMotion[],
+    target: IAutoMovieMotionHumanFitGoals.IAngle,
   ): number[] {
     const [u, v]: [IAutoMovieVector3, IAutoMovieVector3] = rays(bones, target);
     const cross: IAutoMovieVector3 = Vector3.cross(u, v);
@@ -231,7 +168,7 @@ export namespace HumanFitGoals {
     let atFirst: IAutoMovieVector3[] | undefined;
     let atVertex: IAutoMovieVector3[] | undefined;
     let atLast: IAutoMovieVector3[] | undefined;
-    return motions.map((motion: HumanJacobian.IMotion): number => {
+    return motions.map((motion: IAutoMovieMotionHumanJacobian.IMotion): number => {
       const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion, (atFirst ??= []));
       const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion, (atVertex ??= []));
       const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion, (atLast ??= []));
@@ -257,7 +194,7 @@ export namespace HumanFitGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows, merit and result use this same direction convention.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function directions(target: ICentre): IAutoMovieVector3[] {
+  export function directions(target: IAutoMovieMotionHumanFitGoals.ICentre): IAutoMovieVector3[] {
     return (target.axes ?? (["x", "y", "z"] as const)).map(
       (axis: "x" | "y" | "z" | IAutoMovieVector3): IAutoMovieVector3 => {
         if (typeof axis === "string") {
@@ -305,7 +242,7 @@ export namespace HumanFitGoals {
     mm: number,
     readColumns?: () => readonly IAutoMovieVector3[],
   ): void {
-    step.angles.forEach((target: IAngle, k: number): void => {
+    step.angles.forEach((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): void => {
       const [lo, hi]: readonly [number, number] = bounds(target);
       equal(
         `angle:${k}`,
@@ -319,7 +256,7 @@ export namespace HumanFitGoals {
       );
     });
     if (step.centre === undefined) return;
-    const target: ICentre = step.centre;
+    const target: IAutoMovieMotionHumanFitGoals.ICentre = step.centre;
     const columns: readonly IAutoMovieVector3[] =
       readColumns === undefined
         ? HumanFitBalance.velocities(step.body, step.at.bones, step.motions)
@@ -342,7 +279,7 @@ export namespace HumanFitGoals {
 /** World mean with the original ordered sums in one owned accumulator; no borrowed bone or point vector is changed. */
 function landmark(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  points: HumanFitGoals.Landmark,
+  points: IAutoMovieMotionHumanFitGoals.Landmark,
 ): IAutoMovieVector3 {
   if (points.length === 0)
     throw new Error("A landmark needs at least one point");
@@ -368,8 +305,8 @@ function landmark(
 /** Mean current rigid-point velocity, preparing each world point at its first original read for later unchanged-bone motions. */
 function velocity(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  points: HumanFitGoals.Landmark,
-  motion: HumanJacobian.IMotion,
+  points: IAutoMovieMotionHumanFitGoals.Landmark,
+  motion: IAutoMovieMotionHumanJacobian.IMotion,
   positions: IAutoMovieVector3[],
 ): IAutoMovieVector3 {
   const sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -388,7 +325,7 @@ function velocity(
 /** Endpoint-minus-vertex rays; a zero ray does not define an included angle. */
 function rays(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  target: HumanFitGoals.IAngle,
+  target: IAutoMovieMotionHumanFitGoals.IAngle,
 ): [IAutoMovieVector3, IAutoMovieVector3] {
   const vertex: IAutoMovieVector3 = landmark(bones, target.points[1]);
   const u: IAutoMovieVector3 = Vector3.subtract(

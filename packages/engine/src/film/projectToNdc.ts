@@ -1,12 +1,13 @@
 import {
   IAutoMovieDeliveryCrop,
+  type IAutoMovieDeliveryCropNdc,
+  type IAutoMovieProjectToNdc,
+  type IAutoMovieResolvedCamera,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
 /**
@@ -35,7 +36,7 @@ export function projectToNdc(
   halfY: number,
   aspect: number,
   crop?: IAutoMovieDeliveryCrop,
-): { ndcX: number; ndcY: number; depth: number } {
+): IAutoMovieProjectToNdc.IResult {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(camera.rotation),
     Vector3.subtract(point, camera.position),

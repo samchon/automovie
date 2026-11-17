@@ -15,6 +15,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { animalTerminalSole } from "../internal/animalTerminalSole";
+
 /**
  * The real dog factory and shared ride retain declared canine contact timing.
  *
@@ -27,6 +29,8 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Fore and hind lower control endpoints stay within 1 mm in world space
  *    during their own stance, including exact landing and its two sides.
  *    Hind endpoints move after .56 s, before .62 s.
+ *    Exact landing and planted-ground checks use the entire actual terminal
+ *    cylinder/capsule sole; the distal joint is not relabelled as its surface.
  * 4. At three off-grid times under translation/yaw, the moving lead contact
  *    remains at its actual rope centre. Unavailable gaits and speeds refuse.
  *
@@ -34,8 +38,8 @@ import { TestValidator } from "@nestia/e2e";
  * paw-skin contact, measured clearance or anatomical joint-range compliance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the source conditions, four scenarios, numerical units and remaining physical gaps.
- * @evidence contracts/development/testing.md#behavioral-verification Calls createQuadruped and rideQuadruped and reads actual posed part endpoints and published world contact frames.
- * @evidence contracts/development/testing.md#independent-expectations Light et al. 2010 Table 1 supplies seconds and Griffin et al. 2004 supplies the ipsilateral phase; no producer table supplies expectations. No-slip uses the existing 1 mm contract.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls createQuadruped and rideQuadruped and reads actual posed part endpoints, exact complete terminal primitive supports and published world contact frames. An elevated distal joint cannot hide a buried rim, and its necessary radius clearance is not misreported as a floating sole.
+ * @evidence contracts/development/testing.md#independent-expectations Light et al. 2010 Table 1 supplies seconds and Griffin et al. 2004 supplies the ipsilateral phase; no producer table supplies expectations. No-slip and whole-solid ground support retain the existing 1 mm contract. Cylinder support is abs(axisY)*height/2+radius*hypot(axisX,axisZ), capsule support abs(axisY)*height/2+radius, subtracted from the actual world centre.
  * @evidence contracts/development/testing.md#distinguishing-cases Three cohorts, distinct fore/hind lift times, rebased footfall order, nonzero placement, off-grid queries and unsupported requests.
  * @evidence contracts/development/testing.md#execution-ownership In-memory public consumers only; no host, viewer or wall-time assertion.
  */
@@ -144,7 +148,12 @@ export function test_archetype_ride_dog(): void {
       const landed: IAutoMovieVector3 = foot(ride, landing.seconds);
       const before: IAutoMovieVector3 = foot(ride, landing.seconds - 1e-6);
       const after: IAutoMovieVector3 = foot(ride, landing.seconds + 1e-6);
-      near(`${cohort} exact fore landing`, landed.y, 0, 1e-3);
+      near(
+        `${cohort} exact fore solid landing`,
+        sole(ride, landing.seconds),
+        0,
+        1e-3,
+      );
       near(
         `${cohort} fore landing from swing`,
         Vector3.length(Vector3.subtract(before, landed)),
@@ -162,7 +171,12 @@ export function test_archetype_ride_dog(): void {
       near(`${cohort} planted x`, late.x, early.x, 1e-3);
       near(`${cohort} planted y`, late.y, early.y, 1e-3);
       near(`${cohort} planted z`, late.z, early.z, 1e-3);
-      near(`${cohort} planted ground`, late.y, 0, 1e-3);
+      near(
+        `${cohort} planted solid ground`,
+        sole(ride, landing.seconds + 0.496),
+        0,
+        1e-3,
+      );
     }
     const phaseCases: readonly (readonly [
       `${QuadrupedBody.Limb}On`,
@@ -213,7 +227,12 @@ export function test_archetype_ride_dog(): void {
           landing.seconds + 1e-6,
           `${limb}Pastern`,
         );
-        near(`${cohort} ${limb} exact landing`, landed.y, 0, 1e-3);
+        near(
+          `${cohort} ${limb} exact solid landing`,
+          sole(ride, landing.seconds, `${limb}Pastern`),
+          0,
+          1e-3,
+        );
         near(
           `${cohort} ${limb} landing from swing`,
           Vector3.length(Vector3.subtract(before, landed)),
@@ -242,7 +261,12 @@ export function test_archetype_ride_dog(): void {
           0,
           1e-3,
         );
-        near(`${cohort} ${limb} ground`, late.y, 0, 1e-3);
+        near(
+          `${cohort} ${limb} whole solid ground`,
+          sole(ride, landing.seconds + 0.448, `${limb}Pastern`),
+          0,
+          1e-3,
+        );
         const released: IAutoMovieVector3 = foot(
           ride,
           landing.seconds + 0.59,
@@ -302,7 +326,7 @@ export function test_archetype_ride_dog(): void {
   }
   const species: createQuadruped.ISpecies = createQuadruped.species(dressed);
   const refusals: readonly (() => unknown)[] = [
-    (): unknown => QuadrupedGait.of(species, "trot"),
+    (): unknown => QuadrupedGait.of(species, "canter"),
     (): unknown => QuadrupedGait.timing(species, "walk", 1),
   ];
   for (const refuse of refusals) {
@@ -318,4 +342,18 @@ export function test_archetype_ride_dog(): void {
       );
   }
   TestValidator.equals("the actual dog ride and contact timing", findings, []);
+}
+
+/** The whole actual terminal surface must touch ground; its distal joint need not. */
+function sole<Id extends string, D extends string>(
+  ride: ArchetypeRide.IRide<Id, D>,
+  seconds: number,
+  bone: QuadrupedBody.Bone = "leftForePastern",
+): number {
+  const sample: ReturnType<typeof ride.at> = ride.at(seconds);
+  const part: IAutoMovieModelPart | undefined = sample.archetype.parts.find(
+    (candidate: IAutoMovieModelPart): boolean => candidate.id === bone,
+  );
+  if (part === undefined) throw new Error(`Missing actual terminal ${bone}`);
+  return animalTerminalSole(part, sample.placement);
 }

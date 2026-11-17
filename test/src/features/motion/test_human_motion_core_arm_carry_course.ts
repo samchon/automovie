@@ -1,14 +1,20 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
   HumanArmClearance,
   HumanChain,
-  type HumanColliders,
   HumanObject,
   HumanPerformance,
-  type IHumanBody,
-  type IHumanPosture,
   blendHumanJoint,
   poseBones,
   resolveHumanPosture,
@@ -50,9 +56,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_arm_carry_course(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stature: number = body.measure.stature;
-  const film: HumanPerformance = new HumanPerformance({
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "reach",
     performers: [
       {
@@ -77,9 +83,9 @@ export function test_human_motion_core_arm_carry_course(): void {
   });
 
   // The first posture of the film that carries a goal for the right arm.
-  let goal: IHumanPosture | undefined;
+  let goal: IAutoMovieMotionHumanPosture | undefined;
   for (let t: number = 0; t <= film.duration + 1e-9; t += 1 / 120) {
-    const posture: IHumanPosture = film.posture("a", t);
+    const posture: IAutoMovieMotionHumanPosture = film.posture("a", t);
     if (posture.limbs.rightArm === undefined) continue;
     goal = posture;
     break;
@@ -92,10 +98,8 @@ export function test_human_motion_core_arm_carry_course(): void {
     );
     return;
   }
-  const held: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
-    film.pose("a", 0),
-    "right",
-  );
+  const held: IAutoMovieMotionHumanArmAngles.IAngles =
+    AutoMovieMotionHumanArm.angles(film.pose("a", 0), "right");
   const hanging: IAutoMovieVector3 = film
     .bones("a", 0)
     .get("rightHand")!.worldPosition;
@@ -105,7 +109,7 @@ export function test_human_motion_core_arm_carry_course(): void {
     joints: string;
   }
   const read = (share: number): IReading => {
-    const posture: IHumanPosture = AutoMovieMotionHumanArm.carry(
+    const posture: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanArm.carry(
       body,
       goal,
       { right: held },
@@ -118,7 +122,7 @@ export function test_human_motion_core_arm_carry_course(): void {
       joints: `upper ${triple(posture.joints.rightUpperArm)} lower ${triple(posture.joints.rightLowerArm)}`,
     };
   };
-  const solved: AutoMovieMotionHumanArm.IAngles =
+  const solved: IAutoMovieMotionHumanArmAngles.IAngles =
     AutoMovieMotionHumanArm.angles(resolveHumanPosture(body, goal), "right");
   const triple = (
     angles: readonly [number, number, number] | undefined,
@@ -147,7 +151,7 @@ export function test_human_motion_core_arm_carry_course(): void {
   // upper arm let out by 0 to 15 degrees, against the share's allowance: what
   // the carry's clearing reads, so a failing row shows what it answered.
   const pose: IAutoMoviePose = resolveHumanPosture(body, goal);
-  const others: readonly HumanColliders.IPlaced[] =
+  const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
     goal.limbs.rightArm?.clear ?? [];
   const lacking = (share: number): string => {
     const upper: readonly [number, number, number] = blendHumanJoint(
@@ -157,7 +161,7 @@ export function test_human_motion_core_arm_carry_course(): void {
       solved.upper,
       share,
     );
-    const arm = (out: number): HumanArmClearance.IArm => ({
+    const arm = (out: number): IAutoMovieMotionHumanArmClearance.IArm => ({
       upper: [upper[0], upper[1] + out, upper[2]],
       lower: blendHumanJoint(
         body,

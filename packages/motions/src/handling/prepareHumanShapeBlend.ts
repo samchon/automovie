@@ -1,6 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * Prepare a fixed pair of clinical hand shapes for actual linear weights.
@@ -19,13 +20,13 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit prepared digit schedules require unchanged primitive endpoint values and isolate output edits through scalar coefficients. Raw public shape and aperture consumers instead use cold's live reads; no evaluated shape or weight is cached by either policy.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Explicit fixed owners retain D names/coefficients until release and drop source references after first preparation. cold releases its D-key union/tuple locals at return. Outputs are fresh and neither policy retains a body, FK workspace, sampled weight/result history or external handle.
  */
-export function prepareHumanShapeBlend(from: Readonly<IHumanPosture["joints"]>,
-  to: Readonly<IHumanPosture["joints"]>): (weight: number) => IHumanPosture["joints"] {
+export function prepareHumanShapeBlend(from: Readonly<IAutoMovieMotionHumanPosture["joints"]>,
+  to: Readonly<IAutoMovieMotionHumanPosture["joints"]>): (weight: number) => IAutoMovieMotionHumanPosture["joints"] {
   const names: string[] = [...new Set([...Object.keys(from), ...Object.keys(to)])];
-  let first: Readonly<IHumanPosture["joints"]> | undefined = from;
-  let second: Readonly<IHumanPosture["joints"]> | undefined = to;
+  let first: Readonly<IAutoMovieMotionHumanPosture["joints"]> | undefined = from;
+  let second: Readonly<IAutoMovieMotionHumanPosture["joints"]> | undefined = to;
   let keys: IKey[] | undefined;
-  return (weight: number): IHumanPosture["joints"] => {
+  return (weight: number): IAutoMovieMotionHumanPosture["joints"] => {
     if (keys === undefined) {
       keys = names.map((name: string): IKey => {
         const bone: AutoMovieHumanoidBone = name as AutoMovieHumanoidBone;
@@ -40,7 +41,7 @@ export function prepareHumanShapeBlend(from: Readonly<IHumanPosture["joints"]>,
       first = undefined;
       second = undefined;
     }
-    const out: IHumanPosture["joints"] = {};
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const { bone, origin, difference } of keys) out[bone] = [
       origin[0] + difference[0] * weight,
       origin[1] + difference[1] * weight,
@@ -73,9 +74,9 @@ const ZERO: readonly [0, 0, 0] = [0, 0, 0];
  */
 export namespace prepareHumanShapeBlend {
   /** Preserve the original ordered union, absent zeros and x+(y-x)*weight reads on each call. */
-  export function cold(from: Readonly<IHumanPosture["joints"]>, to: Readonly<IHumanPosture["joints"]>,
-    weight: number): IHumanPosture["joints"] {
-    const out: IHumanPosture["joints"] = {};
+  export function cold(from: Readonly<IAutoMovieMotionHumanPosture["joints"]>, to: Readonly<IAutoMovieMotionHumanPosture["joints"]>,
+    weight: number): IAutoMovieMotionHumanPosture["joints"] {
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of new Set([...Object.keys(from), ...Object.keys(to)]) as Set<AutoMovieHumanoidBone>) {
       const x: readonly [number, number, number] = from[bone] ?? ZERO;
       const y: readonly [number, number, number] = to[bone] ?? ZERO;

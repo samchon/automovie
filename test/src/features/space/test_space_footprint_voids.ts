@@ -1,5 +1,4 @@
 import {
-  IAutoMovieFootprint,
   autoMoviePlanarRegionFailure,
   footprintArea,
   footprintContains,
@@ -16,6 +15,7 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
   IAutoMovieSpace,
   IAutoMovieSurface,
   IAutoMovieVector3,

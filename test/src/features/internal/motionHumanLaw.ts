@@ -1,21 +1,22 @@
 import type {
-  AutoMovieComposition,
-  IAutoMovieResolvedBone,
-} from "@automovie/engine";
-import type {
   AutoMovieHumanoidBone,
+  IAutoMovieComposition,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAudit,
-  type HumanChain,
+  AutoMovieMotionHumanAuditMotion,
   HumanPerformance,
-  type IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanPerformer,
-  type IHumanProp,
 } from "@automovie/motions";
 
 import { motionHumanFrame } from "./motionHumanFrame";
@@ -62,9 +63,9 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only the owning performance to the existing duration/segments/bones reader.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Readers observe the public performance; this type provides no replacement producer or oracle pose.
    */
-  export interface IFilm extends IAutoMovieMotionHumanAuditMotion {
+  export interface IFilm extends IAutoMovieMotionHumanAuditMotionType {
     /** The performance itself. */
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
   }
 
   /**
@@ -89,18 +90,18 @@ export namespace motionHumanLaw {
     seed: string,
     performers: readonly {
       subject: string;
-      body: IHumanBody;
+      body: IAutoMovieMotionHumanBody;
       at?: IAutoMovieVector3;
       yaw?: number;
     }[],
-    composition: AutoMovieComposition | HumanChain,
-    props: readonly IHumanProp[] = [],
+    composition: IAutoMovieComposition | IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IFilm {
     return film(
       new HumanPerformance({
         seed,
         performers: performers.map(
-          (p: (typeof performers)[number]): IHumanPerformer => ({
+          (p: (typeof performers)[number]): IAutoMovieMotionHumanPerformer => ({
             subject: p.subject,
             body: p.body,
             at: p.at ?? { x: 0, y: 0, z: 0 },
@@ -130,7 +131,7 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the validated map for the same subject and numeric second within this film; consumers must keep the performance and returned maps unchanged while sharing them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the performance and F distinct frame maps, with O(F times B) bone references and no eviction; releasing the film reader releases this helper's memory.
    */
-  export function film(performance: HumanPerformance): IFilm {
+  export function film(performance: IAutoMovieMotionHumanPerformance): IFilm {
     if (!Number.isFinite(performance.duration) || performance.duration < 0)
       throw new Error(`invalid film duration ${performance.duration}`);
     const known: Map<string, Bones> = new Map();
@@ -139,7 +140,7 @@ export namespace motionHumanLaw {
       duration: performance.duration,
       segments: (
         subject: string,
-      ): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+      ): readonly IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
         performance.segments(subject),
       bones: (subject: string, seconds: number): Bones => {
         if (!Number.isFinite(seconds))
@@ -212,7 +213,7 @@ export namespace motionHumanLaw {
     bone: AutoMovieHumanoidBone,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+    const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
       0,
       film.duration,
       rate,
@@ -254,13 +255,13 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The report and formatting arrays are local to this call; only the returned summary array survives, with no added persistent frame cache.
    */
   export function audit(
-    film: IAutoMovieMotionHumanAuditMotion,
+    film: IAutoMovieMotionHumanAuditMotionType,
     label: string,
     subject: string,
-    body: IHumanBody,
-    options: AutoMovieMotionHumanAudit.IOptions = {},
+    body: IAutoMovieMotionHumanBody,
+    options: IAutoMovieMotionHumanAudit.IOptions = {},
   ): string[] {
-    const report: AutoMovieMotionHumanAudit.IReport =
+    const report: IAutoMovieMotionHumanAudit.IReport =
       AutoMovieMotionHumanAudit.run(film, subject, body, options);
     return report.findings.length === 0
       ? []
@@ -272,7 +273,7 @@ export namespace motionHumanLaw {
                   .slice(0, 4)
                   .map(
                     (
-                      p: AutoMovieMotionHumanAudit.IReport["pairs"][number],
+                      p: IAutoMovieMotionHumanAudit.IReport["pairs"][number],
                     ): string =>
                       `${p.a} in ${p.b} ${(p.depth * 1000).toFixed(1)} mm at ${p.seconds.toFixed(2)} s`,
                   )
@@ -327,10 +328,10 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The view closure and shifted span arrays live through this audit call; the caller retains the original film and its frame memory, and this wrapper retains only its returned complaints.
    */
   export function auditPart(
-    film: IAutoMovieMotionHumanAuditMotion,
+    film: IAutoMovieMotionHumanAuditMotionType,
     label: string,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     part: AuditPart,
   ): string[] {
     if (part === "tangle")
@@ -359,15 +360,15 @@ export namespace motionHumanLaw {
       film.duration,
       meet(sixth + 1) + (sixth < PARTS - 1 ? 2 / rate : 0),
     );
-    const view: IAutoMovieMotionHumanAuditMotion = {
+    const view: IAutoMovieMotionHumanAuditMotionType = {
       duration: to - from,
       bones: (who: string, seconds: number): Bones =>
         film.bones(who, from + seconds),
-      segments: (who: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+      segments: (who: string): IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
         film.segments(who).map(
           (
-            span: IAutoMovieMotionHumanAuditMotion.ISpan,
-          ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
+            span: IAutoMovieMotionHumanAuditMotionType.ISpan,
+          ): IAutoMovieMotionHumanAuditMotionType.ISpan => ({
             ...span,
             start: span.start - from,
             entryTime: span.entryTime - from,
@@ -402,10 +403,10 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned complaint list survives; frame memory stays with the caller's film.
    */
   export function auditParts(
-    film: IAutoMovieMotionHumanAuditMotion,
+    film: IAutoMovieMotionHumanAuditMotionType,
     label: string,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): string[] {
     return AUDIT_PARTS.flatMap((part: AuditPart): string[] =>
       auditPart(film, label, subject, body, part),

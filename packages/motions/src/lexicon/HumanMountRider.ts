@@ -1,26 +1,28 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMountRider,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 
@@ -69,12 +71,12 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis reader and trial placements end on return or throw. Only the original goal or a fresh final goal/rotation/point returns, retaining no reader, query history or prepared angle answer.
    */
   export function ankled(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    goal: IHumanPosture.IGoal,
+    goal: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const reach: number =
       (body.measure.thigh + body.measure.shank) *
       Math.cos((KNEE * Math.PI) / 360);
@@ -112,9 +114,9 @@ export namespace HumanMountRider {
         ),
       };
     };
-    const turnedBy: (degrees: number) => IHumanPosture.IGoal = (
+    const turnedBy: (degrees: number) => IAutoMovieHumanLimbGoal = (
       degrees: number,
-    ): IHumanPosture.IGoal => ({ ...goal, contact, ...placement(degrees) });
+    ): IAutoMovieHumanLimbGoal => ({ ...goal, contact, ...placement(degrees) });
     const far: (degrees: number) => number = (degrees: number): number =>
       Vector3.length(Vector3.subtract(placement(degrees).point, hip));
     if (far(0) <= reach) return goal;
@@ -169,21 +171,15 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed FK/ROM loans end on return or throw and are never stored in goals or plans. Two immutable side-only relaxed shapes are bounded module data; current maps and targets do not persist.
    */
   export function hold(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    posture: IHumanPosture,
-    grip: {
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-      axis?: IAutoMovieVector3;
-      radius?: number;
-      across?: 1 | -1;
-    },
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
-    closed: IHumanPosture["joints"],
+    closed: IAutoMovieMotionHumanPosture["joints"],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): { arm: IHumanPosture.IGoal; fingers: IHumanPosture["joints"] } {
+  ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(posture),
@@ -218,7 +214,7 @@ export namespace HumanMountRider {
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       delete limbs.leftArm;
       delete limbs.rightArm;
       const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -240,12 +236,12 @@ export namespace HumanMountRider {
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
-    let relaxed: IHumanPosture["joints"] | undefined = RELAXED[side];
+    let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined = RELAXED[side];
     if (relaxed === undefined) {
       relaxed = HumanHand.shape(side, "relaxed");
       RELAXED[side] = relaxed;
     }
-    const closing: IHumanPosture["joints"] = {};
+    const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
       const from: readonly [number, number, number] = relaxed[bone] ?? [
         0, 0, 0,
@@ -297,19 +293,19 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    posture: IHumanPosture,
-    grip: Parameters<typeof hold>[3],
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[],
-    frame: IHumanProp.IFrame,
-  ): IHumanPosture["joints"] {
-    const arm: IHumanPosture.IGoal = hold(body, side, posture, grip, 1, {}).arm;
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    shapes: readonly IAutoMoviePhysicalShape[],
+    frame: IAutoMovieRigidTransform,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const arm: IAutoMovieHumanLimbGoal = hold(body, side, posture, grip, 1, {}).arm;
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
-    const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
+    const near = (shape: IAutoMoviePhysicalShape): number =>
       physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
-    let handle: IAutoMoviePhysicalProfile.IShape | undefined;
+    let handle: IAutoMoviePhysicalShape | undefined;
     let distance: number = Infinity;
     for (const shape of shapes) {
       const candidate: number = near(shape);
@@ -345,9 +341,9 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leant(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     degrees: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];
@@ -379,8 +375,8 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
   ): number {
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
@@ -393,4 +389,4 @@ export namespace HumanMountRider {
 }
 
 /** At most two lazily acquired canonical finger maps; hold emits fresh tuples from their numbers. */
-const RELAXED: Partial<Record<"left" | "right", IHumanPosture["joints"]>> = {};
+const RELAXED: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {};

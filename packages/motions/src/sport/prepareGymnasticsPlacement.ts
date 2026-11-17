@@ -1,15 +1,20 @@
 import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { GymnasticsFlight } from "./GymnasticsFlight";
 
 /** The root orientation that changes while the prepared articulation stays fixed. */
-type Heading = Pick<IHumanPosture, "yaw" | "pitch" | "roll">;
+type Heading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
 
 /**
  * Prepare placement of one fixed gymnastic articulation by its centre of mass.
@@ -31,18 +36,18 @@ type Heading = Pick<IHumanPosture, "yaw" | "pitch" | "roll">;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its existing copied clinical coefficients plus the explicit capture's immutable O(J) snapshot, a bounded mass-name set and one current actual canonical/COM/checker prefix. Invalidation replaces that prefix without a linked history; unsupported proof retains ordinary per-query preparation. Per-query postures/capabilities retain no FK reader, and every root/table/tuple/limb record is fresh without external handles.
  */
 export function prepareGymnasticsPlacement(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   model: GymnasticsFlight.Model,
-  posture: IHumanPosture,
-): (heading: Heading, centre: IAutoMovieVector3) => IHumanPosture {
+  posture: IAutoMovieMotionHumanPosture,
+): (heading: Heading, centre: IAutoMovieVector3) => IAutoMovieMotionHumanPosture {
   if (
-    Object.values(posture.limbs).some((goal: IHumanPosture.IGoal | undefined): boolean => goal !== undefined) ||
-    Object.values(posture.digits ?? {}).some((goal: IHumanPosture.IDigitGoal | undefined): boolean => goal !== undefined) ||
+    Object.values(posture.limbs).some((goal: IAutoMovieHumanLimbGoal | undefined): boolean => goal !== undefined) ||
+    Object.values(posture.digits ?? {}).some((goal: IAutoMovieHumanDigitGoal | undefined): boolean => goal !== undefined) ||
     posture.rotation !== undefined
   )
     throw new Error("Fixed gymnastic placement requires joint-only articulation");
 
-  const joints: IHumanPosture["joints"] = copyJoints(posture.joints);
+  const joints: IAutoMovieMotionHumanPosture["joints"] = copyJoints(posture.joints);
   const source: ReturnType<typeof createHumanPostureCurve> = createHumanPostureCurve({
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
@@ -70,7 +75,7 @@ export function prepareGymnasticsPlacement(
     };
   };
   let fixed: IPlacement = prepare();
-  return (heading: Heading, centre: IAutoMovieVector3): IHumanPosture => {
+  return (heading: Heading, centre: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
     const rotation: ReturnType<typeof resolveHumanPosture.heading> = resolveHumanPosture.heading(heading);
     if (fixed.rig !== body.poseResolution || fixed.topology !== body.topology ||
       fixed.unchanged?.() !== true) fixed = prepare();
@@ -91,18 +96,18 @@ interface IPlacement {
   local: IAutoMovieVector3;
 
   /** The genuine immutable FK owner used for that actual canonical mass observation. */
-  rig: IHumanBody["poseResolution"];
+  rig: IAutoMovieMotionHumanBody["poseResolution"];
 
   /** The actual topology context of the same canonical preparation. */
-  topology: IHumanBody["topology"];
+  topology: IAutoMovieMotionHumanBody["topology"];
 
   /** Genuine current rig/ROM proof; absence requires ordinary preparation at every query. */
   unchanged: (() => boolean) | undefined;
 }
 
 /** Copy the authored tuples so neither the input nor a returned posture owns retained shape data. */
-function copyJoints(source: IHumanPosture["joints"]): IHumanPosture["joints"] {
-  const joints: IHumanPosture["joints"] = {};
+function copyJoints(source: IAutoMovieMotionHumanPosture["joints"]): IAutoMovieMotionHumanPosture["joints"] {
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const bone of Object.keys(source) as AutoMovieHumanoidBone[]) {
     const value: readonly [number, number, number] | undefined = source[bone];
     if (value !== undefined) joints[bone] = [value[0], value[1], value[2]];

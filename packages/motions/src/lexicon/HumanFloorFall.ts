@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { dive } from "../floor/dive";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -12,24 +17,25 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanFloorFall {
   /** A goalkeeper's dive to the left: off the feet to the side, landing on the side with the hip and the lower hand on the floor. */
-  export const goalkeeperDiveLeft = HumanActionRow.of(
-    "goalkeeperDiveLeft",
-    dive,
-    {
-      kind: "dive",
-      side: "left",
-    },
-  );
+  export const goalkeeperDiveLeft: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveLeft"]
+  > = HumanActionRow.of("goalkeeperDiveLeft", dive, {
+    kind: "dive",
+    side: "left",
+  });
 
   /** A goalkeeper's dive to the right. */
-  export const goalkeeperDiveRight = HumanActionRow.of(
-    "goalkeeperDiveRight",
-    dive,
-    { kind: "dive", side: "right" },
-  );
+  export const goalkeeperDiveRight: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveRight"]
+  > = HumanActionRow.of("goalkeeperDiveRight", dive, {
+    kind: "dive",
+    side: "right",
+  });
 
   /** A sliding tackle: leaning back onto the hip and sliding forward with the lead leg reaching ahead. */
-  export const slidingTackle = HumanActionRow.of("slidingTackle", dive, {
+  export const slidingTackle: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["floorFall"]["slidingTackle"]
+  > = HumanActionRow.of("slidingTackle", dive, {
     kind: "slide",
   });
 }

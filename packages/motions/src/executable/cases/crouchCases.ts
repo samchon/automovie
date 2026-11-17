@@ -1,7 +1,10 @@
+import type {
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanKneel,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
+
 import { HumanChain } from "../../HumanChain";
-import type { crouch } from "../../everyday/crouch";
-import type { kneel } from "../../everyday/kneel";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -47,12 +50,13 @@ export function crouchCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
 
     for (const depth of ["partial", "full"] as const) {
-      const params: crouch.IParams = { depth };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
-        "crouch",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("crouch", params),
-      );
+      const params: IAutoMovieMotionHumanCrouch.IParams = { depth };
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "crouch",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("crouch", params),
+        );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
         FamilyCaseKit.angle(performance, "a", lowest, "leftLowerLeg"),
@@ -90,12 +94,16 @@ export function crouchCases(
     }
 
     for (const kind of ["one", "both", "sitBack"] as const) {
-      const params: kneel.IParams = { kind, knee: "right" };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
-        "kneel",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("kneel", params),
-      );
+      const params: IAutoMovieMotionHumanKneel.IParams = {
+        kind,
+        knee: "right",
+      };
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "kneel",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("kneel", params),
+        );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");
       const bones = performance.bones("a", contact);
@@ -172,7 +180,7 @@ export function crouchCases(
 
 /** Slip, ROM and the planted feet's height off the floor. */
 function common(
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
   who: FamilyCaseKit.IBody,
 ): IMotionCaptureCase.IVerdict[] {
   const off = everydayVerdicts.grounded(performance, "a", who.body);

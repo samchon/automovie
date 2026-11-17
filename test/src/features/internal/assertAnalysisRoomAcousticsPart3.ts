@@ -1,8 +1,8 @@
-import {
-  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
-  type IAutoMovieAcousticRequest,
-} from "@automovie/engine";
-import type { IAutoMovieAnalysisRun } from "@automovie/interface";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
+import type {
+  IAutoMovieAcousticRequest,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "./predicates";

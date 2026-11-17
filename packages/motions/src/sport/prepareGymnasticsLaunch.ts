@@ -4,14 +4,14 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -36,18 +36,18 @@ import type { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared reader retains body/model and at most one bounded genuine demand, never a pose, plan, centre, time or query history. Each call's FK/projector loans and local observer end on return/throw; only fresh centre/velocity vectors escape.
  */
 export function prepareGymnasticsLaunch(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   model: GymnasticsFlight.Model,
-): (plan: IHumanActionPlan, seconds: number) => ILaunch {
+): (plan: IAutoMovieMotionHumanActionPlan, seconds: number) => ILaunch {
   let readBones: ReturnType<typeof poseBones.prepare> | undefined;
-  return (plan: IHumanActionPlan, seconds: number): ILaunch => {
+  return (plan: IAutoMovieMotionHumanActionPlan, seconds: number): ILaunch => {
     const delta: number = 1e-3;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
     const observe: (at: number) => IAutoMovieVector3 = (at: number): IAutoMovieVector3 => {
-      const raw: IHumanPosture = plan.posture(at, undefined, resolution, projection);
+      const raw: IAutoMovieMotionHumanPosture = plan.posture(at, undefined, resolution, projection);
       let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
       if (readBones === undefined) {
         if (model === body.massModel) requested = HumanColliders.bones(body);

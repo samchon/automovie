@@ -1,6 +1,6 @@
-import type { IAutoMovieMark } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMark,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

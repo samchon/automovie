@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieInspectionTrail,
-  sampleAutoMovieInspectionTrails,
-} from "@automovie/render";
+import type { IAutoMovieInspectionTrail } from "@automovie/interface";
+import { sampleAutoMovieInspectionTrails } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

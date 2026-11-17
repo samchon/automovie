@@ -1,12 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 
 /**
  * A low obstacle as a stepping-over act reads it: the middle of its near
@@ -53,15 +55,15 @@ export namespace HumanObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IObstacle {
-    const read: IHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const find = (id: string): IAutoMovieAffordance | undefined =>
       affordances.find((a: IAutoMovieAffordance): boolean => a.id === id);
-    const refuse = (reason: string): HumanRefusal =>
+    const refuse = (reason: string): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({
         kind: "affordance",
         axis: "obstacle",
@@ -80,7 +82,7 @@ export namespace HumanObstacle {
       edge.id === "edge" ? find("top")?.depth : find("bar")?.aperture;
     if (depth === undefined)
       throw refuse(`${subject} declares no depth behind its ${edge.id}`);
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const near: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, edge.frame.translation),

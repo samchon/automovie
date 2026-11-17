@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * A persistent coupling of one staged node to a bone of another, such as a

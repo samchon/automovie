@@ -1,5 +1,8 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieInspectionDrawable,
+  IAutoMovieMark,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
@@ -27,7 +30,7 @@ export function measureAutoMovieInspectionPaths(props: {
 
   /** Whether a path is measured. */
   choose: (path: string) => boolean;
-}): { path: string; min: IAutoMovieVector3; max: IAutoMovieVector3 }[] {
+}): IAutoMovieInspectionDrawable[] {
   const boxes: Map<string, THREE.Box3> = new Map<string, THREE.Box3>();
   const box: (path: string) => THREE.Box3 = (path: string): THREE.Box3 => {
     let found: THREE.Box3 | undefined = boxes.get(path);

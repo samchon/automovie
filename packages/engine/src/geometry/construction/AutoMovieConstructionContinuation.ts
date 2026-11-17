@@ -1,3 +1,9 @@
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
+
 import { AutoMovieConstructionBoundary } from "./AutoMovieConstructionBoundary";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
@@ -6,7 +12,6 @@ import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * A continuation's shared end layer: the host chain's end layer re-expressed as the part chain's end layer. With complete consistent source jets, the part carries the host's section and both station derivatives at the shared ring, giving the two faces the same C2 boundary data.
@@ -119,7 +124,7 @@ export namespace AutoMovieConstructionContinuation {
       !AutoMovieLoftSection.present(part)
     )
       return { ...part, layers };
-    const field: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+    const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
       AutoMovieLoftSectionConnect.capture(
         host,
         source.y,
@@ -179,16 +184,16 @@ export namespace AutoMovieConstructionContinuation {
       );
     /** Value and derivative frame records follow their separate station/chart signs. */
     const frame: (
-      f: AutoMovieLoftFrame.IFrame,
+      f: IAutoMovieLoftSectionFrame,
       ko: number,
       ku: number,
       kv: number,
-    ) => AutoMovieLoftFrame.IFrame = (
-      f: AutoMovieLoftFrame.IFrame,
+    ) => IAutoMovieLoftSectionFrame = (
+      f: IAutoMovieLoftSectionFrame,
       ko: number,
       ku: number,
       kv: number,
-    ): AutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: [ko * f.origin[0], ko * f.origin[1], ko * f.origin[2]],
       u: [ku * f.u[0], ku * f.u[1], ku * f.u[2]],
       v: [kv * f.v[0], kv * f.v[1], kv * f.v[2]],

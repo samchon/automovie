@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
@@ -6,6 +6,7 @@ import {
   IAutoMovieJointPose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
+import { type IAutoMovieJointRotationFrame } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
@@ -97,7 +98,7 @@ export namespace clampJointToSkeleton {
         );
         clamp = prepareConstraintClamp(
           constraint,
-          (): swingTwistRange.IJoint | undefined => {
+          (): IAutoMovieJointRotationFrame | undefined => {
             if (
               constraint === null ||
               constraint.swingTwist === undefined ||
@@ -147,7 +148,7 @@ export namespace clampJointToSkeleton {
     );
     return prepareConstraintClamp(
       constraint,
-      (): swingTwistRange.IJoint | undefined =>
+      (): IAutoMovieJointRotationFrame | undefined =>
         constraint === null ||
         constraint.swingTwist === undefined ||
         constraint.swingTwist === null
@@ -178,7 +179,7 @@ export namespace clampJointToSkeleton {
   export function resolved(
     bone: IAutoMovieJointPose["bone"],
     found: IAutoMovieBone | undefined,
-    readRig: () => swingTwistRange.IJoint | undefined,
+    readRig: () => IAutoMovieJointRotationFrame | undefined,
   ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
     const constraint: IAutoMovieJointConstraint | null = getConstraint(
       bone,
@@ -213,12 +214,12 @@ export namespace clampJointToSkeleton {
  */
 function prepareConstraintClamp(
   constraint: IAutoMovieJointConstraint | null,
-  readRig: () => swingTwistRange.IJoint | undefined,
+  readRig: () => IAutoMovieJointRotationFrame | undefined,
 ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
   if (constraint === null)
     return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose => joint);
-  const source: swingTwistRange.IJoint | undefined = readRig();
-  const rig: swingTwistRange.IJoint | undefined =
+  const source: IAutoMovieJointRotationFrame | undefined = readRig();
+  const rig: IAutoMovieJointRotationFrame | undefined =
     source === undefined ||
     constraint.swingTwist === undefined ||
     constraint.swingTwist === null

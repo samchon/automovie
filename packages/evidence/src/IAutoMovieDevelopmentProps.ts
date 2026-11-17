@@ -5,8 +5,8 @@
  * one checklist under `contracts/development/` of the shared skills tree, answered in
  * their doc comments: entities in `src/entities/` answer `entities.md`, laws,
  * interactions and consequences in `src/laws/`, `src/interactions/` and
- * `src/consequences/` answer `behaviors.md` and cite the research they follow,
- * and scenes and films in `src/composition/` answer `composition.md`, scenes
+ * `src/consequences/` answer `behaviors.md`, a law naming the study it
+ * follows in its answer, and scenes and films in `src/composition/` answer `composition.md`, scenes
  * citing the screenplay scene file or the sections and beats of it they
  * realize and films citing the scene files they order. An omitted stage stays
  * `"disabled"`, so ordinary coding and narrative-only work owe none of them.
@@ -14,7 +14,7 @@
  * @evidence contracts/development/design.md#principled-representation One stage per contract mirrors the scaffold's development contracts, so a commission enables exactly the duties its code can establish.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Three optional fields with the narrative stage vocabulary; folders, populations and references belong to the claim factory.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No stage is implied by file presence; an absent field is disabled.
- * @evidence contracts/development/common.md#meaningful-documentation The comment names each stage's respondents, their citations and the disabled default.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment names each stage's respondents, the scene and film citations and the disabled default.
  */
 export interface IAutoMovieDevelopmentProps {
   /**
@@ -25,8 +25,8 @@ export interface IAutoMovieDevelopmentProps {
 
   /**
    * Functions and methods under `src/laws/`, `src/interactions/` and
-   * `src/consequences/` answer `contracts/development/behaviors.md` and cite
-   * studies in `docs/research/`; every study must be cited by some declaration.
+   * `src/consequences/` answer `contracts/development/behaviors.md`. A law
+   * names the study it follows in its answer; no study citation is required.
    */
   behaviors?: "disabled" | "evidence";
 

@@ -1,4 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**

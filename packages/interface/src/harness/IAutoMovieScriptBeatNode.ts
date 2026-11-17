@@ -1,5 +1,5 @@
-import { IAutoMovieBeatPayload } from "./IAutoMovieBeatPayload";
-import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
+import type { IAutoMovieBeatPayload } from "./IAutoMovieBeatPayload";
+import type { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
 
 /**
  * The authored leaf of the screenplay tree: one beat's direction, dialogue and caption.

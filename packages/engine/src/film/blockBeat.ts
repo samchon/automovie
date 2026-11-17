@@ -2,18 +2,19 @@ import {
   IAutoMovieBeat,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
+  type IAutoMovieBlockedBeat,
   IAutoMovieBlocking,
   IAutoMovieBlockingActor,
   IAutoMovieBlockingCoverage,
   IAutoMovieCamera,
   IAutoMovieSceneNode,
   IAutoMovieScript,
+  type IAutoMovieStagedSet,
   IAutoMovieTimingAnchor,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieBlockedBeat } from "./IAutoMovieBlockedBeat";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**
@@ -44,7 +45,7 @@ export function blockBeat(
   blocking: IAutoMovieBlocking,
   previous?: IAutoMovieBeatEndState,
 ): IAutoMovieBlockedBeat {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const beatIds: Map<string, number> = new Map();
   script.beats.forEach((beat: IAutoMovieBeat, index: number): void => {
     const existing: number | undefined = beatIds.get(beat.id);

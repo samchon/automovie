@@ -3,35 +3,40 @@ import {
   AutoMovieLoftViewRead,
   AutoMovieViewAxis,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandAttachment,
+  IAutoMovieHumanHandParent,
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
-import type { AutoMovieHumanHandAttachment } from "./AutoMovieHumanHandAttachment";
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 
-/** Original calibration-mm point or unit material direction. */
-type Vec3 = V.Vec3;
 /** The same actual parent-frame result used by the attachment owner. */
 type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 /** Four original support/fullness values in material order. */
 type Quarters = [number, number, number, number];
-/** Caller-owned whole parent definition, without a second geometry. */
-type IParent = AutoMovieHumanHandAttachment.IParent;
-/** Qualified original values/frame/jets, including explicit zero poles. */
-type ISection = AutoMovieHumanHandAttachment.ISection;
 
 /** Original parent-coordinate and native-section reads shared by hand attachments. */
 export namespace AutoMovieHumanHandParentRead {
   /** Solve actual normal-plane roots and preserve whole scalar/frame jets or explicit coordinate absence. */
-  export function locate(parent: IParent, point: Vec3): ISection | null {
+  export function locate(
+    parent: IAutoMovieHumanHandParent.IOutput,
+    point: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHandAttachment.ISection | null {
     const roots: number[] = [];
     const residual: (station: number) => number = (station: number): number => {
       const frame: Frame = parent.part.axis.at(station);
       return V.dot(V.sub(point, frame.origin), AutoMovieViewAxis.normal(frame));
     };
     for (let index: number = 1; index < parent.stations.length; index++) {
-      const before: IParent["stations"][number] = parent.stations[index - 1]!;
-      const after: IParent["stations"][number] = parent.stations[index]!;
+      const before: IAutoMovieHumanHandParent.IOutput["stations"][number] =
+        parent.stations[index - 1]!;
+      const after: IAutoMovieHumanHandParent.IOutput["stations"][number] =
+        parent.stations[index]!;
       const a: number = V.dot(V.sub(point, before.frame.origin), before.normal);
       const b: number = V.dot(V.sub(point, after.frame.origin), after.normal);
       if (a === 0) roots.push(before.station);
@@ -51,14 +56,14 @@ export namespace AutoMovieHumanHandParentRead {
         roots.push(root);
       }
     }
-    let best: ISection | null = null;
+    let best: IAutoMovieHumanHandAttachment.ISection | null = null;
     let distance: number = Infinity;
     for (const station of roots) {
       const frame: Frame = parent.part.axis.at(station);
-      const delta: Vec3 = V.sub(point, frame.origin);
+      const delta: AutoMovieVector3Tuple = V.sub(point, frame.origin);
       const squared: number = V.dot(delta, delta);
       if (squared >= distance) continue;
-      const values: AutoMovieLoftViewRead.IValues | string =
+      const values: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(parent.source, station);
       if (typeof values === "string") throw new Error(values);
       let zero: boolean = false;
@@ -103,9 +108,9 @@ export namespace AutoMovieHumanHandParentRead {
 
   /** Native section admission retains all four parent quarter owners. */
   export function section(
-    values: AutoMovieLoftViewRead.IValues,
-  ): AutoMovieViewSection.ISection {
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    values: IAutoMovieLoftViewRead.IValues,
+  ): IAutoMovieViewSection.ISection {
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents: values.extents as Quarters },
       values.shoulders as Quarters,
     );

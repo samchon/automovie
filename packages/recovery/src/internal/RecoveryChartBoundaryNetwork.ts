@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryChartBoundaryNetwork,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
-import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
 import { RecoveryChartBoundaryNetworkAugment } from "./RecoveryChartBoundaryNetworkAugment";
 import { RecoveryChartBoundaryNetworkBindings } from "./RecoveryChartBoundaryNetworkBindings";
 import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNetworkRegistry";
@@ -32,45 +34,9 @@ import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNet
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One canonical point serves each declared base fraction, edge incidence reuses triangle ownership across splits, and one accepted arc fit supplies every forward or reversed side occurrence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All cloned private observations and graph registries are call-local and scale with actual vertices, triangles, cuts and boundary uses. No hidden cap is imposed; caller chart budgets must bound them. Failure releases local state but owner may retain earlier completed fits; returned private arrays belong to the caller.
  */
-export function RecoveryChartBoundaryNetwork(input: {
-  /** Private chart occurrences with original quarter insertion provenance. */
-  charts: readonly {
-    name: string;
-    verticesMm: readonly C.Vector[];
-    triangles: readonly (readonly [number, number, number])[];
-    physicalKeys: readonly string[];
-    sides: readonly [number[], number[], number[], number[]];
-    insertions: readonly {
-      edgeKeys: [string, string];
-      fractionFromFirst: number;
-      key: string;
-      pointMm: C.Vector;
-    }[];
-  }[];
-  /** Shared curve owner under one fixed fitting policy. */
-  owner: ReturnType<typeof RecoveryChartBoundary>;
-}): {
-  /** Augmented private meshes and composite sides with real shared arc pieces. */
-  charts: {
-    name: string;
-    verticesMm: C.Vector[];
-    triangles: [number, number, number][];
-    physicalKeys: string[];
-    sides: [number[], number[], number[], number[]];
-    boundaries: (ReturnType<ReturnType<typeof RecoveryChartBoundary>["get"]> & {
-      pieces: {
-        start: number;
-        end: number;
-        knots: number[];
-        boundary: ReturnType<ReturnType<typeof RecoveryChartBoundary>["get"]>;
-      }[];
-    })[];
-  }[];
-  /** Measured binary64 changes and unrepresented base-edge bank reasons. */
-  diagnostics: string[];
-  /** Largest measured point displacement against supplied or prior private-bank PL correspondences, millimetres; not a continuous original-source bound. */
-  maximumPointChangeMm: number;
-} {
+export function RecoveryChartBoundaryNetwork(
+  input: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation> {
   if (
     !input ||
     !Array.isArray(input.charts) ||
@@ -78,7 +44,7 @@ export function RecoveryChartBoundaryNetwork(input: {
     typeof input.owner.get !== "function"
   )
     throw new Error("Private charts and one boundary owner are required");
-  const context: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry> =
+  const context: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
     RecoveryChartBoundaryNetworkRegistry(input);
   context.maximumPointChange = RecoveryChartBoundaryNetworkAugment(
     input,

@@ -1,4 +1,5 @@
 import { minimumJerk } from "@automovie/engine";
+import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
@@ -19,7 +20,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns N scalar boundaries, bounded native interval readers and original phase records until release; no posture, solver workspace or previous query is retained.
  */
 export function prepareKneelClock<T extends { name: string }>(
-  clock: AutoMovieMotionClock.IClock,
+  clock: IAutoMovieMotionClock,
   phases: readonly T[],
 ): (seconds: number) => { phase: T; index: number; u: number } {
   const starts: number[] = phases.map(

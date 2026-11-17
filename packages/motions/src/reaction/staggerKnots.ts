@@ -1,13 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanAuditContact,
-} from "../audit/AutoMovieMotionHumanAuditContact";
+import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanBalance } from "../everyday/HumanBalance";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -47,8 +47,8 @@ export namespace staggerKnots {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local FK demand and owned metadata end on return or throw; only two fresh shift vectors escape.
    */
   export function bending(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projector?: ReturnType<typeof prepareHumanPostureProjection>,
   ): Record<"pitch" | "roll", IAutoMovieVector3> {
@@ -58,7 +58,7 @@ export namespace staggerKnots {
       projector ?? prepareHumanPostureProjection(body);
     const centreOf: ReturnType<typeof HumanBalance.prepareCentre> =
       HumanBalance.prepareCentre(body);
-    const standing: IHumanPosture = {
+    const standing: IAutoMovieMotionHumanPosture = {
       ...entry.posture,
       limbs: {
         ...entry.posture.limbs,
@@ -75,7 +75,7 @@ export namespace staggerKnots {
       pitch: number;
       roll: number;
     }): IAutoMovieVector3 => {
-      const tilted: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+      const tilted: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
         body,
         standing,
         more,
@@ -121,7 +121,7 @@ export namespace staggerKnots {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh hint vector and retains nothing.
    */
   export function kneePole(
-    body: IHumanActionContext["body"],
+    body: IAutoMovieMotionHumanActionContext["body"],
     root: IAutoMovieVector3,
     yaw: number,
     side: "left" | "right",
@@ -156,7 +156,7 @@ export namespace staggerKnots {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The displayed feet call this one formula.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no body or sample.
    */
-  export function risingOf(body: IHumanActionContext["body"]): number {
+  export function risingOf(body: IAutoMovieMotionHumanActionContext["body"]): number {
     return (
       Math.asin(
         Math.sqrt(

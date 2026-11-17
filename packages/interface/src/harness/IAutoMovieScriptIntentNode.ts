@@ -1,5 +1,5 @@
-import { IAutoMovieIntentPayload } from "./IAutoMovieIntentPayload";
-import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
+import type { IAutoMovieIntentPayload } from "./IAutoMovieIntentPayload";
+import type { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
 
 /**
  * The root of the screenplay tree: the film's single top-level statement.

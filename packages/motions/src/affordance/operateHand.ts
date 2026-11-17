@@ -1,18 +1,26 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { StrikingHeld } from "../striking/StrikingHeld";
 import type { operate } from "./operate";
 import type { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
-import type { StrikingHeld } from "../striking/StrikingHeld";
 
 /**
  * Prepare an operation's original hand geometry for its actual arm targets
@@ -30,25 +38,25 @@ import type { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan fixes body/side/mechanism/initial place/clock and immutable tool geometry. Every plan/runtime articulated query independently executes the original adjacent-float progress inversion and clock observations; an actual time is never substituted for that inverse, and arbitrary part.place callbacks retain their original film-second argument.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns fixed metadata and constant-size prepared hand/axis geometry until release. Each query releases its current placed frame and wrist/target scratch on return or throw, without retaining poses, times, fitted answers, FK loans or history.
  */
-export function operateHand(context: IHumanActionContext<operate.IParams>, props: {
-  clock: AutoMovieMotionClock.IClock;
-  place: ReturnType<IHumanActionContext["aim"]>;
-  part: operateDrive.IPart | undefined;
-  hinge: operateDrive.IHinge | undefined;
-  inserted: StrikingHeld.ITool | undefined;
+export function operateHand(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>, props: {
+  clock: IAutoMovieMotionClock;
+  place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
+  part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
+  hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
+  inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
   upright: number;
 }): {
-  target: (posture: IHumanPosture, progress: number) => AutoMovieMotionHumanArm.ITarget;
-  wrist: (posture: IHumanPosture, progress: number) => IAutoMovieVector3;
+  target: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => IAutoMovieVector3;
 } {
-  const mechanism: operate.Mechanism = context.params.mechanism;
-  const side: HumanHand.Side = context.params.hand ?? "right";
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.mechanism;
+  const side: AutoMovieHumanSide = context.params.hand ?? "right";
   if (mechanism.kind === "insert") {
     const insertion: ReturnType<typeof operateInsert.prepareMoving> =
       operateInsert.prepareMoving(context, mechanism, props.inserted!, props.place);
     return {
       target: insertion.target,
-      wrist: (posture: IHumanPosture, progress: number): IAutoMovieVector3 =>
+      wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieVector3 =>
         insertion.wrist(posture, progress).point,
     };
   }
@@ -76,10 +84,10 @@ export function operateHand(context: IHumanActionContext<operate.IParams>, props
       else hi = mid;
     }
   };
-  const frame: (posture: IHumanPosture, progress: number) => {
+  const frame: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
     place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
     forward: IAutoMovieVector3;
-  } = (posture: IHumanPosture, progress: number): ReturnType<typeof frame> => {
+  } = (posture: IAutoMovieMotionHumanPosture, progress: number): ReturnType<typeof frame> => {
     const now: ReturnType<typeof operateState.at> = props.part === undefined
       ? operateState.at(mechanism, props.place, props.hinge, progress)
       : {
@@ -108,11 +116,11 @@ export function operateHand(context: IHumanActionContext<operate.IParams>, props
     };
   };
   return {
-    target: (posture: IHumanPosture, progress: number): AutoMovieMotionHumanArm.ITarget => {
+    target: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<typeof frame> = frame(posture, progress);
       return hand.target(posture, current.place, current.forward);
     },
-    wrist: (posture: IHumanPosture, progress: number): IAutoMovieVector3 => {
+    wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieVector3 => {
       const current: ReturnType<typeof frame> = frame(posture, progress);
       return hand.wrist(posture, current.place, current.forward).point;
     },

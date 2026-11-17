@@ -1,16 +1,18 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHand,
   HumanPartner,
   HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,8 +48,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 4 scenarios with their bounds.
  */
 export function test_human_motion_partner_relay(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const baton: IHumanProp = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const baton: IAutoMovieMotionHumanProp = {
     subject: "baton",
     frame: {
       position: { x: 0, y: 0, z: 0 },
@@ -72,7 +74,7 @@ export function test_human_motion_partner_relay(): void {
   const at: number = 2;
 
   // 1. It plans.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "relay",
@@ -97,7 +99,7 @@ export function test_human_motion_partner_relay(): void {
       composition: HumanChain.subject("in")
         .run({ to: { x: 0, y: 0, z: 20 }, pace: "jog" })
         .over(
-          (o: HumanChain): HumanChain =>
+          (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             o.registered("relayIncoming", {
               partner: "out",
               at,
@@ -109,7 +111,7 @@ export function test_human_motion_partner_relay(): void {
           HumanChain.subject("out")
             .run({ to: { x: 0, y: 0, z: 20.75 }, pace: "jog" })
             .over(
-              (o: HumanChain): HumanChain =>
+              (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
                 o.registered("relayOutgoing", {
                   partner: "in",
                   at,
@@ -128,7 +130,7 @@ export function test_human_motion_partner_relay(): void {
   }
 
   // 2. The baton's end in the outgoing palm.
-  const frame: IHumanProp.IFrame = performance.prop("baton", at);
+  const frame: IAutoMovieRigidTransform = performance.prop("baton", at);
   const end: IAutoMovieVector3 = Vector3.add(
     frame.position,
     Quaternion.rotateVector(frame.rotation, baton.points.end!.point),

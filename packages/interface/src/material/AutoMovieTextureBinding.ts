@@ -1,4 +1,4 @@
-import { IAutoMovieTextureReference } from "./IAutoMovieTextureReference";
+import type { IAutoMovieTextureReference } from "./IAutoMovieTextureReference";
 
 /**
  * Asset id with slot defaults, or an explicit texture sampling declaration.

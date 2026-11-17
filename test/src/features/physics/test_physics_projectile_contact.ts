@@ -1,10 +1,10 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  Vector3,
-  projectileFirstContact,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import { Vector3, projectileFirstContact } from "@automovie/engine";
+import type {
+  IAutoMovieHit,
+  IAutoMoviePhysicalShape,
+  IAutoMovieProjectile,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,7 +28,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_physics_projectile_contact(): void {
   const zero = { x: 0, y: 0, z: 0 };
-  const post = (z: number, x: number): IAutoMoviePhysicalProfile.IShape => ({
+  const post = (z: number, x: number): IAutoMoviePhysicalShape => ({
     id: "post",
     material: "wood",
     kind: "capsule",
@@ -39,7 +39,7 @@ export function test_physics_projectile_contact(): void {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
   });
-  const pose = (): IAutoMoviePhysicalProfile.ITransform => ({
+  const pose = (): IAutoMovieRigidTransform => ({
     position: zero,
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   });

@@ -4,13 +4,13 @@ A pass is what a cell draws of its subject. This page owns choosing passes, keep
 
 ## Choosing a pass
 
-| Question | Pass |
+| Pass | Answers |
 | --- | --- |
-| How the result looks to its audience | The finished picture from the delivery's renderer |
-| Why a surface has its shape | The construction that generated it |
-| What one quantity is across the picture | A structural pass that draws only that quantity, such as depth, normals or a mask |
-| Where joints, contacts, targets and paths are | An overlay of them on the picture |
-| What a receiver is given | The guide channel itself, read through the receiver's input path |
+| The finished picture from the delivery's renderer | How the result looks to its audience |
+| The construction that generated a surface | Why the surface has its shape |
+| A structural pass of only one quantity, such as depth, normals or a mask | What that quantity is across the picture |
+| An overlay on the picture | Where joints, contacts, targets and paths are |
+| The guide channel itself, read through the receiver's input path | What a receiver is given |
 
 Use a structural pass only for the quantity it documents, and read its range and convention before reading its colors, because a plausible image does not establish that a pass holds what its name says. Fields such as skin weights or curvature are judged only where a production's models need them, as [inspecting a form](../3d-modeling/inspection.md#fields-judged-only-where-needed) decides.
 

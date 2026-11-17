@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieDrawingFeatureResolution,
   deriveAutoMovieDrawing,
   resolveAutoMovieDrawingFeature,
 } from "@automovie/engine";
@@ -9,6 +8,7 @@ import {
   type IAutoMovieDrawing,
   type IAutoMovieDrawingDimension,
   IAutoMovieDrawingFeature,
+  type IAutoMovieDrawingFeatureResolution,
   type IAutoMovieDrawingGap,
   type IAutoMovieDrawingPoint,
 } from "@automovie/interface";

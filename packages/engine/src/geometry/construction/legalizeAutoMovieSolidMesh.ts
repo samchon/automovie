@@ -1,10 +1,11 @@
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
-import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { incircleAutoMovieSolidChart } from "./incircleAutoMovieSolidChart";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
-
-/** One represented native chart coordinate. */
-type Point = readonly [number, number];
 
 /** One directed side of a triangle: the edge from `corner` to the next corner. */
 interface Side {
@@ -82,29 +83,32 @@ interface Side {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adjacency, pair counts and the queue are call-local O(T) storage; returned triangle triples are fresh and caller-owned.
  */
 export function legalizeAutoMovieSolidMesh(
-  vertices: ReadonlyMap<number, Point>,
-  constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
-  triangles: readonly AutoMovieSolidMeshPlan.ITriangle[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+  triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
   period: number | undefined,
   indexed: boolean,
   occupied: ReadonlySet<string> | undefined,
   scale: number,
-  local?: (ids: readonly number[], charts: readonly [number, number][]) => [number, number],
-): AutoMovieSolidMeshPlan.ITriangle[] | string {
+  local?: (
+    ids: readonly number[],
+    charts: readonly [number, number][],
+  ) => [number, number],
+): IAutoMovieSolidMeshPlan.ITriangle[] | string {
   if (!(Number.isFinite(scale) && scale > 0))
     return "legalization metric scale must be positive and finite";
   if (period !== undefined && !(Number.isFinite(period) && period > 0))
     return "legalization needs a finite positive period";
-  const result: AutoMovieSolidMeshPlan.ITriangle[] = triangles.map(
+  const result: IAutoMovieSolidMeshPlan.ITriangle[] = triangles.map(
     (
-      triangle: AutoMovieSolidMeshPlan.ITriangle,
-    ): AutoMovieSolidMeshPlan.ITriangle => ({
+      triangle: IAutoMovieSolidMeshPlan.ITriangle,
+    ): IAutoMovieSolidMeshPlan.ITriangle => ({
       vertices: [...triangle.vertices],
       lifts: [...triangle.lifts],
     }),
   );
   const fixed: Set<string> = new Set(
-    constraints.map((edge: AutoMovieSolidMeshConstraints.ISegment): string =>
+    constraints.map((edge: IAutoMovieSolidMeshConstraints.ISegment): string =>
       key(edge.a, edge.b, edge.turn),
     ),
   );
@@ -127,7 +131,7 @@ export function legalizeAutoMovieSolidMesh(
       const name: string = edge(result[triangle]!, corner);
       const owners: Side[] = sides.get(name) ?? [];
       if (owners.length === 0 && !fixed.has(name)) {
-        const t: AutoMovieSolidMeshPlan.ITriangle = result[triangle]!;
+        const t: IAutoMovieSolidMeshPlan.ITriangle = result[triangle]!;
         count(t.vertices[corner]!, t.vertices[(corner + 1) % 3]!, 1);
       }
       owners.push({ triangle, corner });
@@ -146,7 +150,7 @@ export function legalizeAutoMovieSolidMesh(
       if (owners.length === 0) {
         sides.delete(name);
         if (!fixed.has(name)) {
-          const t: AutoMovieSolidMeshPlan.ITriangle = result[triangle]!;
+          const t: IAutoMovieSolidMeshPlan.ITriangle = result[triangle]!;
           count(t.vertices[corner]!, t.vertices[(corner + 1) % 3]!, -1);
         }
       } else sides.set(name, owners);
@@ -169,7 +173,7 @@ export function legalizeAutoMovieSolidMesh(
       enqueue(edge(result[triangle]!, corner));
   const distinct: number = new Set(
     result.flatMap(
-      (t: AutoMovieSolidMeshPlan.ITriangle): number[] => t.vertices,
+      (t: IAutoMovieSolidMeshPlan.ITriangle): number[] => t.vertices,
     ),
   ).size;
   const limit: number = (distinct * (distinct - 1)) / 2;
@@ -180,7 +184,7 @@ export function legalizeAutoMovieSolidMesh(
     const owners: Side[] | undefined = sides.get(name);
     if (owners === undefined || owners.length !== 2) continue;
     const made:
-      | [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle]
+      | [IAutoMovieSolidMeshPlan.ITriangle, IAutoMovieSolidMeshPlan.ITriangle]
       | null = flip(
       vertices,
       result,
@@ -223,19 +227,26 @@ export function legalizeAutoMovieSolidMesh(
  * new diagonal is the first triangle's side from corner 1 to corner 2.
  */
 function flip(
-  vertices: ReadonlyMap<number, Point>,
-  triangles: readonly AutoMovieSolidMeshPlan.ITriangle[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
   one: Side,
   two: Side,
   period: number | undefined,
   indexed: boolean,
   uniform: number,
-  local: ((ids: readonly number[], charts: readonly [number, number][]) => [number, number]) | undefined,
-): [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle] | null {
-  const t1: AutoMovieSolidMeshPlan.ITriangle = triangles[one.triangle]!;
-  const t2: AutoMovieSolidMeshPlan.ITriangle = triangles[two.triangle]!;
+  local:
+    | ((
+        ids: readonly number[],
+        charts: readonly [number, number][],
+      ) => [number, number])
+    | undefined,
+):
+  | [IAutoMovieSolidMeshPlan.ITriangle, IAutoMovieSolidMeshPlan.ITriangle]
+  | null {
+  const t1: IAutoMovieSolidMeshPlan.ITriangle = triangles[one.triangle]!;
+  const t2: IAutoMovieSolidMeshPlan.ITriangle = triangles[two.triangle]!;
   const at = (
-    t: AutoMovieSolidMeshPlan.ITriangle,
+    t: IAutoMovieSolidMeshPlan.ITriangle,
     corner: number,
   ): [number, number] => [t.vertices[corner % 3]!, t.lifts[corner % 3]!];
   const [p, lp] = at(t1, one.corner);
@@ -254,30 +265,56 @@ function flip(
   // One canonical cover: the least ID's occurrence at lift zero.
   const lifts: number[] = [lp, lq, lr, ls];
   const base: number = lifts[ids.indexOf(Math.min(...ids))]!;
-  const points: Point[] = ids.map((id: number, k: number): Point => {
-    const stored: Point = vertices.get(id)!;
-    return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
-  });
-  if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
+  const points: Readonly<AutoMovieVector2Tuple>[] = ids.map(
+    (id: number, k: number): Readonly<AutoMovieVector2Tuple> => {
+      const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(id)!;
+      return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
+    },
+  );
+  if (
+    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return null;
   // The quadrilateral read about its own centroid under the metric there: the uniform phase scale, or the local form's shear and scale.
-  const cu: number = (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
-  const cv: number = (points[0]![1] + points[1]![1] + points[2]![1] + points[3]![1]) / 4;
+  const cu: number =
+    (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
+  const cv: number =
+    (points[0]![1] + points[1]![1] + points[2]![1] + points[3]![1]) / 4;
   const [shear, scale]: [number, number] =
-    local === undefined ? [0, uniform] : local(ids, points as [number, number][]);
+    local === undefined
+      ? [0, uniform]
+      : local(ids, points as [number, number][]);
   if (!(Number.isFinite(shear) && Number.isFinite(scale) && scale > 0))
     return null;
-  const scaled: Point[] = points.map(
-    (point: Point): Point => [
+  const scaled: Readonly<AutoMovieVector2Tuple>[] = points.map(
+    (
+      point: Readonly<AutoMovieVector2Tuple>,
+    ): Readonly<AutoMovieVector2Tuple> => [
       point[0] - cu + shear * (point[1] - cv),
       (point[1] - cv) * scale,
     ],
   );
-  if (!scaled.every((point: Point): boolean => point.every(Number.isFinite)))
+  if (
+    !scaled.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return null;
-  const [P, Q, R, S] = scaled as [Point, Point, Point, Point];
+  const [P, Q, R, S] = scaled as [
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+  ];
   if (incircleAutoMovieSolidChart(P, Q, R, S) <= 0) return null;
-  const [cp, cq, cr, cs] = points as [Point, Point, Point, Point];
+  const [cp, cq, cr, cs] = points as [
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+  ];
   if (
     !represented([cp, cs, cr], period, indexed) ||
     !represented([cs, cq, cr], period, indexed)
@@ -291,25 +328,27 @@ function flip(
 
 /** The planner's rule: positive, a represented strict centroid and a sub-half-period span. */
 function represented(
-  points: Point[],
+  points: Readonly<AutoMovieVector2Tuple>[],
   period: number | undefined,
   indexed: boolean,
 ): boolean {
-  const phases: number[] = points.map((point: Point): number => point[1]);
+  const phases: number[] = points.map(
+    (point: Readonly<AutoMovieVector2Tuple>): number => point[1],
+  );
   const span: number = Math.max(...phases) - Math.min(...phases);
   if (
     period !== undefined &&
     (span > period / 2 || (indexed && span === period / 2))
   )
     return false;
-  const center: Point = [
+  const center: Readonly<AutoMovieVector2Tuple> = [
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
   return (
     center.every(Number.isFinite) &&
     points.every(
-      (point: Point, index: number): boolean =>
+      (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
         orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
     )
   );
@@ -317,7 +356,7 @@ function represented(
 
 /** A triangle side's identity with its relative cover turn. */
 function edge(
-  triangle: AutoMovieSolidMeshPlan.ITriangle,
+  triangle: IAutoMovieSolidMeshPlan.ITriangle,
   corner: number,
 ): string {
   const next: number = (corner + 1) % 3;

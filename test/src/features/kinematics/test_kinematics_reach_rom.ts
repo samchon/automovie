@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   reachPose,
   resolvePose,
   validatePoseResult,
@@ -12,6 +11,7 @@ import {
   IAutoMovieJointConstraint,
   type IAutoMovieJointPose,
   type IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   type IAutoMovieValidation,
   IAutoMovieVector3,

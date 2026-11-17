@@ -1,11 +1,14 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSocial,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -35,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, why the toast is mimed and the 3 scenarios with their bounds.
  */
 export function test_human_motion_social_toast_four(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const at: IAutoMovieVector3 = { x: 0, y: body.measure.chestHeight, z: 0 };
   const cast = [
     ["a", "host", { x: 0, y: 0, z: -0.45 }, 0],
@@ -46,7 +49,7 @@ export function test_human_motion_social_toast_four(): void {
   const complaints: string[] = [];
 
   // 1. The toast plans.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "four",
@@ -81,7 +84,8 @@ export function test_human_motion_social_toast_four(): void {
   // 2. Every fist at the point at its own meet.
   const meets: Record<string, number> = {};
   for (const [subject, role] of cast) {
-    const placed: HumanSegment.ISegment = performance.segments(subject)[1]!;
+    const placed: IAutoMovieMotionHumanSegment =
+      performance.segments(subject)[1]!;
     const meet: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??

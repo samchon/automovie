@@ -2,10 +2,11 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+  IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { swivelArcs } from "./swivelArcs";
 import { swivelJointReadings } from "./swivelJointReadings";
 
@@ -73,7 +74,7 @@ export function immobileAxisSwivels(props: {
   const neutral: number =
     swivelJointReadings.rig({ min: 0, max: 0 }, props.frame?.[axis])[0] *
     Quaternion.DEG2RAD;
-  const zero: swivelArcs.ISinusoid =
+  const zero: IAutoMovieSwivelArcs.ISinusoid =
     "sine" in read
       ? { ...read.sine, a: read.sine.a - Math.sin(neutral) }
       : swivelArcs.combined(

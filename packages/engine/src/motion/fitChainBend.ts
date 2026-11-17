@@ -1,21 +1,25 @@
 import {
+  type IAutoMovieFitChainToTargetProps,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSeededChainFit,
+} from "@automovie/interface";
+import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieSolvePreparedChainPlantProps,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";
+import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
@@ -43,15 +47,15 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays hold at most 32 entries each, with two raw rotations and a lazy continuity reader per retained score. The incumbent additionally holds two clamped joint records rather than a copied full pose. Composers retain bounded factors. Search records release with the target, including on throw; only one final pose/seed escape, with no history or handles.
  */
 export const fitChainBend: (
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
 ) => IAutoMovieSeededChainFit = (
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
 ): IAutoMovieSeededChainFit => {
   const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null) return { pose: props.pose, seed: null };
-  const solveProps: ISolvePreparedChainPlantProps = {
+  const solveProps: IAutoMovieSolvePreparedChainPlantProps = {
     prepared,
     target: props.target,
     jointAxes: props.jointAxes,
@@ -291,7 +295,7 @@ const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
 /** The original exact-pin stopping rule, evaluated from the current best after each candidate. */
 function canFinish(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   best: IPlantCandidateScore,
 ): boolean {
   return (
@@ -318,7 +322,7 @@ type IPlantCandidate = IPlantCandidateScore & (
 
 /** Only the final selected clamped pair needs the source's ordered unrelated-joint prefix. */
 function plantPose(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
   candidate: IPlantCandidate,
 ): IAutoMoviePose {

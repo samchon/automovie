@@ -1,17 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
@@ -46,15 +46,15 @@ export namespace HumanGlove {
    */
   export function pocket(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "start" | "subject"
     >,
     subject: string,
-    sides: readonly HumanHand.Side[],
+    sides: readonly AutoMovieHumanSide[],
   ): IAutoMovieVector3 {
-    const read: IHumanActionContext.IProp = context.prop(subject);
-    const side: HumanHand.Side = sides[0]!;
-    const worn: IHumanProp.IWorn | undefined = read.prop.worn;
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    const side: AutoMovieHumanSide = sides[0]!;
+    const worn: IAutoMovieMotionHumanProp.IWorn | undefined = read.prop.worn;
     if (
       sides.length !== 1 ||
       worn === undefined ||
@@ -88,7 +88,7 @@ export namespace HumanGlove {
         reason: `${subject} declares no pocket to catch in`,
         fix: "wear a glove that declares its pocket, as createGlove does",
       });
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const at: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, pocket.frame.translation),

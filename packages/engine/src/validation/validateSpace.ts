@@ -1,14 +1,16 @@
 import {
+  type IAutoMovieFootprintRing,
   IAutoMovieSpace,
   IAutoMovieSurface,
+  type IAutoMovieValidateSpace,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { polygonInside } from "../architecture/polygonInside";
 import { polygonIsSimple } from "../architecture/polygonIsSimple";
 import { polygonsOverlap } from "../architecture/polygonsOverlap";
-import { IAutoMovieFootprintRing } from "../space/IAutoMovieFootprintRing";
 import { footprintRing } from "../space/footprintRing";
 import { footprintRingPlacement } from "../space/footprintRingPlacement";
 import { ViolationCollector } from "./ViolationCollector";
@@ -35,14 +37,13 @@ const MIN_RING_DOUBLE_AREA: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted ring is built once for its comparisons, sharing canonical polygon/height meanings.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Ring/ids/hole arrays release after the call; the report owns diagnostics and no terrain mesh or GPU state is created.
  */
-export const validateSpace: (props: {
-  space: IAutoMovieSpace;
-}) => IAutoMovieValidation = (props: {
-  /** Borrowed surface and walkable metadata; XZ footprint coordinates are checked while polygon Y is ignored. */
-  space: IAutoMovieSpace;
-}): IAutoMovieValidation => {
+export const validateSpace: (
+  props: IAutoMovieValidateSpace.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSpace.IProps,
+): IAutoMovieValidation => {
   const path: string = "$input";
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { space }: { space: IAutoMovieSpace } = props;
 
   if (space.id.trim().length === 0)
@@ -110,11 +111,11 @@ export const validateSpace: (props: {
 const validateSurface: (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (!SURFACE_KINDS.includes(surface.kind))
     collector.push(
@@ -146,11 +147,11 @@ const validateSurface: (
 const validateSurfaceFootprint: (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const outer: IAutoMovieFootprintRing | null = validateRing(
     surface.polygon,
@@ -243,12 +244,12 @@ const validateRing: (
   points: readonly IAutoMovieVector3[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => IAutoMovieFootprintRing | null = (
   points: readonly IAutoMovieVector3[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): IAutoMovieFootprintRing | null => {
   let planFinite: boolean = true;
   points.forEach((point: IAutoMovieVector3, i: number): void => {
@@ -313,11 +314,11 @@ const validateRing: (
 const validateSurfaceGround: (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   surface: IAutoMovieSurface,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const rampTo: IAutoMovieVector3 | null = surface.rampTo ?? null;
   const anchored: boolean = surface.anchor !== undefined || rampTo !== null;
@@ -378,11 +379,11 @@ const validateSurfaceGround: (
 const validateAnchor: (
   anchor: IAutoMovieVector3,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   anchor: IAutoMovieVector3,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of ["x", "y", "z"] as const)
     if (!Number.isFinite(anchor[axis]))

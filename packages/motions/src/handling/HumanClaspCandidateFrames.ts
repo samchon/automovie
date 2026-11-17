@@ -1,7 +1,13 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -25,14 +31,14 @@ import type { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side and exact supplied poses remain unchanged while one exact FK workspace serves band and contact observations; only identical scalar prerequisites are reused, never a pose result, fit or contact verdict.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Name readers, scalar bands and the exact workspace end at return/throw. Returned indices/maps are owned only by the synchronous clasp pair search and retain no body, reader, candidate array, callback or time history.
  */
-export function HumanClaspCandidateFrames(body: IHumanBody, side: HumanHand.Side,
-  reaches: readonly HumanGrasp.IReach[]): {
+export function HumanClaspCandidateFrames(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+  reaches: readonly IAutoMovieMotionHumanGrasp.IReach[]): {
     /** Original indices admitted by reach and lowest attained upper-arm band. */
     indices: number[];
     /** Actual observed arm/hand/digit frames of those admitted fits only. */
     bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
   } {
-  const all: number[] = reaches.map((_reach: HumanGrasp.IReach, index: number): number => index);
+  const all: number[] = reaches.map((_reach: IAutoMovieMotionHumanGrasp.IReach, index: number): number => index);
   const reached: number[] = all.filter((index: number): boolean => reaches[index]!.miss <= HumanClasp.REACHED);
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   let indices: number[] = all;

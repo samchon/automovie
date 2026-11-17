@@ -1,14 +1,13 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContact,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanAuditContact } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -64,20 +63,22 @@ export function test_human_motion_audit_contact(): void {
     bone: AutoMovieHumanoidBone,
     seconds: number,
   ) => IAutoMovieVector3;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stance: Bones = motionHumanStance(body);
-  const ground: IHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+    kind: "ground",
+  };
   const contact = (
-    part: IHumanContactWindow["part"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,
     to: number,
-    kind: IHumanContactWindow["kind"] = "plant",
-    support: IHumanContactWindow["support"] = ground,
-  ): IHumanContactWindow => ({ part, kind, from, to, support });
+    kind: IAutoMovieMotionHumanContactWindow["kind"] = "plant",
+    support: IAutoMovieMotionHumanContactWindow["support"] = ground,
+  ): IAutoMovieMotionHumanContactWindow => ({ part, kind, from, to, support });
   const read = (
     move: Move,
-    contacts: IHumanContactWindow[],
-  ): AutoMovieMotionHumanAuditContact.IResult =>
+    contacts: IAutoMovieMotionHumanContactWindow[],
+  ): IAutoMovieMotionHumanAuditContact.IResult =>
     AutoMovieMotionHumanAuditContact.measure(
       motionAuditMoved(stance, 1, move, [
         {
@@ -100,13 +101,13 @@ export function test_human_motion_audit_contact(): void {
     });
   const near = (got: number, expected: number): boolean =>
     Math.abs(got - expected) <= 1e-9;
-  const both: IHumanContactWindow[] = [
+  const both: IAutoMovieMotionHumanContactWindow[] = [
     contact("leftFoot", 0, 1),
     contact("rightFoot", 0, 1),
   ];
 
   // 1. Still.
-  const still: AutoMovieMotionHumanAuditContact.IResult = read(
+  const still: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0, 0),
     [],
   );
@@ -122,7 +123,7 @@ export function test_human_motion_audit_contact(): void {
   );
 
   // 2. An undeclared slide.
-  const slid: AutoMovieMotionHumanAuditContact.IResult = read(
+  const slid: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0),
     [],
   );
@@ -134,7 +135,7 @@ export function test_human_motion_audit_contact(): void {
       slid.loose.where === "none" &&
       slid.afloat.where === "none",
   );
-  const handed: AutoMovieMotionHumanAuditContact.IResult = read(
+  const handed: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0),
     [contact("leftHand", 0, 1)],
   );
@@ -144,7 +145,7 @@ export function test_human_motion_audit_contact(): void {
   );
 
   // 3. Slower than rest, and 4. rising.
-  const slow: AutoMovieMotionHumanAuditContact.IResult = read(
+  const slow: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.03, 0),
     [],
   );
@@ -152,7 +153,7 @@ export function test_human_motion_audit_contact(): void {
     `a slide under the rest speed is read and not counted, got ${slow.skate.value} m/s over a share of ${slow.share}`,
     near(slow.skate.value, 0.03) && slow.share === 0,
   );
-  const rising: AutoMovieMotionHumanAuditContact.IResult = read(
+  const rising: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0, 0.03),
     [],
   );
@@ -163,11 +164,11 @@ export function test_human_motion_audit_contact(): void {
 
   // 5. In the air and just on the floor.
   const sole: number = read(carried(0, 0), both).afloat.value;
-  const air: AutoMovieMotionHumanAuditContact.IResult = read(
+  const air: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0, AutoMovieMotionHumanAuditContact.HEIGHT - sole + 0.026),
     [],
   );
-  const grazing: AutoMovieMotionHumanAuditContact.IResult = read(
+  const grazing: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0, AutoMovieMotionHumanAuditContact.HEIGHT - sole - 0.001),
     [],
   );
@@ -181,7 +182,7 @@ export function test_human_motion_audit_contact(): void {
   );
 
   // 6. A declared plant that slides.
-  const planted: AutoMovieMotionHumanAuditContact.IResult = read(
+  const planted: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0),
     [contact("leftFoot", 0, 1), contact("rightFoot", 0.5, 1)],
   );
@@ -194,7 +195,7 @@ export function test_human_motion_audit_contact(): void {
       planted.skate.seconds <= 0.5 + 1e-9 &&
       planted.share === 0.5,
   );
-  const between: AutoMovieMotionHumanAuditContact.IResult = read(
+  const between: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0.06, 0),
     [contact("leftFoot", 0, 1), contact("rightFoot", 0.52, 1)],
   );
@@ -206,11 +207,11 @@ export function test_human_motion_audit_contact(): void {
   );
 
   // 7. A declared plant off the floor.
-  const high: AutoMovieMotionHumanAuditContact.IResult = read(
+  const high: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0, 0, 0.1),
     both,
   );
-  const low: AutoMovieMotionHumanAuditContact.IResult = read(
+  const low: IAutoMovieMotionHumanAuditContact.IResult = read(
     carried(0, 0, 0.05),
     both,
   );
@@ -237,7 +238,7 @@ export function test_human_motion_audit_contact(): void {
       ],
     ],
   ] as const) {
-    const other: AutoMovieMotionHumanAuditContact.IResult = read(
+    const other: IAutoMovieMotionHumanAuditContact.IResult = read(
       carried(0.06, 0, 0.02),
       [...contacts],
     );

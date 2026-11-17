@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 as V } from "@automovie/interface";
+import type {
+  IAutoMovieProjectPhysicalSupportReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -17,18 +20,12 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function projectPhysicalSupportReach(input: {
-  /** Current limb origins, independent goals and positive maximum reach, metres. */ supports: readonly {
-    /** Current world joint. */ origin: V;
-    /** Fixed world endpoint. */ target: V;
-    /** Maximum straight reach, metres. */ radius: number;
-  }[];
-  /** Nonnegative common root travel cap, metres. */ maximumTranslation: number;
-  /** Projection sweeps, integer 1..64. */ iterations: number;
-  /** Nonnegative residual allowance, metres. */ tolerance: number;
-}): { translation: V; maximumExcess: number; converged: boolean } {
-  const finite: (value: V) => boolean = (value: V): boolean =>
-    !!value && [value.x, value.y, value.z].every(Number.isFinite);
+export function projectPhysicalSupportReach(
+  input: IAutoMovieProjectPhysicalSupportReach.IInput,
+): IAutoMovieProjectPhysicalSupportReach.IResult {
+  const finite: (value: IAutoMovieVector3) => boolean = (
+    value: IAutoMovieVector3,
+  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   if (
     !Array.isArray(input.supports) ||
     !Number.isFinite(input.maximumTranslation) ||
@@ -48,10 +45,10 @@ export function projectPhysicalSupportReach(input: {
     )
   )
     throw new Error("Invalid bounded support-reach projection");
-  let translation: V = { x: 0, y: 0, z: 0 };
+  let translation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (let iteration: number = 0; iteration < input.iterations; iteration++) {
     for (const support of input.supports) {
-      const delta: V = Vector3.subtract(
+      const delta: IAutoMovieVector3 = Vector3.subtract(
         support.target,
         Vector3.add(support.origin, translation),
       );

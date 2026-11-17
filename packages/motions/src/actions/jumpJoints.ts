@@ -1,5 +1,8 @@
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+
 import { stand } from "./stand";
 
 /**
@@ -23,11 +26,11 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain nothing. The prepared caller owns one bounded prefix record borrowing unchanged clinical tuples plus one scalar until release. Every result owns its table and four arm tuples; no posture, workspace, loan, history or external handle enters the retained writer.
  */
 export function jumpJoints(
-  body: IHumanBody,
-  upright: IHumanPosture["joints"],
+  body: IAutoMovieMotionHumanBody,
+  upright: IAutoMovieMotionHumanPosture["joints"],
   left: number,
   right: number,
-): IHumanPosture["joints"] {
+): IAutoMovieMotionHumanPosture["joints"] {
   const abduction: number = stand.abduction(body);
   return write({ ...stand.relaxed(body), ...upright }, abduction, left, right);
 }
@@ -62,18 +65,18 @@ export namespace jumpJoints {
    * history or external handle is replaced or retained by this reader.
    */
   export function prepare(
-    body: IHumanBody,
-    upright: IHumanPosture["joints"],
-  ): (left: number, right: number) => IHumanPosture["joints"] {
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture["joints"],
+  ): (left: number, right: number) => IAutoMovieMotionHumanPosture["joints"] {
     const abduction: number = stand.abduction(body);
-    const prefix: IHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
-    return (left: number, right: number): IHumanPosture["joints"] =>
+    const prefix: IAutoMovieMotionHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
+    return (left: number, right: number): IAutoMovieMotionHumanPosture["joints"] =>
       write({ ...prefix }, abduction, left, right);
   }
 }
 
 /** Fill only the original four arm entries of a caller-owned fresh table, in their original order. */
-function write(joints: IHumanPosture["joints"], abduction: number, left: number, right: number): IHumanPosture["joints"] {
+function write(joints: IAutoMovieMotionHumanPosture["joints"], abduction: number, left: number, right: number): IAutoMovieMotionHumanPosture["joints"] {
   joints.leftUpperArm = [left, abduction, 0];
   joints.rightUpperArm = [right, abduction, 0];
   joints.leftLowerArm = [12 + left / 3, 0, 0];

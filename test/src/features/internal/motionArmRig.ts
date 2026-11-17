@@ -1,17 +1,17 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieSkeletonTopology,
   indexSkeletonTopology,
   prepareSkeletonPoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
   IAutoMovieSkeleton,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 
 /**
  * Build a hand-made body for the elbow solver: a T pose with identity rest
@@ -20,7 +20,7 @@ import type { IHumanBody } from "@automovie/motions";
  * has no contact shapes, and of the measures only the two arm lengths. Each
  * call returns a fresh body.
  */
-export const motionArmRig: () => IHumanBody = (): IHumanBody => {
+export const motionArmRig: () => IAutoMovieMotionHumanBody = (): IAutoMovieMotionHumanBody => {
   const bone = (
     name: AutoMovieHumanoidBone,
     parent: AutoMovieHumanoidBone | null,
@@ -78,5 +78,5 @@ export const motionArmRig: () => IHumanBody = (): IHumanBody => {
     rest,
     measure: { upperArm: 0.3, forearm: 0.25 },
     profile: { segments: [] },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
 };

@@ -1,10 +1,10 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 

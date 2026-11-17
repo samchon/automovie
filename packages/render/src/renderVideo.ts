@@ -1,7 +1,9 @@
-import { IAutoMovieRenderSpec } from "@automovie/interface";
+import type {
+  IAutoMovieRenderAdapters,
+  IAutoMovieRenderResult,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
 
-import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters.js";
-import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult.js";
 import { ffmpegArgs } from "./ffmpegArgs.js";
 import { framePattern } from "./framePattern.js";
 import { frameTimes } from "./frameTimes.js";

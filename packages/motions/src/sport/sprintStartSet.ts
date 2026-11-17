@@ -1,24 +1,29 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanFitVariables } from "../posture/HumanFitVariables";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -91,14 +96,14 @@ export namespace sprintStartSet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local exact reader, genuine ROM projector and requested bone sets release when the set solve returns or throws; the returned numeric stance retains none of them.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body">,
-    entry: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    entry: IAutoMovieMotionHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
   ): {
     hips: IAutoMovieVector3;
     pitch: number;
-    joints: IHumanPosture["joints"];
+    joints: IAutoMovieMotionHumanPosture["joints"];
     palms: Record<
       "left" | "right",
       {
@@ -107,14 +112,14 @@ export namespace sprintStartSet {
         forward: IAutoMovieVector3;
       }
     >;
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
   } {
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "hips"]);
     let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    const m: IHumanBody["measure"] = body.measure;
-    const frame: HumanFrame.IFrame = {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
       yaw: entry.yaw,
     };
@@ -163,7 +168,7 @@ export namespace sprintStartSet {
     // setting's share of the leg's length (`FRONT_DISTANCE`, `SPACING`).
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const leg: number = m.thigh + m.shank;
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       [front]: block(
         body,
         entry,
@@ -180,7 +185,7 @@ export namespace sprintStartSet {
         (FRONT_DISTANCE + SPACING) * leg,
         REAR_BLOCK,
       ),
-    } as Record<"left" | "right", HumanFoot.IPlacement>;
+    } as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     // The trunk inclined by a total tilt shared by the lumbopelvic rhythm,
     // the pelvis taking no more than the planted legs' hip range leaves it
@@ -191,9 +196,9 @@ export namespace sprintStartSet {
       shoulders: IAutoMovieVector3,
     ): IStance => {
       const at: (limit: number) => IStance = (limit: number): IStance => {
-        const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
+        const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
           HumanTrunk.incline(entry.joints, q, limit);
-        const turned: IHumanPosture = {
+        const turned: IAutoMovieMotionHumanPosture = {
           ...entry,
           root: { x: 0, y: 0, z: 0 },
           pitch: tilt.pitch,
@@ -238,7 +243,7 @@ export namespace sprintStartSet {
     // configuration. Arm extension and trunk sharing remain free in the fit;
     // measured angles, mass centre and all four contacts decide the answer.
     const seed: IStance = posed(TILT / 2, over(LEAN / 2));
-    const posture: IHumanPosture = {
+    const posture: IAutoMovieMotionHumanPosture = {
       ...entry,
       root: seed.root,
       pitch: seed.pitch,
@@ -246,7 +251,7 @@ export namespace sprintStartSet {
       joints: seed.joints,
       limbs: {},
     };
-    const limbs: IHumanPosture["limbs"] = {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       leftLeg: AutoMovieMotionHumanLeg.goal(
         body,
         posture,
@@ -274,14 +279,14 @@ export namespace sprintStartSet {
       ...posture,
       limbs,
     }, undefined, undefined, resolution, undefined, projector).pose;
-    const targets: HumanBodyFit.ITarget[] = [];
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [];
     for (const side of ["left", "right"] as const) {
       targets.push({
         bone: `${side}Foot`,
         goal: feet[side].ankle,
         rotation: feet[side].rotation,
       });
-      const palm: HumanHand.IFrame = HumanHand.offset(
+      const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
         body,
         side,
         "palm",
@@ -297,7 +302,7 @@ export namespace sprintStartSet {
         }),
       });
     }
-    const solved: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const solved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       // The law carries sagittal trunk flexion and planted legs; unused
       // neck, head, roll and frontal hip axes cannot decide a key that its
@@ -381,10 +386,10 @@ export namespace sprintStartSet {
         value: Math.max(
           solved.centre,
           ...solved.residuals.map(
-            (r: HumanBodyFit.IResult["residuals"][number]): number => r.point,
+            (r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): number => r.point,
           ),
         ),
-        reason: `the sprint set did not meet its four contacts, measured angles and centre: contacts ${solved.residuals.map((r: HumanBodyFit.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,
+        reason: `the sprint set did not meet its four contacts, measured angles and centre: contacts ${solved.residuals.map((r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,
         fix: "use a stance whose contacts and measured set constraints are jointly reachable",
       });
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -406,7 +411,7 @@ export namespace sprintStartSet {
 /** A set stance at one total tilt: pelvis pitch, spine flexion, and hips and root placed so the shoulders stand over the hands, world metres. */
 interface IStance {
   pitch: number;
-  joints: IHumanPosture["joints"];
+  joints: IAutoMovieMotionHumanPosture["joints"];
   hips: IAutoMovieVector3;
   root: IAutoMovieVector3;
 }
@@ -417,13 +422,13 @@ interface IStance {
  * the sole turned up onto the block's face.
  */
 function block(
-  body: IHumanBody,
-  entry: IHumanPosture,
-  frame: HumanFrame.IFrame,
+  body: IAutoMovieMotionHumanBody,
+  entry: IAutoMovieMotionHumanPosture,
+  frame: IAutoMovieMotionHumanFrame,
   side: "left" | "right",
   behind: number,
   face: number,
-): HumanFoot.IPlacement {
+): IAutoMovieMotionHumanFoot.IPlacement {
   return HumanFoot.pivot(
     body,
     side,

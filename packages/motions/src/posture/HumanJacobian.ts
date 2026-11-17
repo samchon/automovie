@@ -2,8 +2,6 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieChainBone,
-  type IAutoMovieRestFrame,
   Quaternion,
   Vector3,
   clampJointToSkeleton,
@@ -13,14 +11,17 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieChainBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -58,55 +59,6 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  */
 export namespace HumanJacobian {
   /**
-   * A variable per its authored unit: root place per metre, and heading or
-   * joint angles per degree. Joint axes 0, 1, 2 mean flexion, abduction, twist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each kind's unit, the three joint-axis indices and the closed root axis/heading names.
-   * @evidence contracts/development/design.md#principled-representation A tagged coordinate identifies translation, root Euler heading or one clinical joint angle, exactly the variables the geometric Jacobian differentiates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface of/read consume the existing floor-fit variables and arm planner's clinical coordinates without a parallel coordinate type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed kind/axis unions carry an actual bone for a joint variable; no arbitrary derivative callback, target-specific flag or numerical fallback is encoded.
-   */
-  export type IVariable =
-    | { kind: "place"; axis: "x" | "y" | "z" }
-    | { kind: "heading"; axis: "yaw" | "pitch" | "roll" }
-    | { kind: "angle"; bone: AutoMovieHumanoidBone; axis: 0 | 1 | 2 };
-
-  /**
-   * How one variable moves the body, per its unit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines world angular velocity, linear velocity at the world origin and the affected-bone set, including the all-bones null case.
-   * @evidence contracts/development/design.md#principled-representation A spatial twist and its affected subtree determine every segment-origin and attached-point derivative for the same coordinate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface of/read produce the three fields consumed by twist and velocity; no pose copy or duplicate target Jacobian is carried.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record represents an actual coordinate derivative and bone membership, with units per the variable; it does not assert finite-difference agreement or optimization convergence by type alone.
-   */
-  export interface IMotion {
-    /** The angular velocity of the bones it moves, radians; nought for a place. */
-    angular: IAutoMovieVector3;
-
-    /** The linear velocity it gives the world origin, metres; a place's direction, or the turn's at the origin. */
-    linear: IAutoMovieVector3;
-
-    /** The bones moved; null for every bone. */
-    moves: ReadonlySet<AutoMovieHumanoidBone> | null;
-  }
-
-  /**
-   * A segment's angular and origin linear velocity, per the variable's unit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the angular and linear derivatives, the segment-origin reference point and per-coordinate units.
-   * @evidence contracts/development/design.md#principled-representation Angular velocity together with origin velocity gives the velocity of any rigidly attached point by omega cross its offset.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface twist produces the same two fields arm planner columns and collision derivatives consume; world-origin bookkeeping remains in IMotion.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternate derivative law or convergence flag is represented; values remain physical derivatives of the requested coordinate.
-   */
-  export interface ITwist {
-    /** Radians. */
-    angular: IAutoMovieVector3;
-
-    /** Metres, at the bone's origin. */
-    linear: IAutoMovieVector3;
-  }
-
-  /**
    * The motions of variables on a posed body.
    *
    * @param body The body.
@@ -124,11 +76,11 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary per-read prefixes, clamps and the unused projected-joint map end after this wrapper returns. Motion moves sets borrow the existing weak body rig; only the caller-owned motion array escapes.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
-    variables: readonly IVariable[],
-  ): IMotion[] {
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+  ): IAutoMovieMotionHumanJacobian.IMotion[] {
     return read(body, posture, bones, variables).motions;
   }
 
@@ -157,10 +109,10 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Read-local prefixes are O(U), plus O(B+U) when it owns clamp preparation, and end with this synchronous read. A lent factory belongs to the caller's unchanged operation and is not stored elsewhere. Motions and at most U clamped records escape; moves sets borrow the existing weak body rig, whose carried sets can total O(B squared). No new global cache, task or handle is retained.
    */
   export function read(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
-    variables: readonly IVariable[],
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     projection?: ReturnType<typeof clampJointToSkeleton.prepare>,
   ): IReading {
     const rig: IRig = rigOf(body);
@@ -182,16 +134,16 @@ export namespace HumanJacobian {
       axis: IAutoMovieVector3,
       pivot: IAutoMovieVector3,
       moves: ReadonlySet<AutoMovieHumanoidBone> | null,
-    ) => IMotion = (
+    ) => IAutoMovieMotionHumanJacobian.IMotion = (
       axis: IAutoMovieVector3,
       pivot: IAutoMovieVector3,
       moves: ReadonlySet<AutoMovieHumanoidBone> | null,
-    ): IMotion => ({
+    ): IAutoMovieMotionHumanJacobian.IMotion => ({
       angular: axis,
       linear: Vector3.cross(axis, Vector3.scale(pivot, -1)),
       moves,
     });
-    const motions: IMotion[] = variables.map((variable: IVariable): IMotion => {
+    const motions: IAutoMovieMotionHumanJacobian.IMotion[] = variables.map((variable: IAutoMovieMotionHumanJacobian.IVariable): IAutoMovieMotionHumanJacobian.IMotion => {
       if (variable.kind === "place")
         return {
           angular: ZERO,
@@ -298,10 +250,10 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh outer record, borrowing the motion's angular vector or shared zero and owning a newly composed nonzero linear vector; it retains no input, map or handle.
    */
   export function twist(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanJacobian.IMotion,
     bone: AutoMovieHumanoidBone,
     origin: IAutoMovieVector3,
-  ): ITwist {
+  ): IAutoMovieMotionHumanJacobian.ITwist {
     if (motion.moves !== null && !motion.moves.has(bone))
       return { angular: ZERO, linear: ZERO };
     return {
@@ -327,7 +279,7 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a newly composed affected velocity or the existing shared zero; retains no point, motion, collection or resource handle.
    */
   export function velocity(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanJacobian.IMotion,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
@@ -354,7 +306,7 @@ export namespace HumanJacobian {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no input, vector, map, closure or handle.
    */
   export function velocityY(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanJacobian.IMotion,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3,
   ): number {
@@ -369,7 +321,7 @@ export namespace HumanJacobian {
   /** One candidate's result, without retaining the temporary prefix/clamp preparation. */
   interface IReading {
     /** Fresh motions in the requested variable order. */
-    motions: IMotion[];
+    motions: IAutoMovieMotionHumanJacobian.IMotion[];
 
     /** Exact actual projections already used while forming joint variables. */
     clamped: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>;
@@ -406,10 +358,10 @@ export namespace HumanJacobian {
   }
 
   /** The rigs read, by body. */
-  const RIGS: WeakMap<IHumanBody, IRig> = new WeakMap();
+  const RIGS: WeakMap<IAutoMovieMotionHumanBody, IRig> = new WeakMap();
 
   /** A body's rig, read once. */
-  function rigOf(body: IHumanBody): IRig {
+  function rigOf(body: IAutoMovieMotionHumanBody): IRig {
     const known: IRig | undefined = RIGS.get(body);
     if (known !== undefined) return known;
     const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =

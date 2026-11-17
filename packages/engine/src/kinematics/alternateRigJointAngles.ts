@@ -1,6 +1,7 @@
-import { AutoMovieJointTwistPlacement } from "@automovie/interface";
-
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+import {
+  AutoMovieJointTwistPlacement,
+  type IAutoMovieResolvedJointAngles,
+} from "@automovie/interface";
 
 /**
  * The second Euler chart of a joint rotation, in rest-relative (rig)

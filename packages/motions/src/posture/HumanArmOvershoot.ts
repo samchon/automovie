@@ -4,11 +4,13 @@ import {
   closestPointsBetweenSegments,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanColliders } from "./HumanColliders";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
@@ -47,16 +49,16 @@ export namespace HumanArmOvershoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak frame/room caches remain unchanged. This one-off call creates a query map only at an exact query, retains no point/result and releases it on return or throw.
    */
   export function of(
-    body: IHumanBody,
-    shapes: readonly HumanColliders.IPlaced[],
+    body: IAutoMovieMotionHumanBody,
+    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     elbow: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
     side: "left" | "right",
-    others: readonly HumanColliders.IPlaced[] = [],
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
-    rests: readonly HumanColliders.IPlaced[] = [],
+    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
   ): number {
     return evaluate(
       body,
@@ -84,14 +86,14 @@ export namespace HumanArmOvershoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit owns the closure, borrowed lists and at most S lazy opaque geometry readers until return or throw; none enter global room/frame caches, a result, a body memory or a returned plan.
    */
   export function prepare(
-    body: IHumanBody,
-    shapes: readonly HumanColliders.IPlaced[],
+    body: IAutoMovieMotionHumanBody,
+    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     side: "left" | "right",
-    others: readonly HumanColliders.IPlaced[] = [],
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
-    rests: readonly HumanColliders.IPlaced[] = [],
+    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
   ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
     let room: IRoom | undefined;
     const shared: IQueries = {};
@@ -141,7 +143,7 @@ interface IQueries {
 
 /** Evaluate one candidate, sharing only operation-owned unchanged geometry. */
 function evaluate(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   room: IRoom,
   elbow: IAutoMovieVector3,
   wrist: IAutoMovieVector3,
@@ -172,7 +174,7 @@ function evaluate(
   // hand on its own side, was lifted 50 mm off its place by the margin.
   let depth: number = 0;
   if (room.chest !== undefined) {
-    const chest: HumanColliders.IPlaced = room.chest;
+    const chest: IAutoMovieMotionHumanColliders.IPlaced = room.chest;
     const out: IAutoMovieVector3 = room.out;
     const own: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
       Vector3.dot(Vector3.subtract(p, chest.pose.position), out);
@@ -300,10 +302,10 @@ function evaluate(
 /** One shape with the posed frame of its segment. */
 interface IShape {
   /** The segment's posed frame. */
-  pose: HumanColliders.IPlaced["pose"];
+  pose: IAutoMovieMotionHumanColliders.IPlaced["pose"];
 
   /** The shape. */
-  shape: HumanColliders.IPlaced["shapes"][number];
+  shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
 
   /** Whether the wrist has no goal on the shape, so its own depth excuses nothing. */
   free: boolean;
@@ -322,7 +324,7 @@ interface IShape {
  */
 interface IRoom {
   /** The chest's collider, whose median plane the elbow keeps its side of; none for a rig without one. */
-  chest: HumanColliders.IPlaced | undefined;
+  chest: IAutoMovieMotionHumanColliders.IPlaced | undefined;
 
   /** The chest's outward axis on the arm's side, world; unused without a chest. */
   out: IAutoMovieVector3;
@@ -350,13 +352,13 @@ const EMPTY: object = Object.freeze({});
  * arm is present and every shape framed (`HumanShapeFraming.of`).
  */
 function roomOf(
-  shapes: readonly HumanColliders.IPlaced[],
-  others: readonly HumanColliders.IPlaced[],
-  rests: readonly HumanColliders.IPlaced[],
+  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  rests: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   side: "left" | "right",
 ): IRoom {
-  const key: (list: readonly HumanColliders.IPlaced[]) => object = (list: readonly HumanColliders.IPlaced[]): object =>
-    list.length === 0 ? EMPTY : list;
+  const key: (list: readonly IAutoMovieMotionHumanColliders.IPlaced[]) => object = (list: readonly IAutoMovieMotionHumanColliders.IPlaced[]): object => (
+    list.length === 0 ? EMPTY : list);
   let byOthers:
     | WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", IRoom>>>>
     | undefined = ROOMS.get(key(shapes));
@@ -380,9 +382,9 @@ function roomOf(
   }
   const known: IRoom | undefined = sides[side];
   if (known !== undefined) return known;
-  const chest: HumanColliders.IPlaced | undefined =
-    shapes.find((s: HumanColliders.IPlaced): boolean => s.bone === "upperChest") ??
-    shapes.find((s: HumanColliders.IPlaced): boolean => s.bone === "chest");
+  const chest: IAutoMovieMotionHumanColliders.IPlaced | undefined =
+    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "upperChest") ??
+    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "chest");
   const other: "left" | "right" = side === "left" ? "right" : "left";
   const room: IRoom = {
     chest,
@@ -395,16 +397,16 @@ function roomOf(
             z: 0,
           }),
     present: shapes.some(
-      (s: HumanColliders.IPlaced): boolean =>
+      (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
         s.bone === `${other}UpperArm` || s.bone === `${other}LowerArm`,
     ),
     shapes: [
-      ...shapes.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, false, false]),
-      ...others.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, true, false]),
-      ...rests.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, true, true]),
-    ].flatMap(([segment, free, rest]: readonly [HumanColliders.IPlaced, boolean, boolean]): IShape[] =>
+      ...shapes.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, false, false]),
+      ...others.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, true, false]),
+      ...rests.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, true, true]),
+    ].flatMap(([segment, free, rest]: readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean]): IShape[] =>
       segment.shapes.map(
-        (shape: HumanColliders.IPlaced["shapes"][number]): IShape => ({
+        (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]): IShape => ({
           pose: segment.pose,
           shape,
           free,

@@ -1,9 +1,10 @@
 import type {
   IAutoMovieMaterial,
   IAutoMovieModelPart,
+  IAutoMovieValidateMaterialLobes,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
 import { finiteNumber } from "./finiteNumber";
 import { isRecord } from "./isRecord";
 import { validateColor } from "./validateColor";
@@ -21,28 +22,9 @@ import { validateColor } from "./validateColor";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the collector's interval check and the shared colour validator rather than restating their rules.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the collector and its findings; nothing else is retained.
  */
-export const validateMaterialLobes: (props: {
-  material: IAutoMovieMaterial;
-  path: string;
-  parts: readonly IAutoMovieModelPart[];
-  partsPath: string;
-  collector: ViolationCollector;
-}) => void = (props: {
-  /** The material whose lobes are admitted. */
-  material: IAutoMovieMaterial;
-
-  /** Diagnostic path of the material. */
-  path: string;
-
-  /** The model's parts, searched for meshes that cite the material. */
-  parts: readonly IAutoMovieModelPart[];
-
-  /** Diagnostic path of the parts list. */
-  partsPath: string;
-
-  /** Collector receiving findings. */
-  collector: ViolationCollector;
-}): void => {
+export const validateMaterialLobes: (
+  props: IAutoMovieValidateMaterialLobes.IProps,
+) => void = (props: IAutoMovieValidateMaterialLobes.IProps): void => {
   const {
     material,
     path,
@@ -50,7 +32,7 @@ export const validateMaterialLobes: (props: {
   }: {
     material: IAutoMovieMaterial;
     path: string;
-    collector: ViolationCollector;
+    collector: IAutoMovieViolationCollector;
   } = props;
   const anisotropy: unknown = material.anisotropy;
   if (anisotropy !== undefined)

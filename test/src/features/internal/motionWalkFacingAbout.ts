@@ -1,17 +1,16 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionHumanWalkParams,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanVerdicts,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type walk,
-} from "@automovie/motions";
+import { HumanSignature, HumanVerdicts } from "@automovie/motions";
 
 import type { motionHumanBody } from "./motionHumanBody";
 
@@ -64,21 +63,26 @@ import type { motionHumanBody } from "./motionHumanBody";
  */
 export function motionWalkFacingAbout(
   name: motionHumanBody.Name,
-  body: IHumanBody,
-  perform: (params: walk.IParams) => HumanPerformance,
+  body: IAutoMovieMotionHumanBody,
+  perform: (
+    params: IAutoMovieMotionHumanWalkParams,
+  ) => IAutoMovieMotionHumanPerformance,
   complaints: string[],
 ): void {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   /** A walk performed, and its displayed hips and pelvis's facing. */
   interface IWalked {
-    performance: HumanPerformance;
-    segment: HumanSegment.ISegment;
-    reader: HumanSignature.IReader;
+    performance: IAutoMovieMotionHumanPerformance;
+    segment: IAutoMovieMotionHumanSegment;
+    reader: IAutoMovieMotionHumanSignature.IReader;
     hips: (t: number) => IAutoMovieVector3;
     pelvis: (t: number) => number;
   }
-  const read = (params: walk.IParams, label: string): IWalked | null => {
-    let performance: HumanPerformance;
+  const read = (
+    params: IAutoMovieMotionHumanWalkParams,
+    label: string,
+  ): IWalked | null => {
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(params);
     } catch (error) {
@@ -87,7 +91,7 @@ export function motionWalkFacingAbout(
       );
       return null;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -198,7 +202,7 @@ export function motionWalkFacingAbout(
 
     // 10. A foot spins only past the hip's rotation.
     for (const window of segment.plan.contacts.filter(
-      (c: IHumanContactWindow): boolean =>
+      (c: IAutoMovieMotionHumanContactWindow): boolean =>
         c.kind === "pivot" && (c.part === "leftFoot" || c.part === "rightFoot"),
     )) {
       const side: "left" | "right" =
@@ -216,7 +220,7 @@ export function motionWalkFacingAbout(
 
     // 9. The feet keep the floor.
     for (const finding of HumanVerdicts.of(walked.performance).findings.filter(
-      (f: HumanVerdicts.IFinding): boolean =>
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         f.check === "slip" || f.check === "lift" || f.check === "floor",
     ))
       complaints.push(

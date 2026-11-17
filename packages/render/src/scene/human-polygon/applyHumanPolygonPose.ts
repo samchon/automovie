@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 import type * as THREE from "three";
-
-import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
 /**
  * Apply one complete evaluated body-frame pose to the actual flat polygon
@@ -19,12 +21,15 @@ export function applyHumanPolygonPose(
   object: THREE.Group,
   bindings: ReadonlyMap<string, readonly THREE.Object3D[]>,
   required: readonly string[],
-  output: Pick<AutoMovieHumanPolygon.IInput, "posed">,
+  output: Pick<
+    Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+    "posed"
+  >,
 ): void {
-  const placements: Map<string, AutoMovieHumanPolygon.IPlacement> = new Map();
+  const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
   for (const placement of output.posed) {
-    const p: AutoMovieHumanPolygon.IPlacement["position"] = placement.position;
-    const q: AutoMovieHumanPolygon.IPlacement["rotation"] = placement.rotation;
+    const p: IAutoMovieHumanBonePlacement["position"] = placement.position;
+    const q: IAutoMovieHumanBonePlacement["rotation"] = placement.rotation;
     if (
       placements.has(placement.bone) ||
       p.length !== 3 ||
@@ -48,7 +53,7 @@ export function applyHumanPolygonPose(
       throw new Error(`Missing polygon placement: ${bone}`);
 
   for (const [bone, targets] of bindings) {
-    const placement: AutoMovieHumanPolygon.IPlacement = placements.get(bone)!;
+    const placement: IAutoMovieHumanBonePlacement = placements.get(bone)!;
     for (const target of targets) {
       target.position.set(...placement.position);
       target.quaternion.set(...placement.rotation);

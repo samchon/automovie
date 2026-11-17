@@ -1,8 +1,8 @@
 import type {
-  IApplyAutoMovieInspectionProps,
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionLegendEntry,
-} from "@automovie/render";
+} from "@automovie/interface";
+import type { IApplyAutoMovieInspectionProps } from "@automovie/render";
 
 /**
  * A subject mounted on the inspector's canvas by `mountAutoMovieInspectorScene`: the calls the component makes while it lives.

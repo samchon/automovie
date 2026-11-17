@@ -1,8 +1,11 @@
 import {
   AutoMovieConstructionProfile,
   AutoMovieLoftAdmissionError,
-  type IAutoMovieConstructionProfileSource,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionProfileSource,
+  IAutoMoviePreparedConstructionProfile,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,7 +34,7 @@ export function test_construction_profile_phase(): void {
   const failures: string[] = [];
   for (const second of [false, true]) {
     const source: IAutoMovieConstructionProfileSource = made(second);
-    const reader: AutoMovieConstructionProfile.IPrepared =
+    const reader: IAutoMoviePreparedConstructionProfile.IPrepared =
       AutoMovieConstructionProfile.create(source);
     for (const s of [0, 0.37, 1])
       for (const v of [0, 0.17, 0.83, 1]) {
@@ -109,8 +112,9 @@ export function test_construction_profile_phase(): void {
     }),
   };
   original.curves = new Map([["original", full]]);
-  const retained: ReturnType<AutoMovieConstructionProfile.IPrepared["phase"]> =
-    AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5);
+  const retained: ReturnType<
+    IAutoMoviePreparedConstructionProfile.IPrepared["phase"]
+  > = AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5);
   vector(
     retained.t,
     [-6 * Math.PI * Math.sin(0.5), 0, 6 * Math.PI * Math.cos(0.5)],
@@ -147,8 +151,9 @@ export function test_construction_profile_phase(): void {
       },
     ],
   ]);
-  const zero: ReturnType<AutoMovieConstructionProfile.IPrepared["phase"]> =
-    AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5);
+  const zero: ReturnType<
+    IAutoMoviePreparedConstructionProfile.IPrepared["phase"]
+  > = AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5);
   vector(zero.t, [0, 0, 0], failures);
   vector(zero.tt!, [0, 0, 0], failures);
   original.curves = new Map([

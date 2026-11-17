@@ -1,38 +1,46 @@
 # Generation
 
-Submit each planned [request](requests.md) after the [generation prerequisites](generated-film.md#prerequisites) hold, then inspect and choose its takes. Use the provider and setup that [project context](../production/project-context.md) records, through the service's existing connector, CLI or API.
+Submit each planned [request](requests.md) once the generated film's prerequisites hold, then inspect and choose its takes. Use the provider and setup that [project context](../production/project-context.md) records, through the service's existing connector, CLI or API.
 
-## First path
+## Requests
 
-Before a batch, prove one representative request end to end, on a case with the intended performance, contacts and identity continuity: the input, the generation, the download and stills extracted from the downloaded file. Fix input and integration causes before multiplying them.
+### First path
 
-## Submission
+Before a batch, prove one representative request end to end: the input, the generation, the download and stills extracted from the downloaded file. Choose a case with the intended performance, contacts and identity continuity, and fix its input and integration failures before the batch repeats them.
 
-Bind each request to its exact input bytes and source revision, and record it under [media records](../production/media-records.md#records). Check the existing job's state before retrying, because a retry can bill another job, and keep to the adopted cost and quality limits. A URL, seed or finished job is not a take: download the original and keep it apart from its derivatives.
+### Submission
 
-Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors, and some bill a refused job or suspend an account that repeats them. Read the provider's usage policy before submitting a fight or a stunt, and write its action as movement and impact, as the screenplay does. Report a beat that is still refused to the user, who may choose another provider or an open model.
+Bind each request to its exact input bytes and source revision, and record it under [media records](../production/media-records.md#records). Check the existing job's state before retrying, because a retry can bill another job, and keep to the adopted cost and quality limits. Keep each finished job's downloaded original apart from its derivatives.
 
-## Inspection and choice
+Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors, and under the chosen model's usage policy a refusal can cost a billed job or the account. Write a fight or a stunt as movement and impact, as the screenplay does, and report a beat that is still refused to the user, who may choose another provider or an open model.
 
-Generate the number of takes per request that project context records, and choose among them before rewriting a prompt, because takes of one request differ and a choice costs less than another round of wording. Where the model offers a draft tier or several outputs per job, choose among cheap drafts first, then make the final from the chosen draft by the model's documented path.
+## Takes
 
-Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets, and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), the contacts and outcomes its beats decide first. Choose for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. Leave the take's sound and continuous motion to the user, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets.
+### Inspection and choice
+
+Generate the number of takes per request that project context records, and choose among them before rewriting a prompt, because takes of one request differ. Where the model offers a draft tier or several outputs per job, choose among cheap drafts, then make the final from the chosen draft by the model's documented path.
+
+Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets, and compare them with the hint's stills at matched times under [comparison](../visual-debugging/comparison.md): first the contacts and outcomes its beats decide, then identity, positions, camera and motion. Choose for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. Leave the take's sound and continuous motion to the user.
 
 Repair a take by its cause:
 
-- a take that loses action, identity or causality, at the source, the request or the selection, never by hiding it with a cut;
-- a local flaw in an otherwise right take, under [partial repair](finishing.md#partial-repair);
-- a framing the takes keep losing, at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt;
-- drifting motion or camera, with a stricter adherence or a shorter request rather than a longer prompt.
+| Flaw | Repair |
+| --- | --- |
+| Lost action, identity or causality | Repair the source, the request or the selection |
+| A local flaw in an otherwise right take | Repair it under [partial repair](finishing.md#partial-repair) |
+| A framing the takes keep losing | Change the hint's camera under [staging](../motion/staging.md) |
+| Drifting motion or camera | Set a stricter adherence or shorten the request |
 
-## Placement in time
+Never hide lost action, identity or causality with a cut. Change the hint's camera within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt. A longer prompt does not repair drift.
+
+### Placement in time
 
 Place a take in the film by its decoded timestamps and time base, because a nominal frame rate cannot place an action, least of all at a variable rate. Trimming, retiming and rebasing are different operations, and neither a shortest-stream option nor silent padding may hide lost material.
 
 Where an extension returns its input joined to the new part, place only the new part. An edit can return slightly shorter than its input, so measure it, and recheck a new take, trim or speed change against its neighbors.
 
-Choose each take's in and out frames on its own consecutive frames, because the model keeps the hint's timing only approximately, and record them against the take's available frames in its [record](../production/media-records.md#records), so assembly can be repeated.
+Choose each take's in and out frames on its own consecutive frames, because the model keeps the hint's timing only approximately, and record them against the take's available frames in its [record](../production/media-records.md#records).
 
 ## Handoff
 
-Finish the accepted takes under [finishing](finishing.md), measure their actual timing and hand them with their source relationships and limits to [assembly](../production/assembly.md).
+Finish the accepted takes under [finishing](finishing.md), measure their timing and hand them with their source relationships and limits to [assembly](../production/assembly.md).

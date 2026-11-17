@@ -4,6 +4,9 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -33,30 +36,31 @@ export async function test_physical_internal_actuation(): Promise<void> {
   // semi-implicit COM lag g dt t / 2 stays far under the 2 mm bound.
   const duration: number = 0.05;
   for (const gravity of [0, -9.81]) {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "assembly",
       profile,
       duration,
     );
-    const pattern: NonNullable<Simulation.IBody["supportTracking"]>["pattern"] =
-      {
-        id: "four-internal-carriers",
-        minimumSupports: 1,
-        limbs: [0, 1, 2, 3].map(
-          (
-            index: number,
-          ): NonNullable<
-            Simulation.IBody["supportTracking"]
-          >["pattern"]["limbs"][number] => ({
-            bone: "support-" + index,
-            chain: ["upper-" + index, "lower-" + index, "support-" + index],
-            phase: index / 4,
-            duty: 0.5,
-            offset: { forward: 0, left: 0 },
-            stride: [{ speed: 0, length: 0.5 }],
-          }),
-        ),
-      };
+    const pattern: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+    >["pattern"] = {
+      id: "four-internal-carriers",
+      minimumSupports: 1,
+      limbs: [0, 1, 2, 3].map(
+        (
+          index: number,
+        ): NonNullable<
+          IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+        >["pattern"]["limbs"][number] => ({
+          bone: "support-" + index,
+          chain: ["upper-" + index, "lower-" + index, "support-" + index],
+          phase: index / 4,
+          duty: 0.5,
+          offset: { forward: 0, left: 0 },
+          stride: [{ speed: 0, length: 0.5 }],
+        }),
+      ),
+    };
     Object.assign(body, {
       actuation: "internal",
       compensateGravity: true,
@@ -82,10 +86,8 @@ export async function test_physical_internal_actuation(): Promise<void> {
           ],
         ),
       );
-      const rotation: P.ITransform["rotation"] = Quaternion.fromAxisAngle(
-        { x: 0, y: 0, z: 1 },
-        (15 * step) / 60,
-      );
+      const rotation: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, (15 * step) / 60);
       for (const pose of Object.values(target.segments)) {
         pose.position = Vector3.add(
           profile.centerOfMass,
@@ -98,10 +100,11 @@ export async function test_physical_internal_actuation(): Promise<void> {
         pose.rotation = Quaternion.multiply(rotation, pose.rotation);
       }
     }
-    const input: Simulation.IInput = PhysicalFixtures.input([body], duration);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], duration);
     input.gravity.y = gravity;
     input.substeps = 4;
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     const states: (typeof run.cache.frames)[number]["bodies"][string] =
       run.cache.at(duration).bodies.assembly!;
     let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -126,7 +129,7 @@ export async function test_physical_internal_actuation(): Promise<void> {
         Vector3.scale(position, segment.mass / profile.mass),
       );
       linear = Vector3.add(linear, momentum);
-      const axes: P.ITransform["rotation"] = Quaternion.multiply(
+      const axes: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
         state.rotation,
         segment.inertiaRotation,
       );

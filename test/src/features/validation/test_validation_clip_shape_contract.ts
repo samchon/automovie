@@ -1,5 +1,4 @@
 import {
-  IAutoMovieSampledChannel,
   channelValueWidth,
   sampleClip,
   validateClipArtifact,
@@ -7,6 +6,7 @@ import {
 import {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
+  type IAutoMovieSampledChannel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,4 +1,9 @@
-import { AutoMovieMotionHumanChannel as C, type IHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanChannel as C } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -25,7 +30,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns plain posture records and mutable claim arrays, calls only public source and starts no Human producer, process, renderer or compiler. No foreign function or global is replaced.
  */
 export function test_motion_prepared_channel_merge(): void {
-  const base: IHumanPosture = {
+  const base: IAutoMovieMotionHumanPosture = {
     root: { x: 1, y: 0, z: 0 }, yaw: 10, pitch: 2, roll: 3,
     rotation: { about: { x: 0, y: 0, z: 0 }, turn: { x: 0, y: 0, z: 0, w: 1 } },
     joints: { hips: [1, 0, 0], spine: [2, 0, 0], leftThumbProximal: [3, 0, 0],
@@ -33,7 +38,7 @@ export function test_motion_prepared_channel_merge(): void {
     limbs: { leftArm: goal(1), rightArm: goal(2) },
     digits: { leftThumb: digit(3), leftIndex: digit(4), rightThumb: digit(5) },
   };
-  const written: IHumanPosture = {
+  const written: IAutoMovieMotionHumanPosture = {
     root: { x: 9, y: 8, z: 7 }, yaw: 90, pitch: 20, roll: 30,
     joints: { head: [66, 0, 0], chest: [22, 0, 0], leftThumbProximal: [33, 0, 0], rightUpperArm: [77, 0, 0] },
     limbs: { rightArm: goal(8) }, digits: {},
@@ -41,7 +46,7 @@ export function test_motion_prepared_channel_merge(): void {
   const claims: C.Claim[] = ["root", "trunkTurn", "leftArm", "leftThumb"];
   const merge: ReturnType<typeof C.prepareMerge> = C.prepareMerge(claims);
   claims.splice(0, claims.length, "rightArm");
-  const first: IHumanPosture = merge(base, written);
+  const first: IAutoMovieMotionHumanPosture = merge(base, written);
   TestValidator.predicate("fixed claims select exactly their current scalar and joint owners",
     first.root === written.root && nclose(first.yaw, 90, 0) &&
     nclose(first.pitch, 2, 0) && nclose(first.roll, 3, 0) &&
@@ -58,7 +63,7 @@ export function test_motion_prepared_channel_merge(): void {
   TestValidator.equals("surviving base joints precede selected written joints", Object.keys(first.joints),
     ["hips", "leftIndexProximal", "head", "chest", "leftThumbProximal"],
   );
-  const nextClaims: IHumanPosture = C.prepareMerge(claims)(base, written);
+  const nextClaims: IAutoMovieMotionHumanPosture = C.prepareMerge(claims)(base, written);
   TestValidator.predicate("new preparation adopts the edited claim array",
     nextClaims.root === base.root && nextClaims.rotation === base.rotation &&
     nextClaims.limbs.rightArm === written.limbs.rightArm &&
@@ -69,7 +74,7 @@ export function test_motion_prepared_channel_merge(): void {
   base.joints.head = [7, 0, 0];
   written.joints.chest = [23, 0, 0];
   written.root = { x: 10, y: 11, z: 12 };
-  const second: IHumanPosture = merge(base, written);
+  const second: IAutoMovieMotionHumanPosture = merge(base, written);
   TestValidator.predicate("fixed claims never cache changing input payloads",
     second.root === written.root && nclose(second.root.x, 10, 0) &&
     nclose(second.joints.head![0], 7, 0) && nclose(second.joints.chest![0], 23, 0) &&
@@ -82,7 +87,7 @@ export function test_motion_prepared_channel_merge(): void {
   );
   first.joints.head = [123, 0, 0];
   first.limbs.rightArm = goal(456);
-  const replay: IHumanPosture = merge(base, written);
+  const replay: IAutoMovieMotionHumanPosture = merge(base, written);
   TestValidator.predicate("mutating an earlier wrapper cannot change later selection",
     nclose(replay.joints.head![0], 7, 0) && replay.limbs.rightArm === base.limbs.rightArm &&
     nclose(first.joints.head![0], 123, 0) && nclose(first.limbs.rightArm.point.x, 456, 0),
@@ -90,11 +95,11 @@ export function test_motion_prepared_channel_merge(): void {
 }
 
 /** Create one owned world-space limb goal with a distinguishable point. */
-function goal(x: number): IHumanPosture.IGoal {
+function goal(x: number): IAutoMovieHumanLimbGoal {
   return { point: { x, y: 0, z: 0 }, bend: { x, y: 1, z: 0 } };
 }
 
 /** Create one owned fingertip goal without an unrelated limb dependency. */
-function digit(x: number): IHumanPosture.IDigitGoal {
+function digit(x: number): IAutoMovieHumanDigitGoal {
   return { point: { x, y: 0, z: 0 }, surface: "tip" };
 }

@@ -1,5 +1,9 @@
-import type { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import type { hingedArmSwivel } from "./hingedArmSwivel";
+import type {
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedArticulation,
+} from "@automovie/interface";
+
+import { hingedArmSwivel } from "./hingedArmSwivel";
 
 /**
  * The working records of one `hingedArmArticulation` solve: its bend
@@ -19,7 +23,7 @@ export namespace hingedArmCandidate {
    * @evidence contracts/development/design.md#minimal-and-owned-surface One added member.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the stop instead of copying it.
    */
-  export interface IBranch extends hingedArmSwivel.IStop {
+  export interface IBranch extends IAutoMovieHingedArmSwivel.IStop {
     /** Its index among the branches. */
     branch: number;
   }

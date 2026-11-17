@@ -1,4 +1,5 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -19,9 +20,13 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
  * 0.14 mm from it on average and at most 0.54 mm. 63 independent numbers.
  */
-export const AutoMovieHumanF1ToeLittle: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1ToeLittle: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.little",
-  centres: [AutoMovieHumanF1Joints.littletoe1, AutoMovieHumanF1Joints.littletoe2, AutoMovieHumanF1Joints.littletoeEnd],
+  centres: [
+    AutoMovieHumanF1Joints.littletoe1,
+    AutoMovieHumanF1Joints.littletoe2,
+    AutoMovieHumanF1Joints.littletoeEnd,
+  ],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.little.up"),
   layout: AutoMovieHumanConicSection.limb(1),
@@ -70,5 +75,5 @@ export const AutoMovieHumanF1ToeLittle: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 30, tip: 33.63}],
+  tips: [null, { from: 30, tip: 33.63 }],
 };

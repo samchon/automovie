@@ -6,27 +6,29 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBrace,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -74,32 +76,12 @@ import { gestureHands } from "./gestureHands";
  */
 export namespace brace {
   /** The action's name. */
-  export const name: HumanActionName = "brace";
+  export const name: AutoMovieMotionHumanActionName = "brace";
 
   /** Cancel table: a brace is standing and may become standing again. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
-
-  /**
-   * Parameters of a brace: where the force comes from, what is braced for
-   * and how long the brace lasts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes.
-   * @evidence contracts/development/design.md#principled-representation The source is the shared motion target union, read once at the start and projected to the floor; the kind is a closed union selecting the palms' facing; the duration is seconds, raised to at least the set time plus 0.2 s by the plan rather than refused.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target type is imported from the interface package.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination is meaningful.
-   */
-  export interface IParams {
-    /** Where the force comes from; straight ahead when absent. */
-    toward?: AutoMovieMotionTarget;
-
-    /** What is braced for; `impact` when absent. */
-    kind?: "impact" | "push" | "catchBody";
-
-    /** How long the brace lasts, seconds; 1.5 when absent. */
-    seconds?: number;
-  }
 
   /** Knee flexion of the set posture, degrees (20 to 30 in a braced stance). */
   export const KNEE: number = 25;
@@ -127,11 +109,11 @@ export namespace brace {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The initial centring IIFE releases its FK getter/projector and intermediate maps before returning only the set-root vector. The plan owns fixed body/feet/standing-foot/name metadata without query history. Prior and runtime posture borrow dynamic prerequisites only until synchronous return; no loan enters the root, posture, request data or returned closure.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBrace.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const p: IAutoMovieMotionHumanBrace.IParams = context.params;
     const duration: number = Math.max(SET + 0.2, p.seconds ?? 1.5);
     const yaw: number = context.entry.posture.yaw;
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
@@ -224,11 +206,11 @@ export namespace brace {
     const lean: number = 10;
     const forward: number =
       (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
-    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
-    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
+    const upright: IAutoMovieMotionHumanPosture["joints"] = standUpright.of(body).joints;
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
     const legsAt: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const bearing: number = Math.cos((forward * Math.PI) / 180);
-    const flatHands: IHumanPosture["joints"] = {
+    const flatHands: IAutoMovieMotionHumanPosture["joints"] = {
       ...HumanHand.shape("left", "flat"),
       ...HumanHand.shape("right", "flat"),
     };
@@ -242,7 +224,7 @@ export namespace brace {
         relaxed,
         lean * bearing,
       );
-      const setAt: (root: IAutoMovieVector3) => IHumanPosture = (root: IAutoMovieVector3): IHumanPosture => {
+      const setAt: (root: IAutoMovieVector3) => IAutoMovieMotionHumanPosture = (root: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
         return resolveHumanPosture.lower(body, {
           root,
           yaw,
@@ -282,10 +264,10 @@ export namespace brace {
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
-    const bodyAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (
+    const bodyAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const s: number = minimumJerk.share(t / SET);
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
@@ -295,7 +277,7 @@ export namespace brace {
       );
       const leftFoot: ReturnType<typeof footAt> = footAt("left", t);
       const rightFoot: ReturnType<typeof footAt> = footAt("right", t);
-      const legs: IHumanPosture["limbs"] = legsAt(root, {
+      const legs: IAutoMovieMotionHumanPosture["limbs"] = legsAt(root, {
         left: leftFoot.ankle,
         right: rightFoot.ankle,
       });
@@ -305,7 +287,7 @@ export namespace brace {
         if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
-      const posture: IHumanPosture = resolveHumanPosture.lower(
+      const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
         body,
         { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: legs },
         resolveHumanPosture.KNEE,
@@ -342,7 +324,7 @@ export namespace brace {
           : { fingers: { x: 0, y: 1, z: 0 }, palm: toward },
       ),
     };
-    const region: IHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
+    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
     const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
     const readSternum: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, sternumBones);
     const leftOffsets: Record<"left" | "right", IAutoMovieVector3> = {
@@ -352,11 +334,11 @@ export namespace brace {
     const aheadOffset: IAutoMovieVector3 = Vector3.add(Vector3.scale(toward, reach), {
       x: 0, y: catching ? -0.1 * m.stature : 0, z: 0,
     });
-    const requests: (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => AutoMovieMotionHumanArm.ISided[] = (
-      posture: IHumanPosture,
+    const requests: (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanArmTarget.ISided[] = (
+      posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): AutoMovieMotionHumanArm.ISided[] => {
+    ): IAutoMovieMotionHumanArmTarget.ISided[] => {
       // Canonical demand selection keeps admission intact and omits limb
       // fits only when it proves they cannot move the sternum's ancestry.
       const readResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
@@ -369,7 +351,7 @@ export namespace brace {
         bones.get(region.bone)!,
       ).point;
       return (["left", "right"] as const).map(
-        (side: "left" | "right"): AutoMovieMotionHumanArm.ISided => ({
+        (side: "left" | "right"): IAutoMovieMotionHumanArmTarget.ISided => ({
           side,
           surface: "palm",
           shape: "flat",
@@ -385,14 +367,14 @@ export namespace brace {
         }),
       );
     };
-    const entryArms: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> =
+    const entryArms: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> =
       {
         left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
       };
     const envelope: (at: number) => number = (at: number): number =>
       minimumJerk.share(Math.min(1, Math.max(0, at) / SET));
-    const arms: Map<"left" | "right", HumanArmTrajectory.Trajectory> =
+    const arms: Map<"left" | "right", IAutoMovieMotionHumanArmTrajectory.Trajectory> =
       gestureHands.planned(
         body,
         { start: 0, ready: SET, relax: duration, end: duration },
@@ -401,11 +383,11 @@ export namespace brace {
         entryArms,
         (
           at: number,
-          _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-          projection?: Parameters<IHumanActionPlan["posture"]>[3],
+          _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
         ): gestureHands.IPrior => {
-          const posture: IHumanPosture = bodyAt(at, resolution);
+          const posture: IAutoMovieMotionHumanPosture = bodyAt(at, resolution);
           return {
             posture,
             requests: requests(posture, resolution, projection),
@@ -415,7 +397,7 @@ export namespace brace {
         envelope,
       );
 
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: back === "left" ? "rightFoot" : "leftFoot",
         kind: "plant",
@@ -453,9 +435,9 @@ export namespace brace {
       contacts,
       posture: (
         seconds: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      ): IHumanPosture => gestureHands.written(bodyAt(seconds, resolution), arms, seconds),
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => gestureHands.written(bodyAt(seconds, resolution), arms, seconds),
     };
   }
 }

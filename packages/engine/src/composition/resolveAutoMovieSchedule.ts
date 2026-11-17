@@ -1,10 +1,13 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
-import type { AutoMovieComposition } from "./AutoMovieComposition";
 import { AutoMovieSchedulePlace } from "./AutoMovieSchedulePlace";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
 
 /**
  * Place a composition on the film clock with the production's pure laws.
@@ -27,7 +30,9 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * intent the production's `timing` gives its duration
  * and optional contact offset, then `outcome` and `state` read the entries
  * placed so far, so an outcome may depend on earlier state. The result is
- * deeply frozen; the same composition and laws give the same schedule.
+ * frozen at the schedule, entries array and individual entry levels. Nested
+ * intent, state, cut and event records remain shared and unfrozen; callers keep
+ * them stable. Pure laws and unchanged inputs give the same schedule.
  *
  * @param composition The composition.
  * @param laws The production's pure timing, outcome and state functions.
@@ -41,18 +46,18 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 17 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function resolveAutoMovieSchedule(
-  composition: AutoMovieComposition,
-  laws: resolveAutoMovieSchedule.ILaws,
+  composition: IAutoMovieComposition,
+  laws: IAutoMovieScheduleLaws,
 ): IAutoMovieSchedule {
-  const walk: AutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
-  const place = (node: AutoMovieComposition, start: number): number => {
+  const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
+  const place = (node: IAutoMovieComposition, start: number): number => {
     if (node.kind === "intent")
       return AutoMovieSchedulePlace.intent(walk, node.intent, start);
     if (node.kind === "sequence") {
       // The entry an intent's cut interrupts is the first one the next part places.
       let cutIndex: number | undefined;
       return node.parts.reduce(
-        (at: number, part: AutoMovieComposition): number => {
+        (at: number, part: IAutoMovieComposition): number => {
           const first: number = walk.entries.length;
           const end: number = place(part, at);
           if (cutIndex !== undefined && walk.entries.length > first)
@@ -70,15 +75,15 @@ export function resolveAutoMovieSchedule(
     }
     if (node.kind === "parallel")
       return node.parts.reduce(
-        (end: number, part: AutoMovieComposition): number =>
+        (end: number, part: IAutoMovieComposition): number =>
           Math.max(end, place(part, start)),
         start,
       );
     return AutoMovieSchedulePlace.at(walk, node, start, place);
   };
   const end: number = place(composition, 0);
-  const sorted: IAutoMovieSchedule.IEntry[] = [...walk.entries].sort(
-    (a: IAutoMovieSchedule.IEntry, b: IAutoMovieSchedule.IEntry): number =>
+  const sorted: IAutoMovieScheduleEntry[] = [...walk.entries].sort(
+    (a: IAutoMovieScheduleEntry, b: IAutoMovieScheduleEntry): number =>
       a.start - b.start || a.index - b.index,
   );
   let duration: number = end;
@@ -86,7 +91,7 @@ export function resolveAutoMovieSchedule(
     if (entry.end > duration) duration = entry.end;
   return Object.freeze({
     entries: Object.freeze(
-      sorted.map((e: IAutoMovieSchedule.IEntry) =>
+      sorted.map((e: IAutoMovieScheduleEntry) =>
         Object.freeze(
           walk.interrupted.has(e.index)
             ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
@@ -96,130 +101,4 @@ export function resolveAutoMovieSchedule(
     ),
     duration,
   });
-}
-
-/**
- * Companion types of {@link resolveAutoMovieSchedule}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each of the 5 members (`IContext`, `IAlignment`, `ITiming`, `ICue`, `ILaws`): what the laws see, in film seconds, and what each law returns or leaves absent.
- * @evidence contracts/development/design.md#principled-representation Companion namespace of 5 members; every time is seconds on the film clock, a cut is a share of the duration, and the optional laws (`cues`, `align`, `until`, `outcome`, `state`) state what an absent one means: no tracks, an alignment or proximity cut that throws a `law` error, no outcome, no state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `resolveAutoMovieSchedule`, whose `laws` argument is typed by `ILaws`; the motions' performance supplies the laws and reads `IContext`, `IAlignment` and `ICue`, so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The one widening is `ILaws.state`, which returns `unknown` because the production owns the shape of its state snapshot and the engine only stores it on the entry; there is no `any`, no index signature and no cast, and the types of `@automovie/interface` are imported, not duplicated.
- */
-export namespace resolveAutoMovieSchedule {
-  /** What the laws see while an intent is placed. */
-  export interface IContext {
-    /** The intent's start, seconds. */
-    start: number;
-
-    /** Entries placed so far, in walk order. */
-    entries: readonly IAutoMovieSchedule.IEntry[];
-  }
-
-  /**
-   * What the laws see while an aligned part's start is found: the placing
-   * context, and the instant the part is aligned to with every instant the
-   * same anchor or track offers, so laws that cannot meet the one asked can
-   * say which later one they can.
-   */
-  export interface IAlignment extends IContext {
-    /** The instant aligned to. */
-    anchor: {
-      /** The anchor or cue track. */
-      of: string;
-
-      /** The event named; the anchor's contact or start when absent. */
-      event?: string;
-
-      /** The occurrence of the event, from 0; the first when absent. */
-      index?: number;
-
-      /** Seconds added to the instant. */
-      offset: number;
-
-      /** Every named instant of the anchor or track, in film seconds. */
-      instants: readonly ICue[];
-    };
-  }
-
-  /** An intent's timing. */
-  export interface ITiming {
-    /** Seconds the intent takes; nonnegative. */
-    duration: number;
-
-    /** Seconds from the start to its contact or decisive instant, within the duration. */
-    contact?: number;
-
-    /** Named instants as shares of the duration, which `until: { event }` cuts at. */
-    events?: readonly IAutoMovieMotionEvent[];
-  }
-
-  /** A named instant of a cue track or of a placed entry. */
-  export interface ICue {
-    /** The instant's name; a track may repeat one, as a score repeats `beat`. */
-    name: string;
-
-    /** Film seconds. */
-    seconds: number;
-  }
-
-  /** The production's pure laws. */
-  export interface ILaws {
-    /**
-     * Tracks of named instants that belong to no intent, by track name: a
-     * dialogue's line starts and accents, a score's beats. A part aligns to
-     * one and an intent is cut on one as on an anchored intent's events.
-     */
-    cues?: Readonly<Record<string, readonly ICue[]>>;
-
-    /**
-     * The instants of a track the laws compute from what is placed so far,
-     * read when an `at` names neither an anchor nor a track of `cues`: the
-     * hits a struck person has received, known only once their strikers
-     * are placed. Undefined for a name the laws do not know, which the
-     * walk then refuses as a missing anchor. Pure in the entries given.
-     *
-     * @param of The track's name.
-     * @param entries Entries placed so far, in walk order.
-     * @returns The instants, or undefined.
-     */
-    instants?(
-      of: string,
-      entries: readonly IAutoMovieSchedule.IEntry[],
-    ): readonly ICue[] | undefined;
-
-    /**
-     * The second an intent must start at for its named instant to fall on a
-     * target second. It places nothing: the intent is timed again when it
-     * is placed at the second returned.
-     */
-    align?(
-      intent: IAutoMovieIntent,
-      instant: string,
-      target: number,
-      context: IAlignment,
-    ): number;
-
-    /** Duration and contact of an intent. */
-    timing(intent: IAutoMovieIntent, context: IContext): ITiming;
-
-    /**
-     * The share of an intent's duration at which a `proximity` cut happens,
-     * found from the production's motion, or undefined when it never does.
-     */
-    until?(
-      intent: IAutoMovieIntent,
-      placed: { start: number; duration: number },
-      context: IContext,
-    ): number | undefined;
-
-    /** Outcome class of a placed entry, if any. */
-    outcome?(
-      entry: IAutoMovieSchedule.IEntry,
-      context: IContext,
-    ): string | undefined;
-
-    /** State snapshot after a placed entry, if any. */
-    state?(entry: IAutoMovieSchedule.IEntry, context: IContext): unknown;
-  }
 }

@@ -1,6 +1,9 @@
 import { createStorage } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -9,7 +12,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,7 +54,10 @@ export function test_human_motion_object_drive_overlap(): void {
   const handle = (chest.affordances ?? []).find((a) => a.rides === drawer.id);
   TestValidator.predicate("the drawer has a handle", handle !== undefined);
   if (handle === undefined) return;
-  const placed: IAutoMovieTransform = chest.placed(handle.id as never, placement);
+  const placed: IAutoMovieTransform = chest.placed(
+    handle.id as never,
+    placement,
+  );
   const at: IAutoMovieVector3 = placed.translation;
   // The handle's outward normal, its frame's +Y: the side a person pulls from.
   const out: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {
@@ -62,7 +67,7 @@ export function test_human_motion_object_drive_overlap(): void {
   });
   const facing: number = (Math.atan2(-out.x, -out.z) * 180) / Math.PI;
   const across: IAutoMovieVector3 = { x: out.z, y: 0, z: -out.x };
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   // Each pulls with the hand on the handle's side: "a" stands to its left
   // (the handle at a's right), "b" to its right.
   const pull = (who: string) =>
@@ -77,7 +82,7 @@ export function test_human_motion_object_drive_overlap(): void {
       },
       `${who}-pull`,
     );
-  const input = (composition: AutoMovieComposition) => ({
+  const input = (composition: IAutoMovieComposition) => ({
     seed: "overlap",
     props: [
       HumanObject.prop("chest", chest, {
@@ -132,7 +137,7 @@ export function test_human_motion_object_drive_overlap(): void {
   );
 
   // 2. One after the other: resolved.
-  let resolved: HumanPerformance | undefined;
+  let resolved: IAutoMovieMotionHumanPerformance | undefined;
   try {
     resolved = new HumanPerformance(
       input(

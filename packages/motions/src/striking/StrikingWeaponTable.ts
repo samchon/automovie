@@ -1,7 +1,11 @@
-import { type IAutoMovieSwivelNear, hingedArmSwivel } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { hingedArmSwivel } from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -42,10 +46,10 @@ export namespace StrikingWeaponTable {
    */
   export type IRead = (
     seconds: number,
-    near?: resolveHumanPosture.INear,
+    near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
   ) => {
     ends: readonly IAutoMovieVector3[];
-    seeds: resolveHumanPosture.ISeeded["seeds"];
+    seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
   };
 
   /**
@@ -66,19 +70,19 @@ export namespace StrikingWeaponTable {
   export function reader(
     solve: (
       seconds: number,
-      near: resolveHumanPosture.INear | undefined,
-      kept: (seeds: resolveHumanPosture.ISeeded["seeds"]) => void,
+      near: IAutoMovieMotionHumanResolveHumanPosture.INear | undefined,
+      kept: (seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]) => void,
     ) => readonly IAutoMovieVector3[],
   ): IRead {
     return (
       seconds: number,
-      near?: resolveHumanPosture.INear,
+      near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
     ): ReturnType<IRead> => {
-      let seeds: resolveHumanPosture.ISeeded["seeds"] = {};
+      let seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
       const ends: readonly IAutoMovieVector3[] = solve(
         seconds,
         near,
-        (found: resolveHumanPosture.ISeeded["seeds"]): void => {
+        (found: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]): void => {
           seeds = found;
         },
       );
@@ -107,7 +111,7 @@ export namespace StrikingWeaponTable {
   ): (seconds: number) => readonly IAutoMovieVector3[] {
     const rows: {
       ends: readonly IAutoMovieVector3[];
-      near: resolveHumanPosture.INear;
+      near: IAutoMovieMotionHumanResolveHumanPosture.INear;
     }[] = [];
     const row = (k: number): (typeof rows)[number] => {
       while (rows.length <= k) {
@@ -132,12 +136,12 @@ export namespace StrikingWeaponTable {
 
 /** The fits a knot's successor continues: each solved limb's seed at the swivel search's own resolution. */
 function continued(
-  seeds: resolveHumanPosture.ISeeded["seeds"],
-): resolveHumanPosture.INear {
-  const near: Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelNear>> = {};
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
+): IAutoMovieMotionHumanResolveHumanPosture.INear {
+  const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
   for (const [limb, seed] of Object.entries(seeds))
     if (seed !== null && seed !== undefined)
-      near[limb as IHumanPosture.Limb] = {
+      near[limb as AutoMovieHumanLimb] = {
         ...seed,
         tolerance: hingedArmSwivel.RESOLUTION,
       };

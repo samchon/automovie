@@ -1,6 +1,6 @@
-import { IAutoMovieBeat } from "./IAutoMovieBeat";
-import { IAutoMovieCastMember } from "./IAutoMovieCastMember";
-import { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
+import type { IAutoMovieBeat } from "./IAutoMovieBeat";
+import type { IAutoMovieCastMember } from "./IAutoMovieCastMember";
+import type { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
 
 /**
  * The script: the plan every later stage works from, naming who appears and the ordered beats each shot realizes.

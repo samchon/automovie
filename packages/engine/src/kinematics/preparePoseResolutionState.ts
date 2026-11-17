@@ -1,17 +1,21 @@
 import type {
-  AutoMovieHumanoidBone, IAutoMovieJointPose,
-  IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3,
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeletonPoseResolution,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { composePoseFrames } from "./composePoseFrames";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
-import { preparePoseReading } from "./preparePoseReading";
-import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import { preparePoseJointResolution } from "./preparePoseJointResolution";
 import { preparePosePlacement } from "./preparePosePlacement";
+import { preparePoseReading } from "./preparePoseReading";
+import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import type { preparePoseTupleScan } from "./preparePoseTupleScan";
 
 /** The immutable rooted node representation owned by this state producer. */
@@ -195,24 +199,8 @@ export type IConvention = preparePoseJointResolution.IConvention;
       demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
-  /**
-   * A genuine admitted fixed source with complete appended edits for each query.
-   *
-   * A query means the fixed source joint array followed by this query's edits,
-   * with later records winning and absent edits restoring the baseline. The
-   * producer actually admits the source; arbitrary bone edits stay supported.
-   */
-  export interface IOverlayReader {
-    /** The same ordered edit admission and baseline restoration as resolve, directly into a fresh name map. */
-    resolveMap(edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /**
-     * Admit all current edits in order, including overwritten/stray records,
-     * then resolve baseline plus those edits. Optional live names override
-     * the bound demand.
-     */
-    resolve(edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): IAutoMovieResolvedBone[];
-  }
+  /** A fixed source answering edits (`IAutoMovieSkeletonPoseResolution.IOverlayReader`). */
+  export type IOverlayReader = IAutoMovieSkeletonPoseResolution.IOverlayReader;
 
   /**
    * Admit one fixed source and own the frames of its appended query edits.

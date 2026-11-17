@@ -1,5 +1,8 @@
-import { Plane } from "./Plane";
-import { V3 } from "./V3";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMoviePlaneFrameConstruction,
+} from "@automovie/interface";
+
 import { cross } from "./cross";
 import { dot } from "./dot";
 import { len } from "./len";
@@ -18,12 +21,19 @@ import { sub } from "./sub";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a frame with fresh axis triples and retains no global state.
  */
-export function planeFrame(origin: V3, normal: V3, reference: V3): Plane {
+export function planeFrame(
+  origin: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[0],
+  normal: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[1],
+  reference: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[2],
+): ReturnType<IAutoMoviePlaneFrameConstruction.Operation> {
   if (len(normal) === 0) throw new Error("Cutting plane normal is zero");
-  const n: V3 = norm(normal);
-  const projected: V3 = sub(reference, mul(n, dot(reference, n)));
+  const n: AutoMovieVector3Tuple = norm(normal);
+  const projected: AutoMovieVector3Tuple = sub(
+    reference,
+    mul(n, dot(reference, n)),
+  );
   if (len(projected) < 1e-6)
     throw new Error("Plane reference is parallel to its normal");
-  const v: V3 = norm(projected);
+  const v: AutoMovieVector3Tuple = norm(projected);
   return { origin, n, u: cross(v, n), v };
 }

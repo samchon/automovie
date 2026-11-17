@@ -1,15 +1,19 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanColliders,
   HumanLimbFitFrame,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -45,14 +49,14 @@ import { qclose } from "../internal/qclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory unit borrows immutable canonical geometry through fresh body wrappers, owns all postures/collider placements and invokes public solver/FK/frame APIs. It replaces no foreign function/global and starts no host/compiler.
  */
 export function test_motion_limb_frame_vertical(): void {
-  const body: IHumanBody = { ...motionHumanBody("m-average") };
-  const raw: IHumanPosture = {
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("m-average") };
+  const raw: IAutoMovieMotionHumanPosture = {
     root: { x: 1, y: 0.75, z: -2 }, yaw: 23, pitch: 0, roll: 0,
     joints: { head: [7, 0, 0] }, limbs: {},
   };
   const rest: IAutoMoviePose = resolveHumanPosture(body, raw);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, rest);
-  const asked: IHumanPosture = { ...raw, limbs: {
+  const asked: IAutoMovieMotionHumanPosture = { ...raw, limbs: {
     leftArm: goal(bones, "leftHand", "leftLowerArm", 0.04, 0.05),
     rightArm: goal(bones, "rightHand", "rightLowerArm", 0.04, 0.05),
     leftLeg: goal(bones, "leftFoot", "leftLowerLeg", 0.06, 0.04),
@@ -60,36 +64,36 @@ export function test_motion_limb_frame_vertical(): void {
   const origin: IAutoMoviePose = resolveHumanPosture(body, asked);
   contacts(body, origin, asked);
   for (const dy of [2.25, -0.5, 2.25]) {
-    const moved: IHumanPosture = translated(asked, dy);
+    const moved: IAutoMovieMotionHumanPosture = translated(asked, dy);
     const actual: IAutoMoviePose = resolveHumanPosture(body, moved);
     equalFrames(body, actual, origin, dy);
     contacts(body, actual, moved);
   }
 
-  const leg: IHumanPosture = { ...raw, limbs: { leftLeg: asked.limbs.leftLeg! } };
-  const rootOnly: IHumanPosture = { ...leg, root: { ...leg.root, y: leg.root.y + 0.03 } };
+  const leg: IAutoMovieMotionHumanPosture = { ...raw, limbs: { leftLeg: asked.limbs.leftLeg! } };
+  const rootOnly: IAutoMovieMotionHumanPosture = { ...leg, root: { ...leg.root, y: leg.root.y + 0.03 } };
   const fixed: IAutoMoviePose = resolveHumanPosture(body, rootOnly);
   contacts(body, fixed, rootOnly);
 
   const partner: IAutoMoviePose = resolveHumanPosture(body, {
     ...raw, root: { x: 10, y: 0, z: 10 }, limbs: {},
   });
-  const distant: readonly HumanColliders.IPlaced[] = HumanColliders.placed(body, poseBones(body, partner));
-  const right: IHumanPosture.IGoal = asked.limbs.rightArm!;
+  const distant: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, poseBones(body, partner));
+  const right: IAutoMovieHumanLimbGoal = asked.limbs.rightArm!;
   const hips: IAutoMovieResolvedBone = bones.get("hips")!;
-  const onHips: IHumanPosture.IGoal = {
+  const onHips: IAutoMovieHumanLimbGoal = {
     ...right, on: "hips", point: local(hips, right.point), bend: local(hips, right.bend),
   };
   for (const [kind, current] of [
     ["on", onHips], ["clear", { ...right, clear: distant }], ["rests", { ...right, rests: distant }],
   ] as const) {
-    const own: IHumanBody = { ...body };
-    const source: IHumanPosture = { ...raw, limbs: { rightArm: current } };
+    const own: IAutoMovieMotionHumanBody = { ...body };
+    const source: IAutoMovieMotionHumanPosture = { ...raw, limbs: { rightArm: current } };
     TestValidator.equals(`${kind} retains the explicit world-frame exclusion`,
       HumanLimbFitFrame.of(rest, current), null,
     );
     const dy: number = 0.375;
-    const moved: IHumanPosture = kind === "on"
+    const moved: IAutoMovieMotionHumanPosture = kind === "on"
       ? { ...source, root: { ...source.root, y: source.root.y + dy } }
       : translated(source, dy);
     const actual: IAutoMoviePose = resolveHumanPosture(own, moved);
@@ -103,7 +107,7 @@ export function test_motion_limb_frame_vertical(): void {
 
 /** Derive a nearby reachable world task from the canonical body's actual rest geometry. */
 function goal(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  end: AutoMovieHumanoidBone, middle: AutoMovieHumanoidBone, rise: number, forward: number): IHumanPosture.IGoal {
+  end: AutoMovieHumanoidBone, middle: AutoMovieHumanoidBone, rise: number, forward: number): IAutoMovieHumanLimbGoal {
   const point: IAutoMovieVector3 = bones.get(end)!.worldPosition;
   const bend: IAutoMovieVector3 = bones.get(middle)!.worldPosition;
   return { point: { x: point.x, y: point.y + rise, z: point.z + forward },
@@ -111,10 +115,10 @@ function goal(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 }
 
 /** Move every free world point with the root, leaving all clinical/local values intact. */
-function translated(source: IHumanPosture, dy: number): IHumanPosture {
-  const limbs: IHumanPosture["limbs"] = {};
-  for (const limb of Object.keys(source.limbs) as IHumanPosture.Limb[]) {
-    const value: IHumanPosture.IGoal = source.limbs[limb]!;
+function translated(source: IAutoMovieMotionHumanPosture, dy: number): IAutoMovieMotionHumanPosture {
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+  for (const limb of Object.keys(source.limbs) as AutoMovieHumanLimb[]) {
+    const value: IAutoMovieHumanLimbGoal = source.limbs[limb]!;
     limbs[limb] = { ...value, point: { ...value.point, y: value.point.y + dy },
       bend: { ...value.bend, y: value.bend.y + dy } };
   }
@@ -122,7 +126,7 @@ function translated(source: IHumanPosture, dy: number): IHumanPosture {
 }
 
 /** Compare all actual world frames and clinical joints at the existing rigid-covariance bound. */
-function equalFrames(body: IHumanBody, actual: IAutoMoviePose, reference: IAutoMoviePose, dy: number): void {
+function equalFrames(body: IAutoMovieMotionHumanBody, actual: IAutoMoviePose, reference: IAutoMoviePose, dy: number): void {
   const before: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, reference);
   const after: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, actual);
   TestValidator.predicate("every actual bone keeps the independently translated world transform",
@@ -147,10 +151,10 @@ function equalFrames(body: IHumanBody, actual: IAutoMoviePose, reference: IAutoM
 }
 
 /** Actual displayed endpoints retain the original metre contact requirement. */
-function contacts(body: IHumanBody, pose: IAutoMoviePose, raw: IHumanPosture): void {
+function contacts(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, raw: IAutoMovieMotionHumanPosture): void {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose);
   for (const [limb, name] of [["leftArm", "leftHand"], ["rightArm", "rightHand"], ["leftLeg", "leftFoot"]] as const) {
-    const target: IHumanPosture.IGoal | undefined = raw.limbs[limb];
+    const target: IAutoMovieHumanLimbGoal | undefined = raw.limbs[limb];
     if (target === undefined) continue;
     const point: IAutoMovieVector3 = bones.get(name)!.worldPosition;
     TestValidator.predicate(`actual ${limb} target remains physically satisfied`,

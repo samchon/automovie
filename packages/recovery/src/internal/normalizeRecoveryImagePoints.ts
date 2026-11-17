@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
+
 /**
  * Centre matched image points and set their mean Euclidean distance to sqrt(2).
  * Hartley's normalized eight-point construction acts on the original design:
@@ -14,8 +16,8 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Normalized points and one nine-number transform transfer to the caller; borrowed observations are unchanged and no state survives globally.
  */
 export function normalizeRecoveryImagePoints(
-  points: readonly (readonly [number, number])[],
-): { points: [number, number][]; transform: number[] } {
+  points: Parameters<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> {
   if (points.length === 0)
     throw new Error("camera-design: empty point population");
   let cx: number = 0,

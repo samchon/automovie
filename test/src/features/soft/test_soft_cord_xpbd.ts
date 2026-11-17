@@ -1,10 +1,7 @@
-import {
-  type IAutoMovieSoftBodyObserver,
-  simulateSoftBodyCore,
-  softBodyBudget,
-} from "@automovie/engine";
+import { simulateSoftBodyCore, softBodyBudget } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyObserver,
   IAutoMovieSoftBodyState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

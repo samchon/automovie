@@ -1,17 +1,17 @@
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieAxisFrame,
   IAutoMovieJointConstraint,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
-import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
+import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { swivelJointReadings } from "../kinematics/swivelJointReadings";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { solveDistalTwist } from "./solveDistalTwist";
 
 /**
@@ -38,7 +38,7 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned test, which its fit releases.
  */
 export function distalTwistRange(props: {
-  prepared: Pick<IPreparedChainPlant, "upper" | "lowerRotation" | "lowerDomain">;
+  prepared: Pick<IAutoMoviePreparedChainPlant, "upper" | "lowerRotation" | "lowerDomain">;
   axis: IAutoMovieVector3;
   frame: IAutoMovieAxisFrame | undefined;
   flexion: IAutoMovieVector3;

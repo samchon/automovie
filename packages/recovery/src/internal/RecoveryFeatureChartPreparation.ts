@@ -1,4 +1,10 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDiskChart,
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryFeatureChartPreparation,
+  IAutoMovieRecoveryMultiBoundaryChart,
+} from "@automovie/interface";
 
 import { RecoveryDiskChart as D } from "./RecoveryDiskChart";
 import { RecoveryFeatureChartCuts as F } from "./RecoveryFeatureChartCuts";
@@ -19,37 +25,21 @@ import { RecoveryMultiBoundaryChart as M } from "./RecoveryMultiBoundaryChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned observation arrays and seam witnesses remain private and caller-owned. Component-local maps expire on return; no public mesh or task handle is created.
  */
 export function RecoveryFeatureChartPreparation(
-  input: Parameters<typeof F>[0] & {
-    name: string;
-    cornerDegrees: number;
-    maxCharts: number;
-  },
-): {
-  charts: {
-    name: string;
-    verticesMm: C.Vector[];
-    triangles: [number, number, number][];
-    physicalKeys: string[];
-    sides: [number[], number[], number[], number[]];
-    insertions: ReturnType<typeof D>["insertedBoundaryVertices"];
-    sourceFaces: number[];
-  }[];
-  unsupported: { chart: string; reason: string; sourceFaces: number[] }[];
-  featureArcs: number;
-  observationDisplacementUpperMm: number;
-  diagnostics: string[];
-} {
+  input: Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation> {
   if (!Number.isSafeInteger(input.maxCharts) || input.maxCharts < 0)
     throw new Error(
       "Feature preparation needs an explicit remaining chart budget",
     );
-  const cut: ReturnType<typeof F> = F(input),
-    charts: ReturnType<typeof RecoveryFeatureChartPreparation>["charts"] = [],
-    unsupported: ReturnType<
-      typeof RecoveryFeatureChartPreparation
-    >["unsupported"] = [];
+  const cut: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> =
+      F(input),
+    charts: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation>["charts"] =
+      [],
+    unsupported: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation>["unsupported"] =
+      [];
   for (let i: number = 0; i < cut.charts.length; i++) {
-    const chart: ReturnType<typeof F>["charts"][number] = cut.charts[i]!,
+    const chart: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"][number] =
+        cut.charts[i]!,
       name: string = `${input.name}.feature.${i}`;
     try {
       if (charts.length >= input.maxCharts)
@@ -58,7 +48,7 @@ export function RecoveryFeatureChartPreparation(
         throw new Error(
           "Closed feature component requires a separate observation cut strategy",
         );
-      let verticesMm: C.Vector[] = chart.verticesMm,
+      let verticesMm: Readonly<AutoMovieVector3Tuple>[] = chart.verticesMm,
         triangles: [number, number, number][] = chart.triangles,
         physicalKeys: string[] = chart.physicalKeys,
         cycle: number[] = chart.cycles[0]!;
@@ -71,12 +61,13 @@ export function RecoveryFeatureChartPreparation(
             ],
           ),
         );
-        const disk: ReturnType<typeof M> = M({
-          verticesMm,
-          triangles,
-          vertexKeys: chart.occurrenceKeys,
-          cycles: chart.cycles,
-        });
+        const disk: ReturnType<IAutoMovieRecoveryMultiBoundaryChart.Operation> =
+          M({
+            verticesMm,
+            triangles,
+            vertexKeys: chart.occurrenceKeys,
+            cycles: chart.cycles,
+          });
         verticesMm = disk.verticesMm;
         triangles = disk.triangles;
         physicalKeys = disk.vertexKeys.map(
@@ -86,7 +77,7 @@ export function RecoveryFeatureChartPreparation(
         if (physicalKeys.some((key: string): boolean => !key))
           throw new Error("An auxiliary cut lost original physical identity");
       }
-      const disk: ReturnType<typeof D> = D({
+      const disk: ReturnType<IAutoMovieRecoveryDiskChart.Operation> = D({
         verticesMm,
         triangles,
         vertexKeys: physicalKeys,

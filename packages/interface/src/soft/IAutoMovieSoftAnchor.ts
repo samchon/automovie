@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieSoftAnchorBinding } from "./IAutoMovieSoftAnchorBinding";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieSoftAnchorBinding } from "./IAutoMovieSoftAnchorBinding";
 
 /**
  * One particle held at a declared boundary position.

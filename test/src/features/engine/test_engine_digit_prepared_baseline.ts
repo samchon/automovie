@@ -1,16 +1,17 @@
 import {
-  type IAutoMovieResolvedBone,
+  ROM_TOLERANCE,
   fitDigitToTarget,
   prepareSkeletonPoseResolution,
-  ROM_TOLERANCE,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitDigitToTarget,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -72,7 +73,7 @@ export function test_engine_digit_prepared_baseline(): void {
     joints: [joint("leftHand", { flexion: 15 }),
       joint(names[0]!, { flexion: 10 }), joint(names[1]!, { flexion: 20 }), joint(names[2]!, { flexion: 15 })],
   };
-  let previous: fitDigitToTarget.IResult | undefined;
+  let previous: IAutoMovieFitDigitToTarget.IResult | undefined;
   const normalFindings: string[] = [];
   for (const [hand, angles] of [
     [15, [20, 30, 10]], [15, [35, 25, 15]], [15, [20, 30, 10]], [-10, [20, 30, 10]],
@@ -92,7 +93,7 @@ export function test_engine_digit_prepared_baseline(): void {
         z: witness.worldPosition.z }, wanted.point, 1e-12) &&
       vclose({ x: -Math.sin(witnessAngle), y: Math.cos(witnessAngle), z: 0 }, wanted.normal, 1e-12));
     for (const [prepared, rate] of [[true, undefined], [true, 5000], [false, undefined], [false, 5000]] as const) {
-      const result: fitDigitToTarget.IResult = fitDigitToTarget({
+      const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
         skeleton, pose, bones: names,
         effector: { bone: names[2]!, point: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
         target: wanted.point, normal: wanted.normal,
@@ -133,14 +134,14 @@ export function test_engine_digit_prepared_baseline(): void {
     }
   }
   TestValidator.equals("every raw/prepared/rate normal retains the original declared joint resolution", normalFindings, []);
-  const good: fitDigitToTarget.IInput = {
+  const good: IAutoMovieFitDigitToTarget.IInput = {
     skeleton, pose, bones: names, rig,
     effector: { bone: names[2]!, point: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
     target: target(-10, [20, 30, 10]).point,
   };
   pose.joints.push(joint("rightFoot", { flexion: NaN }), joint("rightFoot", { flexion: 0 }));
   TestValidator.predicate("ordered invalid unrelated source cannot hide behind selected digit demand",
-    throwsError((): fitDigitToTarget.IResult => fitDigitToTarget(good)),
+    throwsError((): IAutoMovieFitDigitToTarget.IResult => fitDigitToTarget(good)),
   );
   pose.joints.splice(pose.joints.length - 2, 2);
   TestValidator.predicate("valid source recovers after an unrelated admission failure",
@@ -148,14 +149,14 @@ export function test_engine_digit_prepared_baseline(): void {
   );
   pose.joints.push(joint(names[0]!, { flexion: NaN }));
   for (const prepared of [true, false]) {
-    const replaced: fitDigitToTarget.IInput = { ...good };
+    const replaced: IAutoMovieFitDigitToTarget.IInput = { ...good };
     if (!prepared) delete replaced.rig;
-    const result: fitDigitToTarget.IResult = fitDigitToTarget(replaced);
+    const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget(replaced);
     TestValidator.predicate(`no-rate original digit is replaced before actual candidate FK, prepared=${prepared}`,
       result.residual <= 5e-4 && vclose(result.point, good.target, 5e-4) &&
       result.joints.every((value: IAutoMovieJointPose): boolean => Number.isFinite(value.flexion)));
     TestValidator.predicate(`positive-rate source FK retains the original invalid digit admission, prepared=${prepared}`,
-      throwsError((): fitDigitToTarget.IResult => fitDigitToTarget({ ...replaced, rate: 5000 }), ["flexion", "finite"]));
+      throwsError((): IAutoMovieFitDigitToTarget.IResult => fitDigitToTarget({ ...replaced, rate: 5000 }), ["flexion", "finite"]));
   }
   pose.joints.pop();
   TestValidator.predicate("positive-rate prepared source recovers after the original invalid digit is removed",

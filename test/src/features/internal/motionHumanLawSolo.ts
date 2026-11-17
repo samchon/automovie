@@ -1,9 +1,13 @@
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditDifference,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+} from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
   HumanChain,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -43,7 +47,7 @@ export function motionHumanLawSolo(
   row: motionHumanLawSolo.IRow,
   name: motionHumanBody.Name = "m-average",
 ): string[] {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const label: string = `${row.label} on ${name}`;
   const perform = (): motionHumanLaw.IFilm =>
     motionHumanLaw.perform(
@@ -59,14 +63,14 @@ export function motionHumanLawSolo(
   }
   const out: string[] = [];
   try {
-    const limits: Partial<AutoMovieMotionHumanAudit.ILimits> = {};
+    const limits: Partial<IAutoMovieMotionHumanAudit.ILimits> = {};
     for (const check of Object.keys(
       row.unread ?? {},
-    ) as AutoMovieMotionHumanAudit.Check[])
+    ) as IAutoMovieMotionHumanAudit.Check[])
       limits[check] = null;
     out.push(...motionHumanLaw.audit(film, label, "a", body, { limits }));
 
-    const again: AutoMovieMotionHumanAuditDifference.IResult =
+    const again: IAutoMovieMotionHumanAuditDifference.IResult =
       AutoMovieMotionHumanAuditDifference.measure(film, perform(), "a", {
         rate: 4,
       });
@@ -100,7 +104,7 @@ export function motionHumanLawSolo(
     }
 
     if (row.counted !== undefined) {
-      const values: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+      const values: number[] = AutoMovieMotionHumanAuditMotion.grid(
         0,
         film.duration,
         48,
@@ -143,13 +147,13 @@ export namespace motionHumanLawSolo {
     label: string;
 
     /** The action. */
-    law: Parameters<HumanChain["act"]>[0];
+    law: Parameters<IAutoMovieMotionHumanChain["act"]>[0];
 
     /** Its parameters. */
     params: object;
 
     /** The audit checks the action is not owed, each with the reason. */
-    unread?: Partial<Record<AutoMovieMotionHumanAudit.Check, string>>;
+    unread?: Partial<Record<IAutoMovieMotionHumanAudit.Check, string>>;
 
     /** Whether the action ends in the quiet standing it began from. */
     returns?: boolean;
@@ -167,6 +171,9 @@ export namespace motionHumanLawSolo {
     };
 
     /** The action's own expectations, as complaints. */
-    intent?: (film: motionHumanLaw.IFilm, body: IHumanBody) => string[];
+    intent?: (
+      film: motionHumanLaw.IFilm,
+      body: IAutoMovieMotionHumanBody,
+    ) => string[];
   }
 }

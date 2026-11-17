@@ -15,6 +15,9 @@ import type { createHorse } from "./createHorse";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size no source gives is a named estimate; the saddle's weight is its maker's.
  */
 export namespace HorseSaddle {
+  /** Flexible reins/lead follow two declared span anchors, so none is a rigid head-carried part. */
+  export const HEAD: readonly string[] = [];
+
   /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
   export const HELD: Readonly<{ rein: number; lead: number }> = {
     rein: 0.2,
@@ -38,9 +41,9 @@ export namespace HorseSaddle {
    * @param rig The equid's rest rig.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The saddle on the back over the rig's hitch, the stirrups hanging their drawn drop below it beside the barrel, each rein from the corner of the mouth back to where the hand holds it above the withers.
+   * @evidence contracts/development/implementation.md#principled-implementation The saddle sits over the rig's hitch and the stirrups hang below it. Each rein is a span between its actual head-local bit point and its trunk-carried hand contact, extending behind the hand by half the occupied grip run.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The saddle and its seat, the pommel and cantle, then each side's stirrup and rein.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saddle is a box; only it carries mass, as a percent of the equid's, the body's shares being percents of its mass (`QuadrupedBody.lay`).
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the saddle carries mass. Rein geometry and held-frame direction are recomputed by the shared span owner; neither the hand nor the bit is moved to fit a rigid rod.
    * @evidence contracts/development/implementation.md#efficient-algorithms Nine parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one saddle.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -130,17 +133,6 @@ export namespace HorseSaddle {
         rig.mouth.y,
         rig.mouth.z,
       );
-      // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
-      const run: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(bit, hand),
-      );
-      builder.rod(
-        `rein-${side}`,
-        d.reinWidth / 2,
-        Vector3.subtract(hand, Vector3.scale(run, HELD.rein / 2)),
-        bit,
-        { color: "#4a3324", share: 0 },
-      );
       builder.affordance({
         id: `${side}Rein`,
         kind: "rein",
@@ -155,6 +147,15 @@ export namespace HorseSaddle {
         aperture: d.reinWidth,
         length: HELD.rein,
       });
+
+      // The occupied held run stays on the actual line even as the bit moves.
+      builder.span(
+        `rein-${side}`,
+        { affordance: `${side}Rein`, overhang: HELD.rein / 2 },
+        builder.anchor("head", bit),
+        d.reinWidth / 2,
+        { color: "#4a3324", share: 0 },
+      );
     }
   }
 
@@ -166,11 +167,11 @@ export namespace HorseSaddle {
    * @param h The height at the withers, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it lays and where.
-   * @evidence contracts/development/implementation.md#principled-implementation The rope from the held point beside the head to the halter at the nose, running on behind the hand by half the held run so the run the hand closes on is all rope.
+   * @evidence contracts/development/implementation.md#principled-implementation Bind the halter point to the actual built head, then span from the independently carried hand origin with half a held run of overhang; shared span posing keeps the full hand contact and current halter on the same physical line.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rod and its contact.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rope is straight and massless, no maker's weight read.
    * @evidence contracts/development/implementation.md#efficient-algorithms One part.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one rope.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same actual-part anchor and held-span operations as both riding reins.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lead(
@@ -181,19 +182,6 @@ export namespace HorseSaddle {
     const v: typeof Vector3.create = Vector3.create;
     const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
     const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
-    builder.rod(
-      "lead",
-      LEAD / 2,
-      Vector3.subtract(
-        held,
-        Vector3.scale(
-          Vector3.normalize(Vector3.subtract(halter, held)),
-          HELD.lead / 2,
-        ),
-      ),
-      halter,
-      { color: "#d8d2c4", share: 0 },
-    );
     builder.affordance({
       id: "lead",
       kind: "rein",
@@ -208,5 +196,12 @@ export namespace HorseSaddle {
       aperture: LEAD,
       length: HELD.lead,
     });
+    builder.span(
+      "lead",
+      { affordance: "lead", overhang: HELD.lead / 2 },
+      builder.anchor("head", halter),
+      LEAD / 2,
+      { color: "#d8d2c4", share: 0 },
+    );
   }
 }

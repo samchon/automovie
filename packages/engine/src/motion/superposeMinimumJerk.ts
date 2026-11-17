@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMinimumJerk,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { minimumJerk } from "./minimumJerk";
 
@@ -39,19 +43,19 @@ const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
  */
 export function superposeMinimumJerk(
   origin: IAutoMovieVector3,
-  units: readonly superposeMinimumJerk.IUnit[],
+  units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
   seconds: number,
-): superposeMinimumJerk.IState {
-  return evaluate(origin, units, seconds, true) as superposeMinimumJerk.IState;
+): IAutoMovieSuperposeMinimumJerk.IState {
+  return evaluate(origin, units, seconds, true) as IAutoMovieSuperposeMinimumJerk.IState;
 }
 
 /** Only the two actual public demands select this private result union. */
-type IReading = superposeMinimumJerk.IState | IAutoMovieVector3;
+type IReading = IAutoMovieSuperposeMinimumJerk.IState | IAutoMovieVector3;
 
 /** One original accumulation, computing derivatives only for complete state. */
 function evaluate(
   origin: IAutoMovieVector3,
-  units: readonly superposeMinimumJerk.IUnit[],
+  units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
   seconds: number,
   derivatives: boolean,
 ): IReading {
@@ -62,7 +66,7 @@ function evaluate(
     if (!(unit.duration > 0))
       throw new Error("A minimum-jerk unit's duration is positive");
     const u: number = (seconds - unit.start) / unit.duration;
-    const p: minimumJerk.IProfile | undefined = derivatives ? minimumJerk(u) : undefined;
+    const p: IAutoMovieMinimumJerk.IProfile | undefined = derivatives ? minimumJerk(u) : undefined;
     const s: number = p === undefined ? minimumJerk.share(u) : p.s;
     for (const k of COMPONENTS) {
       position[k] += unit.displacement[k] * s;
@@ -93,33 +97,9 @@ export namespace superposeMinimumJerk {
    */
   export function position(
     origin: IAutoMovieVector3,
-    units: readonly IUnit[],
+    units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
     seconds: number,
   ): IAutoMovieVector3 {
     return evaluate(origin, units, seconds, false) as IAutoMovieVector3;
-  }
-
-  /** One unit. */
-  export interface IUnit {
-    /** Displacement the unit adds, metres. */
-    displacement: IAutoMovieVector3;
-
-    /** Start, seconds. */
-    start: number;
-
-    /** Duration, seconds; positive. */
-    duration: number;
-  }
-
-  /** The moved point at an instant. */
-  export interface IState {
-    /** Position, metres. */
-    position: IAutoMovieVector3;
-
-    /** Velocity, metres per second. */
-    velocity: IAutoMovieVector3;
-
-    /** Acceleration, metres per second squared. */
-    acceleration: IAutoMovieVector3;
   }
 }

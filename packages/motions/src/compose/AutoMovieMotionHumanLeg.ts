@@ -1,13 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLeg,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
@@ -27,74 +33,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanLeg {
-  /**
-   * A leg side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two sides a leg is on.
-   * @evidence contracts/development/design.md#principled-representation The body's bilateral symmetry as a closed union, the form the rig's bone names take.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used by every function here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
-   */
-  export type Side = HumanHand.Side;
-
-  /**
-   * A foot's placement as a frame of the action.
-   *
-   * @param posture The posture so far at this second.
-   * @param seconds Seconds since the action's start.
-   * @returns The placement, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each argument is, when the function is called and the result's frame.
-   * @evidence contracts/development/design.md#principled-representation A foot that follows something (a swing path, a pivot about its ball) is a function of the posture so far and the time, evaluated when the row is written.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by `place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed placement is the constant function, so there is no second form for it.
-   */
-  export type Frame = (
-    posture: IHumanPosture,
-    seconds: number,
-  ) => HumanFoot.IPlacement;
-
-  /**
-   * One leg's movement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its unit.
-   * @evidence contracts/development/design.md#principled-representation The span the leg is written over, where the foot is at each second and whether it bears then.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `place`; `plant` and `step` fill them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bearing is a function of seconds, so a foot that lands inside the span needs no second primitive.
-   */
-  export interface IPlace {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The leg. */
-    side: Side;
-
-    /** Seconds since the action's start from which the leg is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the leg is written. */
-    to: number;
-
-    /** Where the foot is. */
-    placement: Frame;
-
-    /**
-     * Whether the foot bears on the floor.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns `true` while it is planted.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and what the boolean means.
-     * @evidence contracts/development/implementation.md#principled-implementation Bearing is a pure function of the seconds, so a foot that lands or leaves inside the span needs no second primitive.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `place`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The member answers a boolean and no share of bearing, so a foot is either planted or free; the reader applies no tolerance of its own to it.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    planted(seconds: number): boolean;
-  }
-
   /**
    * A foot on its way from one placement to another: the ankle on the
    * straight line between them raised by `4 c s (1 - s)`, a parabola that
@@ -116,11 +54,11 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function arc(
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
     progress: number,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     const s: number = Math.min(1, Math.max(0, progress));
     return {
       ankle: swingAnkle(from.ankle, to.ankle, clearance, s),
@@ -145,13 +83,13 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns two borrowed endpoint placements, clearance and bounded slerp/lazy fixed-vector readers until released; every returned placement/vector/quaternion is fresh and retains no reader or time history.
    */
   export function prepareArc(
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
-  ): (progress: number) => HumanFoot.IPlacement {
+  ): (progress: number) => IAutoMovieMotionHumanFoot.IPlacement {
     const turn: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(from.rotation, to.rotation);
     let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
-    return (progress: number): HumanFoot.IPlacement => {
+    return (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const s: number = Math.min(1, Math.max(0, progress));
       ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
       return { ankle: raised(ankle(s), clearance, s), rotation: turn(s) };
@@ -177,12 +115,12 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: Side,
-    placement: HumanFoot.IPlacement,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: AutoMovieHumanSide,
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const point: IAutoMovieVector3 = placement.ankle;
     const rotation: IAutoMovieQuaternion = placement.rotation;
     return goalAt(body, posture, side, point, rotation, planted, HumanFoot.heading(placement.rotation));
@@ -206,13 +144,13 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader borrows fixed body/placement and retains four copied rotation scalars, one bounded prepared knee-metadata reader and at most one contact vector until its owning action ends; returned goals retain no reader or time history.
    */
   export function prepareGoal(
-    body: IHumanBody,
-    side: Side,
-    placement: HumanFoot.IPlacement,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
-  ): (posture: Pick<IHumanPosture, "root" | "yaw">) => IHumanPosture.IGoal {
+  ): (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">) => IAutoMovieHumanLimbGoal {
     let read: ReturnType<typeof placementReader> | undefined;
-    return (posture: Pick<IHumanPosture, "root" | "yaw">): IHumanPosture.IGoal => {
+    return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">): IAutoMovieHumanLimbGoal => {
       const point: IAutoMovieVector3 = placement.ankle;
       const rotation: IAutoMovieQuaternion = placement.rotation;
       read ??= placementReader(body, side, rotation);
@@ -236,11 +174,11 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Copied quaternion scalars and fixed unchanged body/side prove only the reused heading/knee/contact prerequisites. Current world ankle, root, yaw and bearing remain actual inputs; changed quaternion values are never treated as the prepared rotation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns four rotation scalars, one bounded knee producer and at most one toe-offset vector until release. No actual placement, root, goal, query result, workspace or time history is retained.
    */
-  export function preparePlacement(body: IHumanBody, side: Side, rotation: IAutoMovieQuaternion):
-    (posture: Pick<IHumanPosture, "root" | "yaw">, placement: HumanFoot.IPlacement, planted: boolean) => IHumanPosture.IGoal {
+  export function preparePlacement(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, rotation: IAutoMovieQuaternion):
+    (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, placement: IAutoMovieMotionHumanFoot.IPlacement, planted: boolean) => IAutoMovieHumanLimbGoal {
     const read: ReturnType<typeof placementReader> = placementReader(body, side, rotation);
-    return (posture: Pick<IHumanPosture, "root" | "yaw">, placement: HumanFoot.IPlacement,
-      planted: boolean): IHumanPosture.IGoal => read(posture, placement.ankle, placement.rotation, planted);
+    return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, placement: IAutoMovieMotionHumanFoot.IPlacement,
+      planted: boolean): IAutoMovieHumanLimbGoal => read(posture, placement.ankle, placement.rotation, planted);
   }
 
   /**
@@ -257,13 +195,13 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function place(props: IPlace): IAutoMovieMotionHumanPrimitive {
+  export function place(props: IAutoMovieMotionHumanLeg.IPlace): IAutoMovieMotionHumanPrimitive {
     const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
     return {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -298,18 +236,18 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its borrowed arguments and constant callbacks until released, storing no prepared placement result or time history.
    */
   export function plant(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    at: HumanFoot.IPlacement,
+    at: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieMotionHumanPrimitive {
     const primitive: IAutoMovieMotionHumanPrimitive = place({
       body,
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (): HumanFoot.IPlacement => at,
+      placement: (): IAutoMovieMotionHumanFoot.IPlacement => at,
       planted: (): boolean => true,
     });
     return { ...primitive, reads: ["root", `${side}Leg`] };
@@ -338,12 +276,12 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its borrowed endpoints, clearance and clock/window until released, without prepared placement results or time history.
    */
   export function step(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
   ): IAutoMovieMotionHumanPrimitive {
     const primitive: IAutoMovieMotionHumanPrimitive = place({
@@ -351,7 +289,7 @@ export namespace AutoMovieMotionHumanLeg {
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
+      placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
         arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,
@@ -382,30 +320,30 @@ function formed(
   rotation: IAutoMovieQuaternion,
   bend: IAutoMovieVector3,
   contact: IAutoMovieVector3 | undefined,
-): IHumanPosture.IGoal {
+): IAutoMovieHumanLimbGoal {
   return { point, rotation, bend, ...(contact === undefined ? {} : { planted: true, contact }) };
 }
 
 /** Original cold heading, current knee and actual bearing-contact admission order. */
-function goalAt(body: IHumanBody, posture: Pick<IHumanPosture, "root" | "yaw">,
-  side: AutoMovieMotionHumanLeg.Side, point: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion, planted: boolean, heading: number = HumanFoot.heading(rotation)): IHumanPosture.IGoal {
+function goalAt(body: IAutoMovieMotionHumanBody, posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  side: AutoMovieHumanSide, point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion, planted: boolean, heading: number = HumanFoot.heading(rotation)): IAutoMovieHumanLimbGoal {
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.knee(body, posture, side, heading);
   return formed(point, rotation, bend, planted ? HumanFoot.offset(body, side, "mtp") : undefined);
 }
 
 /** Genuine fixed-rotation producer shared by both actual prepared-placement APIs. */
-function placementReader(body: IHumanBody, side: AutoMovieMotionHumanLeg.Side, fixed: IAutoMovieQuaternion):
-  (posture: Pick<IHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion, planted: boolean) => IHumanPosture.IGoal {
+function placementReader(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, fixed: IAutoMovieQuaternion):
+  (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion, planted: boolean) => IAutoMovieHumanLimbGoal {
   const x: number = fixed.x;
   const y: number = fixed.y;
   const z: number = fixed.z;
   const w: number = fixed.w;
   let knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> | undefined;
   let contact: IAutoMovieVector3 | undefined;
-  return (posture: Pick<IHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion, planted: boolean): IHumanPosture.IGoal => {
+  return (posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">, point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion, planted: boolean): IAutoMovieHumanLimbGoal => {
     if (!Object.is(rotation.x, x) || !Object.is(rotation.y, y) ||
       !Object.is(rotation.z, z) || !Object.is(rotation.w, w))
       return goalAt(body, posture, side, point, rotation, planted);

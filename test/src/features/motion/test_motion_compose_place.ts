@@ -1,8 +1,9 @@
-import {
-  AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanTargetGrid,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanTargetGrid } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -35,7 +36,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the stub and lists the 6 scenarios with their numbers.
  */
 export function test_motion_compose_place(): void {
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     measure: {
       stature: 1.7,
       upperArm: 0.3,
@@ -45,10 +46,10 @@ export function test_motion_compose_place(): void {
       hipHeight: 0.9,
       thigh: 0.4,
     },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const near = (got: number | undefined, expected: number): boolean =>
     got !== undefined && Math.abs(got - expected) <= 1e-9;
-  const grid: AutoMovieMotionHumanTargetGrid.IGrid = {
+  const grid: IAutoMovieMotionHumanTargetGrid.IGrid = {
     height: "shoulder",
     lateral: "shoulder",
     distance: "far",
@@ -96,7 +97,7 @@ export function test_motion_compose_place(): void {
     ),
   );
 
-  const explicit: AutoMovieMotionHumanTarget.IDefault = {
+  const explicit: IAutoMovieMotionHumanTarget.IDefault = {
     height: 0.6,
     range: 0.7,
     lateral: 0.2,

@@ -1,14 +1,17 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { walkSteps } from "./walkSteps";
 
 /** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
 interface IProps {
   /** The body whose hip height scales sway and running bob. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
   /** The exact entry root, world metres. */
   start: IAutoMovieVector3;
   /** Step period, seconds. */
@@ -53,7 +56,7 @@ interface IProps {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A take fixes the body, timing and path readers; this closure shares only those fixed prerequisites and not a result keyed by a later query.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the fixed input record, rest centre and entry offset until the step plan releases them, with no growing query history.
  */
-export function walkRoot(props: IProps): Pick<walkSteps.IPlan, "root" | "amount"> {
+export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> {
   const a: IAutoMovieVector3 = props.body.rest.get("leftFoot")!;
   const b: IAutoMovieVector3 = props.body.rest.get("rightFoot")!;
   const rest: IAutoMovieVector3 = { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 };

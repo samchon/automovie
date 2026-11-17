@@ -1,6 +1,7 @@
-import { AutoMovieGrammarStyleIntent } from "@automovie/interface";
-
-import { AutoMovieGrammarDiagnosticCode } from "../AutoMovieGrammarDiagnosticCode";
+import {
+  type AutoMovieGrammarDiagnosticCode,
+  AutoMovieGrammarStyleIntent,
+} from "@automovie/interface";
 
 /** Exact one-to-one suppression table for deliberate grammar exceptions. */
 export const GRAMMAR_STYLE_SUPPRESSION: Readonly<

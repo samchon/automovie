@@ -6,6 +6,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -14,9 +19,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,12 +97,14 @@ export function test_human_motion_sport_workout(): void {
   ];
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let chain: HumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
+    let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
+      seconds: 0.3,
+    });
     for (const [row, given] of rows)
       chain = chain.registered(row, given).stand({ seconds: 0.3 });
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "workout",
@@ -127,18 +132,18 @@ export function test_human_motion_sport_workout(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const segment = (row: string): HumanSegment.ISegment =>
+    const segment = (row: string): IAutoMovieMotionHumanSegment =>
       film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     const when = (row: string, event: string): number => {
-      const found: HumanSegment.ISegment = segment(row);
+      const found: IAutoMovieMotionHumanSegment = segment(row);
       const share: number | undefined = found.plan.events.find(
         (e): boolean => e.name === event,
       )?.share;
@@ -292,15 +297,13 @@ export function test_human_motion_sport_workout(): void {
     const chin: number = when("pullUp", "top1");
     // The fists' middle: the hands' grip sockets, closed on the bar.
     const fists = (seconds: number): IAutoMovieVector3 => {
-      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
-        "a",
-        seconds,
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", seconds);
       return Vector3.scale(
         [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
           .map(
             (
-              socket: IHumanBody["surfaces"]["sockets"]["gripLeft"],
+              socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"],
             ): IAutoMovieVector3 =>
               resolveAutoMovieHumanoidSurfaces.place(
                 socket,
@@ -377,11 +380,18 @@ export function test_human_motion_sport_workout(): void {
     expect("the salto lands upright", standing > 0, m(standing));
 
     // 9. A salto that cannot turn.
+    // This test distinguishes actual constructor identities with instanceof.
     const attempt: (
       params: object,
-    ) => HumanPerformance | HumanRefusal | string = (
+    ) =>
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string = (
       params: object,
-    ): HumanPerformance | HumanRefusal | string => {
+    ):
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string => {
       try {
         return new HumanPerformance({
           seed: "salto",
@@ -412,7 +422,10 @@ export function test_human_motion_sport_workout(): void {
       ["one turn at a 0.15 m apex", { apex: 0.15 }, 1],
       ["three turns at the default apex", { turns: 3 }, 3],
     ] as const) {
-      const result: HumanPerformance | HumanRefusal | string = attempt(params);
+      const result:
+        | InstanceType<typeof HumanPerformance>
+        | InstanceType<typeof HumanRefusal>
+        | string = attempt(params);
       if (result instanceof HumanPerformance) {
         const observed: string[] = assertSportSaltoFlight(result, "a", turns);
         expect(
@@ -431,7 +444,10 @@ export function test_human_motion_sport_workout(): void {
             : result,
         );
     }
-    const many: HumanPerformance | HumanRefusal | string = attempt({
+    const many:
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string = attempt({
       turns: 20,
     });
     expect(

@@ -1,10 +1,9 @@
-import {
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewOutline } from "@automovie/engine";
 import type {
-  AutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionOutlineParameter,
   IAutoMovieConstructionOutlineRange,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
 /**
@@ -29,8 +28,8 @@ export function test_construction_source_tolerance(): void {
   };
   const admitted = (
     label: string,
-    created: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure,
-  ): AutoMovieViewOutline.IOutline | undefined => {
+    created: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure,
+  ): IAutoMovieViewOutline.IOutline | undefined => {
     if ("detail" in created)
       failures.push(`${label} refused: ${created.detail}`);
     else return created;
@@ -38,7 +37,7 @@ export function test_construction_source_tolerance(): void {
   };
   const refused = (
     label: string,
-    created: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure,
+    created: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure,
     contract: string,
     text: string,
   ): void => {
@@ -63,7 +62,7 @@ export function test_construction_source_tolerance(): void {
     "outside its declared range",
   );
 
-  const pole: AutoMovieViewOutline.IOutline | undefined = admitted(
+  const pole: IAutoMovieViewOutline.IOutline | undefined = admitted(
     "pole knot -3.55e-15",
     AutoMovieViewOutline.create(
       outline([0, 1, 2], [5, 10, -3.552713678800501e-15]),
@@ -71,10 +70,8 @@ export function test_construction_source_tolerance(): void {
     ),
   );
   if (pole !== undefined) {
-    const tip: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      pole,
-      2,
-    );
+    const tip: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(pole, 2);
     if (typeof tip === "string" || tip.value !== 0)
       failures.push(
         `pole knot does not read exactly 0: ${typeof tip === "string" ? tip : tip.value}`,
@@ -87,18 +84,16 @@ export function test_construction_source_tolerance(): void {
     "is not 0 at the finite pole station",
   );
 
-  const angle: AutoMovieViewOutline.IOutline | undefined = admitted(
+  const angle: IAutoMovieViewOutline.IOutline | undefined = admitted(
     "angle source",
     AutoMovieViewOutline.create(
       outline([0, 2, 4], [10, 11, 10], { type: "angle", bottom: 0, top: 4 }),
     ),
   );
   if (angle !== undefined) {
-    const end: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      angle,
-      4,
-    );
-    const near: AutoMovieViewOutline.IReading | string =
+    const end: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(angle, 4);
+    const near: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(angle, 4.004);
     if (
       typeof end === "string" ||
@@ -109,10 +104,8 @@ export function test_construction_source_tolerance(): void {
       failures.push(
         `station 4.004 does not read as the endpoint: ${typeof near === "string" ? near : near.value}`,
       );
-    const far: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      angle,
-      4.1,
-    );
+    const far: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(angle, 4.1);
     if (
       typeof far !== "string" ||
       !far.includes("not finite inside the source parameter domain")
@@ -128,7 +121,7 @@ export function test_construction_source_tolerance(): void {
 function outline(
   stations: readonly number[],
   values: readonly number[],
-  parameter?: AutoMovieConstructionOutlineParameter,
+  parameter?: IAutoMovieConstructionOutlineParameter,
 ): IAutoMovieViewPart.IOutline {
   return {
     knots: stations.map(

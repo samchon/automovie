@@ -1,24 +1,28 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanTypeText,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { typeTextPresses } from "./typeTextPresses";
 
@@ -66,28 +70,10 @@ import { typeTextPresses } from "./typeTextPresses";
  */
 export namespace typeText {
   /** The action's name. */
-  export const name: HumanActionName = "typeText";
+  export const name: AutoMovieMotionHumanActionName = "typeText";
 
   /** Cancel table: typing may stop between presses. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
-
-  /** Parameters. */
-  export interface IParams {
-    /** The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts). */
-    keyboard: string;
-
-    /** The text, of keys the layout has (letters and spaces). */
-    text: string;
-  }
-
-  /** A keyboard as typing reads it: its home row's middle and the heading its typist faces. */
-  export interface IBoard {
-    /** The home row's middle, world metres. */
-    at: IAutoMovieVector3;
-
-    /** The heading the typist faces, degrees about +Y. */
-    yaw: number;
-  }
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /**
    * The keyboard a prop declares, where it stands at the action's start: its
@@ -108,10 +94,10 @@ export namespace typeText {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function board(
-    context: Pick<IHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
-  ): IBoard {
-    const read: IHumanActionContext.IProp = context.prop(subject);
+  ): IAutoMovieMotionHumanTypeText.IBoard {
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {
@@ -143,7 +129,7 @@ export namespace typeText {
         reason: `${subject}'s key field is ${(keys.width ?? 0).toFixed(3)} m wide, narrower than the ${WIDTH.toFixed(3)} m its letter rows span`,
         fix: "type on a keyboard whose key field spans the letter rows",
       });
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const away: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 0,
@@ -185,10 +171,7 @@ export namespace typeText {
    * @returns The centre and the hand that presses it.
    * @throws {HumanRefusal} When the layout has no such key.
    */
-  export function key(key: string): {
-    at: IAutoMovieVector3;
-    side: HumanHand.Side;
-  } {
+  export function key(key: string): IAutoMovieMotionHumanTypeText.IKeyResult {
     const k: string = key.toLowerCase();
     if (k === " ")
       return { at: { x: -1.5 * PITCH, y: 0, z: -2 * PITCH }, side: "right" };
@@ -218,12 +201,12 @@ export namespace typeText {
    * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTypeText.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const { text } = context.params;
-    const keyboard: IBoard = board(context, context.params.keyboard);
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(context, context.params.keyboard);
     if (text.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -233,8 +216,8 @@ export namespace typeText {
         fix: "give a text of at least one letter",
       });
     const keys = [...text].map(typeText.key);
-    const hold: IHumanPosture = context.entry.posture;
-    const frame: HumanFrame.IFrame = { origin: keyboard.at, yaw: keyboard.yaw };
+    const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const frame: IAutoMovieMotionHumanFrame = { origin: keyboard.at, yaw: keyboard.yaw };
 
     // Fit: the home row near elbow height and within the forearm's reach of the shoulders.
     const elbow: number = hold.root.y + m.shoulderHeight - m.upperArm;
@@ -290,20 +273,20 @@ export namespace typeText {
       );
     }
     const duration: number = clock;
-    const home: Record<HumanHand.Side, IAutoMovieVector3> = {
+    const home: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: typeText.key("f").at,
       right: typeText.key("j").at,
     };
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
-    const tipAt: (side: HumanHand.Side, t: number) => IAutoMovieVector3 =
+    const tipAt: (side: AutoMovieHumanSide, t: number) => IAutoMovieVector3 =
       typeTextPresses(keys, times, interval, home, frame, HOVER, TRAVEL);
     const fingers: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
       { x: 0, y: -0.5, z: 1 },
     );
-    const hands: Record<HumanHand.Side, IAutoMovieQuaternion> = {
+    const hands: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: HumanHand.rotation("left", {
         fingers, palm: { x: 0, y: -1, z: 0 },
       }),
@@ -316,12 +299,12 @@ export namespace typeText {
         ...HumanHand.shape("left", "point"),
         ...HumanHand.shape("right", "point"),
       }) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
-    const goalAt: Record<HumanHand.Side, ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>> = {
+    const goalAt: Record<AutoMovieHumanSide, ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>> = {
       left: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, "left", "indexTip", "point"),
       right: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, "right", "indexTip", "point"),
     };
 
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "leftFoot",
         kind: "plant",
@@ -344,9 +327,9 @@ export namespace typeText {
         share: t / duration,
       })),
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const joints: IHumanPosture["joints"] = { ...hold.joints };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...hold.joints };
         for (const [bone, angles] of shaped)
           joints[bone] = [angles[0], angles[1], angles[2]];
         return {

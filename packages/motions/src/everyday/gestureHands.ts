@@ -1,23 +1,31 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanNeutralKnuckle,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGesture,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmObservation } from "../compose/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { gesture } from "./gesture";
-import type { gestureStroke } from "./gestureStroke";
 
 /**
  * A gesture's hands: each moving hand's request on the stroke's goal and its
@@ -28,9 +36,9 @@ export namespace gestureHands {
   /** What the gesture is at a second before its arms: the posture, the hands' requests and the transport's share. */
   export interface IPrior {
     /** The posture before the arms. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
     /** Each moving hand's request on the stroke's goal. */
-    requests: AutoMovieMotionHumanArm.ISided[];
+    requests: IAutoMovieMotionHumanArmTarget.ISided[];
     /** The transport's share, 0 at rest and 1 on the stroke. */
     envelope: number;
   }
@@ -52,17 +60,17 @@ export namespace gestureHands {
    * @returns The request and the fingers' joints.
    */
   export function hand(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    goal: gestureStroke.IHand,
-    p: Pick<gesture.IParams, "turn" | "shape" | "aim">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieMotionHumanGestureStroke.IHand,
+    p: Pick<IAutoMovieMotionHumanGesture.IParams, "turn" | "shape" | "aim">,
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
     envelope: number,
   ): {
-    request: AutoMovieMotionHumanArm.ISided;
-    fingers: IHumanPosture["joints"];
+    request: IAutoMovieMotionHumanArmTarget.ISided;
+    fingers: IAutoMovieMotionHumanPosture["joints"];
   } {
     return prepared(body, side, p, digit, elbow, false).hand(posture, goal, envelope);
   }
@@ -88,9 +96,9 @@ export namespace gestureHands {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The gesture owns this reader, its body/configuration references, one relaxed/emblem record, one bounded issued-row/local-surface producer and at most four fifteen-entry shape tables until its plan is released; No current output map or goal is retained, and playback/seeking add no frame history.
    */
   export function prepare(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    p: Pick<gesture.IParams, "turn" | "shape" | "aim">,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    p: Pick<IAutoMovieMotionHumanGesture.IParams, "turn" | "shape" | "aim">,
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
   ): IPrepared {
@@ -98,8 +106,8 @@ export namespace gestureHands {
   }
 
   /** Cold hand reads retain raw rows; only explicit preparation issues fixed geometry. */
-  function prepared(body: IHumanBody, side: HumanHand.Side,
-    p: Pick<gesture.IParams, "turn" | "shape" | "aim">,
+  function prepared(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    p: Pick<IAutoMovieMotionHumanGesture.IParams, "turn" | "shape" | "aim">,
     digit: IAutoMovieVector3 | undefined, elbow: number, issue: boolean): IPrepared {
     const turn: IAutoMovieQuaternion | undefined = p.turn === undefined
       ? undefined
@@ -113,20 +121,20 @@ export namespace gestureHands {
     );
     const emblem: ReturnType<typeof HumanHand.shape> | undefined =
       p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
-    const shapes: Map<HumanHand.Shape, readonly IFinger[]> = new Map();
-    let target: { surface: HumanHand.Surface; shape: HumanHand.Shape;
+    const shapes: Map<IAutoMovieMotionHumanHand.Shape, readonly IAutoMovieHumanNeutralKnuckle.IFinger[]> = new Map();
+    let target: { surface: IAutoMovieMotionHumanHand.Surface; shape: IAutoMovieMotionHumanHand.Shape;
       emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget> } | undefined;
     const fingers: IPrepared["fingers"] = (
-      goal: Pick<gestureStroke.IHand, "shape" | "curl">,
+      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, "shape" | "curl">,
       envelope: number,
-      output?: IHumanPosture["joints"],
-    ): IHumanPosture["joints"] => {
-      let entries: readonly IFinger[] | undefined = shapes.get(goal.shape);
+      output?: IAutoMovieMotionHumanPosture["joints"],
+    ): IAutoMovieMotionHumanPosture["joints"] => {
+      let entries: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] | undefined = shapes.get(goal.shape);
       if (entries === undefined) {
         const shape: ReturnType<typeof HumanHand.shape> =
           emblem ?? HumanHand.shape(side, goal.shape);
         entries = (Object.keys(shape) as AutoMovieHumanoidBone[]).map(
-          (bone: AutoMovieHumanoidBone): IFinger => ({
+          (bone: AutoMovieHumanoidBone): IAutoMovieHumanNeutralKnuckle.IFinger => ({
             bone,
             at: shape[bone]!,
             relaxed: relaxed[bone]!,
@@ -135,7 +143,7 @@ export namespace gestureHands {
         );
         shapes.set(goal.shape, entries);
       }
-      const joints: IHumanPosture["joints"] = output ?? {};
+      const joints: IAutoMovieMotionHumanPosture["joints"] = output ?? {};
       const askedCurl: number = emblem === undefined ? (goal.curl ?? 0) : 0;
 
       // From the hand the posture before the gesture holds (the relaxed
@@ -157,23 +165,23 @@ export namespace gestureHands {
     return {
       fingers,
       hand: (
-        posture: IHumanPosture,
-        goal: gestureStroke.IHand,
+        posture: IAutoMovieMotionHumanPosture,
+        goal: IAutoMovieMotionHumanGestureStroke.IHand,
         envelope: number,
-        output?: IHumanPosture["joints"],
+        output?: IAutoMovieMotionHumanPosture["joints"],
       ): ReturnType<typeof hand> => {
         const turned: IAutoMovieQuaternion = turn === undefined
           ? goal.rotation
           : Quaternion.multiply(goal.rotation, turn);
-        const surface: HumanHand.Surface = goal.surface;
-        const shape: HumanHand.Shape = goal.shape;
+        const surface: IAutoMovieMotionHumanHand.Surface = goal.surface;
+        const shape: IAutoMovieMotionHumanHand.Shape = goal.shape;
         const point: IAutoMovieVector3 = goal.point;
         const rotation: IAutoMovieQuaternion = digit === undefined || p.aim === undefined
           ? turned : HumanHandShape.aim(turned, digit, p.aim.toward);
         const bend: IAutoMovieVector3 = goal.elbow === undefined
           ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
           : AutoMovieMotionHumanBend.arm(body, posture, side, goal.elbow, goal.out + elbow);
-        let request: AutoMovieMotionHumanArm.ISided;
+        let request: IAutoMovieMotionHumanArmTarget.ISided;
         if (issue) {
           if (target === undefined || target.surface !== surface || target.shape !== shape)
             target = { surface, shape,
@@ -208,10 +216,10 @@ export namespace gestureHands {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration retains no pose/goal; prepare owns the reader's bounded plan lifetime.
      */
     hand(
-      posture: IHumanPosture,
-      goal: gestureStroke.IHand,
+      posture: IAutoMovieMotionHumanPosture,
+      goal: IAutoMovieMotionHumanGestureStroke.IHand,
       envelope: number,
-      output?: IHumanPosture["joints"],
+      output?: IAutoMovieMotionHumanPosture["joints"],
     ): ReturnType<typeof hand>;
 
     /**
@@ -228,10 +236,10 @@ export namespace gestureHands {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration retains no result or frame; prepare owns and releases its fixed metadata.
      */
     fingers(
-      goal: Pick<gestureStroke.IHand, "shape" | "curl">,
+      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, "shape" | "curl">,
       envelope: number,
-      output?: IHumanPosture["joints"],
-    ): IHumanPosture["joints"];
+      output?: IAutoMovieMotionHumanPosture["joints"],
+    ): IAutoMovieMotionHumanPosture["joints"];
   }
 
   /**
@@ -259,12 +267,12 @@ export namespace gestureHands {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the request and the goal end with the call.
    */
   export function reaching(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    from: AutoMovieMotionHumanArm.IAngles,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmAngles.IAngles,
     hand: IPrepared,
-    goal: gestureStroke.IHand,
+    goal: IAutoMovieMotionHumanGestureStroke.IHand,
   ): number {
     return AutoMovieMotionHumanArmObservation.reachingGoal(
       body,
@@ -300,32 +308,32 @@ export namespace gestureHands {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning call owns its local WeakMap and borrows current FK/ROM loans only while prior executes. Frames store numeric posture/requests/envelope, never those loans; the map ends with return/throw and trajectories retain solved waypoints only.
    */
   export function planned(
-    body: IHumanBody,
-    span: AutoMovieMotionHumanArmPlanned.ISpan,
-    sides: readonly HumanHand.Side[],
-    begin: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
-    rest: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
-    prior: (...args: Parameters<IHumanActionPlan["posture"]>) => IPrior,
+    body: IAutoMovieMotionHumanBody,
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    sides: readonly AutoMovieHumanSide[],
+    begin: Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>>,
+    rest: Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>>,
+    prior: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>) => IPrior,
     envelope: (seconds: number) => number,
     plan?: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[4],
-  ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     // The planner passes the exact posture returned by before to each arm.
     // Keep that posture's hand requests with it, rather than evaluating the
     // complete two-hand gesture again for every goal and scalar weight.
-    const frames: WeakMap<IHumanPosture, IPrior> = new WeakMap();
+    const frames: WeakMap<IAutoMovieMotionHumanPosture, IPrior> = new WeakMap();
     return AutoMovieMotionHumanArmPlanned.planned(
       body,
       span,
       sides.map(
-        (side: HumanHand.Side): AutoMovieMotionHumanArmPlanned.IPlanned => ({
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmPlanned.IPlanned => ({
           side,
           rest: begin[side]!,
           back: rest[side]!,
-          goal: (posture: IHumanPosture, at: number): IHumanPosture.IGoal => {
+          goal: (posture: IAutoMovieMotionHumanPosture, at: number): IAutoMovieHumanLimbGoal => {
             const before: IPrior = frames.get(posture) ?? prior(at);
-            const request: AutoMovieMotionHumanArm.ISided =
+            const request: IAutoMovieMotionHumanArmTarget.ISided =
               before.requests.find(
-                (hand: AutoMovieMotionHumanArm.ISided): boolean =>
+                (hand: IAutoMovieMotionHumanArmTarget.ISided): boolean =>
                   hand.side === side,
               )!;
             return AutoMovieMotionHumanArm.goal(body, side, request);
@@ -333,9 +341,9 @@ export namespace gestureHands {
           weight: envelope,
         }),
       ),
-      (at: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      (at: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const before: IPrior = prior(at, undefined, resolution, projection);
         frames.set(before.posture, before);
         return before.posture;
@@ -353,14 +361,14 @@ export namespace gestureHands {
    * @returns The posture.
    */
   export function written(
-    posture: IHumanPosture,
-    arms: ReadonlyMap<HumanHand.Side, HumanArmTrajectory.Trajectory>,
+    posture: IAutoMovieMotionHumanPosture,
+    arms: ReadonlyMap<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory>,
     seconds: number,
-  ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const [side, trajectory] of arms) {
-      const arm: ReturnType<HumanArmTrajectory.Trajectory> =
+      const arm: ReturnType<IAutoMovieMotionHumanArmTrajectory.Trajectory> =
         trajectory(seconds);
       joints[`${side}UpperArm`] = arm.upper;
       joints[`${side}LowerArm`] = arm.lower;

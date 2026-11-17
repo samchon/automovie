@@ -1,11 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   curlChainUntilContact as curl,
   prepareSkeletonPoseResolution,
   resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/joint";

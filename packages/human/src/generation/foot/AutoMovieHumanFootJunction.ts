@@ -1,4 +1,4 @@
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * A junction's curvature channel: the curvature a section's guide point owns
@@ -29,10 +29,14 @@ export namespace AutoMovieHumanFootJunction {
    * @param tangent Its unit tangent in the sense the ring runs.
    * @param neighbours The two guide points next to it on the ring.
    */
-  export function curvature(p: G.Vec2, tangent: G.Vec2, neighbours: G.Vec2[]): number {
+  export function curvature(
+    p: AutoMovieVector2Tuple,
+    tangent: AutoMovieVector2Tuple,
+    neighbours: AutoMovieVector2Tuple[],
+  ): number {
     const values: number[] = neighbours
-      .map((q: G.Vec2): number => {
-        const d: G.Vec2 = [q[0] - p[0], q[1] - p[1]];
+      .map((q: AutoMovieVector2Tuple): number => {
+        const d: AutoMovieVector2Tuple = [q[0] - p[0], q[1] - p[1]];
         const a: number = Math.abs(d[0] * tangent[0] + d[1] * tangent[1]);
         const b: number = Math.abs(d[0] * tangent[1] - d[1] * tangent[0]);
 
@@ -44,7 +48,10 @@ export namespace AutoMovieHumanFootJunction {
       })
       .filter((v: number): boolean => Number.isFinite(v));
 
-    return values.length ? values.reduce((s: number, v: number): number => s + v, 0) / values.length : 0;
+    return values.length
+      ? values.reduce((s: number, v: number): number => s + v, 0) /
+          values.length
+      : 0;
   }
 }
 

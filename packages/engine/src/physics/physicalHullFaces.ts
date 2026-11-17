@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullLoop } from "./physicalHullLoop";
@@ -35,14 +38,14 @@ import { physicalHullTriangles } from "./physicalHullTriangles";
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
-): physicalHullFaces.IHull {
-  const cached: physicalHullFaces.IHull | undefined = HULLS.get(points);
+): IAutoMoviePhysicalHullFaces.IHull {
+  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined = HULLS.get(points);
   if (cached !== undefined) return cached;
   const original: readonly IAutoMovieVector3[] | undefined = REFLECTIONS.get(points);
   if (original !== undefined) {
     try {
       if (isMirrorX(points, original)) {
-        const hull: physicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
+        const hull: IAutoMoviePhysicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
         HULLS.set(points, hull);
         return hull;
       }
@@ -78,8 +81,8 @@ export function physicalHullFaces(
       ? physicalHullPlanes(points, extent, tolerance, physicalHullTriangles(points, tolerance), false)!
       : { triples: [], faces: [] });
   const used: boolean[] = points.map((): boolean => false);
-  const faces: physicalHullFaces.IFace[] = planes.faces.map(
-    (face: physicalHullPlanes.IFace): physicalHullFaces.IFace => {
+  const faces: IAutoMoviePhysicalHullFaces.IFace[] = planes.faces.map(
+    (face: physicalHullPlanes.IFace): IAutoMoviePhysicalHullFaces.IFace => {
       for (const index of face.loop) used[index] = true;
       return {
         normal: face.normal,
@@ -89,7 +92,7 @@ export function physicalHullFaces(
     },
   );
   TRIPLES.set(points, planes.triples);
-  const hull: physicalHullFaces.IHull = summarize(points, faces, used, tolerance);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = summarize(points, faces, used, tolerance);
   HULLS.set(points, hull);
   return hull;
 }
@@ -130,7 +133,7 @@ function shiftedTriples(points: readonly IAutoMovieVector3[]): readonly number[]
 /** One hull per live points array, released with the array. */
 const HULLS: WeakMap<
   readonly IAutoMovieVector3[],
-  physicalHullFaces.IHull
+  IAutoMoviePhysicalHullFaces.IHull
 > = new WeakMap();
 
 /** Fresh reflected definitions defer topology work until their first actual hull query. */
@@ -226,9 +229,9 @@ function isMirrorX(points: readonly IAutoMovieVector3[], source: readonly IAutoM
 }
 
 /** Use actual reflected coordinates in the same face membership, loop and summary owners. */
-function reflectedHull(points: readonly IAutoMovieVector3[], source: physicalHullFaces.IHull): physicalHullFaces.IHull {
+function reflectedHull(points: readonly IAutoMovieVector3[], source: IAutoMoviePhysicalHullFaces.IHull): IAutoMoviePhysicalHullFaces.IHull {
   const used: boolean[] = points.map((): boolean => false);
-  const faces: physicalHullFaces.IFace[] = source.faces.map((face: physicalHullFaces.IFace): physicalHullFaces.IFace => {
+  const faces: IAutoMoviePhysicalHullFaces.IFace[] = source.faces.map((face: IAutoMoviePhysicalHullFaces.IFace): IAutoMoviePhysicalHullFaces.IFace => {
     const normal: IAutoMovieVector3 = { x: -face.normal.x, y: face.normal.y, z: face.normal.z };
     const member: boolean[] = points.map(
       (point: IAutoMovieVector3): boolean => Vector3.dot(normal, point) - face.offset >= -source.tolerance,
@@ -243,10 +246,10 @@ function reflectedHull(points: readonly IAutoMovieVector3[], source: physicalHul
 /** Preserve the same ordered vertex, sphere and face-distance reductions for both producers. */
 function summarize(
   points: readonly IAutoMovieVector3[],
-  faces: physicalHullFaces.IFace[],
+  faces: IAutoMoviePhysicalHullFaces.IFace[],
   used: readonly boolean[],
   tolerance: number,
-): physicalHullFaces.IHull {
+): IAutoMoviePhysicalHullFaces.IHull {
   const vertices: IAutoMovieVector3[] = points.filter(
     (_: IAutoMovieVector3, index: number): boolean => used[index]!,
   );
@@ -278,7 +281,7 @@ function summarize(
         );
       buried = Math.max(buried, -outermost);
     }
-  const hull: physicalHullFaces.IHull = {
+  const hull: IAutoMoviePhysicalHullFaces.IHull = {
     faces,
     vertices,
     centre,

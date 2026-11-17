@@ -1,25 +1,27 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanRegrasp,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 
@@ -39,7 +41,7 @@ import { HumanGrasp } from "./HumanGrasp";
  * `regrip`: the object moves in the still hand from the grip it is held by to
  * the grip a named affordance takes (`HumanGrasp.hand`, the grip a pick-up
  * of that affordance would close), as the grip window's in-hand motion
- * (`IHumanContactWindow.inHand`): its origin on a straight line in the hand
+ * (`HumanContactWindow.inHand`): its origin on a straight line in the hand
  * and its rotation along the shortest arc, both on one minimum-jerk profile.
  *
  * `roll`: the object rolls without slipping from the forefinger's pad to the
@@ -69,36 +71,7 @@ export namespace regrasp {
   export const name: string = "regrasp";
 
   /** Cancel table: none declared. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
-
-  /**
-   * Parameters of the existing held-object manipulation branches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation kind chooses twist/regrip/roll; members name the held prop/hand, existing axis or destination affordance and degree turn, with branch-required values checked by the planner.
-   * @evidence contracts/development/design.md#principled-representation Closed branch and hand unions select the original operation, while prop/affordance identities remain strings and angle remains clinical degrees counter-clockwise along the named world axis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every field is consumed by plan or inHand for its stated branch; the actual prop owns collider, axis, radius and grip geometry rather than duplicating them in these parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred tool kind, body dimension, solved contact, fallback radius or cached motion result is represented; missing branch data still uses the original refusal path.
-   */
-  export interface IParams {
-    /** What is done with the held object. */
-    kind: "twist" | "regrip" | "roll";
-
-    /** The held object. */
-    prop: string;
-
-    /** The hand that holds it. */
-    side: HumanHand.Side;
-
-    /** A twist's axis, or a roll's object: an affordance whose translation lies on the axis and whose `+X` is its direction; a roll reads its `radius`. */
-    axis?: string;
-
-    /** A twist's turn, degrees, counter-clockwise looking down the axis. */
-    angle?: number;
-
-    /** A regrip's new grip: the affordance the hand takes the object by. */
-    to?: string;
-  }
-
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
   /**
    * Plan the act.
    *
@@ -115,9 +88,9 @@ export namespace regrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains constant-size frames, offsets and the in-hand displacement closure, without sampled-time poses or solver readers.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const { prop: subject, side, kind } = context.params;
     if (context.entry.holds[side] !== subject)
       throw new HumanRefusal({
@@ -127,21 +100,21 @@ export namespace regrasp {
         reason: `the ${side} hand does not hold ${subject} at the act's start`,
         fix: "take the object up in that hand first",
       });
-    const read: IHumanActionContext.IProp = context.prop(subject);
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const placed: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
       undefined,
       new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
-    const hand: IHumanProp.IFrame = {
+    const hand: IAutoMovieRigidTransform = {
       position: placed.worldPosition,
       rotation: placed.worldRotation,
     };
-    const hold: IHumanPosture = context.entry.posture;
-    const limb: IHumanPosture.Limb = `${side}Arm`;
-    const still: IHumanPosture.IGoal = {
+    const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const limb: AutoMovieHumanLimb = `${side}Arm`;
+    const still: IAutoMovieHumanLimbGoal = {
       ...(hold.limbs[limb] ?? {
         bend: Vector3.add(hand.position, { x: 0, y: -1, z: 0 }),
       }),
@@ -151,7 +124,7 @@ export namespace regrasp {
     const angle: number =
       kind === "twist" ? need(context.params.angle, "angle") : 90;
     const duration: number = (QUARTER * Math.abs(angle)) / 90;
-    const window: IHumanContactWindow = {
+    const window: IAutoMovieMotionHumanContactWindow = {
       part: side === "left" ? "leftHand" : "rightHand",
       kind: "grip",
       from: 0,
@@ -184,7 +157,7 @@ export namespace regrasp {
       events: [{ name: "done", share: 1 }],
       contacts: [window],
       holds: [{ side, prop: subject, from: 1 }],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         if (axis === null)
           return { ...hold, limbs: { ...hold.limbs, [limb]: still } };
         const turn: IAutoMovieQuaternion = turning!(angle * profile(seconds));
@@ -235,25 +208,25 @@ export namespace regrasp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned contact-window reader retains constant-size private start/end frames and one lazy arc reader until its plan is released. It returns fresh position/rotation data without body/context, FK loan, queried-share history or external handle.
    */
   export function inHand(
-    context: IHumanActionContext<IParams>,
-    prop: IHumanProp,
-    frame: IHumanProp.IFrame,
-    hand: IHumanProp.IFrame,
-  ): NonNullable<IHumanContactWindow["inHand"]> {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
+    prop: IAutoMovieMotionHumanProp,
+    frame: IAutoMovieRigidTransform,
+    hand: IAutoMovieRigidTransform,
+  ): NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> {
     const { side, kind } = context.params;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
 
     // Where it is held now, in the hand's frame.
-    const start: IHumanProp.IFrame = {
+    const start: IAutoMovieRigidTransform = {
       position: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(frame.position, hand.position),
       ),
       rotation: Quaternion.multiply(inverse, frame.rotation),
     };
-    let end: IHumanProp.IFrame;
+    let end: IAutoMovieRigidTransform;
     if (kind === "regrip") {
-      const wrist: HumanHand.IWrist = HumanGrasp.hand(
+      const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
         context.body,
         side,
         HumanGrasp.at(prop, need(context.params.to, "to"), frame),
@@ -306,7 +279,7 @@ export namespace regrasp {
     const turning: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(
       Quaternion.identity(), arc,
     );
-    return (share: number): IHumanProp.IFrame => {
+    return (share: number): IAutoMovieRigidTransform => {
       const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
       const rotation: IAutoMovieQuaternion = turning(s);
       const position: IAutoMovieVector3 = Vector3.lerp(
@@ -345,8 +318,8 @@ const need: <T>(value: T | undefined, axis: string) => T = <T>(
 };
 
 /** An affordance of the object, refused with its alternatives when absent. */
-const site: (prop: IHumanProp, id: string) => IAutoMovieAffordance = (
-  prop: IHumanProp,
+const site: (prop: IAutoMovieMotionHumanProp, id: string) => IAutoMovieAffordance = (
+  prop: IAutoMovieMotionHumanProp,
   id: string,
 ): IAutoMovieAffordance => {
   const found: IAutoMovieAffordance | undefined = (prop.affordances ?? []).find(
@@ -371,12 +344,12 @@ const site: (prop: IHumanProp, id: string) => IAutoMovieAffordance = (
 
 /** An affordance's axis line in the world: its translation and its `+X`. */
 const line: (
-  prop: IHumanProp,
-  frame: IHumanProp.IFrame,
+  prop: IAutoMovieMotionHumanProp,
+  frame: IAutoMovieRigidTransform,
   id: string,
 ) => { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } = (
-  prop: IHumanProp,
-  frame: IHumanProp.IFrame,
+  prop: IAutoMovieMotionHumanProp,
+  frame: IAutoMovieRigidTransform,
   id: string,
 ): { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } => {
   const affordance: IAutoMovieAffordance = site(prop, id);

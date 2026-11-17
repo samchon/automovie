@@ -1,8 +1,12 @@
+import type {
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanWalkStanceCourse,
+} from "@automovie/interface";
+
 import type { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import { walkLeg } from "./walkLeg";
-import type { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceGeometry } from "./walkStanceGeometry";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * The rows of a stance course's problem linear in the course
@@ -31,10 +35,10 @@ export namespace walkStanceRows {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem owns O(m) descriptions, numeric topology and one bound workspace until release. Ordinary outputs are independently owned; a borrowed row set is valid only until the next reading and cannot be retained as a prior-bound snapshot. No radius history or handles are stored.
    */
   export function of(
-    knots: readonly walkStanceCourse.IKnot[],
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
     hold: number,
     geometry: ReturnType<typeof walkStanceGeometry.of>,
-  ): (x: Float64Array, trust: number, borrowedRows?: boolean) => Q.IRow[] {
+  ): (x: Float64Array, trust: number, borrowedRows?: boolean) => IAutoMovieMotionHumanQuadraticProgram.IRow[] {
     const { n, pitchOf, slideOf, turnOf, scheduled }: ReturnType<typeof walkStanceGeometry.of> = geometry;
 
     /** A row's invariant support and the bound formula its course substitutes. */
@@ -65,15 +69,16 @@ export namespace walkStanceRows {
     // acceleration alone.
     for (let k: number = 0; k < n; k++) {
       const o: number = walkStanceTerms.WIDTH * k;
-      const knot: walkStanceCourse.IKnot = knots[k]!;
+      const knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot = knots[k]!;
       if (k < hold) {
         for (let i: number = 0; i < walkStanceTerms.WIDTH; i++)
           prepared.push({ kind: "held", index: o + i });
         // A stance that runs on past the held knots keeps its turn and its
         // slide across the join.
         for (const s of knot.stances) {
-          const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-            (t: walkStanceCourse.IStance): boolean => t.side === s.side,
+          const next:
+              | IAutoMovieMotionHumanWalkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
+            (t: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean => t.side === s.side,
           );
           if (k + 1 >= hold && next?.placement === s.placement)
             for (const i of [
@@ -96,7 +101,7 @@ export namespace walkStanceRows {
       }
       for (const side of ["left", "right"] as const) {
         const j: number = knot.stances.findIndex(
-          (s: walkStanceCourse.IStance): boolean => s.side === side,
+          (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean => s.side === side,
         );
         const p: number = o + pitchOf(side);
         const t: number = o + turnOf(side);
@@ -110,7 +115,7 @@ export namespace walkStanceRows {
         const pitch: number = scheduled[k]![j]!;
         if (pitch > 1e-6) fixed(p, pitch);
         else range(p, -walkLeg.STEEPEST, pitch, walkStanceTerms.TRUST.angle);
-        const stance: walkStanceCourse.IStance = knot.stances[j]!;
+        const stance: IAutoMovieMotionHumanWalkStanceCourse.IStance = knot.stances[j]!;
         if (stance.turning !== true) fixed(t, 0);
         else range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
         const d: number = o + slideOf(side);
@@ -118,31 +123,32 @@ export namespace walkStanceRows {
           if (stance.landing === undefined) fixed(i, 0);
           else range(i, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
         // A turn kept from one knot to the next of the same stance.
-        const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-          (s: walkStanceCourse.IStance): boolean => s.side === side,
+        const next:
+            | IAutoMovieMotionHumanWalkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
+          (s: IAutoMovieMotionHumanWalkStanceCourse.IStance): boolean => s.side === side,
         );
         if (next !== undefined && next.placement === stance.placement)
           for (const i of [t, d, d + 1])
             prepared.push({ kind: "join", index: i, next: i + walkStanceTerms.WIDTH });
       }
     }
-    const topology: Pick<Q.IRow, "index" | "coef">[] = prepared.map(
-      (row: IBound): Pick<Q.IRow, "index" | "coef"> => row.kind === "join"
+    const topology: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">[] = prepared.map(
+      (row: IBound): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> => row.kind === "join"
         ? { index: [row.index, row.next], coef: [1, -1] }
         : { index: [row.index], coef: [1] },
     );
-    const workspace: Q.IRow[] = topology.map(
-      (row: Pick<Q.IRow, "index" | "coef">): Q.IRow => ({ ...row, l: 0, u: 0 }),
+    const workspace: IAutoMovieMotionHumanQuadraticProgram.IRow[] = topology.map(
+      (row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">): IAutoMovieMotionHumanQuadraticProgram.IRow => ({ ...row, l: 0, u: 0 }),
     );
-    return (x: Float64Array, trust: number, borrowedRows: boolean = false): Q.IRow[] => {
-      const out: Q.IRow[] = borrowedRows ? workspace : topology.map(
-        (row: Pick<Q.IRow, "index" | "coef">): Q.IRow => ({
+    return (x: Float64Array, trust: number, borrowedRows: boolean = false): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
+      const out: IAutoMovieMotionHumanQuadraticProgram.IRow[] = borrowedRows ? workspace : topology.map(
+        (row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
           index: row.index.slice(), coef: row.coef.slice(), l: 0, u: 0,
         }),
       );
       for (let r: number = 0; r < prepared.length; ++r) {
         const row: IBound = prepared[r]!;
-        const target: Q.IRow = out[r]!;
+        const target: IAutoMovieMotionHumanQuadraticProgram.IRow = out[r]!;
         if (row.kind === "join") {
           const bound: number = x[row.next]! - x[row.index]!;
           target.l = bound;

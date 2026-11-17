@@ -1,12 +1,12 @@
 import {
-  IAutoMovieFormationPlacement,
-  type IAutoMovieSampledFormationMotion,
   formationSlotPosition,
   sampleFormationMotion,
 } from "@automovie/engine";
 import {
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
+  type IAutoMovieFormationPlacement,
+  type IAutoMovieSampledFormationMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

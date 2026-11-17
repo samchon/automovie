@@ -1,4 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -46,6 +46,14 @@ export interface IAutoMovieDrawScene {
 
   /** Instants the subject names, such as a motion case's beats, which captions and records of cells drawn at them carry; absent when it names none. */
   instants?: readonly { seconds: number; label: string }[];
+
+  /**
+   * Mark kinds that can appear during this subject, including ones absent
+   * at second zero. Capture planning admits these names without seeking or
+   * inventing marks; `marks` still supplies the actual geometry at a second.
+   * Kinds present at zero are discovered without this declaration.
+   */
+  markKinds?: readonly string[];
 
   /**
    * The marks the subject's owners supply at a second, asked for after `seek`; absent when it supplies none.

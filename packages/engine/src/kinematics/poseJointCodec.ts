@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
@@ -7,10 +7,13 @@ import {
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
+import {
+  type IAutoMoviePoseJointCodec,
+  type IAutoMoviePoseRig,
+  type IAutoMovieResolvedJointAngles,
+} from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMoviePoseRig } from "./IAutoMoviePoseRig";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { decomposeJointRotation } from "./decomposeJointRotation";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { skeletonJointAxes } from "./skeletonJointAxes";
@@ -51,7 +54,7 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each codec shares indexed axes and LAST-declared constraint records, retaining existing live rest-frame/constraint reads. An explicit lazy owner can share that codec across source/target velocity and offset capture under one unchanged rig; no conversion result is memoized.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A codec owns one declared-range Map and optional merged axes table, borrowing rig records. A transition may retain that concrete codec for its existing offset lifetime; release the lazy getter after capture and the codec with that offset, with no global rig cache.
  */
-export function poseJointCodec(rig?: IAutoMoviePoseRig): poseJointCodec.ICodec {
+export function poseJointCodec(rig?: IAutoMoviePoseRig): IAutoMoviePoseJointCodec.ICodec {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     rig === undefined ? {} : skeletonJointAxes(rig.skeleton, rig.jointAxes);
   const declared: Map<AutoMovieHumanoidBone, IAutoMovieJointConstraint | null> =
@@ -133,9 +136,9 @@ export namespace poseJointCodec {
    * @param rig The same rig both sampled states and the offset use.
    * @returns A lazy one-codec getter, without any eager rig read.
    */
-  export function prepare(rig?: IAutoMoviePoseRig): () => ICodec {
-    let codec: ICodec | undefined;
-    return (): ICodec => (codec ??= poseJointCodec(rig));
+  export function prepare(rig?: IAutoMoviePoseRig): () => IAutoMoviePoseJointCodec.ICodec {
+    let codec: IAutoMoviePoseJointCodec.ICodec | undefined;
+    return (): IAutoMoviePoseJointCodec.ICodec => (codec ??= poseJointCodec(rig));
   }
 
   /**
@@ -151,36 +154,5 @@ export namespace poseJointCodec {
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, [number, number, number]> {
     return new Map(pose.joints.map(entry));
-  }
-
-  /** The two maps of one rig. */
-  export interface ICodec {
-    /**
-     * A bone's articulation, the rotation applied after its rest rotation,
-     * from its clinical `[flexion, abduction, twist]` in degrees.
-     */
-    rotation: (
-      bone: AutoMovieHumanoidBone,
-      angles: readonly [number, number, number],
-    ) => IAutoMovieQuaternion;
-
-    /**
-     * A bone's clinical `[flexion, abduction, twist]` in degrees from its
-     * unit articulation.
-     */
-    angles: (
-      bone: AutoMovieHumanoidBone,
-      rotation: IAutoMovieQuaternion,
-    ) => [number, number, number];
-
-    /**
-     * Whether a bone's articulations fill a three-dimensional set of
-     * rotations: its effective range of motion is absent or moves all three
-     * axes. A hinge or a two-axis joint is not one; a rotation composed from
-     * two of its articulations generally leaves the set its angles span, so
-     * such a joint is differenced and blended on its own angles. Every bone
-     * is one without a rig, where no range is read.
-     */
-    ball: (bone: AutoMovieHumanoidBone) => boolean;
   }
 }

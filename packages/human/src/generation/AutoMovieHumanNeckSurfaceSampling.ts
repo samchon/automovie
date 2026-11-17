@@ -1,5 +1,10 @@
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftParameter, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanNeckSurface } from "./AutoMovieHumanNeckSurface";
+import { AutoMovieLoftChain, AutoMovieLoftParameter } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanNeckSurface,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+} from "@automovie/interface";
 
 /**
  * Source evaluation and physical copying for the prepared exterior descriptor.
@@ -31,20 +36,25 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
     requestedHeight: number,
     phases: readonly number[],
     scale: number,
-  ): AutoMovieHumanNeckSurface.ISection {
-    const points: AutoMovieHumanNeckSurface.Vector[] =
-      AutoMovieLoftChain.ring(chain, station, phases);
-    const dense: AutoMovieHumanNeckSurface.Vector[] =
-      AutoMovieLoftChain.ring(chain, station, MEASURE_PHASES);
+  ): IAutoMovieHumanNeckSurface.ISection {
+    const points: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+      chain,
+      station,
+      phases,
+    );
+    const dense: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+      chain,
+      station,
+      MEASURE_PHASES,
+    );
     let circumference: number = 0;
     let minX: number = Infinity;
     let maxX: number = -Infinity;
     let minZ: number = Infinity;
     let maxZ: number = -Infinity;
     for (let i: number = 0; i < dense.length; ++i) {
-      const point: AutoMovieHumanNeckSurface.Vector = dense[i]!;
-      const next: AutoMovieHumanNeckSurface.Vector =
-        dense[(i + 1) % dense.length]!;
+      const point: AutoMovieVector3Tuple = dense[i]!;
+      const next: AutoMovieVector3Tuple = dense[(i + 1) % dense.length]!;
       circumference += Math.hypot(
         next[0] - point[0],
         next[1] - point[1],
@@ -55,7 +65,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       minZ = Math.min(minZ, point[2]);
       maxZ = Math.max(maxZ, point[2]);
     }
-    const frame: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
+    const frame: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
       chain,
       station,
     );
@@ -70,9 +80,8 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
         v: [...frame.v],
       },
       points: points.map(
-        (
-          point: AutoMovieHumanNeckSurface.Vector,
-        ): AutoMovieHumanNeckSurface.Vector => scaled(point, scale),
+        (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+          scaled(point, scale),
       ),
       sourcePhases: [...phases],
       displayCoordinates: AutoMovieLoftParameter.phases(
@@ -97,9 +106,9 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned tuple; the function retains no input or state.
    */
   export function scaled(
-    point: readonly [number, number, number],
+    point: Readonly<AutoMovieVector3Tuple>,
     scale: number,
-  ): AutoMovieHumanNeckSurface.Vector {
+  ): AutoMovieVector3Tuple {
     return [point[0] * scale, point[1] * scale, point[2] * scale];
   }
 }

@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanWalkStanceCourse,
+} from "@automovie/interface";
+
 import type { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import type { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
@@ -23,7 +28,7 @@ import { walkStanceTerms } from "./walkStanceTerms";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem-owned closure retains one course snapshot, one swivel list and one numeric linearisation, O(n*b+R+m), replaced on a changed input and released with the synchronous problem; no global cache or handle exists.
  */
 export function walkStanceConvexify(
-  knots: readonly walkStanceCourse.IKnot[],
+  knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
   size: number,
   sweep: (
     x: Float64Array,
@@ -31,21 +36,21 @@ export function walkStanceConvexify(
     residual: (r: number, idx: number[], g: number[]) => void,
     constraint: (over: number, idx: number[], g: () => number[]) => void,
   ) => void,
-): walkStanceCourse.IProblem["convexify"] {
+): IAutoMovieMotionHumanWalkStanceCourse.IProblem["convexify"] {
   /** The last course's private derivatives, independent of steering choices. */
   let known: {
     x: Float64Array;
-    swivels: (walkStanceCourse.ISwivel | undefined)[];
+    swivels: (IAutoMovieMotionHumanWalkStanceCourse.ISwivel | undefined)[];
     p: Float64Array[];
     q: Float64Array;
-    rows: Q.IRow[];
+    rows: IAutoMovieMotionHumanQuadraticProgram.IRow[];
   } | undefined;
 
   return (
     x: Float64Array,
     mu: number,
     objective: boolean = true,
-  ): Q.IProblem => {
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem => {
     let same: boolean = known !== undefined && known.x.length === x.length;
     if (same)
       for (let i: number = 0; i < x.length; i++)
@@ -65,7 +70,7 @@ export function walkStanceConvexify(
         (): Float64Array => new Float64Array(walkStanceTerms.BAND + 1),
       );
       const q: Float64Array = new Float64Array(size);
-      const rows: Q.IRow[] = [];
+      const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
       sweep(
         x,
         true,
@@ -90,9 +95,9 @@ export function walkStanceConvexify(
       known = {
         x: Float64Array.from(x),
         swivels: knots.flatMap(
-          (knot: walkStanceCourse.IKnot): (walkStanceCourse.ISwivel | undefined)[] =>
+          (knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): (IAutoMovieMotionHumanWalkStanceCourse.ISwivel | undefined)[] =>
             knot.stances.map(
-              (foot: walkStanceCourse.IStance): walkStanceCourse.ISwivel | undefined => foot.swivel,
+              (foot: IAutoMovieMotionHumanWalkStanceCourse.IStance): IAutoMovieMotionHumanWalkStanceCourse.ISwivel | undefined => foot.swivel,
             ),
         ),
         p,
@@ -116,7 +121,7 @@ export function walkStanceConvexify(
       p,
       q: objective ? known!.q.slice() : new Float64Array(size),
       rows: known!.rows.map(
-        (row: Q.IRow): Q.IRow => ({
+        (row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
           ...row,
           index: [...row.index],
           coef: [...row.coef],

@@ -1,6 +1,8 @@
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoverySceneRegistration } from "../structures/image/IAutoMovieRecoverySceneRegistration";
-import type { IAutoMovieRecoverySceneCandidate } from "../structures/internal/IAutoMovieRecoverySceneCandidate";
+import type {
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoverySceneCandidate,
+  IAutoMovieRecoverySceneRegistration,
+} from "@automovie/interface";
 
 /**
  * Describe all requested views against the final accepted component revision.

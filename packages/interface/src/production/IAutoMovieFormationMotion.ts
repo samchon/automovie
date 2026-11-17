@@ -1,6 +1,6 @@
-import { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
-import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
-import { IAutoMovieFormationMotionState } from "./IAutoMovieFormationMotionState";
+import type { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
+import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
+import type { IAutoMovieFormationMotionState } from "./IAutoMovieFormationMotionState";
 
 /**
  * One source-authored compact formation cue.

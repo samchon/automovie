@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -117,14 +118,14 @@ export namespace MotionTrajectoryStepper {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One private three-component stage workspace never enters callback inputs or accepted records. One FSAL quaternion reference keeps the raw input of the retained rate, before knot normalization. Rejected trial arrays release; one constant-size numeric rejection record copies its actual angular RHS endpoints and failed probe only on rejection, then replaces or clears them on the next rejection or acceptance. It escapes only on time exhaustion, holding no dense step, RHS or history. Accepted numeric steps, endpoint and bounded previous full/q/interval reads live with playback. Empty states/coefficients share private records while public output is fresh. Accepted-step storage has no fixed byte bound and no external handle is acquired.
    */
   export function dormandPrince(
-    props: integrateMotionTrajectory.IProps,
+    props: IAutoMovieIntegrateMotionTrajectory.IProps,
     rate: (
       t: number,
       x: readonly number[],
       q: IAutoMovieQuaternion | null,
-    ) => integrateMotionTrajectory.IRate,
+    ) => IAutoMovieIntegrateMotionTrajectory.IRate,
     step: number,
-  ): integrateMotionTrajectory.ITrajectory {
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const { t0, t1 } = props;
     const { relative, absolute } = props.tolerance!;
     const controlled: number = props.x0.length;
@@ -140,7 +141,7 @@ export namespace MotionTrajectoryStepper {
     let q: IAutoMovieQuaternion | null = oriented
       ? Quaternion.normalize(props.q0!)
       : null;
-    let k1: integrateMotionTrajectory.IRate = rate(t, x, q);
+    let k1: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t, x, q);
     let rateQ: IAutoMovieQuaternion | null = q;
     const stage: IAutoMovieVector3 | undefined = oriented
       ? { x: 0, y: 0, z: 0 }
@@ -166,7 +167,7 @@ export namespace MotionTrajectoryStepper {
         throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
       // Tableau consistency sum(A_i)=C_i preserves a common stage exactly;
       // sum(E)=0 gives the same stable difference form for embedded error.
-      const ks: integrateMotionTrajectory.IRate[] = [k1];
+      const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [k1];
       const us: (IAutoMovieVector3 | undefined)[] | undefined = oriented
         ? [k1.w]
         : undefined;
@@ -192,7 +193,7 @@ export namespace MotionTrajectoryStepper {
           ? sum(row, us!, h, C[i]!, i < 6 ? stage : undefined)
           : undefined;
         const qi: IAutoMovieQuaternion | null = oriented ? turn(q, vi) : null;
-        const ki: integrateMotionTrajectory.IRate = rate(t + C[i]! * h, xi, qi);
+        const ki: IAutoMovieIntegrateMotionTrajectory.IRate = rate(t + C[i]! * h, xi, qi);
         if (i === 6) {
           xn = xi;
           endpointQ = qi;
@@ -309,7 +310,7 @@ export namespace MotionTrajectoryStepper {
       previous = Math.max(norm, CONTROL.previous);
 
       // Accepted: keep the continuous extension and step on from the last stage.
-      const k7: integrateMotionTrajectory.IRate = ks[6]!;
+      const k7: IAutoMovieIntegrateMotionTrajectory.IRate = ks[6]!;
       steps.push(dense!);
       t = last ? t1 : t + h;
       x = xn;

@@ -6,7 +6,6 @@ import {
   ArchetypeBand,
   type ArchetypeBuilder,
   ArchetypeDrawSession,
-  ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -14,6 +13,8 @@ import {
 import { DogBody } from "./DogBody";
 import { QuadrupedAnimal } from "./QuadrupedAnimal";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
+import { QuadrupedLead } from "./QuadrupedLead";
 
 /**
  * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.
@@ -33,7 +34,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  * @throws {ArchetypeRefusal} For invalid mass, cohort, tempo or collar dimensions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source scope, authored mass, contact, units and remaining physical gaps.
- * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder; no equine weight law is used.
+ * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder. The actual head capsule contains each complete ear root disk through the shared radius-aware attachment owner, preserving measured ear length and its authored upright direction; no equine weight law or changed head size is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit mass and tack, select the cohort, record dimensions and build the body with ears and optional collar.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No independent trait bands, invented canine mass shares, paw friction or rider contacts.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size coarse rig and at most five added parts.
@@ -82,13 +83,17 @@ export function createDog(
         (measures.foreCircumference / (2 * Math.PI)) *
         ArchetypeUnits.CENTIMETRE;
       for (const side of ["left", "right"] as const) {
-        const base: IAutoMovieVector3 = Vector3.create(
-          ((side === "left" ? 1 : -1) *
-            measures.eyes *
-            ArchetypeUnits.CENTIMETRE) /
-            2,
-          rig.poll.y + rig.headRadius,
-          rig.poll.z,
+        const base: IAutoMovieVector3 = QuadrupedHeadAttachment(
+          rig,
+          Vector3.create(
+            ((side === "left" ? 1 : -1) *
+              measures.eyes *
+              ArchetypeUnits.CENTIMETRE) /
+              2,
+            rig.poll.y + rig.headRadius,
+            rig.poll.z,
+          ),
+          radius,
         );
         builder.rod(
           `${side}Ear`,
@@ -117,16 +122,7 @@ export namespace createDog {
   export type Affordance = "lead";
 
   /** Authored dimensions, all metres, of the solid collar and straight lead. */
-  export interface ICollar {
-    /** Collar length along the neck, metres. */
-    width: number;
-    /** Collar radial thickness, metres. */
-    thickness: number;
-    /** Full straight lead length, metres. */
-    leadLength: number;
-    /** Circular lead radius, metres. */
-    leadRadius: number;
-  }
+  export interface ICollar extends QuadrupedLead.IParams {}
 
   /** The author supplies total model mass; absent tack means a bare dog. */
   export interface IParams {
@@ -256,46 +252,6 @@ export namespace createDog {
     rig: QuadrupedBody.IRig,
     tack: ICollar,
   ): void {
-    const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
-    const length: number = Vector3.length(axis);
-    positive("collar.width", tack.width, "m", length);
-    const centre: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(rig.neck, rig.poll),
-      0.5,
-    );
-    const half: IAutoMovieVector3 = Vector3.scale(
-      axis,
-      tack.width / (2 * length),
-    );
-    builder.rod(
-      "collar",
-      rig.neckRadius + tack.thickness,
-      Vector3.subtract(centre, half),
-      Vector3.add(centre, half),
-      { color: "#645139" },
-    );
-    const attached: IAutoMovieVector3 = {
-      ...centre,
-      x: rig.neckRadius + tack.thickness,
-    };
-    const end: IAutoMovieVector3 = {
-      ...attached,
-      x: attached.x + tack.leadLength,
-    };
-    builder.rod("lead", tack.leadRadius, attached, end, { color: "#645139" });
-    builder.affordance({
-      id: "lead",
-      kind: "rein",
-      symmetry: "round",
-      grip: "power",
-      frame: ArchetypeFrame.facing(
-        Vector3.scale(Vector3.add(attached, end), 0.5),
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-      aperture: 2 * tack.leadRadius,
-      length: tack.leadLength,
-    });
+    QuadrupedLead(builder, rig, "lead", tack, "dog");
   }
 }

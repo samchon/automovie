@@ -4,10 +4,13 @@ import {
   jointRomOvershoot,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { handshake } from "../../handling/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -57,15 +60,21 @@ export function handshakeCases(): IMotionCaptureCase[] {
   return PAIRS.map(([first, second]): IMotionCaptureCase => {
     const one: humanPolygonMan.IPolygonMan = MotionBodies.population(first);
     const two: humanPolygonMan.IPolygonMan = MotionBodies.population(second);
-    const a: IHumanBody = createHumanBody(one.body.skeleton, one.body.profile);
-    const b: IHumanBody = createHumanBody(two.body.skeleton, two.body.profile);
+    const a: IAutoMovieMotionHumanBody = createHumanBody(
+      one.body.skeleton,
+      one.body.profile,
+    );
+    const b: IAutoMovieMotionHumanBody = createHumanBody(
+      two.body.skeleton,
+      two.body.profile,
+    );
 
     // The partners stand where their offering arms meet.
     const D: number =
       handshake.gap(a, b) +
       handshake.stance(a).sternum +
       handshake.stance(b).sternum;
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: `handling-handshake-${first}-${second}`,
       performers: [
         {
@@ -100,7 +109,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
     const pump: number = 1 / handshake.FREQUENCY;
     const palm = (
       subject: string,
-      body: IHumanBody,
+      body: IAutoMovieMotionHumanBody,
       t: number,
     ): IAutoMovieVector3 =>
       HumanHand.frame(
@@ -161,7 +170,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
         }
     }
     const meet: number = distance(palm("a", a, clasp), palm("b", b, clasp));
-    const sternum = (subject: string, body: IHumanBody): IAutoMovieVector3 =>
+    const sternum = (
+      subject: string,
+      body: IAutoMovieMotionHumanBody,
+    ): IAutoMovieVector3 =>
       resolveAutoMovieHumanoidSurfaces.place(
         body.surfaces.regions.sternum,
         performance

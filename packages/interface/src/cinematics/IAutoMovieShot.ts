@@ -1,9 +1,9 @@
-import { IAutoMovieClip } from "../core/IAutoMovieClip";
-import { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
-import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
-import { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
-import { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
-import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
+import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
+import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
+import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
+import type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
 
 /**
  * A shot: one continuous take (a scene, the camera that frames it, the camera's

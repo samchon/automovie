@@ -1,11 +1,18 @@
-import { Vector3, carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  Vector3,
+  carriedRate,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
@@ -37,25 +44,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * landing's flexion over the second.
  */
 export namespace walkFoot {
-  /** A foot's placement and toes at an instant. */
-  export interface IFoot {
-    /** Its placement. */
-    placement: HumanFoot.IPlacement;
-
-    /** The toes' flexion from the foot, degrees, positive lifting them. */
-    toes: number;
-  }
-
-  /**
-   * A foot as its schedule has it at an instant: the stance it stands in, or
-   * for a swinging foot the stance that claims the pelvis, the one it left at
-   * its toe-off over the first half of the swing and the one it lands in at
-   * its heel strike over the second.
-   */
-  export interface IScheduled extends IFoot {
-    /** A swinging foot's share of its swing and the swing's two ends, seconds. */
-    swing?: { u: number; off: number; on: number };
-  }
 
   /** What a stance ends or begins with, which a swing joins. */
   export interface IEnd {
@@ -81,13 +69,13 @@ export namespace walkFoot {
    * @returns The pitched placement.
    */
   export function rocked(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     degrees: number,
     about: "heel" | "mtp",
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(
       body,
       side,
@@ -115,9 +103,9 @@ export namespace walkFoot {
    * @returns The planted foot.
    */
   export function stance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     strike: number,
     toeOff: number,
@@ -125,7 +113,7 @@ export namespace walkFoot {
     push: number,
     raised: number = 0,
     backward: boolean = false,
-  ): IFoot {
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     return prepareStance(body, side, flat, heading, strike, toeOff, push, raised, backward)(t);
   }
 
@@ -152,16 +140,16 @@ export namespace walkFoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one flat rotation and at most two rigid-pivot readers until its step plan releases it, with no time history.
    */
   export function prepareStance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     strike: number,
     toeOff: number,
     push: number,
     raised: number = 0,
     backward: boolean = false,
-  ): (seconds: number) => IFoot {
+  ): (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
     const struck: boolean = Number.isFinite(strike);
     const leaves: boolean = Number.isFinite(toeOff);
     const length: number =
@@ -175,9 +163,9 @@ export namespace walkFoot {
     const pushSpan: number = toeOff - rise;
     const level: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
     const pivots: Partial<Record<"heel" | "mtp", ReturnType<typeof HumanFoot.preparePivot>>> = {};
-    const rock: (degrees: number, about: "heel" | "mtp") => HumanFoot.IPlacement = (degrees: number, about: "heel" | "mtp"): HumanFoot.IPlacement =>
+    const rock: (degrees: number, about: "heel" | "mtp") => IAutoMovieMotionHumanFoot.IPlacement = (degrees: number, about: "heel" | "mtp"): IAutoMovieMotionHumanFoot.IPlacement =>
       (pivots[about] ??= HumanFoot.preparePivot(body, side, about, HumanFoot.point(body, side, about, flat), heading))(degrees);
-    if (backward && !(raised > 0)) return (t: number): IFoot => {
+    if (backward && !(raised > 0)) return (t: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       // The forward rockers in reverse: down from the ball after the strike,
       // up about the heel before the toe-off.
       if (struck && t < settled) {
@@ -197,7 +185,7 @@ export namespace walkFoot {
       }
       return { placement: { ankle: flat.ankle, rotation: { ...level } }, toes: 0 };
     };
-    if (raised > 0) return (t: number): IFoot => {
+    if (raised > 0) return (t: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
       const held: number =
         raised *
@@ -212,7 +200,7 @@ export namespace walkFoot {
         toes: -degrees,
       };
     };
-    return (t: number): IFoot => {
+    return (t: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       if (struck && t < heelEnd) {
         const degrees: number =
           STRIKE * (1 - minimumJerk.share((t - strike) / heelSpan));
@@ -252,7 +240,7 @@ export namespace walkFoot {
    * @returns The swinging foot.
    */
   export function swing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     props: {
       from: IEnd;
@@ -265,7 +253,7 @@ export namespace walkFoot {
       stiff?: boolean;
       settles?: boolean;
     },
-  ): IFoot {
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     return prepareSwing(body, side, props)(props.u);
   }
 
@@ -287,10 +275,10 @@ export namespace walkFoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader retains one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
    */
   export function prepareSwing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     props: Omit<Parameters<typeof swing>[2], "u">,
-  ): (share: number) => IFoot {
+  ): (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
     const stiff: boolean = props.stiff === true;
 
     // Terminal swing: the travel ends where the lift, `sin²(π u)` of its
@@ -321,7 +309,7 @@ export namespace walkFoot {
     const carriedSeconds: number = (1 - settle) * props.seconds;
     const turnSeconds: number = (stiff ? LEVEL : 0.5) * props.seconds;
     const levelSeconds: number = LEVEL * props.seconds;
-    return (share: number): IFoot => {
+    return (share: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - settle));
       const s: number = minimumJerk.share(travel);
@@ -358,7 +346,7 @@ export namespace walkFoot {
 
       // A foot that leaves or lands on its edge rolls between the two as its
       // pitch does.
-      const placement: HumanFoot.IPlacement = {
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle,
         rotation: HumanFoot.rotation(
           heading,

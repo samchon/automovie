@@ -2,7 +2,10 @@ import {
   AffordanceArticulation,
   affordanceTravelRange,
 } from "@automovie/engine";
-import type { IAutoMovieAffordance } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieAffordanceArticulation,
+} from "@automovie/interface";
 
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
@@ -33,11 +36,8 @@ export function ArchetypeArticulationState(
   const inputs: Map<string, number> = new Map();
   if (state.size === 0) return inputs;
   for (const [id, input] of state) {
-    const resolved: AffordanceArticulation.Input = AffordanceArticulation.input(
-      byId,
-      id,
-      input,
-    );
+    const resolved: IAutoMovieAffordanceArticulation.Input =
+      AffordanceArticulation.input(byId, id, input);
     if (!resolved.success) {
       const at: IAutoMovieAffordance | undefined = byId.get(resolved.id);
       if (resolved.kind === "range" && at !== undefined) {

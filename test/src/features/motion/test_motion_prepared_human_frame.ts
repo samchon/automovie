@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanFrame } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,7 +42,7 @@ export function test_motion_prepared_human_frame(): void {
     [30, { x: Math.sqrt(3) + 3.5, y: -4, z: -1 + 7 * Math.sqrt(3) / 2 }],
   ] as const) {
     const local: IAutoMovieVector3 = { x: 2, y: -4, z: 7 };
-    const frame: HumanFrame.IFrame = { origin: { x: 3, y: 5, z: -2 }, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin: { x: 3, y: 5, z: -2 }, yaw };
     const prepared: HumanFrame.IPrepared = HumanFrame.prepare(frame);
     const fixed: ReturnType<typeof HumanFrame.preparePoint> = HumanFrame.preparePoint(yaw, local);
     const expected: IAutoMovieVector3 = { x: direction.x + 3, y: 1, z: direction.z - 2 };
@@ -96,7 +99,7 @@ export function test_motion_prepared_human_frame(): void {
 
 /** Interpolation and an optional lift precede the fixed heading's point transform. */
 function segment(): void {
-  const frame: HumanFrame.IFrame = { origin: { x: 3, y: 5, z: -2 }, yaw: 90 };
+  const frame: IAutoMovieMotionHumanFrame = { origin: { x: 3, y: 5, z: -2 }, yaw: 90 };
   const from: IAutoMovieVector3 = { x: 2, y: -4, z: 7 };
   const to: IAutoMovieVector3 = { x: -6, y: 8, z: 3 };
   const read: ReturnType<typeof HumanFrame.prepareLerp> = HumanFrame.prepareLerp(frame, from, to);

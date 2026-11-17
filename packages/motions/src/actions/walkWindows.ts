@@ -1,9 +1,11 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanWalkSteps,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { walkReach } from "./walkReach";
-import type { walkSteps } from "./walkSteps";
 
 /**
  * What a stepping gait declares of its footstep plan, as shares of its
@@ -44,11 +46,11 @@ export namespace walkWindows {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new arrays and retains nothing.
    */
   export function of(
-    body: IHumanBody,
-    steps: walkSteps.IPlan,
+    body: IAutoMovieMotionHumanBody,
+    steps: IAutoMovieMotionHumanWalkSteps.IPlan,
     pelvis: (seconds: number) => readonly [number, number, number],
     pivots?: (seconds: number) => walkReach.IPelvis["pivots"],
-  ): { events: IAutoMovieMotionEvent[]; contacts: IHumanContactWindow[] } {
+  ): { events: IAutoMovieMotionEvent[]; contacts: IAutoMovieMotionHumanContactWindow[]; } {
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map(
       (e: { name: string; seconds: number }): IAutoMovieMotionEvent => ({
@@ -63,7 +65,7 @@ export namespace walkWindows {
             right: steps.foot("right", t),
           }).pivots
         : pivots(t))[side] !== 0;
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (const stance of steps.stances) {
       const part: "leftFoot" | "rightFoot" =
         stance.side === "left" ? "leftFoot" : "rightFoot";

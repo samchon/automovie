@@ -1,7 +1,5 @@
 # Treatment population statements
 
-Contract: [obligations/treatments.md](../../obligations/treatments.md).
-
 ## Whole event design
 
 Information:

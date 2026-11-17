@@ -1,9 +1,11 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walkReach } from "../actions/walkReach";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
@@ -55,8 +57,8 @@ import { staggerBounds } from "./staggerBounds";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the courses, the shift vectors and its constants for its plan's lifetime.
  */
 export function staggerLean(
-  body: IHumanActionContext["body"],
-  entry: IHumanActionContext["entry"],
+  body: IAutoMovieMotionHumanActionContext["body"],
+  entry: IAutoMovieMotionHumanActionContext["entry"],
   walk: {
     course: (seconds: number) => IAutoMovieVector3;
     extrapolated: (seconds: number) => IAutoMovieVector3;

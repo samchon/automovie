@@ -1,6 +1,6 @@
-import { IAutoMovieMovablePanel } from "./IAutoMovieMovablePanel";
-import { IAutoMovieOpeningHardware } from "./IAutoMovieOpeningHardware";
-import { IAutoMovieOperationState } from "./IAutoMovieOperationState";
+import type { IAutoMovieMovablePanel } from "./IAutoMovieMovablePanel";
+import type { IAutoMovieOpeningHardware } from "./IAutoMovieOpeningHardware";
+import type { IAutoMovieOperationState } from "./IAutoMovieOperationState";
 
 /**
  * The moving part of a door, sash, shutter, or blind, as states rather than a

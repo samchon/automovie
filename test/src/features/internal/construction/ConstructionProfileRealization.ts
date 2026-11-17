@@ -5,13 +5,18 @@ import {
   AutoMovieSolidBody,
   AutoMovieSolidMesh,
   AutoMovieViewAxis,
-  type IAutoMovieConstructionProfileSource,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
   IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileSource,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 /**
@@ -38,7 +43,7 @@ export namespace ConstructionProfileRealization {
   /** Pure common metadata names actual test-owned source/material/binding dependencies. */
   function definition(
     name: string,
-    pieces: IAutoMovieConstructionProfile.IPiece[],
+    pieces: IAutoMovieConstructionProfilePiece[],
   ): IAutoMovieConstructionProfile {
     return {
       name,
@@ -78,11 +83,11 @@ export namespace ConstructionProfileRealization {
   export function prism(): IAutoMovieConstructionProfileSource {
     const curves: Map<string, IAutoMovieConstructionProfileSource.ICurve> =
       new Map();
-    const pieces: IAutoMovieConstructionProfile.IPiece[] = corners.map(
+    const pieces: IAutoMovieConstructionProfilePiece[] = corners.map(
       (
         from: readonly [number, number],
         i: number,
-      ): IAutoMovieConstructionProfile.IPiece => {
+      ): IAutoMovieConstructionProfilePiece => {
         const to: readonly [number, number] =
           corners[(i + 1) % corners.length]!;
         const delta: [number, number] = [to[0] - from[0], to[1] - from[1]];
@@ -164,12 +169,12 @@ export namespace ConstructionProfileRealization {
         };
       },
     };
-    const pieces: IAutoMovieConstructionProfile.IPiece[] = Array.from(
+    const pieces: IAutoMovieConstructionProfilePiece[] = Array.from(
       { length: count },
       (
         _value: unknown,
         ordinal: number,
-      ): IAutoMovieConstructionProfile.IPiece => {
+      ): IAutoMovieConstructionProfilePiece => {
         const i: number = direction === 1 ? ordinal : count - 1 - ordinal;
         return {
           id: "piece." + ordinal,
@@ -196,13 +201,13 @@ export namespace ConstructionProfileRealization {
   ): IAutoMovieConstructionJoin {
     const join: (
       name: string,
-      host: AutoMovieConstructionNode,
-      part: AutoMovieConstructionNode,
+      host: IAutoMovieConstructionNode,
+      part: IAutoMovieConstructionNode,
       hostFace: string,
     ) => IAutoMovieConstructionJoin = (
       name: string,
-      host: AutoMovieConstructionNode,
-      part: AutoMovieConstructionNode,
+      host: IAutoMovieConstructionNode,
+      part: IAutoMovieConstructionNode,
       hostFace: string,
     ): IAutoMovieConstructionJoin => ({
       type: "join",
@@ -240,8 +245,8 @@ export namespace ConstructionProfileRealization {
   }
   /** Exact affine plane and authoritative domain corners, with no actual cut. */
   export function authorities(dense: boolean = false): {
-    mesh: AutoMovieSolidMesh.IMesh;
-    input: AutoMovieSolidMesh.IFace;
+    mesh: IAutoMovieSolidMesh.IMesh;
+    input: IAutoMovieSolidMesh.IFace;
   } {
     const surface: IAutoMovieSolidSurface = {
       name: "authority.plane",
@@ -257,7 +262,7 @@ export namespace ConstructionProfileRealization {
         vv: [0, 0, 0],
       }),
     };
-    const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
     const chart: [number, number][] = [
       [0, 0],
@@ -281,29 +286,29 @@ export namespace ConstructionProfileRealization {
   }
   /** Every uncut original fixture face publishes one real domain perimeter and no cutting cycle. */
   export function wholeProfileDomains(
-    body: AutoMovieSolidBody.IPublished,
+    body: IAutoMovieSolidBody.IPublished,
   ): boolean {
     return body.faces.every(
-      (face: AutoMovieSolidBody.IPublished["faces"][number]): boolean =>
+      (face: IAutoMovieSolidBody.IPublished["faces"][number]): boolean =>
         face.cycles.length === 0 && face.domainLoops?.length === 1,
     );
   }
   /** An actual hole inside the original tip strip must receive a named refusal, never a whole-ring fan that covers it. */
   export function cutCap(failures: string[]): void {
-    const prepared: AutoMovieConstructionProfile.IPrepared =
+    const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
       AutoMovieConstructionProfile.create(cone(1, 1, true));
-    const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+    const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
       "actual cap cut",
       [],
     );
-    const ends: AutoMovieConstructionProfileBody.IEnd[] =
+    const ends: IAutoMovieConstructionProfileBody.IEnd[] =
       AutoMovieConstructionProfileBody.append(body, prepared, 0.02);
-    const end: AutoMovieConstructionProfileBody.IEnd = ends[0]!;
+    const end: IAutoMovieConstructionProfileBody.IEnd = ends[0]!;
     const surface: IAutoMovieSolidSurface = body.faces[0]!.surface;
     const owner: number = AutoMovieSolidMesh.owner(body.mesh, surface);
     // The regular domain is disjoint from this cap-only cut, so its actual mesh/open records remain valid.
     const diagnostics: { contract: string; detail: string }[] = [];
-    const open: AutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
+    const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
       body,
       (_node: string, detail: string): void => {
         diagnostics.push({ contract: "face triangulation", detail });

@@ -1,6 +1,6 @@
-import { IAutoMovieEffectRecipe } from "./IAutoMovieEffectRecipe";
-import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
+import type { IAutoMovieEffectRecipe } from "./IAutoMovieEffectRecipe";
+import type { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
+import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compiler-owned deterministic effect runtime consumed by viewer and oracle. Bounds are world-space metres; cue boundaries and simulation step are seconds.

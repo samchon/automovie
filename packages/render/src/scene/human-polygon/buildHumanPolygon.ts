@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
@@ -43,15 +48,15 @@ import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A completed palette becomes owned before the previous pool retires. Independent cleanup attempts every remaining resource and detach operation once; retirement failures remain sticky, reject further colour changes and retain bounded uncertain owners without retry.
  */
 export function buildHumanPolygon(
-  output: AutoMovieHumanPolygon.IInput,
+  output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
   options: {
     /** RGB hex overrides for matching emitted parts; omitted parts retain clay. */
     partColors?: Readonly<Record<string, number>>;
   } = {},
 ): AutoMovieHumanPolygon.IDrawing {
   createHumanPolygonPalette.validate(options.partColors);
-  const bones: Map<string, AutoMovieHumanPolygon.IBone> = new Map();
-  const placements: Map<string, AutoMovieHumanPolygon.IPlacement> = new Map();
+  const bones: Map<string, IAutoMovieHumanBindBone> = new Map();
+  const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
   for (const bone of output.bones) {
     if (
       bones.has(bone.bone) ||
@@ -77,10 +82,10 @@ export function buildHumanPolygon(
    * Reuse equivalent work: Reads the map built once from the supplied rest bones.
    * Bound retention and release resources: Borrows map entries only for synchronous construction.
    */
-  const boneAt: (name: string) => AutoMovieHumanPolygon.IBone = (
+  const boneAt: (name: string) => IAutoMovieHumanBindBone = (
     name: string,
-  ): AutoMovieHumanPolygon.IBone => {
-    const bone: AutoMovieHumanPolygon.IBone | undefined = bones.get(name);
+  ): IAutoMovieHumanBindBone => {
+    const bone: IAutoMovieHumanBindBone | undefined = bones.get(name);
     if (bone === undefined)
       throw new Error(`Missing polygon skeleton bone: ${name}`);
     return bone;
@@ -98,7 +103,7 @@ export function buildHumanPolygon(
   const partMeshes: Map<string, THREE.Mesh> = new Map();
   const bindings: Map<string, readonly THREE.Object3D[]> = new Map();
   const required: string[] = output.bones.map(
-    (bone: AutoMovieHumanPolygon.IBone): string => bone.bone,
+    (bone: IAutoMovieHumanBindBone): string => bone.bone,
   );
 
   // Validate the complete original rig, including custom non-emitted joints,
@@ -148,20 +153,21 @@ export function buildHumanPolygon(
    * Bound retention and release resources: Newly emitted buffers transfer to the drawing inventory and registries until terminal disposal.
    */
   const add: (
-    bone: AutoMovieHumanPolygon.IBone,
+    bone: IAutoMovieHumanBindBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,
     topPole?: [number, number, number],
   ) => THREE.Group = (
-    bone: AutoMovieHumanPolygon.IBone,
+    bone: IAutoMovieHumanBindBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,
     topPole?: [number, number, number],
   ): THREE.Group => {
-    const placement: AutoMovieHumanPolygon.IPlacement | undefined =
-      placements.get(bone.bone);
+    const placement: IAutoMovieHumanBonePlacement | undefined = placements.get(
+      bone.bone,
+    );
     if (placement === undefined)
       throw new Error(`Missing polygon placement: ${bone.bone}`);
     const {
@@ -266,7 +272,12 @@ export function buildHumanPolygon(
     parts: partMeshes,
     bones: groups,
     bindings,
-    setPose: (pose: Pick<AutoMovieHumanPolygon.IInput, "posed">): void => {
+    setPose: (
+      pose: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
+    ): void => {
       if (disposed) throw new Error("Polygon drawing is disposed");
       applyHumanPolygonPose(object, bindings, required, pose);
     },

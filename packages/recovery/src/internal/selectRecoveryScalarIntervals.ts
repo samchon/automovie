@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@automovie/interface";
+
 /**
  * Select complete saved scalar slabs intersecting a declared physical window.
  * Scalars are millimetres along the observation's normalized sweep direction.
@@ -14,15 +16,10 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local permutation set expires on return; the caller owns the bounded selected address array and scalar metadata, with no source references or handles retained.
  */
 export function selectRecoveryScalarIntervals(
-  levelsMm: readonly number[],
-  order: readonly number[],
-  windowMm?: readonly [number, number],
-): {
-  intervals: number[];
-  windowMm: [number, number] | null;
-  wholeSlabBoundsMm: [number, number] | null;
-  excludedIntervals: number;
-} {
+  levelsMm: Parameters<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>[0],
+  order: Parameters<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>[1],
+  windowMm?: Parameters<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation> {
   if (
     levelsMm.length < 2 ||
     levelsMm.some(

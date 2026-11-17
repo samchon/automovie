@@ -1,16 +1,18 @@
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieClearanceBox,
+  type IAutoMovieForgedProp,
   IAutoMoviePropBox,
   IAutoMoviePropRelation,
   IAutoMoviePropRelationTarget,
   IAutoMoviePropSpec,
   IAutoMovieStageSetPiece,
+  type IAutoMovieValidatePropPlacements,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 import { forgeProp } from "./forgeProp";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
 import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
@@ -35,9 +37,36 @@ type Environments = ReadonlyMap<
 
 type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
 
-type GeometryEntry = Parameters<
-  typeof validatePropPlacementGeometry
->[0]["entries"][number];
+type GeometryEntry = [
+  {
+    /** Every registry entry in declaration order, with what the registry gate resolved for it. */
+    entries: readonly {
+      /** The registry's prop. */
+      prop: IAutoMoviePropSpec;
+
+      /** Its index in the registry, for violation paths. */
+      index: number;
+
+      /** The one set piece staging it, or `undefined` when zero or several do. */
+      piece: IAutoMovieStageSetPiece | undefined;
+
+      /** Whether `forgeProp` accepted it. */
+      forged: boolean;
+
+      /** Whether its node is declared once. */
+      unique: boolean;
+
+      /** The uniquely declared environment of its `in-space` target, or `null`. */
+      located: IAutoMovieBuiltEnvironment | null;
+    }[];
+
+    /** Built environments by id, holding only ids declared exactly once. */
+    environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
+
+    /** Collector the violations are appended to. */
+    out: IAutoMovieViolationCollector;
+  },
+][0]["entries"][number];
 
 type BuildingTarget = Exclude<
   IAutoMoviePropRelationTarget,
@@ -88,21 +117,12 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One validation per call; production runs it once per shot compile and every index is rebuilt from that shot's registry.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the indexes and collector die with the call and the returned violations belong to the caller.
  */
-export const validatePropPlacements: (props: {
-  props: readonly IAutoMoviePropSpec[];
-  set: readonly IAutoMovieStageSetPiece[];
-  builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
-}) => IAutoMovieValidation = (props: {
-  /** Source-owned registry whose exact node and target identities are retained. */
-  props: readonly IAutoMoviePropSpec[];
-
-  /** Staged set pieces joining each declared prop to its model and world placement. */
-  set: readonly IAutoMovieStageSetPiece[];
-
-  /** Built environments that relation targets may reference. */
-  builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
-}): IAutoMovieValidation => {
-  const out: ViolationCollector = new ViolationCollector();
+export const validatePropPlacements: (
+  props: IAutoMovieValidatePropPlacements.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidatePropPlacements.IProps,
+): IAutoMovieValidation => {
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const byNode: Props = indexBy(
     props.props,
     (prop: IAutoMoviePropSpec): string => prop.node,
@@ -205,13 +225,13 @@ const validatePlacement: (
   environments: Environments,
   unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
   props: Props,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   entry: IIndexed<IAutoMoviePropSpec>,
   environments: Environments,
   unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
   props: Props,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const prop: IAutoMoviePropSpec = entry.value;
   const path: string = `$input.props[${entry.index}]`;
@@ -318,12 +338,12 @@ const validateBuildingTarget: (
   target: BuildingTarget,
   rp: string,
   environments: Environments,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   target: BuildingTarget,
   rp: string,
   environments: Environments,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const matches: readonly IIndexed<IAutoMovieBuiltEnvironment>[] =
     environments.get(target.environment) ?? [];
@@ -410,11 +430,11 @@ const targetId: (target: BuildingTarget) => string = (
 const validateBox: (
   box: IAutoMoviePropBox,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   box: IAutoMoviePropBox,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of ["x", "y", "z"] as const)
     if (!propBoxAxisIsSound(box, axis))
@@ -450,13 +470,13 @@ const reportDuplicates: <Value>(
   path: string,
   field: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = <Value>(
   indexed: ReadonlyMap<string, readonly IIndexed<Value>[]>,
   path: string,
   field: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   for (const [id, matches] of indexed)
     for (const match of matches.slice(1))

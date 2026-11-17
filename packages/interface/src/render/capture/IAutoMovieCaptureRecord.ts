@@ -1,0 +1,84 @@
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord.js";
+import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
+import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
+import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource.js";
+import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
+
+/**
+ * The `record.json` a capture writes in its folder: enough to repeat every cell and to know which were not drawn, and the list of every file the capture owns.
+ *
+ * A capture writes a `running` record listing the files it is about to write before it writes any, and the `complete` record last, so a folder interrupted at any step still says which of its files the capture owns and the next run replaces them. `.agents/skills/visual-debugging/capture.md` asks a record to keep the source revision, the input, the time, the resolved camera, the pass, the raster and the renderer, and to keep a cell that could not be drawn with its cause.
+ *
+ * @evidence contracts/development/design.md#principled-representation A union keyed by `state`: a running capture records only what it owns, a complete one everything that repeats it. The request is kept as the named text values that repeat it, every planned cell has a row, and a drawn and an undrawn row are separate members.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each member answers a requirement of the skill quoted above or is read by the next run (`files`) or a comparison (`rows`), `video` lists a file's cuts as `.agents/skills/visual-debugging/capture.md` asks frames around every cut, and `section` keeps what only the subject's owner judges, such as a motion case's verdicts, so the record of one capture stays one file in a folder that refuses foreign files; the subject keeps its clock and raster but not its drawables, which the request's selections already name.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An undrawn cell has no file, hash, camera or resolution instead of empty ones, and an unstated backend, camera or resolution is null.
+ * @evidence contracts/development/common.md#meaningful-documentation States when each state is written and why, which skill requirements the members answer, and what the next run reads.
+ */
+export type IAutoMovieCaptureRecord =
+  | {
+      /** Written before the first file; the capture has not finished. */
+      state: "running";
+
+      /** Every file name the capture may write in its folder. */
+      files: string[];
+    }
+  | {
+      /** Written after the last file. */
+      state: "complete";
+
+      /** The subject's name, clock and raster. */
+      subject: {
+        /** Name of the subject. */
+        name: string;
+
+        /** Running time in seconds. */
+        durationSeconds: number;
+
+        /** Frames per second of its grid. */
+        fps: number;
+
+        /** Still width in pixels. */
+        width: number;
+
+        /** Still height in pixels. */
+        height: number;
+      };
+
+      /** Source revision the host drew from, such as a commit hash. */
+      revision: string;
+
+      /** The request as the named text values that repeat it. */
+      request: [key: string, value: string][];
+
+      /** The reader the sheets were laid out for. */
+      budget: IAutoMovieCaptureBudget;
+
+      /** How the sheets were laid out. */
+      layout: IAutoMovieCaptureLayout;
+
+      /** Every instant planned. */
+      times: IAutoMovieCaptureTime[];
+
+      /** The frames planned around each event and cut, with whether the subject's bounds cut them. */
+      windows: IAutoMovieCaptureWindow[];
+
+      /** One row per planned cell, in plan order. */
+      rows: IAutoMovieCaptureCellRecord[];
+
+      /** File names of the contact sheets, in order. */
+      sheets: string[];
+
+      /** The comparison against an earlier round, or null when none was asked. */
+      comparison: IAutoMovieCaptureComparison | null;
+
+      /** The video file the stills were taken from, with its detected cuts, or null for a drawn subject. */
+      video: IAutoMovieCaptureVideoSource | null;
+
+      /** The subject owner's own section, such as a motion case's verdicts and metrics, as the host handed it over, or null when the owner has none. */
+      section: Readonly<Record<string, unknown>> | null;
+
+      /** Every file name the capture wrote in its folder, this record included. */
+      files: string[];
+    };

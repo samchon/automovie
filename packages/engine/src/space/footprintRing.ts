@@ -1,6 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+import {
+  type IAutoMovieFootprintRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Prepare a borrowed world ring and its owned XZ projection for repeated footprint queries.

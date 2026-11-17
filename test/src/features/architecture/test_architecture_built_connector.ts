@@ -1,7 +1,4 @@
 import {
-  type IAutoMovieConnectorGeometry,
-  type IAutoMovieConnectorSectionAt,
-  type IAutoMovieConnectorStation,
   builtConnectorGeometry,
   builtConnectorSectionAt,
   lowerBuiltEnvironment,
@@ -9,6 +6,9 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
+  IAutoMovieConnectorGeometry,
+  IAutoMovieConnectorSectionAt,
+  IAutoMovieConnectorStation,
   IAutoMovieQuaternion,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";

@@ -1,11 +1,11 @@
 import type {
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainConstants } from "./prepareChainConstants";
 
 /**
@@ -31,7 +31,7 @@ import type { prepareChainConstants } from "./prepareChainConstants";
 export function placeChainPlant(
   constants: prepareChainConstants.IConstants,
   parent: { worldPosition: IAutoMovieVector3; worldRotation: IAutoMovieQuaternion },
-): IPreparedChainPlant {
+): IAutoMoviePreparedChainPlant {
   const upperRotation: IAutoMovieQuaternion = Quaternion.multiply(
     parent.worldRotation,
     constants.upperRotation,

@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   minimumJerk,
@@ -8,23 +7,28 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPoleVault,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -79,16 +83,16 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  */
 export namespace poleVault {
   /** The action's name. */
-  export const name: HumanActionKey = "poleVault";
+  export const name: AutoMovieMotionHumanActionKey = "poleVault";
 
   /** Cancel table: once lying, into rising. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       rise: ["fromRelax", "smooth"],
     });
 
   /** What may be cut into a vault: a run, at any instant. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
@@ -108,25 +112,6 @@ export namespace poleVault {
   const STEPS: number = 200;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The pole and its planted end, and the landing surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Subject and affordance ids.
-   */
-  export interface IParams {
-    /** The pole, its subject id; a hand holds it at the entry. */
-    pole: string;
-
-    /** The pole's affordance planted on the floor; `tip` when absent. */
-    end?: string;
-
-    /** The prop landed on, its subject id, whose `surface` is the landing's height; the floor when absent. */
-    on?: string;
-  }
-
-  /**
    * Plan a pole vault.
    *
    * @param context The action's context.
@@ -142,16 +127,16 @@ export namespace poleVault {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns take-off, pendulum table, mass model, fixed hand arc, raw take-off root and one released articulation/local COM. Initial raw posture/shoulder map and its local FK/projector end with their IIFE, leaving two owned vectors. Rate arrays and grip demand end with construction; native floor reader/FK/projector end with the local touchdown operation, leaving one second. Borrowed query loans never enter the plan or output evidence.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const p: IParams = context.params;
-    const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPoleVault.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const p: IAutoMovieMotionHumanPoleVault.IParams = context.params;
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
 
     // The pole in the hand that holds it.
     const side: "left" | "right" =
       context.entry.holds.right === p.pole ? "right" : "left";
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
       p.pole,
@@ -196,7 +181,7 @@ export namespace poleVault {
       y: speed * Math.sin(rise),
       z: ahead.z * speed * climbCosine,
     };
-    const takeoff: GymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
       context,
       (): IAutoMovieVector3 => ({ ...takeoffVelocity }),
     );
@@ -208,7 +193,7 @@ export namespace poleVault {
     const { shoulder, root: rootT }: { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } = ((): { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } => {
       const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const raw: IHumanPosture = takeoff.plan.posture(off, undefined, resolution, projection);
+      const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(off, undefined, resolution, projection);
       const shoulder: IAutoMovieVector3 = poseBones(body,
         resolveHumanPosture.seeded(body, raw, undefined, undefined, resolution, shoulderBones, projection).pose, resolution, shoulderBones,
       ).get(`${side}UpperArm`)!.worldPosition;
@@ -278,8 +263,8 @@ export namespace poleVault {
     const handFrom: IAutoMovieVector3 = Vector3.subtract(hand0.worldPosition, root0);
     const poleBend: IAutoMovieVector3 = Vector3.scale(outward, 0.5);
     const handTurn: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(hand0.worldRotation, rotation);
-    const pushing: (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]) => IHumanPosture = (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
-      const base: IHumanPosture = takeoff.plan.posture(t, undefined, resolution, projection);
+    const pushing: (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]) => IAutoMovieMotionHumanPosture = (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      const base: IAutoMovieMotionHumanPosture = takeoff.plan.posture(t, undefined, resolution, projection);
       const u: number = minimumJerk.share(t / off);
       const point: IAutoMovieVector3 = Vector3.add(
         base.root,
@@ -309,12 +294,12 @@ export namespace poleVault {
     // centimetres away.
     const plantFit: ReturnType<typeof preparePoleVaultPlant> = preparePoleVaultPlant({
       body, model, side, end, height: wrist.y, passes: PLANT,
-      posture: (height: number, resolution: Parameters<IHumanActionPlan["posture"]>[2], projection: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (height: number, resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         wrist = { ...wrist, y: height };
         return pushing(off, resolution, projection);
       },
     });
-    const from: IHumanPosture = plantFit.posture;
+    const from: IAutoMovieMotionHumanPosture = plantFit.posture;
     const tipAt: IAutoMovieVector3 = plantFit.tip;
     const gripAt: IAutoMovieVector3 = plantFit.grip;
     const c0: IAutoMovieVector3 = plantFit.centre;
@@ -384,12 +369,12 @@ export namespace poleVault {
     };
     const degrees: number = 180 / Math.PI;
     const turnFrom: ReturnType<typeof GymnasticsFlight.prepareTurned> = GymnasticsFlight.prepareTurned(from, tipAt);
-    const swinging: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
+    const swinging: (t: number) => IAutoMovieMotionHumanPosture = (t: number): IAutoMovieMotionHumanPosture =>
       turnFrom(0, angleAt(t) * degrees);
 
     // The release: the centre and its velocity from the pendulum.
     const omega: number = Math.sqrt(rate2(upright));
-    const released: IHumanPosture = swinging(swing);
+    const released: IAutoMovieMotionHumanPosture = swinging(swing);
     const cr: IAutoMovieVector3 = GymnasticsFlight.centre(
       body,
       model,
@@ -403,7 +388,7 @@ export namespace poleVault {
     );
     const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
       prepareGymnasticsPlacement(body, model, released);
-    const flying: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
+    const flying: (t: number) => IAutoMovieMotionHumanPosture = (t: number): IAutoMovieMotionHumanPosture =>
       placeFlight(
         { yaw: released.yaw, pitch: released.pitch + omega * degrees * t, roll: 0 },
         GymnasticsFlight.at(cr, velocity, t),
@@ -445,7 +430,7 @@ export namespace poleVault {
     const touchdown: number = release + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       { ...takeoff.plan.contacts[0]!, from: 0, to: off / duration },
       {
         part: `${side}Hand`,
@@ -478,7 +463,7 @@ export namespace poleVault {
       contacts,
       contact: off,
       base: { kind: "lying" },
-      posture: (t: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (t: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const s: number = Math.min(duration, Math.max(0, t));
         if (s <= off) return pushing(s, resolution, projection);
         if (s < release) return swinging(s - off);

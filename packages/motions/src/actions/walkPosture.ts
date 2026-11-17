@@ -1,15 +1,20 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { IWalkGait } from "./IWalkGait";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import type { walkFoot } from "./walkFoot";
@@ -18,7 +23,7 @@ import type { walkSteps } from "./walkSteps";
 
 /** The settled feet and pelvis the gait's posture reads at one second. */
 interface ISettled {
-  feet: Record<"left" | "right", walkFoot.IScheduled>;
+  feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
   hips: readonly [number, number, number];
   settled: walkReach.IGround;
   reached: Record<"left" | "right", walkFoot.IEnd>;
@@ -45,17 +50,17 @@ interface ISettled {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns fixed body/step references and standing terms until its plan releases it, without a sample history or external handle.
  */
 export function walkPosture(
-  body: IHumanBody,
-  gait: IWalkGait,
+  body: IAutoMovieMotionHumanBody,
+  gait: IAutoMovieMotionHumanWalkGait,
   arms: number,
   elbows: number,
-  steps: walkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => ISettled,
-): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IHumanPosture {
-  let upright: standUpright.IAlignment | undefined;
-  let relaxed: IHumanPosture["joints"] | undefined;
+  steps: IAutoMovieMotionHumanWalkSteps.IPlan,
+  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => ISettled,
+): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture {
+  let upright: IAutoMovieMotionHumanStandUpright.IAlignment | undefined;
+  let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
   let abduction: number | undefined;
-  const shapes: Partial<Record<"left" | "right", IHumanPosture["joints"]>> = {};
+  const shapes: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {};
   const rest: Record<"left" | "right", IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
@@ -64,8 +69,8 @@ export function walkPosture(
     seconds: number,
     legs: readonly ("left" | "right")[] = walkReach.SIDES,
     channels?: readonly AutoMovieMotionHumanChannel[],
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-  ): IHumanPosture => {
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.min(steps.duration, Math.max(0, seconds));
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
@@ -80,7 +85,7 @@ export function walkPosture(
       (upright ??= standUpright.of(body)).joints, gait.lean * amount,
     );
     const swinging: boolean = channels === undefined || channels.includes("leftArm") || channels.includes("rightArm");
-    const joints: IHumanPosture["joints"] = {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...(swinging ? (relaxed ??= stand.relaxed(body)) : {}),
       ...inclined.joints,
       hips,
@@ -99,7 +104,7 @@ export function walkPosture(
         if (channels?.includes(`${side}Hand`))
           Object.assign(joints, shapes[side] ??= HumanHand.shape(side, "relaxed"));
     }
-    const limbs: IHumanPosture["limbs"] = {};
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of legs) {
       const planted: boolean = feet[side].swing === undefined;
 

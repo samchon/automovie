@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -9,7 +11,6 @@ import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffLinear } from "./AirborneTakeoffLinear";
 import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
-import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * The take-off angular momentum that turns a body in flight through the
@@ -62,8 +63,8 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reuse checks only the call-local current or starting point and one last rejected trial; continuation also owns its accepted and last solved stage until replacement. A factory history additionally gives this solve one numeric time partition, cleared in finally on success or failure. There is no point map or cross-call cache. Playback retains the actual accepted numeric flight, never the partition or history. The caller separately clears the history after solving and preparing playback.
  */
 export function solveAirborneTakeoff(
-  props: solveAirborneTakeoff.IProps,
-): solveAirborneTakeoff.ISolution {
+  props: IAutoMovieSolveAirborneTakeoff.IProps,
+): IAutoMovieSolveAirborneTakeoff.ISolution {
   const flight: number = props.t1 - props.t0;
   if (!(flight > 0))
     throw new Error(`The take-off needs a positive flight, got ${flight}`);
@@ -248,94 +249,6 @@ export namespace solveAirborneTakeoff {
    * source), so the solver's miss stays below the model's own error.
    */
   export const TOLERANCE: number = 2 * Math.PI * 0.01;
-
-  /**
-   * The fixed shape history, physical request and numerical budgets of a takeoff solve.
-   *
-   * Members state flight seconds, quaternion frames, turns, world angular momentum and angular/integration tolerances.
-   * A whole-body turn request and momentum ball over a positive flight share one unchanged root-frame history; the solve checks the interval and its flight integrator admits numerical budgets.
-   * HumanPerformanceFlight supplies the request and physical ceiling; numerical consumers can additionally supply step and relative/absolute budgets, while the flight owns its tangent partition.
-   * Imports the trajectory's budget fields and the history's type without introducing a second state model, guessed rate or per-body exception.
-   */
-  export interface IProps {
-    /** The shape's history (`integrateAirborneRotation.history`). */
-    history: integrateAirborneRotation.IHistory;
-
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds. */
-    t1: number;
-
-    /** The root's world orientation at take-off. */
-    q0: IAutoMovieQuaternion;
-
-    /**
-     * The somersault frame in the root's frame at take-off: its X the
-     * somersault axis, its Y the long axis, its Z the tilt axis. The root's
-     * own axes when absent (a forward or backward salto); a side salto turns
-     * it a quarter about the long axis.
-     */
-    frame?: IAutoMovieQuaternion;
-
-    /** Somersault turns about the frame's X, signed (positive tips the head toward the frame's +Z). */
-    somersault: number;
-
-    /** Twist turns about the long axis, signed by the right-hand rule about +Y. */
-    twist: number;
-
-    /** The largest momentum the take-off can give, kg m²/s; unbounded when absent. */
-    maximum?: number;
-
-    /** The residual norm accepted, radians; `TOLERANCE` when absent. */
-    tolerance?: number;
-
-    /** The integrator's step, seconds. */
-    h?: number;
-
-    /** The integrator's error control, as the flight that reads the momentum integrates it; the fixed step when absent. */
-    integration?: Pick<
-      integrateMotionTrajectory.ITolerance,
-      "relative" | "absolute"
-    >;
-
-    /** Explicit per-read world-momentum defect budget: relative share of the target momentum and absolute kg m squared per second. Requires integration error control and remains independent of its orientation/sensitivity RMS budget. */
-    momentumTolerance?: Pick<
-      integrateMotionTrajectory.ITolerance,
-      "relative" | "absolute"
-    >;
-
-    /** Optional caller-owned unique symbol forwarded to each flight's numeric failure, never to the shape history. Admitted before seed/history reads; it changes no shooting or integration decision. */
-    errorScope?: symbol;
-  }
-
-  /** A solved take-off. */
-  export interface ISolution {
-    /** The whole-body angular momentum about the centre of mass, world, kg m²/s. */
-    momentum: IAutoMovieVector3;
-
-    /** What the flight misses at touchdown, revolutions: somersault, tilt and twist. */
-    residual: IAngles;
-
-    /** Whether the residual is within the tolerance and the momentum within the maximum. */
-    met: boolean;
-
-    /** The evaluated flight whose residual was judged; a consumer uses this value for playback instead of reintegrating the momentum on a different adaptive mesh. */
-    flight: integrateAirborneRotation.IFlight;
-  }
-
-  /** Yeadon's attitude angles, in the unit their reader states. */
-  export interface IAngles {
-    /** About the frame's lateral axis X. */
-    somersault: number;
-
-    /** About its forward axis Z. */
-    tilt: number;
-
-    /** About the body's long axis Y. */
-    twist: number;
-  }
-
   /**
    * Yeadon's somersault, tilt and twist of an orientation relative to a
    * frame, radians, from `M = frame⁻¹ q = Rx(φ) Rz(θ) Ry(ψ)`: the long axis
@@ -351,7 +264,7 @@ export namespace solveAirborneTakeoff {
   export function angles(
     frame: IAutoMovieQuaternion,
     q: IAutoMovieQuaternion,
-  ): IAngles {
+  ): IAutoMovieSolveAirborneTakeoff.IAngles {
     return AirborneTakeoffAngles(Quaternion.inverse(frame), q);
   }
 
@@ -370,9 +283,9 @@ export namespace solveAirborneTakeoff {
    * @returns The touchdown angles, radians.
    */
   export function unwrapped(
-    flight: integrateAirborneRotation.IFlight,
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     frame: IAutoMovieQuaternion,
-  ): IAngles {
+  ): IAutoMovieSolveAirborneTakeoff.IAngles {
     return AirborneTakeoffAngles.unwrapped(flight, frame);
   }
 }

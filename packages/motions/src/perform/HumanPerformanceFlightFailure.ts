@@ -1,13 +1,14 @@
-import type { IAutoMovieResolvedBone, preparePoseResolution } from "@automovie/engine";
+import { preparePoseResolution } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
 
 /** Metres, or a raw action's heading/pitch/roll in degrees. */
@@ -78,8 +79,8 @@ interface IShape {
  */
 export function HumanPerformanceFlightFailure(
   error: Error,
-  body: IHumanBody,
-  plan: IHumanActionPlan,
+  body: IAutoMovieMotionHumanBody,
+  plan: IAutoMovieMotionHumanActionPlan,
   start: number,
   takeoff: number,
   unturned: (seconds: number) => IAutoMoviePose,

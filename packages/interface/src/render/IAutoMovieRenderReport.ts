@@ -1,5 +1,5 @@
-import { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
-import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
+import type { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
+import type { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 
 /**
  * A bounded verdict: every budgeted render cost, what it measured, and who pays for it.

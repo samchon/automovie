@@ -1,6 +1,9 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -8,10 +11,8 @@ import {
   HumanDrill,
   HumanFloorFall,
   HumanPerformance,
-  type HumanSegment,
   HumanSportGym,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -55,11 +56,13 @@ export function test_human_motion_crouch_planted_entry(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const perform = (
-      composition: { node: HumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
       label: string,
-    ): HumanPerformance | undefined => {
+    ): IAutoMovieMotionHumanPerformance | undefined => {
       try {
         return new HumanPerformance({
           seed: "crouch-entry",
@@ -88,7 +91,7 @@ export function test_human_motion_crouch_planted_entry(): void {
       }
     };
     const knee = (
-      performance: HumanPerformance,
+      performance: IAutoMovieMotionHumanPerformance,
       seconds: number,
       side: "left" | "right",
     ): number => {
@@ -106,13 +109,16 @@ export function test_human_motion_crouch_planted_entry(): void {
         (Math.hypot(u[0]!, u[1]!, u[2]!) * Math.hypot(v[0]!, v[1]!, v[2]!));
       return 180 - (Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI;
     };
-    const instant = (placed: HumanSegment.ISegment, event: string): number =>
+    const instant = (
+      placed: IAutoMovieMotionHumanSegment,
+      event: string,
+    ): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) *
         placed.plan.duration;
     const findings = (
-      performance: HumanPerformance,
+      performance: IAutoMovieMotionHumanPerformance,
       from: number,
       to: number,
       checks: readonly string[],
@@ -125,14 +131,14 @@ export function test_human_motion_crouch_planted_entry(): void {
         );
 
     // 1 to 3. A squat entered from a calf raise's joint angles.
-    const squatting: HumanPerformance | undefined = perform(
+    const squatting: IAutoMovieMotionHumanPerformance | undefined = perform(
       HumanChain.subject("a")
         .registered("calfRaise", { reps: 1 })
         .registered("squats", { reps: 1 }),
       "calfRaise then squats",
     );
     if (squatting !== undefined) {
-      const squat: HumanSegment.ISegment = squatting.segments("a")[1]!;
+      const squat: IAutoMovieMotionHumanSegment = squatting.segments("a")[1]!;
       const bottom: number = instant(squat, "bottom1");
       for (const side of ["left", "right"] as const) {
         const flexion: number = knee(squatting, bottom, side);
@@ -178,14 +184,14 @@ export function test_human_motion_crouch_planted_entry(): void {
     }
 
     // 4 and 5. The crouch a dive takes off from.
-    const diving: HumanPerformance | undefined = perform(
+    const diving: IAutoMovieMotionHumanPerformance | undefined = perform(
       HumanChain.subject("a")
         .stand({ seconds: 0.3 })
         .registered("goalkeeperDiveLeft", {}),
       "stand then goalkeeperDiveLeft",
     );
     if (diving !== undefined) {
-      const dive: HumanSegment.ISegment = diving.segments("a")[1]!;
+      const dive: IAutoMovieMotionHumanSegment = diving.segments("a")[1]!;
       const takeOff: number = instant(dive, "takeOff");
       for (const side of ["left", "right"] as const) {
         const bent: number =

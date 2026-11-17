@@ -1,4 +1,4 @@
-import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
+import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
 /** Admit the actual used affine frame before its forward clinical conversion. */
 const assertAxisFrame: (

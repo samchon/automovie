@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanTiming,
-} from "../compose/AutoMovieMotionHumanTiming";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
@@ -39,10 +39,10 @@ export namespace staggerRecover {
     side: "left" | "right";
 
     /** Where it stood before the step. */
-    from: HumanFoot.IPlacement;
+    from: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** Where it lands. */
-    to: HumanFoot.IPlacement;
+    to: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The swing's start, seconds since the action's start. */
     start: number;
@@ -109,7 +109,7 @@ export namespace staggerRecover {
    */
   export interface IState {
     /** The feet. */
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The spans. */
     phases: IPhase[];
@@ -203,8 +203,8 @@ export namespace staggerRecover {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the shared prefixes for the search only.
    */
   export function recover(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
     righting: number,

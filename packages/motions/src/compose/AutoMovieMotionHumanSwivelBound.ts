@@ -1,17 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  hingedArmSwivel,
-  swivelArcs,
-} from "@automovie/engine";
+import { Vector3, hingedArmSwivel, swivelArcs } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwivelBound,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -33,44 +31,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace AutoMovieMotionHumanSwivelBound {
   /**
-   * The half-space an elbow is kept in: `normal · (elbow - point) >= margin`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A plane and how far inside it, the form every bound here takes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
-   */
-  export interface IHalfPlane {
-    /** The direction inside, world; any length, read as its own unit times its length. */
-    normal: IAutoMovieVector3;
-
-    /** A point on the plane, world metres. */
-    point: IAutoMovieVector3;
-
-    /** How far inside the elbow is kept, in the normal's units (metres for a unit normal). */
-    margin: number;
-  }
-
-  /**
-   * An arm on a posture's trunk: its shoulder and its two lengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation What fixes the elbow's circle for a wrist's place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by `bounded`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read off the posed trunk, never estimated.
-   */
-  export interface IArm {
-    /** The shoulder joint, world metres. */
-    shoulder: IAutoMovieVector3;
-
-    /** The shoulder to the elbow, metres. */
-    upper: number;
-
-    /** The elbow to the wrist, metres. */
-    lower: number;
-  }
-
-  /**
    * An arm on a posture's trunk, the limbs left unfitted.
    *
    * @param body The body.
@@ -87,10 +47,10 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The three-name demand, pose/map and local lazy reader end on return/throw; only original shoulder/length values escape.
    */
   export function arm(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-  ): IArm {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanSwivelBound.IArm {
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
     ]);
@@ -136,9 +96,9 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function admits(
-    of: IArm,
+    of: IAutoMovieMotionHumanSwivelBound.IArm,
     point: IAutoMovieVector3,
-    bounds: readonly IHalfPlane[],
+    bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
   ): boolean {
     const { shoulder, upper, lower } = of;
     const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
@@ -160,11 +120,11 @@ export namespace AutoMovieMotionHumanSwivelBound {
       return Vector3.add(Vector3.scale(line, foot),
         Vector3.scale(Vector3.add(Vector3.scale(u, Math.cos(r)), Vector3.scale(v, Math.sin(r))), radius));
     };
-    const refused: swivelArcs.IArc[] = [];
+    const refused: IAutoMovieSwivelArcs.IArc[] = [];
     for (const bound of bounds) {
       const past: (elbow: IAutoMovieVector3) => number = (elbow: IAutoMovieVector3): number =>
         -(Vector3.dot(bound.normal, Vector3.subtract(elbow, Vector3.subtract(bound.point, shoulder))) - bound.margin);
-      const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
+      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
         swivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))), 0);
       if (arc === "all") return false;
       if (arc !== null) refused.push(arc);
@@ -194,10 +154,10 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bounded(
-    of: IArm,
+    of: IAutoMovieMotionHumanSwivelBound.IArm,
     point: IAutoMovieVector3,
     hint: IAutoMovieVector3,
-    bounds: readonly IHalfPlane[],
+    bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
   ): IAutoMovieVector3 {
     const { shoulder, upper, lower } = of;
     const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
@@ -240,16 +200,16 @@ export namespace AutoMovieMotionHumanSwivelBound {
     ];
     // How far past a bound an elbow lies, from its offset from the
     // shoulder, refused where positive.
-    const past = (bound: IHalfPlane, at: IAutoMovieVector3): number =>
+    const past = (bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane, at: IAutoMovieVector3): number =>
       -(
         Vector3.dot(
           bound.normal,
           Vector3.subtract(at, Vector3.subtract(bound.point, shoulder)),
         ) - bound.margin
       );
-    const refused: swivelArcs.IArc[] = [];
+    const refused: IAutoMovieSwivelArcs.IArc[] = [];
     for (const bound of bounds) {
-      const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
+      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
         swivelArcs.fitted(
           past(bound, zero),
           past(bound, quarter),
@@ -260,7 +220,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
       if (arc === "all") return hint;
       if (arc !== null) refused.push(arc);
     }
-    const merged: swivelArcs.IArc[] | "all" = swivelArcs.union(refused);
+    const merged: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union(refused);
     const end: number | null = swivelArcs.nearest(merged, 0);
     if (end === null || end === 0) return hint;
 

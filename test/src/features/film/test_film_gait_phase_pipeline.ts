@@ -1,6 +1,4 @@
 import {
-  IAutoMovieActionSynthesizer,
-  IAutoMovieActorContext,
   compilePerformance,
   makeActorSynthesizer,
   resolveBeatEnd,
@@ -8,6 +6,8 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  type IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   IAutoMovieGait,

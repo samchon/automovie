@@ -1,0 +1,56 @@
+import type { IAutoMovieSweep } from "./IAutoMovieSweep";
+
+/**
+ * Rest sweep and resolved bone-buffer indices for compiling reusable sampling slots.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Model-metre rest sweeps and aligned bone-buffer indices compile fixed frame and scale registrations for later poses. Omitted binding stays at rest; array lengths are checked, while valid bone indices and one/two station cardinality remain caller premises.
+ * @evidence contracts/development/design.md#principled-representation Model-metre rest sweeps and aligned bone-buffer indices compile fixed frame and scale registrations for later poses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSweep owns the live sampling slots consumed by the surface network; authored sweep contracts remain shared.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted binding stays at rest; array lengths are checked, while valid bone indices and one/two station cardinality remain caller premises.
+ */
+export namespace IAutoMovieRigSweep {
+  /**
+   * Compile one sweep of a surface rig: its rest surface, and, when it rides
+   * bones, the buffers that re-sweep it per pose as `poseAutoMovieSweep` does.
+   *
+   * At rest every slot reads the compiled rest surface. Posed, each spine point
+   * moves with its bone, the starting direction and any end tangents turn with
+   * the first or last point's bone, and the spine is re-transported in place;
+   * each station's rest plane turns with its bone, or takes the spherical
+   * midpoint of its two bones' turns, and the orientation is recomputed; every
+   * registered plane is then read from it. With volume preservation and joint
+   * stations, the scale profile gains a knot at every station and rest scale
+   * knot, the rest scale times a joint factor at joint stations and times 1
+   * elsewhere, and `settleAutoMovieSweepVolume` finds the factor whose volume,
+   * from the rest section moments and this pose's frames by
+   * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
+   * scale stays the rest profile. A girth factor set by `girth` then multiplies
+   * every scale slot, at rest and after settling, so the settled volume is the
+   * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
+   * read once at registration; no scaled result is divided back into a shape.
+   * Parameter-correspondence cells average actual signed section coordinates; radial cells retain radius averaging about their authored direction. Valid Cartesian cancellation at the origin is allowed.
+   * Unrepresentable nonzero cell averages, scaled samples and girth products
+   * are refused. Girth admission stages every factor, product and probe before committing.
+   *
+   * @evidence contracts/development/design.md#principled-representation Rest geometry uses model metres; binding numbers are bone-buffer indices rather than bone identities. Outer array alignment is checked, but index validity and station cardinality remain caller premises.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceNetwork resolves authored bone identities once and passes indexed bindings to rigAutoMovieSweep for repeated pose evaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The compiled number[][] station shape admits unsupported lengths despite the one/two-bone runtime premise; documentation exposes that gap rather than claiming tuple enforcement.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes retained indexed bindings from authored identities, states unbound behavior and explains volume-before-girth ordering.
+   */
+  export type IProps = {
+    /** Rest sweep in model metres, validated by compileAutoMovieSweep and retained by the rig. Keep authored geometry stable while compiled slots are in use. */
+    sweep: IAutoMovieSweep;
+
+    /** Optional compiled bone-buffer indices, distinct from the authored bone-identity binding. Omission keeps all frames at rest. Outer array lengths are checked against the sweep; index validity and one/two station cardinality are caller preconditions. */
+    binding?: {
+      /** One nonnegative index in the later pose bone buffer per spine point, in spine order. The array is retained for pose updates. */
+      points: number[];
+
+      /** One array of one or two bone-buffer indices per station. Two indices mark a joint and blend its rotations at their spherical midpoint. The arrays are retained and must remain stable. */
+      stations: number[][];
+    };
+
+    /** Whether bound two-bone stations settle their radial scale to the authored rest volume before multiplying girth factors. Required explicitly; unbound sweeps or bindings without joints perform no settlement. */
+    preserveVolume: boolean;
+  };
+}

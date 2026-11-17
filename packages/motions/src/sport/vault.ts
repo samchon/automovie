@@ -1,16 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanVault,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { handspring } from "./handspring";
 
 /**
@@ -37,24 +38,11 @@ import { handspring } from "./handspring";
  */
 export namespace vault {
   /** The action's name. */
-  export const name: HumanActionKey = "vault";
+  export const name: AutoMovieMotionHumanActionKey = "vault";
 
   /** Cancel table: the handspring's. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     handspring.interrupts;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The prop's subject id and the leading leg.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A subject id, resolved through the prop's own affordance.
-   */
-  export interface IParams extends handspring.IParams {
-    /** The prop vaulted over, its subject id; its `surface` is where the hands land. */
-    on: string;
-  }
 
   /**
    * Plan a vault.
@@ -72,8 +60,8 @@ export namespace vault {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary placed record and construction-only extent callback release with planning return/throw; the handspring owns its resulting support/geometry plan and no independent source-frame history or workspace is retained here.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVault.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const surface: ReturnType<typeof WorkoutSupport.placed> = WorkoutSupport.placed(context, {
       prop: context.params.on,
       affordance: "surface",

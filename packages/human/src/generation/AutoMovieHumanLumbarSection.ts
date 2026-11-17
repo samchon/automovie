@@ -1,7 +1,12 @@
+import type {
+  IAutoMovieAffineCoefficients,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLumbarSection,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanBodyBreadths } from "./AutoMovieHumanBodyBreadths";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
 /**
  * The lumbar section's box at a girth: the breadth and depth of the trunk at
@@ -29,16 +34,22 @@ export namespace AutoMovieHumanLumbarSection {
    * @param girth The level's taut-tape girth, mm.
    * @returns The level's breadth and depth, mm, whose box's range holds the girth.
    */
-  export function box(measures: IAutoMovieHumanBodyMeasures, girth: number): { breadth: number; depth: number } {
+  export function box(
+    measures: IAutoMovieHumanBodyMeasures,
+    girth: number,
+  ): IAutoMovieHumanLumbarSection.IBoxResult {
     const k: 0 | 1 = measures.sex === AutoMovieHumanSex.Female ? 0 : 1;
-    const breadth: AutoMovieHumanBodyBreadths.ILine = AutoMovieHumanBodyBreadths.WAIST_BREADTH_ON_WAIST[k];
-    const depth: AutoMovieHumanBodyBreadths.ILine = AutoMovieHumanBodyBreadths.WAIST_DEPTH_ON_WAIST[k];
-    const placed: { breadth: number; depth: number; girth: number } = AutoMovieHumanBodyBox.place(
-      { breadth: undefined, depth: undefined, girth },
-      girth,
-      (g: number): number => breadth.a + breadth.b * g,
-      (g: number): number => depth.a + depth.b * g,
-    );
+    const breadth: IAutoMovieAffineCoefficients =
+      AutoMovieHumanBodyBreadths.WAIST_BREADTH_ON_WAIST[k];
+    const depth: IAutoMovieAffineCoefficients =
+      AutoMovieHumanBodyBreadths.WAIST_DEPTH_ON_WAIST[k];
+    const placed: { breadth: number; depth: number; girth: number } =
+      AutoMovieHumanBodyBox.place(
+        { breadth: undefined, depth: undefined, girth },
+        girth,
+        (g: number): number => breadth.a + breadth.b * g,
+        (g: number): number => depth.a + depth.b * g,
+      );
     return { breadth: placed.breadth, depth: placed.depth };
   }
 }

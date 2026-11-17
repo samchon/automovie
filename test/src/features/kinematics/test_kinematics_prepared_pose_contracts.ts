@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
   preparePoseResolution,
@@ -14,6 +12,8 @@ import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

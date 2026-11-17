@@ -1,15 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
   HumanSport,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,9 +58,9 @@ export function test_human_motion_sport_box_step(): void {
   const period: number = 0.5;
   const frame: number = 1 / 24;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "box-step",
@@ -83,15 +85,17 @@ export function test_human_motion_sport_box_step(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const step: HumanSegment.ISegment = film
+    const step: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "boxStep")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "boxStep",
+      )!;
     const ankle = (
       beat: number,
       foot: "left" | "right",

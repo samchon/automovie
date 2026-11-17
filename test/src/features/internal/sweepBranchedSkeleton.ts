@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSweepBinding,
-} from "@automovie/engine";
-import {
-  type AutoMovieHumanoidBone,
-  type IAutoMovieQuaternion,
-  type IAutoMovieVector3,
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSweepBinding,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /** Each bone's parent and rest origin, metres, in the branched test body's frame. */

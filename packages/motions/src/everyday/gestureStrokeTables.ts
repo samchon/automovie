@@ -1,5 +1,7 @@
-import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import type { gestureStroke } from "./gestureStroke";
+import type {
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanTiming,
+} from "@automovie/interface";
 
 /**
  * The tables every gesture is read from by its kind: its timing and which
@@ -20,8 +22,8 @@ export namespace gestureStrokeTables {
    */
   export const RHYTHM: Readonly<
     Record<
-      gestureStroke.Kind,
-      { cycles: number; period: AutoMovieMotionHumanTiming.Span }
+      IAutoMovieMotionHumanGestureStroke.Kind,
+      { cycles: number; period: IAutoMovieMotionHumanTiming.Span }
     >
   > = {
     wave: { cycles: 3, period: "beat" },
@@ -52,7 +54,7 @@ export namespace gestureStrokeTables {
 
   /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
   export const HANDS: Readonly<
-    Record<gestureStroke.Kind, "one" | "both" | "none">
+    Record<IAutoMovieMotionHumanGestureStroke.Kind, "one" | "both" | "none">
   > = {
     wave: "one",
     raiseHand: "one",

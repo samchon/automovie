@@ -1,17 +1,18 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -37,7 +38,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  */
 export namespace floorEntry {
   /** The bases a floor law starts from: standing by its own way down, kneeling and crouched by a blend from the displayed entry. */
-  export const BASES: readonly HumanBase.Kind[] = [
+  export const BASES: readonly IAutoMovieMotionHumanBase.Kind[] = [
     "standing",
     "kneeling",
     "crouched",
@@ -61,10 +62,10 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function standing(
-    context: Pick<IHumanActionContext, "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     action: string,
   ): boolean {
-    const kind: HumanBase.Kind = context.entry.base.kind;
+    const kind: IAutoMovieMotionHumanBase.Kind = context.entry.base.kind;
     if (kind === "standing") return true;
     if (BASES.includes(kind)) return false;
     throw new HumanRefusal({
@@ -87,10 +88,10 @@ export namespace floorEntry {
    */
   export interface IStart {
     /** The standing posture the law measures from: the stance it stands in, or one over the entry when it does not stand. */
-    standing: IHumanPosture;
+    standing: IAutoMovieMotionHumanPosture;
 
     /** The displayed entry the way down blends from; null when the body enters standing, since the law's own way down starts there. */
-    entered: IHumanPosture | null;
+    entered: IAutoMovieMotionHumanPosture | null;
   }
 
   /**
@@ -114,13 +115,13 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function start(
-    context: Pick<IHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     action: string,
     over: "hips" | "feet",
-    stood: () => IHumanPosture,
+    stood: () => IAutoMovieMotionHumanPosture,
   ): IStart {
     if (standing(context, action)) return { standing: stood(), entered: null };
-    const entered: IHumanPosture = displayed(context);
+    const entered: IAutoMovieMotionHumanPosture = displayed(context);
     return { standing: referenceFrom(context, over, entered), entered };
   }
 
@@ -146,21 +147,21 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one arrival and fixed transition for the plan's life; current-call FK/ROM sources end with return or throw and never enter that retained geometry.
    */
   export function down(
-    body: IHumanBody,
-    entered: IHumanPosture | null,
+    body: IAutoMovieMotionHumanBody,
+    entered: IAutoMovieMotionHumanPosture | null,
     at: number,
     weight: (seconds: number) => number,
     posture: IAutoMovieMotionHumanPrimitive["write"],
   ): IAutoMovieMotionHumanPrimitive["write"] {
-    let arrived: IHumanPosture | undefined;
+    let arrived: IAutoMovieMotionHumanPosture | undefined;
     let transition: ReturnType<typeof between> | undefined;
     return (
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       seconds: number,
       before?: IAutoMovieMotionHumanPrimitive.Reader,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       const w: number = weight(seconds);
       if (entered === null || w >= 1)
         return posture(base, seconds, before, resolution, projection);
@@ -198,18 +199,18 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reference(
-    context: Pick<IHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     over: "hips" | "feet",
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return referenceFrom(context, over);
   }
 
   /** Reuse only this call's actual immutable entry display while preserving the original anchor and standing geometry. */
   function referenceFrom(
-    context: Pick<IHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     over: "hips" | "feet",
-    entered?: IHumanPosture,
-  ): IHumanPosture {
+    entered?: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
     const at: IAutoMovieVector3 =
       over === "hips"
         ? hips(context.body, entered ?? displayedFrame(context))
@@ -244,10 +245,10 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function displayed(
-    context: Pick<IHumanActionContext, "entry">,
-  ): IHumanPosture {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+  ): IAutoMovieMotionHumanPosture {
     const pose: IAutoMoviePose = context.entry.pose;
-    const joints: IHumanPosture["joints"] = {};
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const joint of pose.joints)
       joints[joint.bone] = [
         joint.flexion ?? 0,
@@ -259,10 +260,10 @@ export namespace floorEntry {
 
   /** Read the original displayed root/heading without copying unrelated joints for a reference-only observation. */
   function displayedFrame(
-    context: Pick<IHumanActionContext, "entry">,
-  ): Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll"> {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+  ): Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll"> {
     const pose: IAutoMoviePose = context.entry.pose;
-    const posture: IHumanPosture = context.entry.posture;
+    const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
     return pose.root === undefined || pose.root === null
       ? {
           root: posture.root,
@@ -303,13 +304,13 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
-    body: IHumanBody,
-    from: IHumanPosture,
-    to: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
     weight: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return between(body, from, to)(weight, resolution, projection);
   }
 
@@ -328,15 +329,15 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns two postures, fixed joint pairs, two floor scalars and at most one native fixed collider reader until release. Optional current-call FK/ROM loans end on return or throw; no query history, posed answer, workspace or handle is retained.
    */
   export function between(
-    body: IHumanBody,
-    from: IHumanPosture,
-    to: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
   ): (
     weight: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IHumanPosture {
-    const interpolate: (weight: number) => IHumanPosture["joints"] = jointBlend(
+  ) => IAutoMovieMotionHumanPosture {
+    const interpolate: (weight: number) => IAutoMovieMotionHumanPosture["joints"] = jointBlend(
       from.joints,
       to.joints,
     );
@@ -353,15 +354,15 @@ export namespace floorEntry {
       weight: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       if (weight <= 0) return from;
       if (weight >= 1) return to;
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const sunk: (posture: IHumanPosture) => number = (
-        posture: IHumanPosture,
+      const sunk: (posture: IAutoMovieMotionHumanPosture) => number = (
+        posture: IAutoMovieMotionHumanPosture,
       ): number => {
         floor ??= knockdown.prepareRest(body);
         return Math.max(0, floor(posture, read, project) - posture.root.y);
@@ -372,13 +373,13 @@ export namespace floorEntry {
         sunkTo: sunk(to),
       };
       const lerp = (a: number, b: number): number => a + (b - a) * weight;
-      const joints: IHumanPosture["joints"] = interpolate(weight);
-      const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = interpolate(weight);
+      const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
         yaw: from.yaw + turn * weight,
         pitch: lerp(from.pitch, to.pitch),
         roll: lerp(from.roll, to.roll),
       };
-      const carried: IHumanPosture = {
+      const carried: IAutoMovieMotionHumanPosture = {
         ...heading,
         root: Vector3.subtract(
           fixed.hips(weight),
@@ -423,10 +424,10 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blended(
-    from: IHumanPosture["joints"],
-    to: IHumanPosture["joints"],
+    from: IAutoMovieMotionHumanPosture["joints"],
+    to: IAutoMovieMotionHumanPosture["joints"],
     weight: number,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     return jointBlend(from, to)(weight);
   }
 
@@ -443,9 +444,9 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains one pair per union bone and ends with the owning transition; no query results or history survive.
    */
   export function jointBlend(
-    from: IHumanPosture["joints"],
-    to: IHumanPosture["joints"],
-  ): (weight: number) => IHumanPosture["joints"] {
+    from: IAutoMovieMotionHumanPosture["joints"],
+    to: IAutoMovieMotionHumanPosture["joints"],
+  ): (weight: number) => IAutoMovieMotionHumanPosture["joints"] {
     const pairs: [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
@@ -459,8 +460,8 @@ export namespace floorEntry {
       const b: readonly [number, number, number] = to[bone] ?? [0, 0, 0];
       pairs.push([bone, a, b]);
     }
-    return (weight: number): IHumanPosture["joints"] => {
-      const joints: IHumanPosture["joints"] = {};
+    return (weight: number): IAutoMovieMotionHumanPosture["joints"] => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const [bone, a, b] of pairs)
         joints[bone] = [
           a[0] + (b[0] - a[0]) * weight,
@@ -473,8 +474,8 @@ export namespace floorEntry {
 
   /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */
   function hips(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,

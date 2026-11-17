@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,7 +13,6 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The objective and the constraints of an arms' trajectory
@@ -24,7 +25,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  * wrist's squared Cartesian steps, CHOMP's arc length (Zucker et al. 2013,
  * IJRR 32:1164), so the workspace travel is short; and on the hold the
  * hand's squared distance and rotation off its site, the rotation giving way
- * where the arm's range cannot meet it (`IHumanPosture.IGoal.contact`).
+ * where the arm's range cannot meet it (`HumanPosture.IGoal.contact`).
  *
  * Constraints, met by TrajOpt's exact l1 penalty: on the hold the hand's
  * contact on its site's disc and each declared effector point within its
@@ -50,7 +51,7 @@ export namespace HumanArmTrajectoryModel {
     /** The hand's world rotation on the site; free when absent. */
     rotation?: IAutoMovieQuaternion;
     /** The effector's hard point-displacement limits, in the same local frame as contact. */
-    limits?: IHumanPosture.IGoal["limits"];
+    limits?: IAutoMovieHumanLimbGoal["limits"];
     /** The radius of the region's disc about the point the contact may land in, metres. */
     disc: number;
     /**
@@ -118,9 +119,9 @@ export namespace HumanArmTrajectoryModel {
     /** The waypoints' seconds. */
     times: readonly number[];
     /** Each arm's setup. */
-    setups: G.ISetup[];
+    setups: IAutoMovieMotionHumanArmGeometry.ISetup[];
     /** Each arm's frame at each waypoint. */
-    frames: G.IFrame[][];
+    frames: IAutoMovieMotionHumanArmGeometry.IFrame[][];
     /** Each arm's site at each waypoint, on the hold. */
     sites: (ISite | undefined)[][];
     /** Each arm's coordinates at the first waypoint. */
@@ -169,7 +170,7 @@ export namespace HumanArmTrajectoryModel {
   /** An iterate's reading. */
   export interface IEvaluation {
     /** Each arm placed at each waypoint. */
-    placed: G.IPlaced[][];
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][];
     /** The objective. */
     objective: number;
     /** The constraints' violations summed, millimetres. */
@@ -277,10 +278,16 @@ export namespace HumanArmTrajectoryModel {
     c: IContext,
     x: readonly (readonly number[])[][],
   ): IEvaluation {
-    const placed: G.IPlaced[][] = x.map(
-      (arm: readonly (readonly number[])[], a: number): G.IPlaced[] =>
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
+      (
+        arm: readonly (readonly number[])[],
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
         arm.map(
-          (v: readonly number[], k: number): G.IPlaced =>
+          (
+            v: readonly number[],
+            k: number,
+          ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
             G.placed(c.setups[a]!, c.frames[a]![k]!, v),
         ),
     );

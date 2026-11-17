@@ -1,4 +1,7 @@
-import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
+import type {
+  IAutoMovieCreateQuadraticMemory,
+  IAutoMovieQuadraticHeap,
+} from "@automovie/interface";
 
 /**
  * Create an independent synchronous TypeScript workspace owner. Byte requests
@@ -19,12 +22,7 @@ import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A borrow intentionally owns fresh state, because no preceding problem may seed the cold solver; no high-water pool is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains one active borrow at most and releases its own buffer references in finally; result copies or retained callback views are caller-owned and actual reclamation belongs to host GC.
  */
-export function createAutoMovieQuadraticMemory(): {
-  withWorkspace<T>(
-    bytes: number,
-    use: (heap: IAutoMovieQuadraticHeap, address: number) => T,
-  ): T;
-} {
+export function createAutoMovieQuadraticMemory(): IAutoMovieCreateQuadraticMemory.IResult {
   let active: boolean = false;
   return {
     withWorkspace<T>(

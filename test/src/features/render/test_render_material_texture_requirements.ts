@@ -1,14 +1,14 @@
 import {
-  AutoMovieBuiltinTexturePurpose,
-  type IAutoMovieRenderTextureResidency,
-  IAutoMovieRenderTextureResident,
   measureAutoMovieRenderTextureClosure,
   requiredAutoMovieMaterialTexturePurposes,
 } from "@automovie/engine";
 import {
+  type AutoMovieBuiltinTexturePurpose,
   IAutoMovieMaterial,
   IAutoMovieMaterialOverlay,
   IAutoMovieRenderTextureCost,
+  type IAutoMovieRenderTextureResidency,
+  type IAutoMovieRenderTextureResident,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

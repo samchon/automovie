@@ -1,9 +1,10 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
 
 /** One private exact local-coordinate key and its completed, frozen articulation. */
@@ -75,15 +76,15 @@ function entry(
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's local reader owns one shoulder entry and at most two lower/hand entries plus borrowed setup/frame/functions; completion or failure releases the reader and its constant-size state, with no global map, pose population, handle or task.
  */
 export function prepareHumanArmChain(
-  setup: G.ISetup,
-  at: G.IFrame,
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+  at: IAutoMovieMotionHumanArmGeometry.IFrame,
   readShoulder: typeof G.shoulder,
   readRotation: typeof G.rotation,
-): (c: readonly number[]) => Omit<G.IPlaced, "probes"> {
+): (c: readonly number[]) => Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
   let shoulder: IEntry | undefined;
   const joints: Map<AutoMovieHumanoidBone, IEntry> = new Map();
   const shoulderAt: typeof G.shoulder = (
-    current: G.ISetup,
+    current: IAutoMovieMotionHumanArmGeometry.ISetup,
     c: readonly number[],
   ): IAutoMovieQuaternion => {
     const bone: AutoMovieHumanoidBone = current.bones.upper;
@@ -98,7 +99,7 @@ export function prepareHumanArmChain(
     return shoulder!.rotation;
   };
   const rotationAt: NonNullable<Parameters<typeof resolveHumanArmChain>[5]> = (
-    current: G.ISetup,
+    current: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     flexion: number,
     abduction: number,
@@ -117,6 +118,6 @@ export function prepareHumanArmChain(
     }
     return known!.rotation;
   };
-  return (c: readonly number[]): Omit<G.IPlaced, "probes"> =>
+  return (c: readonly number[]): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> =>
     resolveHumanArmChain(setup, at, c, shoulderAt, readRotation, rotationAt);
 }

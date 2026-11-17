@@ -1,21 +1,20 @@
-import {
-  Vector3,
-  convexHull2D,
-  pointInHull,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
-import { staggerTransfer } from "./staggerTransfer";
-import type { staggerRecover } from "./staggerRecover";
-import { staggerPendulumCourses } from "./staggerPendulumCourses";
 import { staggerNearest } from "./staggerNearest";
+import { staggerPendulumCourses } from "./staggerPendulumCourses";
+import type { staggerRecover } from "./staggerRecover";
+import { staggerTransfer } from "./staggerTransfer";
 
 /**
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
@@ -44,10 +43,10 @@ import { staggerNearest } from "./staggerNearest";
  */
 export class StaggerPendulum {
   /** The body. */
-  public readonly body: IHumanActionContext["body"];
+  public readonly body: IAutoMovieMotionHumanActionContext["body"];
 
   /** The posture the push meets. */
-  public readonly entry: IHumanActionContext["entry"];
+  public readonly entry: IAutoMovieMotionHumanActionContext["entry"];
 
   /** The push's horizontal unit direction, world. */
   public readonly push: IAutoMovieVector3;
@@ -71,7 +70,7 @@ export class StaggerPendulum {
   public readonly across: IAutoMovieVector3;
 
   /** The feet as the entry stands them. */
-  public readonly entered: Record<"left" | "right", HumanFoot.IPlacement>;
+  public readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
   /** The narrowest the feet stand, ankle to ankle across the heading, side by side with their outlines touching. */
   public readonly width: number;
@@ -83,7 +82,7 @@ export class StaggerPendulum {
   public readonly bend: Record<"pitch" | "roll", IAutoMovieVector3>;
 
   /** The feet as the steps so far placed them. */
-  public feet: Record<"left" | "right", HumanFoot.IPlacement>;
+  public feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
   /** The spans so far: each start, its centre of pressure and the state it started from. */
   public phases: staggerRecover.IPhase[] = [];
@@ -102,7 +101,7 @@ export class StaggerPendulum {
 
   /** One exact placement snapshot per foot; the body's sole geometry is fixed. */
   private readonly footprints: Partial<Record<"left" | "right", {
-    placement: HumanFoot.IPlacement;
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
     relative: IAutoMovieVector3[];
   }>> = {};
 
@@ -116,8 +115,8 @@ export class StaggerPendulum {
    * @param fixed The entry's geometry (`prepare`) for this same body and entry, shared by every speed one search probes; read here when absent.
    */
   public constructor(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
     fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
@@ -160,15 +159,15 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record that its search owns until it returns.
    */
   public static prepare(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
   ): Pick<StaggerPendulum, "w" | "centre" | "root" | "forward" | "across" | "entered" | "width" | "length" | "bend"> {
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
       { x: 0, y: 0, z: 1 },
     );
     const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
-    const entered: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(entry);
+    const entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = StrikingTarget.feet(entry);
     return {
       w: staggerBounds.omega(body),
       centre: HumanBalance.centre(body, entry.posture),
@@ -467,8 +466,8 @@ export class StaggerPendulum {
    * Each side retains one copied placement snapshot and latest outline;
    * replacing a slot never mutates an earlier outline record.
    */
-  private footprint(side: "left" | "right", placement: HumanFoot.IPlacement): {
-    placement: HumanFoot.IPlacement;
+  private footprint(side: "left" | "right", placement: IAutoMovieMotionHumanFoot.IPlacement): {
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
     relative: IAutoMovieVector3[];
   } {
     const known: (typeof this.footprints)["left"] = this.footprints[side];
@@ -495,8 +494,8 @@ export class StaggerPendulum {
 
   /** Each entry sole's ankle-relative extent along an axis, the larger of the two. */
   private static extent(
-    body: IHumanActionContext["body"],
-    entered: Record<"left" | "right", HumanFoot.IPlacement>,
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     axis: IAutoMovieVector3,
   ): number {
     return Math.max(

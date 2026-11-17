@@ -1,11 +1,15 @@
-import type { IAutoMovieRecoverySlabPair } from "../structures/mesh/IAutoMovieRecoverySlabPair";
-import type { IAutoMovieRecoverySlabObservation } from "../structures/observation/IAutoMovieRecoverySlabObservation";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
+import type {
+  IAutoMovieMeshCriticalPoints,
+  IAutoMovieRecoveryCriticalBracketsPreparationOperation,
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySourceLineage,
+  IAutoMovieRecoverySourceSlabsObservationOperation,
+} from "@automovie/interface";
+
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
-import type { RecoveryScalarIndex } from "./RecoveryScalarIndex";
 import { critical } from "./mesh-observations/critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
-import type { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
 /**
  * Bind actual cut-emitting faces and published contour identities to clipped source slabs. The same physical scalar chart drives source cells and PL critical classification. All components and issues survive; only actual segment/contact provenance supplies ports, never endpoint-star witnesses. Copy the observed raw-node, alias and halfedge registries with their input ordinal spaces so boundary words remain joinable without parsing IDs. Measured critical brackets do not imply curves fitted at those bracket planes, exact material phase transport or transverse jets.
@@ -18,27 +22,19 @@ import type { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidenc
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One source-cell closure, sorted physical heights, PL classification and original source face index serve every pair; existing section fitting is never repeated.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source arrays and private cell records live only for the synchronous call. Returned records copy face addresses and measured critical positions; no source geometry array is transferred or globally cached.
  */
-export function observeRecoverySourceSlabs(input: {
-  prepared: ReturnType<typeof prepareRecoveryMeshIncidence>;
-  heights: readonly number[];
-  axis: [number, number, number];
-  exactCoordinateAliases: boolean;
-  index: ReturnType<typeof RecoveryScalarIndex.create>;
-  pairs: readonly IAutoMovieRecoverySlabPair[];
-  sectionCoordinatesMm: readonly number[];
-  publications: readonly IAutoMovieRecoverySourceLineage[];
-  checkpoint?: () => void;
-  observe?: (record: IAutoMovieRecoverySlabObservation) => void;
-}): IAutoMovieRecoverySlabObservation[] {
+export function observeRecoverySourceSlabs(
+  input: Parameters<IAutoMovieRecoverySourceSlabsObservationOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoverySourceSlabsObservationOperation.Operation> {
   if (!input.pairs.length) return [];
-  const region: ReturnType<typeof RecoveryEventRegion> = RecoveryEventRegion({
-    verticesMm: input.prepared.mesh.vertices,
-    triangles: input.prepared.mesh.triangles,
-    canon: input.prepared.canon,
-    heights: input.heights,
-    incidence: input.exactCoordinateAliases ? "canonical" : "raw",
-  });
-  const events: ReturnType<typeof critical> = critical(
+  const region: ReturnType<IAutoMovieRecoveryEventRegion.Operation> =
+    RecoveryEventRegion({
+      verticesMm: input.prepared.mesh.vertices,
+      triangles: input.prepared.mesh.triangles,
+      canon: input.prepared.canon,
+      heights: input.heights,
+      incidence: input.exactCoordinateAliases ? "canonical" : "raw",
+    });
+  const events: ReturnType<IAutoMovieMeshCriticalPoints.Operation> = critical(
     input.prepared.mesh,
     input.axis,
     input.heights,
@@ -230,12 +226,13 @@ export function observeRecoverySourceSlabs(input: {
           ),
         portIds: [...issue.ports],
       });
-    const selected: ReturnType<typeof critical> = events.filter(
-      (event: (typeof events)[number]): boolean =>
-        event.level >= pair.beforeMm && event.level <= pair.afterMm,
-    );
+    const selected: ReturnType<IAutoMovieMeshCriticalPoints.Operation> =
+      events.filter(
+        (event: (typeof events)[number]): boolean =>
+          event.level >= pair.beforeMm && event.level <= pair.afterMm,
+      );
     const diagnostics: string[] = [];
-    const brackets: ReturnType<typeof prepareRecoveryCriticalBrackets> =
+    const brackets: ReturnType<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation> =
       prepareRecoveryCriticalBrackets(
         selected,
         heights,

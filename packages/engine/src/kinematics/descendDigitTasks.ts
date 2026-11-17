@@ -1,3 +1,5 @@
+import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
 import type { fitDigitDescent } from "./fitDigitDescent";
@@ -21,8 +23,8 @@ import type { fitDigitDescent } from "./fitDigitDescent";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure fixed-dimension callbacks make x/residuals/Jacobians/free sets equivalent across damping rejection and scale trials. Every retained projected iterate/probe and task residual is copied before later callbacks can reuse output storage. Acceptance replaces the fixed point; rejected scales never replace it. Final primary data use the same feasible differencing owner and resolution as the solve, without replacing demands or retaining answers across descents.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One descent owns its copied point, two projected probe arrays per live column, task/Jacobian arrays and one damping linearization. Backtracking retains only the current trial/residuals and halves finite step magnitude until existing resolution; no trial history grows. Final values/residual/primary Jacobian transfer to the synchronous caller; other state releases on return/throw.
  */
-export function descendDigitTasks(props: fitDigitDescent.IProps): descendDigitTasks.IResult {
-  const { primary, secondary, project, step }: fitDigitDescent.IProps = props;
+export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): descendDigitTasks.IResult {
+  const { primary, secondary, project, step }: IAutoMovieFitDigitDescent.IProps = props;
   const n: number = props.start.length;
   const jacobian: (f: (x: readonly number[]) => number[], x: readonly number[]) => number[][] = (
     f: (x: readonly number[]) => number[],

@@ -1,6 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
+import type {
+  IAutoMovieMark,
+  IAutoMovieMarkRomOvershoot,
+} from "@automovie/interface";
 
 /**
  * Turn joints' range-of-motion overshoot at one instant into flagged inspection marks at the joints that exceed their range.
@@ -21,11 +22,7 @@ import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
 export function markAutoMovieRomOvershoot(
-  entries: readonly {
-    path: string;
-    at: IAutoMovieVector3;
-    overshoot: number;
-  }[],
+  entries: IAutoMovieMarkRomOvershoot.IEntries,
 ): IAutoMovieMark[] {
   const marks: IAutoMovieMark[] = [];
   for (const entry of entries) {

@@ -1,8 +1,9 @@
 import {
-  IAutoMovieSoftBodyDomain,
   IAutoMovieSoftCollider,
+  type IAutoMovieValidateSoftBodyDomain,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -31,13 +32,13 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One shortest structural-edge scan supplies the travel measure, and canonical primitive admission helpers replace duplicate rules; mutable rest arrays and references are rescanned rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector and reference sets belong to the call; returned findings can retain authored offending values, while no integrated states, actor poses or host resources are retained.
  */
-export const validateSoftBodyDomain: (props: {
-  domain: IAutoMovieSoftBodyDomain;
-}) => IAutoMovieValidation = (props: {
-  domain: IAutoMovieSoftBodyDomain;
-}): IAutoMovieValidation => {
+export const validateSoftBodyDomain: (
+  props: IAutoMovieValidateSoftBodyDomain.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSoftBodyDomain.IProps,
+): IAutoMovieValidation => {
   const { domain }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   if (domain.id.trim().length === 0)
@@ -396,13 +397,13 @@ const magnitude: (vector: IAutoMovieVector3) => number = (
 
 /** A particle-indexed array whose length must equal the lattice's own. */
 const length: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
   expected: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,

@@ -2,6 +2,8 @@ import {
   IAutoMovieDeliveryCrop,
   IAutoMovieMotion,
   IAutoMoviePoseKeypoint,
+  type IAutoMoviePoseKeypointFrame,
+  type IAutoMoviePoseKeypointSidecar,
   IAutoMovieScene,
   IAutoMovieSequence,
   IAutoMovieShot,
@@ -9,8 +11,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
-  IAutoMoviePoseKeypointFrame,
-  IAutoMoviePoseKeypointSidecar,
   planPoseKeypointSidecar,
   renderPoseKeypointSidecar,
 } from "@automovie/render";

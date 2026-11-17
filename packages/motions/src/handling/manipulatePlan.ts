@@ -1,13 +1,19 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanDigit,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanManipulate,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { typeText } from "../everyday/typeText";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { manipulate } from "./manipulate";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
@@ -35,12 +41,12 @@ import { manipulateShape } from "./manipulateShape";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns O(N) prepared contacts and windows and releases them with the plan; no global cache or process is retained.
  */
 export function manipulatePlan(
-  body: IHumanBody,
-  hold: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  hold: IAutoMovieMotionHumanPosture,
   presses: readonly manipulate.IPress[],
   span: number,
   reach: number,
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   const duration: number = presses[presses.length - 1]!.time + reach * span;
   const hands: IHand[] = [];
   for (const side of ["left", "right"] as const) {
@@ -51,9 +57,9 @@ export function manipulatePlan(
     const rotation: IAutoMovieQuaternion = manipulateFacing(hold, presses, side);
     const reachAt: ReturnType<typeof manipulateReach.prepare> =
       manipulateReach.prepare(body, side, rotation);
-    const shapes: Map<manipulate.Finger, IHumanPosture["joints"]> = new Map();
-    const prepared: IPress[] = mine.map((press: manipulate.IPress): IPress => {
-      let joints: IHumanPosture["joints"] | undefined = shapes.get(press.digit);
+    const shapes: Map<IAutoMovieMotionHumanManipulate.Finger, IAutoMovieMotionHumanPosture["joints"]> = new Map();
+    const prepared: IAutoMovieMotionHumanManipulate.IPress[] = mine.map((press: manipulate.IPress): IAutoMovieMotionHumanManipulate.IPress => {
+      let joints: IAutoMovieMotionHumanPosture["joints"] | undefined = shapes.get(press.digit);
       if (joints === undefined) {
         joints = manipulateShape(side, press.digit);
         shapes.set(press.digit, joints);
@@ -61,7 +67,7 @@ export function manipulatePlan(
       return {
         press,
         joints,
-        digit: `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as IHumanPosture.Digit,
+        digit: `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as AutoMovieHumanDigit,
         wrist: reachAt(press.digit, press.site, press.normal, press.depth),
       };
     });
@@ -80,26 +86,26 @@ export function manipulatePlan(
     hands.push({ side, rotation, prepared, windows,
       bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1) });
   }
-  const contacts: IHumanContactWindow[] = (["leftFoot", "rightFoot"] as const).map(
-    (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+  const contacts: IAutoMovieMotionHumanContactWindow[] = (["leftFoot", "rightFoot"] as const).map(
+    (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
       part, kind: "plant", from: 0, to: 1, support: { kind: "ground" },
     }),
   );
   return {
     duration,
-    events: presses.map((press: manipulate.IPress, index: number): IHumanActionPlan["events"][number] => ({
+    events: presses.map((press: manipulate.IPress, index: number): IAutoMovieMotionHumanActionPlan["events"][number] => ({
       name: `press${index + 1}`, share: press.time / duration,
     })),
     contacts,
-    posture: (seconds: number): IHumanPosture => {
+    posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const time: number = Math.min(duration, Math.max(0, seconds));
-      const joints: IHumanPosture["joints"] = { ...hold.joints };
-      const limbs: IHumanPosture["limbs"] = { ...hold.limbs };
-      const digits: NonNullable<IHumanPosture["digits"]> = {};
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...hold.joints };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...hold.limbs };
+      const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
       for (const hand of hands) {
         const index: number = active(hand.windows, time);
-        const current: IPress = hand.prepared[index]!;
-        const previous: IPress = hand.prepared[Math.max(0, index - 1)]!;
+        const current: IAutoMovieMotionHumanManipulate.IPress = hand.prepared[index]!;
+        const previous: IAutoMovieMotionHumanManipulate.IPress = hand.prepared[Math.max(0, index - 1)]!;
         const press: manipulate.IPress = current.press;
         Object.assign(joints, current.joints);
         const approach: number = minimumJerk.share(Math.min(1, Math.max(0,
@@ -130,16 +136,16 @@ export function manipulatePlan(
 interface IPress {
   press: manipulate.IPress;
   wrist: IAutoMovieVector3;
-  joints: IHumanPosture["joints"];
-  digit: IHumanPosture.Digit;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+  digit: AutoMovieHumanDigit;
 }
 
 /** A hand's contact windows and geometry, owned by its sequence plan. */
 interface IHand {
-  side: HumanHand.Side;
+  side: AutoMovieHumanSide;
   rotation: IAutoMovieQuaternion;
   bend: IAutoMovieVector3;
-  prepared: readonly IPress[];
+  prepared: readonly IAutoMovieMotionHumanManipulate.IPress[];
   windows: readonly IWindow[];
 }
 

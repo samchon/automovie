@@ -1,9 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -12,7 +15,6 @@ import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointInHull } from "../math/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
@@ -43,8 +45,8 @@ import { resolvePose } from "./resolvePose";
  */
 export function resolveAutoMovieCenterOfMass(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
-): resolveAutoMovieCenterOfMass.IModel {
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMovieResolveCenterOfMass.IModel {
   return fromRest(
     profile,
     resolvePose(
@@ -56,14 +58,14 @@ export function resolveAutoMovieCenterOfMass(
 
 /** One segmental construction consumes actual fresh rest FK, never a public derived-value flag. */
 function fromRest(
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
   frames: readonly IAutoMovieResolvedBone[],
-): resolveAutoMovieCenterOfMass.IModel {
+): IAutoMovieResolveCenterOfMass.IModel {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
   for (const frame of frames) rest.set(frame.bone, frame);
-  const segments: resolveAutoMovieCenterOfMass.ISegment[] =
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
     profile.segments.map(
-      (s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
+      (s: IAutoMoviePhysicalSegment): IAutoMovieResolveCenterOfMass.ISegment => {
         const bone: IAutoMovieResolvedBone | undefined = rest.get(
           s.bone as AutoMovieHumanoidBone,
         );
@@ -99,7 +101,7 @@ function fromRest(
       },
     );
   const mass: number = segments.reduce(
-    (sum: number, s: resolveAutoMovieCenterOfMass.ISegment): number =>
+    (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
       sum + s.mass,
     0,
   );
@@ -130,36 +132,9 @@ export namespace resolveAutoMovieCenterOfMass {
    */
   export function fromRig(
     rig: prepareSkeletonPoseResolution.IRig,
-    profile: P,
-  ): IModel {
+    profile: IAutoMoviePhysicalProfile,
+  ): IAutoMovieResolveCenterOfMass.IModel {
     return fromRest(profile, prepareSkeletonPoseResolution.rest(rig));
-  }
-
-  /** A body's mass model. */
-  export interface IModel {
-    /** Total mass, kilograms. */
-    mass: number;
-
-    /** Every segment's mass point. */
-    segments: ISegment[];
-  }
-
-  /** One segment's mass point. */
-  export interface ISegment {
-    /** The bone it rides. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Kilograms. */
-    mass: number;
-
-    /** Centre of mass relative to the bone's joint, in its rest frame, metres. */
-    point: IAutoMovieVector3;
-
-    /** Principal moments about the segment's centre, kg m², the profile's own. */
-    inertia: IAutoMovieVector3;
-
-    /** The rotation from the principal axes to the bone's rest frame, so a posed segment's axes are its bone's world rotation times this (`resolveAutoMovieMomentum.inertia`). */
-    axes: IAutoMovieQuaternion;
   }
 
   /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
@@ -206,10 +181,10 @@ export namespace resolveAutoMovieCenterOfMass {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function place(
-    model: IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    return mean(model, (s: ISegment): IAutoMovieVector3 => {
+    return mean(model, (s: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 => {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
       if (bone === undefined)
         throw new Error(`The centre of mass needs the posed bone ${s.bone}`);
@@ -227,7 +202,7 @@ export namespace resolveAutoMovieCenterOfMass {
    * segment's local point nor any bone field is changed or retained.
    */
   export function point(
-    segment: ISegment,
+    segment: IAutoMovieResolveCenterOfMass.ISegment,
     bone: IAutoMovieResolvedBone,
   ): IAutoMovieVector3 {
     const origin: IAutoMovieVector3 = bone.worldPosition;
@@ -250,14 +225,14 @@ export namespace resolveAutoMovieCenterOfMass {
    * reader nor its points are retained; admission remains with its caller.
    */
   export function mean(
-    model: IModel,
-    read: (segment: ISegment, index: number) => IAutoMovieVector3,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    read: (segment: IAutoMovieResolveCenterOfMass.ISegment, index: number) => IAutoMovieVector3,
   ): IAutoMovieVector3 {
     let x: number = 0;
     let y: number = 0;
     let z: number = 0;
     for (let i: number = 0; i < model.segments.length; i++) {
-      const s: ISegment = model.segments[i]!;
+      const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
       const p: IAutoMovieVector3 = read(s, i);
       x += s.mass * p.x;
       y += s.mass * p.y;

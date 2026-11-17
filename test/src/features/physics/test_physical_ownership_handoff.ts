@@ -8,7 +8,15 @@ import {
   physicalSupportPoint,
   samplePhysicalTarget,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,11 +41,12 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A moving parent remains authored while an impacted child simulates, returns and reactivates.).
  */
 export async function test_physical_ownership_handoff(): Promise<void> {
-  const body: Simulation.IBody = movingBody(1);
+  const body: IAutoMoviePhysicalSimulationInput.IBody = movingBody(1);
   for (const [step, target] of body.targets.entries())
     target.dynamicSegments =
       (step >= 21 && step <= 44) || (step >= 57 && step <= 80) ? ["child"] : [];
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1);
   Object.assign(input, {
     substeps: 8,
     iterations: 32,
@@ -51,7 +60,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     point: { x: 0.1, y: 1.5, z: 0 },
     impulse: { x: 0, y: 0, z: 0.02 },
   });
-  const baseline: Simulation = await Simulation.compute(input);
+  const baseline: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
   TestValidator.equals(
     "root stays authored",
     baseline.cache.ownershipAt(body.id, "root", 0.4),
@@ -73,8 +83,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     "authored",
   );
   for (const frame of baseline.cache.frames) {
-    const root: P.ITransform = frame.bodies[body.id]!.root!;
-    const child: P.ITransform = frame.bodies[body.id]!.child!;
+    const root: IAutoMovieRigidTransform = frame.bodies[body.id]!.root!;
+    const child: IAutoMovieRigidTransform = frame.bodies[body.id]!.child!;
     TestValidator.predicate(
       "complete moving articulation retains its pivot",
       Vector3.length(
@@ -126,10 +136,12 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     ]!.child!;
     const next: typeof displayed = baseline.cache.at(49 / 120).bodies[body.id]!
       .child!;
-    const localCom: P.ITransform["position"] = body.profile.segments.find(
-      (segment: P.ISegment): boolean => segment.bone === "child",
-    )!.centerOfMass;
-    const finiteCom: P.ITransform["position"] = Vector3.scale(
+    const localCom: IAutoMovieRigidTransform["position"] =
+      body.profile.segments.find(
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === "child",
+      )!.centerOfMass;
+    const finiteCom: IAutoMovieRigidTransform["position"] = Vector3.scale(
       Vector3.subtract(
         physicalSupportPoint(next, localCom),
         physicalSupportPoint(previous, localCom),
@@ -140,7 +152,7 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       "native COM velocity agrees with independently sampled transport",
       Vector3.length(Vector3.subtract(actual.linvel(), finiteCom)) < 0.005,
     );
-    const delta: P.ITransform["rotation"] = Quaternion.multiply(
+    const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
       next.rotation,
       Quaternion.inverse(previous.rotation),
     );
@@ -148,7 +160,7 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     const scale: number =
       (120 * Math.atan2(norm, Math.abs(delta.w)) * (delta.w < 0 ? -1 : 1)) /
       norm;
-    const finiteAngular: P.ITransform["position"] = {
+    const finiteAngular: IAutoMovieRigidTransform["position"] = {
       x: delta.x * scale,
       y: delta.y * scale,
       z: delta.z * scale,
@@ -171,22 +183,22 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     );
     const actual: RigidBody = bound.bodies.get(`${body.id}/child`)!;
     const before: {
-      pose: P.ITransform;
-      linear: P.ITransform["position"];
-      angular: P.ITransform["position"];
+      pose: IAutoMovieRigidTransform;
+      linear: IAutoMovieRigidTransform["position"];
+      angular: IAutoMovieRigidTransform["position"];
     } = {
       pose: { position: actual.translation(), rotation: actual.rotation() },
       linear: actual.linvel(),
       angular: actual.angvel(),
     };
-    const target: Simulation.ITarget = {
+    const target: IAutoMoviePhysicalSimulationInput.ITarget = {
       ...baseline.input.bodies[0]!.targets[49]!,
       dynamicSegments: ["child"],
     };
     const goals: Parameters<typeof advancePhysicalOwnership>[0]["goals"] =
       Object.fromEntries(
         Object.entries(target.segments).map(
-          ([bone, pose]: [string, P.ITransform]): [
+          ([bone, pose]: [string, IAutoMovieRigidTransform]): [
             string,
             ReturnType<typeof samplePhysicalTarget>,
           ] => [
@@ -219,7 +231,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
   } finally {
     activation.free();
   }
-  const changed: Simulation.IInput = structuredClone(input);
+  const changed: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   changed.impulses.push({
     step: 94,
     body: body.id,
@@ -227,8 +240,11 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     point: { x: 0, y: 1.5, z: 0 },
     impulse: { x: 0, y: 0, z: 0 },
   });
-  const fresh: Simulation = await Simulation.compute(changed);
-  const resumed: Simulation = await Simulation.compute(changed, baseline);
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(changed);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    changed,
+    baseline,
+  );
   TestValidator.equals(
     "checkpoint resumes an active return exactly",
     JSON.stringify(resumed.cache.frames),
@@ -244,7 +260,7 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     resumed.recomputedSteps === 36,
   );
   const bytes: Uint8Array = await Playback.encode(fresh.cache, 1_000_000);
-  const playback: Playback = await Playback.decode(
+  const playback: IAutoMoviePhysicalPlayback = await Playback.decode(
     bytes,
     fresh.cache.identity,
     { maximumBytes: 1_000_000, maximumFrames: 121, maximumSegments: 2 },
@@ -272,7 +288,7 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       ),
   );
   for (const miss of [false, true]) {
-    const receiving: Simulation.IBody = movingBody(0.5);
+    const receiving: IAutoMoviePhysicalSimulationInput.IBody = movingBody(0.5);
     for (const [step, target] of receiving.targets.entries())
       target.dynamicSegments = step < 30 ? ["child"] : [];
     receiving.releaseOnContact = {
@@ -282,14 +298,11 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       otherBody: "striker",
       otherShapes: ["surface"],
     };
-    const striker: Simulation.IBody = PhysicalFixtures.body(
-      "striker",
-      PhysicalFixtures.sphere(),
-      0.5,
-    );
+    const striker: IAutoMoviePhysicalSimulationInput.IBody =
+      PhysicalFixtures.body("striker", PhysicalFixtures.sphere(), 0.5);
     striker.mode = { kind: "kinematic" };
     for (const [step, target] of striker.targets.entries()) {
-      const receivingPoint: P.ITransform["position"] =
+      const receivingPoint: IAutoMovieRigidTransform["position"] =
         receiving.targets[step]!.segments.child!.position;
       target.segments.root!.position = {
         x: receivingPoint.x,
@@ -297,20 +310,18 @@ export async function test_physical_ownership_handoff(): Promise<void> {
         z: receivingPoint.z - 0.4 + (2 * step) / 120,
       };
     }
-    const scene: Simulation.IInput = PhysicalFixtures.input(
-      [receiving, striker],
-      0.5,
-    );
+    const scene: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([receiving, striker], 0.5);
     scene.substeps = 8;
     scene.iterations = 32;
-    const run: Simulation = await Simulation.compute(scene);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(scene);
     TestValidator.equals(
       "only positive actual contact changes complete authority",
       run.cache.ownershipAt(receiving.id, "root", 0.5),
       miss ? "authored" : "dynamic",
     );
   }
-  const ball: Simulation.IBody = PhysicalFixtures.body(
+  const ball: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "returning",
     PhysicalFixtures.sphere(),
     0.6,
@@ -319,18 +330,13 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     target.dynamicSegments = step <= 24 ? ["root"] : [];
     target.segments.root!.position.x = (2 * step) / 120;
   }
-  const obstacle: Simulation.IBody = PhysicalFixtures.body(
-    "obstacle",
-    PhysicalFixtures.sphere(),
-    0.6,
-  );
+  const obstacle: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalFixtures.body("obstacle", PhysicalFixtures.sphere(), 0.6);
   obstacle.mode = { kind: "kinematic" };
   for (const target of obstacle.targets)
     target.segments.root!.position.x = 0.55;
-  const blocked: Simulation.IInput = PhysicalFixtures.input(
-    [ball, obstacle],
-    0.6,
-  );
+  const blocked: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([ball, obstacle], 0.6);
   blocked.substeps = 8;
   blocked.impulses.push({
     step: 10,
@@ -372,9 +378,10 @@ export async function test_physical_ownership_handoff(): Promise<void> {
 }
 
 /** Two independently declared one-kilogram bodies have offset COMs, an oblique pivot, compound parent motion and a noncommuting child rotation. */
-function movingBody(duration: number): Simulation.IBody {
-  const prototype: P.ISegment = PhysicalFixtures.sphere().segments[0]!;
-  const root: P.ISegment = {
+function movingBody(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
+  const prototype: IAutoMoviePhysicalSegment =
+    PhysicalFixtures.sphere().segments[0]!;
+  const root: IAutoMoviePhysicalSegment = {
     ...structuredClone(prototype),
     bone: "root",
     neutral: {
@@ -382,7 +389,7 @@ function movingBody(duration: number): Simulation.IBody {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
   };
-  const child: P.ISegment = {
+  const child: IAutoMoviePhysicalSegment = {
     ...structuredClone(prototype),
     bone: "child",
     neutral: {
@@ -416,7 +423,7 @@ function movingBody(duration: number): Simulation.IBody {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         },
         axes: (["x", "y", "z"] as const).map(
-          (axis: "x" | "y" | "z"): P.IAxis => ({
+          (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
             axis,
             channel: `pivot.${axis}`,
             minimum: -Math.PI / 2,
@@ -430,7 +437,7 @@ function movingBody(duration: number): Simulation.IBody {
       },
     ],
   };
-  const result: Simulation.IBody = PhysicalFixtures.body(
+  const result: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "pair",
     profile,
     duration,
@@ -443,23 +450,24 @@ function movingBody(duration: number): Simulation.IBody {
   for (const [step, target] of result.targets.entries()) {
     target.strength = 1;
     const seconds: number = step / 120;
-    const rootPose: P.ITransform = {
+    const rootPose: IAutoMovieRigidTransform = {
       position: { x: 0.4 * seconds, y: 2 + 0.05 * seconds, z: 0.02 * seconds },
       rotation: Quaternion.multiply(
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 20 * seconds),
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30 * seconds),
       ),
     };
-    const childRotation: P.ITransform["rotation"] = Quaternion.multiply(
-      rootPose.rotation,
+    const childRotation: IAutoMovieRigidTransform["rotation"] =
       Quaternion.multiply(
-        Quaternion.fromAxisAngle(
-          { x: 0, y: 0, z: 1 },
-          12 * Math.sin(Math.PI * seconds),
+        rootPose.rotation,
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle(
+            { x: 0, y: 0, z: 1 },
+            12 * Math.sin(Math.PI * seconds),
+          ),
+          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8 * seconds),
         ),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8 * seconds),
-      ),
-    );
+      );
     target.segments.root = rootPose;
     target.segments.child = {
       position: Vector3.subtract(

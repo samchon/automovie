@@ -1,10 +1,18 @@
-import {
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmWrestle,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -13,11 +21,6 @@ import { gestureBow } from "../everyday/gestureBow";
 import { HumanForceTrunk } from "../grappling/HumanForceTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -63,10 +66,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace armWrestle {
   /** The action's name. */
-  export const name: HumanActionKey = "armWrestle";
+  export const name: AutoMovieMotionHumanActionKey = "armWrestle";
 
   /** Cancel table: a contest is left once the hands part. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -81,31 +84,6 @@ export namespace armWrestle {
 
   /** How much further from its place on the table's top than with the forearm upright the displayed elbow may lie for a pin's angle to count as held, metres (the campaign's contact bound). */
   export const HELD: number = 0.015;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The partner, the shared point on the table, the declared outcome and the struggle's length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The outcome is declared, never drawn, so both roles agree without a shared draw.
-   */
-  export interface IParams {
-    /** The partner. */
-    partner: string;
-
-    /** The point on the table's top the clasp stands over, world metres; both roles give the same one. */
-    table: IAutoMovieVector3;
-
-    /** Whether this role wins. */
-    wins: boolean;
-
-    /** Seconds of struggle from `go` to the start of the pin; 3 when absent. */
-    seconds?: number;
-
-    /** How far from upright the forearms end at the pin, degrees; both roles give the same one. `PIN` when absent. An angle this role's arm cannot hold with its elbow on its place on the table is refused with the largest it can. */
-    pin?: number;
-  }
 
   /**
    * Plan one role of an arm wrestle.
@@ -123,16 +101,16 @@ export namespace armWrestle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its base, geometry and entry arm angles. Planning-only exact FK, genuine ROM metadata and prepared elbow readers end on return or refusal; returned evaluators retain none of those workspaces.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanArmWrestle.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanArmWrestle.IParams = context.params;
     const body = context.body;
     const struggle: number = p.seconds ?? 3;
     HumanBound.least("seconds", struggle, 0, "s");
-    const side: HumanHand.Side = "right";
-    const entry: IHumanPosture = context.entry.posture;
-    const other: IHumanActionContext.IPerformer = context.performer(p.partner);
-    const partner: IHumanActionContext["body"] = other.body;
+    const side: AutoMovieHumanSide = "right";
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(p.partner);
+    const partner: IAutoMovieMotionHumanActionContext["body"] = other.body;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
     const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]);
@@ -185,7 +163,7 @@ export namespace armWrestle {
     };
 
     // The lean that puts the shoulder an upper arm from the elbow.
-    const leaned = (pitch: number, posture: IHumanPosture): IHumanPosture =>
+    const leaned = (pitch: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
       gestureBow.bowed(body, posture, pitch, 0);
 
     // A posture with the arm asked onto the wrist's place at a turn, the
@@ -194,7 +172,7 @@ export namespace armWrestle {
     // cannot give both (`resolveHumanPosture`: it searches bend planes when
     // the hinted one misses), and the elbow on the table is the contact the
     // contest is about, so the hand turns as the arm leaves it.
-    const armed = (posture: IHumanPosture, degrees: number): IHumanPosture => ({
+    const armed = (posture: IAutoMovieMotionHumanPosture, degrees: number): IAutoMovieMotionHumanPosture => ({
       ...posture,
       limbs: {
         ...posture.limbs,
@@ -245,10 +223,10 @@ export namespace armWrestle {
 
     // The body at a turn: leant, the arm on its goal.
     const set = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       degrees: number,
       envelope: number,
-    ): IHumanPosture => armed(leaned(lean * envelope, posture), degrees);
+    ): IAutoMovieMotionHumanPosture => armed(leaned(lean * envelope, posture), degrees);
     // The pin stops at this arm's own range: past it the arm leaves the
     // elbow's place for its other solution, which only a force would do. The
     // place is read whole, its height and its position on the top: an arm
@@ -327,11 +305,11 @@ export namespace armWrestle {
     const pin: number = turn + 0.4;
     const relax: number = pin + 0.5;
     const duration: number = relax + arrive;
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       duration,
     );
-    const begin: AutoMovieMotionHumanArm.IAngles =
+    const begin: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
 
     // The loser's trunk at the pin: its shoulder's resisting torque, at its
@@ -357,10 +335,10 @@ export namespace armWrestle {
       hands: [side],
       posture: (
         seconds: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        source?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const envelope: number =
           t < arrive
@@ -384,7 +362,7 @@ export namespace armWrestle {
             : t <= pin
               ? minimumJerk.share((t - turn) / (pin - turn))
               : 1;
-        const posed: IHumanPosture = set(base.posture(t, undefined, source, projection), degrees, envelope);
+        const posed: IAutoMovieMotionHumanPosture = set(base.posture(t, undefined, source, projection), degrees, envelope);
         return AutoMovieMotionHumanArm.carry(
           body,
           bend > 0

@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
@@ -20,7 +23,7 @@ import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Bend.turn delegates this exact existing formula; chain preparation stays with its established actual geometry owner and no goal/result is cached.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Releases chain geometry at synchronous return/throw; output retains no body, source request, FK reader, query/time history or handle.
  */
-export function AutoMovieMotionHumanBendTurn(props: AutoMovieMotionHumanBend.ISolve,
+export function AutoMovieMotionHumanBendTurn(props: IAutoMovieMotionHumanBend.ISolve,
   elbow: IAutoMovieVector3, degrees: number): IAutoMovieVector3 {
   const chain: AutoMovieMotionHumanBendChain.IChain | null =
     AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);

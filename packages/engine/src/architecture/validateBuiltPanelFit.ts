@@ -6,12 +6,12 @@ import {
   IAutoMoviePlanarPoint,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { polygonInside } from "./polygonInside";
 
@@ -57,13 +57,13 @@ export const validateBuiltPanelFit: (
   root: string,
   faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,
   hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,
   hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const matrices: Map<string, number[]> = builtEnvironmentWorldMatrices(
     environment,

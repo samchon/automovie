@@ -1,14 +1,16 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanColliders,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
   poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -68,7 +70,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_tangle(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stance: Bones = motionHumanStance(body);
   const pose = AutoMovieMotionHumanAuditTangle.pose;
   const key = AutoMovieMotionHumanAuditTangle.unordered;
@@ -95,19 +97,24 @@ export function test_human_motion_audit_tangle(): void {
 
   // The trunk's front surface on either side of the midline.
   const height: number = stance.get("chest")!.worldPosition.y;
-  const front = (side: "left" | "right"): HumanColliders.IHit => {
-    const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
-      body,
-      new Map(
-        [...stance].filter(
-          ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-            bone === "chest" || bone === "spine",
+  const front = (
+    side: "left" | "right",
+  ): IAutoMovieMotionHumanColliders.IHit => {
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+      HumanColliders.cast(
+        body,
+        new Map(
+          [...stance].filter(
+            ([bone]: [
+              AutoMovieHumanoidBone,
+              IAutoMovieResolvedBone,
+            ]): boolean => bone === "chest" || bone === "spine",
+          ),
         ),
-      ),
-      { x: side === "left" ? 0.05 : -0.05, y: height, z: 1 },
-      { x: 0, y: 0, z: -1 },
-      2,
-    );
+        { x: side === "left" ? 0.05 : -0.05, y: height, z: 1 },
+        { x: 0, y: 0, z: -1 },
+        2,
+      );
     if (hit === undefined) throw new Error("The ray missed the trunk");
     return hit;
   };
@@ -127,7 +134,7 @@ export function test_human_motion_audit_tangle(): void {
   };
   /** The translation that sets a point `inside` metres below a surface hit. */
   const into = (
-    hit: HumanColliders.IHit,
+    hit: IAutoMovieMotionHumanColliders.IHit,
     point: IAutoMovieVector3,
     inside: number,
   ): IAutoMovieVector3 => ({
@@ -151,16 +158,16 @@ export function test_human_motion_audit_tangle(): void {
       into(front(side), middle(`${side}LowerArm`, `${side}Hand`), inside),
     );
   const depth = (
-    pairs: AutoMovieMotionHumanAuditTangle.IPair[],
+    pairs: IAutoMovieMotionHumanAuditTangle.IPair[],
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): number =>
     pairs.find(
-      (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+      (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
         key(p.a, p.b) === key(a, b),
     )?.depth ?? 0;
 
-  const right: HumanColliders.IHit = front("right");
+  const right: IAutoMovieMotionHumanColliders.IHit = front("right");
   const set: number = depth(
     pose(body, forearm("right", 0.03)),
     "rightLowerArm",
@@ -173,7 +180,7 @@ export function test_human_motion_audit_tangle(): void {
   TestValidator.equals(
     "a forearm held outside the chest is not read",
     pose(body, forearm("right", -0.15)).filter(
-      (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+      (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
         p.a === "rightLowerArm" || p.b === "rightLowerArm",
     ),
     [],
@@ -202,7 +209,7 @@ export function test_human_motion_audit_tangle(): void {
         moves(bone) ? by(t) : { x: 0, y: 0, z: 0 },
       spans,
     );
-  const ramp: AutoMovieMotionHumanAuditTangle.IResult =
+  const ramp: IAutoMovieMotionHumanAuditTangle.IResult =
     AutoMovieMotionHumanAuditTangle.measure(
       film(
         (bone: AutoMovieHumanoidBone): boolean => arm("right", bone),
@@ -220,9 +227,9 @@ export function test_human_motion_audit_tangle(): void {
   // forearm and may pass through another part of the trunk on the way, whose
   // depth along a straight course is not monotone, so the claim is read on
   // the forearm and the bone it is set into.
-  const entering: AutoMovieMotionHumanAuditTangle.IPair | undefined =
+  const entering: IAutoMovieMotionHumanAuditTangle.IPair | undefined =
     ramp.pairs.find(
-      (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+      (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
         key(p.a, p.b) === key("rightLowerArm", right.bone),
     );
   TestValidator.predicate(
@@ -237,7 +244,7 @@ export function test_human_motion_audit_tangle(): void {
   TestValidator.predicate(
     "the pairs come deepest first",
     ramp.pairs.every(
-      (p: AutoMovieMotionHumanAuditTangle.IPair, i: number): boolean =>
+      (p: IAutoMovieMotionHumanAuditTangle.IPair, i: number): boolean =>
         i === 0 || ramp.pairs[i - 1]!.depth >= p.depth,
     ),
   );
@@ -252,7 +259,7 @@ export function test_human_motion_audit_tangle(): void {
   if (region === undefined)
     throw new Error(`No region of the body lies on ${right.bone}`);
   const touching = (
-    part: IHumanContactWindow["part"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
     subject: string,
     from: number,
     to: number,
@@ -283,7 +290,7 @@ export function test_human_motion_audit_tangle(): void {
   );
   const handIn = (
     spans: IAutoMovieMotionHumanAuditMotion.ISpan[],
-  ): AutoMovieMotionHumanAuditTangle.IPair[] =>
+  ): IAutoMovieMotionHumanAuditTangle.IPair[] =>
     AutoMovieMotionHumanAuditTangle.measure(
       film(
         (bone: AutoMovieHumanoidBone): boolean => hand("right", bone),
@@ -293,23 +300,23 @@ export function test_human_motion_audit_tangle(): void {
       "a",
       body,
     ).pairs.filter(
-      (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+      (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
         (hand("right", p.a) && p.b === right.bone) ||
         (hand("right", p.b) && p.a === right.bone),
     );
-  const undeclared: AutoMovieMotionHumanAuditTangle.IPair[] = handIn([]);
+  const undeclared: IAutoMovieMotionHumanAuditTangle.IPair[] = handIn([]);
   TestValidator.predicate(
     "a hand set inside the chest is read",
     undeclared.length > 0 && undeclared[0]!.depth >= 0.015,
   );
-  const partly: AutoMovieMotionHumanAuditTangle.IPair[] = handIn(
+  const partly: IAutoMovieMotionHumanAuditTangle.IPair[] = handIn(
     touching("rightHand", "a", 0.25, 0.75),
   );
   TestValidator.predicate(
     "a declared contact is unread only inside its window",
     partly.length === undeclared.length &&
       partly.every(
-        (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+        (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
           p.seconds < 0.25 || p.seconds > 0.75,
       ),
   );

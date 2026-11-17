@@ -1,19 +1,20 @@
 import {
+  type IAutoMovieAnalysisLuminaire,
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisMetricGap,
   IAutoMovieAnalysisRun,
   IAutoMovieAnalysisSample,
+  type IAutoMovieAnalysisSolid,
   IAutoMovieAnalysisSolver,
   IAutoMovieAnalysisWarning,
+  type IAutoMovieAnalysisWorkplane,
+  type IAutoMovieAnalyzeDaylight,
+  type IAutoMovieDaylightRequest,
   IAutoMovieEnvironmentInstant,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieAnalysisLuminaire } from "./IAutoMovieAnalysisLuminaire";
-import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
-import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
-import { IAutoMovieDaylightRequest } from "./IAutoMovieDaylightRequest";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
@@ -64,12 +65,11 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One unit normal, one sky-direction set and its skyward subset, one solid list and one coincident-luminaire set are shared across every cell, valid because each depends only on the plane, the ground, the context and the shades fixed for the study; the sky set is not built for an artificial-light study that never reads it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local storage includes O(C) light/sample arrays, O(D) directions, a combined solid list and coincidence/warning populations growing with luminaires and targets. Only C has the sample cap; the caller owns returned samples/warnings and no study cache persists.
  */
-export const analyzeAutoMovieDaylight: (props: {
-  request: IAutoMovieDaylightRequest;
-}) => IAutoMovieAnalysisRun = (props: {
-  /** Study to measure; validated in full before any ray is cast. */
-  request: IAutoMovieDaylightRequest;
-}): IAutoMovieAnalysisRun => {
+export const analyzeAutoMovieDaylight: (
+  props: IAutoMovieAnalyzeDaylight.IProps,
+) => IAutoMovieAnalysisRun = (
+  props: IAutoMovieAnalyzeDaylight.IProps,
+): IAutoMovieAnalysisRun => {
   const request: IAutoMovieDaylightRequest = props.request;
   const resolved: {
     instant: IAutoMovieEnvironmentInstant | null;

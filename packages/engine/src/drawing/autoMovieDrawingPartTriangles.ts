@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieDrawingTriangle,
   IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -7,7 +8,6 @@ import {
 
 import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Matrix4 } from "../math/Matrix4";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
 /**

@@ -1,6 +1,8 @@
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
@@ -24,7 +26,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function accumulatePhysicalMotorTorques(input: {
-  /** Admitted articulated geometry. */ profile: P;
+  /** Admitted articulated geometry. */ profile: IAutoMoviePhysicalProfile;
   /** Current actual native segments. */ segments: ReadonlyMap<
     string,
     RigidBody
@@ -45,17 +47,19 @@ export function accumulatePhysicalMotorTorques(input: {
   while (carrier) {
     ancestors.add(carrier);
     carrier = input.profile.joints.find(
-      (joint: P.IJoint): boolean => joint.child === carrier,
+      (joint: IAutoMoviePhysicalJoint): boolean => joint.child === carrier,
     )?.parent;
   }
   for (const bone of input.chain) {
     if (!ancestors.has(bone)) continue;
-    const joint: P.IJoint | undefined = input.profile.joints.find(
-      (candidate: P.IJoint): boolean => candidate.child === bone,
-    );
+    const joint: IAutoMoviePhysicalJoint | undefined =
+      input.profile.joints.find(
+        (candidate: IAutoMoviePhysicalJoint): boolean =>
+          candidate.child === bone,
+      );
     if (!joint) continue;
     const parent: RigidBody = input.segments.get(joint.parent)!;
-    const frame: P.ITransform["rotation"] = Quaternion.multiply(
+    const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
       parent.rotation(),
       joint.parentFrame.rotation,
     );

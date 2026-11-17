@@ -1,8 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
   Quaternion,
   Transform,
   indexSkeletonTopology,
@@ -15,16 +13,15 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  createHumanBody,
-  poseBones,
-} from "@automovie/motions";
+import { createHumanBody, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -121,9 +118,9 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     });
   }
 
-  const source: IHumanBody = motionHumanBody("m-average");
+  const source: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const skeleton: IAutoMovieSkeleton = structuredClone(source.skeleton);
-  const body: IHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
     skeleton,
     structuredClone(source.profile),
   );
@@ -162,7 +159,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     joints: [ancestor, joint],
   };
   function cold(
-    target: IHumanBody,
+    target: IAutoMovieMotionHumanBody,
     input: IAutoMoviePose,
     canonical: boolean = false,
   ): IAutoMovieResolvedBone[] {
@@ -176,7 +173,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
   function read(
     label: string,
     input: IAutoMoviePose = pose,
-    target: IHumanBody = body,
+    target: IAutoMovieMotionHumanBody = body,
   ): IAutoMovieResolvedBone[] {
     const expected: IAutoMovieResolvedBone[] = cold(target, input);
     const actual: IAutoMovieResolvedBone[] = resolvePose(
@@ -221,9 +218,9 @@ export function test_human_motion_core_pose_resolution_scope(): void {
   // rig with these tables). Only forward kinematics is asked of it, so the
   // measures and colliders of the body made before are not read again: an
   // edited rest is not a recalibrated body.
-  function rerigged(): IHumanBody {
+  function rerigged(): IAutoMovieMotionHumanBody {
     const copy: IAutoMovieSkeleton = structuredClone(skeleton);
-    const topology: IHumanBody["topology"] = indexSkeletonTopology(copy);
+    const topology: IAutoMovieMotionHumanBody["topology"] = indexSkeletonTopology(copy);
     return {
       ...body,
       skeleton: copy,
@@ -538,7 +535,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
         Number.isNaN(old.localRotation.x) &&
         Number.isNaN(old.worldPosition.z),
     );
-    const other: IHumanBody = motionHumanBody("f-small");
+    const other: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
     read("other actual body", { ...pose, skeleton: other.skeleton.id }, other);
     read("original rig after other body");
   });

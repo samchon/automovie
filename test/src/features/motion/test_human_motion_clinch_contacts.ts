@@ -1,9 +1,13 @@
+import type {
+  IAutoMovieMotionHumanAuditPartner,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditPartner,
   HumanChain,
   HumanPerformance,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -52,12 +56,12 @@ export function test_human_motion_clinch_contacts(): void {
   for (const names of pairs)
     for (const grip of ["plum", "collarSleeve"] as const) {
       const cell: string = `${grip}, ${names[0]} holding ${names[1]}`;
-      const bodies: Record<"a" | "b", IHumanBody> = {
+      const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
         a: motionHumanBody(names[0]),
         b: motionHumanBody(names[1]),
       };
       try {
-        const film: HumanPerformance = new HumanPerformance({
+        const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "clinch-contact-activation",
           performers: [
             {
@@ -79,7 +83,7 @@ export function test_human_motion_clinch_contacts(): void {
             .act("clinch", { partner: "b", grip })
             .with(HumanChain.subject("b").stand({ seconds: 4, sway: 0 })).node,
         });
-        const report: AutoMovieMotionHumanAuditPartner.IResult =
+        const report: IAutoMovieMotionHumanAuditPartner.IResult =
           AutoMovieMotionHumanAuditPartner.measure(
             film,
             { subject: "a", body: bodies.a },
@@ -102,7 +106,7 @@ export function test_human_motion_clinch_contacts(): void {
         );
         all.check(`${cell}: the declared grips overlap for a hold`, to > from);
         if (!(to > from)) continue;
-        const held: AutoMovieMotionHumanAuditPartner.IResult =
+        const held: IAutoMovieMotionHumanAuditPartner.IResult =
           AutoMovieMotionHumanAuditPartner.measure(
             {
               duration: to - from,

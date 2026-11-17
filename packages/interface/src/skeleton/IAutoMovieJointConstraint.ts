@@ -1,4 +1,5 @@
-import { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+import type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+import type { IAutoMovieSwingTwistLimit } from "./IAutoMovieSwingTwistLimit";
 
 /**
  * The anatomical range of motion (ROM) of a single joint, decomposed into the three clinical rotation axes.
@@ -50,24 +51,5 @@ export interface IAutoMovieJointConstraint {
    *
    * Three clinical angles name one rotation twice (two readings), and at the swing where two of them turn about one axis (an arm pointing straight ahead) a box of them is not a continuous set of rotations: two rotations a fraction of a degree apart can lie one inside and one far outside it. The swing-twist decomposition from the rest pose is singular only at the rest direction's antipode, which the record's `reach` keeps outside the range, so a limit on it holds continuously wherever the limb can be. Null or omission keeps the three-angle gate.
    */
-  swingTwist?: IAutoMovieJointConstraint.ISwingTwist | null;
-}
-
-/** Companion types of {@link IAutoMovieJointConstraint}. */
-export namespace IAutoMovieJointConstraint {
-  /**
-   * The swing-and-twist limit of a ball joint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measure, its origin, its unit and its sign.
-   * @evidence contracts/development/design.md#principled-representation An interval of the twist about the limb's own axis left after the shortest swing from rest, by the swing-twist decomposition whose only singularity lies at the rest direction's antipode, which the farthest reach keeps outside.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members: the twist interval and the farthest reach; the swing's region is read from the constraint's own flexion and abduction intervals, not restated, and the record is additive and optional on the constraint.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a constraint without it keeps the three-angle gate unchanged.
-   */
-  export interface ISwingTwist {
-    /** The limb's turn about its own long axis measured from the rig's rest pose by the swing-twist decomposition, degrees; positive external, negative internal. */
-    twist: IAutoMovieAngleRange;
-
-    /** The farthest the limb's long axis may point from its rest direction, degrees, below 180, so the rest direction's antipode, where the twist has no value, lies outside the range; the reach the flexion and abduction intervals give when absent. */
-    reach?: number;
-  }
+  swingTwist?: IAutoMovieSwingTwistLimit | null;
 }

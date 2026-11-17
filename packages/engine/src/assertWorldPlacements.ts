@@ -1,12 +1,12 @@
 import {
+  type IAutoMovieAssertWorldPlacements,
   IAutoMoviePlanarPoint,
   IAutoMovieVector3,
-  IAutoMovieWorldLandmark,
+  type IAutoMovieWorldBlock,
   IAutoMovieWorldRoute,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
 import { segmentsCross } from "./architecture/segmentsCross";
 import { closestPointOnSegmentXZ } from "./math/closestPointOnSegmentXZ";
 import { worldSurfaceContains } from "./worldSurfaceContains";
@@ -47,24 +47,9 @@ const SUPPORT_TOLERANCE: number = 1e-6;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A one-shot gate over one world layout that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only per-test footprint corners and closest points and retains nothing; it returns nothing and throws on the first contradiction.
  */
-export const assertWorldPlacements: (input: {
-  /** Static world masses, as axis-aligned world boxes. */ blocks: readonly IAutoMovieWorldBlock[];
-  /** Terrain and floor surfaces that may support a block or hold a landmark. */ surfaces: readonly IAutoMovieWorldSurface[];
-  /** Routes whose segments, widened by half their formation width, must clear every block. */ routes: readonly IAutoMovieWorldRoute[];
-  /** Points of interest that must be reachable from walkable ground or a route. */ landmarks: readonly IAutoMovieWorldLandmark[];
-}) => void = (input: {
-  /** Static world masses, as axis-aligned world boxes. */
-  blocks: readonly IAutoMovieWorldBlock[];
-
-  /** Terrain and floor surfaces that may support a block or hold a landmark. */
-  surfaces: readonly IAutoMovieWorldSurface[];
-
-  /** Routes whose segments, widened by half their formation width, must clear every block. */
-  routes: readonly IAutoMovieWorldRoute[];
-
-  /** Points of interest that must be reachable from walkable ground or a route. */
-  landmarks: readonly IAutoMovieWorldLandmark[];
-}): void => {
+export const assertWorldPlacements: (
+  input: IAutoMovieAssertWorldPlacements.IInput,
+) => void = (input: IAutoMovieAssertWorldPlacements.IInput): void => {
   for (let left: number = 0; left < input.blocks.length; ++left)
     for (let right: number = left + 1; right < input.blocks.length; ++right)
       if (overlaps(input.blocks[left]!, input.blocks[right]!))

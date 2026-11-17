@@ -1,15 +1,16 @@
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
-import type { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
-import type { AutoMovieViewConic } from "./AutoMovieViewConic";
-import type { AutoMovieViewSectionField } from "./AutoMovieViewSectionField";
 
 /** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
-type Source = AutoMovieConicFieldJet.IJet;
-
-/** Original named numerical/source refusal, without a replacement geometry. */
-type Failure = AutoMovieConicArcField.IFailure;
+type Source = IAutoMovieConicFieldJet.IJet;
 
 /**
  * Internal validation and fixed-clock reading of the existing section data.
@@ -33,7 +34,7 @@ export namespace AutoMovieViewSectionReading {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only local scalar/record references and returns null or a string; no data is retained by the module.
    */
   export function validate(
-    prepared: AutoMovieViewSectionField.IPrepared,
+    prepared: IAutoMovieViewSectionField.IPrepared,
   ): string | null {
     if (
       prepared === null ||
@@ -44,8 +45,8 @@ export namespace AutoMovieViewSectionReading {
       prepared.geometry === null
     )
       return "The section field has no explicit source and numeric preparation.";
-    const source: AutoMovieViewConic.ICurve<Source> = prepared.source;
-    const geometry: AutoMovieViewConic.ICurve = prepared.geometry;
+    const source: IAutoMovieViewConic.ICurve<Source> = prepared.source;
+    const geometry: IAutoMovieViewConic.ICurve = prepared.geometry;
     if (
       (source.failure !== null && typeof source.failure !== "string") ||
       (geometry.failure !== null && typeof geometry.failure !== "string")
@@ -61,9 +62,9 @@ export namespace AutoMovieViewSectionReading {
     )
       return "The section field requires four explicit source and numeric quarters.";
     for (let q: number = 0; q < 4; q++) {
-      const a: AutoMovieViewConic.IQuarter<Source> | undefined =
+      const a: IAutoMovieViewConic.IQuarter<Source> | undefined =
         source.quarters[q];
-      const b: AutoMovieViewConic.IQuarter | undefined = geometry.quarters[q];
+      const b: IAutoMovieViewConic.IQuarter | undefined = geometry.quarters[q];
       if (
         a === undefined ||
         b === undefined ||
@@ -115,9 +116,9 @@ export namespace AutoMovieViewSectionReading {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh radial tuples or named failures belong to callers; local temporaries die on return or throw and no cache or resource handle is acquired.
    */
   export function evaluate(
-    prepared: AutoMovieViewSectionField.IPrepared,
-    ray: AutoMovieViewConic.IRay,
-  ): AutoMovieViewSectionField.IRadialJet | Failure {
+    prepared: IAutoMovieViewSectionField.IPrepared,
+    ray: IAutoMovieViewConic.IRay,
+  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
     if (
       ray === null ||
       ray === undefined ||
@@ -150,9 +151,11 @@ export namespace AutoMovieViewSectionReading {
       return failure(
         "The section field has no supported same-geometry numeric ray descriptor.",
       );
-    const quarter: AutoMovieViewConic.IQuarter<Source> =
+    const quarter: IAutoMovieViewConic.IQuarter<Source> =
       prepared.source.quarters[ray.quarter]!;
-    let reading: AutoMovieConicArcField.IReading | Failure;
+    let reading:
+      | IAutoMovieConicArcField.IReading
+      | IAutoMovieConicArcField.IFailure;
     if (ray.kind === "conic")
       reading = AutoMovieConicArcField.read(
         quarter.extents,
@@ -160,7 +163,7 @@ export namespace AutoMovieViewSectionReading {
         ray,
       );
     else {
-      const patch: AutoMovieConicHermite.IPatch<Source> | null =
+      const patch: IAutoMovieConicHermite.IPatch<Source> | null =
         ray.kind === "start" ? quarter.start : quarter.end;
       if (patch === null)
         return failure(
@@ -173,7 +176,7 @@ export namespace AutoMovieViewSectionReading {
 }
 
 /** Convert the original numerical premise into its named failure record. */
-function failure(detail: string): Failure {
+function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
@@ -196,8 +199,8 @@ function same(value: unknown, numeric: number, full: boolean = false): boolean {
 
 /** Check the fixed control/weight snapshot without requiring unused auxiliary Hessians. */
 function patchMatches(
-  a: AutoMovieConicHermite.IPatch<Source> | null,
-  b: AutoMovieConicHermite.IPatch | null,
+  a: IAutoMovieConicHermite.IPatch<Source> | null,
+  b: IAutoMovieConicHermite.IPatch | null,
 ): boolean {
   if (a === null || b === null) return a === null && b === null;
   if (
@@ -252,8 +255,8 @@ function curvatureProduct(
 
 /** Remove the material clock with the unchanged normal shape-derivative formula. */
 function lift(
-  reading: AutoMovieConicArcField.IReading,
-): AutoMovieViewSectionField.IRadialJet | Failure {
+  reading: IAutoMovieConicArcField.IReading,
+): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
   const [x, y]: readonly [Source, Source] = reading.point;
   const tx: readonly [number, number, number] = reading.tangent[0];
   const ty: readonly [number, number, number] = reading.tangent[1];
@@ -283,7 +286,7 @@ function lift(
       (turn - curvatureProduct(reading.logCurvature, slide))) /
       B /
       B;
-  const result: AutoMovieViewSectionField.IRadialJet = [
+  const result: IAutoMovieViewSectionField.IRadialJet = [
     reading.radial[0],
     first,
     reading.radial[1],

@@ -1,8 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanBalance } from "./HumanBalance";
@@ -10,7 +12,7 @@ import { HumanBalance } from "./HumanBalance";
 /** The crouch law's fixed scalar search and actual lowered-body callback. */
 interface IProps {
   /** The unchanged body and its mass/ROM owners. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
 
   /** Fixed heading unit vector, world frame. */
   forward: IAutoMovieVector3;
@@ -33,7 +35,7 @@ interface IProps {
   ): (
     inclination: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ) => IHumanPosture;
+  ) => IAutoMovieMotionHumanPosture;
 }
 
 /**

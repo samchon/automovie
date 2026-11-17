@@ -1,7 +1,11 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieCaptureInstant,
+  IAutoMovieCaptureSubject,
+  IAutoMovieInspectionDrawable,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieCaptureSubject } from "../capture/IAutoMovieCaptureSubject.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../scene/inspection/AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
@@ -12,13 +16,13 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 /**
  * Describe a created subject as a capture plans against it, from the scene as `create` left it: no second is sought, because a subject need not hold every second, such as a case that samples only its own instants.
  *
- * Named instants are the subject's own, copied. Views are the subject's own names, then the inspection's named viewpoints. Drawables are the inspection paths of the drawn objects, one world box per distinct path, the union of the boxes of every object sharing it; an object with an empty box is left out. Mark kinds are those the subject supplies at second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the kinds the inspection draws from its own sampling and measurement; a subject whose kinds appear only later in its run lists them only at second 0's, which is a stated limit.
+ * Named instants are the subject's own, copied. Views are the subject's own names, then the inspection's named viewpoints. Drawables are the inspection paths of the drawn objects, one world box per distinct path, the union of the boxes of every object sharing it; an object with an empty box is left out. Mark kinds are the subject's declared `markKinds` and those it supplies at second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the kinds the inspection draws from its own sampling and measurement. Declaring a later kind admits its capture without seeking through the film or inventing a marker at zero; its geometry still comes from `marks` at the drawn second.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States where each member comes from, the order of names and kinds, the union rule and the limit on kinds.
+ * @evidence contracts/development/common.md#meaningful-documentation States where each member comes from, the order of names and kinds, the union rule and how declared later kinds differ from actual marks.
  * @evidence contracts/development/implementation.md#principled-implementation Paths come from the inspection's own path listing and boxes from three.js's `Box3.setFromObject` on world matrices brought up to date, so a sweep groups by the boxes the inspection draws.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Views, drawables, kinds, then one literal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measured kinds are read from the inspection's palette, not restated.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the drawn objects' vertices for the boxes and in the subject's marks at second 0.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the drawn objects' vertices for the boxes and in declared kinds and marks at second 0; no timeline sampling is added.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Done once per page.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records; the boxes are dropped.
  */
@@ -66,16 +70,19 @@ export function describeAutoMovieDrawScene(
       ),
     ],
     drawables: [...boxes].map(
-      ([path, box]: [
-        string,
-        THREE.Box3,
-      ]): IAutoMovieCaptureSubject.IDrawable => ({
+      ([path, box]: [string, THREE.Box3]): IAutoMovieInspectionDrawable => ({
         path,
         min: { x: box.min.x, y: box.min.y, z: box.min.z },
         max: { x: box.max.x, y: box.max.y, z: box.max.z },
       }),
     ),
-    marks: [...new Set<string>([...supplied, ...measured])],
+    marks: [
+      ...new Set<string>([
+        ...(scene.markKinds ?? []),
+        ...supplied,
+        ...measured,
+      ]),
+    ],
     ...(scene.instants === undefined
       ? {}
       : {
@@ -83,7 +90,7 @@ export function describeAutoMovieDrawScene(
             (instant: {
               seconds: number;
               label: string;
-            }): IAutoMovieCaptureSubject.IInstant => ({
+            }): IAutoMovieCaptureInstant => ({
               seconds: instant.seconds,
               label: instant.label,
             }),

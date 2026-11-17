@@ -1,7 +1,10 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
@@ -25,7 +28,7 @@ import { humanFootOffset } from "./humanFootOffset";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds nine axis components, the socket offset and one ankle record until its search releases it; no pitch or earlier ankle is kept.
  */
 export function prepareHumanFootAnkle(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
   at: IAutoMovieVector3,

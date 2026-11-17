@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMeasure,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditContact,
@@ -5,7 +10,6 @@ import {
   AutoMovieMotionHumanAuditRange,
   AutoMovieMotionHumanAuditSpin,
   AutoMovieMotionHumanAuditTiming,
-  type IAutoMovieMotionHumanAuditMeasure,
 } from "@automovie/motions";
 
 import type { motionHumanLaw } from "./motionHumanLaw";
@@ -68,7 +72,7 @@ export function motionHumanLawSweepCell(
       film.performance.segments(who),
     ))
       say(who, `timing ${fault}`);
-    const report: AutoMovieMotionHumanAudit.IReport =
+    const report: IAutoMovieMotionHumanAudit.IReport =
       AutoMovieMotionHumanAudit.run(film, who, one.body, {
         limits: airborne
           ? { floor: null, slip: null, lift: null, balance: null }
@@ -77,7 +81,7 @@ export function motionHumanLawSweepCell(
     for (const finding of report.findings)
       measured(who, finding.check, finding, finding.limit);
     if (!airborne) {
-      const contact: AutoMovieMotionHumanAuditContact.IResult =
+      const contact: IAutoMovieMotionHumanAuditContact.IResult =
         AutoMovieMotionHumanAuditContact.measure(film, who, one.body);
       for (const check of ["skate", "loose", "afloat"] as const)
         measured(

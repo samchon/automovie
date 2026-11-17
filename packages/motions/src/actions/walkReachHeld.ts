@@ -1,16 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { walkFoot } from "./walkFoot";
-import { walkReachStance } from "./walkReachStance";
 import { walkReach } from "./walkReach";
+import { walkReachStance } from "./walkReachStance";
 
 /**
  * A stance course's pelvis over its feet (`walkStanceCourse`): the pelvis
@@ -45,7 +46,7 @@ export namespace walkReachHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary reader releases after this call and the result belongs to its caller.
    */
   export function tilt(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
@@ -73,7 +74,7 @@ export namespace walkReachHeld {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned reader retains a quaternion inverse, rest offset and heading until its problem is released, without query-dependent storage or handles.
    */
   export function prepareTilt(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     yaw: number,
   ): (
     root: IAutoMovieVector3,
@@ -139,11 +140,13 @@ export namespace walkReachHeld {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh ground records and retains neither the optional FK source nor any query state after synchronous return or throw.
    */
   export function held(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
     course: {
       drop: number;
       pitch: Record<"left" | "right", number>;

@@ -1,12 +1,14 @@
 import {
-  IAutoMovieHullEdge,
   closestPointOnSegmentXZ,
   convexHull2D,
   nearestHullEdge,
   pointHullDistance,
   pointInHull,
 } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieHullEdge,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

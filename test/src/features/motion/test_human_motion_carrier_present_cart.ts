@@ -1,6 +1,11 @@
 import { createCart, createHandgun } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditContinuity,
@@ -11,7 +16,6 @@ import {
   HumanSegment,
   HumanVerdicts,
   HumanWeaponFirearm,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,12 +62,12 @@ export function test_human_motion_carrier_present_cart(): void {
   const gun: ReturnType<typeof createHandgun> = createHandgun({
     frame: "fullSize",
   });
-  const motion = (seconds: number): HumanObject.Placement => ({
+  const motion = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
     at: { x: 0, y: 0, z: seconds },
     yaw: 0,
   });
-  const body: IHumanBody = motionHumanBody("m-average");
-  let performance: HumanPerformance;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "carrier-present",

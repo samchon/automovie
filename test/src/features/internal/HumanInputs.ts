@@ -1,8 +1,8 @@
-import {
-  AutoMovieHumanBodyAnatomy,
-  type IAutoMovieHumanBodyMeasures,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
+import { AutoMovieHumanBodyAnatomy } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 
 /**
  * A person's public body measures as the construction reads them: every

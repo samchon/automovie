@@ -1,8 +1,12 @@
-import type { IAutoMovieJointAxes } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedChainGeometry,
+  IAutoMovieJointAxes,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
@@ -23,7 +27,7 @@ import { readHingeRange } from "./readHingeRange";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call prepares its own request.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record borrows the request and owns its preparation until the caller drops it.
  */
-export function prepareHingedChainAt(props: IFitChainToTargetProps): prepareHingedChainAt.IPrepared | null {
+export function prepareHingedChainAt(props: IAutoMovieFitChainToTargetProps): prepareHingedChainAt.IPrepared | null {
   const workspace: prepareChainFit.IWorkspace = prepareChainFit(props);
   const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null || prepared.lowerDomain.constraint === null ||
@@ -35,7 +39,7 @@ export function prepareHingedChainAt(props: IFitChainToTargetProps): prepareHing
   const lowerBasis: IAutoMovieJointAxes =
     workspace.rig?.basis(props.chain.lower, "decomposeJointRotation axes") ?? basisOf(axes);
   const range: { min: number; max: number } | null = readHingeRange(props, prepared, axes, lowerBasis);
-  const chain: hingedArmSwivel.IChain = {
+  const chain: IAutoMovieHingedChainGeometry = {
     upper: prepared.upper,
     midOffset: prepared.lowerOffset,
     midRest: prepared.lowerRotation,
@@ -44,7 +48,7 @@ export function prepareHingedChainAt(props: IFitChainToTargetProps): prepareHing
     target: props.target,
     ...(range === null ? {} : { range }),
   };
-  const branches: hingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(chain);
+  const branches: IAutoMovieHingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(chain);
   if (branches === null || branches.length === 0) return null;
   return { workspace, prepared, upperBasis, lowerBasis, chain, branches };
 }
@@ -73,9 +77,9 @@ export namespace prepareHingedChainAt {
     lowerBasis: IAutoMovieJointAxes;
 
     /** The swivel chain toward the request's target. */
-    chain: hingedArmSwivel.IChain;
+    chain: IAutoMovieHingedChainGeometry;
 
     /** The bend branches in `hingedArmSwivel.branches` order, at least one. */
-    branches: hingedArmSwivel.IStop[];
+    branches: IAutoMovieHingedArmSwivel.IStop[];
   }
 }

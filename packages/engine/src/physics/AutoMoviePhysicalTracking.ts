@@ -1,7 +1,8 @@
 import type {
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalTracking,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -20,23 +21,6 @@ import { Vector3 } from "../math/Vector3";
  */
 export namespace AutoMoviePhysicalTracking {
   /**
-   * A measured tracking coordinate, including honest motor saturation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A measured tracking coordinate, including honest motor saturation.
-   * @evidence contracts/development/design.md#principled-representation Represents A measured tracking coordinate, including honest motor saturation: interface of 3 members (`torque`, `error`, `saturated`); units and frames named in its text: frame, radians. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IResult` in packages/engine/src/physics/AutoMoviePhysicalTracking.ts; its surface is the 3 members listed and the text shows 176 other files naming it, mostly packages/human (64), test (54), movies (27), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IResult {
-    /** Joint-frame N m. */ torque: IAutoMovieVector3;
-    /** Shortest-arc joint-frame rotation error in radians. */ error: IAutoMovieVector3;
-    /** Axes whose requested torque exceeded their cap. */ saturated: (
-      | "x"
-      | "y"
-      | "z"
-    )[];
-  }
-  /**
    * Calculate a torque without retaining a controller state or changing inputs.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Calculate a torque without retaining a controller state or changing inputs.
@@ -51,11 +35,11 @@ export namespace AutoMoviePhysicalTracking {
     current: IAutoMovieQuaternion,
     target: IAutoMovieQuaternion,
     velocity: IAutoMovieVector3,
-    axes: readonly P.IAxis[],
+    axes: readonly IAutoMoviePhysicalJointAxis[],
     inertia: IAutoMovieVector3,
     dt: number,
     strength: number,
-  ): IResult {
+  ): IAutoMoviePhysicalTracking.IResult {
     if (
       !(dt > 0) ||
       !Number.isFinite(dt) ||
@@ -79,7 +63,7 @@ export namespace AutoMoviePhysicalTracking {
       y: delta.y * scale,
       z: delta.z * scale,
     };
-    const result: IResult = {
+    const result: IAutoMoviePhysicalTracking.IResult = {
       torque: { x: 0, y: 0, z: 0 },
       error,
       saturated: [],

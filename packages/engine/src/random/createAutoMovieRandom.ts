@@ -1,4 +1,5 @@
-import type { IAutoMovieRandom } from "./IAutoMovieRandom";
+import type { IAutoMovieRandom } from "@automovie/interface";
+
 import { deriveAutoMovieSeed } from "./deriveAutoMovieSeed";
 import { philoxAutoMovie4x32 } from "./philoxAutoMovie4x32";
 

@@ -1,4 +1,5 @@
-import type { IAutoMovieSwivelNear } from "./IAutoMovieSwivelNear";
+import type { IAutoMovieSwivelNear } from "@automovie/interface";
+
 import { hingedArmSwivel } from "./hingedArmSwivel";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 

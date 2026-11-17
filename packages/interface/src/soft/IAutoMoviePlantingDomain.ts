@@ -1,8 +1,8 @@
-import { IAutoMoviePlantingFoliage } from "./IAutoMoviePlantingFoliage";
-import { IAutoMoviePlantingGrowth } from "./IAutoMoviePlantingGrowth";
-import { IAutoMoviePlantingLimits } from "./IAutoMoviePlantingLimits";
-import { IAutoMoviePlantingStructure } from "./IAutoMoviePlantingStructure";
-import { IAutoMoviePruningEnvelope } from "./IAutoMoviePruningEnvelope";
+import type { IAutoMoviePlantingFoliage } from "./IAutoMoviePlantingFoliage";
+import type { IAutoMoviePlantingGrowth } from "./IAutoMoviePlantingGrowth";
+import type { IAutoMoviePlantingLimits } from "./IAutoMoviePlantingLimits";
+import type { IAutoMoviePlantingStructure } from "./IAutoMoviePlantingStructure";
+import type { IAutoMoviePruningEnvelope } from "./IAutoMoviePruningEnvelope";
 
 /**
  * One deterministic planting recipe: a branching structure, a growth state, a pruning envelope and a foliage rule.

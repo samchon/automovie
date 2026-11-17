@@ -1,8 +1,9 @@
-import {
-  type IAutoMovieCrowdAgent,
-  steerAutoMovieCrowd,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { steerAutoMovieCrowd } from "@automovie/engine";
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieSteerCrowd,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -46,7 +47,7 @@ export function test_engine_steer_crowd(): void {
   ): IAutoMovieCrowdAgent => ({ at, goal, radius: R, speed: v, start: 0 });
   const point = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   const gap = (
-    result: steerAutoMovieCrowd.IResult,
+    result: IAutoMovieSteerCrowd.IResult,
     n: number,
     t: number,
   ): number => {
@@ -66,7 +67,7 @@ export function test_engine_steer_crowd(): void {
     agent(point(0, 0), ends[0]!),
     agent(point(0.01, 10), ends[1]!),
   ];
-  const headOn: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+  const headOn: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
     agents: pair,
     from: 0,
     to: 14,
@@ -102,7 +103,7 @@ export function test_engine_steer_crowd(): void {
       ),
     );
   }
-  const crossing: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+  const crossing: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
     agents: flows,
     from: 0,
     to: 30,
@@ -145,7 +146,7 @@ export function test_engine_steer_crowd(): void {
       ),
     );
   }
-  const ttc = (result: steerAutoMovieCrowd.IResult | null): number => {
+  const ttc = (result: IAutoMovieSteerCrowd.IResult | null): number => {
     let close: number = 0;
     for (let i: number = 0; i < crowd.length; ++i)
       for (let j: number = i + 1; j < crowd.length; ++j)
@@ -200,7 +201,7 @@ export function test_engine_steer_crowd(): void {
     );
 
   // 4. Order independence.
-  const reversed: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+  const reversed: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
     agents: [...flows].reverse(),
     from: 0,
     to: 30,
@@ -222,7 +223,7 @@ export function test_engine_steer_crowd(): void {
       yaw: 90,
     }),
   };
-  const dodge: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+  const dodge: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
     agents: [agent(point(0, 0), point(0, 10))],
     obstacles: [box],
     from: 0,
@@ -251,7 +252,7 @@ export function test_engine_steer_crowd(): void {
       3 + p.x * Math.cos(turn) + p.z * Math.sin(turn),
       -1 - p.x * Math.sin(turn) + p.z * Math.cos(turn),
     );
-  const moved: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+  const moved: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
     agents: pair.map(
       (a: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent => ({
         ...a,

@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
@@ -7,16 +7,18 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSkeletonTopology,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
-import type { preparePoseResolution } from "./preparePoseResolution";
+import { preparePoseResolution } from "./preparePoseResolution";
 import { resolvePoseBone } from "./resolvePoseBone";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 

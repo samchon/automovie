@@ -1,14 +1,14 @@
-import type { AutoMovieConicArcField } from "./AutoMovieConicArcField";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
-
-/** Source Hessian used by the shared conic algebra. */
-type Source = AutoMovieConicFieldJet.IJet;
-
-/** Explicit numerical or source-admission failure. */
-type Failure = AutoMovieConicArcField.IFailure;
 
 /**
  * One original section field's regular station and polar partials.
@@ -26,45 +26,6 @@ type Failure = AutoMovieConicArcField.IFailure;
  */
 export namespace AutoMovieViewSectionField {
   /**
-   * Actual scalar [value,ds,dss] in regular physical station mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation Retains actual first/second station derivatives, with extent values in mm and shoulders dimensionless.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three entries match the original scalar reader's value and finite station jet.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No singular or unavailable derivative is represented by an invented zero.
-   * @evidence contracts/development/common.md#meaningful-documentation States ordering, scalar units and physical station coordinate.
-   */
-  export type IStationJet = readonly [number, number, number];
-
-  /**
-   * Radial [value,s,phi,ss,sphi,phiphi], with polar angle in radians.
-   *
-   * @evidence contracts/development/design.md#principled-representation Stores total-order-two derivatives of the same radial field, rather than source-p derivatives or a rectangular higher jet.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six entries suffice for the existing surface product rule.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No source-p/phase substitution or unused higher derivative is implied.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives ordering and physical-station/polar coordinate meanings.
-   */
-  export type IRadialJet = [number, number, number, number, number, number];
-
-  /**
-   * Immutable, value-copyable preparation of one station's original field.
-   *
-   * @evidence contracts/development/design.md#principled-representation Numeric lookup data is a primal projection of explicit source tuples from the shared geometry factory.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Source derivatives and their numeric lookup snapshot remain visible records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No callback registration or object identity selects geometry; a broken present snapshot is refused.
-   * @evidence contracts/development/common.md#meaningful-documentation States station-local ownership, immutability and equal-value copy semantics.
-   */
-  export interface IPrepared {
-    /** Distinguishes a successful preparation from a named failure. */
-    readonly kind: "prepared";
-
-    /** Actual station source tuples; p is an explicitly constant coordinate. */
-    readonly source: AutoMovieViewConic.ICurve<Source>;
-
-    /** Numeric values of that same source, without native observation partitions. */
-    readonly geometry: AutoMovieViewConic.ICurve;
-  }
-
-  /**
    * Prepare original positive extents and effective shoulders at one station.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Copies finite actual scalar jets, uses the shared auxiliary-curvature/quarter policy and projects its values once.
@@ -76,30 +37,35 @@ export namespace AutoMovieViewSectionField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns owned numeric/tuple records with no retained input arrays or algebra table.
    */
   export function prepare(
-    extents: readonly IStationJet[],
-    shoulders: readonly IStationJet[],
-  ): IPrepared | Failure {
+    extents: readonly IAutoMovieViewSectionField.IStationJet[],
+    shoulders: readonly IAutoMovieViewSectionField.IStationJet[],
+  ): IAutoMovieViewSectionField.IPrepared | IAutoMovieConicArcField.IFailure {
     if (
       !Array.isArray(extents) ||
       !Array.isArray(shoulders) ||
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       !extents.every(
-        (jet: IStationJet): boolean => stationJet(jet) && jet[0] > 0,
+        (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
+          stationJet(jet) && jet[0] > 0,
       ) ||
       !shoulders.every(
-        (jet: IStationJet): boolean =>
+        (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
           stationJet(jet) && jet[0] > 0 && jet[0] < 1,
       )
     )
       return failure(
         "A regular section field needs four finite positive extent 2-jets and four shoulder 2-jets inside (0,1).",
       );
-    const ops: AutoMovieConicFieldJet.IAlgebra<Source> =
+    const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
       AutoMovieConicFieldJet.AD;
-    const e: Source[] = extents.map(AutoMovieConicFieldJet.fromStation);
-    const r: Source[] = shoulders.map(AutoMovieConicFieldJet.fromStation);
-    const source: AutoMovieViewConic.ICurve<Source> =
+    const e: IAutoMovieConicFieldJet.IJet[] = extents.map(
+      AutoMovieConicFieldJet.fromStation,
+    );
+    const r: IAutoMovieConicFieldJet.IJet[] = shoulders.map(
+      AutoMovieConicFieldJet.fromStation,
+    );
+    const source: IAutoMovieViewConic.ICurve<IAutoMovieConicFieldJet.IJet> =
       AutoMovieConicPreparation.source(e, r);
     if (source.failure !== null) return failure(source.failure);
     return {
@@ -120,12 +86,15 @@ export namespace AutoMovieViewSectionField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses numeric phase jets and log curvature from the same descriptor; no AD occurs inside inverse iterations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh six-number tuple or named failure and stores no query state.
    */
-  export function read(prepared: IPrepared, phi: number): IRadialJet | Failure {
+  export function read(
+    prepared: IAutoMovieViewSectionField.IPrepared,
+    phi: number,
+  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     if (fault !== null) return failure(fault);
     if (!Number.isFinite(phi))
       return failure("The section field requires a finite polar phase.");
-    const ray: AutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
+    const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
       prepared.geometry,
       phi,
     );
@@ -152,9 +121,9 @@ export namespace AutoMovieViewSectionField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh radial tuple or named failure and retains no descriptor/history/cache.
    */
   export function readRay(
-    prepared: IPrepared,
-    ray: AutoMovieViewConic.IRay,
-  ): IRadialJet | Failure {
+    prepared: IAutoMovieViewSectionField.IPrepared,
+    ray: IAutoMovieViewConic.IRay,
+  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     return fault === null
       ? AutoMovieViewSectionReading.evaluate(prepared, ray)
@@ -163,14 +132,14 @@ export namespace AutoMovieViewSectionField {
 }
 
 /** Convert numerical admission into the existing named failure record. */
-function failure(detail: string): Failure {
+function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
 /** Actual regular station jets contain three finite scalars. */
 function stationJet(
   value: unknown,
-): value is AutoMovieViewSectionField.IStationJet {
+): value is IAutoMovieViewSectionField.IStationJet {
   return (
     Array.isArray(value) && value.length === 3 && value.every(Number.isFinite)
   );

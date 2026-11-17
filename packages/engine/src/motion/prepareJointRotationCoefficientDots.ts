@@ -1,21 +1,24 @@
 import type {
-  IAutoMovieJointAxes, IAutoMovieJointPose,
+  IAutoMovieHumanTrunkSolver,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePrepareJointRotationCoefficientDots,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import type { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { bilinearQuaternionSwivelRoots } from "../math/bilinearQuaternionSwivelRoots";
 import { prepareFiniteQuaternionDot } from "../math/prepareFiniteQuaternionDot";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
 
 /** The inverse owner's three clinical coordinates, with no alternate axis representation. */
 type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
 
-/** One fixed coefficient's four-term dot reader, with its existing finite-input premise. */
-type IDot = (target: IAutoMovieQuaternion) => number;
+/** The interface contract (`IAutoMoviePrepareJointRotationCoefficientDots.IDot`). */
+type IDot = IAutoMoviePrepareJointRotationCoefficientDots.IDot;
 
 /** Actual fixed-rig inputs, already selected by the projector's box eligibility gate. */
 interface IProps {
@@ -77,8 +80,8 @@ interface IVariant {
 export function prepareJointRotationCoefficientDots(
   props: IProps,
 ): prepareJointRotationCoefficientDots.IReader {
-  const fixed: Partial<Record<ClinicalAxis, IFixed>> = {};
-  const nullable: IFixed[] = [];
+  const fixed: Partial<Record<ClinicalAxis, IAutoMovieHumanTrunkSolver.IFixed>> = {};
+  const nullable: IAutoMovieHumanTrunkSolver.IFixed[] = [];
   for (const axis of props.order)
     if (!props.mobile.includes(axis)) {
       const direction: IAutoMovieJointAxes[ClinicalAxis] = props.basis[axis];
@@ -86,7 +89,7 @@ export function prepareJointRotationCoefficientDots(
       const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(direction, angle);
       const mayRest: boolean = props.immobile.includes(axis);
       const bit: number = mayRest && !Object.is(angle, 0) ? 1 << nullable.length : 0;
-      const row: IFixed = { axis, factor, bit };
+      const row: IAutoMovieHumanTrunkSolver.IFixed = { axis, factor, bit };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
       if (Number.isFinite(angle))
@@ -103,7 +106,7 @@ export function prepareJointRotationCoefficientDots(
         let product: IAutoMovieQuaternion = Quaternion.identity();
         for (const axis of props.order) {
           const index: number = props.mobile.indexOf(axis);
-          const row: IFixed | undefined = fixed[axis];
+          const row: IAutoMovieHumanTrunkSolver.IFixed | undefined = fixed[axis];
           const factor: IAutoMovieQuaternion = index < 0
             ? (mode & row!.bit) === 0 ? row!.factor
               : (row!.rest ??= Quaternion.fromAxisAngle(props.basis[axis], 0))
@@ -153,12 +156,6 @@ export function prepareJointRotationCoefficientDots(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Proposals certify neither ROM nor a global weighted optimum. The actual IK consumer must clamp and verify FK/current goals and fall back for unsupported or undecidable inputs.
  */
 export namespace prepareJointRotationCoefficientDots {
-  /** Fixed-rig readers; query inputs are borrowed only until return. */
-  export interface IReader {
-    /** Original four coefficient-dot callables for this fixed null/numeric mode. */
-    (reference: IAutoMovieJointPose): readonly IDot[];
-    /** Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline. */
-    swivels(reference: IAutoMovieJointPose, cosine: IAutoMovieQuaternion,
-      sine: IAutoMovieQuaternion): ReturnType<typeof bilinearQuaternionSwivelRoots>;
-  }
+  /** The interface contract (`IAutoMoviePrepareJointRotationCoefficientDots.IReader`). */
+  export type IReader = IAutoMoviePrepareJointRotationCoefficientDots.IReader;
 }

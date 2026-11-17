@@ -1,4 +1,4 @@
-import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
+import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
 /** Admit the original actual frame reads only when a nonnull angle uses them. */
 const assertAxisFrame: (

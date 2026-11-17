@@ -1,6 +1,7 @@
+import type { IAutoMovieLoftRelief } from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
@@ -187,7 +188,11 @@ export namespace FamilyConicRelief {
    * @param rows Observed sections; each is cast in its own plane along the window's axis.
    * @param observed Heights observed directly at chart points, beside or instead of the sections.
    */
-  export function fit(window: IWindow, rows: readonly IRow[], observed: readonly IObserved[] = []): IResult {
+  export function fit(
+    window: IWindow,
+    rows: readonly IRow[],
+    observed: readonly IObserved[] = [],
+  ): IResult {
     const span: number = window.phases[1] - window.phases[0];
     const R: number = window.rows;
     const Cn: number = window.columns;
@@ -198,77 +203,183 @@ export namespace FamilyConicRelief {
     let unknowns: number = 0;
     for (let r: number = 3; r < R - 3; ++r)
       if (window.periodic === true)
-        for (let c: number = 0; c < Cn; ++c) slot[r * Cn + c] = c >= Cn - 3 ? slot[r * Cn + c - (Cn - 3)]! : unknowns++;
+        for (let c: number = 0; c < Cn; ++c)
+          slot[r * Cn + c] =
+            c >= Cn - 3 ? slot[r * Cn + c - (Cn - 3)]! : unknowns++;
       else
         for (let c: number = 3; c < Cn - 3; ++c) {
           const twin: number = r * Cn + (Cn - 1 - c);
-          slot[r * Cn + c] = window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
+          slot[r * Cn + c] =
+            window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
         }
 
     // Observations: for each section inside the window, the along-axis height at phases across the window.
-    const samples: { weights: [number, number][]; target: number; heldout: boolean; weight: number }[] = [];
+    const samples: {
+      weights: [number, number][];
+      target: number;
+      heldout: boolean;
+      weight: number;
+    }[] = [];
     let deepest: number = 0;
     const phases: number = (Cn - 3) * PER_SPAN;
 
     // The share of a height the window takes at a station and a phase: a smooth step over each faded edge.
     const share = (s: number, phi: number): number => {
-      const step = (x: number): number => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+      const step = (x: number): number =>
+        x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
       const [low, high]: [number, number] = window.fade ?? [0, 0];
       const [first, last]: [number, number] = window.fadePhase ?? [0, 0];
-      return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
+      return (
+        (low > 0 ? step((s - window.stations[0]) / low) : 1) *
+        (high > 0 ? step((window.stations[1] - s) / high) : 1) *
+        (first > 0 ? step((phi - window.phases[0]) / first) : 1) *
+        (last > 0 ? step((window.phases[1] - phi) / last) : 1)
+      );
     };
     // `--relief-dump=<directory>` with `--relief-dump-names=<name>,...`: every cast of the named windows written as `<name>.samples.tsv`
     // (station, phase, the height asked for, the share, the hold, the height fitted, the weight a neighbour's footprint leaves it, the angle the section plane meets the skin at where the
     // window reads the skin's rise, and why a cast was left unobserved), to read a net's
     // misfit sample by sample on the failing place and its neighbours.
-    const dumpDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump="))?.slice("--relief-dump=".length);
-    const dumped: boolean = dumpDir !== undefined && (process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump-names="))?.slice("--relief-dump-names=".length).split(",") ?? []).includes(window.name);
-    const records: { s: number; phi: number; heldout: boolean; why?: string; along?: number; landing?: C.P; meets?: number | null; share?: number; held?: number; target?: number; sample?: number }[] = [];
-    const sine: number = window.graze === undefined ? 0 : Math.sin((window.graze * Math.PI) / 180);
+    const dumpDir: string | undefined = process.argv
+      .find((argument: string): boolean =>
+        argument.startsWith("--relief-dump="),
+      )
+      ?.slice("--relief-dump=".length);
+    const dumped: boolean =
+      dumpDir !== undefined &&
+      (
+        process.argv
+          .find((argument: string): boolean =>
+            argument.startsWith("--relief-dump-names="),
+          )
+          ?.slice("--relief-dump-names=".length)
+          .split(",") ?? []
+      ).includes(window.name);
+    const records: {
+      s: number;
+      phi: number;
+      heldout: boolean;
+      why?: string;
+      along?: number;
+      landing?: C.P;
+      meets?: number | null;
+      share?: number;
+      held?: number;
+      target?: number;
+      sample?: number;
+    }[] = [];
+    const sine: number =
+      window.graze === undefined ? 0 : Math.sin((window.graze * Math.PI) / 180);
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
-      const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
+      const [iu, wu] = basis(
+        ((row.s - window.stations[0]) /
+          (window.stations[1] - window.stations[0])) *
+          (R - 3),
+        R,
+      );
       for (let k: number = 1; k < phases; ++k) {
         const offset: number = (span * k) / phases;
         const phi: number = window.phases[0] + offset;
 
         // The cast's direction at this phase: the fixed axis, or the axis turned about the window's middle phase.
         const turned: number = phi - (window.phases[0] + span / 2);
-        const axis: C.P = row.turn === undefined ? row.axis : [Math.cos(turned) * row.axis[0] + Math.sin(turned) * row.turn[0], Math.cos(turned) * row.axis[1] + Math.sin(turned) * row.turn[1]];
+        const axis: C.P =
+          row.turn === undefined
+            ? row.axis
+            : [
+                Math.cos(turned) * row.axis[0] + Math.sin(turned) * row.turn[0],
+                Math.cos(turned) * row.axis[1] + Math.sin(turned) * row.turn[1],
+              ];
         const inPlane: number = Math.hypot(axis[0], axis[1]);
 
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
-        if (Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) / inPlane < FACING) {
-          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why: "facing" });
+        if (
+          Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) /
+            inPlane <
+          FACING
+        ) {
+          if (dumped)
+            records.push({
+              s: row.s,
+              phi,
+              heldout: row.heldout,
+              why: "facing",
+            });
           continue;
         }
         const from: C.P = row.wall(window.phases[0] + offset);
         const direction: C.P = [axis[0] / inPlane, axis[1] / inPlane];
-        const hit: { along: number; normal: C.P } | null = crossing(row.skin, from, direction);
+        const hit: { along: number; normal: C.P } | null = crossing(
+          row.skin,
+          from,
+          direction,
+        );
         if (hit === null) {
-          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why: "miss" });
+          if (dumped)
+            records.push({ s: row.s, phi, heldout: row.heldout, why: "miss" });
           continue;
         }
         const along: number = hit.along;
-        const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
-        const portion = (value: boolean | number | undefined): number => (value === true ? 1 : typeof value === "number" ? Math.min(1, Math.max(0, value)) : 0);
-        const held: number = Math.max(portion(row.hold?.(landing)), window.holdLanding === true ? 0 : portion(row.hold?.(from)));
+        const landing: C.P = [
+          from[0] + (along * axis[0]) / inPlane,
+          from[1] + (along * axis[1]) / inPlane,
+        ];
+        const portion = (value: boolean | number | undefined): number =>
+          value === true
+            ? 1
+            : typeof value === "number"
+              ? Math.min(1, Math.max(0, value))
+              : 0;
+        const held: number = Math.max(
+          portion(row.hold?.(landing)),
+          window.holdLanding === true ? 0 : portion(row.hold?.(from)),
+        );
         // The skin's rise along the station where the cast lands, and the angle at which the section plane meets the skin there, degrees.
-        const rise: number | null = row.slope === undefined ? null : row.slope(landing, hit.normal);
-        const meets: number | null = rise === null ? null : (Math.atan2(1, Math.abs(rise)) * 180) / Math.PI;
+        const rise: number | null =
+          row.slope === undefined ? null : row.slope(landing, hit.normal);
+        const meets: number | null =
+          rise === null
+            ? null
+            : (Math.atan2(1, Math.abs(rise)) * 180) / Math.PI;
         const why: string | undefined =
-          held >= 1 ? undefined
-          : window.reach !== undefined && Math.abs(along) / inPlane > window.reach ? "reach"
-          : row.open?.(landing) === true || row.open?.(landing) === 1 ? "open"
-          : window.graze !== undefined && rise !== null && Math.abs(direction[0] * hit.normal[0] + direction[1] * hit.normal[1]) / Math.hypot(1, rise) < sine ? "graze"
-          : window.plane !== undefined && meets !== null && meets < window.plane ? "plane"
-          : undefined;
+          held >= 1
+            ? undefined
+            : window.reach !== undefined &&
+                Math.abs(along) / inPlane > window.reach
+              ? "reach"
+              : row.open?.(landing) === true || row.open?.(landing) === 1
+                ? "open"
+                : window.graze !== undefined &&
+                    rise !== null &&
+                    Math.abs(
+                      direction[0] * hit.normal[0] +
+                        direction[1] * hit.normal[1],
+                    ) /
+                      Math.hypot(1, rise) <
+                      sine
+                  ? "graze"
+                  : window.plane !== undefined &&
+                      meets !== null &&
+                      meets < window.plane
+                    ? "plane"
+                    : undefined;
         if (why !== undefined) {
-          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why, along: along / inPlane, landing, meets });
+          if (dumped)
+            records.push({
+              s: row.s,
+              phi,
+              heldout: row.heldout,
+              why,
+              along: along / inPlane,
+              landing,
+              meets,
+            });
           continue;
         }
         const taken: number = share(row.s, phi);
-        const target: number = held >= 1 ? 0 : ((1 - held) * taken * along) / inPlane;
+        const target: number =
+          held >= 1 ? 0 : ((1 - held) * taken * along) / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)
@@ -277,17 +388,52 @@ export namespace FamilyConicRelief {
             if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
           }
         deepest = Math.max(deepest, Math.abs(target));
-        if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, along: along / inPlane, landing, meets, share: taken, held, target, sample: samples.length });
+        if (dumped)
+          records.push({
+            s: row.s,
+            phi,
+            heldout: row.heldout,
+            along: along / inPlane,
+            landing,
+            meets,
+            share: taken,
+            held,
+            target,
+            sample: samples.length,
+          });
         // A landing partly on a neighbour's footprint weighs less (`IRow.open`).
-        const unseen: boolean | number | undefined = held >= 1 ? undefined : row.open?.(landing);
-        samples.push({ weights, target, heldout: row.heldout, weight: typeof unseen === "number" ? 1 - Math.min(1, Math.max(0, unseen)) : 1 });
+        const unseen: boolean | number | undefined =
+          held >= 1 ? undefined : row.open?.(landing);
+        samples.push({
+          weights,
+          target,
+          heldout: row.heldout,
+          weight:
+            typeof unseen === "number"
+              ? 1 - Math.min(1, Math.max(0, unseen))
+              : 1,
+        });
       }
     }
     for (const seen of observed) {
-      const offset: number = seen.phi - window.phases[0] - 2 * Math.PI * Math.floor((seen.phi - window.phases[0]) / (2 * Math.PI));
-      if (seen.s <= window.stations[0] || seen.s >= window.stations[1] || offset >= span) continue;
-      if (window.reach !== undefined && Math.abs(seen.target) > window.reach) continue;
-      const [iu, wu] = basis(((seen.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
+      const offset: number =
+        seen.phi -
+        window.phases[0] -
+        2 * Math.PI * Math.floor((seen.phi - window.phases[0]) / (2 * Math.PI));
+      if (
+        seen.s <= window.stations[0] ||
+        seen.s >= window.stations[1] ||
+        offset >= span
+      )
+        continue;
+      if (window.reach !== undefined && Math.abs(seen.target) > window.reach)
+        continue;
+      const [iu, wu] = basis(
+        ((seen.s - window.stations[0]) /
+          (window.stations[1] - window.stations[0])) *
+          (R - 3),
+        R,
+      );
       const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
       const weights: [number, number][] = [];
       for (let a: number = 0; a < 4; ++a)
@@ -296,60 +442,128 @@ export namespace FamilyConicRelief {
           if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
         }
       // A height cast in space fades over the window's edges as a section's does, at its phase within the window.
-      const target: number = share(seen.s, window.phases[0] + offset) * seen.target;
+      const target: number =
+        share(seen.s, window.phases[0] + offset) * seen.target;
       deepest = Math.max(deepest, Math.abs(target));
       samples.push({ weights, target, heldout: seen.heldout, weight: 1 });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.
-    const A: number[][] = Array.from({ length: unknowns }, (): number[] => new Array<number>(unknowns).fill(0));
+    const A: number[][] = Array.from({ length: unknowns }, (): number[] =>
+      new Array<number>(unknowns).fill(0),
+    );
     const b: number[] = new Array<number>(unknowns).fill(0);
     for (const sample of samples) {
       if (sample.heldout) continue;
       for (const [i, wi] of sample.weights) {
         b[i]! += sample.weight * wi * sample.target;
-        for (const [j, wj] of sample.weights) A[i]![j]! += sample.weight * wi * wj;
+        for (const [j, wj] of sample.weights)
+          A[i]![j]! += sample.weight * wi * wj;
       }
     }
-    const fair: number = FAIR * Math.max(1, samples.length / Math.max(1, unknowns));
+    const fair: number =
+      FAIR * Math.max(1, samples.length / Math.max(1, unknowns));
     const penalise = (cells: number[]): void => {
       const terms: [number, number][] = [];
       [1, -2, 1].forEach((w: number, k: number): void => {
         if (slot[cells[k]!]! >= 0) terms.push([slot[cells[k]!]!, w]);
       });
-      for (const [i, wi] of terms) for (const [j, wj] of terms) A[i]![j]! += fair * wi * wj;
+      for (const [i, wi] of terms)
+        for (const [j, wj] of terms) A[i]![j]! += fair * wi * wj;
     };
     for (let r: number = 0; r < R; ++r)
       for (let c: number = 0; c < Cn; ++c) {
-        if (r + 2 < R) penalise([r * Cn + c, (r + 1) * Cn + c, (r + 2) * Cn + c]);
+        if (r + 2 < R)
+          penalise([r * Cn + c, (r + 1) * Cn + c, (r + 2) * Cn + c]);
         if (c + 2 < Cn) penalise([r * Cn + c, r * Cn + c + 1, r * Cn + c + 2]);
       }
     for (let i: number = 0; i < unknowns; ++i) A[i]![i]! += 1e-9;
     const solved: number[] | null = F.solve(A, b);
-    if (solved === null) throw new Error("relief " + window.name + ": the net is not determined by its observations");
-    const heights: number[] = slot.map((at: number): number => (at >= 0 ? Math.round(solved[at]! * 100) / 100 : 0));
+    if (solved === null)
+      throw new Error(
+        "relief " +
+          window.name +
+          ": the net is not determined by its observations",
+      );
+    const heights: number[] = slot.map((at: number): number =>
+      at >= 0 ? Math.round(solved[at]! * 100) / 100 : 0,
+    );
     let trainMaxMm: number = 0;
     let heldMaxMm: number = 0;
     for (const sample of samples) {
-      const miss: number = Math.abs(sample.weights.reduce((sum: number, [i, w]: [number, number]): number => sum + w * Math.round(solved[i]! * 100) / 100, 0) - sample.target);
+      const miss: number = Math.abs(
+        sample.weights.reduce(
+          (sum: number, [i, w]: [number, number]): number =>
+            sum + (w * Math.round(solved[i]! * 100)) / 100,
+          0,
+        ) - sample.target,
+      );
       if (sample.heldout) heldMaxMm = Math.max(heldMaxMm, miss);
       else trainMaxMm = Math.max(trainMaxMm, miss);
     }
     if (dumped) {
-      const fitted = (i: number): number => samples[i]!.weights.reduce((sum: number, [j, w]: [number, number]): number => sum + w * Math.round(solved[j]! * 100) / 100, 0);
+      const fitted = (i: number): number =>
+        samples[i]!.weights.reduce(
+          (sum: number, [j, w]: [number, number]): number =>
+            sum + (w * Math.round(solved[j]! * 100)) / 100,
+          0,
+        );
       fs.mkdirSync(dumpDir!, { recursive: true });
       // One tab-separated line a cast, so a table reader streams it.
-      const cell = (x: number | null | undefined, digits: number): string => (x === undefined || x === null ? "" : x.toFixed(digits));
-      const lines: string[] = ["s\tphi\theldout\twhy\talong\tu\tv\tmeets\tshare\theld\ttarget\tfitted\tweight"];
+      const cell = (x: number | null | undefined, digits: number): string =>
+        x === undefined || x === null ? "" : x.toFixed(digits);
+      const lines: string[] = [
+        "s\tphi\theldout\twhy\talong\tu\tv\tmeets\tshare\theld\ttarget\tfitted\tweight",
+      ];
       for (const record of records)
-        lines.push([cell(record.s, 2), cell(record.phi, 4), record.heldout ? "1" : "0", record.why ?? "", cell(record.along, 3), cell(record.landing?.[0], 2), cell(record.landing?.[1], 2), cell(record.meets, 1), cell(record.share, 3), cell(record.held, 3), cell(record.target, 3), record.sample === undefined ? "" : cell(fitted(record.sample), 3), record.sample === undefined ? "" : cell(samples[record.sample]!.weight, 3)].join("\t"));
-      fs.writeFileSync(path.join(dumpDir!, window.name + ".samples.tsv"), lines.join("\n") + "\n");
+        lines.push(
+          [
+            cell(record.s, 2),
+            cell(record.phi, 4),
+            record.heldout ? "1" : "0",
+            record.why ?? "",
+            cell(record.along, 3),
+            cell(record.landing?.[0], 2),
+            cell(record.landing?.[1], 2),
+            cell(record.meets, 1),
+            cell(record.share, 3),
+            cell(record.held, 3),
+            cell(record.target, 3),
+            record.sample === undefined ? "" : cell(fitted(record.sample), 3),
+            record.sample === undefined
+              ? ""
+              : cell(samples[record.sample]!.weight, 3),
+          ].join("\t"),
+        );
+      fs.writeFileSync(
+        path.join(dumpDir!, window.name + ".samples.tsv"),
+        lines.join("\n") + "\n",
+      );
     }
-    return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
+    return {
+      relief: {
+        name: window.name,
+        stations: window.stations,
+        phases: window.phases,
+        axis: window.axis,
+        ...(window.turn === undefined ? {} : { turn: window.turn }),
+        rows: R,
+        columns: Cn,
+        heights,
+      },
+      scalars: unknowns,
+      deepestMm: deepest,
+      trainMaxMm,
+      heldMaxMm,
+    };
   }
 
   /** Signed distance from a chart point along a unit direction to the nearest crossing of a polygon; null when the line misses it. */
-  export function cast(polygon: readonly C.P[], from: C.P, direction: C.P): number | null {
+  export function cast(
+    polygon: readonly C.P[],
+    from: C.P,
+    direction: C.P,
+  ): number | null {
     return crossing(polygon, from, direction)?.along ?? null;
   }
 
@@ -363,7 +577,11 @@ export namespace FamilyConicRelief {
   }
 
   /** The nearest crossing as `cast` finds it, with the unit normal of the polygon's edge there. */
-  export function crossing(polygon: readonly C.P[], from: C.P, direction: C.P): ICrossing | null {
+  export function crossing(
+    polygon: readonly C.P[],
+    from: C.P,
+    direction: C.P,
+  ): ICrossing | null {
     let best: number | null = null;
     let normal: C.P = [0, 0];
     for (let i: number = 0; i < polygon.length; ++i) {
@@ -373,7 +591,8 @@ export namespace FamilyConicRelief {
       const den: number = direction[0] * edge[1] - direction[1] * edge[0];
       if (den === 0) continue;
       const delta: C.P = [a[0] - from[0], a[1] - from[1]];
-      const along: number = (delta[0] * direction[1] - delta[1] * direction[0]) / den;
+      const along: number =
+        (delta[0] * direction[1] - delta[1] * direction[0]) / den;
       if (along < 0 || along > 1) continue;
       const t: number = (delta[0] * edge[1] - delta[1] * edge[0]) / den;
       if (best === null || Math.abs(t) < Math.abs(best)) {
@@ -389,6 +608,14 @@ export namespace FamilyConicRelief {
   function basis(x: number, count: number): [number, number[]] {
     const i: number = Math.min(count - 4, Math.max(0, Math.floor(x)));
     const f: number = x - i;
-    return [i, [(1 - f) ** 3 / 6, (3 * f ** 3 - 6 * f ** 2 + 4) / 6, (-3 * f ** 3 + 3 * f ** 2 + 3 * f + 1) / 6, f ** 3 / 6]];
+    return [
+      i,
+      [
+        (1 - f) ** 3 / 6,
+        (3 * f ** 3 - 6 * f ** 2 + 4) / 6,
+        (-3 * f ** 3 + 3 * f ** 2 + 3 * f + 1) / 6,
+        f ** 3 / 6,
+      ],
+    ];
   }
 }

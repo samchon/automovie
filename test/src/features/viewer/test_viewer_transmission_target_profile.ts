@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import { readAutoMovieTransmissionTextureTarget } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
@@ -108,7 +109,7 @@ export async function test_viewer_transmission_target_profile(): Promise<void> {
     { z: "12", w: "8" },
     { z: NaN, w: Infinity },
   ]) {
-    const unknown: import("@automovie/engine").IAutoMovieRenderTextureTarget =
+    const unknown: IAutoMovieRenderTextureTarget =
       readAutoMovieTransmissionTextureTarget(
         "view",
         "shot",

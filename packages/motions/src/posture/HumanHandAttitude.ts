@@ -1,8 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieJointRotationDomain,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   clampJointToSkeleton,
@@ -12,23 +10,26 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationDomain,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "./HumanHand";
-import type { IHumanPosture } from "./IHumanPosture";
+import { readHumanBone } from "../body/readHumanBone";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * A hand held at a world attitude on the arm as it stands: what a carried or
@@ -77,13 +78,13 @@ export namespace HumanHandAttitude {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local lazy FK getter owns O(B) successful scalar snapshots, and one wrist reader borrows fixed rig metadata plus its rest inverse/clamp closure until return or throw. Neither reader enters the returned posture, a plan, body memory or callback; fresh joints/tuples retain their existing output ownership.
    */
   export function held(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
     const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
     const hand: AutoMovieHumanoidBone = `${side}Hand`;
@@ -107,7 +108,7 @@ export namespace HumanHandAttitude {
       );
       return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
     };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
 
     // An arm already written as joints keeps the shoulder it was written
     // with: only the forearm's twist and the wrist are this solve's. Read
@@ -121,10 +122,10 @@ export namespace HumanHandAttitude {
     const written: (
       forearm: readonly [number, number, number],
       wrist: readonly [number, number, number],
-    ) => IHumanPosture = (
+    ) => IAutoMovieMotionHumanPosture = (
       forearm: readonly [number, number, number],
       wrist: readonly [number, number, number],
-    ): IHumanPosture => ({
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       joints: {
         ...posture.joints,
@@ -135,9 +136,9 @@ export namespace HumanHandAttitude {
       limbs,
     });
     const bones: (
-      at: IHumanPosture,
+      at: IAutoMovieMotionHumanPosture,
     ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
-      at: IHumanPosture,
+      at: IAutoMovieMotionHumanPosture,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body,
@@ -221,7 +222,7 @@ export namespace HumanHandAttitude {
  * with first-bone rest/constraint and last-declared axes precedence.
  */
 function wrist(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   hand: AutoMovieHumanoidBone,
 ): (
   forearm: IAutoMovieQuaternion,
@@ -265,7 +266,7 @@ function wrist(
     clamp ??= clampJointToSkeleton.resolved(
       hand,
       found,
-      (): swingTwistRange.IJoint | undefined =>
+      (): IAutoMovieJointRotationFrame | undefined =>
         domain!.constraint === null ||
         domain!.constraint.swingTwist === undefined ||
         domain!.constraint.swingTwist === null

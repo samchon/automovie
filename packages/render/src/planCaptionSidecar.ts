@@ -1,21 +1,17 @@
-import {
+import { playbackCursor, sequenceTimeline } from "@automovie/engine";
+import type {
+  IAutoMovieBeatCaption,
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+  IAutoMoviePlanCaptionSidecarProps,
   IAutoMoviePlaybackSample,
   IAutoMoviePlaybackTimeline,
-  playbackCursor,
-  sequenceTimeline,
-} from "@automovie/engine";
-import {
   IAutoMovieScript,
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { IAutoMovieBeatCaption } from "./caption/IAutoMovieBeatCaption.js";
 import { beatCaptions } from "./caption/beatCaptions.js";
-import {
-  IAutoMovieCaptionEntry,
-  IAutoMovieCaptionSidecar,
-} from "./captionSidecar.js";
 import { frameTimes } from "./frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 
@@ -34,26 +30,11 @@ import { shotBeat } from "./shotBeat.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The planner computes one sidecar per call from caller-supplied values and coordinates no phases; a host that also plans the render recomputes the shared schedule, which is cheap arithmetic.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frame schedule, cursor and beat index are local and released on return; the returned sidecar, owned by the caller, holds one entry per run of consecutive frames of one beat, at most F.
  */
-export const planCaptionSidecar: (props: {
-  script: IAutoMovieScript;
-  sequence: IAutoMovieSequence;
-  shots: IAutoMovieShot[];
-  fps: number;
-}) => IAutoMovieCaptionSidecar = (props: {
-  /** The script whose screenplay tree carries captions and scene slugs. */
-  script: IAutoMovieScript;
-
-  /** The cut being rendered. */
-  sequence: IAutoMovieSequence;
-
-  /** The shots the cut references, each id at most once. */
-  shots: IAutoMovieShot[];
-
-  /**
-   * Output frames per second: the render clock, which may differ from `sequence.fps`.
-   */
-  fps: number;
-}): IAutoMovieCaptionSidecar => {
+export const planCaptionSidecar: (
+  props: IAutoMoviePlanCaptionSidecarProps,
+) => IAutoMovieCaptionSidecar = (
+  props: IAutoMoviePlanCaptionSidecarProps,
+): IAutoMovieCaptionSidecar => {
   const script: IAutoMovieScript = props.script;
   const sequence: IAutoMovieSequence = props.sequence;
   const shots: IAutoMovieShot[] = props.shots;

@@ -1,4 +1,5 @@
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
+
 import type { staggerRecover } from "./staggerRecover";
 
 /**
@@ -21,8 +22,8 @@ import type { staggerRecover } from "./staggerRecover";
 export function staggerContacts(
   recovery: staggerRecover.IRecovery,
   duration: number,
-): IHumanContactWindow[] {
-  const out: IHumanContactWindow[] = [];
+): IAutoMovieMotionHumanContactWindow[] {
+  const out: IAutoMovieMotionHumanContactWindow[] = [];
   for (const side of ["left", "right"] as const) {
     let from: number = 0;
     for (const step of recovery.steps) {

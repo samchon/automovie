@@ -1,9 +1,9 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 
 /**
  * A hand-made motion of bare joint centres for the audit's tests: each named

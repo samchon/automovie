@@ -1,5 +1,9 @@
 import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
-import type { IAutoMovieTextureReference } from "@automovie/interface";
+import type {
+  IAutoMovieRenderBudgetAssessment,
+  IAutoMovieRenderTextureSource,
+  IAutoMovieTextureReference,
+} from "@automovie/interface";
 import {
   AutoMovieResourceRetirementScope,
   AutoMovieTextureCache,
@@ -52,9 +56,9 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     });
   const inspect: (
     cache: AutoMovieTextureCache,
-  ) => import("@automovie/render").IAutoMovieRenderBudgetAssessment = (
+  ) => IAutoMovieRenderBudgetAssessment = (
     cache: AutoMovieTextureCache,
-  ): import("@automovie/render").IAutoMovieRenderBudgetAssessment =>
+  ): IAutoMovieRenderBudgetAssessment =>
     assessAutoMovieRenderBudget({
       compiled,
       shot: "owned-cache",
@@ -74,9 +78,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     });
   const refusal: (
     assessment: ReturnType<
-      (
-        cache: AutoMovieTextureCache,
-      ) => import("@automovie/render").IAutoMovieRenderBudgetAssessment
+      (cache: AutoMovieTextureCache) => IAutoMovieRenderBudgetAssessment
     >,
   ) => string | null = (
     assessment: ReturnType<typeof inspect>,
@@ -111,9 +113,8 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     cache
       .describeSources()
       .map(
-        (
-          row: import("@automovie/engine").IAutoMovieRenderTextureSource,
-        ): boolean | undefined => row.allocationStateKnown,
+        (row: IAutoMovieRenderTextureSource): boolean | undefined =>
+          row.allocationStateKnown,
       ),
     [true, true],
   );
@@ -150,9 +151,8 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     cache
       .describeSources()
       .map(
-        (
-          row: import("@automovie/engine").IAutoMovieRenderTextureSource,
-        ): boolean | undefined => row.allocationStateKnown,
+        (row: IAutoMovieRenderTextureSource): boolean | undefined =>
+          row.allocationStateKnown,
       ),
     [true, true],
   );
@@ -180,8 +180,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
       ),
     [(16 + 4 + 1) * 4, (16 + 4 + 1) * 4],
   );
-  const supported: import("@automovie/render").IAutoMovieRenderBudgetAssessment =
-    inspect(cache);
+  const supported: IAutoMovieRenderBudgetAssessment = inspect(cache);
   TestValidator.equals(
     "supported first preflight bounds source and lookup",
     supported.inventory!.totals.textureBytes,
@@ -194,8 +193,7 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     [first.map!.generateMipmaps, second.map!.generateMipmaps],
     [true, true],
   );
-  const uncertain: import("@automovie/render").IAutoMovieRenderBudgetAssessment =
-    inspect(cache);
+  const uncertain: IAutoMovieRenderBudgetAssessment = inspect(cache);
   TestValidator.equals(
     "mutable-original witness has no byte or count claim",
     [
@@ -216,9 +214,8 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     cache
       .describeSources()
       .map(
-        (
-          row: import("@automovie/engine").IAutoMovieRenderTextureSource,
-        ): boolean | undefined => row.allocationStateKnown,
+        (row: IAutoMovieRenderTextureSource): boolean | undefined =>
+          row.allocationStateKnown,
       ),
     [false, false],
   );
@@ -363,9 +360,8 @@ export async function test_viewer_texture_cache_allocation_authority(): Promise<
     aliasOwner
       .describeSources()
       .map(
-        (
-          row: import("@automovie/engine").IAutoMovieRenderTextureSource,
-        ): boolean | undefined => row.allocationStateKnown,
+        (row: IAutoMovieRenderTextureSource): boolean | undefined =>
+          row.allocationStateKnown,
       ),
     [true],
   );

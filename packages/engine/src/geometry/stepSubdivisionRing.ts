@@ -1,5 +1,8 @@
-import { ISubdivisionRing } from "./ISubdivisionRing";
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type {
+  IAutoMovieSubdivisionRing,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
@@ -26,8 +29,8 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a ring of the same size and retains nothing.
  */
 export const stepSubdivisionRing = (
-  ring: ISubdivisionRing,
-): ISubdivisionRing => {
+  ring: IAutoMovieSubdivisionRing,
+): IAutoMovieSubdivisionRing => {
   const edgeCount: number = ring.sharpness.length;
   const faceCount: number = ring.diagonals.length / 3;
   const diagonals: number[] = new Array<number>(faceCount * 3);
@@ -56,7 +59,7 @@ export const stepSubdivisionRing = (
             (1 - smooth) * (ends / 2);
     }
   }
-  const mask: ISubdivisionVertexMask = subdivisionVertexMask(
+  const mask: IAutoMovieSubdivisionVertexMask = subdivisionVertexMask(
     ring.sharpness,
     faceCount,
   );

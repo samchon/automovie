@@ -1,6 +1,6 @@
-import { IAutoMovieDrawingConnectorPlace } from "./IAutoMovieDrawingConnectorPlace";
-import { IAutoMovieDrawingOpeningPlace } from "./IAutoMovieDrawingOpeningPlace";
-import { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
+import type { IAutoMovieDrawingConnectorPlace } from "./IAutoMovieDrawingConnectorPlace";
+import type { IAutoMovieDrawingOpeningPlace } from "./IAutoMovieDrawingOpeningPlace";
+import type { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
 
 /**
  * Where a scheduled occurrence stands, discriminated by `kind` to match the

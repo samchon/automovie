@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Seeded environmental billboard emitter with explicit transport and live-instance budgets. Fog, smoke and dust share the same bounded stream representation.
@@ -33,17 +33,32 @@ export interface IAutoMovieEffectRecipe {
   /** Bounded billboard appearance. */
   particle: {
     /** Ordered inclusive lifetime endpoints in seconds, within `[1 / 240, 30]`. */
-    lifetime: { min: number; max: number };
+    lifetime: {
+      /** Shortest sampled lifetime, seconds. */
+      min: number;
+
+      /** Longest sampled lifetime, seconds, at least min. */
+      max: number;
+    };
 
     /** Ordered inclusive world-size endpoints in metres, within `[0.01, 20]`. */
-    size: { min: number; max: number };
+    size: {
+      /** Smallest sampled billboard extent, world metres. */
+      min: number;
+
+      /** Largest sampled billboard extent, world metres, at least min. */
+      max: number;
+    };
 
     /** Exact opaque hexadecimal RGB color. */
     color: string;
 
     /** Inclusive alpha range from zero through one. */
     opacity: {
+      /** Lower unitless sampled alpha, within [0, 1]. */
       min: number;
+
+      /** Upper unitless sampled alpha, within [min, 1]. */
       max: number;
       /** Alpha over a live particle's lifetime; defaults to the original sine envelope. */ envelope?:
         | "sine"

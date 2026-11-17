@@ -1,15 +1,20 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHandoff,
+  IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import type { IAutoMoviePhysicalHandoff as Handoff } from "./IAutoMoviePhysicalHandoff";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
@@ -24,7 +29,7 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 12 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function assertPhysicalReturnPath(
-  input: Simulation.IInput,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   tick: number,
   phase: "before" | "after",
@@ -40,17 +45,20 @@ export function assertPhysicalReturnPath(
   const seconds: number = tick / nativeRate;
   const poses: Record<
     string,
-    Record<string, P.ITransform>
+    Record<string, IAutoMovieRigidTransform>
   > = Object.fromEntries(
     [...bound.segments].map(
       ([id, segments]: [string, Map<string, RigidBody>]): [
         string,
-        Record<string, P.ITransform>,
+        Record<string, IAutoMovieRigidTransform>,
       ] => [
         id,
         Object.fromEntries(
           [...segments].map(
-            ([bone, rigid]: [string, RigidBody]): [string, P.ITransform] => [
+            ([bone, rigid]: [string, RigidBody]): [
+              string,
+              IAutoMovieRigidTransform,
+            ] => [
               bone,
               {
                 position:
@@ -68,22 +76,29 @@ export function assertPhysicalReturnPath(
       ],
     ),
   );
-  const shapes: Geometry.ICollider[] = input.bodies.flatMap(
-    (body: Simulation.IBody): Geometry.ICollider[] =>
-      body.profile.segments.flatMap(
-        (segment: P.ISegment): Geometry.ICollider[] =>
-          segment.shapes.map(
-            (shape: P.IShape): Geometry.ICollider => ({
-              body: body.id,
-              bone: segment.bone,
-              shape,
-              pose: poses[body.id]![segment.bone]!,
-            }),
-          ),
-      ),
-  );
+  const shapes: IAutoMoviePreparePhysicalGeometry.ICollider[] =
+    input.bodies.flatMap(
+      (
+        body: IAutoMoviePhysicalSimulationInput.IBody,
+      ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
+        body.profile.segments.flatMap(
+          (
+            segment: IAutoMoviePhysicalSegment,
+          ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
+            segment.shapes.map(
+              (
+                shape: IAutoMoviePhysicalShape,
+              ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
+                body: body.id,
+                bone: segment.bone,
+                shape,
+                pose: poses[body.id]![segment.bone]!,
+              }),
+            ),
+        ),
+    );
   for (const body of input.bodies) {
-    const transitions: Record<string, Handoff> =
+    const transitions: Record<string, IAutoMoviePhysicalHandoff> =
       bound.handoffs.get(body.id) ?? {};
     if (!Object.keys(transitions).length) continue;
     for (const joint of body.profile.joints)
@@ -94,7 +109,7 @@ export function assertPhysicalReturnPath(
             bound.segments.get(body.id)!.get(joint.child)!.isDynamic())
         )
           continue;
-        const transition: Handoff | undefined =
+        const transition: IAutoMoviePhysicalHandoff | undefined =
           transitions[joint.child] ?? transitions[joint.parent];
         if (!transition) continue;
         const fraction: number = Math.min(
@@ -105,8 +120,8 @@ export function assertPhysicalReturnPath(
           ),
         );
         const fade: number = 2 * fraction ** 3 - 3 * fraction ** 2 + 1;
-        const parent: P.ITransform = poses[body.id]![joint.parent]!;
-        const child: P.ITransform = poses[body.id]![joint.child]!;
+        const parent: IAutoMovieRigidTransform = poses[body.id]![joint.parent]!;
+        const child: IAutoMovieRigidTransform = poses[body.id]![joint.child]!;
         const distance: number = Vector3.length(
           Vector3.subtract(
             physicalSupportPoint(parent, joint.parentFrame.position),
@@ -138,12 +153,13 @@ export function assertPhysicalReturnPath(
           throw new Error(
             `Physical return violates joint anchor envelope: ${body.id}/${joint.id} at ${seconds}: ${distance} m`,
           );
-        const relative: P.ITransform["rotation"] = Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-          ),
-          Quaternion.multiply(child.rotation, joint.childFrame.rotation),
-        );
+        const relative: IAutoMovieRigidTransform["rotation"] =
+          Quaternion.multiply(
+            Quaternion.inverse(
+              Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+            ),
+            Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+          );
         const error: number = Vector3.length(
           PhysicalRotationVector.log(
             Quaternion.multiply(
@@ -165,7 +181,7 @@ export function assertPhysicalReturnPath(
     if (phase === "after") continue;
     for (const source of shapes)
       if (source.body === body.id && transitions[source.bone]) {
-        const transition: Handoff = transitions[source.bone]!;
+        const transition: IAutoMoviePhysicalHandoff = transitions[source.bone]!;
         const fraction: number = Math.min(
           1,
           Math.max(
@@ -177,10 +193,11 @@ export function assertPhysicalReturnPath(
           input.contactTolerance! +
           body.handoffLimits!.maximumLinearError *
             (2 * fraction ** 3 - 3 * fraction ** 2 + 1);
-        const material: P.IMaterial = body.profile.materials.find(
-          (candidate: P.IMaterial): boolean =>
-            candidate.id === source.shape.material,
-        )!;
+        const material: IAutoMoviePhysicalMaterial =
+          body.profile.materials.find(
+            (candidate: IAutoMoviePhysicalMaterial): boolean =>
+              candidate.id === source.shape.material,
+          )!;
         const clearance: number =
           bound.geometry!.minimumY(source) - input.floor;
         if (clearance < -(material.maximumCompression ?? 0) - allowance)
@@ -198,21 +215,23 @@ export function assertPhysicalReturnPath(
               ))
           )
             continue;
-          const other: Simulation.IBody = input.bodies.find(
-            (candidate: Simulation.IBody): boolean =>
-              candidate.id === receiver.body,
-          )!;
+          const other: IAutoMoviePhysicalSimulationInput.IBody =
+            input.bodies.find(
+              (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+                candidate.id === receiver.body,
+            )!;
           const compression: number =
             (body.profile.materials.find(
-              (material: P.IMaterial): boolean =>
+              (material: IAutoMoviePhysicalMaterial): boolean =>
                 material.id === source.shape.material,
             )?.maximumCompression ?? 0) +
             (other.profile.materials.find(
-              (material: P.IMaterial): boolean =>
+              (material: IAutoMoviePhysicalMaterial): boolean =>
                 material.id === receiver.shape.material,
             )?.maximumCompression ?? 0);
-          const contact: ReturnType<Geometry.IQueries["contact"]> =
-            bound.geometry!.contact(source, receiver, seconds);
+          const contact: ReturnType<
+            IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+          > = bound.geometry!.contact(source, receiver, seconds);
           if (contact && contact.separation < -compression - allowance)
             throw new Error(
               `Physical return intersects receiver: ${body.id}/${source.bone} with ${other.id}/${receiver.bone} at ${seconds}: ${contact.separation} m`,

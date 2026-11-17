@@ -1,5 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanBend, type IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanBend } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -31,7 +34,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the stub and lists the 5 scenarios with their numbers.
  */
 export function test_motion_compose_bend(): void {
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     rest: new Map<string, IAutoMovieVector3>([
       ["leftUpperArm", { x: 0.2, y: 1.4, z: 0 }],
       ["rightUpperArm", { x: -0.2, y: 1.4, z: 0 }],
@@ -39,7 +42,7 @@ export function test_motion_compose_bend(): void {
       ["rightLowerLeg", { x: -0.1, y: 0.5, z: 0.02 }],
     ]),
     measure: { upperArm: 0.3 },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const at = (
     got: IAutoMovieVector3,
     x: number,
@@ -70,7 +73,12 @@ export function test_motion_compose_bend(): void {
   TestValidator.predicate(
     "hang is the default and widens by a share",
     at(AutoMovieMotionHumanBend.arm(body, turned, "left"), 0.85, 1.1, 1.68) &&
-      at(AutoMovieMotionHumanBend.hang(body, turned, "left"), 0.85, 1.1, 1.68) &&
+      at(
+        AutoMovieMotionHumanBend.hang(body, turned, "left"),
+        0.85,
+        1.1,
+        1.68,
+      ) &&
       at(
         AutoMovieMotionHumanBend.hang(body, turned, "left", 0.5),
         0.85,

@@ -5,8 +5,8 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,9 +45,10 @@ export namespace archetypeHorseRide {
   ): IAutoMovieVector3 {
     const sample: ReturnType<typeof ride.at> = ride.at(seconds);
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
-      (p: IAutoMovieModelPart): boolean => p.id === QuadrupedBody.BONES[limb][3],
+      (p: IAutoMovieModelPart): boolean =>
+        p.id === QuadrupedBody.BONES[limb][3],
     )!;
-    const shape: AutoMoviePrimitiveShape | null =
+    const shape: IAutoMoviePrimitiveShape | null =
       part.geometry.type === "primitive" ? part.geometry.shape : null;
     const half: number =
       shape !== null && (shape.type === "cylinder" || shape.type === "capsule")
@@ -57,7 +58,11 @@ export namespace archetypeHorseRide {
       sample.placement,
       Vector3.add(
         part.transform!.translation,
-        Quaternion.rotateVector(part.transform!.rotation, { x: 0, y: half, z: 0 }),
+        Quaternion.rotateVector(part.transform!.rotation, {
+          x: 0,
+          y: half,
+          z: 0,
+        }),
       ),
     );
   }
@@ -78,7 +83,11 @@ export namespace archetypeHorseRide {
       const on: number[] = footfalls(ride, limb);
       for (let i: number = 0; i + 1 < on.length; i++) {
         const gap: number = on[i + 1]! - on[i]!;
-        const landed: IAutoMovieVector3 = hoof(ride, limb, on[i]! + 0.005 * gap);
+        const landed: IAutoMovieVector3 = hoof(
+          ride,
+          limb,
+          on[i]! + 0.005 * gap,
+        );
         for (const part of [0.05, 0.1, 0.15, 0.2]) {
           const slid: number = Math.hypot(
             hoof(ride, limb, on[i]! + part * gap).x - landed.x,

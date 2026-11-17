@@ -1,12 +1,10 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionKnot,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -33,11 +31,11 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
 export function test_construction_diagnostics(): void {
   const failures: string[] = [];
   const realize: (
-    root: AutoMovieConstructionNode,
+    root: IAutoMovieConstructionNode,
   ) => IAutoMovieConstructionDiagnostic[] = (
-    root: AutoMovieConstructionNode,
+    root: IAutoMovieConstructionNode,
   ): IAutoMovieConstructionDiagnostic[] => {
-    const r: AutoMovieConstructionRealization.IRealization =
+    const r: IAutoMovieConstructionRealization.IRealization =
       realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
     return r.diagnostics;
   };
@@ -112,7 +110,7 @@ export function test_construction_diagnostics(): void {
 }
 
 /** Trees that break one premise each, with the contract and the node that must record it. */
-function broken(): [string, string, AutoMovieConstructionNode][] {
+function broken(): [string, string, IAutoMovieConstructionNode][] {
   const tube: () => IAutoMovieConstructionView =
     (): IAutoMovieConstructionView =>
       ConstructionShapes.cylinder("tube", ConstructionShapes.DOWN, 0.02, 0.1);
@@ -261,7 +259,7 @@ function broken(): [string, string, AutoMovieConstructionNode][] {
 }
 
 /** Trees the admission refuses, each with what is wrong. */
-function refused(): [string, AutoMovieConstructionNode][] {
+function refused(): [string, IAutoMovieConstructionNode][] {
   const twice: IAutoMovieConstructionJoin = ConstructionShapes.assembly(
     1,
     "left",
@@ -277,13 +275,13 @@ function refused(): [string, AutoMovieConstructionNode][] {
     ["a seed naming no face", nowhere],
     [
       "a node of an unknown kind",
-      { type: "group", name: "g" } as unknown as AutoMovieConstructionNode,
+      { type: "group", name: "g" } as unknown as IAutoMovieConstructionNode,
     ],
   ];
 }
 
 /** The assembly's beam and post with the post moved 0.2 m off the beam along `y`, seeded at a point or by a search. */
-function apart(seed: "point" | "search"): AutoMovieConstructionNode {
+function apart(seed: "point" | "search"): IAutoMovieConstructionNode {
   const beam: IAutoMovieConstructionView = ConstructionShapes.cylinder(
     "beam",
     {
@@ -333,7 +331,7 @@ function apart(seed: "point" | "search"): AutoMovieConstructionNode {
 }
 
 /** A beam of radius 0.03 m and a post of 0.02997 m crossing it square: a transversal trace whose least contact angle, acos(r / R) = 0.0447 rad at the post's sides, falls under the 0.05 rad grazing limit. */
-function even(): AutoMovieConstructionNode {
+function even(): IAutoMovieConstructionNode {
   const beam: IAutoMovieConstructionView = ConstructionShapes.cylinder(
     "beam",
     {
@@ -377,7 +375,7 @@ function even(): AutoMovieConstructionNode {
  * 0.05 m, phase 0, lifted 0.5 mm off it; the first landmark moved `offset`
  * metres along the cylinder (past the face's end when it is a metre).
  */
-function slot(count: number, offset: number): AutoMovieConstructionNode {
+function slot(count: number, offset: number): IAutoMovieConstructionNode {
   const angles: number[] = Array.from(
     { length: count },
     (_: unknown, m: number): number => (2 * Math.PI * m) / count,

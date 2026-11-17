@@ -1,35 +1,40 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
-  curlChainUntilContact,
   fitDigitToTarget,
   physicalShapeSegmentDistance,
-  type preparePoseResolution,
-  type resolveAutoMovieHumanoidSurfaces,
+  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieFitDigitToTarget,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanColliders } from "./HumanColliders";
-import { IHumanPosture } from "./IHumanPosture";
+import { HumanPosture } from "./HumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
 
 /**
  * A posture's digit goals fitted on a pose whose arms are already placed:
- * each digit with a goal, in `IHumanPosture.DIGITS` order, brings its tip or
+ * each digit with a goal, in `HumanPosture.DIGITS` order, brings its tip or
  * pad to its point by the engine's digit inverse kinematics
  * (`fitDigitToTarget`), the rest of the body held as the pose has it.
  *
@@ -72,24 +77,24 @@ export namespace HumanDigitFit {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader is created only at the first actual goal and releases with this synchronous call; a parent's supplier and reader never enter the returned pose.
    */
   export function fitted(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    digits: IHumanPosture["digits"],
+    digits: IAutoMovieMotionHumanPosture["digits"],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
     if (digits === undefined) return pose;
     const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     if (requested !== undefined) {
-      const selected: NonNullable<IHumanPosture["digits"]> = selectHumanDigitGoals(body, digits, requested);
+      const selected: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = selectHumanDigitGoals(body, digits, requested);
       if (selected !== digits) {
         poseBones(body, pose, prepared(), NO_BONES);
         digits = selected;
       }
     }
     let out: IAutoMoviePose = pose;
-    for (const digit of IHumanPosture.DIGITS) {
-      const goal: IHumanPosture.IDigitGoal | undefined = digits[digit];
+    for (const digit of HumanPosture.DIGITS) {
+      const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
       const workspace: ReturnType<typeof preparePoseResolution> = prepared();
       const side: "left" | "right" = digit.startsWith("left")
@@ -97,7 +102,7 @@ export namespace HumanDigitFit {
         : "right";
       const name: string = digit.slice(side.length);
       const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-      const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+      const region: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[
           `${name.toLowerCase()}${goal.surface === "tip" ? "Tip" : "Pad"}${Side}` as AutoMovieHumanoidRegion
         ];
@@ -105,7 +110,7 @@ export namespace HumanDigitFit {
       // A goal on a bone is read in that bone's posed frame.
       const world: { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } =
         goal.on === undefined ? goal : carried(body, out, goal.on, goal, workspace);
-      const result: fitDigitToTarget.IResult = fitDigitToTarget({
+      const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
         skeleton: body.skeleton,
         pose: out,
         topology: body.topology,
@@ -170,10 +175,10 @@ export namespace HumanDigitFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function depth(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side?: "left" | "right",
-    placed: readonly HumanColliders.IPlaced[] = HumanColliders.placed(body, bones),
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones),
   ): number {
     return side === undefined
       ? Math.max(depthAt(body, bones, placed, "left"), depthAt(body, bones, placed, "right"))
@@ -221,7 +226,7 @@ const COUPLING: number = 2 / 3;
 /** The radial extension rate soft IK is derived for, degrees per metre: 5 degrees per millimetre, #3444's third acceptance line (`fitDigitToTarget`'s `rate`). The target is eased only near full extension, with the distance traded away left in the residual; a goal on a bone, a contact, is not eased. */
 const RATE: number = 5000;
 /** A hand's digits as the rig names them, thumb first. */
-const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
+const DIGIT_NAMES: readonly IAutoMovieMotionHumanGrip.Digit[] = [
   "Thumb",
   "Index",
   "Middle",
@@ -236,11 +241,11 @@ const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
 const NO_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set();
 
 /** One hand's unchanged phalanx-depth reduction over a caller-owned body placement. */
-function depthAt(body: IHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly HumanColliders.IPlaced[], side: "left" | "right"): number {
-  const near: curlChainUntilContact.ICollider[] = nearBody(body, bones, placed, side);
+function depthAt(body: IAutoMovieMotionHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly IAutoMovieMotionHumanColliders.IPlaced[], side: "left" | "right"): number {
+  const near: IAutoMovieCurlChainUntilContact.ICollider[] = nearBody(body, bones, placed, side);
   let deepest: number = -Infinity;
   for (const digit of DIGIT_NAMES) {
-    const chain: curlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
+    const chain: IAutoMovieCurlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
     const points: IAutoMovieVector3[] = phalanges(bones, chain);
     for (const collider of near)
       for (let i: number = 1; i < points.length; i++)
@@ -253,27 +258,27 @@ function depthAt(body: IHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAu
 
 /** The body's colliders near a hand, in the world: every shape but its own hand's and forearm's whose bounding sphere lies within a hand's length of the hand. */
 const nearBody: (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  placed: readonly HumanColliders.IPlaced[],
+  placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   side: "left" | "right",
-) => curlChainUntilContact.ICollider[] = (
-  body: IHumanBody,
+) => IAutoMovieCurlChainUntilContact.ICollider[] = (
+  body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  placed: readonly HumanColliders.IPlaced[],
+  placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   side: "left" | "right",
-): curlChainUntilContact.ICollider[] => {
+): IAutoMovieCurlChainUntilContact.ICollider[] => {
   const hand: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
   return placed
     .filter(
-      (p: HumanColliders.IPlaced): boolean =>
+      (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
         !p.bone.startsWith(side) ||
         !(OWN.test(p.bone.slice(side.length)) || p.bone === `${side}LowerArm`),
     )
-    .flatMap((p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
+    .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
       p.shapes
-        .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
-          const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+        .filter((shape: IAutoMoviePhysicalShape): boolean => {
+          const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
           const centre: IAutoMovieVector3 = Vector3.add(
             p.pose.position,
             Quaternion.rotateVector(
@@ -291,8 +296,8 @@ const nearBody: (
         })
         .map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): curlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
         ),
     );
 };
@@ -300,10 +305,10 @@ const nearBody: (
 /** A digit's phalanges as the points of its joints and its tip, world metres, on posed bones. */
 const phalanges: (
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  chain: curlChainUntilContact.IChain,
+  chain: IAutoMovieCurlChainUntilContact.IChain,
 ) => IAutoMovieVector3[] = (
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  chain: curlChainUntilContact.IChain,
+  chain: IAutoMovieCurlChainUntilContact.IChain,
 ): IAutoMovieVector3[] => {
   const points: IAutoMovieVector3[] = chain.bones.map(
     (b: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -321,16 +326,16 @@ const phalanges: (
 
 /** A goal's point and normal carried from a bone's posed frame into the world. */
 const carried: (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
-  goal: IHumanPosture.IDigitGoal,
+  goal: IAutoMovieHumanDigitGoal,
   prepared: ReturnType<typeof preparePoseResolution>,
 ) => { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
-  goal: IHumanPosture.IDigitGoal,
+  goal: IAutoMovieHumanDigitGoal,
   prepared: ReturnType<typeof preparePoseResolution>,
 ): { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } => {
   const placed: IAutoMovieResolvedBone = poseBones(

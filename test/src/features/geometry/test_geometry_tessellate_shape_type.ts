@@ -1,4 +1,5 @@
-import { type ITessellation, tessellate } from "@automovie/engine";
+import { tessellate } from "@automovie/engine";
+import type { IAutoMovieTessellation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -21,7 +22,7 @@ export function test_geometry_tessellate_shape_type(): void {
   TestValidator.predicate(
     "unknown primitive shape rejects",
     throwsError(
-      (): ITessellation => tessellate({ type: "torus" } as never),
+      (): IAutoMovieTessellation => tessellate({ type: "torus" } as never),
       ["unknown primitive shape", "torus"],
     ),
   );

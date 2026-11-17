@@ -1,20 +1,25 @@
 import { AutoMovieGravity, preparePoseResolution } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IWalkGait } from "./IWalkGait";
-import type { IWalkParams } from "./IWalkParams";
 import { runStance } from "./runStance";
 import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
@@ -86,13 +91,13 @@ import { walkWindows } from "./walkWindows";
  */
 export namespace walk {
   /** The action's name. */
-  export const name: HumanActionName = "walk";
+  export const name: AutoMovieMotionHumanActionName = "walk";
 
   /** Cancel table (`walkCuts`). */
-  export const interrupts: IHumanActionLaw["interrupts"] = walkCuts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = walkCuts;
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
-  export const yields: IHumanActionLaw["yields"] = [
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
     "head",
     "leftHand",
     "rightHand",
@@ -100,15 +105,9 @@ export namespace walk {
     "rightArm",
   ];
 
-  /** Parameters (`IWalkParams`). */
-  export type IParams = IWalkParams;
-
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
-  export const FROUDE: Readonly<Record<NonNullable<IParams["pace"]>, number>> =
+  export const FROUDE: Readonly<Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>> =
     { slow: 0.12, normal: 0.2, fast: 0.32 };
-
-  /** A gait the stepping plan runs (`IWalkGait`). */
-  export type IGait = IWalkGait;
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -116,7 +115,7 @@ export namespace walk {
    * extension at toe-off inside its range (about 0.8 m at 1.75 m stature), and
    * 40 % of the stride in swing.
    */
-  export const walking: (froude: number) => IGait = (froude: number): IGait => ({
+  export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (froude: number): IAutoMovieMotionHumanWalkGait => ({
     froude,
     step: (fr: number): number =>
       Math.min(0.85, 1.2 * Math.sqrt(Math.sqrt(fr))),
@@ -136,15 +135,15 @@ export namespace walk {
    * @returns The plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     // On a moving support the walk planned on it as it stood at the start
     // is carried by its motion, the feet planted on it (#3491).
-    const planned: IHumanActionPlan = locomote(
+    const planned: IAutoMovieMotionHumanActionPlan = locomote(
       context,
       walking(FROUDE[context.params.pace ?? "normal"]),
     );
-    const on: IParams["on"] = context.params.on;
+    const on: IAutoMovieMotionHumanWalkParams["on"] = context.params.on;
     if (on === undefined) return planned;
     HumanSupportFrame.board(
       context,
@@ -175,21 +174,21 @@ export namespace walk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/steps, declared scalar carriage/descent/flight profiles and fixed geometry, released with the plan. Synchronous endpoint construction borrows one exact FK reader until return/throw; completed stance endpoints and their interpolation reader end with the actual swing observation, without a retained fit or arbitrary-time pose cache.
    */
   export function locomote(
-    given: IHumanActionContext<Omit<IParams, "pace">>,
-    gait: IGait,
-  ): IHumanActionPlan {
+    given: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">>,
+    gait: IAutoMovieMotionHumanWalkGait,
+  ): IAutoMovieMotionHumanActionPlan {
     // A station is a way read from its slot; without one the context is as given.
-    const context: IHumanActionContext<Omit<IParams, "pace">> =
+    const context: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">> =
       walkStation.resolve(given);
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const froude: number = gait.froude;
-    const p: Omit<IParams, "pace"> = context.params;
+    const p: Omit<IAutoMovieMotionHumanWalkParams, "pace"> = context.params;
     // The manner's gait factors: its step and swing scale the authored step
     // and arm swing, and its tempo divides the speed at that step, so a weary
     // walk is slower in cadence as well as shorter in step.
-    const manner: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+    const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
       context,
       p.manner,
     );
@@ -216,7 +215,7 @@ export namespace walk {
     const longest: number = forward * share;
     // A tired member walks slower; a cadenced gait keeps its count (`walkClock.weary`).
     const weary: number = walkClock.weary(context, gait);
-    const steps: walkSteps.IPlan = walkSteps.plan({
+    const steps: IAutoMovieMotionHumanWalkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
       to: p.to,
@@ -255,7 +254,7 @@ export namespace walk {
       );
     // A foot as its schedule alone has it, before any pelvis is settled.
     const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd => {
-      const foot: walkFoot.IScheduled = steps.foot(side, t);
+      const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = steps.foot(side, t);
       return {
         ankle: foot.placement.ankle,
         rotation: foot.placement.rotation,
@@ -284,15 +283,15 @@ export namespace walk {
     const flights: Map<string, [number, number]> = new Map();
     function settle(
       t: number,
-      feet: Record<"left" | "right", walkFoot.IScheduled>,
+      feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>,
       amount: number = steps.amount(t),
       hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
       const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution);
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
-        const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
+        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
         if (swing === undefined) continue;
 
         // A foot in flight bears nothing: it claims what its stance claimed
@@ -344,7 +343,7 @@ export namespace walk {
     // settled once for the plan, as its descent and its flight are, rather
     // than again at every second the swing is read.
     const ends: Map<string, walkFoot.IEnd> = new Map();
-    const end: (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
+    const end: (side: "left" | "right", t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
       const key: string = `${side}:${t}`;
       let known: walkFoot.IEnd | undefined = ends.get(key);
       if (known === undefined) {
@@ -363,14 +362,14 @@ export namespace walk {
       legs: readonly ("left" | "right")[],
       phase: number,
       amount: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): {
-      feet: Record<"left" | "right", walkFoot.IScheduled>;
+      feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
       hips: readonly [number, number, number];
       settled: walkReach.IGround;
       reached: Record<"left" | "right", walkFoot.IEnd>;
     } {
-      const feet: Record<"left" | "right", walkFoot.IScheduled> = {
+      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
       };
@@ -378,7 +377,7 @@ export namespace walk {
       const settled: walkReach.IGround = settle(t, feet, amount, hips, resolution);
       const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<"left" | "right", walkFoot.IEnd>;
       for (const side of ["left", "right"] as const) {
-        const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
+        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
         if (!legs.includes(side)) {
           reached[side] = { ankle: feet[side].placement.ankle, rotation: feet[side].placement.rotation, toes: feet[side].toes };
           continue;
@@ -401,22 +400,22 @@ export namespace walk {
     // thighs no nearer than they hang beside them, by one abduction read
     // over one of its strides (`walkCarriage`).
     let carried: Record<"left" | "right", number> | undefined;
-    const planned: IHumanActionPlan = {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const legs: readonly ("left" | "right")[] = channels === undefined
           ? walkReach.SIDES
           : walkReach.SIDES.filter((side: "left" | "right"): boolean => channels.includes(`${side}Leg`));
-        const posture: IHumanPosture = unswung(seconds, legs, channels, resolution);
+        const posture: IAutoMovieMotionHumanPosture = unswung(seconds, legs, channels, resolution);
         if (channels !== undefined && !channels.includes("leftArm") && !channels.includes("rightArm"))
           return posture;
         return HumanArmSwing.carry(
           posture,
           (carried ??= walkCarriage.of(body, steps.events, duration,
-            (at: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], read?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => unswung(at, undefined, undefined, read),
+            (at: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => unswung(at, undefined, undefined, read),
             resolution, projection)),
         );
       },

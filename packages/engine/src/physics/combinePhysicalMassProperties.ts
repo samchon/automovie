@@ -1,4 +1,6 @@
 import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -26,8 +28,8 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All intermediate numeric state belongs to this call and is released on return or throw. The result contains a fresh centre, principal moments and rotation, with no retained part or input-array reference.
  */
 export function combinePhysicalMassProperties(
-  parts: readonly combinePhysicalMassProperties.IPart[],
-): combinePhysicalMassProperties.IPart {
+  parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
+): IAutoMovieCombinePhysicalMassProperties.IPart {
   if (!parts.length)
     throw new Error("Mass properties require at least one component");
   for (const part of parts) {
@@ -73,34 +75,13 @@ export function combinePhysicalMassProperties(
       if (!Number.isFinite(entry))
         throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 
-  const axes3: ReturnType<typeof physicalPrincipalAxes> =
+  const axes3: IAutoMoviePrincipalTensorFrame =
     physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
   if (!positiveMoments(inertia) || !finiteRotation(inertiaRotation))
     throw new Error("Invalid computed aggregate principal frame");
   return { mass, centerOfMass, inertia, inertiaRotation };
-}
-
-/**
- * A component's principal frame and centre use the aggregate's local frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IPart states SI mass, centre, moments and the principal-to-common frame rotation.
- * @evidence contracts/development/design.md#principled-representation A rigid part is represented by mass, centre and principal inertia in a common frame. Numeric fields remain structural; each consumer admits its supported values, with positive moments for aggregation and zero moments permitted by the general tensor owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IPart is the shared record consumed by aggregate profile construction, posed momentum and physical tensor assembly; every field contributes to the mass, centre or rotated and shifted tensor.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions with explicit frame meanings, without collision-derived dimensions, optional alternatives, casts or widened fields.
- */
-export namespace combinePhysicalMassProperties {
-  /** SI mass, centre and principal inertia; no collision dimensions inferred. */
-  export interface IPart {
-    /** Kilograms. */ mass: number;
-
-    /** Metres in the common frame. */ centerOfMass: IAutoMovieVector3;
-
-    /** Principal moments, kg m². */ inertia: IAutoMovieVector3;
-
-    /** Principal axes in the common frame. */ inertiaRotation: IAutoMovieQuaternion;
-  }
 }
 
 /** Admit the three current coordinates without allocating a temporary array. */

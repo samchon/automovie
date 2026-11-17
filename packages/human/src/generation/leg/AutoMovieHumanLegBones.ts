@@ -1,3 +1,8 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLegBones,
+} from "@automovie/interface";
+
 /**
  * The leg's three joint centres, placed from the person's inputs at their
  * published definitions before any skin: the hip, the knee and the ankle of
@@ -31,48 +36,6 @@
  *   or hyperextension is a pose from that zero, not a bone place.
  */
 export namespace AutoMovieHumanLegBones {
-  /** A point in the body frame. */
-  export type Vec3 = [number, number, number];
-
-  /** What the bones are placed from. */
-  export interface IInput {
-    /** Stature, calibration mm. */
-    stature: number;
-
-    /** Calibration millimetres per world millimetre; the published constants below are world millimetres. */
-    scale: number;
-
-    /** Lateral malleolus height, calibration mm: the foot's `ankleHeight` input. */
-    ankleHeight: number;
-
-    /** Medial over lateral malleolus height (the foot prior's convention, Gray 1918: the medial stands higher). */
-    medial: number;
-
-    /** Forward place of the hip centre, calibration mm: under the trunk's crotch ring. */
-    hipForward: number;
-
-    /** Forward place of the ankle centre, calibration mm: the foot's stance. */
-    ankleForward: number;
-  }
-
-  /** The three joint centres of the left leg and the bones' lengths. */
-  export interface IBones {
-    /** Hip joint centre. */
-    hip: Vec3;
-
-    /** Knee joint centre. */
-    knee: Vec3;
-
-    /** Ankle joint centre, at the lateral malleolus. */
-    ankle: Vec3;
-
-    /** Femur, hip to knee, mm. */
-    femur: number;
-
-    /** Tibia, knee to ankle, mm. */
-    tibia: number;
-  }
-
   /** Hip joint centre height, share of stature: ANSUR II trochanterion height plus de Leva's 2.8 / 3.2 mm, sexes averaged. */
   export const HIP: number = 0.518;
 
@@ -107,9 +70,18 @@ export namespace AutoMovieHumanLegBones {
    * @returns The centres; the hip is above the knee and the knee above the ankle.
    * @throws {Error} When an input is not positive or the joints are not stacked.
    */
-  export function of(input: IInput): IBones {
-    if (!(input.stature > 0) || !(input.scale > 0) || !(input.ankleHeight > 0) || !(input.medial > 0))
-      throw new Error("A leg needs a positive stature, scale, ankle height and malleolus ratio");
+  export function of(
+    input: IAutoMovieHumanLegBones.IInput,
+  ): IAutoMovieHumanLegBones.IBones {
+    if (
+      !(input.stature > 0) ||
+      !(input.scale > 0) ||
+      !(input.ankleHeight > 0) ||
+      !(input.medial > 0)
+    )
+      throw new Error(
+        "A leg needs a positive stature, scale, ankle height and malleolus ratio",
+      );
 
     // Heights from stature, the ankle at its own input.
     const hipY: number = HIP * input.stature;
@@ -121,19 +93,28 @@ export namespace AutoMovieHumanLegBones {
     // Hara's length from the spines to the medial malleolus: the spines stand
     // `drop` over the hip centre and `drop` itself grows with the length.
     const medialY: number = input.medial * ankleY;
-    const length: number = (hipY + HARA_DROP * input.scale - medialY) / (1 - HARA_DROP_SLOPE);
-    const hipZ: number = HARA_LATERAL * input.scale + HARA_LATERAL_SLOPE * length;
+    const length: number =
+      (hipY + HARA_DROP * input.scale - medialY) / (1 - HARA_DROP_SLOPE);
+    const hipZ: number =
+      HARA_LATERAL * input.scale + HARA_LATERAL_SLOPE * length;
     const ankleZ: number = STANCE * input.scale;
 
     // The knee on the straight line from the hip to the ankle at its height,
     // in both planes: the extended knee of the Neutral-0 position.
     const share: number = (hipY - kneeY) / (hipY - ankleY);
     const kneeZ: number = hipZ + share * (ankleZ - hipZ);
-    const kneeX: number = input.hipForward + share * (input.ankleForward - input.hipForward);
-    const hip: Vec3 = [input.hipForward, hipY, hipZ];
-    const knee: Vec3 = [kneeX, kneeY, kneeZ];
-    const ankle: Vec3 = [input.ankleForward, ankleY, ankleZ];
-    return { hip, knee, ankle, femur: distance(hip, knee), tibia: distance(knee, ankle) };
+    const kneeX: number =
+      input.hipForward + share * (input.ankleForward - input.hipForward);
+    const hip: AutoMovieVector3Tuple = [input.hipForward, hipY, hipZ];
+    const knee: AutoMovieVector3Tuple = [kneeX, kneeY, kneeZ];
+    const ankle: AutoMovieVector3Tuple = [input.ankleForward, ankleY, ankleZ];
+    return {
+      hip,
+      knee,
+      ankle,
+      femur: distance(hip, knee),
+      tibia: distance(knee, ankle),
+    };
   }
 }
 

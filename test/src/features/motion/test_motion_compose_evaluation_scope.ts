@@ -1,8 +1,10 @@
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 import {
   AutoMovieMotionClock,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanActionPlan,
-  type IHumanPosture,
   composeAutoMovieMotionHumanAction,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -37,7 +39,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One synchronous mechanism unit owns deterministic public extension callbacks and counters, as compose_action does; no body producer, foreign function, global or runtime is replaced.
  */
 export function test_motion_compose_evaluation_scope(): void {
-  type Reader = (seconds: number) => IHumanPosture;
+  type Reader = (seconds: number) => IAutoMovieMotionHumanPosture;
   const failures: string[] = [];
   const reads: Map<number, number> = new Map();
   const writes: Map<number, number> = new Map();
@@ -63,11 +65,11 @@ export function test_motion_compose_evaluation_scope(): void {
     reads.clear();
     writes.clear();
   };
-  const base: IHumanActionPlan = {
+  const base: IAutoMovieMotionHumanActionPlan = {
     duration: 1,
     contacts: [],
     events: [],
-    posture: (seconds: number): IHumanPosture => {
+    posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       count(reads, seconds);
       return {
         root: { x: seconds, y: 0, z: 0 },
@@ -89,7 +91,7 @@ export function test_motion_compose_evaluation_scope(): void {
       before(t);
       before(nearby);
     },
-    write: (under: IHumanPosture, seconds: number, before?: Reader): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture, seconds: number, before?: Reader): IAutoMovieMotionHumanPosture => {
       count(writes, seconds);
       if (before === undefined) throw new Error("The composed trunk has no base reader");
       check("nested base prefix first read", nclose(before(seconds).pitch, 10 * seconds, 0));
@@ -107,16 +109,16 @@ export function test_motion_compose_evaluation_scope(): void {
       before(t);
     },
     write: (
-      under: IHumanPosture,
+      under: IAutoMovieMotionHumanPosture,
       seconds: number,
       before?: Reader,
-    ): IHumanPosture => {
-      const first: IHumanPosture = before!(seconds);
+    ): IAutoMovieMotionHumanPosture => {
+      const first: IAutoMovieMotionHumanPosture = before!(seconds);
       if (depth === 1 && mode === "inner-failure") throw sentinel;
       if (depth === 0 && (mode === "nested" || mode === "inner-failure")) {
         depth++;
         try {
-          const nested: IHumanPosture = plan!.posture(0.75);
+          const nested: IAutoMovieMotionHumanPosture = plan!.posture(0.75);
           check("nested numeric result", nclose(nested.joints.head![0], 17, 0));
         } catch (error) {
           if (mode !== "inner-failure" || error !== sentinel) throw error;
@@ -124,7 +126,7 @@ export function test_motion_compose_evaluation_scope(): void {
           depth--;
         }
       }
-      const second: IHumanPosture = retained.trunk!(seconds);
+      const second: IAutoMovieMotionHumanPosture = retained.trunk!(seconds);
       if (mode === "outer-failure" && depth === 0) throw sentinel;
       return {
         ...under,
@@ -132,7 +134,7 @@ export function test_motion_compose_evaluation_scope(): void {
       };
     },
   };
-  const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base,
     clock: AutoMovieMotionClock.of(1, []),
     primitives: [head, trunk],
@@ -149,7 +151,7 @@ export function test_motion_compose_evaluation_scope(): void {
   for (const scenario of ["plain", "nested", "inner-failure"] as const) {
     mode = scenario;
     reset();
-    const shown: IHumanPosture = plan.posture(t);
+    const shown: IAutoMovieMotionHumanPosture = plan.posture(t);
     check(`${scenario}: root arithmetic`, nclose(shown.root.x, t, 0));
     check(`${scenario}: head arithmetic`, nclose(shown.joints.head![0], 7, 0));
     check(
@@ -189,7 +191,7 @@ export function test_motion_compose_evaluation_scope(): void {
   }
   check("outer write preserves its actual exception", caught === sentinel);
   mode = "plain";
-  const recovered: IHumanPosture = plan.posture(t);
+  const recovered: IAutoMovieMotionHumanPosture = plan.posture(t);
   check(
     "outer throw releases partial prefixes",
     reads.get(t) === 2 && writes.get(t) === 2,
@@ -210,7 +212,7 @@ export function test_motion_compose_evaluation_scope(): void {
           channels: ["head"],
           from: 0,
           to: 1,
-          write: (under: IHumanPosture): IHumanPosture => under,
+          write: (under: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => under,
           prepare: (before: Reader): void => {
             retained.failed = before;
             before(t);

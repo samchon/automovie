@@ -1,21 +1,26 @@
 import {
-  type AutoMovieLoftContract,
-  type AutoMovieSolidBody,
   AutoMovieSolidChain,
   AutoMovieSolidMesh,
   AutoMovieSolidVector,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanSurfaceBoundary,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanSurfaceMerge,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * The skin of the solids: every chain a merge or diff names, and every face
@@ -73,12 +78,11 @@ export namespace AutoMovieHumanBodySurfaceSolids {
    * @returns Every broken premise.
    */
   export function draw(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     calibration: IAutoMovieHumanBodyCalibration,
-  ): AutoMovieLoftContract.IDiagnostic[] {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const merges: IAutoMovieHumanBodyCalibration.IMerge[] =
-      calibration.merges ?? [];
+  ): IAutoMovieLoftContract.IDiagnostic[] {
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
+    const merges: IAutoMovieHumanSurfaceMerge[] = calibration.merges ?? [];
     if (merges.length === 0 && (calibration.bodies ?? []).length === 0)
       return diagnostics;
     const report: (contract: string, detail: string) => void = (
@@ -103,13 +107,13 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     };
 
     // Seams first: their rails become the faces' trims.
-    const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     const groups: { name: string; start: number }[] = [];
-    const loops: Map<string, AutoMovieSolidMesh.ILoop[]> = new Map();
-    const domains: Map<string, AutoMovieSolidMesh.ILoop[]> = new Map();
+    const loops: Map<string, IAutoMovieSolidMesh.ILoop[]> = new Map();
+    const domains: Map<string, IAutoMovieSolidMesh.ILoop[]> = new Map();
     const grids: Map<
       string,
-      NonNullable<AutoMovieSolidBody.IPublished["faces"][number]["grid"]>
+      NonNullable<IAutoMovieSolidBody.IPublished["faces"][number]["grid"]>
     > = new Map();
     const inverted: Set<string> = new Set();
     for (const m of merges) {
@@ -124,15 +128,18 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         continue;
       }
       groups.push({ name: `${m.blend}/solid`, start: mesh.indices.length });
-      const joined: AutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(mesh, {
-        host,
-        part,
-        blend,
-        length: m.length,
-        hostLoop: m.hostLoop,
-        partLoop: m.partLoop,
-        rows: m.rows,
-      });
+      const joined: IAutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(
+        mesh,
+        {
+          host,
+          part,
+          blend,
+          length: m.length,
+          hostLoop: m.hostLoop,
+          partLoop: m.partLoop,
+          rows: m.rows,
+        },
+      );
       loops.set(m.host, [...(loops.get(m.host) ?? []), joined.host]);
       loops.set(m.part, [...(loops.get(m.part) ?? []), joined.part]);
       if (m.diff === true) inverted.add(m.part);
@@ -157,7 +164,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       );
       const missing: string[] = body.faces
         .map(
-          (f: AutoMovieSolidBody.IPublished["faces"][number]): string =>
+          (f: IAutoMovieSolidBody.IPublished["faces"][number]): string =>
             f.chain,
         )
         .filter((n: string): boolean => surface(n) === null);
@@ -174,15 +181,15 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       for (const f of body.faces) {
         /** Both roles retain the same published point identities and this-face chart. */
         const restore: (
-          c: AutoMovieSolidBody.IPublished["faces"][number]["cycles"][number],
-        ) => AutoMovieSolidMesh.ILoop = (
-          c: AutoMovieSolidBody.IPublished["faces"][number]["cycles"][number],
-        ): AutoMovieSolidMesh.ILoop => ({
+          c: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number],
+        ) => IAutoMovieSolidMesh.ILoop = (
+          c: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number],
+        ): IAutoMovieSolidMesh.ILoop => ({
           kind: c.kind,
           vertices: c.points.map((k: number): number => ids[k]!),
           chart: c.chart,
         });
-        const trims: AutoMovieSolidMesh.ILoop[] = f.cycles.map(restore);
+        const trims: IAutoMovieSolidMesh.ILoop[] = f.cycles.map(restore);
         loops.set(f.chain, [...(loops.get(f.chain) ?? []), ...trims]);
         if (f.domainLoops !== undefined)
           domains.set(f.chain, [
@@ -210,7 +217,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     for (const [name, trims] of loops) {
       const chain: IAutoMovieLoftChain = context.chains.get(name)!;
       const s: IAutoMovieSolidSurface = surfaces.get(name)!;
-      const grid: AutoMovieSolidBody.IPublished["faces"][number]["grid"] =
+      const grid: IAutoMovieSolidBody.IPublished["faces"][number]["grid"] =
         grids.get(name);
       const first: number = chain.layers[0]!.y;
       const last: number = chain.layers[chain.layers.length - 1]!.y;
@@ -271,7 +278,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
                   (chain.samples - 1)),
       );
       groups.push({ name: `${name}/solid`, start: mesh.indices.length });
-      const open: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+      const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
         surface: s,
         stations,
         phases,
@@ -342,7 +349,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     while (context.coordinates.length < 3 * offset)
       context.coordinates.push(NaN);
     const chainOf: number[] = mesh.owners.map(
-      (o: AutoMovieSolidMesh.IOwner): number => context.indices.get(o.name)!,
+      (o: IAutoMovieSolidMesh.IOwner): number => context.indices.get(o.name)!,
     );
     // One by one: a spread of a whole mesh's buffer overflows the call stack.
     for (const x of mesh.positions) context.mesh.positions.push(x);
@@ -366,7 +373,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     });
 
     // The bands to the event rings, on the body's buffers where the rings live.
-    const view: AutoMovieSolidMesh.IMesh = {
+    const view: IAutoMovieSolidMesh.IMesh = {
       positions: context.mesh.positions,
       indices: [],
       coordinates: [],

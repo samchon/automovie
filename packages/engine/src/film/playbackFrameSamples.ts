@@ -1,7 +1,10 @@
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMoviePlaybackSample,
+  type IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
-import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
-import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 import { playbackCursor } from "./playbackCursor";
 import { sequenceTimeline } from "./sequenceTimeline";
 

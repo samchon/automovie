@@ -1,11 +1,14 @@
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkParams,
+} from "@automovie/interface";
+
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
-import type { IHumanFormation } from "../ensemble/IHumanFormation";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IWalkGait } from "./IWalkGait";
-import type { IWalkParams } from "./IWalkParams";
 import { walkCadence } from "./walkCadence";
 import { walkStation } from "./walkStation";
 import { walkTempo } from "./walkTempo";
@@ -40,10 +43,12 @@ import { walkTempo } from "./walkTempo";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan holds its warps for as long as it is held.
  */
 export function walkClock(
-  context: IHumanActionContext<Omit<IWalkParams, "pace">>,
-  planned: IHumanActionPlan,
-  gait: IWalkGait,
-): IHumanActionPlan {
+  context: IAutoMovieMotionHumanActionContext<
+    Omit<IAutoMovieMotionHumanWalkParams, "pace">
+  >,
+  planned: IAutoMovieMotionHumanActionPlan,
+  gait: IAutoMovieMotionHumanWalkGait,
+): IAutoMovieMotionHumanActionPlan {
   const entrained: number[] | null =
     context.params.cadence === undefined
       ? null
@@ -52,7 +57,7 @@ export function walkClock(
           context.params.cadence,
           walkTempo.strikes(planned),
         );
-  const tempo: IHumanActionPlan =
+  const tempo: IAutoMovieMotionHumanActionPlan =
     entrained !== null
       ? walkTempo.entrained(
           planned,
@@ -69,7 +74,8 @@ export function walkClock(
         );
 
   // A gait that draws its own tempo keeps its station by matching the slot's speed; a cadenced one keeps its count.
-  const station: IHumanFormation.IStation | undefined = context.params.station;
+  const station: IAutoMovieMotionHumanFormation.IStation | undefined =
+    context.params.station;
   return station === undefined || gait.called === true
     ? tempo
     : walkStation(
@@ -99,7 +105,10 @@ export namespace walkClock {
    * @param gait The gait.
    * @returns The factor.
    */
-  export function weary(context: IHumanActionContext, gait: IWalkGait): number {
+  export function weary(
+    context: IAutoMovieMotionHumanActionContext,
+    gait: IAutoMovieMotionHumanWalkGait,
+  ): number {
     return gait.called === true
       ? 1
       : HumanAttribute.effect(

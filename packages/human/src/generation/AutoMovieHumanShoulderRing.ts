@@ -1,9 +1,13 @@
-﻿import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
-import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
-import { AutoMovieHumanShoulderGirdle } from "./AutoMovieHumanShoulderGirdle";
+import type {
+  IAutoMovieHumanDeltoidCap,
+  IAutoMovieHumanShoulderRing,
+  IAutoMovieHumanTrunkSection,
+  IAutoMovieHumanTrunkSolve,
+} from "@automovie/interface";
+
 import { AutoMovieHumanArmRootArc } from "./AutoMovieHumanArmRootArc";
 import { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
-import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
+import { AutoMovieHumanShoulderGirdle } from "./AutoMovieHumanShoulderGirdle";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
@@ -22,21 +26,6 @@ import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
  * shoulder (the glenohumeral centre's height).
  */
 export namespace AutoMovieHumanShoulderRing {
-  /** What a shoulder ring reads. */
-  export interface IInput {
-    /** The torso's column through the shoulders. */
-    column: AutoMovieHumanTrunkColumn.IColumn;
-
-    /** The trapezius line, from the shoulder point to the neck's ring. */
-    line: IAutoMovieHumanShoulderOutline;
-
-    /** The arm's ellipse and its cap. */
-    oval: AutoMovieHumanArmRootOval.IInput;
-
-    /** Height of the axilla, the ring's bottom, mm. */
-    axilla: number;
-  }
-
   /**
    * The narrowest forward half size of the arm's ellipse the ring keeps, mm:
    * with it the two arcs between the guides stay long enough, 24 knot spans
@@ -55,8 +44,13 @@ export namespace AutoMovieHumanShoulderRing {
    * @param y Height, mm.
    * @returns The 256-control section.
    */
-  export function wall(input: IInput, y: number): number[] {
-    return AutoMovieHumanTrunkRing.controls(AutoMovieHumanShoulderGirdle.section(input, y));
+  export function wall(
+    input: IAutoMovieHumanShoulderRing.IInput,
+    y: number,
+  ): number[] {
+    return AutoMovieHumanTrunkRing.controls(
+      AutoMovieHumanShoulderGirdle.section(input, y),
+    );
   }
 
   /**
@@ -67,21 +61,39 @@ export namespace AutoMovieHumanShoulderRing {
    * @param y Height, mm.
    * @returns The 256-control section.
    */
-  export function controls(input: IInput, y: number): number[] {
-    const s: IAutoMovieHumanTrunkSection = AutoMovieHumanShoulderGirdle.section(input, y);
+  export function controls(
+    input: IAutoMovieHumanShoulderRing.IInput,
+    y: number,
+  ): number[] {
+    const s: IAutoMovieHumanTrunkSection = AutoMovieHumanShoulderGirdle.section(
+      input,
+      y,
+    );
     if (y >= input.line.from) return AutoMovieHumanTrunkRing.controls(s);
 
     // Below the shoulder point the arm's ellipse and the outline's extreme
     // set the arc; an ellipse too small to keep an arc leaves the torso's own ring.
-    const oval: AutoMovieHumanArmRootOval.IOval | null = AutoMovieHumanArmRootOval.at(input.oval, y);
+    const oval: IAutoMovieHumanDeltoidCap.IOval | null =
+      AutoMovieHumanArmRootOval.at(input.oval, y);
     if (oval === null) return AutoMovieHumanTrunkRing.controls(s);
-    const outline: AutoMovieHumanTrunkSolve.IJet = AutoMovieHumanArmRootOval.outline(input.oval, y);
-    const kept: AutoMovieHumanArmRootOval.IOval = { ...oval, rx: Math.max(oval.rx, MINIMUM_RX) };
+    const outline: IAutoMovieHumanTrunkSolve.IJet =
+      AutoMovieHumanArmRootOval.outline(input.oval, y);
+    const kept: IAutoMovieHumanDeltoidCap.IOval = {
+      ...oval,
+      rx: Math.max(oval.rx, MINIMUM_RX),
+    };
 
     // The torso's folds hold the arc at the vault and let it go where the arm has merged.
     const merged: number = input.oval.glenohumeral[1];
-    const torso: number = 1 - AutoMovieHumanTrunkSolve.smooth((y - input.axilla) / (merged - input.axilla));
+    const torso: number =
+      1 -
+      AutoMovieHumanTrunkSolve.smooth(
+        (y - input.axilla) / (merged - input.axilla),
+      );
 
-    return AutoMovieHumanTrunkRing.controls(s, AutoMovieHumanArmRootArc.create(s, kept, outline.value, torso));
+    return AutoMovieHumanTrunkRing.controls(
+      s,
+      AutoMovieHumanArmRootArc.create(s, kept, outline.value, torso),
+    );
   }
 }

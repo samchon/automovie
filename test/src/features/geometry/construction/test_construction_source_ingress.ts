@@ -1,18 +1,19 @@
 import {
-  type AutoMovieConstructionRealization,
   AutoMovieConstructionViews,
   AutoMovieLoftChain,
   AutoMovieLoftJet,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
   IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +26,7 @@ import { nclose } from "../../internal/nclose";
 type Sources = ReadonlyMap<string, IAutoMovieViewPart>;
 
 /** Operator records without final face tessellation. */
-type Realization = AutoMovieConstructionRealization.IWithoutSkin;
+type Realization = IAutoMovieConstructionRealization.IWithoutSkin;
 
 /**
  * Explicit source leaves preserve their whole generating input through realization.
@@ -77,9 +78,13 @@ export function test_construction_source_ingress(): void {
       sources.clear();
       const phi: number = variable ? Math.PI / 4 : 0;
       for (const s of [2.5, 5, 7.25, 12.5, 22.5, 32.5, 37.25]) {
-        const expected: AutoMovieLoftJet.IJet =
+        const expected: IAutoMovieLoftSurfaceJet =
           ConstructionSourceIngress.expected(amplitude, s, variable);
-        const jet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, phi);
+        const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+          chain,
+          s,
+          phi,
+        );
         for (const order of ["p", "s", "t", "ss", "st", "tt"] as const)
           close(
             failures,
@@ -122,7 +127,7 @@ export function test_construction_source_ingress(): void {
 
 /** Read the ordinary unskinned product seam with this invocation's explicit context. */
 function realize(
-  root: AutoMovieConstructionNode,
+  root: IAutoMovieConstructionNode,
   sources: Sources,
 ): Realization {
   return realizeAutoMovieConstruction(
@@ -210,7 +215,7 @@ function booleanSources(kind: "merge" | "diff", failures: string[]): void {
   const part: IAutoMovieViewPart = input(partView);
   const plane: number = (0.04 ** 2 - 0.015 ** 2 + 0.04 ** 2) / 0.08;
   const ring: number = Math.sqrt(0.04 ** 2 - plane ** 2);
-  const tree: AutoMovieConstructionNode = ConstructionShapes.join(
+  const tree: IAutoMovieConstructionNode = ConstructionShapes.join(
     kind,
     `join.${kind}`,
     source(host, "host"),
@@ -400,7 +405,7 @@ function failuresOfSources(
     type: "chord",
     value: 0.002,
   };
-  const inner: AutoMovieConstructionNode = ConstructionShapes.join(
+  const inner: IAutoMovieConstructionNode = ConstructionShapes.join(
     "merge",
     "inner",
     source(post, "post"),
@@ -408,7 +413,7 @@ function failuresOfSources(
     { partFace: "absent", hostFace: "post", part: [0, 0], host: [0, 0] },
     { part: widths, host: widths },
   );
-  const outer: AutoMovieConstructionNode = ConstructionShapes.join(
+  const outer: IAutoMovieConstructionNode = ConstructionShapes.join(
     "merge",
     "outer",
     source(beam, "beam"),

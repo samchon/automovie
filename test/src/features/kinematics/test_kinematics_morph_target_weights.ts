@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   resolveMorphTargetWeights,
   skinAutoMovieMesh,
 } from "@automovie/engine";
@@ -7,6 +6,7 @@ import type {
   IAutoMovieMesh,
   IAutoMovieMeshMorphTarget,
   IAutoMovieMorphTargetDriver,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

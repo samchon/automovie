@@ -1,9 +1,11 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartControlRelations,
+  IAutoMovieRecoveryChartFit,
+  IAutoMovieRecoveryChartFitPrepare,
+} from "@automovie/interface";
 
 import { RecoveryChartControlRelations as R } from "./RecoveryChartControlRelations";
-import type { RecoveryChartFit } from "./RecoveryChartFit";
-
-type Input = RecoveryChartFit.Input;
 
 /**
  * Admit and normalize one chart before sparse observation assembly.
@@ -16,24 +18,14 @@ type Input = RecoveryChartFit.Input;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned normalization and reduced expressions serve assembly, solve and report.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-owned normalized coefficients and relation maps transfer to the fit orchestrator without global storage.
  */
-export function RecoveryChartFitPrepare(input: Input): {
-  finite: (p: C.Vector) => boolean;
-  lower: C.Vector;
-  upper: C.Vector;
-  origin: number[];
-  scale: number;
-  slots: Int32Array;
-  maximumRowBudget: number;
-  reduced: ReturnType<typeof R>;
-  unknowns: number;
-  normalizedConstants: C.Vector[];
-  totalWeight: number;
-  basis: (t: number) => number[];
-} {
-  const finite: (p: C.Vector) => boolean = (p: C.Vector): boolean =>
-    p.length === 3 && p.every(Number.isFinite);
-  const lower: C.Vector = input.enclosureMm.lower,
-    upper: C.Vector = input.enclosureMm.upper;
+export function RecoveryChartFitPrepare(
+  input: Parameters<IAutoMovieRecoveryChartFitPrepare.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> {
+  const finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean = (
+    p: Readonly<AutoMovieVector3Tuple>,
+  ): boolean => p.length === 3 && p.every(Number.isFinite);
+  const lower: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.lower,
+    upper: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.upper;
   if (
     !finite(lower) ||
     !finite(upper) ||
@@ -61,7 +53,7 @@ export function RecoveryChartFitPrepare(input: Input): {
     throw new Error("Chart enclosure is not representable");
   const scale: number = extent || 1;
   const slots: Int32Array = new Int32Array(input.controls.length).fill(-1);
-  input.controls.forEach((p: C.Vector | null): void => {
+  input.controls.forEach((p: Readonly<AutoMovieVector3Tuple> | null): void => {
     if (
       p !== null &&
       (!finite(p) ||
@@ -83,33 +75,40 @@ export function RecoveryChartFitPrepare(input: Input): {
     throw new Error(
       "An explicit positive reduced observation-stencil budget is required",
     );
-  const reduced: ReturnType<typeof R> = R({
-    controls: input.controls.length,
-    fixed: input.controls.flatMap(
-      (p: C.Vector | null, id: number): { id: number; pointMm: C.Vector }[] =>
-        p === null ? [] : [{ id, pointMm: p }],
-    ),
-    relations: input.relations ?? [],
-    maxTerms: input.relationBudget?.maxTerms ?? 1,
-    maxDepth: input.relationBudget?.maxDepth ?? 0,
-  });
+  const reduced: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> =
+    R({
+      controls: input.controls.length,
+      fixed: input.controls.flatMap(
+        (
+          p: Readonly<AutoMovieVector3Tuple> | null,
+          id: number,
+        ): { id: number; pointMm: Readonly<AutoMovieVector3Tuple> }[] =>
+          p === null ? [] : [{ id, pointMm: p }],
+      ),
+      relations: input.relations ?? [],
+      maxTerms: input.relationBudget?.maxTerms ?? 1,
+      maxDepth: input.relationBudget?.maxDepth ?? 0,
+    });
   const unknowns: number = reduced.independent.length;
   reduced.independent.forEach((id: number, slot: number): void => {
     slots[id] = slot;
   });
-  const normalizedConstants: C.Vector[] = reduced.expressions.map(
-    (expression: (typeof reduced.expressions)[number]): C.Vector => {
-      const mass: number = expression.terms.reduce(
-        (sum: number, term: { id: number; weight: number }): number =>
-          sum + term.weight,
-        0,
-      );
-      return [0, 1, 2].map(
-        (k: number): number =>
-          (expression.constant[k]! + origin[k]! * (mass - 1)) / scale,
-      ) as [number, number, number];
-    },
-  );
+  const normalizedConstants: Readonly<AutoMovieVector3Tuple>[] =
+    reduced.expressions.map(
+      (
+        expression: (typeof reduced.expressions)[number],
+      ): Readonly<AutoMovieVector3Tuple> => {
+        const mass: number = expression.terms.reduce(
+          (sum: number, term: { id: number; weight: number }): number =>
+            sum + term.weight,
+          0,
+        );
+        return [0, 1, 2].map(
+          (k: number): number =>
+            (expression.constant[k]! + origin[k]! * (mass - 1)) / scale,
+        ) as [number, number, number];
+      },
+    );
   for (const patch of input.patches)
     if (
       patch.controlIds.length !== 16 ||
@@ -120,8 +119,10 @@ export function RecoveryChartFitPrepare(input: Input): {
     )
       throw new Error("Bicubic patches need sixteen valid control identities");
   const totalWeight: number = input.observations.reduce(
-    (sum: number, row: Input["observations"][number]): number =>
-      sum + row.weight,
+    (
+      sum: number,
+      row: IAutoMovieRecoveryChartFit.Input["observations"][number],
+    ): number => sum + row.weight,
     0,
   );
   if (!(totalWeight > 0 && Number.isFinite(totalWeight)))

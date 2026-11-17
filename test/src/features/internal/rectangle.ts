@@ -1,4 +1,4 @@
-import { IAutoMovieProfilePoint } from "@automovie/engine";
+import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
 /**
  * Emit four XY corners from the supplied origin, width and height in the fixture's units, ordered counter-clockwise for positive dimensions. Callers own positive-dimension admission; zero/negative/nonfinite values are neither changed nor refused here.

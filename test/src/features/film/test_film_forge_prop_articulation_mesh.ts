@@ -1,11 +1,7 @@
-import {
-  IAutoMovieForgedProp,
-  forgeProp,
-  placementChildNode,
-  sceneToNodes,
-} from "@automovie/engine";
+import { forgeProp, placementChildNode, sceneToNodes } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
+  type IAutoMovieForgedProp,
   IAutoMovieNode,
   IAutoMoviePropSpec,
 } from "@automovie/interface";

@@ -1,6 +1,9 @@
+import type {
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 
 /**
  * Read the actor context's staged metre position and +Y heading as a rigid world frame. The position is borrowed; rotation is a fresh quaternion. Scale is absent from this synthesis context.

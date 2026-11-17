@@ -1,5 +1,5 @@
-import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * One accepted cluster member as a full-TRS instance.

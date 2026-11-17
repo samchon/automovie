@@ -1,10 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanPosture } from "./IHumanPosture";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -34,10 +38,10 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function turnHumanPosture(
-  posture: IHumanPosture,
-): turnHumanPosture.ITurned {
+  posture: IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanTurnHumanPosture.ITurned {
   const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
-  const rotation: IHumanPosture.IRotation | undefined = posture.rotation;
+  const rotation: IAutoMovieHumanPostureRotation | undefined = posture.rotation;
   if (rotation === undefined)
     return { position: posture.root, rotation: heading, limbs: posture.limbs };
   const turn: IAutoMovieQuaternion = Quaternion.normalize(rotation.turn);
@@ -46,10 +50,10 @@ export function turnHumanPosture(
       rotation.about,
       Quaternion.rotateVector(turn, Vector3.subtract(point, rotation.about)),
     );
-  const limbs: IHumanPosture["limbs"] = {};
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const [limb, goal] of Object.entries(posture.limbs) as [
-    IHumanPosture.Limb,
-    IHumanPosture.IGoal,
+    AutoMovieHumanLimb,
+    IAutoMovieHumanLimbGoal,
   ][]) {
     if (goal.on !== undefined) {
       limbs[limb] = goal;
@@ -73,26 +77,4 @@ export function turnHumanPosture(
     rotation: Quaternion.normalize(Quaternion.multiply(turn, heading)),
     limbs,
   };
-}
-
-/**
- * Companion types of {@link turnHumanPosture}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame.
- * @evidence contracts/development/design.md#principled-representation The root as a world position and a quaternion, so a turned root never passes through Euler angles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the resolver reads: the root and the goals it fits.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The goals keep `IHumanPosture`'s own type.
- */
-export namespace turnHumanPosture {
-  /** A posture's root and goals after its whole-body rotation. */
-  export interface ITurned {
-    /** The root's world position, metres. */
-    position: IAutoMovieVector3;
-
-    /** The root's world rotation, unit. */
-    rotation: IAutoMovieQuaternion;
-
-    /** The limb goals, world goals turned and attached ones kept. */
-    limbs: IHumanPosture["limbs"];
-  }
 }

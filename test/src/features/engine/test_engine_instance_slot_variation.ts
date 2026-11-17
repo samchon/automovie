@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieInstanceSetPlacement,
-  instanceSlot,
-} from "@automovie/engine";
+import { instanceSlot } from "@automovie/engine";
+import type { IAutoMovieInstanceSetPlacement } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";

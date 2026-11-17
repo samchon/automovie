@@ -7,6 +7,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
@@ -32,13 +36,17 @@ import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 export async function test_physical_point_shape_reference(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();
   const receiver: P = PhysicalFixtures.sphere(0.01);
-  const poses: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const poses: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const base: Bound = {
     ...PhysicalPointFixtures.bound(),
     reference: { body: "123", bone: "root", shape: "surface" },
@@ -88,14 +96,14 @@ export async function test_physical_point_shape_reference(): Promise<void> {
     Math.abs(angle - Math.PI / 4 - Math.asin(0.01 / Math.SQRT2)) < 1e-5,
   );
   const axis: V = Vector3.normalize({ x: 1, y: 2, z: -1 });
-  const pose: P.ITransform = {
+  const pose: IAutoMovieRigidTransform = {
     position: { x: 0.4, y: 1.7, z: -0.2 },
     rotation: Quaternion.multiply(
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 31),
       Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 67),
     ),
   };
-  const shapes: P.IShape[] = [
+  const shapes: IAutoMoviePhysicalShape[] = [
     {
       id: "surface",
       material: "solid",
@@ -134,10 +142,8 @@ export async function test_physical_point_shape_reference(): Promise<void> {
         pose.position,
         Quaternion.rotateVector(pose.rotation, shape.transform.position),
       );
-      const rotation: P.ITransform["rotation"] = Quaternion.multiply(
-        pose.rotation,
-        shape.transform.rotation,
-      );
+      const rotation: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(pose.rotation, shape.transform.rotation);
       const vertices: V[] =
         shape.kind === "capsule"
           ? [-1, 1].map(
@@ -185,9 +191,10 @@ export async function test_physical_point_shape_reference(): Promise<void> {
       );
       const candidateProfile: P = structuredClone(profile);
       candidateProfile.segments.find(
-        (segment: P.ISegment): boolean => segment.bone === "reference",
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === "reference",
       )!.shapes = [structuredClone(shape)];
-      const candidate: Record<string, P.ITransform> = {
+      const candidate: Record<string, IAutoMovieRigidTransform> = {
         ...poses,
         reference: pose,
       };

@@ -1,23 +1,23 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  IAutoMovieJointPose,
+  IAutoMovieChainBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
+  IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
-import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 
 /** Source end articulation and clinical mappings corresponding to completed FK frames. */
 type IProps = Pick<
-  IFitChainToTargetProps,
+  IAutoMovieFitChainToTargetProps,
   "skeleton" | "pose" | "chain" | "jointAxes" | "restFrames"
 >;
 
@@ -40,7 +40,7 @@ type IProps = Pick<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one derived quaternion and retains no pose, frame map, rig, handle or task after return.
  */
 export function resolveChainEffectorBaseRotation(
-  props: IProps & Pick<IFitChainToTargetProps, "topology">,
+  props: IProps & Pick<IAutoMovieFitChainToTargetProps, "topology">,
   lower: IAutoMovieChainBone,
   end: IAutoMovieChainBone,
 ): IAutoMovieQuaternion {

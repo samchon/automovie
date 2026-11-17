@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Secondary spring dynamics advanced by position Verlet integration with explicit caller-owned history and timestep. Replaying requires the same complete driver, composed frame, local transforms, collider list and history; state and dt alone do not determine the trajectory.

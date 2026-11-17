@@ -5,6 +5,7 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -87,7 +88,7 @@ export namespace HumanArmTrajectoryPairs {
     rotation?: IAutoMovieQuaternion;
 
     /** The touched collider. */
-    shape?: G.IShape;
+    shape?: IAutoMovieMotionHumanArmGeometry.IShape;
 
     /** A world point's signed distance to the touched collider, metres; zero without a surface.
      *
@@ -196,10 +197,10 @@ export namespace HumanArmTrajectoryPairs {
     c: M.IContext,
     a: number,
     k: number,
-    placed: G.IPlaced,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
   ): Map<number, IPair> {
-    const frame: G.IFrame = c.frames[a]![k]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
     const screened: S.IScreen = S.screen(
       frame,
@@ -294,15 +295,16 @@ export namespace HumanArmTrajectoryPairs {
    */
   export function located(
     c: M.IContext,
-    placed: readonly (readonly G.IPlaced[])[] | ((arm: number) => G.IPlaced),
+    placed:
+      | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[] | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced),
     a: number,
     k: number,
     site: M.ISite,
   ): ILocated {
     const where: number = c.touched[a]![k]!;
     if (site.on === undefined) {
-      const frame: G.IFrame = c.frames[a]![k]!;
-      const shape: G.IShape | undefined =
+      const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+      const shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
         where < 0 ? undefined : frame.shapes[where];
       return {
         point: site.point,
@@ -327,7 +329,7 @@ export namespace HumanArmTrajectoryPairs {
       };
     }
     const on: NonNullable<M.ISite["on"]> = site.on;
-    const theirs: G.IPlaced =
+    const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced =
       typeof placed === "function" ? placed(on.arm) : placed[on.arm]![k]!;
     const [origin, turn]: [IAutoMovieVector3, IAutoMovieQuaternion] =
       on.owner === "upper"
@@ -353,7 +355,7 @@ export namespace HumanArmTrajectoryPairs {
         normalAt: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0 }),
         on: { arm: on.arm, owner: on.owner, origin },
       };
-    const shape: G.IShape | undefined =
+    const shape: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
       where < 0 ? undefined : S.colliders(c.frames[on.arm]![k]!, theirs)[where];
     const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, on.normal);
     return {
@@ -402,8 +404,8 @@ export namespace HumanArmTrajectoryPairs {
     shape: number,
     p: IAutoMovieVector3,
   ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
-    const now: G.IShape = c.frames[a]![k]!.shapes[shape]!;
-    const next: G.IShape | undefined = c.frames[a]![k + 1]!.shapes[shape];
+    const now: IAutoMovieMotionHumanArmGeometry.IShape = c.frames[a]![k]!.shapes[shape]!;
+    const next: IAutoMovieMotionHumanArmGeometry.IShape | undefined = c.frames[a]![k + 1]!.shapes[shape];
 
     // A shape read at both waypoints by the same index is the same segment
     // (the body's colliders lead every frame in profile order).
@@ -428,7 +430,7 @@ export namespace HumanArmTrajectoryPairs {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point, retaining no contact or placement.
    */
   export function pad(
-    placed: G.IPlaced,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     contact: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Vector3.add(

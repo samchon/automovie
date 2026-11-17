@@ -2,23 +2,24 @@ import {
   DEFAULT_HUMANOID_ROM,
   bracketedRoot,
   minimumJerk,
-  type preparePoseResolution,
+  preparePoseResolution,
   smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
-import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import { walkLeg } from "./walkLeg";
 import { walkReachFeet } from "./walkReachFeet";
 import { walkReachStance } from "./walkReachStance";
@@ -104,7 +105,7 @@ export namespace walkReach {
    * @param foot The foot.
    * @returns 1 in stance, fading to 0 in mid-swing.
    */
-  export function weight(foot: walkFoot.IScheduled): number {
+  export function weight(foot: IAutoMovieMotionHumanWalkFoot.IScheduled): number {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
@@ -123,7 +124,7 @@ export namespace walkReach {
    *   under none, which claims as little as any slack does.
    */
   export function short(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
   ): number {
@@ -145,7 +146,7 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owner-local closure retains the canonical scalar reach reader until its solve/take releases it; no hip, ankle, claim, time history or global pose cache is retained.
    */
   export function prepareShort(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE);
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(-1, read(hip, ankle));
@@ -166,11 +167,11 @@ export namespace walkReach {
    * @returns The heading, the pivots and the hip joints under that root.
    */
   export function pelvis(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
     resolution?: ReturnType<typeof preparePoseResolution>,
   ): IPelvis {
     const { yaw, pivots }: Pick<IPelvis, "yaw" | "pivots"> = turn(planned, feet);
@@ -204,7 +205,7 @@ export namespace walkReach {
    */
   export function turn(
     planned: number,
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
   ): Pick<IPelvis, "yaw" | "pivots"> {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
@@ -273,11 +274,11 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
   export function ground(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -438,10 +439,10 @@ export namespace walkReach {
    * @returns The foot as reached.
    */
   export function swing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     settled: IGround,
-    foot: walkFoot.IFoot,
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
   ): walkFoot.IEnd {
     return prepareSwing(body, side)(settled, foot, share);
@@ -463,7 +464,7 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action releases one reader per used side with its plan, without growing query history.
    */
   export function prepareSwing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
   ): ReturnType<typeof prepareWalkReachSwing> {
     return prepareWalkReachSwing(body, side, {

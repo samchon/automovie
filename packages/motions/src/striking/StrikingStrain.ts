@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
 import type { StrikingHeld } from "./StrikingHeld";
 
@@ -24,11 +28,11 @@ import type { StrikingHeld } from "./StrikingHeld";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each caller owns a fresh rank closure over canonical geometry. Weak body keys retain at most two grip/direction/length records until body release, with no body backreference, ROM mapper, raw posture, shoulder, candidate history, score, handle or task retained.
  */
 export function StrikingStrain(
-  body: IHumanBody,
-  side: HumanHand.Side,
-): (frame: StrikingHeld.IHandFrame, shoulder: IAutoMovieVector3) => number {
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+): (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, shoulder: IAutoMovieVector3) => number {
   const { grip, fingers, forearm, upperArm }: IGeometry = geometry(body, side);
-  return (frame: StrikingHeld.IHandFrame, shoulder: IAutoMovieVector3): number => {
+  return (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, shoulder: IAutoMovieVector3): number => {
     const elbow: IAutoMovieVector3 = Vector3.subtract(
       Vector3.subtract(
         frame.point,
@@ -53,8 +57,8 @@ interface IGeometry {
 }
 
 /** First actual side demand retains the original ordered grip/measure reads. */
-function geometry(body: IHumanBody, side: HumanHand.Side): IGeometry {
-  let sides: Partial<Record<HumanHand.Side, IGeometry>> | undefined = GEOMETRY.get(body);
+function geometry(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IGeometry {
+  let sides: Partial<Record<AutoMovieHumanSide, IGeometry>> | undefined = GEOMETRY.get(body);
   if (sides === undefined) {
     sides = {};
     GEOMETRY.set(body, sides);
@@ -72,4 +76,4 @@ function geometry(body: IHumanBody, side: HumanHand.Side): IGeometry {
 }
 
 /** Canonical body lifetime bounds each of its two pure anatomical metadata records. */
-const GEOMETRY: WeakMap<IHumanBody, Partial<Record<HumanHand.Side, IGeometry>>> = new WeakMap();
+const GEOMETRY: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<AutoMovieHumanSide, IGeometry>>> = new WeakMap();

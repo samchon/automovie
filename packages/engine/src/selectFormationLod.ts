@@ -1,7 +1,8 @@
-import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
-
-import { IAutoMovieFormationLodInput } from "./IAutoMovieFormationLodInput";
-import { IAutoMovieFormationLodSelection } from "./IAutoMovieFormationLodSelection";
+import {
+  IAutoMovieCompiledFormationLod,
+  type IAutoMovieFormationLodInput,
+  type IAutoMovieFormationLodSelection,
+} from "@automovie/interface";
 
 /**
  * Select automatic formation LOD from distance and projected contribution.

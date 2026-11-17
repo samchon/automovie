@@ -1,21 +1,30 @@
-import { Quaternion, Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPlacedAction,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import type { defend } from "./defend";
 import { defendGoals } from "./defendGoals";
 
 /**
@@ -54,7 +63,7 @@ export namespace defendGeometry {
     region: AutoMovieHumanoidRegion;
 
     /** The strike. */
-    attack: IHumanActionContext.IPlaced;
+    attack: IAutoMovieMotionHumanPlacedAction;
 
     /** The movement's start. */
     begin: number;
@@ -96,10 +105,10 @@ export namespace defendGeometry {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows genuine query-scoped exact FK/ROM sources without storing them; fixed body/feet/support geometry belongs to the built defence, and every changing root/joint value still reaches native resolution.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry retains fixed stance/sight metadata until plan settle/release; each call returns fresh authored goals and releases its borrowed source/projector and current bone map.
      */
-    posture: IHumanActionPlan["posture"];
+    posture: IAutoMovieMotionHumanActionPlan["posture"];
 
     /** The feet's contact windows. */
-    contacts: IHumanContactWindow[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
   /**
@@ -118,17 +127,17 @@ export namespace defendGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its original sight/feet and fixed demanded-rig/foot-geometry readers until plan settle/release. Every query returns independent authored goals and releases its current map and optional borrowed FK/ROM sources on return or failure.
    */
   export function build(
-    context: IHumanActionContext<defend.IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     timing: ITiming,
   ): IGeometry {
-    const p: defend.IParams = context.params;
+    const p: IAutoMovieMotionHumanDefend.IParams = context.params;
     const body = context.body;
     const m = body.measure;
-    const entry: IHumanPosture = context.entry.posture;
-    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
 
     // What the defender sees: the attacker's limb moving most toward the
@@ -137,10 +146,10 @@ export namespace defendGeometry {
     // The point within the region is the strike's own, so the defence goes
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, timing.region, aimed);
+    const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, timing.region, aimed);
     const regionAt: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
       resolveAutoMovieHumanoidSurfaces.place(frame, own.get(frame.bone)!);
-    const attacker: IHumanActionContext.IPerformer = context.performer(
+    const attacker: IAutoMovieMotionHumanPerformerReader = context.performer(
       timing.attack.subject,
     );
 
@@ -151,8 +160,8 @@ export namespace defendGeometry {
           ? ["leftFoot", "rightFoot"]
           : ["leftLowerLeg", "rightLowerLeg"];
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(limbs);
-    const now: ReturnType<IHumanActionContext.IPerformer["bones"]> = attacker.bones(timing.read, requested);
-    const before: ReturnType<IHumanActionContext.IPerformer["bones"]> = attacker.bones(timing.read - 1 / 24, requested);
+    const now: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = attacker.bones(timing.read, requested);
+    const before: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = attacker.bones(timing.read - 1 / 24, requested);
     let weapon: IAutoMovieVector3 = now.get(limbs[0]!)!.worldPosition;
     let best: number = -Infinity;
     for (const bone of limbs) {
@@ -245,7 +254,7 @@ export namespace defendGeometry {
     const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet, {
       left: checking !== "left", right: checking !== "right",
     });
-    const base: (k: number) => IHumanPosture = (k: number): IHumanPosture => {
+    const base: (k: number) => IAutoMovieMotionHumanPosture = (k: number): IAutoMovieMotionHumanPosture => {
       return {
         root: Vector3.add(
           entry.root,
@@ -262,18 +271,18 @@ export namespace defendGeometry {
       contacts: windows(checking, timing),
       posture: (
         t: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const k: number = w(t);
-        const posture: IHumanPosture = base(k);
+        const posture: IAutoMovieMotionHumanPosture = base(k);
         const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture, resolution, projection);
         const guard: ReturnType<typeof StrikingStance.guard> =
           StrikingStance.guard(body, posture, { lead }, {}, bones);
 
         // Arms and the checking leg as goals on the defender's own body.
-        const target: Partial<IHumanPosture["limbs"]> = defendGoals.at({
+        const target: Partial<IAutoMovieMotionHumanPosture["limbs"]> = defendGoals.at({
           body,
           posture,
           kind: p.kind,
@@ -283,15 +292,15 @@ export namespace defendGeometry {
           bones,
           frame,
         });
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs, ...guard };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs, ...guard };
         for (const limb of [
           "leftArm",
           "rightArm",
           "leftLeg",
           "rightLeg",
         ] as const) {
-          const goal: IHumanPosture.IGoal | undefined = target[limb];
-          const from: IHumanPosture.IGoal | undefined = limbs[limb];
+          const goal: IAutoMovieHumanLimbGoal | undefined = target[limb];
+          const from: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
           if (goal === undefined || from === undefined) continue;
           limbs[limb] = {
             point: Vector3.lerp(from.point, goal.point, k),
@@ -353,9 +362,9 @@ export namespace defendGeometry {
   export function windows(
     checking: "left" | "right" | undefined,
     timing: Pick<ITiming, "begin" | "duration">,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     return (["left", "right"] as const).flatMap(
-      (side): IHumanContactWindow[] =>
+      (side): IAutoMovieMotionHumanContactWindow[] =>
         side === checking
           ? [
               {

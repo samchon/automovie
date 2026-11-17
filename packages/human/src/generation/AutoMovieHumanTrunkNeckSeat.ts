@@ -1,12 +1,16 @@
 import {
   AutoMovieLoftChain,
-  type AutoMovieLoftFrame,
   AutoMovieLoftFrameSource,
   AutoMovieLoftSection,
   AutoMovieLoftSectionConnect,
   AutoMovieLoftSectionSource,
-  type IAutoMovieLoftChain,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkNeckSeat,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
 
 /**
  * The neck's internal overlap ring as the remaining old shoulders read it.
@@ -24,45 +28,6 @@ import {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed support records and copied coefficient/lift arrays; the receiving definition borrows frame/source records until it is released, without a new global cache.
  */
 export namespace AutoMovieHumanTrunkNeckSeat {
-  /** The ring's lateral outline: the left extreme as a function of height at the ring's bottom. */
-  export interface ILateral {
-    /** Height of the ring, mm. */
-    y: number;
-
-    /** Half width: the left extreme's lateral place, mm. */
-    z: number;
-
-    /** First derivative of the extreme with respect to height, mm per mm. */
-    slope: number;
-
-    /** Second derivative of the extreme with respect to height, mm per mm squared. */
-    curvature: number;
-  }
-
-  /** The neck's bottom ring. */
-  export interface ISeat {
-    /** Mean height, mm. */
-    y: number;
-
-    /** Half width: the left side neck point's lateral place, mm. */
-    width: number;
-
-    /** Forward place of the widest point, mm. */
-    middle: number;
-
-    /** The ring's point on the front midline. */
-    front: [number, number, number];
-
-    /** The ring's point on the back midline. */
-    back: [number, number, number];
-
-    /** Internal overlap ring's left lateral support; not a recovered public side-neck landmark. */
-    side: [number, number, number];
-
-    /** The lateral outline's jet at the ring's bottom. */
-    lateral: ILateral;
-  }
-
   /** Phases the ring is sampled at. */
   const COUNT: number = 512;
 
@@ -75,7 +40,9 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param neck The neck chain, named `head`.
    * @returns Its landmarks and lateral outline.
    */
-  export function read(neck: IAutoMovieLoftChain): ISeat {
+  export function read(
+    neck: IAutoMovieLoftChain,
+  ): IAutoMovieHumanTrunkNeckSeat.ISeat {
     const y: number = neck.layers[0]!.y;
     const ring: [number, number, number][] = ringAt(neck, y);
 
@@ -103,7 +70,10 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param y Height of the ring's bottom, mm.
    * @returns The outline's jet.
    */
-  export function lateral(neck: IAutoMovieLoftChain, y: number): ILateral {
+  export function lateral(
+    neck: IAutoMovieLoftChain,
+    y: number,
+  ): IAutoMovieHumanTrunkNeckSeat.ILateral {
     const extreme: (h: number) => number = (h: number): number =>
       Math.max(
         ...ringAt(neck, h).map((p: [number, number, number]): number => p[2]),
@@ -163,17 +133,17 @@ export namespace AutoMovieHumanTrunkNeckSeat {
       throw new Error(
         "The old trunk needs a regular level +X/+Z neck boundary at the same world height",
       );
-    const frame: AutoMovieLoftFrame.IFrame = a.frame ?? {
+    const frame: IAutoMovieLoftSectionFrame = a.frame ?? {
       origin: [0, a.y, 0],
       u: [1, 0, 0],
       v: [0, 0, 1],
     };
-    const frameSlopes: AutoMovieLoftFrame.IFrame = a.frameSlopes ?? {
+    const frameSlopes: IAutoMovieLoftSectionFrame = a.frameSlopes ?? {
       origin: [0, 1, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
     };
-    const frameCurvatures: AutoMovieLoftFrame.IFrame = a.frameCurvatures ?? {
+    const frameCurvatures: IAutoMovieLoftSectionFrame = a.frameCurvatures ?? {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
@@ -228,7 +198,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
         : { liftCurvatures: [...a.liftCurvatures] }),
     };
     if (AutoMovieLoftSection.present(neck)) {
-      const field: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+      const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
         AutoMovieLoftSectionConnect.capture(neck, a.y);
       if (typeof field === "string") throw new Error(field);
       boundary.sectionSource = AutoMovieLoftSectionSource.bind(boundary, field);

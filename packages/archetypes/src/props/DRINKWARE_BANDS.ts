@@ -1,4 +1,5 @@
 import { AutoMovieHandAnthropometry } from "@automovie/engine";
+import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createDrinkware } from "./createDrinkware";
@@ -49,14 +50,14 @@ const GLASS: string =
   "Libbey 5139 pint and Libbey 2045 highball glasses, distributor listings seen only in search results";
 
 /** A finger's depth through the loop, millimetres: the larger of the two bounds its girth and breadth set on a joint's depth, the square root of the girth squared over four less the breadth squared, as the human figure's digit box takes it, so the loop admits the finger. */
-const depth = (finger: AutoMovieHandAnthropometry.IJoint): number =>
+const depth = (finger: IAutoMovieHandAnthropometry.IJoint): number =>
   Math.sqrt(finger.girth ** 2 / 4 - finger.breadth ** 2);
 
 /** A hand's loop, metres: the index's and the middle finger's breadths at their second joint from the tip side by side, and the thicker one's depth; women's means, then men's. */
 const loop = (k: 0 | 1): { tall: number; deep: number } => {
-  const index: AutoMovieHandAnthropometry.IJoint =
+  const index: IAutoMovieHandAnthropometry.IJoint =
     AutoMovieHandAnthropometry.JOINTS[k][1]![1];
-  const middle: AutoMovieHandAnthropometry.IJoint =
+  const middle: IAutoMovieHandAnthropometry.IJoint =
     AutoMovieHandAnthropometry.JOINTS[k][2]![1];
   return {
     tall: (index.breadth + middle.breadth) * ArchetypeUnits.MILLIMETRE,

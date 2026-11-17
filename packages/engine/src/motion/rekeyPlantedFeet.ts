@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
@@ -7,14 +7,17 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  type IAutoMovieFootLeg,
+  type IAutoMovieMotionSample,
+  type IAutoMovieRekeyPlantedFeet,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSkeletonTopology,
+} from "@automovie/interface";
 
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
-import { sampleMotion } from "./sampleMotion";
 
 /**
  * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
@@ -27,63 +30,18 @@ import { sampleMotion } from "./sampleMotion";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses topology and the preceding corrected pose for continuity. A same-operation reader and genuine immutable rig share exact static/FK dependencies with detection; raw omission retains full admission. Each changed frame/chain source still receives fresh target-specific preparation and solve.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns new keyframes/joints; unchanged root/expression/joints may be shared. A local or borrowed operation reader releases with the synchronous pass; a borrowed immutable rig remains caller-owned. No target history, global cache or handle persists.
  */
-export const rekeyPlantedFeet: (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
-  /** Index of the same unchanged rig already used by stance detection. */ topology: IAutoMovieSkeletonTopology;
-  /** Sample times in local seconds, parallel to poses and targets. */ times: readonly number[];
-  /** Already sampled pose/expression values at the parallel times. */ poses: ReadonlyArray<
-    ReturnType<typeof sampleMotion>
-  >;
-  /** Declared leg chains eligible for pinned correction. */ legs: readonly IAutoMovieFootLeg[];
-  /** Per-frame fixed model-metre contacts keyed by foot bone. */ targets: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>
-  >;
-  /** Optional clinical axes used to lower and replay solved joints. */ jointAxes?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Optional clinical rest frames used to lower and replay solved joints. */ restFrames?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-  /** Optional same-operation exact FK reader shared with stance detection. */ resolution?: ReturnType<typeof preparePoseResolution>;
-  /** Optional immutable snapshot of this exact rig/topology/clinical tables. */ poseResolution?: prepareSkeletonPoseResolution.IRig;
-}) => IAutoMovieKeyframe[] = (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Index of the same unchanged rig already used by stance detection. */
-  topology: IAutoMovieSkeletonTopology;
-
-  /** Sample times in local seconds, parallel to poses and targets. */
-  times: readonly number[];
-
-  /** Already sampled pose/expression values at the parallel times. */
-  poses: ReadonlyArray<ReturnType<typeof sampleMotion>>;
-
-  /** Declared leg chains eligible for pinned correction. */
-  legs: readonly IAutoMovieFootLeg[];
-
-  /** Per-frame fixed model-metre contacts keyed by foot bone. */
-  targets: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>;
-
-  /** Optional clinical axes used to lower and replay solved joints. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional clinical rest frames used to lower and replay solved joints. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /** Optional same-operation exact FK reader shared with stance detection. */
-  resolution?: ReturnType<typeof preparePoseResolution>;
-
-  /** Optional immutable snapshot of this exact rig/topology/clinical tables. */
-  poseResolution?: prepareSkeletonPoseResolution.IRig;
-}): IAutoMovieKeyframe[] => {
+export const rekeyPlantedFeet: (
+  props: rekeyPlantedFeet.IProps,
+) => IAutoMovieKeyframe[] = (
+  props: rekeyPlantedFeet.IProps,
+): IAutoMovieKeyframe[] => {
   const topology: IAutoMovieSkeletonTopology = props.topology;
   const keyframes: IAutoMovieKeyframe[] = [];
   const resolution: ReturnType<typeof preparePoseResolution> =
     props.resolution ?? preparePoseResolution();
   let prior: IAutoMoviePose | undefined;
   props.times.forEach((time: number, index: number): void => {
-    const sampled: ReturnType<typeof sampleMotion> = props.poses[index]!;
+    const sampled: IAutoMovieMotionSample = props.poses[index]!;
     const pose: IAutoMoviePose = {
       skeleton: sampled.pose.skeleton,
       root: sampled.pose.root,
@@ -157,3 +115,22 @@ const plantedJoints: (
   }
   return joints;
 };
+
+/**
+ * Companion types of {@link rekeyPlantedFeet}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the two engine-owned extensions of the interface re-keying props and their absence rules.
+ * @evidence contracts/development/design.md#principled-representation The canonical re-keying props stay in `IAutoMovieRekeyPlantedFeet.IProps`; this extension adds only the same-operation FK reader and the prepared rig, engine objects from `preparePoseResolution` and `prepareSkeletonPoseResolution`, so they cannot live in the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `plantStanceFeet` passes its detection reader and prepared rig so correction shares them; every other caller keeps the interface props unchanged.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface contract instead of copying it; both optional members are the genuine engine products, never structural stand-ins.
+ */
+export namespace rekeyPlantedFeet {
+  /** The re-keying props with the optional shared FK reader and prepared rig. */
+  export interface IProps extends IAutoMovieRekeyPlantedFeet.IProps {
+    /** Optional same-operation exact FK reader shared with stance detection. */
+    resolution?: ReturnType<typeof preparePoseResolution>;
+
+    /** Optional immutable snapshot of this exact rig/topology/clinical tables. */
+    poseResolution?: prepareSkeletonPoseResolution.IRig;
+  }
+}

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,11 +26,11 @@ import type { HumanArmGeometry as G } from "./HumanArmGeometry";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the caller owns the new placed wrapper and eight-plus-P probe array, sharing its completed chain vectors with the output and corresponding probe entries.
  */
 export function placeHumanArmGeometry(
-  setup: G.ISetup,
-  at: G.IFrame,
-  chain: Omit<G.IPlaced, "probes">,
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+  at: IAutoMovieMotionHumanArmGeometry.IFrame,
+  chain: Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes">,
   surface: boolean,
-): G.IPlaced {
+): IAutoMovieMotionHumanArmGeometry.IPlaced {
   const {
     shoulder: pu,
     elbow: pl,
@@ -37,12 +38,12 @@ export function placeHumanArmGeometry(
     lower: wl,
     wrist: ph,
     hand: wh,
-  }: Omit<G.IPlaced, "probes"> = chain;
+  }: Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> = chain;
   const tip: IAutoMovieVector3 = Vector3.add(
     ph,
     Quaternion.rotateVector(wh, at.tip),
   );
-  const m: G.ISetup["body"]["measure"] = setup.body.measure;
+  const m: IAutoMovieMotionHumanArmGeometry.ISetup["body"]["measure"] = setup.body.measure;
   return {
     probes: [
       [Vector3.lerp(pu, pl, 0.5), m.upperArmRadius],

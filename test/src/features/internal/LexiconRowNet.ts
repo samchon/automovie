@@ -1,10 +1,14 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanSocial,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -214,12 +218,16 @@ export namespace LexiconRowNet {
     "boxVault",
     "vaultOnPole",
     "fosburyFlop",
-    // A tool row works with the tool in hand, and a stir in its vessel,
-    // which `test_archetype_tool_use_m_average` and its twin stage.
+    // Labour and explicit tool-use rows both need scene props. Keep both
+    // registered vocabularies out of unprepared numeric boundary probes.
     "hammer",
     "saw",
     "stir",
     "screw",
+    "toolHammer",
+    "toolSaw",
+    "toolStir",
+    "toolScrewdriver",
     // A kick needs its ball, which `test_human_motion_sport_swings` and
     // `test_archetype_sport_strike` stage.
     "kickRight",
@@ -243,14 +251,14 @@ export namespace LexiconRowNet {
   ];
 
   /** The two polygon men, prepared at the first cast and kept for the test process. */
-  let prepared: Record<string, IHumanBody> | undefined;
+  let prepared: Record<string, IAutoMovieMotionHumanBody> | undefined;
 
   /** Every row of the lexicon, registered for each performance. */
-  const laws = (): IHumanActionLaw<never>[] =>
+  const laws = (): IAutoMovieMotionHumanActionLaw<never>[] =>
     Object.values(HUMAN_LEXICON).flat();
 
   /** A performer's chain out of a short stand. */
-  const starting = (subject: string): HumanChain =>
+  const starting = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
 
   /** Build one performance and note its refusal or its misplaced name. */
@@ -259,40 +267,43 @@ export namespace LexiconRowNet {
     label: string,
     names: readonly [string, string],
     gap: number | null,
-    build: () => { node: HumanPerformance.IInput["composition"] },
+    build: () => {
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    },
     placed?: string,
   ): void => {
     prepared ??= {
       "m-average": motionHumanBody("m-average"),
       "f-small": motionHumanBody("f-small"),
     };
-    const body = (name: string): IHumanBody => prepared![name]!;
+    const body = (name: string): IAutoMovieMotionHumanBody => prepared![name]!;
     try {
-      const performance: HumanPerformance = new HumanPerformance({
-        seed: "lexicon",
-        laws: laws(),
-        performers: [
-          {
-            subject: "a",
-            body: body(names[0]),
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-          ...(gap === null
-            ? []
-            : [
-                {
-                  subject: "b",
-                  body: body(names[1]),
-                  at: { x: 0, y: 0, z: gap },
-                  yaw: 180,
-                  proficiency: { level: "trained" as const },
-                },
-              ]),
-        ],
-        composition: build().node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "lexicon",
+          laws: laws(),
+          performers: [
+            {
+              subject: "a",
+              body: body(names[0]),
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+            ...(gap === null
+              ? []
+              : [
+                  {
+                    subject: "b",
+                    body: body(names[1]),
+                    at: { x: 0, y: 0, z: gap },
+                    yaw: 180,
+                    proficiency: { level: "trained" as const },
+                  },
+                ]),
+          ],
+          composition: build().node,
+        });
       const name: string | undefined = performance.segments("a")[1]?.name;
       if (placed !== undefined && name !== placed)
         complaints.push(
@@ -325,44 +336,46 @@ export namespace LexiconRowNet {
     part?: readonly [number, number],
   ): string[] {
     const complaints: string[] = [];
-    const chosen: IHumanActionLaw<never>[] = (
+    const chosen: IAutoMovieMotionHumanActionLaw<never>[] = (
       HUMAN_LEXICON[family] ?? []
     ).filter(
-      (_: IHumanActionLaw<never>, index: number): boolean =>
+      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
         part === undefined || index % part[1] === part[0],
     );
     if (chosen.length === 0)
       complaints.push(`the family ${family} holds no row to perform`);
     PAIRINGS.forEach((names: readonly [string, string], turn: number): void => {
-      chosen.forEach((law: IHumanActionLaw<never>, index: number): void => {
-        if (STAGED.includes(law.name)) return;
-        const scene: readonly [number, object] | undefined = PAIRED[law.name];
-        if (scene === undefined)
-          check(
-            complaints,
-            law.name,
-            names,
-            null,
-            () => starting("a").registered(law.name, ALONE[law.name] ?? {}),
-            law.name,
-          );
-        else if (!STRIKES.includes(law.name) || index % 2 === turn)
-          check(
-            complaints,
-            law.name,
-            names,
-            scene[0],
-            () =>
-              TRACKING.includes(law.name)
-                ? starting("b").with(
-                    starting("a").registered(law.name, scene[1]),
-                  )
-                : starting("a")
-                    .registered(law.name, scene[1])
-                    .with(starting("b")),
-            law.name,
-          );
-      });
+      chosen.forEach(
+        (law: IAutoMovieMotionHumanActionLaw<never>, index: number): void => {
+          if (STAGED.includes(law.name)) return;
+          const scene: readonly [number, object] | undefined = PAIRED[law.name];
+          if (scene === undefined)
+            check(
+              complaints,
+              law.name,
+              names,
+              null,
+              () => starting("a").registered(law.name, ALONE[law.name] ?? {}),
+              law.name,
+            );
+          else if (!STRIKES.includes(law.name) || index % 2 === turn)
+            check(
+              complaints,
+              law.name,
+              names,
+              scene[0],
+              () =>
+                TRACKING.includes(law.name)
+                  ? starting("b").with(
+                      starting("a").registered(law.name, scene[1]),
+                    )
+                  : starting("a")
+                      .registered(law.name, scene[1])
+                      .with(starting("b")),
+              law.name,
+            );
+        },
+      );
     });
     return complaints;
   }

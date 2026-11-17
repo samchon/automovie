@@ -1,8 +1,10 @@
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+} from "@automovie/interface";
 
-/** One finite native-chart point. */
-type Point = readonly [number, number];
+import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** A directed incidence, including its endpoint's explicit cover image. */
 interface Halfedge {
@@ -19,7 +21,7 @@ interface Halfedge {
   twin: number;
 
   /** Lifted target used for angular order at its source. */
-  end: Point;
+  end: Readonly<AutoMovieVector2Tuple>;
 }
 
 /**
@@ -38,25 +40,6 @@ interface Halfedge {
  */
 export namespace AutoMovieSolidMeshIncidence {
   /**
-   * One directed left boundary component in the native parameter cover.
-   *
-   * @evidence contracts/development/design.md#principled-representation Original vertex IDs and integer lifts describe the walk without converting identified surface points to an annular polygon.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Parallel ID/lift arrays plus total winding expose its complete combinatorial path.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not claim a nonzero-winding walk bounds a planar region or that one component owns an entire face.
-   * @evidence contracts/development/common.md#meaningful-documentation States cover origin, omitted repeated closing point and winding meaning.
-   */
-  export interface IWalk {
-    /** Original vertex IDs, without repeating the closing vertex. */
-    vertices: number[];
-
-    /** Period integers added at each vertex; the first is zero. */
-    lifts: number[];
-
-    /** Total period change on returning to the first vertex ID. */
-    winding: number;
-  }
-
-  /**
    * Read every directed boundary component of an already split constraint graph.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Sorts outgoing halfedges around each source, follows the predecessor of the twin at each target and accumulates the represented cover turn.
@@ -68,14 +51,14 @@ export namespace AutoMovieSolidMeshIncidence {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All traversal maps/bitmaps expire on return; only fresh walk arrays escape, with no shared cache.
    */
   export function walks(
-    vertices: ReadonlyMap<number, Point>,
-    segments: readonly AutoMovieSolidMeshConstraints.ISegment[],
+    vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+    segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     period?: number,
-  ): IWalk[] | string {
+  ): IAutoMovieSolidMeshIncidence.IWalk[] | string {
     if (period !== undefined && !(Number.isFinite(period) && period > 0))
       return "incidence period must be finite and positive";
     for (const entry of vertices) {
-      const [id, point]: [number, Point] = entry;
+      const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
       if (
         !Number.isSafeInteger(id) ||
         id < 0 ||
@@ -87,8 +70,12 @@ export namespace AutoMovieSolidMeshIncidence {
     const halves: Halfedge[] = [];
     const around: Map<number, number[]> = new Map();
     for (const segment of segments) {
-      const a: Point | undefined = vertices.get(segment.a);
-      const b: Point | undefined = vertices.get(segment.b);
+      const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.a,
+      );
+      const b: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.b,
+      );
       if (
         a === undefined ||
         b === undefined ||
@@ -98,8 +85,14 @@ export namespace AutoMovieSolidMeshIncidence {
         (period === undefined && segment.turn !== 0)
       )
         return "incidence needs finite original endpoints and valid turns";
-      const forward: Point = [b[0], b[1] + segment.turn * (period ?? 0)];
-      const reverse: Point = [a[0], a[1] - segment.turn * (period ?? 0)];
+      const forward: Readonly<AutoMovieVector2Tuple> = [
+        b[0],
+        b[1] + segment.turn * (period ?? 0),
+      ];
+      const reverse: Readonly<AutoMovieVector2Tuple> = [
+        a[0],
+        a[1] - segment.turn * (period ?? 0),
+      ];
       if (
         ![...forward, ...reverse].every(Number.isFinite) ||
         (a[0] === forward[0] && a[1] === forward[1]) ||
@@ -133,7 +126,7 @@ export namespace AutoMovieSolidMeshIncidence {
     const positions: Map<number, number> = new Map();
     for (const entry of around) {
       const [vertex, outgoing]: [number, number[]] = entry;
-      const origin: Point = vertices.get(vertex)!;
+      const origin: Readonly<AutoMovieVector2Tuple> = vertices.get(vertex)!;
       outgoing.sort(
         (a: number, b: number): number =>
           order(origin, halves[a]!.end, halves[b]!.end) || a - b,
@@ -158,7 +151,7 @@ export namespace AutoMovieSolidMeshIncidence {
       ]!;
     });
     const seen: Uint8Array = new Uint8Array(halves.length);
-    const result: IWalk[] = [];
+    const result: IAutoMovieSolidMeshIncidence.IWalk[] = [];
     for (let first: number = 0; first < halves.length; first++) {
       if (seen[first] === 1) continue;
       const ids: number[] = [];
@@ -184,7 +177,11 @@ export namespace AutoMovieSolidMeshIncidence {
 }
 
 /** Counterclockwise direction order without atan2 ties or coordinate normalization. */
-function order(origin: Point, a: Point, b: Point): number {
+function order(
+  origin: Readonly<AutoMovieVector2Tuple>,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+): number {
   const halfA: number =
     a[1] > origin[1] || (a[1] === origin[1] && a[0] >= origin[0]) ? 0 : 1;
   const halfB: number =

@@ -1,5 +1,5 @@
-import { IAutoMovieScenePayload } from "./IAutoMovieScenePayload";
-import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
+import type { IAutoMovieScenePayload } from "./IAutoMovieScenePayload";
+import type { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
 
 /**
  * A scene of the screenplay tree, at the slug level.

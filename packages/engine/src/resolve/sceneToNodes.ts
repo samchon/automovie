@@ -5,6 +5,7 @@ import {
   IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
   IAutoMovieScene,
+  type IAutoMovieSceneToNodes,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
@@ -22,29 +23,11 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All lowering uses shared naming; mutable scene/model records prevent retaining a graph solely by scene id.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns node wrappers/array and source transforms remain borrowed; partial arrays release on failure without native graph handles or tasks.
  */
-export const sceneToNodes: (props: {
-  scene: IAutoMovieScene;
-  models?: Record<string, IAutoMovieModel>;
-  props?: Record<string, IAutoMoviePropSpec>;
-  allowPartialModels?: boolean;
-}) => IAutoMovieNode[] = (props: {
-  /** The staged scene to lower. */
-  scene: IAutoMovieScene;
-  /** Placed models by model id; omit for a placements-only lowering. */
-  models?: Record<string, IAutoMovieModel>;
-  /**
-   * Forged props by prop node id (= model id, the staging join `forgeProp`
-   * gates). A placement resolving here lowers its articulation joints under the
-   * placement group, the placement pass `IAutoMoviePropSpec` promises.
-   */
-  props?: Record<string, IAutoMoviePropSpec>;
-  /**
-   * Permit a partial registry, retaining placements but omitting unregistered
-   * model subtrees. Only resolver callers that deliberately own a subset (such
-   * as articulated-prop inspection) should use this escape hatch.
-   */
-  allowPartialModels?: boolean;
-}): IAutoMovieNode[] => {
+export const sceneToNodes: (
+  props: IAutoMovieSceneToNodes.IProps,
+) => IAutoMovieNode[] = (
+  props: IAutoMovieSceneToNodes.IProps,
+): IAutoMovieNode[] => {
   const {
     scene,
     models,

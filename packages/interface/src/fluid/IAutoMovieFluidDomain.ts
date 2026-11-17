@@ -1,9 +1,9 @@
-import { IAutoMovieFluidBoundaries } from "./IAutoMovieFluidBoundaries";
-import { IAutoMovieFluidDrain } from "./IAutoMovieFluidDrain";
-import { IAutoMovieFluidGrid } from "./IAutoMovieFluidGrid";
-import { IAutoMovieFluidSolver } from "./IAutoMovieFluidSolver";
-import { IAutoMovieFluidSource } from "./IAutoMovieFluidSource";
-import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
+import type { IAutoMovieFluidBoundaries } from "./IAutoMovieFluidBoundaries";
+import type { IAutoMovieFluidDrain } from "./IAutoMovieFluidDrain";
+import type { IAutoMovieFluidGrid } from "./IAutoMovieFluidGrid";
+import type { IAutoMovieFluidSolver } from "./IAutoMovieFluidSolver";
+import type { IAutoMovieFluidSource } from "./IAutoMovieFluidSource";
+import type { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
 
 /**
  * One independent deterministic fluid computation domain.

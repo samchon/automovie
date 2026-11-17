@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
@@ -8,21 +7,25 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBody,
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { StrikingContact } from "./StrikingContact";
 
 /**
  * The body facts striking laws read: where a posture puts the shoulders,
@@ -64,8 +67,8 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map/transforms. An optional local getter borrows at most one parent reader only until return or throw; no reader, supplier or posed result enters body memory, a returned plan or persistent state.
    */
   export function trunk(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
@@ -93,12 +96,12 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one bounded body/demand producer until its action or search ends; it retains neither source set, pose, reader nor answers. Each invocation creates or borrows one local exact workspace released on return or throw, and only its fresh bone map escapes.
    */
   export function prepareTrunk(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const frames: ReturnType<typeof poseBones.prepare> | undefined =
       requested === undefined ? undefined : poseBones.prepare(body, requested);
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
       const pose: IAutoMoviePose = trunkPose(body, posture, read, projection);
       return frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
@@ -106,7 +109,7 @@ export namespace StrikingBody {
   }
 
   /** The exact original complete admission/digit path with only limb goals cleared. */
-  function trunkPose(body: IHumanBody, posture: IHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMoviePose {
+  function trunkPose(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMoviePose {
     return resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined, read, undefined, projection).pose;
   }
   /**
@@ -128,12 +131,12 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function region(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     region: AutoMovieHumanoidRegion,
-    tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const local: resolveAutoMovieHumanoidSurfaces.IFrame = frame(body, region, tangent);
+    tangent?: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieMotionHumanStrikingBody.IRegionResult {
+    const local: IAutoMovieHumanoidSurfaces.IFrame = frame(body, region, tangent);
     const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.pointNormal> =
       resolveAutoMovieHumanoidSurfaces.pointNormal(local, bones.get(local.bone)!);
     return placed;
@@ -156,10 +159,10 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This function stores no cache; callers borrow the central frame or own the offset result for their geometry's lifetime, without retaining a world pose, observation or FK reader.
    */
   export function frame(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-    tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
-  ): resolveAutoMovieHumanoidSurfaces.IFrame {
+    tangent?: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
     return tangent === undefined || (tangent.up === 0 && tangent.out === 0)
         ? body.surfaces.regions[region]
         : resolveAutoMovieHumanoidSurfaces.offset(
@@ -188,7 +191,7 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most R scalar radii for its valid named regions until body release. Temporary rest points end with the first scan, and no pose, world observation, reader or numerical time history is stored.
    */
   export function radius(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
     let radii: Map<AutoMovieHumanoidRegion, number> | undefined = RADII.get(body);
@@ -201,7 +204,7 @@ export namespace StrikingBody {
     const at: (name: AutoMovieHumanoidRegion) => IAutoMovieVector3 = (
       name: AutoMovieHumanoidRegion,
     ): IAutoMovieVector3 => {
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[name];
       return Vector3.add(body.rest.get(frame.bone)!, frame.point);
     };
@@ -238,7 +241,7 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function socket(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     socket: AutoMovieHumanoidSocket,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
@@ -269,7 +272,7 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fist(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     knuckles: IAutoMovieVector3,
     palm: IAutoMovieVector3,
@@ -365,15 +368,15 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function colliders(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): StrikingContact.ICollider[] {
+  ): IAutoMovieMotionHumanStrikingContact.ICollider[] {
     return HumanColliders.placed(body, bones).flatMap(
-      (segment: HumanColliders.IPlaced): StrikingContact.ICollider[] =>
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
         segment.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): StrikingContact.ICollider => ({
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieMotionHumanStrikingContact.ICollider => ({
             name: segment.bone,
             pose: segment.pose,
             shape,
@@ -384,4 +387,4 @@ export namespace StrikingBody {
 }
 
 /** Immutable rest/profile geometry only; no posed points or ROM metadata. */
-const RADII: WeakMap<IHumanBody, Map<AutoMovieHumanoidRegion, number>> = new WeakMap();
+const RADII: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidRegion, number>> = new WeakMap();

@@ -1,5 +1,5 @@
+import type { IAutoMovieInspectionView } from "@automovie/interface";
 import {
-  type IAutoMovieInspectionView,
   formatAutoMovieInspectionView,
   parseAutoMovieInspectionView,
 } from "@automovie/render";

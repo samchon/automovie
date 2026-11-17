@@ -1,19 +1,24 @@
 import {
-  ArchetypeUnits,
   type ArchetypeAssembly,
   type ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRide,
+  ArchetypeUnits,
 } from "@automovie/archetypes";
-import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRide,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,19 +57,30 @@ export function test_archetype_assembly_ride(): void {
     deceleration: 1,
     at: 3,
   };
-  const ride: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(carriage, course);
+  const ride: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(
+    carriage,
+    course,
+  );
 
   // 1. Every member's contacts keep their places on the root.
-  const contacts: readonly (readonly [string, IAutoMovieTransform, IAutoMovieTransform])[] = [
+  const contacts: readonly (readonly [
+    string,
+    IAutoMovieTransform,
+    IAutoMovieTransform,
+  ])[] = [
     ...(["bench1", "bench2", "bench3"] as const).map(
-      (key: "bench1" | "bench2" | "bench3"): [string, IAutoMovieTransform, IAutoMovieTransform] => [
+      (
+        key: "bench1" | "bench2" | "bench3",
+      ): [string, IAutoMovieTransform, IAutoMovieTransform] => [
         `${key}/seat`,
         members[key].placement,
         members[key].archetype.affordance("seat").frame,
       ],
     ),
     ...(["railLeft", "railRight"] as const).map(
-      (key: "railLeft" | "railRight"): [string, IAutoMovieTransform, IAutoMovieTransform] => [
+      (
+        key: "railLeft" | "railRight",
+      ): [string, IAutoMovieTransform, IAutoMovieTransform] => [
         `${key}/bar`,
         members[key].placement,
         members[key].archetype.affordance("bar").frame,
@@ -89,8 +105,8 @@ export function test_archetype_assembly_ride(): void {
   }
 
   // 2. A rider on a member's seat is carried with it.
-  const body: IHumanBody = motionHumanBody("m-average");
-  const placed = (seconds: number): IHumanProp.IFrame => {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const placed = (seconds: number): IAutoMovieRigidTransform => {
     const sample: IAutoMovieTransform = ride.at(seconds).placement;
     return { position: sample.translation, rotation: sample.rotation };
   };
@@ -100,7 +116,7 @@ export function test_archetype_assembly_ride(): void {
     "bench2/seat",
   );
   const radians: number = seat.yaw * ArchetypeUnits.DEGREE;
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "carriage",
     laws: [HumanRide.ride],
     props: [HumanObject.prop("carriage", carriage, placed(0), placed)],
@@ -123,17 +139,31 @@ export function test_archetype_assembly_ride(): void {
       .sit({ seat })
       .registered("ride", { on: "carriage", seconds: ride.duration }).node,
   });
-  const segment: ReturnType<HumanPerformance["segments"]>[number] =
-    performance.segments("a")[1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(performance, "a", body, 0);
+  const segment: ReturnType<
+    IAutoMovieMotionHumanPerformance["segments"]
+  >[number] = performance.segments("a")[1]!;
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    performance,
+    "a",
+    body,
+    0,
+  );
   const offset = (seconds: number): number => {
     const now: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
       carriage,
       placed(seconds),
       "bench2/seat",
     );
-    const rests: IAutoMovieVector3 = HumanSignature.region(reader, "seat", seconds);
-    return Math.hypot(rests.x - now.at.x, rests.y - now.at.y, rests.z - now.at.z);
+    const rests: IAutoMovieVector3 = HumanSignature.region(
+      reader,
+      "seat",
+      seconds,
+    );
+    return Math.hypot(
+      rests.x - now.at.x,
+      rests.y - now.at.y,
+      rests.z - now.at.z,
+    );
   };
   const first: number = offset(segment.entryTime);
   for (let k: number = 0; k <= 8; k++) {

@@ -1,9 +1,11 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { gestureSignal } from "./gestureSignal";
-import type { gestureStroke } from "./gestureStroke";
 
 /**
  * The joints a gesture moves directly.
@@ -120,7 +122,7 @@ export namespace gestureJoints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
   export function at(
-    kind: gestureStroke.Kind,
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
     u: number,
     cycles: number,
     envelope: number,
@@ -147,17 +149,17 @@ export namespace gestureJoints {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared pattern owns the exact same at/add scalars; every current phase, envelope and extent remains evaluated normally without reusing a prior time or angle answer.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no output record, input posture, scalar answer, callback, body or history; the caller owns the updated map and fresh written triples.
    */
-  export function add(joints: Angles, kind: gestureStroke.Kind, u: number,
+  export function add(joints: Angles, kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number,
     cycles: number, envelope: number, extent: number): void {
     pattern(kind, u, cycles, envelope, extent, joints, true);
   }
 }
 
 /** The existing clinical-degree joint record; no second pose is represented. */
-type Angles = IHumanPosture["joints"];
+type Angles = IAutoMovieMotionHumanPosture["joints"];
 
 /** Evaluate every original gesture scalar once, writing deltas or their ordered sum. */
-function pattern(kind: gestureStroke.Kind, u: number, cycles: number, envelope: number,
+function pattern(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycles: number, envelope: number,
   extent: number, joints: Angles, additive: boolean): Angles {
   const a: number = envelope * extent;
   switch (kind) {

@@ -1,6 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * Raw and explicitly fixed floor-joint interpolation share one scalar owner.
@@ -23,11 +24,11 @@ export namespace floorEntryJoints {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The union and current pair end with this call; only the fresh output map/tuples return and no input/history is retained.
    */
   export function raw(
-    from: IHumanPosture["joints"],
-    to: IHumanPosture["joints"],
+    from: IAutoMovieMotionHumanPosture["joints"],
+    to: IAutoMovieMotionHumanPosture["joints"],
     weight: number,
-  ): IHumanPosture["joints"] {
-    const joints: IHumanPosture["joints"] = {};
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of new Set([...Object.keys(from), ...Object.keys(to)]) as Set<AutoMovieHumanoidBone>) {
       const a: readonly [number, number, number] = from[bone] ?? [0, 0, 0];
       const b: readonly [number, number, number] = to[bone] ?? [0, 0, 0];
@@ -48,14 +49,14 @@ export namespace floorEntryJoints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns J bounded endpoint-pair records until its fixed transition ends; no current weight, output, callback, FK source or history is retained.
    */
   export function prepare(
-    from: IHumanPosture["joints"],
-    to: IHumanPosture["joints"],
-  ): (weight: number) => IHumanPosture["joints"] {
+    from: IAutoMovieMotionHumanPosture["joints"],
+    to: IAutoMovieMotionHumanPosture["joints"],
+  ): (weight: number) => IAutoMovieMotionHumanPosture["joints"] {
     const pairs: [AutoMovieHumanoidBone, readonly [number, number, number], readonly [number, number, number]][] = [];
     for (const bone of new Set([...Object.keys(from), ...Object.keys(to)]) as Set<AutoMovieHumanoidBone>)
       pairs.push([bone, from[bone] ?? [0, 0, 0], to[bone] ?? [0, 0, 0]]);
-    return (weight: number): IHumanPosture["joints"] => {
-      const joints: IHumanPosture["joints"] = {};
+    return (weight: number): IAutoMovieMotionHumanPosture["joints"] => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const [bone, a, b] of pairs) joints[bone] = tuple(a, b, weight);
       return joints;
     };

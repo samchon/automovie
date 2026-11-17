@@ -1,9 +1,11 @@
-import {
-  AutoMovieBernstein64 as B,
-  type IAutoMovieCurve64 as C,
-} from "@automovie/engine";
+import { AutoMovieBernstein64 as B } from "@automovie/engine";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryEventCurvePiece } from "../structures/curve/IAutoMovieRecoveryEventCurvePiece";
 import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 
 /**
@@ -22,8 +24,10 @@ import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 export function readRecoveryEventCurveControls(
   piece: IAutoMovieRecoveryEventCurvePiece,
   nativeEndpoints: boolean = false,
-): C.Span {
-  const parent: C.Span = readRecoveryEventCurveParent(piece.source);
+): AutoMovieCubicBezierControls3 {
+  const parent: AutoMovieCubicBezierControls3 = readRecoveryEventCurveParent(
+    piece.source,
+  );
   const start: number = piece.source.start,
     end: number = piece.source.end;
   if (
@@ -40,12 +44,14 @@ export function readRecoveryEventCurveControls(
       "An occurrence requires a positive chart width and nonempty oriented normalized native interval",
     );
   const reverse: boolean = start > end;
-  let controls: C.Span;
+  let controls: AutoMovieCubicBezierControls3;
   if (Math.min(start, end) === 0 && Math.max(start, end) === 1)
     controls = parent;
   else {
-    const restricted: B.Poly = B.restrict(
-      parent.map((p: C.Vector): B.Vec => [...p]),
+    const restricted: AutoMovieBernsteinPolynomial64 = B.restrict(
+      parent.map(
+        (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
+      ),
       Math.min(start, end),
       Math.max(start, end),
     );
@@ -55,7 +61,9 @@ export function readRecoveryEventCurveControls(
   }
   if (reverse) controls = [controls[3], controls[2], controls[1], controls[0]];
   if (nativeEndpoints) {
-    const net: B.Poly = parent.map((p: C.Vector): B.Vec => [...p]);
+    const net: AutoMovieBernsteinPolynomial64 = parent.map(
+      (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
+    );
     controls = [
       B.value(net, start),
       controls[1],

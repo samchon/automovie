@@ -1,5 +1,5 @@
-import { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry";
-import { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
+import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry";
+import type { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
 
 /**
  * A segmentation palette keyed by stable semantic identity, plus the sidecar that reads a rendered color back to the thing it named.

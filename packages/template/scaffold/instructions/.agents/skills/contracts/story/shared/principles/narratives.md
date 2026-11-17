@@ -10,4 +10,4 @@ Does the unit leave a recognizable change in events, understanding, relationship
 
 ## Parent differentiation
 
-Does each layer make its own decisions: treatment turning facts into chosen events and information order, script turning those events into partitioned executable action with actual dialogue, staging and view, and final screenplay turning that execution into finished image, sound, attention, duration and transitions? Changing tense, formatting or volume without those decisions hands the next layer a copy.
+Does each layer make its own decisions: the treatment choosing events and information order, the script executing them as partitioned action with dialogue, staging and view, and the final screenplay finishing that execution as image, sound, attention, duration and transitions? Changing tense, formatting or volume without those decisions hands the next layer a copy.

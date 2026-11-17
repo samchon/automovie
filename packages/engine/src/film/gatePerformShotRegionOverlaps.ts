@@ -2,14 +2,14 @@ import {
   AutoMovieBodyRegion,
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  type IAutoMovieEnginePerformShotGateContext,
   IAutoMovieMotion,
 } from "@automovie/interface";
 
-import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
@@ -47,7 +47,7 @@ interface ICarriedContent {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The per-actor lists and content caches are dropped on return; synthesized clips stay in the caller's memo for the rest of the call.
  */
 export function gatePerformShotRegionOverlaps(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
   synthesize: IAutoMovieActionSynthesizer,
 ): void {

@@ -1,4 +1,4 @@
-import { IAutoMovieDrivenCurvePoint } from "./IAutoMovieDrivenCurvePoint";
+import type { IAutoMovieDrivenCurvePoint } from "./IAutoMovieDrivenCurvePoint";
 
 /**
  * A nonlinear driven-key map from source scalar to output scalar.

@@ -1,7 +1,10 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import type { HumanHand } from "./HumanHand";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * Whether an arm is the last limb a posture's solve fits and fits alone:
@@ -27,8 +30,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function isHumanArmAlone(
-  limbs: IHumanPosture["limbs"],
-  side: HumanHand.Side,
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
+  side: AutoMovieHumanSide,
 ): boolean {
   const other: "leftArm" | "rightArm" = side === "left" ? "rightArm" : "leftArm";
   if (limbs[other] !== undefined) return false;

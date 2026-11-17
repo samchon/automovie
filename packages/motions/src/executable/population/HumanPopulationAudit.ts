@@ -1,8 +1,9 @@
-import {
-  AutoMovieHumanBodyAnatomy,
-  type IAutoMovieHumanBodyAnatomy,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
+import { AutoMovieHumanBodyAnatomy } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyAnatomy,
+  IAutoMovieHumanBodyAnthropometry,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
@@ -11,7 +12,7 @@ import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 type P = IAutoMovieHumanParameters;
 type Sex = HumanPopulationSurvey.Sex;
 type Variable = HumanPopulationSurvey.Variable;
-type Key = AutoMovieHumanBodyAnatomy.TapeControl | "height";
+type Key = IAutoMovieHumanBodyAnthropometry.TapeControl | "height";
 type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;
 
 /**

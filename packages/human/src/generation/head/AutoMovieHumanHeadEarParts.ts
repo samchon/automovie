@@ -1,17 +1,23 @@
-import {
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanEar,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadEarFrame,
+  IAutoMovieHumanHeadEarPlate,
+  IAutoMovieHumanHeadEarRidge,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanPair,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
-import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarFrame } from "./AutoMovieHumanHeadEarFrame";
 import { AutoMovieHumanHeadEarPlate } from "./AutoMovieHumanHeadEarPlate";
 import { AutoMovieHumanHeadEarRidge } from "./AutoMovieHumanHeadEarRidge";
-import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 
 /**
  * Each auricle and the parts inside it, in the ear's own frame
@@ -61,17 +67,17 @@ export namespace AutoMovieHumanHeadEarParts {
   export function of(
     plan: IAutoMovieHumanHeadLayout,
     mass: IAutoMovieViewPart,
-    ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
-    tops?: { left: number; right: number },
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): AutoMovieHumanHeadFeatures.IFeature[] {
-    const prior: AutoMovieHumanHeadPrior.IEar =
+    ears: IAutoMovieHumanPair<IAutoMovieHumanEar>,
+    tops?: IAutoMovieHumanPair<number>,
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
+    const prior: IAutoMovieHumanHeadPrior.IEar =
       AutoMovieHumanHeadPrior.PRIOR.ear;
     const k: number = plan.scale;
-    const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
+    const out: IAutoMovieHumanHeadFeatures.IFeature[] = [];
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
-      const f: AutoMovieHumanHeadEarFrame.IFrame =
+      const f: IAutoMovieHumanHeadEarFrame.IFrame =
         AutoMovieHumanHeadEarFrame.of(
           plan,
           mass,
@@ -82,7 +88,7 @@ export namespace AutoMovieHumanHeadEarParts {
       const s: number = f.scale * k;
       const auricle: string = `auricle.${side}`;
 
-      const plate: AutoMovieHumanHeadEarPlate.IOutput =
+      const plate: IAutoMovieHumanHeadEarPlate.IOutput =
         AutoMovieHumanHeadEarPlate.of(plan, mass, f, side);
       out.push({
         part: plate.part,
@@ -114,16 +120,16 @@ export namespace AutoMovieHumanHeadEarParts {
         name: string,
         course: [number, number, number][],
         row: readonly number[],
-        ports?: AutoMovieHumanHeadEarRidge.IPorts,
-      ) => AutoMovieHumanHeadEarRidge.IRidge = (
+        ports?: IAutoMovieHumanHeadEarRidge.IPorts,
+      ) => IAutoMovieHumanHeadEarRidge.IRidge = (
         name: string,
         course: [number, number, number][],
         row: readonly number[],
-        ports: AutoMovieHumanHeadEarRidge.IPorts = {},
-      ): AutoMovieHumanHeadEarRidge.IRidge => {
+        ports: IAutoMovieHumanHeadEarRidge.IPorts = {},
+      ): IAutoMovieHumanHeadEarRidge.IRidge => {
         const height: number = (row[0]! * s) / 2;
         const width: number = (row[2]! * s) / 2;
-        const source: AutoMovieHumanHeadEarRidge.IRidge =
+        const source: IAutoMovieHumanHeadEarRidge.IRidge =
           AutoMovieHumanHeadEarRidge.of(
             `${name}.${side}`,
             course,
@@ -157,13 +163,13 @@ export namespace AutoMovieHumanHeadEarParts {
       const offset: number = prior.antihelix[1]! * s;
       const fork: number = (plate.tragion + plate.attachment) / 2;
       const forkPoint: [number, number, number] = inner(fork, offset);
-      const antihelix: AutoMovieHumanHeadEarRidge.IRidge = ridge(
+      const antihelix: IAutoMovieHumanHeadEarRidge.IRidge = ridge(
         "ear.antihelix",
         [inner(end, offset), inner(plate.tragion, offset), forkPoint],
         prior.antihelix,
         { end: `ear.fork.${side}` },
       );
-      const junction: AutoMovieHumanHeadEarRidge.IPort =
+      const junction: IAutoMovieHumanHeadEarRidge.IPort =
         AutoMovieHumanHeadEarRidge.port(antihelix, `ear.fork.${side}`);
       ridge(
         "ear.crus.superior",
@@ -260,7 +266,7 @@ export namespace AutoMovieHumanHeadEarParts {
    */
   function insetHelix(
     boundary: [number, number, number][],
-    plate: AutoMovieHumanHeadEarPlate.IOutput,
+    plate: IAutoMovieHumanHeadEarPlate.IOutput,
     radius: number,
   ): [number, number, number][] {
     const middle: number = (plate.top + plate.bottom) / 2;
@@ -317,8 +323,8 @@ export namespace AutoMovieHumanHeadEarParts {
             ),
         );
       const source:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
         knots: course.map(
           (
             point: [number, number, number],
@@ -383,13 +389,13 @@ export namespace AutoMovieHumanHeadEarParts {
     profile: number,
     seed: [number, number, number],
     host?: IAutoMovieViewPart,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): AutoMovieHumanHeadFeatures.IFeature[] {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map(
       (x: number): number => Math.max(0.5, Math.abs(x)),
     ) as [number, number, number, number];
-    const source: AutoMovieHumanHeadDome.IPart | null =
+    const source: IAutoMovieHumanHeadDome.IPart | null =
       AutoMovieHumanHeadDome.attempt(
         {
           name,

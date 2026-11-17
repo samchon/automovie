@@ -1,6 +1,8 @@
 import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -20,8 +22,8 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function assertPhysicalNativeMotion(
-  segment: P.ISegment,
-  pose: P.ITransform,
+  segment: IAutoMoviePhysicalSegment,
+  pose: IAutoMovieRigidTransform,
   velocity?: IAutoMovieVector3,
   angularVelocity?: IAutoMovieVector3,
 ): void {
@@ -44,7 +46,7 @@ export function assertPhysicalNativeMotion(
   }
   if (angularVelocity !== undefined) values.push(angularVelocity);
   for (const shape of segment.shapes) {
-    const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+    const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
       pose,
       shape,
     );

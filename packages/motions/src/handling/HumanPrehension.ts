@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRandom,
   Quaternion,
   Vector3,
   minimumJerk,
@@ -7,7 +6,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanSkill,
   IAutoMovieQuaternion,
+  IAutoMovieRandom,
+  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -110,7 +113,7 @@ export namespace HumanPrehension {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no skill, draw stream, caller state or handle.
    */
   export function duration(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     distance: number,
     width: number,
@@ -193,46 +196,6 @@ export namespace HumanPrehension {
   export function peak(random: IAutoMovieRandom): number {
     return 0.6 + 0.1 * random.float(0);
   }
-
-  /**
-   * A planned transport of the wrist and the hand's turn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state duration seconds, world-metre wrist query and world hand-rotation query; each reader consumes transport-relative seconds.
-   * @evidence contracts/development/design.md#principled-representation One positive-duration path exposes independent point and attitude evaluations; transport admits duration and the engine retains finite-time/quaternion numerical contracts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pick-up, put-down, clasp and handover read exactly these three members; vectors and quaternions remain interface-owned types.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No stored samples, previous frame, body-specific path, fabricated contact or overloaded time unit is represented.
-   */
-  export interface ITransport {
-    /** Seconds the transport lasts. */
-    duration: number;
-
-    /**
-     * The wrist at a second of the transport (clamped to its span), metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The argument is transport-relative seconds and output a fresh world-metre point held at the path endpoints outside its span.
-     * @evidence contracts/development/implementation.md#principled-implementation transport supplies the original one/two-unit minimum-jerk superposition at the same clamped second and returns its position.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamped evaluation delegates all unit polynomial/accumulation arithmetic to the engine owner.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No path samples, time quantization, derivative approximation or contact adjustment replaces the original exact query.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates the original one direct unit or two overlapping units in constant work; the engine's position-only read omits unused derivative profiles, velocity/acceleration vectors and state wrapper while returning the same fresh point. Speedup is unmeasured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable plan owns its original origin/unit geometry; each second is actually evaluated without a time/result cache.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed origin/unit vectors and duration until release; a query returns a fresh point without retaining its time or output.
-     */
-    wrist(seconds: number): IAutoMovieVector3;
-
-    /**
-     * The hand's world rotation at a second of the transport.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The argument is transport-relative seconds and output the original world hand attitude, reaching its final rotation by APPROACH.start of duration.
-     * @evidence contracts/development/implementation.md#principled-implementation transport slerps the original endpoint rotations by the same minimum-jerk scalar at t/(APPROACH.start*duration).
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar profile query and one quaternion interpolation retain shared polynomial/quaternion owners.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original finite admission, endpoint clipping, slerp grouping and approach timing remain unchanged.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar and quaternion work; only requested displacement share is computed and derivative profiles are not allocated.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed endpoint rotations/duration are plan data while every time computes its actual interpolation, without answer reuse across times.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan borrows the fixed rotation pair until release and retains no queried second, prior quaternion, history or handle.
-     */
-    turn(seconds: number): IAutoMovieQuaternion;
-  }
-
   /**
    * Plan a transport.
    *
@@ -258,9 +221,9 @@ export namespace HumanPrehension {
     to: IAutoMovieVector3,
     approach: IAutoMovieVector3,
     setback: number,
-    rotation: { from: IAutoMovieQuaternion; to: IAutoMovieQuaternion },
+    rotation: IAutoMovieMotionHumanPrehension.ITransportRotation,
     seconds: number,
-  ): ITransport {
+  ): IAutoMovieMotionHumanPrehension.ITransport {
     if (!(seconds > 0)) throw new Error("A transport lasts a positive time");
     const via: IAutoMovieVector3 = Vector3.subtract(
       to,
@@ -269,7 +232,7 @@ export namespace HumanPrehension {
     // A direct reach has no approach stretch: one unit spans the whole time,
     // so its peak speed is the minimum-jerk 1.875 times the mean and not the
     // first unit's share squeezed into three quarters of it.
-    const units: superposeMinimumJerk.IUnit[] =
+    const units: IAutoMovieSuperposeMinimumJerk.IUnit[] =
       setback === 0
         ? [
             {

@@ -1,9 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
-
-import type { IHumanBody } from "./IHumanBody";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
 /** Each body's bone records by name, built at the first lookup and released with the body. */
-const RECORDS: WeakMap<IHumanBody, ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>> = new WeakMap();
+const RECORDS: WeakMap<IAutoMovieMotionHumanBody, ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>> = new WeakMap();
 
 /**
  * A bone's record in a body's rig, by name: the first record of that name,
@@ -28,7 +30,7 @@ const RECORDS: WeakMap<IHumanBody, ReadonlyMap<AutoMovieHumanoidBone, IAutoMovie
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One map of B references a body, weakly keyed, released with the body.
  */
 export function readHumanBone(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
 ): IAutoMovieBone | undefined {
   let records: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone> | undefined = RECORDS.get(body);

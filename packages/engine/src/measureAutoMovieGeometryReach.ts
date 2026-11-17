@@ -1,20 +1,23 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
+  type IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { reachPose } from "./kinematics/reachPose";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
+import { Transform } from "./math/Transform";
 import { Vector3 } from "./math/Vector3";
 import { validatePose } from "./validation/validatePose";
-import { Transform } from "./math/Transform";
 
 /**
  * Measure each available arm's rest-chain reach gap in model metres at shot-local seconds; report solved-pose ROM separately and refuse degenerate node scale or absent arm chains.
@@ -29,9 +32,9 @@ import { Transform } from "./math/Transform";
  */
 export function measureAutoMovieGeometryReach(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "reach" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "reach" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
 
   const sampledTime: number = request.time ?? 0;
@@ -64,7 +67,10 @@ export function measureAutoMovieGeometryReach(
   const localTarget: IAutoMovieVector3 | null =
     nodeLocal === null || spatial.poseRoot === null
       ? nodeLocal
-      : toModelPoint(nodeLocal, Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation));
+      : toModelPoint(
+          nodeLocal,
+          Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
+        );
 
   if (localTarget === null)
     throw new Error(
@@ -133,7 +139,7 @@ const measureArmReach: (
     side === "left" ? "leftLowerArm" : "rightLowerArm";
   const handName: "leftHand" | "rightHand" =
     side === "left" ? "leftHand" : "rightHand";
-  const rest: ReturnType<typeof resolvePose> = resolvePose(
+  const rest: IAutoMovieResolvedBone[] = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
     HUMANOID_JOINT_AXES,
@@ -160,7 +166,7 @@ const measureArmReach: (
     Vector3.subtract(target, upper.worldPosition),
   );
   const gap: number = Math.max(0, targetDistance - upperLength - lowerLength);
-  const pose: ReturnType<typeof reachPose> = reachPose(skeleton, side, target);
+  const pose: IAutoMoviePose | null = reachPose(skeleton, side, target);
   return {
     gap,
     reachable: gap <= 1e-6,

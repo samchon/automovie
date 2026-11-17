@@ -1,4 +1,9 @@
-import type { AutoMovieConstructionProfileBody } from "./AutoMovieConstructionProfileBody";
+import type {
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+} from "@automovie/interface";
+
 import { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
@@ -20,14 +25,14 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair sets, each end's local face set and fan arrays are synchronous scratch; cut results are never reused across different station/regular strips. Mesh retains admitted apex/triangle data and source ownership.
  */
 export function AutoMovieConstructionProfileSkin(
-  body: AutoMovieSolidBody.IBody,
-  ends: readonly AutoMovieConstructionProfileBody.IEnd[],
-  open: readonly (readonly AutoMovieSolidMesh.IOpen[])[],
+  body: IAutoMovieSolidBody.IBody,
+  ends: readonly IAutoMovieConstructionProfileBody.IEnd[],
+  open: readonly (readonly IAutoMovieSolidMesh.IOpen[])[],
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   if (ends.length === 0) return;
   const pairs: Set<string>[] = open.map(
-    (list: readonly AutoMovieSolidMesh.IOpen[]): Set<string> => {
+    (list: readonly IAutoMovieSolidMesh.IOpen[]): Set<string> => {
       const edges: Set<string> = new Set();
       for (const boundary of list)
         for (let k: number = 0; k < boundary.vertices.length; k++)

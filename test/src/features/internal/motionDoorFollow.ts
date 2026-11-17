@@ -1,6 +1,12 @@
 import { createCar, createDoor } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -10,12 +16,9 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
   HumanTravelLeaf,
   HumanVerdicts,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,7 +70,7 @@ export function motionDoorFollow(
   name: motionHumanBody.Name,
   which: "house" | "car",
 ): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const OPEN: number = 0.5;
   const placement: IAutoMovieTransform = {
@@ -87,13 +90,13 @@ export function motionDoorFollow(
   /** One door: the prop, where its handle is at a second, and where the person stands. */
   interface IStage {
     label: string;
-    prop: IHumanProp;
+    prop: IAutoMovieMotionHumanProp;
     handle: string;
     at: (seconds: number) => IAutoMovieTransform;
     stand: { at: IAutoMovieVector3; yaw: number };
     seconds: number;
   }
-  const perform = (stage: IStage): HumanPerformance =>
+  const perform = (stage: IStage): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "door",
       laws: [HumanTravelLeaf.openDoor],
@@ -207,7 +210,7 @@ export function motionDoorFollow(
   };
 
   const stage: IStage = which === "house" ? house(6) : sedan();
-  let performance: HumanPerformance | null = null;
+  let performance: IAutoMovieMotionHumanPerformance | null = null;
   try {
     performance = perform(stage);
   } catch (error) {
@@ -216,13 +219,13 @@ export function motionDoorFollow(
     );
   }
   if (performance !== null) {
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       stage.stand.yaw,
     );
-    const hold: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const hold: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
 
     // 1. It steps.
     const plants = hold.plan.contacts.filter(
@@ -265,7 +268,7 @@ export function motionDoorFollow(
     // 3. The feet keep the floor: the shipped verdicts read no foot slide,
     // lift or sink.
     for (const finding of HumanVerdicts.of(performance).findings.filter(
-      (f: HumanVerdicts.IFinding): boolean =>
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         (f.check === "slip" || f.check === "lift" || f.check === "floor") &&
         /Foot|Toes/.test(f.where),
     ))

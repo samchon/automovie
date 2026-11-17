@@ -1,4 +1,8 @@
-import { type AutoMovieLoftFrame, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieViewAxis } from "@automovie/engine";
+import type {
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * An exact straight joint consumes no turn length or setback, while a nonzero near-straight turn still requires its positive arclength.
@@ -41,12 +45,12 @@ export function test_construction_zero_turn(): void {
     });
   };
   for (const half of [0, 1]) {
-    const axis: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+    const axis: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
       centres,
       [half],
       up,
     );
-    const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+    const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
       centres,
       [half],
     );
@@ -57,7 +61,7 @@ export function test_construction_zero_turn(): void {
       continue;
     }
     for (const s of [0, 0.005, 0.01, 0.015, 0.03]) {
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const expected: number[] = [0, s, 0, 1, 0, 0, 0, 0, 1];
       equal(
         `straight frame ${half}/${s}`,
@@ -66,7 +70,7 @@ export function test_construction_zero_turn(): void {
       );
     }
     const values: number[] = runs.flatMap(
-      (r: AutoMovieViewAxis.IRun): number[] => [r.from, r.to, r.start, r.end],
+      (r: IAutoMovieViewAxis.IRun): number[] => [r.from, r.to, r.start, r.end],
     );
     const expected: number[] = [0, 0.01, 0, 0.01, 0, 0.02, 0.01, 0.03];
     if (runs.length !== 2)
@@ -82,7 +86,7 @@ export function test_construction_zero_turn(): void {
   ];
   if (typeof AutoMovieViewAxis.jointed(tilted, [0], up) !== "string")
     failures.push("a nonzero tiny turn accepts zero half");
-  const tiny: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+  const tiny: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
     tilted,
     [1e-4],
     up,
@@ -94,7 +98,7 @@ export function test_construction_zero_turn(): void {
     );
     equal("tiny turn tangent", tangent, [0, 1, 1e-10]);
   }
-  const base: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+  const base: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
     [
       [0, 0, 0],
       [0, 2, 0],
@@ -103,7 +107,7 @@ export function test_construction_zero_turn(): void {
     [0.1],
     up,
   );
-  const mixed: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+  const mixed: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
     [
       [0, 0, 0],
       [0, 1, 0],
@@ -113,7 +117,7 @@ export function test_construction_zero_turn(): void {
     [10, 0.1],
     up,
   );
-  const baseRuns: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+  const baseRuns: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
     [
       [0, 0, 0],
       [0, 2, 0],
@@ -121,7 +125,7 @@ export function test_construction_zero_turn(): void {
     ],
     [0.1],
   );
-  const mixedRuns: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+  const mixedRuns: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
     [
       [0, 0, 0],
       [0, 1, 0],
@@ -168,8 +172,8 @@ export function test_construction_zero_turn(): void {
       );
     }
     for (const s of [0, 0.5, 1, 1.5, 1.9, 2, 2.05, 2.5]) {
-      const actual: AutoMovieLoftFrame.IFrame = mixed.at(s);
-      const expected: AutoMovieLoftFrame.IFrame = base.at(s);
+      const actual: IAutoMovieLoftSectionFrame = mixed.at(s);
+      const expected: IAutoMovieLoftSectionFrame = base.at(s);
       equal(
         `mixed frame ${s}`,
         [...actual.origin, ...actual.u, ...actual.v],

@@ -1,5 +1,5 @@
-import { IAutoMovieDefinedShotContract } from "./IAutoMovieDefinedShotContract";
-import { IAutoMovieShotProgram } from "./IAutoMovieShotProgram";
+import type { IAutoMovieDefinedShotContract } from "./IAutoMovieDefinedShotContract";
+import type { IAutoMovieShotProgram } from "./IAutoMovieShotProgram";
 
 /**
  * The source-authored half of a shot registration, accepted by the engine's `defineShot` helper.

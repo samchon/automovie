@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
@@ -10,20 +9,25 @@ import {
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanForceSite,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanForceExchange,
+  IAutoMovieMotionHumanForceResponse,
+  IAutoMovieMotionHumanForceThrow,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanForce } from "../perform/HumanForce";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanForceExchange } from "./HumanForceExchange";
 import type { HumanForceResponse } from "./HumanForceResponse";
@@ -44,73 +48,7 @@ import type { HumanForceResponse } from "./HumanForceResponse";
  */
 export namespace HumanForceThrow {
   /**
-   * What the response hands the throw: the pulled body's model, the pull's
-   * direction, the instant its base breaks, its pose frozen there, its
-   * centre's speed then, its yield before and its feet's plant windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The state of the pulled body at the broken base, the throw's initial condition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ten members, each read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The yield and the plant are the response's own functions, so the throw does not restate them.
-   */
-  export interface IProps {
-    /** The body's mass model. */
-    model: resolveAutoMovieCenterOfMass.IModel;
 
-    /** The pull's horizontal direction, unit, world. */
-    direction: IAutoMovieVector3;
-
-    /** Seconds from the action's start to the broken base. */
-    broken: number;
-
-    /** The body's pose at the broken base, written by joints alone. */
-    frozen: IHumanPosture;
-
-    /** The centre's speed along the pull at the broken base, m/s. */
-    speed: number;
-
-    /** The pull, newtons, horizontal along `direction`. */
-    force: number;
-
-    /** The grip sites' mean height, world metres. */
-    grip: number;
-
-    /** Seconds the pull lasts after the broken base. */
-    remaining: number;
-
-    /**
-     * The yield's posture before the broken base.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns The posture.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative seconds and the pre-break yielding posture; HumanForceResponse's producer holds its clock at the broken-base instant.
-     * @evidence contracts/development/implementation.md#principled-implementation The supplied response producer applies the inverted-pendulum offset and the body's measured along/across tip geometry to the underlying yielded posture at min(seconds, broken).
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure HumanForceResponse owns the yielding law; the throw delegates its pre-break branch to this reader before taking over rigid swing and flight.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original force, base-break time, body geometry and underlying posture remain authoritative; no fitted pose or scripted yield replaces them.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each read pays the underlying plan posture and constant pendulum/vector work; fixed force, frequency, entry geometry and sensitivity scalars are prepared by the response once.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the response's actual yielded plan and fixed physical inputs while recomputing every requested second; no posture answer is retained by the throw.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The throw plan retains this callback and its response scalars for its lifetime. Each call returns a fresh transformed posture and acquires no task, handle or time history.
-     */
-    yieldAt(seconds: number): IHumanPosture;
-
-    /**
-     * A foot's plant on the floor from the start.
-     *
-     * @param part The foot.
-     * @param to The share it ends at.
-     * @returns The window.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines foot identity and normalized end share; HumanForceResponse supplies a ground plant starting at share zero.
-     * @evidence contracts/development/implementation.md#principled-implementation The response producer declares the named foot planted on ground from zero through the supplied broken/duration share, preserving support until the base breaks.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One record constructor serves both feet; HumanForceThrow supplies each foot and the same physical phase boundary.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the exact requested foot and share without widening support, changing phase timing or claiming that a later airborne foot remains planted.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and one fresh contact-window record per foot, called twice during throw construction.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing window-construction policy only; separate fresh records keep the two feet and their ownership independent.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned throw plan owns its two contact records for its lifetime; the constructor retains no output, history or external resource.
-     */
-    plant(part: "leftFoot" | "rightFoot", to: number): IHumanContactWindow;
-  }
 
   /**
    * Plan the throw after the broken base: the swing about the thrower's
@@ -130,16 +68,16 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The native fixed history is cleared in finally after flight construction, including an integration failure; completed playback retains only numeric flight data. An unavailable native constructor uses the original temporary history, cleared after its one rigid-shape measurement. Rigid instants and landing offsets end with synchronous planning; the plan retains its original physical scalars, inverse heading and completed swing/flight trajectories without a shape-history owner.
    */
   export function plan(
-    context: IHumanActionContext<HumanForceResponse.IParams>,
-    props: IProps,
-  ): IHumanActionPlan {
-    const { model, direction, broken, frozen }: IProps = props;
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
+    props: IAutoMovieMotionHumanForceThrow.IProps,
+  ): IAutoMovieMotionHumanActionPlan {
+    const { model, direction, broken, frozen }: IAutoMovieMotionHumanForceThrow.IProps = props;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const by: string | undefined = context.params.by;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
-    const thrower: IHumanActionContext.IPerformer | undefined =
+    const thrower: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
-    const placed: IHumanPosture | undefined = thrower?.posture?.(
+    const placed: IAutoMovieMotionHumanPosture | undefined = thrower?.posture?.(
       context.start + broken,
     );
     if (
@@ -196,7 +134,7 @@ export namespace HumanForceThrow {
         ),
       0,
     );
-    const swing: HumanForceExchange.ISwing | null = HumanForceExchange.swing({
+    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null = HumanForceExchange.swing({
       mass: model.mass,
       inertia: about,
       radius,
@@ -246,7 +184,7 @@ export namespace HumanForceThrow {
     });
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
-    const own: IHumanPosture = {
+    const own: IAutoMovieMotionHumanPosture = {
       ...frozen,
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
@@ -267,7 +205,7 @@ export namespace HumanForceThrow {
       Number.isFinite(end)
         ? integrateAirborneRotation.fixed(model, body.skeleton, local, { from: 0, to: end })
         : undefined;
-    let rigid: integrateAirborneRotation.IInstant | undefined;
+    let rigid: IAutoMovieIntegrateAirborneRotation.IInstant | undefined;
     if (fixed === undefined) {
       const history: integrateAirborneRotation.ICachedHistory =
         integrateAirborneRotation.history(model, () => local);
@@ -277,10 +215,10 @@ export namespace HumanForceThrow {
         history.clear();
       }
     }
-    let flight: integrateAirborneRotation.IFlight;
+    let flight: IAutoMovieIntegrateAirborneRotation.IFlight;
     try {
       flight = integrateAirborneRotation({
-        history: fixed ?? ((): integrateAirborneRotation.IInstant => rigid!),
+        history: fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
         t0: 0,
         t1: end,
         q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
@@ -346,7 +284,7 @@ export namespace HumanForceThrow {
           support: { kind: "person", subject: by, region: fulcrum },
         },
       ],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         if (seconds <= broken) return props.yieldAt(seconds);
         if (seconds <= release)
           return {
@@ -384,9 +322,9 @@ export namespace HumanForceThrow {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function site(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    at: HumanForce.At,
+    at: AutoMovieHumanForceSite,
   ): IAutoMovieVector3 {
     if (typeof at !== "string") {
       const bone: IAutoMovieResolvedBone = bones.get(at.bone)!;
@@ -395,7 +333,7 @@ export namespace HumanForceThrow {
         Quaternion.rotateVector(bone.worldRotation, at.point),
       );
     }
-    const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
     return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
   }

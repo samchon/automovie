@@ -8,10 +8,18 @@ import {
   AutoMovieViewCurves,
   AutoMovieViewLoft,
   AutoMovieViewOutline,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { nclose } from "../nclose";
 
@@ -125,10 +133,10 @@ function subset(
     ),
     pole,
   };
-  const curves: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
-  const source: AutoMovieLoftViewSource.IResult | null =
+  const curves: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const source: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
-  const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     curves.diagnostics.length !== 0 ||
     source === null ||
@@ -149,7 +157,7 @@ function subset(
   for (const [index, curve] of curves.curves.entries()) {
     if (curve.outline === null)
       throw new Error("A retained source edge disappeared.");
-    const map: AutoMovieConstructionOutlineParameter | undefined =
+    const map: IAutoMovieConstructionOutlineParameter | undefined =
       curve.outline.parameter;
     if (
       map?.type !== "angle" ||
@@ -186,7 +194,7 @@ function subset(
     for (const station of [0.25, 0.75, 1.5, 2, 2.5, 3.25, 3.75].filter(
       (s: number): boolean => s >= first && s <= last,
     )) {
-      const read: AutoMovieViewCurves.IReading | string =
+      const read: IAutoMovieViewCurves.IReading | string =
         AutoMovieViewCurves.at(curve, part.axis, station);
       if (typeof read === "string" || read.scalar.stationJet === null)
         throw new Error(String(read));
@@ -205,7 +213,7 @@ function subset(
   for (const station of [0.25, 0.75, 1.5, 2, 2.5, 3.25, 3.75].filter(
     (s: number): boolean => s >= first && s <= last,
   )) {
-    const inputs: AutoMovieLoftViewRead.IJets | string =
+    const inputs: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftViewRead.jets(source.source, station);
     if (typeof inputs === "string") throw new Error(inputs);
     for (let q: number = 0; q < 4; q++) {
@@ -225,7 +233,7 @@ function subset(
       const actual: ReturnType<typeof AutoMovieLoftViewWorldJet> =
         AutoMovieLoftViewWorldJet(source.source, part.axis, station, phase);
       if (typeof actual === "string") throw new Error(actual);
-      const expected: AutoMovieLoftJet.IJet = world(q, station);
+      const expected: IAutoMovieLoftSurfaceJet = world(q, station);
       jets(
         {
           p: actual.p,
@@ -262,8 +270,8 @@ function subset(
       ) !== closed
     )
       failures.push("A parameter endpoint invented or erased an actual cap.");
-    const outline: AutoMovieViewOutline.IOutline = curves.curves[0]!.outline!;
-    const read: AutoMovieViewOutline.IReading | string =
+    const outline: IAutoMovieViewOutline.IOutline = curves.curves[0]!.outline!;
+    const read: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(outline, station);
     if (
       typeof read === "string" ||
@@ -341,7 +349,7 @@ function shoulder(station: number): Scalar {
 }
 
 /** Guide position, station2 and phase2 from the original supports and endpoint curvature. */
-function world(q: number, station: number): AutoMovieLoftJet.IJet {
+function world(q: number, station: number): IAutoMovieLoftSurfaceJet {
   const r: Scalar = scalar(q, station);
   const adjacent: number[] = [
     scalar((q + 3) % 4, station)[0],
@@ -380,8 +388,8 @@ function refusals(failures: string[]): void {
   const outline: IAutoMovieViewPart.IOutline = original().front.positive;
   const parameters: readonly [
     string,
-    AutoMovieConstructionOutlineParameter,
-    AutoMovieViewOutline.IEnds,
+    IAutoMovieConstructionOutlineParameter,
+    IAutoMovieViewOutline.IEnds,
   ][] = [
     ["bottom endpoint", { type: "angle", bottom: -1, top: 4 }, { bottom: 0 }],
     ["top endpoint", { type: "angle", bottom: 0, top: 5 }, { top: 4 }],
@@ -430,15 +438,15 @@ function refusals(failures: string[]): void {
 /** A refusal's category remains observable while the other malformed cases still run. */
 function refusal(
   curve: IAutoMovieViewPart.IOutline,
-  ends: AutoMovieViewOutline.IEnds,
+  ends: IAutoMovieViewOutline.IEnds,
   contract: string,
   name: string,
   failures: string[],
 ): void {
   try {
     const actual:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       curve,
       ends,
     );
@@ -451,8 +459,8 @@ function refusal(
 
 /** Observe complete world total2 against the independent guide equations. */
 function jets(
-  actual: AutoMovieLoftJet.IJet,
-  expected: AutoMovieLoftJet.IJet,
+  actual: IAutoMovieLoftSurfaceJet,
+  expected: IAutoMovieLoftSurfaceJet,
   failures: string[],
   label: string,
 ): void {

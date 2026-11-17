@@ -1,11 +1,14 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
 /** Existing bone-local surface data; geometry and direction admission belongs to its producer. */
-type IFrame = resolveAutoMovieHumanoidSurfaces.IFrame;
+type IFrame = IAutoMovieHumanoidSurfaces.IFrame;
 
 /** The actual current placement fields read by every surface projection. */
 type IBone = Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">;

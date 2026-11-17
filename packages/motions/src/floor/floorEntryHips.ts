@@ -1,8 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -21,8 +23,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no body, posture, point, reader or history after return or throw.
  */
 export function floorEntryHips(
-  body: IHumanBody,
-  posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+  body: IAutoMovieMotionHumanBody,
+  posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
 ): IAutoMovieVector3 {
   return Vector3.add(
     posture.root,

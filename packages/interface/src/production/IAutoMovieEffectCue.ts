@@ -1,4 +1,4 @@
-import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
+import type { IAutoMovieFilmTime } from "./IAutoMovieFilmTime";
 
 /**
  * Bounded film-global activation of one registered deterministic world effect zone.
@@ -19,10 +19,10 @@ export interface IAutoMovieEffectCue {
   zone: string;
 
   /** Film-global cue start. */
-  start: AutoMovieFilmTime;
+  start: IAutoMovieFilmTime;
 
   /** Cue duration. */
-  duration: AutoMovieFilmTime;
+  duration: IAutoMovieFilmTime;
 
   /** Finite normalized strength in `[0, 1]`. */
   intensity: number;

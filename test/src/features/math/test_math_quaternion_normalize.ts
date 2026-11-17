@@ -1,5 +1,5 @@
 import { Quaternion } from "@automovie/engine";
-import { IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, qunit } from "../internal/predicates";

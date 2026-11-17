@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
+
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
@@ -22,9 +24,9 @@ import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPl
  */
 export function AutoMovieMotionHumanArmRetimed(
   earlier: AutoMovieMotionHumanArmPlanned.IWarm,
-  span: AutoMovieMotionHumanArmPlanned.ISpan,
+  span: IAutoMovieMotionHumanArmPlanned.ISpan,
 ): HumanArmTrajectory.IState | undefined {
-  const from: AutoMovieMotionHumanArmPlanned.ISpan = earlier.span;
+  const from: IAutoMovieMotionHumanArmPlanned.ISpan = earlier.span;
   const carried = (t: number, a: number, b: number, p: number, q: number): number =>
     b > a ? p + ((t - a) / (b - a)) * (q - p) : p;
   const times: number[] = earlier.state.times.map((t: number): number =>

@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieCapsuleProxy } from "../validation/IAutoMovieCapsuleProxy";
 
 /**
@@ -16,6 +16,9 @@ export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.ISphere
   | IAutoMovieSoftCollider.IBox
   | IAutoMovieSoftCollider.IBodyCapsule;
+/**
+ * Static world exclusions and actor-following capsule references.
+ */
 export namespace IAutoMovieSoftCollider {
   /**
    * Half-space with an allowed outward side.

@@ -1,5 +1,12 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanBodyFit } from "./HumanBodyFit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
@@ -8,9 +15,6 @@ import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
-import type { HumanJacobian } from "./HumanJacobian";
-import type { HumanSequentialConvex } from "./HumanSequentialConvex";
-import type { IHumanPosture } from "./IHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -67,7 +71,7 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The loop's own evaluation extended, not restated.
    */
-  export interface IEvaluation extends HumanSequentialConvex.IEvaluation {
+  export interface IEvaluation extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     /** The reading. */
     r: HumanBodyFitRows.IReading;
 
@@ -93,17 +97,17 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit's props are read by `Pick`, not restated.
    */
   export interface IProps extends Pick<
-    HumanBodyFit.IProps,
+    IAutoMovieMotionHumanBodyFitTypes.IProps,
     "body" | "posture" | "balance" | "centre"
   > {
     /** The variables moved. */
-    variables: readonly HumanJacobian.IVariable[];
+    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[];
 
     /** The goals. */
-    targets: readonly HumanBodyFit.ITarget[];
+    targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
     /** The geometric included-angle goals. */
-    angles: readonly HumanFitGoals.IAngle[];
+    angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[];
 
     /** Each part that bears on the floor. */
     bearing: readonly RegExp[];
@@ -219,7 +223,7 @@ export namespace HumanBodyFitMerit {
     const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
       x: Float64Array,
     ): HumanBodyFitRows.IReading => {
-      const written: IHumanPosture = HumanFitVariables.written(variables, posture, x);
+      const written: IAutoMovieMotionHumanPosture = HumanFitVariables.written(variables, posture, x);
       const r: HumanFloorReading.IReading = HumanFloorReading.of(
         body,
         written,
@@ -273,7 +277,7 @@ export namespace HumanBodyFitMerit {
         lowest.has(c) ? Math.abs(h) : -h,
       );
       const goals: number[][] = targets.map(
-        (t: HumanBodyFit.ITarget, k: number): number[] =>
+        (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): number[] =>
           HumanBodyFitRows.misses(t, r, k),
       );
       return {
@@ -281,7 +285,7 @@ export namespace HumanBodyFitMerit {
         balance: (r.balance?.inside ?? []).map((d: number): number => -d),
         goals,
         angles: props.angles.map(
-          (target: HumanFitGoals.IAngle, k: number): number => {
+          (target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
             const [lo, hi]: readonly [number, number] =
               HumanFitGoals.bounds(target);
             return r.angles[k]! - Math.min(hi, Math.max(lo, r.angles[k]!));

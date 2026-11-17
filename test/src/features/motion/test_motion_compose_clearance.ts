@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
 import { AutoMovieMotionHumanClearance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +37,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the string over the box with its length and the band, and lists the 6 scenarios.
  */
 export function test_motion_compose_clearance(): void {
-  type IPoint = AutoMovieMotionHumanClearance.IPoint;
+  type IPoint = IAutoMovieMotionHumanClearance.IPoint;
   const close = (a: number, b: number, e: number = 1e-9): boolean =>
     Math.abs(a - b) <= e;
   const r: number = AutoMovieMotionHumanClearance.RADIUS;

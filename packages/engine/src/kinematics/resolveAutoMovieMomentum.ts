@@ -1,16 +1,19 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { samplePoseVelocity } from "../motion/samplePoseVelocity";
-import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 /**
@@ -56,11 +59,11 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct and between calls borrow endpoints and return fresh numeric records without retained state. PrepareIntervals owns one copied quaternion-pair/turn/midpoint, overwritten rate scratch and intrinsic slot per current part; it truncates on shrink and releases with its mass token. Rate scratch never escapes or supplies a cached answer, and no endpoint pose/model/target population is held.
  */
 export function resolveAutoMovieMomentum(
-  model: resolveAutoMovieCenterOfMass.IModel,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   seconds: number,
-): resolveAutoMovieMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   if (!(seconds > 0))
     throw new Error(`The momentum needs a positive interval, got ${seconds}`);
   return resolveAutoMovieMomentum.between(
@@ -114,7 +117,7 @@ export namespace resolveAutoMovieMomentum {
    */
   export interface IPosed {
     /** Rigid parts in model order, with SI masses, centres and inertia. */
-    parts: readonly combinePhysicalMassProperties.IPart[];
+    parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[];
 
     /** Mass-weighted centre in the parts' common frame, metres. */
     centre: IAutoMovieVector3;
@@ -128,14 +131,14 @@ export namespace resolveAutoMovieMomentum {
    * posed records and retains no bone map or reader.
    */
   export function pose(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IPosed {
-    const posed: combinePhysicalMassProperties.IPart[] = [];
+    const posed: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
       model,
-      (segment: resolveAutoMovieCenterOfMass.ISegment): IAutoMovieVector3 => {
-        const part: combinePhysicalMassProperties.IPart = posePart(segment, bones);
+      (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 => {
+        const part: IAutoMovieCombinePhysicalMassProperties.IPart = posePart(segment, bones);
         posed.push(part);
         return part.centerOfMass;
       },
@@ -163,7 +166,7 @@ export namespace resolveAutoMovieMomentum {
    * Borrows endpoints for the synchronous reduction and returns fresh numeric momentum records without holding a pose, model or handle.
    */
   export function between(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     before: IPosed,
     after: IPosed,
     seconds: number,
@@ -189,7 +192,7 @@ export namespace resolveAutoMovieMomentum {
    * The caller owns one closure, one active-call guard and at most one numeric interval per current part index; shrinking truncates old entries. Finally releases the guard after success or throw, with no depth pool or retained pose/model/result; the mass token drops this reader on release.
    */
   export function prepareIntervals(): (
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     before: IPosed,
     after: IPosed,
     seconds: number,
@@ -245,7 +248,7 @@ export namespace resolveAutoMovieMomentum {
       intervals[i] = interval;
       return interval;
     };
-    return (model: resolveAutoMovieCenterOfMass.IModel, before: IPosed, after: IPosed, seconds: number): IMomentum => {
+    return (model: IAutoMovieResolveCenterOfMass.IModel, before: IPosed, after: IPosed, seconds: number): IMomentum => {
       if (active) return reduceBetween(model, before, after, seconds);
       active = true;
       try {
@@ -269,7 +272,7 @@ export namespace resolveAutoMovieMomentum {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function inertia(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number[][] {
     const posed: IPosed = pose(model, bones);
@@ -286,7 +289,7 @@ export namespace resolveAutoMovieMomentum {
    */
   export function principal(
     tensor: readonly (readonly number[])[],
-  ): IPrincipal {
+  ): IAutoMoviePrincipalTensorFrame {
     return physicalPrincipalAxes(
       tensor.map((row: readonly number[]): number[] => [...row]),
     );
@@ -320,13 +323,13 @@ export namespace resolveAutoMovieMomentum {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function parts(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): combinePhysicalMassProperties.IPart[] {
+  ): IAutoMovieCombinePhysicalMassProperties.IPart[] {
     return model.segments.map(
       (
-        s: resolveAutoMovieCenterOfMass.ISegment,
-      ): combinePhysicalMassProperties.IPart => posePart(s, bones),
+        s: IAutoMovieResolveCenterOfMass.ISegment,
+      ): IAutoMovieCombinePhysicalMassProperties.IPart => posePart(s, bones),
     );
   }
 }
@@ -337,9 +340,9 @@ export namespace resolveAutoMovieMomentum {
  * as before, and no bone map survives in the returned part.
  */
 function posePart(
-  segment: resolveAutoMovieCenterOfMass.ISegment,
+  segment: IAutoMovieResolveCenterOfMass.ISegment,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-): combinePhysicalMassProperties.IPart {
+): IAutoMovieCombinePhysicalMassProperties.IPart {
   const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
   if (bone === undefined)
     throw new Error(`The momentum needs the posed bone ${segment.bone}`);
@@ -357,13 +360,13 @@ function posePart(
  * prerequisites; all current chords, rates, tensor products and sums remain.
  */
 function reduceBetween(
-  model: resolveAutoMovieCenterOfMass.IModel,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   before: resolveAutoMovieMomentum.IPosed,
   after: resolveAutoMovieMomentum.IPosed,
   seconds: number,
   readRotation?: (i: number, from: IAutoMovieQuaternion, to: IAutoMovieQuaternion) => IRotationInterval,
   tensor?: physicalInertiaTensor.IPrepared,
-): resolveAutoMovieMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   if (!(seconds > 0))
     throw new Error(`The momentum needs a positive interval, got ${seconds}`);
   const reciprocal: number = 1 / seconds;
@@ -381,8 +384,8 @@ function reduceBetween(
   let angularY: number = 0;
   let angularZ: number = 0;
   for (let i: number = 0; i < before.parts.length; i++) {
-    const p0: combinePhysicalMassProperties.IPart = before.parts[i]!;
-    const p1: combinePhysicalMassProperties.IPart = after.parts[i]!;
+    const p0: IAutoMovieCombinePhysicalMassProperties.IPart = before.parts[i]!;
+    const p1: IAutoMovieCombinePhysicalMassProperties.IPart = after.parts[i]!;
 
     // Retain mean-then-offset and chord-then-reciprocal association.
     const x: number = (p0.centerOfMass.x + p1.centerOfMass.x) * 0.5 - centre.x;

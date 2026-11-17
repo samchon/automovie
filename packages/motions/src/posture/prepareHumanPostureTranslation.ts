@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Prepare only the nonescaping expected translation used by carried's exact
@@ -16,8 +17,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The source's actual private immutable clone proves unchanged prefix ownership, rather than caller identity or a trusted flag. Required scalar points/tuples and alias-free containers are checked once; each current root retains its original reads and every displacement uses the original subtract/add grouping.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One closure borrows the existing preparation-owned raw snapshot and retains no candidate, result, reader, history or handle. Its expected object is consumed synchronously by carried and never enters issued output or weak evidence maps.
  */
-export function prepareHumanPostureTranslation(source: IHumanPosture):
-  ((root: IAutoMovieVector3) => IHumanPosture) | undefined {
+export function prepareHumanPostureTranslation(source: IAutoMovieMotionHumanPosture):
+  ((root: IAutoMovieVector3) => IAutoMovieMotionHumanPosture) | undefined {
   try {
     const seen: Set<object> = new Set();
     if (!plain(source, seen, ["root", "yaw", "pitch", "roll", "joints", "limbs"]) ||
@@ -38,10 +39,10 @@ export function prepareHumanPostureTranslation(source: IHumanPosture):
           ![goal.rotation.x, goal.rotation.y, goal.rotation.z, goal.rotation.w].every(Number.isFinite)))) return undefined;
     }
 
-    return (root: IAutoMovieVector3): IHumanPosture => {
+    return (root: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
       const delta: IAutoMovieVector3 = Vector3.subtract(root, source.root);
       const placed: IAutoMovieVector3 = { ...root };
-      const limbs: IHumanPosture["limbs"] = { ...source.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...source.limbs };
       for (const [limb, goal] of Object.entries(source.limbs)) {
         if (goal === undefined) continue;
         limbs[limb as "leftLeg" | "rightLeg"] = { ...goal,

@@ -1,4 +1,4 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
 /**
  * Play a clip the caller authored itself: the escape for expressive motion no

@@ -1,10 +1,10 @@
 import { Quaternion, Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face
@@ -64,11 +64,11 @@ export namespace HumanShapeFraming {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Kept in a WeakMap keyed by the posed frame and released with it.
    */
   export function of(
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): IFramed {
     let shapes:
-      | Map<HumanColliders.IPlaced["shapes"][number], IFramed>
+      | Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], IFramed>
       | undefined = FRAMED.get(pose);
     if (shapes === undefined) {
       shapes = new Map();
@@ -110,9 +110,9 @@ export namespace HumanShapeFraming {
   function planes(points: readonly IAutoMovieVector3[]): Float64Array {
     const known: Float64Array | undefined = PLANES.get(points);
     if (known !== undefined) return known;
-    const faces: physicalHullFaces.IHull["faces"] = physicalHullFaces(points).faces;
+    const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] = physicalHullFaces(points).faces;
     const packed: Float64Array = new Float64Array(4 * faces.length);
-    faces.forEach((face: physicalHullFaces.IFace, index: number): void => {
+    faces.forEach((face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
       packed[4 * index] = face.normal.x;
       packed[4 * index + 1] = face.normal.y;
       packed[4 * index + 2] = face.normal.z;
@@ -201,13 +201,13 @@ export namespace HumanShapeFraming {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private origin is constant metadata, not a shape or pose cache. Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
    */
   export function sphere(
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
     let centre: IAutoMovieVector3;
     let radius: number;
     if (shape.kind === "hull") {
-      const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
       centre = hull.centre;
       radius = hull.radius;
     } else {
@@ -242,6 +242,6 @@ const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap(
 
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<
-  HumanColliders.IPlaced["pose"],
-  Map<HumanColliders.IPlaced["shapes"][number], HumanShapeFraming.IFramed>
+  IAutoMovieMotionHumanColliders.IPlaced["pose"],
+  Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], HumanShapeFraming.IFramed>
 > = new WeakMap();

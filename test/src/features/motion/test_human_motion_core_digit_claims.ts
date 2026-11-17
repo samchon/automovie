@@ -1,14 +1,14 @@
-import {
-  type AutoMovieMotionHumanChannel,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type {
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -16,18 +16,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** A one-second overlay that bends the named joints of a hand and claims what it is given. */
 const bend = (
   name: string,
-  claims: readonly AutoMovieMotionHumanChannel.Claim[],
-  joints: IHumanPosture["joints"],
-): IHumanActionLaw<object> => ({
+  claims: readonly AutoMovieMotionHumanChannelClaim[],
+  joints: IAutoMovieMotionHumanPosture["joints"],
+): IAutoMovieMotionHumanActionLaw<object> => ({
   name,
   interrupts: {},
   overlay: true,
-  plan: (context: IHumanActionContext<object>): IHumanActionPlan => ({
+  plan: (
+    context: IAutoMovieMotionHumanActionContext<object>,
+  ): IAutoMovieMotionHumanActionPlan => ({
     duration: 1,
     events: [],
     contacts: [],
     channels: claims,
-    posture: (): IHumanPosture => ({
+    posture: (): IAutoMovieMotionHumanPosture => ({
       ...context.entry.posture,
       joints: { ...context.entry.posture.joints, ...joints },
     }),
@@ -60,8 +62,8 @@ const bend = (
  */
 export function test_human_motion_core_digit_claims(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const laws: IHumanActionLaw<never>[] = [
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     bend("thumbBend", ["rightThumb"], {
       rightThumbProximal: [40, 0, 0],
       rightThumbDistal: [40, 0, 0],
@@ -72,8 +74,8 @@ export function test_human_motion_core_digit_claims(): void {
     }),
     bend("handBend", ["rightHand"], { rightMiddleProximal: [60, 0, 0] }),
     bend("leftThumbBend", ["leftThumb"], { leftThumbProximal: [40, 0, 0] }),
-  ] as unknown as IHumanActionLaw<never>[];
-  const perform = (over: readonly string[]): HumanPerformance =>
+  ] as unknown as IAutoMovieMotionHumanActionLaw<never>[];
+  const perform = (over: readonly string[]): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "claims",
       laws,
@@ -87,13 +89,15 @@ export function test_human_motion_core_digit_claims(): void {
         },
       ],
       composition: over.reduce(
-        (chain: HumanChain, name: string): HumanChain =>
-          chain.over((o) => o.registered(name)),
+        (
+          chain: IAutoMovieMotionHumanChain,
+          name: string,
+        ): IAutoMovieMotionHumanChain => chain.over((o) => o.registered(name)),
         HumanChain.subject("a").stand({ seconds: 3 }),
       ).node,
     });
   const flexion = (
-    p: HumanPerformance,
+    p: IAutoMovieMotionHumanPerformance,
     bone: string,
     seconds: number,
   ): number =>
@@ -102,7 +106,7 @@ export function test_human_motion_core_digit_claims(): void {
   // 1, 2. A lone digit, then two disjoint digits.
   for (const over of [["thumbBend"], ["thumbBend", "indexBend"]] as const)
     try {
-      const p: HumanPerformance = perform(over);
+      const p: IAutoMovieMotionHumanPerformance = perform(over);
       const mid: number = p.overlays("a")[0]!.start + 0.5;
       if (!(Math.abs(flexion(p, "rightThumbProximal", mid) - 40) <= 1e-6))
         complaints.push(

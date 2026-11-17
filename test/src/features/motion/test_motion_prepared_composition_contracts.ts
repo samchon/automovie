@@ -1,11 +1,15 @@
 import { clampPose } from "@automovie/engine";
-import type { IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   type AutoMovieMotionHumanChannel,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanActionPlan,
-  type IHumanPosture,
   composeAutoMovieMotionHumanAction,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -61,10 +65,10 @@ export function test_motion_prepared_composition_contracts(): void {
     baseDemands.length = 0;
   }
 
-  const base: IHumanActionPlan = {
+  const base: IAutoMovieMotionHumanActionPlan = {
     duration: 1, events: [], contacts: [],
     posture: (seconds: number,
-      channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+      channels?: readonly AutoMovieMotionHumanChannel[]): IAutoMovieMotionHumanPosture => {
       baseDemands.push(channels === undefined ? undefined : [...channels]);
       return { root: { x: seconds, y: 0, z: 0 }, yaw: 0,
         pitch: 10 * seconds, roll: 0, joints: {}, limbs: {} };
@@ -72,29 +76,29 @@ export function test_motion_prepared_composition_contracts(): void {
   };
   const root: IAutoMovieMotionHumanPrimitive = {
     channels: ["root"], reads: [], from: 0, to: 1,
-    write: (under: IHumanPosture, seconds: number): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
       count("root");
       return { ...under, root: { x: 100 + seconds, y: 0, z: 0 } };
     },
   };
   const trunk: IAutoMovieMotionHumanPrimitive = {
     channels: ["trunk"], reads: ["root"], from: 0.2, to: 0.8,
-    write: (under: IHumanPosture): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
       count("trunk");
       return { ...under, pitch: 2 * under.root.x };
     },
   };
   const hand: IAutoMovieMotionHumanPrimitive = {
     channels: ["leftHand"], reads: [], from: 0, to: 1,
-    write: (under: IHumanPosture): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
       count("hand");
       return { ...under, joints: { ...under.joints, leftIndexProximal: [7, 0, 0] } };
     },
   };
   const head: IAutoMovieMotionHumanPrimitive = {
     channels: ["head"], reads: ["trunk"], from: 0, to: 1,
-    write: (under: IHumanPosture, seconds: number,
-      before?: IAutoMovieMotionHumanPrimitive.Reader): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture, seconds: number,
+      before?: IAutoMovieMotionHumanPrimitive.Reader): IAutoMovieMotionHumanPosture => {
       count(depth === 0 ? "head" : "inner-head");
       if (depth > 0 && mode === "inner-failure") throw sentinel;
       if (depth === 0 && (mode === "nested" || mode === "inner-failure")) {
@@ -102,7 +106,7 @@ export function test_motion_prepared_composition_contracts(): void {
         try { plan.posture(0.75, ["head"]); }
         catch (error) { if (mode !== "inner-failure" || error !== sentinel) throw error; }
         finally { depth--; }
-        const prefix: IHumanPosture = before!(seconds, ["trunk"]);
+        const prefix: IAutoMovieMotionHumanPosture = before!(seconds, ["trunk"]);
         TestValidator.predicate("nested query restores the enclosing prefix",
           nclose(prefix.pitch, under.pitch, 0),
         );
@@ -111,13 +115,13 @@ export function test_motion_prepared_composition_contracts(): void {
       return { ...under, joints: { ...under.joints, head: [under.pitch + 1, 0, 0] } };
     },
   };
-  const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base, clock: AutoMovieMotionClock.of(1, []), primitives: [hand, head, trunk, root],
   });
   for (const seconds of [0.5, 0.1, 0.8, 0.80001, 0.2, 0.19999, 0.5]) {
     reset();
     const active: boolean = seconds >= 0.2 && seconds <= 0.8;
-    const reading: IHumanPosture = plan.posture(seconds, ["head"]);
+    const reading: IAutoMovieMotionHumanPosture = plan.posture(seconds, ["head"]);
     const expected: number = (active ? 2 * (100 + seconds) : 10 * seconds) + 1;
     TestValidator.predicate("requested head has its independently derived value",
       nclose(reading.joints.head![0], expected, 1e-12),
@@ -138,7 +142,7 @@ export function test_motion_prepared_composition_contracts(): void {
   plan.posture(0.5, []);
   TestValidator.equals("empty demand invokes no primitive", calls, {});
   reset();
-  const full: IHumanPosture = plan.posture(0.5);
+  const full: IAutoMovieMotionHumanPosture = plan.posture(0.5);
   TestValidator.predicate("full read preserves every owned field",
     nclose(full.root.x, 100.5, 0) && nclose(full.pitch, 201, 0) &&
     nclose(full.joints.head![0], 202, 0) && nclose(full.joints.leftIndexProximal![0], 7, 0),
@@ -149,13 +153,13 @@ export function test_motion_prepared_composition_contracts(): void {
 
   const arbitrary: IAutoMovieMotionHumanPrimitive = {
     channels: ["rightArm"], from: 0, to: 1,
-    write: (under: IHumanPosture): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
       count("arbitrary");
       return { ...under, joints: { ...under.joints,
         rightUpperArm: [under.pitch + under.joints.leftIndexProximal![0], 0, 0] } };
     },
   };
-  const conservative: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const conservative: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base, clock: AutoMovieMotionClock.of(1, []), primitives: [arbitrary, hand, head, trunk, root],
   });
   reset();
@@ -165,12 +169,12 @@ export function test_motion_prepared_composition_contracts(): void {
   TestValidator.equals("omitted reads requires all preceding active writers", calls,
     { root: 1, trunk: 1, head: 1, hand: 1, arbitrary: 1 },
   );
-  const dynamic: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const dynamic: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base, clock: AutoMovieMotionClock.of(1, []), primitives: [root, trunk, {
       channels: ["head"], from: 0, to: 1,
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
         seconds < 0.5 ? ["trunk"] : ["root"],
-      write: (under: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (under: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...under, joints: { ...under.joints,
           head: [seconds < 0.5 ? under.pitch : under.root.x, 0, 0] },
       }),
@@ -223,11 +227,11 @@ export function test_motion_prepared_composition_contracts(): void {
   let level: number = 0;
   let innerThrows: boolean = false;
   let innerAngle: number | undefined;
-  const projectedBase: IHumanActionPlan = {
+  const projectedBase: IAutoMovieMotionHumanActionPlan = {
     duration: 1, events: [], contacts: [],
     posture: (_seconds: number, _channels?: readonly AutoMovieMotionHumanChannel[],
-      _resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      projector?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      _resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projector?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
       const source: IAutoMoviePose = makePose([joint("head", { flexion: 15 })]);
       const pose: IAutoMoviePose = projector === undefined ? source : projector(source);
       return { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, limbs: {},
@@ -236,8 +240,8 @@ export function test_motion_prepared_composition_contracts(): void {
   };
   const projectedPrimitive: IAutoMovieMotionHumanPrimitive = {
     channels: ["head"], reads: ["head"], from: 0, to: 1,
-    write: (under: IHumanPosture, _seconds: number,
-      before?: IAutoMovieMotionHumanPrimitive.Reader): IHumanPosture => {
+    write: (under: IAutoMovieMotionHumanPosture, _seconds: number,
+      before?: IAutoMovieMotionHumanPrimitive.Reader): IAutoMovieMotionHumanPosture => {
       if (level === 0) {
         level++;
         try { innerAngle = projected.posture(0.75, ["head"], undefined, ten).joints.head![0]; }
@@ -246,20 +250,20 @@ export function test_motion_prepared_composition_contracts(): void {
       } else if (innerThrows) throw sentinel;
       retained = before;
       if (level === 0) {
-        const initial: IHumanPosture = before!(0.25, ["head"]);
-        const explicit: IHumanPosture = before!(0.25, ["head"], undefined, ten);
-        const restored: IHumanPosture = before!(0.375, ["head"]);
+        const initial: IAutoMovieMotionHumanPosture = before!(0.25, ["head"]);
+        const explicit: IAutoMovieMotionHumanPosture = before!(0.25, ["head"], undefined, ten);
+        const restored: IAutoMovieMotionHumanPosture = before!(0.375, ["head"]);
         TestValidator.predicate("an explicit prefix projector isolates the same cached time and restores its enclosing loan",
           nclose(initial.joints.head![0], 5, 0) && nclose(explicit.joints.head![0], 10, 0) &&
           nclose(restored.joints.head![0], 5, 0),
         );
       }
-      const prefix: IHumanPosture = before!(0.25, ["head"]);
+      const prefix: IAutoMovieMotionHumanPosture = before!(0.25, ["head"]);
       return { ...under, joints: { ...under.joints,
         head: [under.joints.head![0] + prefix.joints.head![0], 0, 0] } };
     },
   };
-  const projected: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const projected: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base: projectedBase, clock: AutoMovieMotionClock.of(1, []), primitives: [projectedPrimitive],
   });
   for (const throwing of [false, true]) {

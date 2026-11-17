@@ -1,4 +1,8 @@
 import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveMath64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -20,7 +24,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Asymmetric three-dimensional polynomial values and physical derivatives survive conversion at unit and nonunit widths on shifted intervals.).
  */
 export function test_geometry_cubic_hermite_conversion(): void {
-  const span: M.Span = [
+  const span: IAutoMovieCurveMath64.Span = [
     [1, -2, 4],
     [2, -2, 2],
     [7 / 3, -2 / 3, 1],
@@ -40,15 +44,17 @@ export function test_geometry_cubic_hermite_conversion(): void {
     actual.every((value: number, i: number): boolean =>
       nclose(value, expected[i]!, tolerance),
     );
-  const power: (t: number) => M.V = (t: number): M.V => [
+  const power: (t: number) => AutoMovieVector3Tuple = (
+    t: number,
+  ): AutoMovieVector3Tuple => [
     1 + 3 * t - 2 * t ** 2 + t ** 3,
     -2 + 4 * t ** 2 - 3 * t ** 3,
     4 - 6 * t + 3 * t ** 2 + 2 * t ** 3,
   ];
-  const slope: (t: number, width: number) => M.V = (
+  const slope: (t: number, width: number) => AutoMovieVector3Tuple = (
     t: number,
     width: number,
-  ): M.V => [
+  ): AutoMovieVector3Tuple => [
     (3 - 4 * t + 3 * t ** 2) / width,
     (8 * t - 9 * t ** 2) / width,
     (-6 + 6 * t + 6 * t ** 2) / width,
@@ -63,7 +69,7 @@ export function test_geometry_cubic_hermite_conversion(): void {
           close(jets.startDerivative, [3 / width, 0, -6 / width]) &&
           close(jets.endDerivative, [2 / width, -1 / width, 6 / width]),
       );
-      const restored: M.Span = M.hermite(
+      const restored: IAutoMovieCurveMath64.Span = M.hermite(
         jets.start,
         jets.end,
         jets.startDerivative,
@@ -72,7 +78,7 @@ export function test_geometry_cubic_hermite_conversion(): void {
       );
       TestValidator.predicate(
         "cubic control round trip",
-        restored.every((point: M.V, i: number): boolean =>
+        restored.every((point: AutoMovieVector3Tuple, i: number): boolean =>
           close(point, span[i]!),
         ),
       );
@@ -118,7 +124,7 @@ export function test_geometry_cubic_hermite_conversion(): void {
           ),
       );
     }
-  const constant: M.V = [4, -3, 2];
+  const constant: AutoMovieVector3Tuple = [4, -3, 2];
   const stationary: ReturnType<typeof M.toHermite> = M.toHermite(
     [constant, constant, constant, constant],
     Number.MIN_VALUE,
@@ -202,7 +208,7 @@ export function test_geometry_cubic_hermite_conversion(): void {
     "existing derivative ignores controls after its cubic",
     close(M.derivative([...span, [9, 8, 7]], 1, 2), slope(1, 2)),
   );
-  const inactiveOverflow: M.Span = [
+  const inactiveOverflow: IAutoMovieCurveMath64.Span = [
     [0, 0, 0],
     [1, 0, 0],
     [-1e308, 0, 0],

@@ -1,9 +1,17 @@
-import type { IAutoMovieContactReceipt } from "@automovie/interface";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieDecodePhysicalPlayback,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalOwnershipEvent,
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegmentState,
+  IAutoMoviePhysicalSupportWrench,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
-import type { advancePhysicalBalance } from "./advancePhysicalBalance";
 import { decodePhysicalPlayback } from "./decodePhysicalPlayback";
 import { encodePhysicalPlayback } from "./encodePhysicalPlayback";
 import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
@@ -11,9 +19,14 @@ import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
 /** Compact precomputed playback, loaded without initializing the native solver.
  * One little-endian Float64 record stores each segment's pose and velocities.
  * A SHA-256 trailer detects damaged data; the caller's expected input identity
- * independently rejects stale performances. Loading owns a byte copy and checks
- * the declared allocation bounds before parsing or scanning records. WebCrypto
+ * independently rejects stale performances. Loading checks the byte budget
+ * before copying, then admits frame/segment counts before scanning records. WebCrypto
  * is required, as provided by Node 22 and secure browser contexts (localhost).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents owned archive bytes, integrity versus sampled-input identity, allocation admission and the WebCrypto dependency; sampling uses film seconds and world-space SI pose and velocity quantities.
+ * @evidence contracts/development/design.md#principled-representation A private constructor confines readers to decoded archives; the interface-owned header and fixed-stride records describe completed fixed-step playback rather than a live solver. Decode admission checks the binary representation before reads.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Engine owns binary loading and interpolation; playback consumers receive identity, timing, receipts and sampled records through the shared contracts, without access to native solver handles.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The binary stride describes the actual position, quaternion and velocity record, not a scene-specific layout. Readonly collection views restrict writes through this API but do not promise deep freezing of returned records.
  */
 export class AutoMoviePhysicalPlayback {
   /** Bytes per position/quaternion/linear/angular-velocity record. */
@@ -22,7 +35,7 @@ export class AutoMoviePhysicalPlayback {
   /** Only an admitted owned archive can construct a playback reader. */
   private constructor(
     /** Owned bytes, retained for this reader's lifetime. */ private readonly bytes: Uint8Array<ArrayBuffer>,
-    /** Admitted immutable metadata. */ private readonly header: AutoMoviePhysicalPlayback.IHeader,
+    /** Admitted immutable metadata. */ private readonly header: IAutoMoviePhysicalPlayback.IHeader,
     /** Aligned first Float64 record byte. */ private readonly offset: number,
   ) {}
 
@@ -44,34 +57,37 @@ export class AutoMoviePhysicalPlayback {
   }
   /** Actual recovery requests and landings, including failures. */
   public get recovery(): Readonly<
-    Record<string, advancePhysicalBalance.IState>
+    Record<string, IAutoMoviePhysicalRecoveryState>
   > {
     return this.header.recovery;
   }
   /** Exact native ownership transitions, including substep event times. */
-  public get ownership(): readonly Cache.IOwnership[] {
+  public get ownership(): readonly IAutoMoviePhysicalOwnershipEvent[] {
     return this.header.ownership;
   }
   /** Requested versus allocated support predictions, before native motor caps/integration. Actual floor load is measured only by contacts. */
-  public get supportWrenches(): readonly Cache.ISupportWrench[] {
+  public get supportWrenches(): readonly IAutoMoviePhysicalSupportWrench[] {
     return this.header.supportWrenches;
   }
   /**
-   * Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time.
+   * Read the segment's last recorded authority change at local film seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time) directly over its typed inputs (`body`, `bone`, `seconds`) as a fixed number of statements with no loop or recursion in the body, delegating to `samplePhysicalOwnership`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 9 lines and 1 top-level statements that reuses `samplePhysicalOwnership` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `body`, `bone`, `seconds`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   * Rejects nonfinite/out-of-film time and a body/bone without a preceding
+   * ownership event. Substep transitions retain their actual event times.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines local film seconds, last applicable authority transition, invalid-time rejection and the missing-segment failure.
+   * @evidence contracts/development/implementation.md#principled-implementation samplePhysicalOwnership validates finite time in [0,duration] and scans backward for the matching body/bone transition at or before that instant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Live and archived readers delegate to the same transition selector, so substep authority changes have one interpretation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads recorded native transitions instead of reconstructing contact activation or return completion from an authored clock.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For e retained ownership events the backward scan is O(e) worst-case and O(1) additional space; it stops at the first applicable matching event.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the retained event history without advancing physics or caching a second event index.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lookup retains no new state; the containing cache or playback reader owns the event history for its lifetime.
    */
   public ownershipAt(
     body: string,
     bone: string,
     seconds: number,
-  ): Cache.IOwnership["kind"] {
+  ): IAutoMoviePhysicalOwnershipEvent["kind"] {
     return samplePhysicalOwnership(
       this.header.ownership,
       this.duration,
@@ -82,33 +98,43 @@ export class AutoMoviePhysicalPlayback {
   }
 
   /**
-   * Pack complete cached poses and causal metadata on the build machine.
+   * Pack completed cached poses and causal metadata into an owned archive.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Pack complete cached poses and causal metadata on the build machine.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Pack complete cached poses and causal metadata on the build machine) directly over its typed inputs (`cache`, `maximumBytes`) as a fixed number of statements with no loop or recursion in the body, delegating to `encodePhysicalPlayback`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 3 lines and 1 top-level statements that reuses `encodePhysicalPlayback` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `cache`, `maximumBytes`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 0 calls per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   * maximumBytes caps the final archive, not the metadata serialization's
+   * transient memory. Native/controller checkpoints remain in the live cache.
+   * The encoder rejects incomplete frames and nonfinite pose/velocity fields;
+   * WebCrypto supplies the integrity digest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States archive ownership, retained checkpoint exclusion, export failures, WebCrypto and the final-byte-budget boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation encodePhysicalPlayback writes the fixed 13-Float64 little-endian segment layout, aligned JSON metadata and SHA-256 trailer from the completed cache.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The class delegates binary layout and export admission to encodePhysicalPlayback, leaving replay sampling in this reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exports actual completed samples and causal metadata; the digest protects bytes rather than certifying simulation correctness or a matching current input.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For f frames and s segments, record packing is O(f*s); JSON serialization and hashing additionally traverse metadata/archive bytes. Storage includes metadata text/bytes, the final archive and digest work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the already-computed frames instead of rerunning physics. Each export creates its own byte array and digest; no export promise or archive is globally cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The promise retains the source cache and output buffer until digest completion; the caller then owns the returned bytes. Failure releases call-local references, and no native solver handle is acquired.
    */
   public static async encode(
-    cache: Cache,
+    cache: IAutoMoviePhysicsCache,
     maximumBytes: number,
   ): Promise<Uint8Array<ArrayBuffer>> {
     return encodePhysicalPlayback(cache, maximumBytes);
   }
 
   /**
-   * Admit owned archive bytes against the complete current authored input.
+   * Load an archive against the expected identity of the current sampled input.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Admit owned archive bytes against the complete current authored input.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit owned archive bytes against the complete current authored input) directly over its typed inputs (`source`, `expectedIdentity`, `budget`) as a fixed number of statements with no loop or recursion in the body, delegating to `decodePhysicalPlayback`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 9 lines and 2 top-level statements that reuses `decodePhysicalPlayback` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `source`, `expectedIdentity`, `budget`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 1 call per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   * The decoder copies source bytes before its asynchronous integrity check.
+   * Positive safe-integer byte/frame/segment budgets bound admission. Invalid
+   * format, identity, record data or causal metadata reject the promise;
+   * no solver is initialized and no partially admitted reader is returned.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents copied-byte ownership, expected-input identity, budget meanings and rejected-load behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation decodePhysicalPlayback checks the byte budget before copying, verifies SHA-256, admits timing/segment counts and finite unit-rotation records, then validates causal metadata and freezes the parsed header.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The decoder owns binary and metadata admission; only an admitted byte/header/offset triple reaches the private reader constructor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Integrity and current-input identity are checked separately. No stale or malformed archive is accepted as an empty or substitute performance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies and hashes all b source bytes, parses metadata and scans f*s records. Metadata admission also traverses retained events, receipts and recovery data; the supplied budgets bound the archive and record population, not an O(1) wrapper cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Owns one defensive byte copy and retains the admitted header for all later seeks. It neither shares an in-flight load nor trusts a previously supplied manifest.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns the copied archive and parsed header until released by its caller. Rejection leaves no published reader, native handle or background simulation.
    */
   public static async decode(
     source: Uint8Array,
@@ -118,8 +144,8 @@ export class AutoMoviePhysicalPlayback {
       maximumFrames: number;
       maximumSegments: number;
     },
-  ): Promise<AutoMoviePhysicalPlayback> {
-    const decoded: Awaited<ReturnType<typeof decodePhysicalPlayback>> =
+  ): Promise<IAutoMoviePhysicalPlayback> {
+    const decoded: Awaited<IAutoMovieDecodePhysicalPlayback.IResult> =
       await decodePhysicalPlayback(source, expectedIdentity, budget);
     return new AutoMoviePhysicalPlayback(
       decoded.bytes,
@@ -128,17 +154,21 @@ export class AutoMoviePhysicalPlayback {
     );
   }
   /**
-   * Sample in any order using the same interpolation law as live cached simulation.
+   * Sample stored world-space poses and velocities at local film seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Sample in any order using the same interpolation law as live cached simulation.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Sample in any order using the same interpolation law as live cached simulation) directly over its typed inputs (`seconds`) as a single pass (for-of over this.header.segments.entries()), delegating to `Number.isFinite`, `Math.floor`, `Math.ceil`, `view.getFloat64`, `number`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literals 8, 3, 4, 5, 6, whose basis this answer does not independently establish and a reviewer must confirm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 50 lines and 10 top-level statements that reuses `Number.isFinite`, `Math.floor`, `Math.ceil`, `view.getFloat64`, `number` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters. Literal caveat: 8, 3, 4, 5, 6 are not independently sourced here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `seconds`; the dominant cost is a single pass (for-of over this.header.segments.entries()), performed once per call with 9 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
+   * Rejects nonfinite time or time outside [0,duration]. Positions and linear/
+   * angular velocities interpolate linearly; rotations take the shortest
+   * quaternion arc. Returns a fresh frame without advancing a solver.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States time admission, world-space interpolation, SI quantities and fresh result ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes floor/ceil fixed-step indices and reads both records for each admitted segment; decode has already checked complete layout and unit quaternions. Vector3 interpolation and Quaternion.slerp match live cache sampling.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed-stride reader interprets the archive once per segment; shared math owners supply the interpolation rules.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the archive's actual samples and recorded segment identities, with no seek-order state, extrapolation or scene-specific pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For s segments, each seek reads two fixed-size records and emits one segment result, taking O(s) time and O(s) result space. DataView borrows the existing buffer rather than copying the archive.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All seeks reuse the same admitted bytes/header. Interpolated frames are fresh and are not memoized by time.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the archive independently of any seek. Each call's temporary records and returned frame contain O(s) data, and no seek result or native handle is retained by the reader.
    */
-  public at(seconds: number): Cache.IFrame {
+  public at(seconds: number): IAutoMoviePhysicalFrame {
     if (!Number.isFinite(seconds) || seconds < 0 || seconds > this.duration)
       throw new Error("Physical playback seek outside completed film");
     const step: number = seconds * this.rate;
@@ -146,10 +176,13 @@ export class AutoMoviePhysicalPlayback {
     const high: number = Math.ceil(step);
     const fraction: number = step - low;
     const view: DataView = new DataView(this.bytes.buffer);
-    const read: (frame: number, index: number) => Cache.ISegment = (
+    const read: (
       frame: number,
       index: number,
-    ): Cache.ISegment => {
+    ) => IAutoMoviePhysicalSegmentState = (
+      frame: number,
+      index: number,
+    ): IAutoMoviePhysicalSegmentState => {
       const offset: number =
         this.offset +
         (frame * this.header.segments.length + index) *
@@ -163,10 +196,10 @@ export class AutoMoviePhysicalPlayback {
         angularVelocity: { x: number(10), y: number(11), z: number(12) },
       };
     };
-    const bodies: Cache.IFrame["bodies"] = Object.create(null);
+    const bodies: IAutoMoviePhysicalFrame["bodies"] = Object.create(null);
     for (const [index, [body, bone]] of this.header.segments.entries()) {
-      const a: Cache.ISegment = read(low, index);
-      const b: Cache.ISegment = read(high, index);
+      const a: IAutoMoviePhysicalSegmentState = read(low, index);
+      const b: IAutoMoviePhysicalSegmentState = read(high, index);
       (bodies[body] ??= Object.create(null))[bone] = {
         position: Vector3.add(
           a.position,
@@ -187,39 +220,5 @@ export class AutoMoviePhysicalPlayback {
       };
     }
     return { seconds, bodies };
-  }
-}
-
-/**
- * Versioned metadata is stored ahead of the binary frame records.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Versioned metadata is stored ahead of the binary frame records) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Versioned metadata is stored ahead of the binary frame records: companion namespace of 1 member (`IHeader`); units and frames named in its text: seconds, second, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalPlayback` in packages/engine/src/physics/AutoMoviePhysicalPlayback.ts; its surface is the 1 member listed and the text shows 10 other files naming it, mostly packages/engine (4), test (4), movies (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace AutoMoviePhysicalPlayback {
-  /**
-   * Solver-free playback data; native checkpoints are deliberately producer-owned.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Solver-free playback data; native checkpoints are deliberately producer-owned.
-   * @evidence contracts/development/design.md#principled-representation Represents Solver-free playback data; native checkpoints are deliberately producer-owned: interface of 10 members (`format`, `protocol`, `identity`, `duration`, `rate`, `segments`, ...); units and frames named in its text: seconds, second, frame. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IHeader` in packages/engine/src/physics/AutoMoviePhysicalPlayback.ts; its surface is the 10 members listed and the text shows 4 other files naming it, mostly packages/engine (3), test (1), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IHeader {
-    /** Binary record layout. */ format: 1;
-    /** Simulation/controller compatibility. */ protocol: string;
-    /** Full sampled-input SHA-256. */ identity: string;
-    /** Film seconds. */ duration: number;
-    /** Cached intervals per second. */ rate: number;
-    /** Deterministic body/bone record order. */ segments: [string, string][];
-    /** Causal native/geometric contact measurements. */ contacts: IAutoMovieContactReceipt[];
-    /** Actual recovery controller outcome. */ recovery: Record<
-      string,
-      advancePhysicalBalance.IState
-    >;
-    /** Actual native authority, preserved independently of rounded cache frame time. */ ownership: Cache.IOwnership[];
-    /** Virtual support predictions, not achieved native contact force. */ supportWrenches: Cache.ISupportWrench[];
   }
 }

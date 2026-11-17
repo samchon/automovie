@@ -1,12 +1,19 @@
 
 
-import type { IHumanBody } from "../body/IHumanBody";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieMotionHumanWalkStanceSolve,
+} from "@automovie/interface";
+
 import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
-import { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
-import { walkStanceModel } from "./walkStanceModel";
 import { walkStanceConvexify } from "./walkStanceConvexify";
+import { walkStanceCourse } from "./walkStanceCourse";
+import { walkStanceModel } from "./walkStanceModel";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * A stance course's problem and its solve (`walkStanceCourse`): the problem
@@ -46,11 +53,11 @@ export namespace walkStanceSolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary problem releases after the optimizer returns or throws; the returned course belongs to its caller.
    */
   export function solve(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
-    start?: walkStanceCourse.ICourse,
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start?: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     from: number = 0,
-  ): walkStanceCourse.ICourse {
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     return optimise(body, problem(body, knots, start, from));
   }
 
@@ -80,16 +87,13 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns current multipliers, selected-proposal metadata, active prepared state and one bounded region workspace. Each price retains at most one trusted row list, reused only after length/record-identity checks; live steps own fixed metadata without region snapshots. All closures/scratch release with the solve, without history/maps or global caches.
    */
   export function optimise(
-    body: IHumanBody,
-    shape: walkStanceCourse.IProblem,
-    at: (
-      x: Float64Array,
-      model: boolean,
-    ) => { problem: walkStanceCourse.IProblem; rows: Q.IRow[] } = (): {
-      problem: walkStanceCourse.IProblem;
-      rows: Q.IRow[];
+    body: IAutoMovieMotionHumanBody,
+    shape: IAutoMovieMotionHumanWalkStanceCourse.IProblem,
+    at: IAutoMovieMotionHumanWalkStanceSolve.IOptimiseAt = (): {
+      problem: IAutoMovieMotionHumanWalkStanceCourse.IProblem;
+      rows: IAutoMovieMotionHumanQuadraticProgram.IRow[];
     } => ({ problem: shape, rows: [] }),
-  ): walkStanceCourse.ICourse {
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     // The multipliers of the last step taken, which the next subproblem
     // starts from.
     let duals: Map<string, number> | undefined;
@@ -97,7 +101,7 @@ export namespace walkStanceSolve {
     /** A proposal's exact numeric context for its second-order correction. */
     type IProposal = {
       x: Float64Array;
-      model: Q.IProblem;
+      model: IAutoMovieMotionHumanQuadraticProgram.IProblem;
       rows: number;
       radius: number;
       step: Float64Array;
@@ -106,22 +110,22 @@ export namespace walkStanceSolve {
     // Steering can solve a discarded feasibility model after its chosen
     // proposal. Only reading the chosen trial selects correction context.
     let last: IProposal | undefined;
-    const problem: SCO.IProblem<Float64Array, walkStanceCourse.IEvaluation> = {
-      evaluate: (x: Float64Array): walkStanceCourse.IEvaluation => {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IAutoMovieMotionHumanWalkStanceCourse.IEvaluation> = {
+      evaluate: (x: Float64Array): IAutoMovieMotionHumanWalkStanceCourse.IEvaluation => {
         return at(x, false).problem.evaluate(x);
       },
-      feasible: (evaluation: walkStanceCourse.IEvaluation): boolean =>
+      feasible: (evaluation: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation): boolean =>
         evaluation.worst <= shape.tolerance,
       convexify: (
         x: Float64Array,
-        _evaluation: walkStanceCourse.IEvaluation,
+        _evaluation: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation,
         mu: number,
         _radius: number,
         objective: boolean,
-      ): SCO.IModel<Float64Array> => {
-        const about: { problem: walkStanceCourse.IProblem; rows: Q.IRow[] } = at(x, true);
-        const convex: Q.IProblem = about.problem.convexify(x, mu, objective);
-        const fixed: Q.IProblem = {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+        const about: { problem: IAutoMovieMotionHumanWalkStanceCourse.IProblem; rows: IAutoMovieMotionHumanQuadraticProgram.IRow[]; } = at(x, true);
+        const convex: IAutoMovieMotionHumanQuadraticProgram.IProblem = about.problem.convexify(x, mu, objective);
+        const fixed: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
           ...convex,
           rows: [...convex.rows, ...about.rows],
         };
@@ -130,29 +134,29 @@ export namespace walkStanceSolve {
         // Steering changes only the original nonlinear rows' l1 prices.
         // Each price owns fresh warm iterates while fixed P/q/A preparation
         // remains private to this one course and objective mode.
-        const priced: (penalty: number) => SCO.IModel<Float64Array> = (
+        const priced: (penalty: number) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (
           penalty: number,
-        ): SCO.IModel<Float64Array> => {
-          const model: Q.IProblem = {
+        ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+          const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
             ...fixed,
-            rows: fixed.rows.map((row: Q.IRow, index: number): Q.IRow =>
+            rows: fixed.rows.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow, index: number): IAutoMovieMotionHumanQuadraticProgram.IRow =>
               index < convex.rows.length && row.weight !== undefined
                 ? { ...row, weight: penalty }
                 : row,
             ),
           };
           const zero: number = Q.value(model);
-          let trusted: Q.IProblem | undefined;
-          let warm: Q.IState | undefined;
-          const retained: (rows: readonly Q.IRow[]) => boolean = (rows: readonly Q.IRow[]): boolean => {
+          let trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem | undefined;
+          let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+          const retained: (rows: readonly IAutoMovieMotionHumanQuadraticProgram.IRow[]) => boolean = (rows: readonly IAutoMovieMotionHumanQuadraticProgram.IRow[]): boolean => {
             if (trusted === undefined || trusted.rows.length !== model.rows.length + rows.length) return false;
             for (let i: number = 0; i < rows.length; ++i)
               if (trusted.rows[model.rows.length + i] !== rows[i]) return false;
             return true;
           };
           return {
-            solve: (radius: number): SCO.IStep<Float64Array> => {
-              const rows: Q.IRow[] = shape.region(x, radius, true);
+            solve: (radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+              const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = shape.region(x, radius, true);
               if (trusted === undefined || !retained(rows))
                 trusted = { ...model, rows: [...model.rows, ...rows] };
               // Radius changes alter the bounds alone; P, q and every row's
@@ -172,7 +176,7 @@ export namespace walkStanceSolve {
               // degrees, the violation the steering reads.
               let violation: number = 0;
               let worst: number = 0;
-              const value: number = Q.value(model, warm.x, (_row: Q.IRow, over: number): void => {
+              const value: number = Q.value(model, warm.x, (_row: IAutoMovieMotionHumanQuadraticProgram.IRow, over: number): void => {
                 violation += over;
                 worst = Math.max(worst, over);
               });
@@ -214,21 +218,21 @@ export namespace walkStanceSolve {
       // row bounded on neither side has no error to correct.
       correct: (
         x: Float64Array,
-        _step: SCO.IStep<Float64Array>,
-        trial: walkStanceCourse.IEvaluation,
+        _step: IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array>,
+        trial: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation,
       ): Float64Array | null => {
         if (last === undefined || last.x !== x) return null;
-        const there: walkStanceCourse.IEvaluation["bounds"] = trial.bounds;
+        const there: IAutoMovieMotionHumanWalkStanceCourse.IEvaluation["bounds"] = trial.bounds;
         // The same constraints in the same order, or no correction.
         if (there.length !== last.rows) return null;
         const d: Float64Array = last.step;
-        const rows: Q.IRow[] = last.model.rows.map(
-          (row: Q.IRow, i: number): Q.IRow => {
+        const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = last.model.rows.map(
+          (row: IAutoMovieMotionHumanQuadraticProgram.IRow, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
             if (i >= there.length) return row;
             let predicted: number = 0;
             for (let r: number = 0; r < row.index.length; r++)
               predicted += row.coef[r]! * d[row.index[r]!]!;
-            const linearised: Pick<Q.IRow, "l" | "u"> = there[i]!;
+            const linearised: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u"> = there[i]!;
             const moved: number | null = Number.isFinite(row.l)
               ? row.l - linearised.l
               : Number.isFinite(row.u)
@@ -239,14 +243,14 @@ export namespace walkStanceSolve {
             return { ...row, l: row.l - error, u: row.u - error };
           },
         );
-        const corrected: Q.IState = last.prepared.solve([
+        const corrected: IAutoMovieMotionHumanQuadraticProgram.IState = last.prepared.solve([
           ...rows,
           ...shape.region(x, last.radius, true),
         ]);
         return shape.stepped(x, corrected.x);
       },
     };
-    const solved: SCO.IResult<Float64Array, walkStanceCourse.IEvaluation> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IAutoMovieMotionHumanWalkStanceCourse.IEvaluation> = SCO.minimise(
       problem,
       shape.start,
       {
@@ -263,7 +267,7 @@ export namespace walkStanceSolve {
   }
 
   /** A course's knots from `join` on. */
-  function cut(start: walkStanceCourse.ICourse, join: number): walkStanceCourse.ICourse {
+  function cut(start: IAutoMovieMotionHumanWalkStanceCourse.ICourse, join: number): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const rest: (series: Float64Array) => Float64Array = (series: Float64Array): Float64Array => series.slice(join);
     return {
       knots: start.knots.slice(join),
@@ -282,11 +286,11 @@ export namespace walkStanceSolve {
 
   /** A course's first `join` knots followed by a tail solved from there. */
   function joined(
-    knots: readonly walkStanceCourse.IKnot[],
-    start: walkStanceCourse.ICourse,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     join: number,
-    tail: walkStanceCourse.ICourse,
-  ): walkStanceCourse.ICourse {
+    tail: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const series: (head: Float64Array, rest: Float64Array) => Float64Array = (head: Float64Array, rest: Float64Array): Float64Array => {
       const out: Float64Array = new Float64Array(knots.length);
       out.set(head.subarray(0, join));
@@ -335,12 +339,12 @@ export namespace walkStanceSolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns returned arrays/goal records and the original readonly knot references; the function retains no extra state.
    */
   export function record(
-    knots: readonly walkStanceCourse.IKnot[],
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
     n: number,
     x: Float64Array,
     unmet: number,
-    read: (x: Float64Array, k: number, j: number) => walkStanceCourse.IPlanted,
-  ): walkStanceCourse.ICourse {
+    read: IAutoMovieMotionHumanWalkStanceSolve.IRecordRead,
+  ): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     const series: (slot: number) => Float64Array = (slot: number): Float64Array =>
       Float64Array.from(
         { length: n },
@@ -357,9 +361,9 @@ export namespace walkStanceSolve {
         right: { x: series(9), z: series(10) },
       },
       unmet,
-      planted: knots.map((knot: walkStanceCourse.IKnot, k: number): walkStanceCourse.IPlanted[] =>
+      planted: knots.map((knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot, k: number): IAutoMovieMotionHumanWalkStanceCourse.IPlanted[] =>
         knot.stances.map(
-          (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted => read(x, k, j),
+          (_: IAutoMovieMotionHumanWalkStanceCourse.IStance, j: number): IAutoMovieMotionHumanWalkStanceCourse.IPlanted => read(x, k, j),
         ),
       ),
     };
@@ -383,15 +387,15 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem owns its fixed window/build and latest derivative record until release, linear in knots for fixed bandwidth/foot geometry. Each evaluation separately owns scalar intervals until first bounds read replaces them with independent row records, or evaluation release; no query history or FK loan is retained.
    */
   export function problem(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
-    start?: walkStanceCourse.ICourse,
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
+    start?: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
     from: number = 0,
-  ): walkStanceCourse.IProblem {
+  ): IAutoMovieMotionHumanWalkStanceCourse.IProblem {
     const windowed: boolean =
       start !== undefined && from >= 2 && from <= start.knots.length;
     const join: number = windowed ? from - 2 : 0;
-    const tail: readonly walkStanceCourse.IKnot[] = windowed ? knots.slice(join) : knots;
+    const tail: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[] = windowed ? knots.slice(join) : knots;
     const built: ReturnType<typeof walkStanceModel.of> = walkStanceModel.of(
       body,
       tail,
@@ -401,12 +405,12 @@ export namespace walkStanceSolve {
     const size: number = built.size;
     return {
       start: Float64Array.from(built.x),
-      evaluate: (x: Float64Array): walkStanceCourse.IEvaluation => {
+      evaluate: (x: Float64Array): IAutoMovieMotionHumanWalkStanceCourse.IEvaluation => {
         let objective: number = 0;
         let violation: number = 0;
         let worst: number = 0;
         let upper: number[] | undefined = [];
-        let bounds: Pick<Q.IRow, "l" | "u">[] | undefined;
+        let bounds: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u">[] | undefined;
         built.sweep(
           x,
           false,
@@ -423,9 +427,9 @@ export namespace walkStanceSolve {
           objective,
           violation,
           worst,
-          get bounds(): readonly Pick<Q.IRow, "l" | "u">[] {
+          get bounds(): readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u">[] {
             if (bounds === undefined) {
-              bounds = upper!.map((u: number): Pick<Q.IRow, "l" | "u"> => ({ l: -Infinity, u }));
+              bounds = upper!.map((u: number): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u"> => ({ l: -Infinity, u }));
               upper = undefined;
             }
             return bounds;
@@ -433,7 +437,7 @@ export namespace walkStanceSolve {
         };
       },
       convexify: walkStanceConvexify(tail, size, built.sweep),
-      region: (x: Float64Array, radius: number, borrowedRows: boolean = false): Q.IRow[] =>
+      region: (x: Float64Array, radius: number, borrowedRows: boolean = false): IAutoMovieMotionHumanQuadraticProgram.IRow[] =>
         built.bounds(x, radius, borrowedRows),
       length: (step: Float64Array): number => {
         let longest: number = 0;
@@ -444,8 +448,8 @@ export namespace walkStanceSolve {
       stepped: (x: Float64Array, step: Float64Array): Float64Array =>
         x.map((v: number, i: number): number => v + step[i]!),
       tolerance: walkStanceCourse.MET,
-      course: (x: Float64Array, unmet: number): walkStanceCourse.ICourse => {
-        const solved: walkStanceCourse.ICourse = record(
+      course: (x: Float64Array, unmet: number): IAutoMovieMotionHumanWalkStanceCourse.ICourse => {
+        const solved: IAutoMovieMotionHumanWalkStanceCourse.ICourse = record(
           tail,
           built.n,
           x,
@@ -454,11 +458,11 @@ export namespace walkStanceSolve {
         );
         return windowed ? joined(knots, start!, join, solved) : solved;
       },
-      planted: (x: Float64Array, knot: number, side?: "left" | "right"): walkStanceCourse.IPlanted[] =>
+      planted: (x: Float64Array, knot: number, side?: "left" | "right"): IAutoMovieMotionHumanWalkStanceCourse.IPlanted[] =>
         knot < join + (windowed ? 2 : 0)
           ? []
           : tail[knot - join]!.stances.flatMap(
-              (stance: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted[] =>
+              (stance: IAutoMovieMotionHumanWalkStanceCourse.IStance, j: number): IAutoMovieMotionHumanWalkStanceCourse.IPlanted[] =>
                 side !== undefined && stance.side !== side
                   ? []
                   : [built.planted(x, knot - join, j)],

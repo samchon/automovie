@@ -1,24 +1,25 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A target's world point and outward normal at a film second: a person's
@@ -50,10 +51,10 @@ export namespace HumanPerformanceAim {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The resolver retains no state or handle. Results keep their original ownership: fresh computed vectors, a borrowed world at point, or a prop provider's own returned record where supplied.
    */
   export function aim(
-    self: HumanPerformanceState,
-    target: AutoMovieMotionTarget,
+    self: IAutoMovieMotionHumanPerformanceState,
+    target: IAutoMovieMotionTarget,
     seconds: number,
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     switch (target.kind) {
       case "person": {
@@ -65,11 +66,11 @@ export namespace HumanPerformanceAim {
             seconds,
             frame,
           );
-        const other: HumanSegment.IPerson = HumanPerformanceRead.person(
+        const other: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
           self,
           target.subject,
         );
-        const region: resolveAutoMovieHumanoidSurfaces.IFrame | undefined =
+        const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
           other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
           throw new HumanRefusal({
@@ -102,7 +103,7 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "self": {
-        const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+        const region: IAutoMovieHumanoidSurfaces.IFrame =
           frame.body.surfaces.regions[target.region];
         const placed: ReturnType<
           typeof resolveAutoMovieHumanoidSurfaces.place
@@ -113,7 +114,7 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
-        const prop: IHumanProp | undefined = self.props.get(target.subject);
+        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(target.subject);
         // A part an act has moved is where the prop's state poses it.
         const local: ReturnType<typeof HumanPerformanceObject.point> =
           prop === undefined
@@ -142,7 +143,7 @@ export namespace HumanPerformanceAim {
         if (moving !== undefined) return moving;
         // A prop the performer carries is read on the performer's own body,
         // as their own region is (`HumanPerformanceRead.prop`).
-        const at: IHumanProp.IFrame = HumanPerformanceRead.prop(
+        const at: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
           self,
           target.subject,
           seconds,
@@ -237,11 +238,11 @@ export namespace HumanPerformanceAim {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the new frame/heights records; root, body and callback are borrowed. The returned frame retains those inputs until released, and a retained callback keeps its producer's existing lifetime and read semantics.
    */
   export function frame(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    bones: IFrame["bones"],
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    bones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"],
     subject?: string,
-  ): IFrame {
+  ): IAutoMovieMotionHumanPerformanceAim.IFrame {
     return {
       root: posture.root,
       yaw: posture.yaw,
@@ -255,48 +256,5 @@ export namespace HumanPerformanceAim {
       bones,
       ...(subject === undefined ? {} : { subject }),
     };
-  }
-
-  /**
-   * The aiming person's own frame, body and lazy bones (`aim`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state world metres, degree heading, measure-derived scalars, subject identity and the supplied bone callback.
-   * @evidence contracts/development/design.md#principled-representation A world root, heading and anthropometric scalars place point/virtual targets, while the actual body and lazy canonical bones place self targets and carried props.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One existing frame record serves placement, layers, Ahead demands and public aim; no target result or evaluation cache is added to it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the canonical body and resolved-bone types; readonly map access does not imply immutable inputs or authorize caching across the supplied reader's lifetime.
-   */
-  export interface IFrame {
-    /** Their root, world metres. */
-    root: IAutoMovieVector3;
-
-    /** Their heading, degrees about +Y. */
-    yaw: number;
-
-    /** The heights of a `none` target's lines, world metres. */
-    heights: Record<"low" | "middle" | "high", number>;
-
-    /** A `none` target's distance when it names none, metres. */
-    range: number;
-
-    /** Their body. */
-    body: IHumanBody;
-
-    /**
-     * Their canonical world bones, read when an aim needs their own body.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the lazy own-body query; the supplying producer owns its current pose and map lifetime.
-     * @evidence contracts/development/implementation.md#principled-implementation A supplied callback reads the body's actual canonical bones; this signature imposes no independent kinematic approximation or cache.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callable field lets scalar frame construction avoid eager FK and lets the owning evaluation choose its reader.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts ReadonlyMap limits consumer writes through this surface, while actual validation, freshness and mutable dependency handling remain the producer's responsibilities.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature has no algorithm; concrete callback cost belongs to its placement, layer or demand producer.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature shares no work; producers declare their exact evaluation scope and cached dependencies.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates no state or handle; a frame borrows the supplied callback and its producer controls captured state and the returned map's ownership.
-     */
-    bones: (
-      requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /** Their subject id. */
-    subject?: string;
   }
 }

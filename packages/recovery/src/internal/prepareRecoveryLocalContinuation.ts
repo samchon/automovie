@@ -1,14 +1,9 @@
-import type { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
-import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-
-type Node = { section: number; arc: number };
-type Edge = {
-  before: Node;
-  after: Node;
-  reverse: boolean;
-  pairOrdinal: number;
-};
+import type {
+  IAutoMovieRecoveryLocalContinuationPreparationOperation,
+  IAutoMovieRecoveryOpenArcAddress,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenContinuationEdge,
+} from "@automovie/interface";
 
 /**
  * Prepare immutable saved open-arc continuation maps before local surface emission.
@@ -22,20 +17,16 @@ type Edge = {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input bundle, graph and analytic ownership remain borrowed; returned local maps and key closure transfer to the reconstruction call.
  */
 export function prepareRecoveryLocalContinuation(
-  bundle: IAutoMovieRecoveryTensorFamiliesInput,
-  graph: IAutoMovieRecoveryOpenContinuation,
-  analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains>,
-): {
-  key: (n: Node) => string;
-  outgoing: Map<string, Edge>;
-  incoming: Map<string, Edge>;
-  pairs: number;
-  unsupportedGroups: number;
-  unsupportedGroupsWithOpenArcs: number;
-} {
-  const key: (n: Node) => string = (n: Node): string => `${n.section}:${n.arc}`;
-  const outgoing: Map<string, Edge> = new Map(),
-    incoming: Map<string, Edge> = new Map();
+  bundle: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[0],
+  graph: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[1],
+  analytic: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation> {
+  const key: (n: IAutoMovieRecoveryOpenArcAddress) => string = (
+    n: IAutoMovieRecoveryOpenArcAddress,
+  ): string => `${n.section}:${n.arc}`;
+  const outgoing: Map<string, IAutoMovieRecoveryOpenContinuationEdge> =
+      new Map(),
+    incoming: Map<string, IAutoMovieRecoveryOpenContinuationEdge> = new Map();
   let pairs: number = 0,
     unsupportedGroups: number = 0,
     unsupportedGroupsWithOpenArcs: number = 0;
@@ -79,7 +70,7 @@ export function prepareRecoveryLocalContinuation(
       if (typeof pair.reverseAfter !== "boolean")
         throw new Error("Endpoint reversal must be explicit");
       if (analytic.openPairs.has(`${i}:${pairOrdinal}`)) continue;
-      const edge: Edge = {
+      const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
         reverse: pair.reverseAfter,

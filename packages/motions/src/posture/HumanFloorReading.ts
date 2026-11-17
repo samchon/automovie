@@ -1,18 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "./HumanColliders";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
@@ -89,8 +85,8 @@ export namespace HumanFloorReading {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The FK source is borrowed synchronously and never enters the result. Returned arrays and fresh posed snapshots belong to the reading; target points/turns may borrow its resolved bone vectors, which consumers keep unchanged, without module-level query retention.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bearing: readonly RegExp[],
     targets: readonly {
       bone: AutoMovieHumanoidBone;

@@ -1,9 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanMassSource,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Authored stance leg goals and fixed-foot preparation, without a pose solve.
@@ -26,13 +32,13 @@ export namespace StrikingLegGoals {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or output. Each call returns a fresh goal map/bends/contacts with the original ankle/rotation references borrowed from the caller.
    */
   export function read(
-    body: IHumanBody,
-    feet: Record<"left" | "right", HumanFoot.IPlacement>,
+    body: IAutoMovieMotionHumanBody,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean>,
-  ): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    const out: Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
     for (const side of ["left", "right"] as const) {
-      const foot: HumanFoot.IPlacement = feet[side];
+      const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
       const hint: IAutoMovieVector3 = bend(body, foot);
       const bearing: boolean = planted[side];
       out[side === "left" ? "leftLeg" : "rightLeg"] =
@@ -53,15 +59,15 @@ export namespace StrikingLegGoals {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns at most two private foot/hint/contact snapshots until release; reads return independent points, rotations, hints, contacts and goal maps, preventing caller output mutation from changing the retained geometry.
    */
   export function prepare(
-    body: IHumanBody,
-    feet: Record<"left" | "right", HumanFoot.IPlacement>,
+    body: IAutoMovieMotionHumanBody,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean>,
-  ): () => Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    let seeds: readonly ISeed[] | undefined;
-    return (): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> => {
+  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    let seeds: readonly IAutoMovieHumanMassSource.ISeed[] | undefined;
+    return (): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> => {
       if (seeds === undefined)
-        seeds = (["left", "right"] as const).map((side: "left" | "right"): ISeed => {
-          const foot: HumanFoot.IPlacement = feet[side];
+        seeds = (["left", "right"] as const).map((side: "left" | "right"): IAutoMovieHumanMassSource.ISeed => {
+          const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
           const bearing: boolean = planted[side];
           return {
             side,
@@ -72,7 +78,7 @@ export namespace StrikingLegGoals {
             contact: bearing ? { ...HumanFoot.offset(body, side, "mtp") } : undefined,
           };
         });
-      const out: Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
+      const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
       for (const seed of seeds)
         out[seed.side === "left" ? "leftLeg" : "rightLeg"] = goal(
           { ...seed.point },
@@ -102,7 +108,7 @@ export namespace StrikingLegGoals {
   }
 
   /** The exact original ordered toe-axis and knee-hint arithmetic. */
-  function bend(body: IHumanBody, foot: HumanFoot.IPlacement): IAutoMovieVector3 {
+  function bend(body: IAutoMovieMotionHumanBody, foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 {
     const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, { x: 0, y: 0, z: 1 });
     return Vector3.add(foot.ankle, Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), {
       x: 0, y: body.measure.shank, z: 0,
@@ -110,7 +116,7 @@ export namespace StrikingLegGoals {
   }
 
   /** The original point/bend/rotation then conditional planted/contact field order. */
-  function goal(point: IAutoMovieVector3, hint: IAutoMovieVector3, rotation: IAutoMovieQuaternion, planted: boolean, contact: IAutoMovieVector3 | undefined): IHumanPosture.IGoal {
+  function goal(point: IAutoMovieVector3, hint: IAutoMovieVector3, rotation: IAutoMovieQuaternion, planted: boolean, contact: IAutoMovieVector3 | undefined): IAutoMovieHumanLimbGoal {
     return {
       point,
       bend: hint,

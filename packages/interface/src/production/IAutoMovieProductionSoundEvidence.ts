@@ -1,7 +1,7 @@
-import { IAutoMovieProductionSoundAnalysis } from "./IAutoMovieProductionSoundAnalysis";
-import { IAutoMovieProductionSoundEvidenceAudio } from "./IAutoMovieProductionSoundEvidenceAudio";
-import { IAutoMovieProductionSoundPlan } from "./IAutoMovieProductionSoundPlan";
-import { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
+import type { IAutoMovieProductionSoundAnalysis } from "./IAutoMovieProductionSoundAnalysis";
+import type { IAutoMovieProductionSoundEvidenceAudio } from "./IAutoMovieProductionSoundEvidenceAudio";
+import type { IAutoMovieProductionSoundPlan } from "./IAutoMovieProductionSoundPlan";
+import type { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
 
 /**
  * Deterministic sound evidence tying the current semantic plan and pre-encode PCM measurements to final encoded audio bytes.

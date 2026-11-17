@@ -1,22 +1,18 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  fitRigidMeshTransform,
-} from "@automovie/engine";
+import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingFit,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
-import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -40,7 +36,7 @@ export namespace HumanCarriedCouplingRigid {
    */
   export interface IRead {
     /** The actual rigid placement about the original fixed resting contact. */
-    fit: HumanCarriedCouplingFit.IFit;
+    fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
     /** Fresh borne key-pose frames used by this exact registration. */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
@@ -57,11 +53,11 @@ export namespace HumanCarriedCouplingRigid {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Discards the temporary frame-map observation and returns only the existing placement closing over its two points and turn, with no global result or query history.
    */
   export function fit(
-    bearer: IHumanBody, theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    borne: IHumanBody, row: HumanCarried.IRow,
+    bearer: IAutoMovieMotionHumanBody, theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    borne: IAutoMovieMotionHumanBody, row: IAutoMovieMotionHumanCarried.IRow,
     held: readonly [AutoMovieHumanoidRegion | null, AutoMovieHumanoidRegion | null],
     legs: readonly [number, number, number], stance: { incline: number; depth: number },
-  ): HumanCarriedCouplingFit.IFit {
+  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
     return read(bearer, theirs, borne, row, held, legs, stance).fit;
   }
 
@@ -87,10 +83,10 @@ export namespace HumanCarriedCouplingRigid {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned frame map belongs to this query and is consumed read-only before release; the placement closes over its two points and turn. No FK reader, source pose, body result pool or candidate history is retained by this producer.
    */
   export function read(
-    bearer: IHumanBody,
+    bearer: IAutoMovieMotionHumanBody,
     theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    borne: IHumanBody,
-    row: HumanCarried.IRow,
+    borne: IAutoMovieMotionHumanBody,
+    row: IAutoMovieMotionHumanCarried.IRow,
     held: readonly [
       AutoMovieHumanoidRegion | null,
       AutoMovieHumanoidRegion | null,
@@ -98,7 +94,7 @@ export namespace HumanCarriedCouplingRigid {
     legs: readonly [number, number, number],
     stance: { incline: number; depth: number },
   ): IRead {
-    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row, legs);
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, legs);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
@@ -115,7 +111,7 @@ export namespace HumanCarriedCouplingRigid {
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
-        const hold: HumanCarried.IHold | null = row.holds[index] ?? null;
+        const hold: IAutoMovieMotionHumanCarried.IHold | null = row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
         if (hold === null || region0 === null) return;
         const target: IAutoMovieVector3 = Vector3.add(
@@ -168,7 +164,7 @@ export namespace HumanCarriedCouplingRigid {
         (_: unknown, i: number): number => i,
       ),
     }).rotation;
-    const fit: HumanCarriedCouplingFit.IFit = {
+    const fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit = {
       stance,
       legs,
       turn,

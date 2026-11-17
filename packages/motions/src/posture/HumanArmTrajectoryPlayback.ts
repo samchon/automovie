@@ -1,4 +1,8 @@
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { HumanArmBranch } from "./HumanArmBranch";
 import type { HumanArmClearance } from "./HumanArmClearance";
@@ -34,12 +38,12 @@ import { HumanArmRefine } from "./HumanArmRefine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the setup list, the times, the coordinate arrays and one triple per knot while the reader is held, and nothing else.
  */
 export function HumanArmTrajectoryPlayback(
-  setups: readonly G.ISetup[],
+  setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],
   times: readonly number[],
   coordinates: readonly (readonly (readonly number[])[])[],
   arm: number,
-): (seconds: number) => HumanArmClearance.IArm {
-  const setup: G.ISetup = setups[arm]!;
+): (seconds: number) => IAutoMovieMotionHumanArmClearance.IArm {
+  const setup: IAutoMovieMotionHumanArmGeometry.ISetup = setups[arm]!;
   let knots: [number, number, number][] | undefined;
   const readings = (): [number, number, number][] => {
     if (knots !== undefined) return knots;
@@ -60,14 +64,14 @@ export function HumanArmTrajectoryPlayback(
     knots = made;
     return made;
   };
-  return (seconds: number): HumanArmClearance.IArm => {
+  return (seconds: number): IAutoMovieMotionHumanArmClearance.IArm => {
     const c: number[] = HumanArmRefine.hermite(
       times,
       coordinates[arm]!,
       seconds,
     );
     const turned: IAutoMovieQuaternion = G.shoulder(setup, c);
-    const read: HumanArmClearance.IArm = G.arm(setup, c, turned);
+    const read: IAutoMovieMotionHumanArmClearance.IArm = G.arm(setup, c, turned);
     const known: [number, number, number][] = readings();
     if (known.length === 0) return read;
 

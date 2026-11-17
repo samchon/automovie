@@ -1,17 +1,16 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * Where a held prop is: the frame a hand holds it in, and a prop held in
@@ -34,10 +33,10 @@ export namespace HumanPropHold {
   /** One hand on the prop: its grip socket's frame and the prop's frame in it, the offset its grip keeps. */
   export interface IHand {
     /** The hand's grip socket, world. */
-    hand: IHumanProp.IFrame;
+    hand: IAutoMovieRigidTransform;
 
     /** The prop's frame in the hand's grip frame. */
-    offset: IHumanProp.IFrame;
+    offset: IAutoMovieRigidTransform;
   }
 
   /**
@@ -55,7 +54,7 @@ export namespace HumanPropHold {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function fit(a: IHand, b: IHand): IHumanProp.IFrame {
+  export function fit(a: IHand, b: IHand): IAutoMovieRigidTransform {
     const turn = (h: IHand): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(h.hand.rotation, h.offset.rotation),
@@ -125,15 +124,15 @@ export namespace HumanPropHold {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     grip: { side: "left" | "right"; bone?: AutoMovieHumanoidBone },
-  ): IHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     if (grip.bone !== undefined) {
       const bone: IAutoMovieResolvedBone = bones.get(grip.bone)!;
       return { position: bone.worldPosition, rotation: bone.worldRotation };
     }
-    const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+    const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
       body.surfaces.sockets[grip.side === "left" ? "gripLeft" : "gripRight"];
     const bone: IAutoMovieResolvedBone = bones.get(socket.bone)!;
     return {

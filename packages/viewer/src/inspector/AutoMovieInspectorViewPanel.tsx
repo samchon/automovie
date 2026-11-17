@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  type IAutoMovieInspectionView,
-  formatAutoMovieInspectionView,
-  parseAutoMovieInspectionView,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionView } from "@automovie/interface";
+import { formatAutoMovieInspectionView, parseAutoMovieInspectionView } from "@automovie/render";
 import { type ChangeEvent, type JSX, useState } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";

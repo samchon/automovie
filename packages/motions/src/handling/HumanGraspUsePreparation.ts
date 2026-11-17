@@ -1,9 +1,20 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
@@ -39,7 +50,7 @@ export namespace HumanGraspUsePreparation {
     /** Original request context, still live across subsequent callbacks. */
     context: IInput["context"];
     /** Original prop reader, whose later frame calls remain actual. */
-    held: IHumanActionContext.IProp;
+    held: IAutoMovieMotionHumanPropReader;
     /** Admitted working-point affordance. */
     tip: IAutoMovieAffordance;
     /** Original own-body region, or ahead when absent. */
@@ -69,7 +80,7 @@ export namespace HumanGraspUsePreparation {
    */
   export function of(props: IInput): IPrepared {
     const context: (typeof props)["context"] = props.context;
-    const held: IHumanActionContext.IProp = context.prop(props.prop);
+    const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
     const contact: (id: string) => IAutoMovieAffordance | undefined = (id: string): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
@@ -126,7 +137,7 @@ export namespace HumanGraspUsePreparation {
       context.body,
       context.entry.pose,
     );
-    const region: IHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] | undefined =
       at === undefined ? undefined : context.body.surfaces.regions[at];
     const bearer: IAutoMovieResolvedBone | undefined =
       region === undefined ? undefined : bones.get(region.bone);

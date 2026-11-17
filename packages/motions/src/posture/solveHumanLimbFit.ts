@@ -1,21 +1,21 @@
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMoviePose,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
-import type { IHumanPosture } from "./IHumanPosture";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
@@ -57,10 +57,10 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the borrowed reader stays with its caller and only the result escapes.
  */
 export function solveHumanLimbFit(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  limb: IHumanPosture.Limb,
-  goal: IHumanPosture.IGoal,
+  limb: AutoMovieHumanLimb,
+  goal: IAutoMovieHumanLimbGoal,
   placed: readonly ("left" | "right")[],
   rival?: IAutoMovieVector3,
   near?: IAutoMovieSwivelNear,
@@ -88,10 +88,10 @@ export namespace solveHumanLimbFit {
    * this solve.
    */
   export function world(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[],
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
@@ -104,10 +104,10 @@ export namespace solveHumanLimbFit {
 
 /** Reduce, mirror a left limb, move into the frame when asked, solve the right chain, merge back. */
 function solved(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  limb: IHumanPosture.Limb,
-  goal: IHumanPosture.IGoal,
+  limb: AutoMovieHumanLimb,
+  goal: IAutoMovieHumanLimbGoal,
   placed: readonly ("left" | "right")[],
   rival: IAutoMovieVector3 | undefined,
   near: IAutoMovieSwivelNear | undefined,
@@ -125,8 +125,8 @@ function solved(
   // image's are recomputed for the other's sake.
   const left: boolean = limb.startsWith("left");
   const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
-  const chain: IHumanPosture.Limb = left ? HumanLimbMirror.limb(limb) : limb;
-  const asked: IHumanPosture.IGoal = left ? HumanLimbMirror.goal(goal) : goal;
+  const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
+  const asked: IAutoMovieHumanLimbGoal = left ? HumanLimbMirror.goal(goal) : goal;
   const others: readonly ("left" | "right")[] = left ? placed.map(HumanLimbMirror.side) : placed;
   const coming: IAutoMovieVector3 | undefined =
     left && rival !== undefined ? HumanArmMirror.flip(rival) : rival;
@@ -137,9 +137,9 @@ function solved(
           prepareHumanLimbSource.mirror(prepareHumanPoseResolution.read(resolution));
 
   // Solved in the root-position frame; the merge keeps the caller's root.
-  const frame: HumanLimbFitFrame.IFrame | null = framed ? HumanLimbFitFrame.of(image, asked) : null;
+  const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null = framed ? HumanLimbFitFrame.of(image, asked) : null;
   const own: IAutoMoviePose = frame === null ? image : HumanLimbFitFrame.pose(frame, image);
-  const aim: IHumanPosture.IGoal = frame === null ? asked : HumanLimbFitFrame.goal(frame, asked);
+  const aim: IAutoMovieHumanLimbGoal = frame === null ? asked : HumanLimbFitFrame.goal(frame, asked);
   const away: IAutoMovieVector3 | undefined =
     frame === null || coming === undefined ? coming : HumanLimbFitFrame.point(frame, coming);
   if (framed) HumanLimbFitFrame.work(body, near === undefined ? "coldFits" : "continuedFits");

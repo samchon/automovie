@@ -1,13 +1,15 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { jump } from "../actions/jump";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
@@ -31,28 +33,6 @@ import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-off is the jump's, never restated.
  */
 export namespace GymnasticsTakeoff {
-  /**
-   * The last actual jump plan and its displayed take-off reading.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish the borrowed push-off plan, its take-off seconds, world-metre COM and measured launch velocity in metres per second.
-   * @evidence contracts/development/design.md#principled-representation One actual planned push and its own physical readings preserve their shared provenance for high-jump and pole-vault consumers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The caller needs exactly this plan prefix, instant, centre and velocity to author its original subsequent flight.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the last plan's actual displayed values, never the requested aim, a synthetic endpoint or an asserted flight certificate.
-   */
-  export interface ITakeoff {
-    /** The jump's plan; its postures up to `seconds` are the push-off. */
-    plan: IHumanActionPlan;
-
-    /** The take-off, seconds of the plan. */
-    seconds: number;
-
-    /** The centre of mass at the take-off, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** Its launch velocity, m/s. */
-    velocity: IAutoMovieVector3;
-  }
-
   /** How many times the landing place is corrected. */
   const PASSES: number = 3;
 
@@ -73,10 +53,10 @@ export namespace GymnasticsTakeoff {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local launch reader's bounded demand releases with this synchronous correction operation; no FK/projector loan or query history enters the result. Only the last original jump plan and its numeric launch vectors escape.
    */
   export function of(
-    context: IHumanActionContext<object>,
+    context: IAutoMovieMotionHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
-  ): ITakeoff {
-    const model: GymnasticsFlight.Model = GymnasticsFlight.model(context.body);
+  ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(context.body);
     const launch: ReturnType<typeof prepareGymnasticsLaunch> = prepareGymnasticsLaunch(context.body, model);
     const root: IAutoMovieVector3 = context.entry.posture.root;
 
@@ -106,13 +86,13 @@ export namespace GymnasticsTakeoff {
       y: 0,
       z: root.z + first.z * guess,
     };
-    const at: (plan: IHumanActionPlan, event: string) => number = (plan: IHumanActionPlan, event: string): number =>
+    const at: (plan: IAutoMovieMotionHumanActionPlan, event: string) => number = (plan: IAutoMovieMotionHumanActionPlan, event: string): number =>
       (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
         ?.share ?? 0) * plan.duration;
 
-    let taken: ITakeoff | undefined;
+    let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
     for (let pass: number = 0; pass <= PASSES; pass++) {
-      const plan: IHumanActionPlan = jump.plan({
+      const plan: IAutoMovieMotionHumanActionPlan = jump.plan({
         ...context,
         params: { to, apex },
       });

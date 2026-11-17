@@ -1,18 +1,22 @@
 import {
-  type IAutoMovieResolvedBone,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAirborneShape,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanAirborneShape,
-  type IHumanBody,
-  type IHumanLayer,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -46,11 +50,11 @@ export function test_human_motion_airborne_shape(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const shaped: (shape: HumanAirborneShape.Shape | null) => Bones = (
-      shape: HumanAirborneShape.Shape | null,
+    const shaped: (shape: IAutoMovieMotionHumanAirborneShape.Shape | null) => Bones = (
+      shape: IAutoMovieMotionHumanAirborneShape.Shape | null,
     ): Bones => poseBones(body, {
       skeleton: body.skeleton.id,
       root: null,
@@ -68,14 +72,14 @@ export function test_human_motion_airborne_shape(): void {
     if (!(moment(shaped("tuck"), 0) < moment(shaped("layout"), 0)))
       findings.push(`${name}: a tuck does not lower the moment about the somersault axis`);
 
-    const standing: IHumanPosture = {
+    const standing: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {},
       limbs: {
         leftLeg: { point: { x: 0.1, y: 0.1, z: 0 }, bend: { x: 0.1, y: 0.5, z: 0.5 } },
         leftArm: { point: { x: 0.3, y: 1.2, z: 0.3 }, bend: { x: 0.5, y: 1, z: 0 } },
       },
     };
-    const context: IHumanLayer.IContext = { body } as IHumanLayer.IContext;
+    const context: IAutoMovieMotionHumanLayer.IContext = { body } as IAutoMovieMotionHumanLayer.IContext;
     for (const [shape, limb, kept, bone, set] of [
       ["tuck", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
       ["pike", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
@@ -84,9 +88,9 @@ export function test_human_motion_airborne_shape(): void {
       ["armsIn", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
       ["armsUp", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
     ] as const) {
-      const layer: IHumanLayer = HumanAirborneShape.layer(shape);
-      const laid: IHumanPosture = layer.apply(standing, 0, context);
-      const moved: IHumanPosture.IGoal | undefined = laid.limbs[limb];
+      const layer: IAutoMovieMotionHumanLayer = HumanAirborneShape.layer(shape);
+      const laid: IAutoMovieMotionHumanPosture = layer.apply(standing, 0, context);
+      const moved: IAutoMovieHumanLimbGoal | undefined = laid.limbs[limb];
       const expected: IAutoMovieVector3 = poseBones(body, resolveHumanPosture(body, {
         ...standing,
         joints: HumanAirborneShape.ANGLES[shape],
@@ -94,7 +98,7 @@ export function test_human_motion_airborne_shape(): void {
       })).get(bone)!.worldPosition;
       const channels: readonly string[] = limb === "leftLeg"
         ? ["leftLeg", "rightLeg"] : ["leftArm", "rightArm"];
-      const claimed: IHumanLayer["channels"] = layer.channels;
+      const claimed: IAutoMovieMotionHumanLayer["channels"] = layer.channels;
       if (
         moved === undefined ||
         !vclose(moved.point, expected, 0) ||
@@ -103,7 +107,7 @@ export function test_human_motion_airborne_shape(): void {
         laid.joints[set] === undefined ||
         claimed === undefined ||
         claimed.length !== 2 ||
-        channels.some((channel: string): boolean => !claimed.includes(channel as IHumanPosture.Limb))
+        channels.some((channel: string): boolean => !claimed.includes(channel as AutoMovieHumanLimb))
       ) findings.push(`${name} ${shape}: does not claim exactly its limbs or carry its held goal`);
     }
   }

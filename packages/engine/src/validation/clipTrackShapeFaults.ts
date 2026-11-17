@@ -1,6 +1,9 @@
-import { AutoMovieInterpolation } from "@automovie/interface";
+import {
+  AutoMovieInterpolation,
+  type IAutoMovieClipShapeFault,
+  type IAutoMovieClipTrackShapeFaults,
+} from "@automovie/interface";
 
-import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 import { channelValueWidth } from "./channelValueWidth";
 import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 
@@ -16,12 +19,7 @@ import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Most faults retain scalar values/counts, while empty-array faults retain their original array; no clip cursor, sampled frames or host task survives through the helper.
  */
 export const clipTrackShapeFaults: (
-  track: {
-    times?: unknown;
-    values?: unknown;
-    interpolation?: unknown;
-    channel?: unknown;
-  },
+  track: IAutoMovieClipTrackShapeFaults.ITrack,
   duration: unknown,
 ) => IAutoMovieClipShapeFault[] = (
   /**
@@ -29,12 +27,7 @@ export const clipTrackShapeFaults: (
    * own value without a cast and without a re-check: the gate has already
    * narrowed a stored track to a record, the sampler holds the typed one.
    */
-  track: {
-    times?: unknown;
-    values?: unknown;
-    interpolation?: unknown;
-    channel?: unknown;
-  },
+  track: IAutoMovieClipTrackShapeFaults.ITrack,
   duration: unknown,
 ): IAutoMovieClipShapeFault[] => {
   const faults: IAutoMovieClipShapeFault[] = [];

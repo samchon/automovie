@@ -1,17 +1,22 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGive,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieReactionTimeDistribution,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
@@ -20,16 +25,10 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
@@ -62,10 +61,10 @@ import { ReactionSource } from "./ReactionSource";
  */
 export namespace give {
   /** The action's name. */
-  export const name: HumanActionKey = "give";
+  export const name: AutoMovieMotionHumanActionKey = "give";
 
   /** Cancel table: anything may follow from the peak on, a stagger or a knockdown at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       any: ["fromStroke", "smooth"],
       stagger: ["anytime", "reflex"],
@@ -73,34 +72,9 @@ export namespace give {
     });
 
   /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-
-  /** Parameters for the inherited-base contact reaction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state the source/default, closed reacting part and direction, and normalized intensity range/default.
-   * @evidence contracts/development/design.md#principled-representation The original target union identifies contact, closed part/way unions identify the physical response, and dimensionless intensity scales the law's named provisional angles/shift under runtime bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Plan consumes exactly these four author inputs; shared motion-target and HumanUnit types retain their existing ownership.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No performer, posture or physical result is encoded in the type; the original source fallback and HumanBound admission remain in the actual planner.
-   */
-  export interface IParams {
-    /** Where the contact comes from; a place ahead of the performer when absent. */
-    from?: AutoMovieMotionTarget;
-
-    /** What gives way; `head` when absent. */
-    part?: "head" | "trunk";
-
-    /** Whether the part goes away from the contact (a slap, a push) or toward it (a pull); `away` when absent. */
-    way?: "away" | "toward";
-
-    /** How strong, in (0, 1]; 1 when absent. */
-    intensity?: number &
-      tags.ExclusiveMinimum<0> &
-      tags.Maximum<1> &
-      HumanUnit<"">;
-  }
-
   /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */
   export const TURN: number = 45;
 
@@ -131,13 +105,13 @@ export namespace give {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous observation lends its exact FK workspace and body-bound head-demand producer to the entry and both actual joint-override trials; every authored joint is still admitted and each changed neck pose is read afresh, while direction is still read once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation IIFE releases its lazy FK workspace, fixed head-demand reader and fresh bone maps before constructing the returned primitive; only its direction and computed head angles escape, never an FK reader, callback or posed-result cache.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
-    const p: IParams = context.params;
+  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanGive.IParams = context.params;
     const intensity: number = p.intensity ?? 1;
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
-    const body: IHumanBody = context.body;
-    const entry: IHumanPosture = context.entry.posture;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: 0,
       attack: RISE,
       hold: RETURN[0],
@@ -157,10 +131,10 @@ export namespace give {
       | {
           part: "head";
           away: IAutoMovieVector3;
-          angles: AutoMovieMotionHumanJoints.Angles;
+          angles: IAutoMovieMotionHumanJoints.Angles;
         }
       | { part: "trunk"; away: IAutoMovieVector3 };
-    const reaction: IReaction = ((): IReaction => {
+    const reaction: IAutoMovieReactionTimeDistribution = ((): IAutoMovieReactionTimeDistribution => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =
@@ -200,7 +174,7 @@ export namespace give {
             body,
             from: 0,
             to: clock.duration,
-            angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => {
+            angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => {
               const share: number =
                 intensity *
                 AutoMovieMotionHumanRange.lean("light") *
@@ -230,14 +204,14 @@ export namespace give {
 
   /** The neck and head angles that turn and tilt the head to a side: 1 for the performer's left, -1 for the right. */
   function turned(
-    context: IHumanActionContext<IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
     trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: 1 | -1,
     intensity: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     headAt: ReturnType<typeof HumanTrunk.prepareResolve>,
-  ): AutoMovieMotionHumanJoints.Angles {
-    const entry: IHumanPosture = context.entry.posture;
+  ): IAutoMovieMotionHumanJoints.Angles {
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const left: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 1, y: 0, z: 0 },
@@ -267,12 +241,12 @@ export namespace give {
       );
       return Vector3.dot(Vector3.subtract(moved, rest), left) >= 0 ? 1 : -1;
     };
-    const twist: AutoMovieMotionHumanJoints.Angles =
+    const twist: IAutoMovieMotionHumanJoints.Angles =
       AutoMovieMotionHumanHead.share(
         2,
         side * sign(2, { x: 0, y: 0, z: 1 }) * TURN * intensity,
       );
-    const tilt: AutoMovieMotionHumanJoints.Angles =
+    const tilt: IAutoMovieMotionHumanJoints.Angles =
       AutoMovieMotionHumanHead.share(
         1,
         side * sign(1, { x: 0, y: 1, z: 0 }) * TILT * intensity,

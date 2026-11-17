@@ -1,20 +1,26 @@
 import type {
-  AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointPose,
-  IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton,
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieSkeletonPoseResolution,
+  IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
+import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
-import type { preparePoseResolution } from "./preparePoseResolution";
-import { preparePoseResolutionState } from "./preparePoseResolutionState";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 import type { preparePoseReading } from "./preparePoseReading";
+import { preparePoseResolution } from "./preparePoseResolution";
+import { preparePoseResolutionState } from "./preparePoseResolutionState";
 import { preparePoseTupleScan } from "./preparePoseTupleScan";
-import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /** The immutable node representation shared with the dynamic FK owner. */
@@ -308,12 +314,11 @@ export namespace prepareSkeletonPoseResolution {
     return true;
   }
 
-  /** Root construction occurs after tuple staging, before actual ordered numerical admission. */
-  export type ITupleRead = (pose: Omit<IAutoMoviePose, "joints">,
-    operation?: ReturnType<typeof preparePoseResolution>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  /** Root construction after tuple staging (`IAutoMovieSkeletonPoseResolution.ITupleRead`). */
+  export type ITupleRead = IAutoMovieSkeletonPoseResolution.ITupleRead;
 
-  /** Snapshot all current authored entries/scalars, without constructing intermediate joint records. */
-  export type ITupleReader = (joints: preparePoseTupleScan.IJoints) => ITupleRead;
+  /** Staged tuple reader (`IAutoMovieSkeletonPoseResolution.ITupleReader`). */
+  export type ITupleReader = IAutoMovieSkeletonPoseResolution.ITupleReader;
 
   /**
    * Return fresh geometric rest frames only from this owner's genuine rig.
@@ -332,143 +337,13 @@ export namespace prepareSkeletonPoseResolution {
     return read();
   }
 
-  /**
-   * Immutable prepared FK, independent of later source rig or table edits.
-   *
-   * Complete poses use current clinical degrees/root placement; fixed-source
-   * queries append complete edits to an actually admitted source. Fixed demand
-   * selects reachable outputs without exposing numeric indices or state rows.
-   */
-  export interface IRig {
-    /**
-     * Bind fixed output names, then stage each current tuple map before root
-     * construction. The returned root reader admits all staged scalars through
-     * the same actual F/A/T basis/frame/finite owner and sparse FK. All entries
-     * snapshot before tuple components; all components read before root work,
-     * preserving explicit undefined/getter failure order and fresh outputs.
-     * Fixed ancestry omits only pure composition outside that graph closure;
-     * every scalar still receives original basis/finite/used-frame checks.
-     * One 4J name/scalar array replaces J joint records. Fixed names live with the
-     * factory; each staged scan ends with its synchronous query and retains no
-     * source tuples/map, root, operation reader or result history.
-     */
-    prepareTuples(requested?: ReadonlySet<AutoMovieHumanoidBone>): ITupleReader;
+  /** Immutable prepared FK of one fixed rig (`IAutoMovieSkeletonPoseResolution.IRig`). */
+  export type IRig = IAutoMovieSkeletonPoseResolution.IRig;
 
-    /**
-     * Admit one current clinical joint against this rig's actual fixed axes
-     * and frame, then return a fresh quaternion. Same-operation reads may
-     * share exact completed conversion with preceding full pose admission;
-     * no caller flag certifies it and every current coordinate is checked.
-     * Constant-size work stores only a last successful row under the lent
-     * operation, or call-local state without one. It completes no pose/FK.
-     */
-    joint(joint: IAutoMovieJointPose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieQuaternion;
+  /** One pose as this rig admitted it (`IAutoMovieSkeletonPoseResolution.IReading`). */
+  export type IReading = IAutoMovieSkeletonPoseResolution.IReading;
 
-    /**
-     * Admit/snapshot a fixed source/root, optionally binding names and borrowing
-     * exact completed conversion from this same operation. Ordered admission
-     * and the shared sparse FK produce baseline-plus-complete-edit queries;
-     * no source record or external resolved flag is presumed valid.
-     * O(J+B) setup precedes E-edit, actual changed-subtree and invalidated-
-     * ancestry work with fresh output; optional names may be bound once.
-     * Independent O(B+U) overlay rows end with this source operation; source
-     * edits require a new workspace and no source pose/result history is kept.
-     */
-    preparePose(source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader;
-
-    /**
-     * Snapshot reachable requested names/order once, in O(K log K), using this
-     * actual immutable rig. Each resulting query still admits the complete
-     * pose and follows ordinary sparse FK, sharing its exact operation rows.
-     * Only K indices are retained until demand release; no external numeric
-     * list, admission flag, pose or target answer is retained or accepted.
-     */
-    prepareBones(requested: ReadonlySet<AutoMovieHumanoidBone>): IBoneDemand;
-
-    /**
-     * Admit a complete pose in its records' order once, as resolve does, and
-     * return it as a reading: a value its producer hands to every consumer of
-     * that pose's bones. Reading bones from it admits nothing again and
-     * composes each demanded bone at most once across all its readers, by
-     * the same parent-first products as resolve. It holds the admitted
-     * articulations and root, not the records, so a later edit of the pose
-     * needs a new reading. One O(J) admission, then K fresh copies a read;
-     * the reading keeps B references and at most B private frames until its
-     * holder releases it.
-     */
-    read(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IReading;
-
-    /** Immutable merged raw-axis snapshot for the same rig's IK; normalization remains lazy at each original use site. */
-    readonly jointAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
-
-    /**
-     * Complete current ordered admission and the same sparse parent-first FK
-     * as resolve, directly into a fresh name map. Each bone/nested transform
-     * is copied once; later duplicate names retain Map's original insertion
-     * order and last value. Optional live names select only actual rooted
-     * outputs without relaxing any clinical check. Private output writers
-     * accept no foreign callback or caller-supplied container. Work remains
-     * current admission/changes/invalidated ancestry plus K copies/inserts,
-     * without an intermediate FK array. Only the same weak operation rows
-     * persist; the map and every nested value belong solely to the caller.
-     */
-    resolveMap(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>,
-      requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /**
-     * Admit all current pose records in order, then return fresh requested
-     * reachable model-metre frames, all when names are absent. Shared sparse
-     * FK keeps ordinary quaternion grouping and exact scalar invalidation;
-     * no time/target result substitutes for current admission.
-     * Current admission, actual changed-subtree revision and invalidated-
-     * ancestry checks precede K fresh copies and optional live-name sorting.
-     * O(B+U) rows end with the lent reader, or this call without supply.
-     */
-    resolve(
-      pose: IAutoMoviePose,
-      operation?: ReturnType<typeof preparePoseResolution>,
-      requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    ): IAutoMovieResolvedBone[];
-  }
-
-  /**
-   * One pose as this rig admitted it, handed by the pose's producer to the
-   * readers of its bones.
-   */
-  export interface IReading {
-    /** The requested reachable bones in parent-first order, all of them when no names are given, as a fresh map of fresh frames. */
-    map(requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
-
-  /**
-   * A genuine immutable rig's fixed requested-bone snapshot.
-   *
-   * Actual rig name lookup fixes reachable output membership/order. Queries
-   * supply complete current poses; numeric indices and state stay private.
-   */
-  export interface IBoneDemand {
-    /** The captured bones of a pose this rig already admitted (`IRig.read`), fresh, without sorting names or admitting again; a reading of another rig or a copied one throws. */
-    read(reading: IReading): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /**
-     * The same full admission, fixed rooted demand, exact invalidation and
-     * fresh nested ownership as resolve, written directly into a fresh map
-     * without an intermediate result array. Private writers share the FK
-     * recurrence and admit no external callback or validity flag. Queries
-     * retain no container/result history; bounded dynamic rows end with the
-     * same lent operation, while the caller owns all returned map values.
-     */
-    map(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-    /**
-     * Admit the current complete pose and return fresh captured model-metre
-     * frames through the same sparse FK, without re-sorting names. Exact
-     * scalar/ancestor/root dependencies share the lent operation's rows;
-     * no pose identity or answer is cached. Current admission and actual
-     * changed-subtree updates precede invalidated ancestry and K copies.
-     * O(B+U) rows end with the reader, or this call without reader supply.
-     */
-    resolve(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[];
-  }
+  /** A rig's fixed requested-bone snapshot (`IAutoMovieSkeletonPoseResolution.IBoneDemand`). */
+  export type IBoneDemand = IAutoMovieSkeletonPoseResolution.IBoneDemand;
 }
 

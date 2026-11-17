@@ -1,14 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
@@ -74,15 +77,15 @@ export namespace restClasped {
    * @throws {Error} When the trunk has no front surface at the height.
    */
   export function front(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    elbows: Record<HumanHand.Side, IAutoMovieVector3>,
-  ): Record<HumanHand.Side, rest.IGoal> {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
     const trunk: HumanTrunk.IReading = HumanTrunk.prepare(body, posture, FRAMES);
     const ahead: IAutoMovieVector3 = heading(posture);
     const groin: IAutoMovieVector3 = trunk.region("groin").point;
     const abdomen: IAutoMovieVector3 = trunk.region("abdomen").point;
-    const shoulders: Record<HumanHand.Side, IAutoMovieVector3> = joints(
+    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = joints(
       trunk,
     );
     const ray: IAutoMovieVector3 = Vector3.addScaled(groin, ahead, body.measure.stature);
@@ -99,9 +102,9 @@ export namespace restClasped {
         },
         inward,
       );
-    const goals = (y: number): Record<HumanHand.Side, rest.IGoal> => {
+    const goals = (y: number): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> => {
       const place = at(y);
-      const left: rest.IGoal = layLeft(
+      const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
         place.point,
         place.normal,
       );
@@ -117,20 +120,20 @@ export namespace restClasped {
     };
     // How far the farther of the two wrists lies beyond its arm's reach at
     // the comfortable flexion, metres.
-    const comfortable: (side: HumanHand.Side) => number = (side: HumanHand.Side): number => {
+    const comfortable: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number => {
       const upper: number = segment(body, side, "UpperArm", "LowerArm");
       const lower: number = segment(body, side, "LowerArm", "Hand");
       return Math.sqrt(upper * upper + lower * lower +
         2 * upper * lower * Math.cos((FLEXION * Math.PI) / 180));
     };
-    const reaches: Record<HumanHand.Side, number> = {
+    const reaches: Record<AutoMovieHumanSide, number> = {
       left: comfortable("left"), right: comfortable("right"),
     };
     const excess = (y: number): number => {
-      const both: Record<HumanHand.Side, rest.IGoal> = goals(y);
+      const both: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = goals(y);
       let far: number = -Infinity;
       for (const side of ["left", "right"] as const) {
-        const goal: rest.IGoal = both[side];
+        const goal: IAutoMovieMotionHumanRest.IGoal = both[side];
         far = Math.max(far, Vector3.distance(
           HumanHand.place(body, side, goal.surface, goal.point, goal.rotation, goal.shape).point,
           shoulders[side],
@@ -169,14 +172,14 @@ export namespace restClasped {
    * @throws {Error} When the trunk has no back surface at the height.
    */
   export function behind(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    elbows: Record<HumanHand.Side, IAutoMovieVector3>,
-  ): Record<HumanHand.Side, rest.IGoal> {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
     const trunk: HumanTrunk.IReading = HumanTrunk.prepare(body, posture, FRAMES);
     const ahead: IAutoMovieVector3 = heading(posture);
     const back: IAutoMovieVector3 = trunk.region("lowerBack").point;
-    const shoulders: Record<HumanHand.Side, IAutoMovieVector3> = joints(
+    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = joints(
       trunk,
     );
     const place: HumanTrunk.ISurface = trunk.surface(
@@ -188,7 +191,7 @@ export namespace restClasped {
     );
     const layLeft: Lay = prepareLaid(body, "left", "handBack", shoulders.left, elbows.left, "flat");
     const layRight: Lay = prepareLaid(body, "right", "handBack", shoulders.right, elbows.right, "flat");
-    const left: rest.IGoal = layLeft(
+    const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
       place.point,
       place.normal,
     );
@@ -205,7 +208,7 @@ export namespace restClasped {
 }
 
 /** The unit direction a posture faces, world frame. */
-function heading(posture: IHumanPosture): IAutoMovieVector3 {
+function heading(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
   return HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
     { x: 0, y: 0, z: 1 },
@@ -215,7 +218,7 @@ function heading(posture: IHumanPosture): IAutoMovieVector3 {
 /** Both shoulder joints of a posture, world metres: they ride the trunk, not the arm's goal. */
 function joints(
   trunk: HumanTrunk.IReading,
-): Record<HumanHand.Side, IAutoMovieVector3> {
+): Record<AutoMovieHumanSide, IAutoMovieVector3> {
   return {
     left: trunk.bones.get("leftUpperArm")!.worldPosition,
     right: trunk.bones.get("rightUpperArm")!.worldPosition,
@@ -230,8 +233,8 @@ const FRAMES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone
 
 /** A rest length between two joints of an arm, metres. */
 function segment(
-  body: IHumanBody,
-  side: HumanHand.Side,
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
   from: "UpperArm" | "LowerArm",
   to: "LowerArm" | "Hand",
 ): number {
@@ -292,20 +295,20 @@ function forearm(
  * lazily after the first actual surface query and shared across heights.
  */
 function prepareLaid(
-  body: IHumanBody,
-  side: HumanHand.Side,
-  surface: HumanHand.Surface,
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface,
   shoulder: IAutoMovieVector3,
   elbow: IAutoMovieVector3,
-  shape: HumanHand.Shape,
+  shape: IAutoMovieMotionHumanHand.Shape,
 ): Lay {
-  let fixed: { upper: number; lower: number; local: HumanHand.IFrame; align: ReturnType<typeof HumanHand.prepareAlignment> } | undefined;
-  return (point: IAutoMovieVector3, normal: IAutoMovieVector3): rest.IGoal => {
+  let fixed: { upper: number; lower: number; local: IAutoMovieMotionHumanHand.IFrame; align: ReturnType<typeof HumanHand.prepareAlignment> } | undefined;
+  return (point: IAutoMovieVector3, normal: IAutoMovieVector3): IAutoMovieMotionHumanRest.IGoal => {
     // Keep the original first ray/stacked-surface query ahead of hand preparation.
     if (fixed === undefined) {
       const upper: number = segment(body, side, "UpperArm", "LowerArm");
       const lower: number = segment(body, side, "LowerArm", "Hand");
-      const local: HumanHand.IFrame = HumanHand.offset(body, side, surface);
+      const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, surface);
       fixed = { upper, lower, local, align: HumanHand.prepareAlignment({
         normal: local.normal,
         forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
@@ -336,19 +339,19 @@ function prepareLaid(
 }
 
 /** Actual world surface inputs of one fixed hand/shoulder configuration. */
-type Lay = (point: IAutoMovieVector3, normal: IAutoMovieVector3) => rest.IGoal;
+type Lay = (point: IAutoMovieVector3, normal: IAutoMovieVector3) => IAutoMovieMotionHumanRest.IGoal;
 
 /**
  * A hand surface laid on a surface of the left hand as the left hand holds
  * its own goal.
  */
 function stacked(
-  body: IHumanBody,
-  left: rest.IGoal,
-  on: HumanHand.Surface,
+  body: IAutoMovieMotionHumanBody,
+  left: IAutoMovieMotionHumanRest.IGoal,
+  on: IAutoMovieMotionHumanHand.Surface,
   lay: Lay,
-): rest.IGoal {
-  const wrist: HumanHand.IWrist = HumanHand.place(
+): IAutoMovieMotionHumanRest.IGoal {
+  const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
     body,
     "left",
     left.surface,
@@ -356,7 +359,7 @@ function stacked(
     left.rotation,
     left.shape,
   );
-  const face: HumanHand.IFrame = HumanHand.offset(body, "left", on, left.shape);
+  const face: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, "left", on, left.shape);
   return lay(
     Vector3.add(
       wrist.point,

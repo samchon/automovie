@@ -1,9 +1,16 @@
-import { type IAutoMovieSeededChainFit, type IAutoMovieSwivelNear, Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFoot } from "./HumanFoot";
-import type { IHumanPosture } from "./IHumanPosture";
-import type { prepareHumanLimbFit } from "./prepareHumanLimbFit";
+import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 
 /**
  * Fit the ankle/wrist and preserve its actual authored offset contact through
@@ -17,7 +24,7 @@ import type { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same goal-specific workspace across actual re-aimed targets; a later pass continues the previous pass's swivel seed for a target millimetres away (a seed from this same synchronous fit, never another instant's); each fit and rotation remains current and the actual chosen toes travel with that candidate.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Goal, workspace, fit policy and bounded current/best candidate state are synchronous local data. Returned records retain no reader, callback, source factory, history or handle.
  */
-export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IHumanPosture.IGoal,
+export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IAutoMovieHumanLimbGoal,
   side: "left" | "right", leg: boolean,
   fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
   let fitted: IAutoMovieSeededChainFit = fit(goal.point);

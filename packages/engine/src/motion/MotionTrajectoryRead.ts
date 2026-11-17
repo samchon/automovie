@@ -1,10 +1,14 @@
 import type {
+  IAutoMovieHumanTrunkSolver,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionTrajectoryInterval,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { step } from "@automovie/motions";
 
-import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
+import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import { MotionTrajectoryQuaternion } from "./MotionTrajectoryQuaternion";
 import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
@@ -45,7 +49,7 @@ export namespace MotionTrajectoryRead {
     qs: (IAutoMovieQuaternion | null)[];
 
     /** The vector and angular rates at those knots. */
-    ks: integrateMotionTrajectory.IRate[];
+    ks: IAutoMovieIntegrateMotionTrajectory.IRate[];
 
     /** Whether the trajectory includes an orientation. */
     oriented: boolean;
@@ -90,8 +94,8 @@ export namespace MotionTrajectoryRead {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares completed knot arrays, one previous full state and one common quaternion projection only when Object.is matches each reader's raw requested time. Vector components share each Hermite slope weight times the interval span with its original association. One previous oriented interval shares its relative rotation vector and exact endpoint differential. Full and projected reads use the same quaternion curve.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains numeric knots and bounded last-state/quaternion/interval metadata, without a model callback or history. State outputs and all four interval arrays are fresh. Quaternion-only playback skips vector work but retains numeric knot records.
    */
-  export function fixed(props: IFixed): integrateMotionTrajectory.ITrajectory {
-    const { t0, t1, h, times, xs, ks }: IFixed = props;
+  export function fixed(props: IAutoMovieHumanTrunkSolver.IFixed): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+    const { t0, t1, h, times, xs, ks }: IAutoMovieHumanTrunkSolver.IFixed = props;
     const steps: number = times.length - 1;
     const quaternion: (time: number) => IAutoMovieQuaternion | null = MotionTrajectoryQuaternion.fixed(props);
     return {
@@ -101,7 +105,7 @@ export namespace MotionTrajectoryRead {
       times,
       knots: times.length,
       orientation: copied(quaternion),
-      interval: (time: number): integrateMotionTrajectory.IInterval => {
+      interval: (time: number): IAutoMovieMotionTrajectoryInterval => {
         const t: number = Math.max(t0, Math.min(t1, time));
         const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
         return {
@@ -113,7 +117,7 @@ export namespace MotionTrajectoryRead {
           last: ks[i + 1]!.dx.slice(),
         };
       },
-      at: owned((time: number): integrateMotionTrajectory.IState => {
+      at: owned((time: number): IAutoMovieIntegrateMotionTrajectory.IState => {
         const t: number = Math.max(t0, Math.min(t1, time));
         const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
         const a: number = times[i]!;
@@ -161,8 +165,8 @@ export namespace MotionTrajectoryRead {
     t1: number,
     h: number,
     steps: readonly IDenseStep[],
-    end: integrateMotionTrajectory.IState,
-  ): integrateMotionTrajectory.ITrajectory {
+    end: IAutoMovieIntegrateMotionTrajectory.IState,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const times: number[] = [...steps.map((s: IDenseStep): number => s.t), t1];
     const locate: ReturnType<typeof MotionTrajectoryInterval> = MotionTrajectoryInterval(t0, t1, steps);
     const quaternion: (time: number) => IAutoMovieQuaternion | null = MotionTrajectoryQuaternion.dense(locate, end.q);
@@ -173,7 +177,7 @@ export namespace MotionTrajectoryRead {
       times,
       knots: times.length,
       orientation: copied(quaternion),
-      at: owned((time: number): integrateMotionTrajectory.IState => {
+      at: owned((time: number): IAutoMovieIntegrateMotionTrajectory.IState => {
         if (!(time < t1)) return { x: end.x, q: quaternion(time) };
         const { step: s, u }: NonNullable<ReturnType<typeof locate>> = locate(time)!;
         return {
@@ -213,11 +217,11 @@ export namespace MotionTrajectoryRead {
    * and distinguish signed zero without changing either reader's branches.
    */
   function owned(
-    read: (seconds: number) => integrateMotionTrajectory.IState,
-  ): (seconds: number) => integrateMotionTrajectory.IState {
+    read: (seconds: number) => IAutoMovieIntegrateMotionTrajectory.IState,
+  ): (seconds: number) => IAutoMovieIntegrateMotionTrajectory.IState {
     let previous: number | undefined;
-    let value: integrateMotionTrajectory.IState | undefined;
-    return (seconds: number): integrateMotionTrajectory.IState => {
+    let value: IAutoMovieIntegrateMotionTrajectory.IState | undefined;
+    return (seconds: number): IAutoMovieIntegrateMotionTrajectory.IState => {
       if (value === undefined || !Object.is(seconds, previous)) {
         value = read(seconds);
         previous = seconds;

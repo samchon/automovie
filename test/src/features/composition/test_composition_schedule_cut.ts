@@ -1,9 +1,14 @@
 import {
   AutoMovieComposition,
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -36,8 +41,8 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 scenarios and what each pins.
  */
 export function test_composition_schedule_cut(): void {
-  const laws: resolveAutoMovieSchedule.ILaws = {
-    timing: (intent: IAutoMovieIntent): resolveAutoMovieSchedule.ITiming =>
+  const laws: IAutoMovieScheduleLaws = {
+    timing: (intent: IAutoMovieIntent): IAutoMovieIntentTiming =>
       intent.capability === "kick"
         ? {
             duration: 2,
@@ -128,7 +133,7 @@ export function test_composition_schedule_cut(): void {
   });
   const both = (
     until: IAutoMovieIntent["until"],
-    l: resolveAutoMovieSchedule.ILaws = laws,
+    l: IAutoMovieScheduleLaws = laws,
   ): IAutoMovieSchedule =>
     resolveAutoMovieSchedule(
       AutoMovieComposition.parallel(
@@ -173,10 +178,10 @@ export function test_composition_schedule_cut(): void {
     },
     { ...laws, until: (): undefined => undefined },
   );
-  const uncut: IAutoMovieSchedule.IEntry = never.entries.find(
+  const uncut: IAutoMovieScheduleEntry = never.entries.find(
     (e) => e.intent.capability === "guard",
   )!;
-  const after: IAutoMovieSchedule.IEntry = never.entries.find(
+  const after: IAutoMovieScheduleEntry = never.entries.find(
     (e) => e.intent.capability === "step",
   )!;
   TestValidator.predicate(

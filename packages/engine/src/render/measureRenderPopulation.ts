@@ -1,3 +1,16 @@
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieMeasureRenderPopulation,
+  IAutoMovieModel,
+  IAutoMovieRenderModelCost,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSpace,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
+
 /**
  * Count scene nodes, ground and compact instance populations for inventory.
  * The inventory supplies the model cache, owned resource sets and row appender.
@@ -7,20 +20,8 @@
  * Scene, ground, instance-set and formation order is retained because later
  * resource measurement relies on this complete drawn/flattened model closure.
  */
-import type {
-  AutoMovieRenderMetric,
-  IAutoMovieCompiledInstancePrototype,
-  IAutoMovieModel,
-  IAutoMovieRenderModelCost,
-  IAutoMovieRenderOwnerCost,
-  IAutoMovieSemanticMaskEntry,
-  IAutoMovieSpace,
-} from "@automovie/interface";
 
 import { tessellateSurface } from "../geometry/tessellateSurface";
-import type { ITessellation } from "./../geometry/ITessellation";
-import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import type { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
 import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
@@ -37,53 +38,11 @@ import { measure } from "./measure";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each canonical model is measured once per request and reused across nodes/tier citations; drawn/flattened sets share complete resource closure with subsequent material/geometry phases.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The orchestrator owns mutable caches/sets/rows through the request; only scalar cumulative counts return and no renderer geometry handle or population expansion is retained.
  */
-export const measureRenderPopulation: (props: {
-  subject: IAutoMovieRenderSubject;
-  nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
-  model: (id: string, cited: string) => IAutoMovieModel;
-  costs: Map<string, IAutoMovieRenderModelCost>;
-  drawnModels: Set<string>;
-  flattenedModels: Set<string>;
-  add: (
-    owner: string,
-    source: string,
-    metric: AutoMovieRenderMetric,
-    cost: number,
-    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
-  ) => void;
-}) => {
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  space: IAutoMovieSpace | null;
-  groundBytes: number;
-  instanceSlots: number;
-  instanceChunks: number;
-  simulatedNodes: number;
-} = (props: {
-  subject: IAutoMovieRenderSubject;
-  nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
-  model: (id: string, cited: string) => IAutoMovieModel;
-  costs: Map<string, IAutoMovieRenderModelCost>;
-  drawnModels: Set<string>;
-  flattenedModels: Set<string>;
-  add: (
-    owner: string,
-    source: string,
-    metric: AutoMovieRenderMetric,
-    cost: number,
-    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
-  ) => void;
-}): {
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  space: IAutoMovieSpace | null;
-  groundBytes: number;
-  instanceSlots: number;
-  instanceChunks: number;
-  simulatedNodes: number;
-} => {
+export const measureRenderPopulation: (
+  props: IAutoMovieMeasureRenderPopulation.IProps,
+) => IAutoMovieMeasureRenderPopulation.IResult = (
+  props: IAutoMovieMeasureRenderPopulation.IProps,
+): IAutoMovieMeasureRenderPopulation.IResult => {
   const {
     subject,
     nodeIndex,
@@ -94,7 +53,7 @@ export const measureRenderPopulation: (props: {
     add,
   }: {
     subject: IAutoMovieRenderSubject;
-    nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
+    nodeIndex: Map<string, IAutoMovieSemanticMaskEntry>;
     model: (id: string, cited: string) => IAutoMovieModel;
     costs: Map<string, IAutoMovieRenderModelCost>;
     drawnModels: Set<string>;
@@ -153,7 +112,7 @@ export const measureRenderPopulation: (props: {
     let groundVertices: number = 0;
     let groundDraws: number = 0;
     for (const surface of space.surfaces) {
-      const mesh: ITessellation | null = tessellateSurface(surface);
+      const mesh: IAutoMovieTessellation | null = tessellateSurface(surface);
       if (mesh === null) continue;
       ++groundDraws;
       groundTriangles += mesh.indices.length / 3;

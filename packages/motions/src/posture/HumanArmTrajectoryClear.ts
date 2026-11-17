@@ -1,5 +1,8 @@
 import { Vector3, physicalShapeNormal } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -109,8 +112,8 @@ export namespace HumanArmTrajectoryClear {
     // distance must gain to reach its bound less the tolerance.
     const all: J.IJacobian[][] = J.of(c, x, at);
     const jac: J.IJacobian = all[arm]![waypoint]!;
-    const frame: G.IFrame = c.frames[arm]![waypoint]!;
-    const placed: G.IPlaced = at.placed[arm]![waypoint]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![waypoint]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![waypoint]!;
     const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;
     const rows: { coef: number[]; gain: number }[] = [];
     // A declared rest is drawn to its contact, not cleared of it.

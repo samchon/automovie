@@ -1,7 +1,15 @@
 import { createDrinkware, createSmoking } from "@automovie/archetypes";
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -11,10 +19,7 @@ import {
   HumanHabit,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -72,8 +77,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
   const cigarette: ReturnType<typeof createSmoking> = createSmoking({
     kind: "cigarette",
   });
-  const body: IHumanBody = motionHumanBody(name);
-  const stood: HumanObject.Placement = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const stood: IAutoMovieMotionHumanObject.Placement = {
     at: {
       x: -body.measure.shoulderHalfWidth,
       y: body.measure.waistHeight,
@@ -82,9 +87,9 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     yaw: 0,
   };
   const perform = (
-    prop: IHumanProp,
-    composition: HumanChain,
-  ): HumanPerformance =>
+    prop: IAutoMovieMotionHumanProp,
+    composition: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "held",
       laws: [HumanHabit.smoke],
@@ -100,7 +105,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (segment: HumanSegment.ISegment, event: string): number =>
+  const instant = (segment: IAutoMovieMotionHumanSegment, event: string): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -111,11 +116,11 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
   // the hand stays from upright after the best turn about the forearm's
   // own line (0 when a forearm turn alone would stand it up).
   const shown = (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     seconds: number,
     fixed: IAutoMovieVector3,
   ): string => {
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -155,7 +160,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
 
   // 1. The glass upright at the mouth.
   try {
-    const drunk: HumanPerformance = perform(
+    const drunk: IAutoMovieMotionHumanPerformance = perform(
       HumanObject.prop("glass", glass, stood),
       HumanChain.subject("a")
         .pickUp({
@@ -165,8 +170,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         })
         .handToFace({ task: "drink", prop: "glass" }),
     );
-    const lift: HumanSegment.ISegment = drunk.segments("a")[0]!;
-    const drink: HumanSegment.ISegment = drunk.segments("a")[1]!;
+    const lift: IAutoMovieMotionHumanSegment = drunk.segments("a")[0]!;
+    const drink: IAutoMovieMotionHumanSegment = drunk.segments("a")[1]!;
     const atMouth: number = instant(drink, "atMouth");
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const axis = (seconds: number): IAutoMovieVector3 =>
@@ -197,7 +202,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       // hand bone and the glass have each turned since the fingers closed.
       const worst: string = `at ${tilted.toFixed(2)} s of ${drink.start.toFixed(2)} to ${atMouth.toFixed(2)}, ${shown(drunk, tilted, axis(tilted))}`;
       const picked: string[] = [];
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         drunk,
         "a",
         body,
@@ -267,7 +272,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
 
   // 2. The cigarette's end at the lips.
   try {
-    const smoked: HumanPerformance = perform(
+    const smoked: IAutoMovieMotionHumanPerformance = perform(
       HumanObject.prop("cigarette", cigarette, stood),
       HumanChain.subject("a")
         .pickUp({
@@ -278,7 +283,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         .registered("smoke", { prop: "cigarette" }),
     );
     const seconds: number = instant(smoked.segments("a")[1]!, "atLips");
-    const frame: IHumanProp.IFrame = smoked.prop("cigarette", seconds);
+    const frame: IAutoMovieRigidTransform = smoked.prop("cigarette", seconds);
     const off: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

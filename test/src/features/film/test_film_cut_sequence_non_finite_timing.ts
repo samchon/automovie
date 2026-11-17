@@ -1,8 +1,8 @@
 import { cutSequence } from "@automovie/engine";
-import {
-  type IAutoMovieConstraintViolation,
-  type IAutoMovieEditEntry,
-  type IAutoMovieShot,
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,10 +21,10 @@ const SHOT: IAutoMovieShot = {
 
 const run: (props: {
   fps?: number;
-  entries?: IAutoMovieEditEntry[];
+  entries?: IAutoMovieSequenceEntry[];
 }) => ReturnType<typeof cutSequence> = (props: {
   fps?: number;
-  entries?: IAutoMovieEditEntry[];
+  entries?: IAutoMovieSequenceEntry[];
 }): ReturnType<typeof cutSequence> =>
   cutSequence(
     {

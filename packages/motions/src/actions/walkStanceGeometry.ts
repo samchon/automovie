@@ -5,19 +5,22 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMovieMotionHumanWalkStanceCourse,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanLegChain } from "../posture/HumanLegChain";
 import { walkLeg } from "./walkLeg";
-import type { walkLegClearance } from "./walkLegClearance";
 import type { walkStanceCourse } from "./walkStanceCourse";
-import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceOutline } from "./walkStanceOutline";
+import { walkStanceTerms } from "./walkStanceTerms";
 
 /**
  * The stances of a stance course read at a course (`walkStanceCourse`):
@@ -49,8 +52,8 @@ export namespace walkStanceGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains fixed per-knot geometry, three pelvis records per knot and at most five pivot, six clipped-region and four fixed leg-source records per stance, O(k) for bounded sole size, released with its closure; no posed-leg answer, query history or global cache grows.
    */
   export function of(
-    body: IHumanBody,
-    knots: readonly walkStanceCourse.IKnot[],
+    body: IAutoMovieMotionHumanBody,
+    knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[],
   ): {
     n: number;
     step: number;
@@ -63,14 +66,14 @@ export namespace walkStanceGeometry {
     slideOf: (side: "left" | "right") => number;
     turnOf: (side: "left" | "right") => number;
     scheduled: number[][];
-    planted: (x: Float64Array, k: number, j: number) => walkStanceCourse.IPlanted;
+    planted: (x: Float64Array, k: number, j: number) => IAutoMovieMotionHumanWalkStanceCourse.IPlanted;
     read: (x: Float64Array, k: number, j: number) => {
       reach: number;
       dorsi: number;
       trail: number;
       twist: number;
-      leg: walkLegClearance.ILeg | null;
-      planted: walkStanceCourse.IPlanted;
+      leg: IAutoMovieMotionHumanWalkLegClearance.ILeg | null;
+      planted: IAutoMovieMotionHumanWalkStanceCourse.IPlanted;
     };
     load: (k: number, j: number) => number;
     support: (x: Float64Array, k: number) => IAutoMovieVector3[];
@@ -91,8 +94,8 @@ export namespace walkStanceGeometry {
       side === "left" ? 7 : 9;
     const turnOf: ReturnType<typeof of>["turnOf"] = (side: "left" | "right"): number =>
       side === "left" ? 5 : 6;
-    const scheduled: number[][] = knots.map((knot: walkStanceCourse.IKnot): number[] =>
-      knot.stances.map((s: walkStanceCourse.IStance): number =>
+    const scheduled: number[][] = knots.map((knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): number[] =>
+      knot.stances.map((s: IAutoMovieMotionHumanWalkStanceCourse.IStance): number =>
         HumanFoot.pitch(s.placement.rotation),
       ),
     );
@@ -108,16 +111,16 @@ export namespace walkStanceGeometry {
     const pelves: {
       pitch: number;
       roll: number;
-      pelvis: walkStanceCourse.IPelvis;
+      pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis;
     }[][] = knots.map((): [] => []);
-    const pelvisAt: (k: number, pitch: number, roll: number) => walkStanceCourse.IPelvis = (k: number, pitch: number, roll: number): walkStanceCourse.IPelvis => {
+    const pelvisAt: (k: number, pitch: number, roll: number) => IAutoMovieMotionHumanWalkStanceCourse.IPelvis = (k: number, pitch: number, roll: number): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => {
       const entries: (typeof pelves)[number] = pelves[k]!;
       const kept: (typeof entries)[number] | undefined = entries.find(
         (entry: (typeof entries)[number]): boolean => Object.is(entry.pitch, pitch) && Object.is(entry.roll, roll),
       );
       if (kept !== undefined)
         return kept.pelvis;
-      const pelvis: walkStanceCourse.IPelvis = knots[k]!.pelvis({ pitch, roll });
+      const pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis = knots[k]!.pelvis({ pitch, roll });
       if (entries.length === 3) entries.shift();
       entries.push({ pitch, roll, pelvis });
       return pelvis;
@@ -129,19 +132,19 @@ export namespace walkStanceGeometry {
       turn: number;
       dx: number;
       dz: number;
-      foot: HumanFoot.IPlacement;
+      foot: IAutoMovieMotionHumanFoot.IPlacement;
       heading: number;
       at: ReturnType<typeof HumanFoot.preparePivot>;
       lean?: ReturnType<typeof walkLeg.prepareLean>;
       forward?: IAutoMovieVector3;
     };
     const pivots: IPivot[][][] = knots.map(
-      (knot: walkStanceCourse.IKnot): IPivot[][] => knot.stances.map((): IPivot[] => []),
+      (knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): IPivot[][] => knot.stances.map((): IPivot[] => []),
     );
     const footAt: (x: Float64Array, k: number, j: number) => IPivot = (
       x: Float64Array, k: number, j: number,
     ): IPivot => {
-      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
+      const s: IAutoMovieMotionHumanWalkStanceCourse.IStance = knots[k]!.stances[j]!;
       const o: number = walkStanceTerms.WIDTH * k;
       const pitch: number = x[o + pitchOf(s.side)]!;
       const turn: number = x[o + turnOf(s.side)]!;
@@ -161,7 +164,7 @@ export namespace walkStanceGeometry {
         heading = rigid.heading;
         at = rigid.at;
       } else {
-        const placement: HumanFoot.IPlacement = HumanFoot.turned(
+        const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.turned(
           walkStanceOutline.slid(s.placement, dx, dz), turn,
         );
         heading = HumanFoot.heading(placement.rotation);
@@ -190,15 +193,15 @@ export namespace walkStanceGeometry {
       k: number,
       j: number,
       pivot?: IPivot,
-    ) => walkStanceCourse.IPlanted = (
+    ) => IAutoMovieMotionHumanWalkStanceCourse.IPlanted = (
       x: Float64Array,
       k: number,
       j: number,
       pivot?: IPivot,
-    ): walkStanceCourse.IPlanted => {
+    ): IAutoMovieMotionHumanWalkStanceCourse.IPlanted => {
       const o: number = walkStanceTerms.WIDTH * k;
-      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
-      const pelvis: walkStanceCourse.IPelvis = pelvisAt(k, x[o + 3]!, x[o + 4]!);
+      const s: IAutoMovieMotionHumanWalkStanceCourse.IStance = knots[k]!.stances[j]!;
+      const pelvis: IAutoMovieMotionHumanWalkStanceCourse.IPelvis = pelvisAt(k, x[o + 3]!, x[o + 4]!);
       const hip: IAutoMovieVector3 = {
         ...pelvis.hips[s.side],
         y: pelvis.hips[s.side].y - x[o]!,
@@ -224,10 +227,10 @@ export namespace walkStanceGeometry {
       heading: number;
     };
     const sources: ISource[][][] = knots.map(
-      (knot: walkStanceCourse.IKnot): ISource[][] => knot.stances.map((): ISource[] => []),
+      (knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): ISource[][] => knot.stances.map((): ISource[] => []),
     );
-    const sourceAt: (k: number, j: number, p: walkStanceCourse.IPlanted) => ISource = (
-      k: number, j: number, p: walkStanceCourse.IPlanted,
+    const sourceAt: (k: number, j: number, p: IAutoMovieMotionHumanWalkStanceCourse.IPlanted) => ISource = (
+      k: number, j: number, p: IAutoMovieMotionHumanWalkStanceCourse.IPlanted,
     ): ISource => {
       const entries: ISource[] = sources[k]![j]!;
       const known: ISource | undefined = entries.find(
@@ -257,10 +260,10 @@ export namespace walkStanceGeometry {
       j: number,
     ): ReturnType<ReturnType<typeof of>["read"]> => {
       const o: number = walkStanceTerms.WIDTH * k;
-      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
+      const s: IAutoMovieMotionHumanWalkStanceCourse.IStance = knots[k]!.stances[j]!;
       const pivot: IPivot = footAt(x, k, j);
-      const plant: walkStanceCourse.IPlanted = planted(x, k, j, pivot);
-      const { hip, ankle, heading }: walkStanceCourse.IPlanted = plant;
+      const plant: IAutoMovieMotionHumanWalkStanceCourse.IPlanted = planted(x, k, j, pivot);
+      const { hip, ankle, heading }: IAutoMovieMotionHumanWalkStanceCourse.IPlanted = plant;
       const pitch: number = x[o + pitchOf(s.side)]!;
       const reach: number = Vector3.distance(ankle, hip);
       // The leg as the posture's fit poses it, at the swivel the take holds
@@ -269,7 +272,7 @@ export namespace walkStanceGeometry {
       // (as `walkLeg.lean` reads it, there of its own knee) plus the pitch.
       // A held swivel's first-order piece moves it with the leg's own
       // variables (`ISwivel`).
-      const swivel: HumanLegChain.ISwivel | undefined =
+      const swivel: IAutoMovieMotionHumanLegChain.ISwivel | undefined =
         s.swivel === undefined
           ? undefined
           : {
@@ -287,7 +290,7 @@ export namespace walkStanceGeometry {
       // the ankle (`hingedArmSwivel.branches`), as the shown leg does, and
       // the reach's own constraint answers for the excess.
       const source: ISource | undefined = swivel === undefined ? undefined : sourceAt(k, j, plant);
-      const posed: HumanLegChain.IPosed | null = source === undefined
+      const posed: IAutoMovieMotionHumanLegChain.IPosed | null = source === undefined
         ? null
         : source.pose(ankle, swivel!);
       const held: IAutoMovieVector3 = posed?.ankle ?? ankle;
@@ -335,8 +338,8 @@ export namespace walkStanceGeometry {
       ahead: IAutoMovieVector3;
       ankle: IAutoMovieVector3;
     };
-    const soles: ISole[][] = knots.map((knot: walkStanceCourse.IKnot): ISole[] =>
-      knot.stances.map((s: walkStanceCourse.IStance): ISole => ({
+    const soles: ISole[][] = knots.map((knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): ISole[] =>
+      knot.stances.map((s: IAutoMovieMotionHumanWalkStanceCourse.IStance): ISole => ({
         outline: walkStanceOutline.hull(HumanFoot.sole(body, s.side, s.placement).map(flat)),
         ball: flat(HumanFoot.point(body, s.side, "ball", s.placement)),
         heel: flat(HumanFoot.point(body, s.side, "heel", s.placement)),
@@ -387,7 +390,7 @@ export namespace walkStanceGeometry {
       outline: IAutoMovieVector3[];
     };
     const regions: IRegion[][][] = knots.map(
-      (knot: walkStanceCourse.IKnot): IRegion[][] => knot.stances.map((): IRegion[] => []),
+      (knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot): IRegion[][] => knot.stances.map((): IRegion[] => []),
     );
 
     // The base and scheduled pitch plus four single-foot probes use at most
@@ -428,11 +431,11 @@ export namespace walkStanceGeometry {
     // near it lies to the other foot (each nearness its distance to that
     // foot's outline, none inside it), as the centre of pressure lies where
     // the weight bears.
-    const shares: number[][] = knots.map((knot: walkStanceCourse.IKnot, k: number): number[] => {
+    const shares: number[][] = knots.map((knot: IAutoMovieMotionHumanWalkStanceCourse.IKnot, k: number): number[] => {
       const pressure: IAutoMovieVector3 | undefined = knot.borne?.[0];
       if (knot.stances.length < 2 || pressure === undefined)
         return knot.stances.map((): number => 1);
-      const far: number[] = knot.stances.map((_: walkStanceCourse.IStance, j: number): number =>
+      const far: number[] = knot.stances.map((_: IAutoMovieMotionHumanWalkStanceCourse.IStance, j: number): number =>
         Math.max(0, -walkStanceOutline.depth(soles[k]![j]!.outline, pressure)),
       );
       const sum: number = far[0]! + far[1]!;
@@ -445,7 +448,7 @@ export namespace walkStanceGeometry {
     const support: ReturnType<typeof of>["support"] = (x: Float64Array, k: number): IAutoMovieVector3[] =>
       walkStanceOutline.hull(
         knots[k]!.stances.flatMap(
-          (s: walkStanceCourse.IStance, j: number): IAutoMovieVector3[] =>
+          (s: IAutoMovieMotionHumanWalkStanceCourse.IStance, j: number): IAutoMovieVector3[] =>
             region(
               k,
               j,

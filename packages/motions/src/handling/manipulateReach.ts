@@ -1,11 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { typeText } from "../everyday/typeText";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -41,8 +43,8 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold placement retains nothing. The synchronous sequence/fingering owner retains at most five local digit records until its builder is released before the motion plan returns, without global, pose/time history or external handles.
  */
 export function manipulateReach(
-  body: IHumanBody,
-  side: HumanHand.Side,
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
   digit: string,
   site: IAutoMovieVector3,
   normal: IAutoMovieVector3,
@@ -78,15 +80,15 @@ export namespace manipulateReach {
    * result, pose or time history.
    */
   export function prepare(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion,
   ): (digit: string, site: IAutoMovieVector3, normal: IAutoMovieVector3, depth: number) => IAutoMovieVector3 {
     const digits: Map<string, IDigit> = new Map();
     return (digit: string, site: IAutoMovieVector3, normal: IAutoMovieVector3, depth: number): IAutoMovieVector3 => {
       let prepared: IDigit | undefined = digits.get(digit);
       if (prepared === undefined) {
-        const surface: HumanHand.Surface = `${digit}Tip` as HumanHand.Surface;
+        const surface: IAutoMovieMotionHumanHand.Surface = `${digit}Tip` as IAutoMovieMotionHumanHand.Surface;
         const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
         const first: AutoMovieHumanoidBone = `${side}${name}${digit === "thumb" ? "Metacarpal" : "Proximal"}` as AutoMovieHumanoidBone;
         const tip: IAutoMovieVector3 = HumanHand.offset(body, side, surface, "flat").point;

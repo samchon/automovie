@@ -1,4 +1,4 @@
-import { AutoMovieDrawingGapStatus } from "./AutoMovieDrawingGapStatus";
+import type { AutoMovieDrawingGapStatus } from "./AutoMovieDrawingGapStatus";
 
 /**
  * One derivation that produced nothing, and the exact reason.

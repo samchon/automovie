@@ -1,9 +1,11 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 
 /**
@@ -24,8 +26,8 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable canonical body and closed fixed sets establish genuine static name equivalence. Every current root/joint value and optional operation workspace reaches the same actual reader; posture, target, source identity and time never key a result.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak body ownership retains at most three bounded static demand readers and no current posture, override, dynamic workspace, output map, target or history. A body and its metadata may collect together; returned fresh frames retain no reader.
  */
-export function readHumanGazeBones(body: IHumanBody, posture: IHumanPosture, mode: Mode,
-  joints: IHumanPosture["joints"] = posture.joints,
+export function readHumanGazeBones(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, mode: Mode,
+  joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   let known: Partial<Record<Mode, ReturnType<typeof HumanTrunk.prepareResolve>>> | undefined = READERS.get(body);
   if (known === undefined) {
@@ -44,7 +46,7 @@ export function readHumanGazeBones(body: IHumanBody, posture: IHumanPosture, mod
 type Mode = "direction" | "head" | "eyes";
 
 /** Fixed immutable rig-demand metadata; no posed/query answer belongs here. */
-const READERS: WeakMap<IHumanBody, Partial<Record<Mode, ReturnType<typeof HumanTrunk.prepareResolve>>>> = new WeakMap();
+const READERS: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<Mode, ReturnType<typeof HumanTrunk.prepareResolve>>>> = new WeakMap();
 
 /** Original eye-midpoint, cervical-rest and final-eye frame demands. */
 const NAMES: Readonly<Record<Mode, ReadonlySet<AutoMovieHumanoidBone>>> = {

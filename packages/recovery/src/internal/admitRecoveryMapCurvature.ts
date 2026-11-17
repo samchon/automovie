@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCurvatureAdmission } from "../structures/internal/IAutoMovieRecoveryCurvatureAdmission";
+import type { IAutoMovieRecoveryCurvatureAdmission } from "@automovie/interface";
 
 /**
  * Admit requested curvature bookkeeping and conservative simultaneous buffers.

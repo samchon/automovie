@@ -1,15 +1,17 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMoviePrepareChainFit,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
@@ -17,8 +19,6 @@ import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPose
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { prepareChainFitRig } from "./prepareChainFitRig";
 import { prepareChainPlant } from "./prepareChainPlant";
 import type { prepareJointRotationProjection } from "./prepareJointRotationProjection";
@@ -61,7 +61,7 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One workspace owns O(J+B) local maps/FK dependency snapshots and constant-size data for three chain bones, projector and fixed hinge/reference reads. It borrows fixed inputs and an optional same-operation reader until caller release and retains no target history, global cache, handle or task.
  */
 export function prepareChainFit(
-  source: Omit<IFitChainToTargetProps, "target">,
+  source: Omit<IAutoMovieFitChainToTargetProps, "target">,
   readAuthored?: () => ReadonlyMap<
     AutoMovieHumanoidBone,
     IAutoMovieResolvedBone
@@ -69,9 +69,9 @@ export function prepareChainFit(
   resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
   poseResolution?: prepareSkeletonPoseResolution.IRig,
   fixed?: prepareChainFit.IWorkspace,
-  plant?: () => IPreparedChainPlant | null,
+  plant?: () => IAutoMoviePreparedChainPlant | null,
 ): prepareChainFit.IWorkspace {
-  const props: Omit<IFitChainToTargetProps, "target"> = {
+  const props: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
     ...source,
     jointAxes: fixed?.props.jointAxes ?? poseResolution?.jointAxes ??
       skeletonJointAxes(source.skeleton, source.jointAxes),
@@ -79,7 +79,7 @@ export function prepareChainFit(
   // A caller that holds the rig's chain constants and the pose's frame of
   // the chain root's parent places the chain itself (`placeChainPlant`);
   // otherwise the articulation-free pose is read by forward kinematics.
-  const prepared: IPreparedChainPlant | null = fixed === undefined
+  const prepared: IAutoMoviePreparedChainPlant | null = fixed === undefined
     ? (plant?.() ?? prepareChainPlant(props, resolution, poseResolution)) : fixed.prepared;
   const rig: prepareChainFit.IRig = prepareChainFitRig(props, prepared, fixed?.rig);
   let reading: prepareChainFit.IReading | undefined;
@@ -267,70 +267,16 @@ export namespace prepareChainFit {
     referenceAngles: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>;
   }
 
-  /** Lazy immutable-rig preparation; loaders are the existing pure hinge functions, not target scores or user callbacks. */
-  export interface IRig {
-    /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame; the optional rotation is the one the angles were read from on that frame (`scanJointRom.prepare`). */
-    overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number;
-    /** Actual skeleton record; an absent bone is remembered too. */
-    bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
-
-    /** Effective ROM, sharing the geometry's already prepared upper/lower domains. */
-    domain(bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain;
-
-    /** Existing basisOf/orientation nullish default at the original diagnostic path; failures are not cached. */
-    basis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
-
-    /** Direct clinical conversion's undefined-only default; runtime null must still fail even after a lenient default read. */
-    jointBasis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
-
-    /** Resolve the actual rig clamp once, while every candidate is still clamped. */
-    clamp(
-      bone: AutoMovieHumanoidBone,
-    ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-
-    /** Fixed effector coefficients; every query retains its own Euler reference and returned joint. */
-    effectorProjection(): ReturnType<typeof prepareJointRotationProjection>;
-
-    /** Inverse of the unchanged fixed lower-to-effector frame. */
-    effectorRestInverse(): IAutoMovieQuaternion;
-
-    /** Last original source end record, or null angles; this never forces authored FK. */
-    held(): IAutoMovieJointPose;
-
-    /** Raw fixed effector frame times its last source articulation; borrowed and independent of targets. */
-    heldRotation(): IAutoMovieQuaternion;
-
-    /** Inverse of that same raw source-held rotation, read lazily after its original articulation admission. */
-    heldRotationInverse(): IAutoMovieQuaternion;
-
-    /** Lazy fixed effector-axis and clinical-zero preparation, independent of all twist targets and candidates. */
-    distalTwist(): ReturnType<typeof solveDistalTwist.prepare>;
-
-    /** Hinged scoring's first reference record, distinct from free-bend/FK last-record semantics. */
-    reference(bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null;
-
-    /** Admit the fixed non-negative weight at its original first-use point. */
-    referenceWeight(): number;
-
-    /** Original target-independent pure hinge range, including a cached null result. */
-    hingeRange(
-      read: () => { min: number; max: number } | null,
-    ): { min: number; max: number } | null;
-
-    /** Original no-hint source-hinge displacement, read only at that branch's first use. */
-    posedSwing(read: () => IAutoMovieVector3): IAutoMovieVector3;
-
-    /** Lazy hinge-span/source-frame geometry; null only when chain preparation failed. */
-    hingedGeometry(): hingedArmSwivel.IPrepared | null;
-  }
+  /** The interface contract (`IAutoMoviePrepareChainFit.IRig`). */
+  export type IRig = IAutoMoviePrepareChainFit.IRig;
 
   /** Fixed source request and lazy readings; callers keep all dependencies unchanged until release. */
   export interface IWorkspace {
     /** Fixed source request with actual skeleton-declared axes taking precedence. */
-    props: Omit<IFitChainToTargetProps, "target">;
+    props: Omit<IAutoMovieFitChainToTargetProps, "target">;
 
     /** Exact chain geometry and domains, or null for an inadmissible chain. */
-    prepared: IPreparedChainPlant | null;
+    prepared: IAutoMoviePreparedChainPlant | null;
 
     /** One lazy preparation shared by all bend/orientation targets of this source. */
     rig: IRig;

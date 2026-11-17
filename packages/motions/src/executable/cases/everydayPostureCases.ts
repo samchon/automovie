@@ -1,13 +1,19 @@
-import { Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -40,11 +46,11 @@ export function everydayPostureCases(
   const within = everydayVerdicts.within;
   const { figure, event } = everydayCaseKit;
   const one = (
-    chain: HumanChain,
-    props: readonly IHumanProp[] = [],
-  ): HumanPerformance => everydayCaseKit.one(c, chain, props);
+    chain: IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain, props);
   if (wants("seat")) {
-    const seat: seated.ISeat = {
+    const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(body),
@@ -53,7 +59,7 @@ export function everydayPostureCases(
       yaw: 0,
       depth: 0.45,
     };
-    const performance: HumanPerformance = one(
+    const performance: IAutoMovieMotionHumanPerformance = one(
       HumanChain.subject("a")
         .sit({ seat, seconds: 0.5 })
         .shift({ by: 0.12 })
@@ -158,13 +164,13 @@ export function everydayPostureCases(
       },
       squat: { x: -0.15, y: 0, z: 0.3 },
     };
-    let chain: HumanChain = HumanChain.subject("a");
+    let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
     for (const strategy of strategies)
       chain = chain.bend({
         toward: { kind: "point", at: points[strategy], frame: "world" },
         strategy,
       });
-    const performance: HumanPerformance = one(chain);
+    const performance: IAutoMovieMotionHumanPerformance = one(chain);
     const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
       performance,
       "a",
@@ -221,7 +227,7 @@ export function everydayPostureCases(
 
   if (wants("step")) {
     const box = { at: { x: 0, y: 0, z: 0.35 }, height: 0.3, depth: 0.25 };
-    const performance: HumanPerformance = one(
+    const performance: IAutoMovieMotionHumanPerformance = one(
       HumanChain.subject("a").stepOver({ obstacle: "box" }),
       [obstacle(box)],
     );
@@ -279,7 +285,7 @@ function obstacle(box: {
   at: IAutoMovieVector3;
   height: number;
   depth: number;
-}): IHumanProp {
+}): IAutoMovieMotionHumanProp {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   return {
     subject: "box",
@@ -298,7 +304,10 @@ function obstacle(box: {
       {
         id: "top",
         kind: "surface",
-        frame: Transform.of({ x: 0, y: box.height, z: box.depth / 2 }, identity),
+        frame: Transform.of(
+          { x: 0, y: box.height, z: box.depth / 2 },
+          identity,
+        ),
         extent: null,
         depth: box.depth,
       },

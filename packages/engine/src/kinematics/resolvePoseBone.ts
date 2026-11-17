@@ -1,12 +1,12 @@
 import type {
   IAutoMovieBone,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 
 /**
  * Compose one bone through the same parent-first FK used by resolvePose.

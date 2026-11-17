@@ -1,9 +1,10 @@
+import type { samplePoseVelocity } from "@automovie/engine";
 import type {
+  IAutoMoviePose,
+  IAutoMoviePoseState,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
-  samplePoseVelocity,
-} from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+} from "@automovie/interface";
 
 /**
  * Named limb-fit continuation data for one displayed evaluation and its
@@ -93,7 +94,7 @@ export namespace HumanSegmentPoseSeeds {
    */
   export interface IContinued {
     /** The pose at the second, read cold, and its rates. */
-    state: samplePoseVelocity.IState;
+    state: IAutoMoviePoseState;
 
     /** The continued samples at the second and one and two steps toward its side. */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];

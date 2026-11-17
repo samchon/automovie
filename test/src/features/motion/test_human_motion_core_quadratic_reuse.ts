@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 import { HumanQuadraticProgram } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,23 +43,23 @@ import { nclose } from "../internal/nclose";
 export function test_human_motion_core_quadratic_reuse(): void {
   const complaints: string[] = [];
   const saved: {
-    state: HumanQuadraticProgram.IState;
+    state: IAutoMovieMotionHumanQuadraticProgram.IState;
     x: number[];
     z: number[];
     y: number[];
   }[] = [];
   const copy: (
-    problem: HumanQuadraticProgram.IProblem,
-  ) => HumanQuadraticProgram.IProblem = (
-    problem: HumanQuadraticProgram.IProblem,
-  ): HumanQuadraticProgram.IProblem => ({
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+  ) => IAutoMovieMotionHumanQuadraticProgram.IProblem = (
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem => ({
     ...problem,
     p: problem.p.map(
       (row: Float64Array): Float64Array => Float64Array.from(row),
     ),
     q: Float64Array.from(problem.q),
     rows: problem.rows.map(
-      (row: HumanQuadraticProgram.IRow): HumanQuadraticProgram.IRow => ({
+      (row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
         ...row,
         index: [...row.index],
         coef: [...row.coef],
@@ -67,18 +68,18 @@ export function test_human_motion_core_quadratic_reuse(): void {
   });
   const check: (
     label: string,
-    problem: HumanQuadraticProgram.IProblem,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     expected: readonly number[],
   ) => void = (
     label: string,
-    problem: HumanQuadraticProgram.IProblem,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     expected: readonly number[],
   ): void => {
     for (const [kind, input] of [
       ["shared", problem],
       ["fresh", copy(problem)],
     ] as const) {
-      const state: HumanQuadraticProgram.IState =
+      const state: IAutoMovieMotionHumanQuadraticProgram.IState =
         HumanQuadraticProgram.solve(input);
       if (state.status !== "solved" && state.status !== "polished")
         complaints.push(`${label} ${kind}: status ${state.status}`);
@@ -116,7 +117,7 @@ export function test_human_motion_core_quadratic_reuse(): void {
     }
   };
 
-  const scalar: HumanQuadraticProgram.IProblem = {
+  const scalar: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 1,
     band: 0,
     p: [Float64Array.of(2)],
@@ -126,12 +127,12 @@ export function test_human_motion_core_quadratic_reuse(): void {
   check("initial free row", scalar, [2]);
 
   // A free row has z=x and zero multiplier; warm iterates are caller-owned.
-  const warm: HumanQuadraticProgram.IState = {
+  const warm: IAutoMovieMotionHumanQuadraticProgram.IState = {
     x: Float64Array.of(7),
     z: Float64Array.of(-3),
     y: Float64Array.of(0.25),
   };
-  const warmed: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
+  const warmed: IAutoMovieMotionHumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
     scalar,
     warm,
   );
@@ -194,7 +195,7 @@ export function test_human_motion_core_quadratic_reuse(): void {
   scalar.rows = [{ index: [0], coef: [1], l: 3, u: Infinity }];
   check("soft row becomes hard", scalar, [3]);
 
-  const unordered: HumanQuadraticProgram.IProblem = {
+  const unordered: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 2,
     band: 1,
     p: [Float64Array.of(1, 0), Float64Array.of(1, 0)],
@@ -237,14 +238,14 @@ export function test_human_motion_core_quadratic_reuse(): void {
   );
 
   // Stored 0*Infinity is NaN; a truly absent product is not evaluated.
-  const extreme: HumanQuadraticProgram.IProblem = {
+  const extreme: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
     n: 1,
     band: 0,
     p: [Float64Array.of(1e-6)],
     q: Float64Array.of(1e-4),
     rows: [],
   };
-  const largeWarm: HumanQuadraticProgram.IState = {
+  const largeWarm: IAutoMovieMotionHumanQuadraticProgram.IState = {
     x: Float64Array.of(0),
     z: Float64Array.of(0),
     y: Float64Array.of(1e308),
@@ -261,7 +262,7 @@ export function test_human_motion_core_quadratic_reuse(): void {
     if (!(refused instanceof RangeError && /quadratic.*nonfinite/i.test(refused.message)))
       complaints.push("a stored zero hid warm-scaling nonfinite arithmetic");
   }
-  const emptyWarm: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve({
+  const emptyWarm: IAutoMovieMotionHumanQuadraticProgram.IState = HumanQuadraticProgram.solve({
     ...extreme, rows: [{ index: [], coef: [], l: 0, u: 0 }],
   }, largeWarm);
   if (!((emptyWarm.status === "solved" || emptyWarm.status === "polished") &&
@@ -274,7 +275,7 @@ export function test_human_motion_core_quadratic_reuse(): void {
 
   const invalid: readonly (readonly [
     string,
-    HumanQuadraticProgram.IProblem,
+    IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ])[] = [
     [
       "zero coefficient with invalid index",
@@ -313,7 +314,7 @@ export function test_human_motion_core_quadratic_reuse(): void {
     ],
     [
       "sparse rows",
-      { ...scalar, rows: new Array<HumanQuadraticProgram.IRow>(1) },
+      { ...scalar, rows: new Array<IAutoMovieMotionHumanQuadraticProgram.IRow>(1) },
     ],
   ];
   for (const [label, problem] of invalid) {

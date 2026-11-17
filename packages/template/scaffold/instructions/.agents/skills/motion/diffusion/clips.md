@@ -1,14 +1,28 @@
 # Clips
 
-A generated or captured clip is frozen data, never generated at playback, and lacks what the installed vocabulary guarantees. Check it before [retargeting](../retargeting.md) it onto the polygon man:
+A generated or captured clip is frozen data, never generated at playback, and lacks what the installed vocabulary guarantees. Check it on the five points below before [retargeting](../retargeting.md) it onto the polygon man.
 
-| Check | Expect | Repair |
-| --- | --- | --- |
-| Contacts | Foot sliding, penetration, jitter and floating | Correct them under [retargeting](../retargeting.md#contacts-and-time) |
-| Objects and partners | One body without the object or partner it touches, so a contact between two clips is never shared | Keep the exchange a mutual join or an object's affordance in the composed performance |
-| Rotations | Joint positions only, with any body parameters fitted later to a neutral shape | Convert positions to rotations by a stated fit rather than relabeling them, and treat the fit as derived |
-| Proportions | The model's own skeleton proportions | Retarget to the cast member's prepared body and check that the authored contacts survive |
-| Reproducibility | Expiring hosted outputs, and a seed that does not repeat a clip, as [media records](../../production/media-records.md#records) says | Freeze the bytes at once and record them there, with the hints given |
+## Clip checks
+
+### Contacts
+
+Expect foot sliding, penetration, jitter and floating. Correct them under [retargeting](../retargeting.md#contacts-and-time).
+
+### Objects and partners
+
+Expect one body without the object or partner it touches, so a contact between two clips is never shared. Keep the exchange a mutual join or an object's affordance in the composed performance.
+
+### Rotations
+
+Expect joint positions only, with any body parameters fitted later to a neutral shape. Convert positions to rotations by a stated fit rather than relabeling them, and treat the fit as derived.
+
+### Proportions
+
+Expect the model's own skeleton proportions. Retarget to the cast member's prepared body and check that the authored contacts survive.
+
+### Reproducibility
+
+Expect expiring hosted outputs, and a seed that does not repeat a clip, as [media records](../../production/media-records.md#records) says. Freeze the bytes at once and record them there, with the hints given.
 
 ## Licenses
 

@@ -1,9 +1,12 @@
 import {
   decomposeJointRotationOnBasis as inverse,
-  type IAutoMovieRestFrame,
   normalizeJointAxes,
 } from "@automovie/engine";
-import type { IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

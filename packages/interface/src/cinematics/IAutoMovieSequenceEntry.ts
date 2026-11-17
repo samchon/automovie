@@ -1,5 +1,5 @@
-import { IAutoMovieTransition } from "./IAutoMovieTransition";
-import { IAutoMovieTrim } from "./IAutoMovieTrim";
+import type { IAutoMovieTransition } from "./IAutoMovieTransition";
+import type { IAutoMovieTrim } from "./IAutoMovieTrim";
 
 /**
  * One shot's placement in a sequence: the shot it plays, an optional trim, and
@@ -8,6 +8,9 @@ import { IAutoMovieTrim } from "./IAutoMovieTrim";
  * The entry's played span is its trim's duration, else the whole shot, and its
  * output start is the previous entry's end minus the incoming transition's
  * duration.
+ * cutSequence admits nonblank built-shot ids, a positive played span inside the
+ * shot and incoming overlap bounded by both adjacent spans; combined incoming
+ * overlaps may not consume more than the intervening played span.
  *
  * @evidence contracts/development/design.md#principled-representation `sequenceTimeline` reads `trim.start` as the source offset and `trim.duration` (else the shot duration) as the played span, and subtracts `transition.duration` from the running cursor to place the entry, mirroring the OpenTimelineIO `source_range` and transition model.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A shot id plus two nullable modifiers covers every placement; the shot itself is referenced, not copied, so a retimed shot needs no entry edit beyond its trim.

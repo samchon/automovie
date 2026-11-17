@@ -1,10 +1,15 @@
 import {
   AutoMovieComposition,
   AutoMovieScheduleError,
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -26,8 +31,8 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 2 scenarios.
  */
 export function test_composition_schedule_index_event(): void {
-  const laws: resolveAutoMovieSchedule.ILaws = {
-    timing: (intent: IAutoMovieIntent): resolveAutoMovieSchedule.ITiming =>
+  const laws: IAutoMovieScheduleLaws = {
+    timing: (intent: IAutoMovieIntent): IAutoMovieIntentTiming =>
       intent.capability === "kick"
         ? { duration: 2, contact: 1, events: [{ name: "impact", share: 0.5 }] }
         : { duration: 1 },
@@ -69,7 +74,7 @@ export function test_composition_schedule_index_event(): void {
     laws,
   );
   const start: number | undefined = placed.entries.find(
-    (e: IAutoMovieSchedule.IEntry): boolean => e.intent.subject === "b",
+    (e: IAutoMovieScheduleEntry): boolean => e.intent.subject === "b",
   )?.start;
   TestValidator.predicate(
     `aligned to the impact the step starts at 1.0 s (${start})`,

@@ -4,8 +4,15 @@ import {
   AutoMovieConicFieldJet,
   AutoMovieConicHermite,
   AutoMovieConicHermiteField,
-  type AutoMoviePolarSector,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConicArc,
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieConicHermiteField,
+  IAutoMoviePolarSector,
+} from "@automovie/interface";
 
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 
@@ -61,7 +68,7 @@ export function test_construction_conic_projective(): void {
         const a: number = scale * (reverse ? aspect : 1);
         const b: number = scale * (reverse ? 1 : aspect);
         for (const k of [1e-100, 1e-30, 1e-10, 1, 1e10, 1e30, 1e100]) {
-          const patch: AutoMovieConicHermite.IPatch = {
+          const patch: IAutoMovieConicHermite.IPatch = {
             extent: a,
             deficit: a,
             height: b,
@@ -93,14 +100,14 @@ export function test_construction_conic_projective(): void {
 
   const E: number = Math.SQRT2 - 1;
   for (const tau of [1e-12, 1e-30, 1e-60, 1e-120, 1e-240]) {
-    const prepared: AutoMovieConicHermite.IPatch | string | null =
+    const prepared: IAutoMovieConicHermite.IPatch | string | null =
       AutoMovieConicHermite.create(1, 1, E, tau);
     if (prepared === null || typeof prepared === "string") {
       failures.push(`positive-weight G2 fixture ${tau}: ${prepared}`);
       continue;
     }
     for (const share of [0, 0.01, 0.1, 0.5, 0.9, 0.99, 1]) {
-      const jet: AutoMoviePolarSector.Jet = AutoMovieConicHermite.radius(
+      const jet: IAutoMoviePolarSector.Jet = AutoMovieConicHermite.radius(
         prepared,
         share * prepared.angle,
       );
@@ -126,7 +133,7 @@ export function test_construction_conic_projective(): void {
   }
 
   const red: string[] = [];
-  const expected: AutoMoviePolarSector.Jet = ConstructionConicOracle.ellipse(
+  const expected: IAutoMoviePolarSector.Jet = ConstructionConicOracle.ellipse(
     3,
     2,
     0.3,
@@ -151,15 +158,15 @@ export function test_construction_conic_projective(): void {
 
 /** Count actual primal reads while retaining the original public ordered log-sum as an arithmetic regression seam. */
 function projectiveCheck<T>(
-  ops: AutoMovieConicFieldJet.IAlgebra<T>,
-  patch: AutoMovieConicHermite.IPatch<T>,
+  ops: IAutoMovieConicFieldJet.IAlgebra<T>,
+  patch: IAutoMovieConicHermite.IPatch<T>,
   clock: number,
   components: (value: T) => readonly number[],
   failures: string[],
   work: { projective: number; primalReads: number },
 ): void {
   let reads: number = 0;
-  const counted: AutoMovieConicFieldJet.IAlgebra<T> = {
+  const counted: IAutoMovieConicFieldJet.IAlgebra<T> = {
     ...ops,
     value: (value: T): number => {
       reads++;
@@ -167,7 +174,7 @@ function projectiveCheck<T>(
     },
   };
   const weights: T[] = patch.weights.map((value: T): T => ops.log(value));
-  const actual: AutoMovieConicHermiteField.IProjective<T> =
+  const actual: IAutoMovieConicHermiteField.IProjective<T> =
     AutoMovieConicHermiteField.projective(counted, patch, weights, clock);
   const raw: T[] = weights.map(
     (value: T, i: number): T =>
@@ -190,7 +197,7 @@ function projectiveCheck<T>(
     )
       failures.push(`ordered projective logs changed at ${clock}/${i}`);
   }
-  const next: AutoMovieConicHermiteField.IProjective<T> =
+  const next: IAutoMovieConicHermiteField.IProjective<T> =
     AutoMovieConicHermiteField.projective(ops, patch, weights, clock);
   if (actual.point === next.point || actual.logs === next.logs)
     failures.push("projective queries shared mutable result arrays");
@@ -198,13 +205,13 @@ function projectiveCheck<T>(
 
 /** Extreme projective weights exercise the same normalization in scalar and source-Hessian algebras. */
 function projectiveReuse(
-  patch: AutoMovieConicHermite.IPatch,
+  patch: IAutoMovieConicHermite.IPatch,
   failures: string[],
   work: { projective: number; primalReads: number },
 ): void {
-  const ops: AutoMovieConicFieldJet.IAlgebra<AutoMovieConicFieldJet.IJet> =
+  const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
     AutoMovieConicFieldJet.AD;
-  const source: AutoMovieConicHermite.IPatch<AutoMovieConicFieldJet.IJet> = {
+  const source: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet> = {
     ...patch,
     extent: ops.constant(patch.extent),
     deficit: ops.constant(patch.deficit),
@@ -215,12 +222,12 @@ function projectiveReuse(
       (
         p: readonly [number, number],
       ): readonly [
-        AutoMovieConicFieldJet.IJet,
-        AutoMovieConicFieldJet.IJet,
+        IAutoMovieConicFieldJet.IJet,
+        IAutoMovieConicFieldJet.IJet,
       ] => [ops.constant(p[0]), ops.constant(p[1])],
     ),
     weights: patch.weights.map(
-      (v: number, i: number): AutoMovieConicFieldJet.IJet => [
+      (v: number, i: number): IAutoMovieConicFieldJet.IJet => [
         v,
         v * ((i + 1) / 8),
         v * ((i - 1) / 16),
@@ -243,7 +250,7 @@ function projectiveReuse(
       ops,
       source,
       clock,
-      (value: AutoMovieConicFieldJet.IJet): readonly number[] => value,
+      (value: IAutoMovieConicFieldJet.IJet): readonly number[] => value,
       failures,
       work,
     );
@@ -265,7 +272,7 @@ function rawReuse(failures: string[], work: { raw: number }): void {
         ]) {
           const a: number = aspect * scale;
           const b: number = scale;
-          const ray: AutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+          const ray: IAutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
             a,
             b,
             r,
@@ -277,7 +284,7 @@ function rawReuse(failures: string[], work: { raw: number }): void {
           }
           const first: number = ray.reverse ? b : a;
           const second: number = ray.reverse ? a : b;
-          const geometry: AutoMovieConicArcField.IGeometry<number> =
+          const geometry: IAutoMovieConicArcField.IGeometry<number> =
             AutoMovieConicArcField.orient(
               AutoMovieConicFieldJet.NUMBER,
               AutoMovieConicArcField.evaluate(
@@ -289,7 +296,7 @@ function rawReuse(failures: string[], work: { raw: number }): void {
               ),
               ray.reverse,
             );
-          const guide: AutoMoviePolarSector.IGuide = AutoMovieConicArc.guide(
+          const guide: IAutoMoviePolarSector.IGuide = AutoMovieConicArc.guide(
             first,
             second,
             r,
@@ -315,7 +322,7 @@ function rawReuse(failures: string[], work: { raw: number }): void {
             failures.push(
               `raw normalized/physical arithmetic changed ${a}/${b}/${r}/${phi}`,
             );
-          const next: AutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+          const next: IAutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
             a,
             b,
             r,

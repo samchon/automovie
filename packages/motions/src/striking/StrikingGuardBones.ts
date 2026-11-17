@@ -1,6 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
 /**
  * The canonical bone outputs needed to place both fighting guard gloves.
@@ -17,7 +18,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing body producer fixes skeleton and surface metadata for its lifetime. A different body has a different weak key; callers must not mutate the borrowed set, and new surface/rig metadata requires a new body.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body key owns at most eight bone-name strings in a set; values retain no body, posed frames or readers. Body release permits collection, and operation-specific union sets remain caller-owned.
  */
-export function StrikingGuardBones(body: IHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
+export function StrikingGuardBones(body: IAutoMovieMotionHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
   let selected: ReadonlySet<AutoMovieHumanoidBone> | undefined = KEPT.get(body);
   if (selected === undefined) {
     selected = new Set<AutoMovieHumanoidBone>([
@@ -32,4 +33,4 @@ export function StrikingGuardBones(body: IHumanBody): ReadonlySet<AutoMovieHuman
 }
 
 /** Weak canonical metadata only, with no pose or numeric answer. */
-const KEPT: WeakMap<IHumanBody, ReadonlySet<AutoMovieHumanoidBone>> = new WeakMap();
+const KEPT: WeakMap<IAutoMovieMotionHumanBody, ReadonlySet<AutoMovieHumanoidBone>> = new WeakMap();

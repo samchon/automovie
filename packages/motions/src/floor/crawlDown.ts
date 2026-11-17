@@ -1,13 +1,18 @@
 import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlDownTiming } from "./crawlDownTiming";
@@ -58,10 +63,10 @@ export namespace crawlDown {
    */
   export interface IProps {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The standing posture the body gets down from, its feet on their goals. */
-    standing: IHumanPosture;
+    standing: IAutoMovieMotionHumanPosture;
 
     /** The pose the entry displays, whose arms the way down starts from. */
     entry: IAutoMoviePose;
@@ -81,11 +86,11 @@ export namespace crawlDown {
      * @returns The posture.
      */
     kneeling(
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       back: number,
       lean: number,
       palms?: boolean,
-    ): IHumanPosture;
+    ): IAutoMovieMotionHumanPosture;
 
     /** The crawl's trunk pitch, degrees. */
     pitch: number;
@@ -104,7 +109,7 @@ export namespace crawlDown {
    */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
-    write(base: IHumanPosture, seconds: number): IHumanPosture;
+    write(base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
 
     /** The second the hands land. */
     hands: number;
@@ -128,11 +133,11 @@ export namespace crawlDown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the solved states for the plan's life.
    */
   export function of(props: IProps): IDown {
-    const body: IHumanBody = props.body;
+    const body: IAutoMovieMotionHumanBody = props.body;
     const m = body.measure;
     const sides = ["left", "right"] as const;
-    const S: IHumanPosture = props.standing;
-    const crawling: IHumanPosture = props.kneeling(S, 0, 1);
+    const S: IAutoMovieMotionHumanPosture = props.standing;
+    const crawling: IAutoMovieMotionHumanPosture = props.kneeling(S, 0, 1);
     // Each tucked foot where the way down ends, carried with its knee.
     const tucked: Record<"left" | "right", kneelKeys.IFoot> = {
       left: placed("left"),
@@ -147,7 +152,7 @@ export namespace crawlDown {
         ),
       };
     }
-    const holding: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
+    const holding: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
     };
@@ -155,7 +160,7 @@ export namespace crawlDown {
     const along = (p: IAutoMovieVector3): number => Vector3.dot(p, forward);
     const middle = (pair: Record<"left" | "right", IAutoMovieVector3>) =>
       Vector3.lerp(pair.left, pair.right, 0.5);
-    const hipsOf = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       middle(
         hipJoints(
           body,
@@ -170,7 +175,7 @@ export namespace crawlDown {
     const prepareRoll = (
       side: "left" | "right",
     ): ReturnType<typeof crawlFeet.prepareRoll> => {
-      const goal: IHumanPosture.IGoal = S.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = S.limbs[`${side}Leg`]!;
       return crawlFeet.prepareRoll(
         body,
         side,
@@ -196,35 +201,35 @@ export namespace crawlDown {
     const shorts = { left: short("left"), right: short("right") };
 
     const armed = (
-      posture: IHumanPosture,
-      toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> | null,
+      posture: IAutoMovieMotionHumanPosture,
+      toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> | null,
       share: number,
-    ): IHumanPosture =>
+    ): IAutoMovieMotionHumanPosture =>
       crawlFrame.armed(body, posture, holding, toward ?? holding, share);
 
     /** Both palm goals are overwritten here; keep their original flat fingers. */
     const heldKneeling: (
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       back: number,
       lean: number,
-    ) => IHumanPosture = (
-      base: IHumanPosture,
+    ) => IAutoMovieMotionHumanPosture = (
+      base: IAutoMovieMotionHumanPosture,
       back: number,
       lean: number,
-    ): IHumanPosture =>
+    ): IAutoMovieMotionHumanPosture =>
       crawlFrame.flatHands(props.kneeling(base, back, lean, false));
 
     // The way down's states, solved once.
     interface IStates {
       back: { sat: number; leant: number };
       lean: number;
-      angles: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>;
+      angles: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>;
       ends: number[];
     }
-    const solve = (base: IHumanPosture): IStates => {
+    const solve = (base: IAutoMovieMotionHumanPosture): IStates => {
       const read: ReturnType<typeof prepareCrawlDownResolution> =
         prepareCrawlDownResolution(body);
-      const at = (back: number, lean: number, palms?: boolean): IHumanPosture =>
+      const at = (back: number, lean: number, palms?: boolean): IAutoMovieMotionHumanPosture =>
         props.kneeling(base, back, lean, palms);
       const pair = (
         of: (side: "left" | "right") => IAutoMovieVector3,
@@ -275,7 +280,7 @@ export namespace crawlDown {
       const wrist: IAutoMovieVector3 = pair(
         (side) => crawling.limbs[`${side}Arm`]!.point,
       );
-      const shoulders = (posture: IHumanPosture): IAutoMovieVector3 =>
+      const shoulders = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
         read.shoulders({ ...posture, limbs: {} });
       const shoulder: IAutoMovieVector3 = shoulders(crawling);
       const reach: number = Vector3.length(Vector3.subtract(shoulder, wrist));
@@ -306,7 +311,7 @@ export namespace crawlDown {
       // trunk has there.
       const furthest = (lean: (back: number) => number): number => {
         const lands = (back: number): boolean => {
-          const posture: IHumanPosture = at(back, lean(back), false);
+          const posture: IAutoMovieMotionHumanPosture = at(back, lean(back), false);
           const bones: ReturnType<typeof read.knees> = read.knees(posture);
           return sides.every(
             (side): boolean =>
@@ -336,7 +341,7 @@ export namespace crawlDown {
         sitting,
         HumanBalance.shift(
           body,
-          (back: number): IHumanPosture =>
+          (back: number): IAutoMovieMotionHumanPosture =>
             armed(heldKneeling(base, back, 0), null, 0),
           sitting / m.hipHeight,
         ),
@@ -353,7 +358,7 @@ export namespace crawlDown {
             ? leaning
             : bracketedRoot(error, 0, leaning, HumanBalance.TOLERANCE);
       const lean: number = leanAt(leantBack);
-      const leant: IHumanPosture = at(leantBack, lean);
+      const leant: IAutoMovieMotionHumanPosture = at(leantBack, lean);
       const solved: ReturnType<typeof read.pose> = read.pose(leant);
 
       // The time shared by how far the limbs' joints travel.
@@ -381,16 +386,16 @@ export namespace crawlDown {
     // From standing: each foot rolled toward the tucked foot, the hips
     // carried on the straight line, the joints in joint space.
     const fromStanding = (
-      base: IHumanPosture,
-      to: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
+      to: IAutoMovieMotionHumanPosture,
       u: number,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       const lerp = (a: number, b: number): number => a + (b - a) * u;
-      const joints: IHumanPosture["joints"] = {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...base.joints,
         ...floorEntry.blended(S.joints, to.joints, u),
       };
-      const tilted: IHumanPosture = {
+      const tilted: IAutoMovieMotionHumanPosture = {
         ...to,
         pitch: lerp(S.pitch, to.pitch),
         roll: lerp(S.roll, to.roll),
@@ -398,7 +403,7 @@ export namespace crawlDown {
         joints,
         limbs: {},
       };
-      const out: IHumanPosture = {
+      const out: IAutoMovieMotionHumanPosture = {
         ...tilted,
         root: crawlFrame.rootFor(
           body,
@@ -428,7 +433,7 @@ export namespace crawlDown {
     const s: IStates = solve(S);
     const carriedArms: ReturnType<typeof crawlFrame.prepareArmed> =
       crawlFrame.prepareArmed(body, holding, s.angles);
-    const write = (base: IHumanPosture, seconds: number): IHumanPosture => {
+    const write = (base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
       const k: number = Math.max(
         1,
         s.ends.findIndex((end: number): boolean => seconds < end),

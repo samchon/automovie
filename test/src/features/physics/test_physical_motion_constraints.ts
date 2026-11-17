@@ -1,9 +1,13 @@
 import {
   AutoMovieMotionAudit as Audit,
-  type AutoMoviePhysicsCache as Cache,
   measurePhysicalMotionConstraint as Measure,
 } from "@automovie/engine";
-import type { IAutoMovieMotionGeometry } from "@automovie/interface";
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -23,21 +27,21 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A hand witness extends 65 mm along its actual forearm ray.).
  */
 export async function test_physical_motion_constraints(): Promise<void> {
-  const state: (x: number, y: number) => Cache.ISegment = (
+  const state: (x: number, y: number) => IAutoMoviePhysicalSegmentState = (
     x: number,
     y: number,
-  ): Cache.ISegment => ({
+  ): IAutoMoviePhysicalSegmentState => ({
     position: { x, y, z: 0 },
     rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
     velocity: { x: 0, y: 0, z: 0 },
     angularVelocity: { x: 0, y: 0, z: 0 },
   });
-  const states: Record<string, Cache.ISegment> = {
+  const states: Record<string, IAutoMoviePhysicalSegmentState> = {
     root: state(0, 1),
     hand: state(1, 1),
     pivot: state(0, 0),
   };
-  const goal: Measure.IConstraint = {
+  const goal: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint = {
     kind: "goal",
     label: "glove",
     start: 0,
@@ -70,7 +74,7 @@ export async function test_physical_motion_constraints(): Promise<void> {
       0,
     ) < 1e-12,
   );
-  const angle: Measure.IConstraint = {
+  const angle: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint = {
     kind: "angle",
     label: "bend",
     start: 0,
@@ -138,7 +142,10 @@ export async function test_physical_motion_constraints(): Promise<void> {
     end: 0,
     rate: 120,
     floor: -1,
-    sample: (): Cache.IFrame => ({ seconds: 0, bodies: { rig: states } }),
+    sample: (): IAutoMoviePhysicalFrame => ({
+      seconds: 0,
+      bodies: { rig: states },
+    }),
     allowed: (): boolean => false,
   });
   TestValidator.equals(

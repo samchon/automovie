@@ -1,5 +1,13 @@
-import { AutoMovieViewOutline, AutoMovieViewParallelAxis, type AutoMovieViewAxis } from "@automovie/engine";
-import type { IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import {
+  AutoMovieViewOutline,
+  AutoMovieViewParallelAxis,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieViewAxis,
+  IAutoMovieViewParallelAxis,
+} from "@automovie/interface";
 
 /**
  * Author a head part's parallel planes from their original coordinate curves.
@@ -26,14 +34,23 @@ export namespace AutoMovieHumanHeadSourceAxis {
    * @evidence contracts/performance.md#reuse-equivalent-work The tree later retrieves the original declaration from this exact axis identity.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned axis and its owned engine metadata survive.
    */
-  export function of(origin: AutoMovieViewParallelAxis.IOrigin, u: [number, number, number], v: [number, number, number]): AutoMovieViewAxis.IAxis {
+  export function of(
+    origin: IAutoMovieViewParallelAxis.IOrigin,
+    u: AutoMovieVector3Tuple,
+    v: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis {
     const declaration: IAutoMovieConstructionParallelAxis = {
       type: "parallel",
-      origin: { x: AutoMovieViewOutline.scale(origin.x, 0.001, 0.001), y: AutoMovieViewOutline.scale(origin.y, 0.001, 0.001), z: AutoMovieViewOutline.scale(origin.z, 0.001, 0.001) },
+      origin: {
+        x: AutoMovieViewOutline.scale(origin.x, 0.001, 0.001),
+        y: AutoMovieViewOutline.scale(origin.y, 0.001, 0.001),
+        z: AutoMovieViewOutline.scale(origin.z, 0.001, 0.001),
+      },
       u: { x: u[0], y: u[1], z: u[2] },
       v: { x: v[0], y: v[1], z: v[2] },
     };
-    const axis: AutoMovieViewAxis.IAxis | string = AutoMovieViewParallelAxis.from(declaration);
+    const axis: IAutoMovieViewAxis.IAxis | string =
+      AutoMovieViewParallelAxis.from(declaration);
     if (typeof axis === "string") throw new Error(`Head source axis: ${axis}`);
     return axis;
   }

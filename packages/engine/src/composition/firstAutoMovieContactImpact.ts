@@ -1,3 +1,5 @@
+import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
+
 import { bracketedRoot } from "../math/bracketedRoot";
 import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEvents";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
@@ -34,9 +36,9 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body, and the scan one gap of its last clear step. Returned ids/times retain no callback, body, certificate object or map.
  */
 export function firstAutoMovieContactImpact(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
-  input: resolveAutoMovieContactEvents.IInput,
-  stops: resolveAutoMovieContactEvents.IStops,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
+  input: IAutoMovieResolveContactEvents.IInput,
+  stops: IAutoMovieResolveContactEvents.IStops,
   from: number,
   horizon: number,
 ): { against: string; seconds: number } | undefined {
@@ -90,15 +92,15 @@ export namespace firstAutoMovieContactImpact {
    * @returns The scan.
    */
   export function scan(
-    weapon: resolveAutoMovieContactEvents.IWeapon,
-    input: resolveAutoMovieContactEvents.IInput,
-    stops: resolveAutoMovieContactEvents.IStops,
+    weapon: IAutoMovieResolveContactEvents.IWeapon,
+    input: IAutoMovieResolveContactEvents.IInput,
+    stops: IAutoMovieResolveContactEvents.IStops,
     from: number,
   ): IScan {
     const live: number = weapon.from ?? -Infinity;
     const until: number = Math.min(input.to, weapon.to ?? Infinity);
     let departures:
-      | Map<resolveAutoMovieContactEvents.IBody, number | null>
+      | Map<IAutoMovieResolveContactEvents.IBody, number | null>
       | undefined;
 
     // How long after the last gap read, seconds, no body can be met: the
@@ -109,11 +111,11 @@ export namespace firstAutoMovieContactImpact {
 
     /** The same actual pair measurement, before any departure eligibility gate. */
     const distance: (
-      body: resolveAutoMovieContactEvents.IBody,
+      body: IAutoMovieResolveContactEvents.IBody,
       t: number,
       frame: resolveAutoMovieContactEvents.IWeaponFrame,
     ) => number = (
-      body: resolveAutoMovieContactEvents.IBody,
+      body: IAutoMovieResolveContactEvents.IBody,
       t: number,
       frame: resolveAutoMovieContactEvents.IWeaponFrame,
     ): number => {
@@ -167,7 +169,7 @@ export namespace firstAutoMovieContactImpact {
               : Infinity,
         );
         if (initial && d <= 0 && body.departure !== undefined) {
-          const proof: resolveAutoMovieContactEvents.Departure | undefined =
+          const proof: IAutoMovieResolveContactEvents.Departure | undefined =
             body.departure({
               weapon,
               from,

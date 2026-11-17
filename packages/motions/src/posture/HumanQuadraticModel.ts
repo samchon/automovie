@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
@@ -43,10 +45,10 @@ export namespace HumanQuadraticModel {
      * @evidence contracts/development/common.md#meaningful-documentation Defines fixed snapshot and row-order premises, changing bounds/weights/keys, warm and dual inputs, original-unit output/status ownership, validation failures and bounded model lifetime.
      */
     solve(
-      bounds: readonly Pick<Q.IRow, "l" | "u" | "weight" | "key">[],
-      warm?: Q.IState,
+      bounds: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[],
+      warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
       duals?: ReadonlyMap<string, number>,
-    ): Q.IState;
+    ): IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 
   /**
@@ -67,14 +69,14 @@ export namespace HumanQuadraticModel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model retains one scaled core, O(R0+m) copied zero-bearing raw rows, O(n+m) scratch and the bounded factor storage documented by Workspace; it retains no source or previous public result, and collection releases ownership.
    * @evidence contracts/development/common.md#meaningful-documentation Defines admission, source-independent numeric snapshots, changing-bound validation, scratch ownership and fresh output lifetime.
    */
-  export function of(problem: Q.IProblem, tolerance: number): IModel {
+  export function of(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem, tolerance: number): IModel {
     const s: B.IScaled = Preparation.scaled(problem);
 
     // CSR already copies every entry of a zero-free row. Only omitted
     // entries require an original-layout snapshot for exceptional products.
-    const raw: (Pick<Q.IRow, "index" | "coef"> | undefined)[] = new Array(s.m);
-    const rows: Pick<Q.IRow, "l" | "u" | "weight" | "key">[] = problem.rows.map(
-      (row: Q.IRow, r: number): Pick<Q.IRow, "l" | "u" | "weight" | "key"> => {
+    const raw: (Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> | undefined)[] = new Array(s.m);
+    const rows: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[] = problem.rows.map(
+      (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> => {
         if (row.coef.length !== s.start[r + 1]! - s.start[r]!)
           raw[r] = { index: [...row.index], coef: [...row.coef] };
         return { l: row.l, u: row.u, weight: row.weight, key: row.key };
@@ -97,18 +99,18 @@ export namespace HumanQuadraticModel {
     };
     return {
       solve: (
-        bounds: readonly Pick<Q.IRow, "l" | "u" | "weight" | "key">[],
-        warm?: Q.IState,
+        bounds: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[],
+        warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
         duals?: ReadonlyMap<string, number>,
-      ): Q.IState => {
+      ): IAutoMovieMotionHumanQuadraticProgram.IState => {
         if (bounds.length !== s.m)
           throw new RangeError("Malformed quadratic row count");
         for (let r: number = 0; r < s.m; ++r) {
-          const next: Pick<Q.IRow, "l" | "u" | "weight" | "key"> | undefined =
+          const next: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> | undefined =
             bounds[r];
           if (next === undefined)
             throw new RangeError(`Malformed quadratic row ${r}`);
-          const row: Pick<Q.IRow, "l" | "u" | "weight" | "key"> = rows[r]!;
+          const row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> = rows[r]!;
           row.key = next.key;
           const l: number = next.l;
           const u: number = next.u;

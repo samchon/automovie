@@ -1,4 +1,4 @@
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
  * The hard render cost a production declares it will stay inside, per quality tier.

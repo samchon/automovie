@@ -1,15 +1,14 @@
+import type {
+  IAutoMovieConicHermite,
+  IAutoMoviePolarSector,
+  IAutoMovieSource,
+  IAutoMovieViewConic,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
+
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
-import type { AutoMovieViewSection } from "./AutoMovieViewSection";
-
-/** Prepared source and measured length, before inspection-only observations. */
-type Source = Pick<
-  AutoMovieViewSection.ISection,
-  "box" | "shoulders" | "guides" | "conics" | "girth"
->;
 
 /**
  * Prepares, measures and diagnoses the actual conic/G2 source without replacing it.
@@ -32,25 +31,25 @@ export namespace AutoMovieViewSectionConic {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only caller-owned fixed source/guide/native-partition records escape; no cache is retained.
    */
   export function prepare(
-    box: AutoMovieViewSection.IBox,
-    shoulders: AutoMovieViewSection.ISection["shoulders"],
-  ): Source {
-    const e: AutoMovieViewSection.ISection["shoulders"] = box.extents;
-    const kappa: AutoMovieViewSection.ISection["shoulders"] =
+    box: IAutoMovieViewSection.IBox,
+    shoulders: IAutoMovieViewSection.ISection["shoulders"],
+  ): IAutoMovieSource {
+    const e: IAutoMovieViewSection.ISection["shoulders"] = box.extents;
+    const kappa: IAutoMovieViewSection.ISection["shoulders"] =
       AutoMovieViewConic.curvatures(
         AutoMovieConicFieldJet.NUMBER,
         box.extents,
         shoulders,
       );
-    const guides: AutoMovieViewSection.ISection["guides"] = [0, 1, 2, 3].map(
-      (g: number): AutoMoviePolarSector.IGuide => ({
+    const guides: IAutoMovieViewSection.ISection["guides"] = [0, 1, 2, 3].map(
+      (g: number): IAutoMoviePolarSector.IGuide => ({
         angle: g * (Math.PI / 2),
         value: e[g]!,
         slope: 0,
         curvature: e[g]! - kappa[g]! * e[g]! * e[g]!,
       }),
-    ) as AutoMovieViewSection.ISection["guides"];
-    const conics: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+    ) as IAutoMovieViewSection.ISection["guides"];
+    const conics: IAutoMovieViewConic.ICurve = AutoMovieViewConic.create(
       e,
       shoulders,
       kappa,
@@ -76,7 +75,7 @@ export namespace AutoMovieViewSectionConic {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Eight local quadratic-half domains and bounded invocation-owned subdivision stacks die on return or failure.
    */
   export function length(
-    section: Pick<AutoMovieViewSection.ISection, "conics">,
+    section: Pick<IAutoMovieViewSection.ISection, "conics">,
     axisScale: readonly [number, number] = [1, 1],
     tolerance: number = 1e-7,
   ): number {
@@ -217,7 +216,7 @@ export namespace AutoMovieViewSectionConic {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one string or null and retains no input.
    */
   export function fault(
-    section: Pick<AutoMovieViewSection.ISection, "conics" | "box" | "girth">,
+    section: Pick<IAutoMovieViewSection.ISection, "conics" | "box" | "girth">,
   ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
     if (!Number.isFinite(section.girth))
@@ -227,7 +226,7 @@ export namespace AutoMovieViewSectionConic {
       for (let k: number = 0; k <= 96; k++) {
         const start: number = (q * Math.PI) / 2;
         const phi: number = start + (k * Math.PI) / 192;
-        const [r, first, second]: AutoMoviePolarSector.Jet =
+        const [r, first, second]: IAutoMoviePolarSector.Jet =
           AutoMovieViewConic.radius(section.conics, phi);
         if (![r, first, second].every(Number.isFinite) || !(r > 0))
           return `nonfinite/nonpositive radius jet ${[r, first, second]} at angle ${phi}`;
@@ -290,7 +289,7 @@ export namespace AutoMovieViewSectionConic {
    * length work (1997), not the polynomial-only estimator's degree formula.
    */
   function endLength(
-    patch: AutoMovieConicHermite.IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     tolerance: number,
     axisScale: readonly [number, number] = [1, 1],
   ): number {

@@ -1,4 +1,4 @@
-import { IAutoMovieMorphTargetDriver } from "./IAutoMovieMorphTargetDriver";
+import type { IAutoMovieMorphTargetDriver } from "./IAutoMovieMorphTargetDriver";
 
 /**
  * One morph target of a mesh: per-vertex displacements added to the rest

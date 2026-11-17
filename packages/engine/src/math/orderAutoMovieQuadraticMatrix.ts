@@ -1,4 +1,4 @@
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
+import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
 /**
  * Deterministic minimum-degree elimination of the sparse symmetric KKT graph.

@@ -1,6 +1,6 @@
 # Consistency
 
-How a subject stays the same person, place or prop across every image made of it. Each image starts from the frozen canon references, as [every image](../SKILL.md#every-image) sets; the techniques below keep the result faithful to them.
+How a subject stays the same person, place or prop across every image made of it. Each image starts from the frozen canon references; the techniques below keep the result faithful to them.
 
 ## Words
 
@@ -14,7 +14,7 @@ Where the model returns a related set of images from one request, make a subject
 
 ## Adapters
 
-A compatible image-prompt adapter trades the reference's appearance against the text through its strength. Use the adapter's documented defaults, masks and style or identity controls for the intended role. Where supported, bind each subject to its own region so references do not blend; check component terms under [models](models.md).
+A compatible image-prompt adapter trades the reference's appearance against the text through its strength. Use the adapter's documented defaults, masks and style or identity controls for the intended role. Where supported, bind each subject to its own region so references do not blend; check component terms under [models](models.md#structure-and-identity-adapters).
 
 ## Character LoRA
 
@@ -22,4 +22,4 @@ A recurring character can take a LoRA matched to the base checkpoint, trained on
 
 The checkpoint's training guide owns resolution, captions, trigger tokens and regularization. Compare samples for identity and variation, and stop before they merely copy the training images.
 
-Freeze the trained weights with a record of their training images, as [every image](../SKILL.md#every-image) freezes an accepted image.
+Freeze the trained weights with a record of their training images, as an accepted image is frozen.

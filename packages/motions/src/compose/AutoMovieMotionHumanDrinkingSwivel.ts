@@ -1,12 +1,14 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwivelBound,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -53,9 +55,9 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and four-name demand end when preparation returns/throws; the returned function retains only the original numerical arm/bounds, without poses, body history or the reader.
    */
   export function bounded(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
   ): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
     return ranged(body, posture, side).hint;
   }
@@ -117,9 +119,9 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The readers retain the arm and the bounds only.
    */
   export function ranged(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
   ): IRanged {
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
@@ -183,11 +185,15 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         );
       },
     );
-    const of: AutoMovieMotionHumanSwivelBound.IArm = { shoulder, upper, lower };
-    const bounds: AutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
+    const of: IAutoMovieMotionHumanSwivelBound.IArm = {
+      shoulder,
+      upper,
+      lower,
+    };
+    const bounds: IAutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
       (
         normal: IAutoMovieVector3,
-      ): AutoMovieMotionHumanSwivelBound.IHalfPlane => ({
+      ): IAutoMovieMotionHumanSwivelBound.IHalfPlane => ({
         normal,
         point: shoulder,
         margin: 0,
@@ -202,8 +208,8 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
 }
 
 /** Keep the numerical bound reader outside the canonical/FK preparation scope. */
-function hints(arm: AutoMovieMotionHumanSwivelBound.IArm,
-  bounds: readonly AutoMovieMotionHumanSwivelBound.IHalfPlane[]):
+function hints(arm: IAutoMovieMotionHumanSwivelBound.IArm,
+  bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[]):
   (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
   return (point: IAutoMovieVector3, hint: IAutoMovieVector3): IAutoMovieVector3 =>
     AutoMovieMotionHumanSwivelBound.bounded(arm, point, hint, bounds);

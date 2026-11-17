@@ -1,5 +1,9 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
+import type {
+  IAutoMovieHumanTrunkKey,
+  IAutoMovieHumanTrunkProfileFront,
+  IAutoMovieNaturalCubicSpline,
+} from "@automovie/interface";
 
 /**
  * The trunk's front median profile alone: the forward place of the front
@@ -14,27 +18,20 @@ import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
  * spine.
  */
 export namespace AutoMovieHumanTrunkProfileFront {
-  /** The profile. */
-  export interface IProfile {
-    /** The forward place of the front midline at a height, mm. */
-    at: (y: number) => number;
-
-    /** The landmark stations the profile runs through, `[height, forward place]`, mm. */
-    marks: [number, number][];
-  }
-
   /**
    * The profile through the keys.
    *
    * @param keys The column's keys by rising height.
    * @returns The profile.
    */
-  export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IProfile {
+  export function create(
+    keys: readonly IAutoMovieHumanTrunkKey[],
+  ): IAutoMovieHumanTrunkProfileFront.IProfile {
     // A key whose tape fixes only a girth leaves its front to the wall's own run.
     const marks: [number, number][] = keys
       .filter((k: IAutoMovieHumanTrunkKey): boolean => k.front !== null)
       .map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.front!]);
-    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       marks.map((m: [number, number]): number => m[0]),
       marks.map((m: [number, number]): number => m[1]),
     );

@@ -1,6 +1,10 @@
 import { wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
@@ -40,7 +44,7 @@ export namespace walkStepFoot {
     toeOff: number;
 
     /** The foot flat on its footprint. */
-    flat: HumanFoot.IPlacement;
+    flat: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The footprint's heading, degrees. */
     heading: number;
@@ -76,7 +80,7 @@ export namespace walkStepFoot {
    */
   export function pushed(
     steps: readonly IStep[],
-    start: Record<"left" | "right", HumanFoot.IPlacement>,
+    start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     yaw: (seconds: number) => number,
     push: number,
     stiff?: "left" | "right",
@@ -180,17 +184,17 @@ export namespace walkStepFoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned schedule owns its readers and two endpoints per footfall, released with that plan; no query history is retained.
    */
   export function schedule(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    start: HumanFoot.IPlacement,
+    start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
     raised: number,
-  ): (t: number) => walkFoot.IScheduled {
-    const stances: ((t: number) => walkFoot.IFoot)[] = [];
+  ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
+    const stances: ((t: number) => IAutoMovieMotionHumanWalkFoot.IFoot)[] = [];
     for (let i: number = 0; i <= own.length; i++) {
       const previous: IStep | undefined = own[i - 1];
       const next: IStep | undefined = own[i];
-      const flat: HumanFoot.IPlacement = previous?.flat ?? start;
+      const flat: IAutoMovieMotionHumanFoot.IPlacement = previous?.flat ?? start;
       const facing: number =
         previous?.heading ?? HumanFoot.heading(start.rotation);
       const strike: number = previous?.heelStrike ?? -Infinity;
@@ -212,13 +216,13 @@ export namespace walkStepFoot {
         ),
       );
     }
-    const ends: { from: walkFoot.IFoot; to: walkFoot.IFoot }[] = own.map(
-      (step: IStep, i: number): { from: walkFoot.IFoot; to: walkFoot.IFoot } => ({
+    const ends: { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot }[] = own.map(
+      (step: IStep, i: number): { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot } => ({
         from: stances[i]!(step.toeOff),
         to: stances[i + 1]!(step.heelStrike),
       }),
     );
-    return (t: number): walkFoot.IScheduled => {
+    return (t: number): IAutoMovieMotionHumanWalkFoot.IScheduled => {
       let low: number = 0;
       let high: number = own.length;
       while (low < high) {
@@ -229,7 +233,7 @@ export namespace walkStepFoot {
       const step: IStep | undefined = own[low];
       if (step === undefined || t < step.toeOff) return stances[low]!(t);
       const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
-      const end: walkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;
+      const end: IAutoMovieMotionHumanWalkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;
       return {
         placement: {
           ankle: { ...end.placement.ankle },

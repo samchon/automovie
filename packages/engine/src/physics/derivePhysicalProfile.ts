@@ -1,6 +1,13 @@
 import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieDerivePhysicalProfile,
   IAutoMovieModel,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -32,12 +39,12 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  */
 export function derivePhysicalProfile(
   model: IAutoMovieModel,
-  options: derivePhysicalProfile.IOptions,
-): P {
+  options: IAutoMovieDerivePhysicalProfile.IOptions,
+): IAutoMoviePhysicalProfile {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const unit: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-  const transforms: Map<string, P.ITransform> =
+  const transforms: Map<string, IAutoMovieRigidTransform> =
     physicalModelRestTransforms(model);
   const parents: Map<string, string | null> = new Map();
   if (model.skeleton) {
@@ -51,9 +58,9 @@ export function derivePhysicalProfile(
     ([, parent]: [string, string | null]): boolean => parent === null,
   )![0];
 
-  const segments: P.ISegment[] = [];
+  const segments: IAutoMoviePhysicalSegment[] = [];
   for (const [bone, neutral] of transforms) {
-    const override: P.ISegment | undefined = options.overrides?.[bone];
+    const override: IAutoMoviePhysicalSegment | undefined = options.overrides?.[bone];
     if (override) {
       if (override.bone !== bone)
         throw new Error(`Physical override bone must remain ${bone}`);
@@ -64,14 +71,14 @@ export function derivePhysicalProfile(
       (part: IAutoMovieModel["parts"][number]): boolean =>
         (part.attachedBone ?? root) === bone,
     );
-    const shapes: P.IShape[] = [];
+    const shapes: IAutoMoviePhysicalShape[] = [];
     let unboundInverse: IAutoMovieQuaternion | undefined;
     const values: {
       mass: number;
       center: IAutoMovieVector3;
       extent: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
-      shape: P.IShape;
+      shape: IAutoMoviePhysicalShape;
     }[] = [];
     for (const part of parts) {
       if (part.geometry.type !== "primitive")
@@ -136,7 +143,7 @@ export function derivePhysicalProfile(
                       : shape.height / 2) * scale.y,
               z: radius * scale.z,
             };
-      const collider: P.IShape =
+      const collider: IAutoMoviePhysicalShape =
         shape.type === "sphere" && scale.x === scale.y && scale.y === scale.z
           ? {
               id: part.id,
@@ -170,12 +177,12 @@ export function derivePhysicalProfile(
       throw new Error(
         `Physical provider needs an explicit positive-mass override for empty bone ${bone}`,
       );
-    const aggregate: combinePhysicalMassProperties.IPart =
+    const aggregate: IAutoMovieCombinePhysicalMassProperties.IPart =
       combinePhysicalMassProperties(
         values.map(
           (
             value: (typeof values)[number],
-          ): combinePhysicalMassProperties.IPart => {
+          ): IAutoMovieCombinePhysicalMassProperties.IPart => {
             let inertia: IAutoMovieVector3;
             if (value.shape.kind === "sphere") {
               const moment: number = 0.4 * value.mass * value.shape.radius ** 2;
@@ -209,7 +216,7 @@ export function derivePhysicalProfile(
     });
   }
   const mass: number = segments.reduce(
-    (sum: number, segment: P.ISegment): number => sum + segment.mass,
+    (sum: number, segment: IAutoMoviePhysicalSegment): number => sum + segment.mass,
     0,
   );
   let centerX: number = 0;
@@ -246,12 +253,12 @@ export function derivePhysicalProfile(
     throw new Error(
       "A model profile needs explicit joints or explicit actuator assumptions for its rig",
     );
-  const joints: P.IJoint[] =
+  const joints: IAutoMoviePhysicalJoint[] =
     options.joints ??
     (model.skeleton
       ? derivePhysicalModelJoints(model, segments, options.actuator!)
       : []);
-  const profile: P = {
+  const profile: IAutoMoviePhysicalProfile = {
     id: model.id,
     mass,
     centerOfMass,
@@ -264,53 +271,4 @@ export function derivePhysicalProfile(
   if (errors.length)
     throw new Error(`Derived physical profile: ${errors.join(", ")}`);
   return profile;
-}
-
-/**
- * Density and full overrides keep model content out of Engine.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents density, physical materials, explicit joint or actuator inputs, full segment overrides and provenance with their units and absence rules.
- * @evidence contracts/development/design.md#principled-representation IOptions separates physical declarations from optical model geometry. Absent per-material densities use density; absent overrides derive primitives; absent joints require actuator assumptions for a rig. All physical frames and result types reuse the interface profile contract.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The existing derivePhysicalProfile entry point owns this single companion options interface, consumed by the physical model provider and fixture producers. No new producer or option is added for the reduction.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named bone and optical-material maps express existing caller keys, while material ids remain explicit profile references. No cast, untyped payload, inferred anatomical density or implicit actuator strength replaces a physical declaration.
- */
-export namespace derivePhysicalProfile {
-  /** All masses are kg and density is kg/m³. */
-  export interface IOptions {
-    /** Default declared density, not inferred from names. */
-    density: number;
-
-    /** Per-optical-material density overrides. */
-    densities: Record<string, number>;
-
-    /** Physical material applied to derived colliders. */
-    material: string;
-
-    /** Physical contact materials. */
-    materials: P.IMaterial[];
-
-    /** Explicit solver-neutral frames and angular limits replace rig derivation. */
-    joints?: P.IJoint[];
-
-    /** Required when deriving joints from the model's canonical clinical axes and ROM. */
-    actuator?: {
-      /** Radians per second. */
-      frequency: number;
-
-      /** Critical-damping ratio. */
-      dampingRatio: number;
-
-      /** N m per kg of downstream segments. */
-      torquePerKg: number;
-
-      /** Passive angular decay rate, 1/s; zero by default. */
-      passiveRate?: number;
-    };
-
-    /** Complete per-bone replacements, including imported collision proxies. */
-    overrides?: Record<string, P.ISegment>;
-
-    /** Source and uncertainty of density, collision proxies and joint data. */
-    provenance: string;
-  }
 }

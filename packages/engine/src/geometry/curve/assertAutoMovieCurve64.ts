@@ -1,4 +1,9 @@
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieBernsteinCurvePiece64,
+  IAutoMovieCurvePrimitive64,
+} from "@automovie/interface";
 
 /**
  * Reject malformed coefficient fields before evaluation or publication. Successful admission establishes finite dense represented data and a resolvable phase partition; it does not prove regularity, continuity, nonintersection or visibility.
@@ -14,7 +19,9 @@ import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Caller coefficients can be mutable, so no cross-call admitted-object cache is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar locals and helper closures are allocated for one call; the input is neither cloned nor retained.
  */
-export function assertAutoMovieCurve64(curve: C.Primitive): void {
+export function assertAutoMovieCurve64(
+  curve: IAutoMovieCurvePrimitive64,
+): void {
   const dense: (
     a: unknown,
     count?: number,
@@ -69,9 +76,12 @@ export function assertAutoMovieCurve64(curve: C.Primitive): void {
       curve.radiusV <= 0
     )
       throw new Error("Invalid analytic oval");
-    const dot: (a: C.Vector, b: C.Vector) => number = (
-      a: C.Vector,
-      b: C.Vector,
+    const dot: (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
+    ) => number = (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
     ): number =>
       a.reduce((s: number, x: number, i: number): number => s + x * b[i]!, 0);
     if (
@@ -84,8 +94,10 @@ export function assertAutoMovieCurve64(curve: C.Primitive): void {
   }
   if (curve.type !== "cubicBezier" && curve.type !== "bernstein")
     throw new Error("Unsupported actual primitive");
-  const pieces: readonly (C.Span | C.Piece)[] =
-    curve.type === "cubicBezier" ? curve.spans : curve.pieces;
+  const pieces: readonly (
+    | AutoMovieCubicBezierControls3
+    | IAutoMovieBernsteinCurvePiece64
+  )[] = curve.type === "cubicBezier" ? curve.spans : curve.pieces;
   dense(pieces);
   dense(curve.phaseIntervals, pieces.length);
   let cumulative: number = 0;
@@ -112,7 +124,7 @@ export function assertAutoMovieCurve64(curve: C.Primitive): void {
       piece.degree < 0
     )
       throw new Error("Invalid actual Bernstein degree");
-    const coefficients: readonly C.Vector[] =
+    const coefficients: readonly Readonly<AutoMovieVector3Tuple>[] =
       piece.primitive === "polynomialBezier"
         ? piece.controls
         : piece.homogeneousNumerator;

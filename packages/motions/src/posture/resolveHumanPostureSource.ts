@@ -1,12 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
-import type { IHumanPosture } from "./IHumanPosture";
 import { assembleHumanPosture } from "./assembleHumanPosture";
 import { deriveHumanPosture } from "./deriveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
@@ -26,14 +30,14 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary pose and synchronous reader end with the call; independent outputs own their records and no source, callback, result history or handle is retained here. Member facts: assemble: Retains nothing; the caller owns the assembly. fit: Retains nothing; results share the assembly's untouched records. continued: Transfers owned current records to the preparation; the source, reader and callback never enter result history. owned: Transfers owned pose/seed/value records to its synchronous owner, without retaining the source, borrowed reader, outputs or query history.
  */
 export function resolveHumanPostureSource(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   base: IAutoMoviePose | undefined,
-  near: resolveHumanPosture.INear,
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
   projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-): resolveHumanPosture.ISeeded {
+): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
   return structuredClone(solve(body, posture, base, near, resolution, requested, projection, refitHumanPosture.independent));
 }
 
@@ -56,13 +60,13 @@ export namespace resolveHumanPostureSource {
    */
   export interface IAssembled {
     /** The posture as authored; its root, heading and rotation turn goals given later, and its digits are fitted after the limbs. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** The root and every rig bone's clamped direct joint, before any limb fit; fits share its records and leave them unchanged. */
     pose: IAutoMoviePose;
 
     /** The posture's own limb goals, world goals turned by its whole-body rotation. */
-    limbs: IHumanPosture["limbs"];
+    limbs: IAutoMovieMotionHumanPosture["limbs"];
 
     /** The pose whose joints stood in for unset bones, when the assembly was made on one. */
     base?: IAutoMoviePose;
@@ -83,8 +87,8 @@ export namespace resolveHumanPostureSource {
    * nothing is retained.
    */
   export function assemble(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     base?: IAutoMoviePose,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAssembled {
@@ -112,15 +116,15 @@ export namespace resolveHumanPostureSource {
    * as ever otherwise.
    */
   export function fit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     assembled: IAssembled,
-    limbs?: IHumanPosture["limbs"],
-    near: resolveHumanPosture.INear = {},
+    limbs?: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     solved?: deriveHumanPosture.ISolved,
-  ): resolveHumanPosture.ISeeded {
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     if (solved !== undefined && limbs === undefined && Object.keys(near).length === 0) {
-      const taken: resolveHumanPosture.ISeeded | undefined = deriveHumanPosture.inherited(body, assembled, solved);
+      const taken: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined = deriveHumanPosture.inherited(body, assembled, solved);
       if (taken !== undefined) return taken;
     }
     return fitted(
@@ -147,13 +151,13 @@ export namespace resolveHumanPostureSource {
    * Transfers owned pose/seed/value records to its synchronous owner, without retaining the source, borrowed reader, outputs or query history.
    */
   export function owned(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    near: resolveHumanPosture.INear,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  ): resolveHumanPosture.ISeeded {
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return solve(body, posture, undefined, near, resolution, requested, projection, refitHumanPosture.constructed);
   }
 
@@ -168,40 +172,40 @@ export namespace resolveHumanPostureSource {
    * Actual private source construction establishes ownership while exact current values and explicit algorithm policy govern memo equivalence.
    * Transfers owned current records to the preparation; the source, reader and callback never enter result history.
    */
-  export function continued(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): resolveHumanPosture.ISeeded {
+  export function continued(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return solve(body, posture, undefined, near, resolution, undefined, projection, refitHumanPosture.continued);
   }
 }
 
 /** Keep canonical composition and current requested-goal admission in one owner. */
 function solve(
-  body: IHumanBody,
-  raw: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  raw: IAutoMovieMotionHumanPosture,
   base: IAutoMoviePose | undefined,
-  near: resolveHumanPosture.INear,
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
   projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
   refit: (...args: Parameters<typeof refitHumanPosture>) => ReturnType<typeof refitHumanPosture>,
-): resolveHumanPosture.ISeeded {
+): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
   return fitted(body, resolveHumanPostureSource.assemble(body, raw, base, projection), near, resolution, requested, refit);
 }
 
 /** The second half of the composition: the assembly's goals fitted in order, then its digits. */
 function fitted(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   assembled: resolveHumanPostureSource.IAssembled,
-  near: resolveHumanPosture.INear,
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
   refit: (...args: Parameters<typeof refitHumanPosture>) => ReturnType<typeof refitHumanPosture>,
-): resolveHumanPosture.ISeeded {
-  const posture: IHumanPosture = { ...assembled.posture, limbs: assembled.limbs };
+): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+  const posture: IAutoMovieMotionHumanPosture = { ...assembled.posture, limbs: assembled.limbs };
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-  const limbs: IHumanPosture["limbs"] = requested === undefined || Object.keys(near).length !== 0
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = requested === undefined || Object.keys(near).length !== 0
     ? posture.limbs : selectHumanPostureGoals(body, posture, requested);
-  const solved: resolveHumanPosture.ISeeded = refit(body, assembled.pose, limbs, near, read);
+  const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(body, assembled.pose, limbs, near, read);
   return {
     ...solved,
     pose: HumanDigitFit.fitted(body, solved.pose, posture.digits, read, requested),

@@ -1,10 +1,10 @@
 import { createDrinkware } from "@automovie/archetypes";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,7 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the measured row behind it and the scenario.
  */
 export function test_human_motion_core_overlay_hold_refusal_drink(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   let thrown: unknown = null;
   try {
     new HumanPerformance({
