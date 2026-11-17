@@ -19,6 +19,7 @@ import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRang
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
+import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -102,7 +103,16 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * hint; the
  * candidate carries the value it was chosen by, so a caller ranking keys by
  * their fits reads one continuous value (Berge's maximum theorem) instead
- * of a measure taken at another search's argmin.
+ * of a measure taken at another search's argmin. Under that ranking a
+ * candidate at a swivel where the closed form shows the rotation met (inside
+ * the end joint's box arcs, its mid segment's twist inside its range) is
+ * ranked in the first bucket without its error being measured; the chosen
+ * candidate's error is measured for the value, and a choice whose measured
+ * bucket differs from the one it was ranked by is searched again with every
+ * error measured. A continued fit tries the closed-form candidates lying by
+ * its seed before refining it (`hingedSwivelNear`), and a cold fit whose
+ * rotation's certified miss exceeds the tolerance at every swivel skips the
+ * pole start that could not be accepted.
  *
  * @param props The fit request, with merged axes.
  * @param prepared The chain's preparation.
@@ -466,7 +476,49 @@ export function fitHingedChainCandidate(
     }
     return known.miss;
   };
-  const solved: ReturnType<typeof hingedArmArticulation> =
+
+  // Whether the two end joints show the requested rotation at a swivel of a
+  // branch, in closed form: the swivel lies outside every arc the end joint's
+  // box refuses, with `INSIDE` to spare (`distalEndSwivelArcs`), and the twist
+  // the rotation leaves the mid segment exists and lies inside its range
+  // (`distalTwistSwivelRange.admits`). That twist is then one of the roots
+  // `solveDistalTwist` reads among its candidates, and the end joint's
+  // demand at it lies inside its box, which its projection returns as it is:
+  // the measured error is rounding, in the first bucket of any tolerance.
+  // Null where either analysis does not apply; read once a branch.
+  const shows: WeakMap<object, { test: ((swivel: number) => boolean) | null }> = new WeakMap();
+  const shown = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    swivel: number,
+  ): boolean => {
+    let known: { test: ((swivel: number) => boolean) | null } | undefined = shows.get(posed);
+    if (known === undefined) {
+      const arcs: ReturnType<typeof distalEndSwivelArcs> = along === null
+        ? null : distalEndSwivelArcs({ ...pointing(posed), margin: -INSIDE });
+      const twist: distalTwistSwivelRange.IRange | null =
+        arcs === null || arcs === "all" ? null : twisting(posed);
+      known = {
+        test: arcs === null || arcs === "all" || twist === null
+          ? null
+          : (at: number): boolean => {
+              const turned: number = at - 360 * Math.floor(at / 360);
+              return !arcs.some((arc: { from: number; to: number }): boolean =>
+                arc.from <= turned && turned <= arc.to) && twist.admits(at);
+            },
+      };
+      shows.set(posed, known);
+    }
+    return known.test !== null && known.test(swivel);
+  };
+
+  // Under task priority with a requested rotation, the first key is the
+  // bucket of the rotation's error, so a candidate the closed form shows to
+  // meet the rotation needs no measured error to be ranked: its bucket is
+  // the first. The chosen candidate's error is measured below, and a choice
+  // whose measured bucket is not the one it was ranked by is searched again
+  // with every error measured.
+  const certifying: boolean = strain !== undefined && turn !== null && missed;
+  const search = (trusting: boolean): ReturnType<typeof hingedArmArticulation> =>
     hingedArmArticulation({
       upper: prepared.upper,
       midOffset: prepared.lowerOffset,
@@ -655,6 +707,8 @@ export function fitHingedChainCandidate(
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
+        swivel: number,
+        posed: ReturnType<typeof hingedArmSwivel.pose>,
       ): {
         overshoot: number;
         deviation: number;
@@ -669,7 +723,8 @@ export function fitHingedChainCandidate(
             deviation: 0,
             ...(turn === null
               ? {}
-              : { exact: (): number => measure(upper, lower, above) }),
+              : { exact: (): number =>
+                  trusting && shown(posed, swivel) ? 0 : measure(upper, lower, above) }),
             // A reference pose keeps its side through a stroke, so its turn
             // decides before the strain; without one the strain decides.
             tiebreak: (): number =>
@@ -705,6 +760,11 @@ export function fitHingedChainCandidate(
         };
       },
     });
+  let solved: ReturnType<typeof hingedArmArticulation> = search(certifying);
+  if (solved !== null && certifying &&
+    hingedSwivelAhead.rank(measure(solved.upper, solved.lower), ROM_TOLERANCE) !==
+      hingedSwivelAhead.rank(solved.deviation, ROM_TOLERANCE))
+    solved = search(false);
   if (solved === null) return null;
 
   // The chosen candidate's root angles were read when it was scored; a
@@ -728,7 +788,7 @@ export function fitHingedChainCandidate(
       : {
           value: {
             overshoot: solved.overshoot,
-            error: solved.deviation,
+            error: certifying ? measure(solved.upper, solved.lower) : solved.deviation,
             strain: solved.second ?? 0,
           },
         }),

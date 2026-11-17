@@ -154,13 +154,13 @@ export function hingedArmArticulation(props: {
    * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
    * in one bucket of width `tie` are one, and the lesser `tiebreak` decides
    * (task priority, Siciliano and Slotine 1991: the second objective only
-   * among the first's optima). The score and its lazy readers describe the
-   * same unchanged objective throughout this synchronous solve.
+   * among the first's optima), so `exact` need then be right only to its
+   * bucket. The score and its lazy readers describe the same unchanged
+   * objective throughout this synchronous solve. The candidate's swivel,
+   * degrees, and its branch's poser are passed for a caller that reads them.
    */
-  score: (
-    upper: IAutoMovieQuaternion,
-    lower: IAutoMovieQuaternion,
-  ) => {
+  score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, swivel: number,
+    posed: ReturnType<typeof hingedArmSwivel.pose>) => {
     overshoot: number;
     deviation: number;
     exact?: () => number;
@@ -296,7 +296,7 @@ export function hingedArmArticulation(props: {
         shortfall: stop.shortfall,
         swivel: angle,
         branch: stop.branch,
-        ...props.score(upper, lower),
+        ...props.score(upper, lower, angle, posed),
       };
     };
   const better = (a: IScored, b: IScored): boolean =>
