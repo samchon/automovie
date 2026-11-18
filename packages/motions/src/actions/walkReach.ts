@@ -80,6 +80,9 @@ export namespace walkReach {
     hips: Record<"left" | "right", IAutoMovieVector3>;
   }
 
+  /** A requested heading, or the pelvis already evaluated at the same stance. */
+  type PlannedPelvis = number | IPelvis;
+
   /** The pelvis settled against the stances. */
   export interface IGround {
     /** The heading, degrees. */
@@ -188,11 +191,7 @@ export namespace walkReach {
       const rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
       const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
       const heading: number = direction.heading;
-      const off: number = wrapDegrees(planned - heading);
-      const excess: number =
-        Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
-      pivots[side] =
-        excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
+      pivots[side] = pivot(planned, direction);
       bands.push({
         centre: planned + wrapDegrees(heading + pivots[side] - planned),
         half: TWIST / w,
@@ -201,10 +200,7 @@ export namespace walkReach {
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
     }
-    // Feet further apart than their bands, as in a stepping turn, hold the
-    // pelvis in the gap between the bands, at the planned heading as near as
-    // the gap allows, so the pelvis turns on with the plan as the claims pass
-    // from one foot to the other.
+    // Disjoint stance bands hold the pelvis at the nearest heading in their gap.
     if (bands.length === 2) {
       const a: IBand =
         bands[0]!.centre <= bands[1]!.centre ? bands[0]! : bands[1]!;
@@ -217,11 +213,39 @@ export namespace walkReach {
   }
 
   /**
+   * One scheduled foot's toe pivot, in degrees. Contact classification only
+   * needs this foot, whereas pelvis heading depends on both stance bands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle's unit and independent stance dependency.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same claim, heel pitch and permitted hip twist as the full pelvis evaluation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One foot's claim and direction feed the shared pivot formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the declared twist and heel range unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work, with no opposite-foot, root or FK evaluation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The contact-window reader shares its pivot formula with turn.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no value or caller state.
+   */
+  export function footPivot(
+    planned: number,
+    foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
+  ): number {
+    return weight(foot) > 0
+      ? pivot(planned, HumanFoot.headingPitch(foot.placement.rotation))
+      : 0;
+  }
+
+  /** The requested toe rotation after consuming the available hip twist. */
+  function pivot(planned: number, direction: ReturnType<typeof HumanFoot.headingPitch>): number {
+    const off: number = wrapDegrees(planned - direction.heading);
+    const excess: number = Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
+    return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
+  }
+
+  /**
    * Settle the pelvis against the stances.
    *
    * @param body The body.
    * @param root The unconstrained root, world metres.
-   * @param planned The unconstrained heading, degrees.
+   * @param planned The unconstrained heading in degrees or the pelvis already evaluated at this stance.
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
    * @param claims The lowering a foot claims in place of its faded stance's,
@@ -247,7 +271,7 @@ export namespace walkReach {
   export function ground(
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
-    planned: number,
+    planned: PlannedPelvis,
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
@@ -265,12 +289,11 @@ export namespace walkReach {
       yaw,
       pivots,
       hips: upright,
-    }: IPelvis = pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution));
+    }: IPelvis = typeof planned === "number"
+      ? pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution))
+      : planned;
 
-    // A tilt about the hips bone carries each hip joint up or down by its
-    // offset from that bone times the tilt's sine (6 mm at 4 degrees of roll),
-    // and a lowering only translates the pelvis, so the tilted joints are
-    // read once at the unlowered root and lowered with it.
+    // The tilted hip joints translate uniformly with the lowering.
     const tilted: ReturnType<NonNullable<typeof tilt>> | undefined = tilt?.(root, yaw, upright);
     const joints: Record<"left" | "right", IAutoMovieVector3> = tilted?.hips ?? upright;
     const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (side: "left" | "right", drop: number): IAutoMovieVector3 => {

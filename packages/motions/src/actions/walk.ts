@@ -1,5 +1,6 @@
 import { AutoMovieGravity, preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -11,6 +12,7 @@ import type {
   IAutoMovieMotionHumanWalkParams,
   IAutoMovieMotionHumanWalkSteps,
   IAutoMovieMotionManner,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
@@ -36,8 +38,11 @@ import { walkSteps } from "./walkSteps";
 import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
-/** The resolution, seconds, at which a foot's last swing is found back from a take's end: a millisecond, under any swing's tenths of a second, so no swing is stepped over. */
-const CLOSING: number = 1e-3;
+/** The already evaluated pelvis at the current action second. */
+interface IReachAt {
+  seconds: number;
+  pelvis: walkReach.IPelvis;
+}
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
@@ -70,27 +75,9 @@ const CLOSING: number = 1e-3;
  * opposite the legs about 15° with the elbows bent 15 to 30° (Perry and
  * Burnfield, normal gait kinematics).
  *
- * The engine's gait owners cannot express this, for stated reasons, so the
- * walk plans its own footprints and reuses the engine for everything else
- * (minimum-jerk profiles, the limb fit, the transitions):
- *
- * - `IAutoMovieGait`, `gaitMotion` and `HUMANOID_GAITS` oscillate limb angles
- *   periodically; their stance and swing intervals "do not constrain a
- *   resolved foot to the ground" (`IAutoMovieGaitLimb.duty`), so a footprint, a
- *   stop at a point and a whole-step count cannot be stated in them.
- * - `locomoteMotion` and `followPathMotion` carry that oscillation along a
- *   distance in whole cycles, compressing a short trip, and start from rest,
- *   not from an entry state, so a walk cannot continue a cut.
- * - `plantStanceFeet` and `pinStanceTargets` pin oscillated feet after the
- *   fact and "do not guarantee exact no-skate contact"; here every planted
- *   foot is an IK goal on its footprint, so the 5 mm slip bound holds by
- *   construction rather than by repair.
- *
- * The audits use the engine's `contactMask` to read stance from the result.
- *
- * Proficiency changes nothing here except the cross-task timing variability
- * of the step period; no locomotion study of skill differences in ordinary
- * walking was located, so walking skill is left unscaled.
+ * The explicit footprints and cut entry pose give the engine's IK their
+ * stance targets. The audit reads the same windows through contactMask.
+ * Proficiency only varies step timing.
  */
 export namespace walk {
   /** The action's name. */
@@ -309,12 +296,7 @@ export namespace walk {
         walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
-    const { events, contacts }: ReturnType<typeof walkWindows.of> =
-      walkWindows.of(body, steps, pelvis, (t: number): walkReach.IPelvis["pivots"] =>
-        walkReach.turn(steps.yaw(t), {
-          left: steps.foot("left", t), right: steps.foot("right", t),
-        }).pivots,
-      );
+    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(steps);
     // A foot as its schedule alone has it, before any pelvis is settled.
     const endOf: (foot: IAutoMovieMotionHumanWalkFoot.IScheduled) => walkFoot.IEnd = (foot: IAutoMovieMotionHumanWalkFoot.IScheduled): walkFoot.IEnd => ({
       ankle: foot.placement.ankle,
@@ -324,28 +306,9 @@ export namespace walk {
     const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd =>
       endOf(steps.foot(side, t));
 
-    // Each swing's endpoints are fixed by its foot and its toe-off, so its
-    // swing reader is prepared once, the scheduled one and the reached one
-    // each, and read at every share of it.
-    // A foot's closing stance is the one it lands in last: its last swing is
-    // found once per foot, read back from the take's end until the schedule
-    // swings it, at the step's resolution `CLOSING`.
-    const lastLanding: Partial<Record<"left" | "right", number>> = {};
-    const closing: (side: "left" | "right", on: number) => boolean = (side: "left" | "right", on: number): boolean => {
-      let last: number | undefined = lastLanding[side];
-      if (last === undefined) {
-        last = -Infinity;
-        for (let t: number = duration; t > 0; t -= CLOSING) {
-          const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = steps.foot(side, t).swing;
-          if (swing !== undefined) {
-            last = swing.on;
-            break;
-          }
-        }
-        lastLanding[side] = last;
-      }
-      return Math.abs(on - last) < CLOSING;
-    };
+    // The foot schedule and the swing both carry the original heel-strike time.
+    const closing: NonNullable<Parameters<typeof walkSwing>[3]> = (side: AutoMovieHumanSide, on: number): boolean =>
+      on === steps.lastLanding[side];
     const scheduledSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled, closing);
     const scheduledSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
     const scheduledAt: (side: "left" | "right", swing: { off: number; on: number }) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
@@ -364,13 +327,16 @@ export namespace walk {
       swing: { off: number; on: number },
       u: number,
       resolution?: ReturnType<typeof preparePoseResolution>,
+      current?: IReachAt,
     ): number {
       const t: number = swing.off + u * (swing.on - swing.off);
+      const frame: walkReach.IPelvis = current?.seconds === t
+        ? current.pelvis
+        : walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
+            left: steps.foot("left", t), right: steps.foot("right", t),
+          }, resolution);
       return claim(
-        walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
-          left: steps.foot("left", t),
-          right: steps.foot("right", t),
-        }, resolution).hips[side],
+        frame.hips[side],
         scheduledAt(side, swing)(u).placement.ankle,
       );
     }
@@ -386,6 +352,9 @@ export namespace walk {
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
       const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution);
+      const root: IAutoMovieVector3 = steps.root(t);
+      const frame: walkReach.IPelvis = walkReach.pelvis(body, root, steps.yaw(t), hips, feet, read);
+      const current: IReachAt = { seconds: t, pelvis: frame };
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
         const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
@@ -417,14 +386,14 @@ export namespace walk {
         claims[side] = walkDescent.claim(
           descent,
           swing.u,
-          reaching(side, swing, swing.u, read),
+          reaching(side, swing, swing.u, read, current),
           -walkReach.CLAIM,
         );
       }
       return walkReach.ground(
         body,
-        steps.root(t),
-        steps.yaw(t),
+        root,
+        frame,
         hips,
         feet,
         claims,

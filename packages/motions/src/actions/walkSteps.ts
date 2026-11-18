@@ -454,6 +454,10 @@ export namespace walkSteps {
       amount,
       foot,
       inPlace,
+      lastLanding: {
+        left: own.left.at(-1)?.heelStrike ?? -Infinity,
+        right: own.right.at(-1)?.heelStrike ?? -Infinity,
+      },
     };
   }
 }
