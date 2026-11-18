@@ -27,10 +27,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. At five consecutive interior beats of the 100 BPM track, every marcher
  *    strikes within 0.10 s of the beat, using the left foot on odd beats and the
  *    right on even beats.
+ * 3. Each marcher's observed travel speed changes with the same course while
+ *    their steps stay on the beat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the cast, course measures, beat rate and synchronized-foot requirement.
- * @evidence contracts/development/testing.md#behavioral-verification Composes the public march with both a moving station and a shared cue track, then reads displayed roots and heel-strike events. Both witnesses lag uniform travel at the authored average speed by more than one step allowance. A default cadence misses the authored beats.
- * @evidence contracts/development/testing.md#independent-expectations The positions come from the authored rank spacing and course samples; the beat lattice is 60 divided by the authored BPM. The 0.30 m longitudinal window is half the scene's nominal 0.60 m step. The 0.12 m lateral and 0.10 s timing windows are scene requirements. The times of heel contact are read from the law's event markers.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the public march with both a moving station and a shared cue track, then reads displayed roots and heel-strike events. Both witnesses lag uniform travel at the authored average speed by more than one step allowance. A default cadence misses the authored beats. Speed windows inside each course leg catch a misaligned clock that moves past the authored slowdown early.
+ * @evidence contracts/development/testing.md#independent-expectations Positions come from the authored rank spacing and course samples; mean speeds come from the course legs' metres divided by seconds. The 0.30 m longitudinal window is half the scene's nominal 0.60 m step. The speed tolerance allows up to 0.09 m of root excursion in a 0.60 s window. The 0.12 m lateral and 0.10 s timing windows are scene requirements. The beat lattice is 60 divided by the authored BPM, and the times of heel contact are read from the law's event markers.
  * @evidence contracts/development/testing.md#distinguishing-cases Two ranks, three files and two statures share one course and beat track. The cadence and ensemble formation tests already exercise those axes separately.
  * @evidence contracts/development/testing.md#execution-ownership A motions unit test discovered by its exported name, using prepared polygon-man bodies and the public performance sampler.
  */
@@ -95,6 +97,12 @@ export function test_human_motion_scene_synchronized_parade(): void {
     [2.4, 1.8],
     [7.2, 6.3],
   ];
+  const speeds: [number, number][] = [
+    [1.6, 1.8 / 2.4],
+    [2.6, 2.7 / 2.4],
+    [6.4, 1.8 / 2.4],
+    [7.4, 3.3 / 2.4],
+  ];
   const findings: string[] = [];
   for (const member of ensemble.members) {
     const x: number = (1 - (member.index % 3)) * 0.8;
@@ -112,6 +120,17 @@ export function test_human_motion_scene_synchronized_parade(): void {
       )
         findings.push(
           `${member.subject} is at (${root.x.toFixed(3)}, ${root.z.toFixed(3)}) at ${seconds} s, expected near (${x}, ${advance - rank})`,
+        );
+    }
+
+    for (const [seconds, expected] of speeds) {
+      const first: number = performance.posture(member.subject, seconds).root.z;
+      const last: number = performance.posture(member.subject, seconds + period)
+        .root.z;
+      const speed: number = (last - first) / period;
+      if (!Number.isFinite(speed) || Math.abs(speed - expected) > 0.15)
+        findings.push(
+          `${member.subject} moves at ${speed.toFixed(3)} m/s from ${seconds} s, expected near ${expected.toFixed(3)} m/s`,
         );
     }
 

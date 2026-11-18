@@ -272,7 +272,7 @@ export namespace walk {
     const longest: number = forward * share;
     // A tired member walks slower; a cadenced gait keeps its count (`walkClock.weary`).
     const weary: number = walkClock.weary(context, gait);
-    const steps: IAutoMovieMotionHumanWalkSteps.IPlan = walkSteps.plan({
+    const { plan: steps, clock }: ReturnType<typeof walkClock.steps> = walkClock.steps(context, {
       body,
       entry: context.entry,
       to: p.to,
@@ -494,6 +494,6 @@ export namespace walk {
     };
 
     // The steps' timing: uneven, entrained to a beat, or kept on a station (`walkClock`).
-    return walkPlayback(walkClock(context, planned, gait), body);
+    return walkPlayback(walkClock(context, planned, gait, clock), body);
   }
 }

@@ -83,7 +83,9 @@ export namespace walkTempo {
    * @param plan The stepping plan.
    * @returns Its strikes.
    */
-  export function strikes(plan: IAutoMovieMotionHumanActionPlan): IStrike[] {
+  export function strikes(
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+  ): IStrike[] {
     return plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /HeelStrike\d+$/.test(e.name),
@@ -97,24 +99,31 @@ export namespace walkTempo {
       .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
   }
 
+  /** The two directions of the same continuous gait clock. */
+  export interface IClock {
+    /** Convert film-local seconds to stepping-plan seconds. */
+    toPlan: (seconds: number) => number;
+
+    /** Convert stepping-plan seconds to film-local seconds. */
+    toFilm: (seconds: number) => number;
+  }
+
   /**
-   * A stepping plan with each heel strike sent to a given second instead of
-   * a drawn stretch: the same warp, each step lasting exactly the time
-   * between its strike's second and the next's, so velocity stays
-   * continuous across strikes and the footprints and path stay the plan's
-   * own. The first strike keeps its second, as the warp keeps it; a strike
-   * with no given second keeps its planned step.
+   * Prepare the entrained clock before playback or footprint placement. The
+   * first strike retains its original time. Each subsequent step takes the
+   * interval between its supplied strikes, with a rate of one at either
+   * boundary so velocities agree across steps.
    *
-   * @param plan The stepping plan.
-   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order; each step between them longer than none and shorter than twice its planned time (`walkCadence.strikes` refuses any other).
-   * @returns The plan on the entrained clock.
-   * @throws {Error} When a given step lies outside that range, where the warp would run backwards.
+   * @param planned The nominal sequence of heel strikes.
+   * @param seconds Their entrained film-local seconds. If an endpoint has no given time, keep the planned step.
+   * @returns Both maps of the clock, or nothing for fewer than two strikes.
+   * @throws {Error} When an entrained interval is at most zero or at least twice the planned interval; the warp would stop or reverse.
    */
-  export function entrained(
-    plan: walkStation.IPlan,
+  export function entrainment(
+    planned: readonly IStrike[],
     seconds: readonly number[],
-  ): walkStation.IPlan {
-    return warped(plan, (index: number, planned: number): number => {
+  ): IClock | undefined {
+    return makeClock(planned, (index: number, planned: number): number => {
       const given: number | undefined = seconds[index + 1];
       const before: number | undefined = seconds[index];
       if (given === undefined || before === undefined) return planned;
@@ -125,6 +134,20 @@ export namespace walkTempo {
         );
       return lasts;
     });
+  }
+
+  /**
+   * Play an action and its contact windows through a previously prepared clock.
+   *
+   * @param plan The action on the stepping clock.
+   * @param clock The same clock used to place its footprints.
+   * @returns The action on the film clock.
+   */
+  export function playback(
+    plan: walkStation.IPlan,
+    clock: IClock,
+  ): walkStation.IPlan {
+    return retime(plan, clock);
   }
 }
 
@@ -139,11 +162,22 @@ function warped(
   plan: walkStation.IPlan,
   length: (index: number, planned: number, side: "left" | "right") => number,
 ): walkStation.IPlan {
-  const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
+  const clock: walkTempo.IClock | undefined = makeClock(
+    walkTempo.strikes(plan),
+    length,
+  );
+  return clock === undefined ? plan : retime(plan, clock);
+}
+
+/** Prepare the monotone two-way clock over a sequence of heel strikes. */
+function makeClock(
+  struck: readonly walkTempo.IStrike[],
+  length: (index: number, planned: number, side: "left" | "right") => number,
+): walkTempo.IClock | undefined {
   const strikes: number[] = struck.map(
     (s: { seconds: number }): number => s.seconds,
   );
-  if (strikes.length < 2) return plan;
+  if (strikes.length < 2) return undefined;
 
   // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other: the rate `1 + k sin^2(pi u)` integrates to `1 + k / 2` over a step, so `k = 2 (planned / lasts - 1)`.
   const steps: {
@@ -205,6 +239,15 @@ function warped(
     }
     return step.film + ((low + high) / 2) * step.lasts;
   };
+  return { toPlan, toFilm };
+}
+
+/** Send the pose, events and contacts through the same clock. */
+function retime(
+  plan: walkStation.IPlan,
+  clock: walkTempo.IClock,
+): walkStation.IPlan {
+  const { toPlan, toFilm }: walkTempo.IClock = clock;
   const duration: number = toFilm(plan.duration);
   const share: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / duration;
   const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
