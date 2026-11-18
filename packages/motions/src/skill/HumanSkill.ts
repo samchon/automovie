@@ -36,7 +36,11 @@ import type {
  * another's draws. Skill never raises a range of motion.
  */
 export namespace HumanSkill {
-  /** The named levels' values. */
+  /**
+   * The named levels' values on the proficiency scale: novice and elite at
+   * its ends, amateur and trained between them (provisional placement: no
+   * located study maps the four names onto one scale).
+   */
   export const LEVELS: Readonly<
     Record<"novice" | "amateur" | "trained" | "elite", number>
   > = {
@@ -221,7 +225,9 @@ export namespace HumanSkill {
   /**
    * A duration with timing variability: `T + sigma N(0, 1)` with
    * `sigma = sqrt(motor^2 + (CV T)^2)`, Wing and Kristofferson's two-level
-   * model, clamped to stay positive.
+   * model, kept above half the planned duration, since the model's normal
+   * has unbounded tails and a duration cannot shrink to nothing (provisional
+   * floor).
    *
    * @param skill The skill.
    * @param random The stream.
