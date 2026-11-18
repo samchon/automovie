@@ -181,6 +181,7 @@ export * from "./posture/HumanFrame";
 export * from "./posture/HumanJacobian";
 export * from "./posture/HumanArmJacobian";
 export * from "./posture/HumanFreedomChoice";
+export * from "./posture/HumanArmConnect";
 export * from "./posture/HumanHand";
 export * from "./posture/HumanHandAttitude";
 export * from "./posture/HumanTrunkTurn";
