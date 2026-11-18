@@ -26,7 +26,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * them by its barycentric coordinates (the force sum and the two moment
  * balances, three equations in three unknowns); a weight outside their
  * triangle needs a negative reaction, which a resting contact cannot give;
- * collinear supports share equally. The capacity is `HumanLoad.lean`'s
+ * collinear supports balance the weight along their line by the lever rule,
+ * a support that would have to pull bearing nothing. The capacity is `HumanLoad.lean`'s
  * bound `m d <= M h`. Tolerances are round-off, 1e-9.
  *
  * Scenarios:
@@ -36,7 +37,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    each.
  * 2. A centre outside the triangle gives no negative share, and the shares
  *    still sum to one.
- * 3. Three collinear supports share equally.
+ * 3. Three collinear supports at 0, 1 and 2 m under a centre at 0.3 m: the
+ *    far one would have to pull, so the two near ones carry 0.7 and 0.3,
+ *    the lever rule.
  * 4. One support carries everything.
  * 5. For each carry of `HumanCarried.CARRIES` on the average man bearing the
  *    small woman, the coupling's load for the bearer is its contacts' share
@@ -87,9 +90,12 @@ export function test_human_motion_coupled_laws(): void {
     [p(0, 0), p(1, 0), p(2, 0)],
     p(0.3, 0),
   );
+  // The lever rule over the two near supports: 0.3 m from the first and
+  // 0.7 m from the second of a 1 m span.
+  const lever: readonly number[] = [0.7, 0.3, 0];
   all.check(
-    `collinear supports: shares ${line.join(", ")}, equal expected`,
-    line.every((v: number): boolean => close(v, 1 / 3)),
+    `collinear supports: shares ${line.join(", ")}, ${lever.join(", ")} expected`,
+    line.every((v: number, i: number): boolean => close(v, lever[i]!)),
   );
   all.check(
     "one support carries everything",
