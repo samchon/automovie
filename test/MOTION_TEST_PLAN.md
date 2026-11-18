@@ -2,13 +2,13 @@
 
 ## Decision and accounting
 
-The frozen selection contains 722 unique exported test names. The historical ownership map contains exactly those names. The new selection contains 218 public specifications: 178 newly named motion specifications replace the 682 selected motion-domain exports, and 40 existing specifications remain with their external feature owners. The 178 include 43 separately named primitive-declaration specifications and four common runtime witnesses. Test count means discoverable named exports. A body, a seed, a lexicon row and a sampled frame are inputs. This plan commissions zero films.
+The frozen selection contains 722 unique exported test names. The historical ownership map contains exactly those names. The new selection contains 222 public specifications: 182 newly named motion specifications replace the 682 selected motion-domain exports, and 40 existing specifications remain with their external feature owners. The 182 include 43 separately named primitive-declaration specifications and four common runtime witnesses. Test count means discoverable named exports. A body, a seed, a lexicon row and a sampled frame are inputs. This plan commissions zero films.
 
 The histogram of completed historical results is 628 pass and 61 fail. The other 33 names have no individual result in results.jsonl. A stopped process or a requested batch is not an individual assertion result. At the snapshot, 184 historical paths were absent and 28 of these had historical failing assertions. The inventory records all 61 failure anchors against their planned destination, including missing source paths. It makes no current run verdict.
 
 ## Ownership and file operations
 
-Each specification row in inventory.csv names exactly one destination file and one writer. The count by writer is 57 posture, 55 contact, 46 dynamics, 16 catalogue and four common specifications owned by root. For historical input files use source_owner for retirement or for preserving the 40 external tests. For new files use spec_owner. Each owner reads relevant cross-owner historical rows without writing their input files. No worker edits shared fixtures without a separately assigned single owner. The historical root ledger also gets a registry binding witness. An untracked draft is input evidence, never authority for a file deletion or an extra public export. Verify the provenance of temporary probes before any cleanup.
+Each specification row in inventory.csv names exactly one destination file and one writer. The count by writer is 58 posture, 56 contact, 48 dynamics, 16 catalogue and four common specifications owned by root. For historical input files use source_owner for retirement or for preserving the 40 external tests. For new files use spec_owner. Each owner reads relevant cross-owner historical rows without writing their input files. No worker edits shared fixtures without a separately assigned single owner. The historical root ledger also gets a registry binding witness. An untracked draft is input evidence, never authority for a file deletion or an extra public export. Verify the provenance of temporary probes before any cleanup.
 
 ## Evidence and implementation
 
@@ -224,3 +224,112 @@ Each line gives the complete discoverable basename, the observable and its proof
 - test_motion_root_public_event_receipts — Capture requested, resolved and emitted public event times on one minimum composed step, including absent optional events and distinct same-time identities. Proof: test/src/features/motion/test_human_motion_recompose_travel_m_average_gait.ts
 - test_motion_root_rig_pose_boundary — Change rigid world placement with a fixed bind rig and then bend one joint without changing that rig. Verify posed FK, local invariant geometry and independent public verdict. Proof: test/src/features/motion/test_motion_prepared_model_contracts.ts
 - test_motion_root_runtime_dispatch — Enumerate all public action bindings and record the resolved owner and parameter schema. Use independent authored inputs, not a second read of the installed registry. Proof: packages/motions/src/actions/HUMAN_ACTIONS.ts
+
+## Minimum physical witnesses shared with narrower unit proofs
+
+- test_motion_contact_two_arm_coordination — Use the real minimum public taiChiPush branch, a fixed pair of independently placed bilateral targets, and observed wrist paths. Preserve small/average positive reach and the original failing m-large case with both arm channels active. Observe public plan admission and measured gap and clearance, including a genuinely impossible neighboring target.
+- test_motion_posture_oar_handle_tracking — Use the actual rowing row on independently animated handles. Measure both wrists in each moving handle frame, the original catch trunk lean and their phase relation. Preserve 9.50 s and the body-specific limit of 0.7 times body.measure.hand, covering f-small at 114.783799 mm and the average-body case; include a short interval of changing-water motion.
+- test_motion_dynamics_signed_flight_rotation — Integrate the signed change in displayed orientation around the known axis through the sole airborne phase, maintaining quaternion sign continuity. Verify requested turns, upright landing and the original 0.02-revolution allowance.
+- test_motion_dynamics_gait_study_readouts — Compare speed and stride in SI units and their direction of change across authored manners with independent cited gait study intervals. Preserve each distinct original small/average-body counterexample and compare the actual public gait markers in the companion event spec.
+
+
+## Callable census and public routes
+
+Current source contains 43 named function declarations returning exactly IAutoMovieMotionHumanPrimitive. 39 declaration identities have a reachable runtime export (38 through eleven compose namespaces and one top-level braceOnThigh); four are internal. The 39 declarations under compose include the internal Head.oscillate. There are 23 inline arrow producers and 15 type signatures. The historical 45/33 predates interface cleanup and measures a different revision/surface. Do not add a runtime case for a function type or an alias. Private functions are observed through their enclosing public operation.
+
+| Declaration and line | Public entry | Proof |
+|---|---|---|
+| packages/motions/src/compose/AutoMovieMotionHumanArmCarry.ts:301 carried | AutoMovieMotionHumanArm.carried | test_motion_contact_primitive_arm_carry_carried |
+| packages/motions/src/compose/AutoMovieMotionHumanArmMove.ts:44 move | AutoMovieMotionHumanArm.move | test_motion_contact_primitive_arm_move_move |
+| packages/motions/src/compose/AutoMovieMotionHumanArmMove.ts:170 reach | AutoMovieMotionHumanArm.reach | test_motion_contact_primitive_arm_move_reach |
+| packages/motions/src/compose/AutoMovieMotionHumanArmMove.ts:209 hold | AutoMovieMotionHumanArm.hold | test_motion_contact_primitive_arm_move_hold |
+| packages/motions/src/compose/AutoMovieMotionHumanArmMove.ts:247 retract | AutoMovieMotionHumanArm.retract | test_motion_contact_primitive_arm_move_retract |
+| packages/motions/src/compose/AutoMovieMotionHumanArmPhrase.ts:101 visit | AutoMovieMotionHumanArm.visit | test_motion_contact_primitive_arm_phrase_visit |
+| packages/motions/src/compose/AutoMovieMotionHumanArmPhrase.ts:146 stroke | AutoMovieMotionHumanArm.stroke | test_motion_contact_primitive_arm_phrase_stroke |
+| packages/motions/src/compose/AutoMovieMotionHumanArmPhrase.ts:204 strike | AutoMovieMotionHumanArm.strike | test_motion_contact_primitive_arm_phrase_strike |
+| packages/motions/src/compose/AutoMovieMotionHumanArmPhrase.ts:276 oscillate | AutoMovieMotionHumanArm.oscillate | test_motion_contact_primitive_arm_phrase_oscillate |
+| packages/motions/src/compose/AutoMovieMotionHumanArmPhrase.ts:328 swing | AutoMovieMotionHumanArm.swing | test_motion_contact_primitive_arm_phrase_swing |
+| packages/motions/src/compose/AutoMovieMotionHumanGaze.ts:46 look | AutoMovieMotionHumanGaze.look | test_motion_posture_primitive_gaze_look |
+| packages/motions/src/compose/AutoMovieMotionHumanGaze.ts:93 glance | AutoMovieMotionHumanGaze.glance | test_motion_posture_primitive_gaze_glance |
+| packages/motions/src/compose/AutoMovieMotionHumanGoal.ts:127 drive | AutoMovieMotionHumanGoal.drive | test_motion_contact_primitive_goal_drive |
+| packages/motions/src/compose/AutoMovieMotionHumanGoal.ts:169 pulse | AutoMovieMotionHumanGoal.pulse | test_motion_contact_primitive_goal_pulse |
+| packages/motions/src/compose/AutoMovieMotionHumanHand.ts:119 shape | AutoMovieMotionHumanHand.shape | test_motion_contact_primitive_hand_shape |
+| packages/motions/src/compose/AutoMovieMotionHumanHand.ts:161 form | AutoMovieMotionHumanHand.form | test_motion_contact_primitive_hand_form |
+| packages/motions/src/compose/AutoMovieMotionHumanHead.ts:54 oscillate | internal; Head.nod and Head.shake | test_motion_posture_primitive_head_oscillate |
+| packages/motions/src/compose/AutoMovieMotionHumanHead.ts:95 nod | AutoMovieMotionHumanHead.nod | test_motion_posture_primitive_head_nod |
+| packages/motions/src/compose/AutoMovieMotionHumanHead.ts:121 shake | AutoMovieMotionHumanHead.shake | test_motion_posture_primitive_head_shake |
+| packages/motions/src/compose/AutoMovieMotionHumanHead.ts:147 tilt | AutoMovieMotionHumanHead.tilt | test_motion_posture_primitive_head_tilt |
+| packages/motions/src/compose/AutoMovieMotionHumanJoints.ts:63 add | AutoMovieMotionHumanJoints.add | test_motion_posture_primitive_joints_add |
+| packages/motions/src/compose/AutoMovieMotionHumanJoints.ts:110 pulse | AutoMovieMotionHumanJoints.pulse | test_motion_posture_primitive_joints_pulse |
+| packages/motions/src/compose/AutoMovieMotionHumanLean.ts:47 tilt | AutoMovieMotionHumanLean.tilt | test_motion_posture_primitive_lean_tilt |
+| packages/motions/src/compose/AutoMovieMotionHumanLean.ts:167 sway | AutoMovieMotionHumanLean.sway | test_motion_posture_primitive_lean_sway |
+| packages/motions/src/compose/AutoMovieMotionHumanLean.ts:255 bow | AutoMovieMotionHumanLean.bow | test_motion_posture_primitive_lean_bow |
+| packages/motions/src/compose/AutoMovieMotionHumanLeg.ts:198 place | AutoMovieMotionHumanLeg.place | test_motion_dynamics_primitive_leg_place |
+| packages/motions/src/compose/AutoMovieMotionHumanLeg.ts:238 plant | AutoMovieMotionHumanLeg.plant | test_motion_dynamics_primitive_leg_plant |
+| packages/motions/src/compose/AutoMovieMotionHumanLeg.ts:278 step | AutoMovieMotionHumanLeg.step | test_motion_dynamics_primitive_leg_step |
+| packages/motions/src/compose/AutoMovieMotionHumanLegPhrase.ts:200 lift | AutoMovieMotionHumanLegPhrase.lift | test_motion_dynamics_primitive_leg_phrase_lift |
+| packages/motions/src/compose/AutoMovieMotionHumanLegPhrase.ts:241 tap | AutoMovieMotionHumanLegPhrase.tap | test_motion_dynamics_primitive_leg_phrase_tap |
+| packages/motions/src/compose/AutoMovieMotionHumanLegPhrase.ts:299 swing | AutoMovieMotionHumanLegPhrase.swing | test_motion_dynamics_primitive_leg_phrase_swing |
+| packages/motions/src/compose/AutoMovieMotionHumanLegPhrase.ts:358 pivot | AutoMovieMotionHumanLegPhrase.pivot | test_motion_dynamics_primitive_leg_phrase_pivot |
+| packages/motions/src/compose/AutoMovieMotionHumanRoot.ts:100 travel | AutoMovieMotionHumanRoot.travel | test_motion_dynamics_primitive_root_travel |
+| packages/motions/src/compose/AutoMovieMotionHumanRoot.ts:135 excursion | AutoMovieMotionHumanRoot.excursion | test_motion_dynamics_primitive_root_excursion |
+| packages/motions/src/compose/AutoMovieMotionHumanRoot.ts:167 shift | AutoMovieMotionHumanRoot.shift | test_motion_dynamics_primitive_root_shift |
+| packages/motions/src/compose/AutoMovieMotionHumanRoot.ts:200 face | AutoMovieMotionHumanRoot.face | test_motion_dynamics_primitive_root_face |
+| packages/motions/src/compose/AutoMovieMotionHumanTrunk.ts:64 turn | AutoMovieMotionHumanTrunk.turn | test_motion_posture_primitive_trunk_turn |
+| packages/motions/src/compose/AutoMovieMotionHumanTrunk.ts:267 crouch | AutoMovieMotionHumanTrunk.crouch | test_motion_posture_primitive_trunk_crouch |
+| packages/motions/src/compose/AutoMovieMotionHumanTrunk.ts:375 counterbalance | AutoMovieMotionHumanTrunk.counterbalance | test_motion_posture_primitive_trunk_counterbalance |
+| packages/motions/src/everyday/braceOnThigh.ts:45 braceOnThigh | braceOnThigh | test_motion_contact_primitive_brace_on_thigh_brace_on_thigh |
+| packages/motions/src/grappling/clinch.ts:353 visit | internal; public clinch entry phase | test_motion_contact_primitive_clinch_visit |
+| packages/motions/src/grappling/clinch.ts:373 heldArm | internal; public clinch hold phase | test_motion_contact_primitive_clinch_held_arm |
+| packages/motions/src/touch/touchPresented.ts:50 carry | internal; public touch presented-hand phase | test_motion_contact_primitive_touch_presented_carry |
+
+### Inline producers and type-only signatures
+
+| Location | Producer or role | Proof |
+|---|---|---|
+| packages/motions/src/compose/AutoMovieMotionHumanLeanInto.ts:178 | primitive | test_motion_posture_primitive_lean_tilt — Compare actual trunk displacement about known anchored point on a rotated support. |
+| packages/motions/src/compose/AutoMovieMotionHumanRise.ts:113 | legs | test_motion_posture_seat_support — Observe knees extend while both feet retain independent support coordinates. |
+| packages/motions/src/compose/composeAutoMovieMotionHumanAction.ts:83 | primitives | test_motion_catalogue_composition_operator — Sort two known channels and verify emitted result and global interval through the public composer. |
+| packages/motions/src/dressing/dress.ts:307 | carry | test_motion_contact_carried_frame — During dressing, carry one inert prop with known hand-local offset and compare moving attachment. |
+| packages/motions/src/dressing/dress.ts:307 | carry | test_motion_contact_carried_frame — During dressing, carry one inert prop with known hand-local offset and compare moving attachment. |
+| packages/motions/src/dressing/dress.ts:338 | steady | test_motion_contact_arm_window — During the steady phase independently held support does not move with the free arm. |
+| packages/motions/src/dressing/dress.ts:338 | steady | test_motion_contact_arm_window — During the steady phase independently held support does not move with the free arm. |
+| packages/motions/src/everyday/armPhrase.ts:328 | primitives | test_motion_contact_arm_window — Use an asymmetric external marker trajectory and compare entry, progress and return under the public phrase. |
+| packages/motions/src/everyday/bend.ts:366 | fingers | test_motion_contact_hand_rotation — Measure neutral opposing fingers and contact hand against independently known bend/support times. |
+| packages/motions/src/everyday/bend.ts:367 | fingers | test_motion_contact_hand_rotation — Measure neutral opposing fingers and contact hand against independently known bend/support times. |
+| packages/motions/src/everyday/crouch.ts:471 | rest | test_motion_posture_arm_rest_entry — Measure rest-hand positions while trunk descends. |
+| packages/motions/src/everyday/crouch.ts:485 | open | test_motion_contact_hand_rotation — Measure independent finger opening events and endpoint as the body rises. |
+| packages/motions/src/everyday/kneel.ts:436 | hand | test_motion_posture_kneel_support — Check the support-hand placement while knee contacts floor on the independent side. |
+| packages/motions/src/everyday/kneel.ts:436 | hand | test_motion_posture_kneel_support — Check the support-hand placement while knee contacts floor on the independent side. |
+| packages/motions/src/everyday/kneel.ts:451 | open | test_motion_contact_hand_rotation — Measure opening of released hand independently of retained knee support. |
+| packages/motions/src/everyday/kneel.ts:451 | open | test_motion_contact_hand_rotation — Measure opening of released hand independently of retained knee support. |
+| packages/motions/src/everyday/sit.ts:349 | arm | test_motion_posture_seat_support — On entering the seat, compare hand support target and window against seat-frame coordinates. |
+| packages/motions/src/everyday/sit.ts:349 | arm | test_motion_posture_seat_support — On entering the seat, compare hand support target and window against seat-frame coordinates. |
+| packages/motions/src/exercise/dance.ts:191 | root | test_motion_posture_paired_dance — Use one authored root excursion and independently measured partner phase. |
+| packages/motions/src/exercise/dance.ts:193 | root | test_motion_posture_paired_dance — Use one authored root excursion and independently measured partner phase. |
+| packages/motions/src/exercise/exercise.ts:265 | root | test_motion_posture_exercise_support — Check root excursion with respect to the single anchored exercise support. |
+| packages/motions/src/exercise/exercise.ts:267 | root | test_motion_posture_exercise_support — Check root excursion with respect to the single anchored exercise support. |
+| packages/motions/src/exercise/stretch.ts:215 | balance | test_motion_dynamics_balance_observation — Compute COM and margin for the supported single-leg stretch. |
+| packages/motions/src/exercise/stretch.ts:245 | lifted | test_motion_dynamics_primitive_leg_phrase_lift — Check the lifted limb separately for its target and ground clearance. |
+| packages/motions/src/exercise/stretch.ts:247 | lifted | test_motion_dynamics_primitive_leg_phrase_lift — Check the lifted limb separately for its target and ground clearance. |
+| packages/motions/src/reaction/flinch.ts:243 | arm | test_motion_contact_arm_window — Measure passive reaction limb deviation from known rest and recovery time. |
+| packages/motions/src/reaction/flinch.ts:243 | arm | test_motion_contact_arm_window — Measure passive reaction limb deviation from known rest and recovery time. |
+| packages/motions/src/sport/ballSport.ts:177 | crouch | test_motion_posture_primitive_trunk_crouch — Check the distinct support before the ball-related hand window, plus floor clearance. |
+| packages/motions/src/sport/ballSport.ts:177 | crouch | test_motion_posture_primitive_trunk_crouch — Check the distinct support before the ball-related hand window, plus floor clearance. |
+| packages/motions/src/sport/baseball.ts:156 | crouch | test_motion_posture_primitive_trunk_crouch — For the separate sport dispatcher compare the authored stance and its release against independently timed cues. |
+| packages/motions/src/sport/baseball.ts:156 | crouch | test_motion_posture_primitive_trunk_crouch — For the separate sport dispatcher compare the authored stance and its release against independently timed cues. |
+| packages/motions/src/sport/martialArt.ts:161 | root | test_motion_posture_posture_geometry — On one generic stance exercise verify independent body height and root-relative placement. |
+| packages/motions/src/sport/martialArt.ts:163 | root | test_motion_posture_posture_geometry — On one generic stance exercise verify independent body height and root-relative placement. |
+| packages/motions/src/sport/martialArt.ts:196 | stepped | test_motion_dynamics_primitive_leg_step — Measure first support transfer, planted foot and landing according to the commanded step. |
+| packages/motions/src/sport/martialArt.ts:199 | stepped | test_motion_dynamics_primitive_leg_step — Measure first support transfer, planted foot and landing according to the commanded step. |
+| packages/motions/src/throwing/catchObject.ts:366 | hand | test_motion_contact_carried_frame — Check role of the hand before catch and the transfer to independently moving object at the contact instant. |
+| packages/motions/src/throwing/catchObject.ts:366 | hand | test_motion_contact_carried_frame — Check role of the hand before catch and the transfer to independently moving object at the contact instant. |
+| packages/motions/src/touch/selfAction.ts:334 | circle | test_motion_contact_self_touch — Compare effector along prescribed local circular path relative to a moving body landmark. |
+
+## Snapshot reconciliation
+
+The selection budget covers precisely the frozen input scope. Four earlier tracked prop-outcome tests in this directory are outside the frozen selection and remain untouched. Four tracked stopped-editor drafts on parameters, registration, supported walking and footfall timing are source inputs for the named targets in the inventory. Six untracked dynamics drafts likewise contribute observations only. Other transient development probes have independent owners, and the plan claims no deletion authority over them.
+
+Verified 722 baseline names matched 722 unique ownership paths, 61 historical failure names have 61 nonempty individual acceptance decisions and immutable log locations, including all 28 failures whose old file disappeared. The 182 new motion destinations and 40 retained external destinations are unique and assigned once. The alias count is independently readable from the generated public schema; its 546 rows and 64 actions are data inputs, and family membership has 44 source entries. The independent public event, reach and active-window checks remain distinct from the registration proof.
+
+All three named sport push body inputs route primarily to contact_two_arm_coordination for the actual inherited physical law; their catalogue target owns cheap dispatch only. The posture_oar_handle_tracking owner alone evaluates the original public rowing path, checking shoulder, catch trunk and both wrists on the same observed trajectory. The separate dynamics grip primitive uses a synthetic rigid bar and never reruns this rowing input.
