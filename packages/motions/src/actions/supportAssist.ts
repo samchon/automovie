@@ -1,4 +1,4 @@
-import { resolveAutoMovieHumanoidSurfaces, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -59,8 +59,8 @@ export namespace supportAssist {
   /** The authored phase has a shared grip only while the hand is holding. */
   type GripPoint = IAutoMovieVector3 | undefined;
 
-  /** Find a partner's grip at a given phase index. */
-  type GripReader = (contact: IAutoMovieMotionHumanSupport.IContact, key: number) => GripPoint;
+  /** Find a partner's grip at a whole or fractional phase index. */
+  type GripReader = (contact: IAutoMovieMotionHumanSupport.IContact, phase: number) => GripPoint;
 
   /** Ordinary support has no shared grip reader. */
   type OptionalGripReader = GripReader | undefined;
@@ -75,7 +75,7 @@ export namespace supportAssist {
    * @returns The grip reader if assistance is authored.
    * @evidence contracts/development/common.md#meaningful-documentation Documents the optional contact reader and its key argument.
    * @evidence contracts/development/implementation.md#principled-implementation A standard mutual meeting stores two shoulder-reach intersections, placed on the world frame from each role's shared key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the meeting once, then select the named phase for a matching hand contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the meeting once, then read the phase or interpolate its neighboring points for a matching hand contact.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-matching contact keeps the ordinary support-place reader.
    * @evidence contracts/development/implementation.md#efficient-algorithms Computes the shared keys once and reads neither body after their meeting is built.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two laws share the meeting through the existing context reader.
@@ -94,14 +94,17 @@ export namespace supportAssist {
     const hand: IAutoMovieMotionHumanSupport.Part = `${assist.side}Hand`;
     const keys: readonly IAutoMovieVector3[] = CONTACTS.map((phase: Phase): IAutoMovieVector3 =>
       AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point);
-    return (contact: IAutoMovieMotionHumanSupport.IContact, key: number): GripPoint =>
-      contact.part === hand &&
-      contact.kind === "grip" &&
-      contact.target !== "on" &&
-      contact.target?.kind === "person" &&
-      contact.target.subject === assist.partner
-        ? keys[key]
-        : undefined;
+    return (contact: IAutoMovieMotionHumanSupport.IContact, phase: number): GripPoint => {
+      if (contact.part !== hand || contact.kind !== "grip" ||
+        contact.target === "on" || contact.target?.kind !== "person" ||
+        contact.target.subject !== assist.partner) return undefined;
+      const before: number = Math.floor(phase);
+      const a: GripPoint = keys[before];
+      const b: GripPoint = keys[before + 1];
+      return a === undefined || b === undefined || phase === before
+        ? a
+        : Vector3.lerp(a, b, phase - before);
+    };
   }
 
   /** Build a meeting from the lying palm and the two subsequent shoulder configurations. */
