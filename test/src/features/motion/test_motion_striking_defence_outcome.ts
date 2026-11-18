@@ -3,14 +3,19 @@ import type {
   IAutoMovieMotionHumanDefenceOutcome,
   IAutoMovieMotionHumanSkill,
 } from "@automovie/interface";
-import { DefenceOutcome, HumanSkill, StrikingSkill } from "@automovie/motions";
+import {
+  DefenceOutcome,
+  HumanRefusal,
+  HumanSkill,
+  StrikingSkill,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
 
 /**
  * The defence outcome law classifies by margin, realises forced outcomes
- * with plausible timing, stretches the attack before it warns, and makes a
+ * with plausible timing, stretches the attack before it refuses, and makes a
  * purely reactive defence unable to beat a fast kick (experiment E4).
  *
  * Scenarios:
@@ -19,23 +24,24 @@ import { throwsError } from "../internal/throwsError";
  * 2. A block forced in time, late and fail against a fast kick (contact 0.33
  *    s after launch) and a slow one (0.6 s), elite with half telegraph and an
  *    attack stretch band of 0.5 to 1.5, over 40 seeds each: every decision
- *    lands in its band without a warning (the slow kick's fail needs the
+ *    lands in its band (the slow kick's fail needs the
  *    attack shortened), its reaction and lead lie in their bands, and the
  *    start and margin satisfy `start = launch + RT - lead x telegraph`,
  *    `m = hit - start - T_def` on the stretched contact.
  * 3. A novice forced in time against the fast kick with no telegraph is
- *    impossible at plausible timing: without a stretch it warns, keeps its
- *    reaction in band and does not claim in time; with a stretch band up to
- *    1.6 the attack is slowed to the closed-form factor (reaching 2 % of the
- *    defence time inside the band) and the defence is in time without a
- *    warning.
+ *    impossible at plausible timing: without a stretch it is refused on
+ *    `outcome`, naming fail among the reachable outcomes and not in time
+ *    (the outcome is the author's input, so it is never realised in another
+ *    band); with a stretch band up to 1.6 the attack is slowed to the
+ *    closed-form factor (reaching 2 % of the defence time inside the band)
+ *    and the defence is in time.
  * 4. Unforced over 400 seeds: with no telegraph neither a novice nor an elite
  *    is ever in time against the fast kick (the kick lands in about one
  *    reaction time); with full telegraph an elite sometimes is; the elite
  *    reaction mean lies within 20 % of the ex-Gaussian mean `mu + tau`.
  * 5. The same seed gives the same decision; invalid timing throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public decision and reads its outcome, timing and warnings; a wrong band edge, a split outside the plausible bands, a missing warning or a stretch never applied fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public decision and reads its outcome, timing and refusal; a wrong band edge, a split outside the plausible bands, an impossible outcome realised instead of refused or a stretch never applied fails.
  * @evidence contracts/development/testing.md#independent-expectations Bands and identities follow from the law's definition; the impossibility follows from the band arithmetic `0.33 - (0.335 - 2.326 x 0.06) - 0.3 < 0` and the stretch from solving it for the factor; the ex-Gaussian mean is mu + tau.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers each class edge, both kick speeds, both skill ends, forced and unforced, feasible and impossible forcing, with and without a stretch.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
@@ -92,7 +98,6 @@ export function test_motion_striking_defence_outcome(): void {
         TestValidator.predicate(
           `forced ${forced} against a ${hit} s kick, seed ${k}`,
           d.outcome === forced &&
-            d.warnings.length === 0 &&
             d.reaction >= r0 - 1e-12 &&
             d.reaction <= r1 + 1e-12 &&
             d.lead >= a0 - 1e-12 &&
@@ -103,19 +108,24 @@ export function test_motion_striking_defence_outcome(): void {
       }
 
   const movement: number = StrikingSkill.defence(novice);
-  const fixed: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+  const [n0] = StrikingSkill.reactionBand(novice);
+  let refused: unknown;
+  try {
     DefenceOutcome.decide(
       { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice },
       random(1),
       "inTime",
     );
-  const [n0, n1] = StrikingSkill.reactionBand(novice);
+  } catch (error: unknown) {
+    refused = error;
+  }
   TestValidator.predicate(
-    "impossible forcing warns and keeps plausible timing",
-    fixed.warnings.length === 1 &&
-      fixed.outcome !== "inTime" &&
-      fixed.reaction >= n0 - 1e-12 &&
-      fixed.reaction <= n1 + 1e-12,
+    "impossible forcing is refused on outcome with the reachable outcomes",
+    refused instanceof HumanRefusal &&
+      refused.axis === "outcome" &&
+      refused.feasible?.kind === "alternatives" &&
+      !refused.feasible.values.includes("inTime") &&
+      refused.feasible.values.includes("fail"),
   );
   const stretched: IAutoMovieMotionHumanDefenceOutcome.IDecision =
     DefenceOutcome.decide(
@@ -133,8 +143,7 @@ export function test_motion_striking_defence_outcome(): void {
   const needed: number = (n0 + 1.02 * movement) / 0.33;
   TestValidator.predicate(
     "a stretch makes it possible",
-    stretched.warnings.length === 0 &&
-      stretched.outcome === "inTime" &&
+    stretched.outcome === "inTime" &&
       Math.abs(stretched.stretch - needed) <= 1e-9 &&
       needed <= 1.6,
   );
