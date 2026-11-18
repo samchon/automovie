@@ -36,6 +36,7 @@ import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVa
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -332,6 +333,15 @@ export namespace gesture {
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;
+    const events: IAutoMovieMotionHumanActionPlan["events"] = [
+      { name: "prepare", share: 0 },
+      { name: "strokeStart", share: prepare / duration },
+      { name: "strokeEnd", share: strokeEnd / duration },
+      { name: "retract", share: retractAt / duration },
+    ];
+    const window: HumanPhysics.Window = HumanPhysics.prepare(p, {}, context.start, { duration, events }, context.instant);
+    if (window !== null && p.kind !== "bow")
+      HumanPhysics.unsupported(window.by, "only the bow gesture moves the hips under an inclined trunk");
     const base: IAutoMovieMotionHumanActionPlan = under(duration);
 
     // What the gesture moves, which an overlay takes from its carrier: the
@@ -375,8 +385,7 @@ export namespace gesture {
             from: 0,
             to: duration,
             weight,
-            ...(p.balance === undefined ? {} : { balance: p.balance }),
-          })
+          }, window)
         : undefined;
     const prior: (t: number, geometry?: boolean,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -440,12 +449,8 @@ export namespace gesture {
 
     return {
       duration,
-      events: [
-        { name: "prepare", share: 0 },
-        { name: "strokeStart", share: prepare / duration },
-        { name: "strokeEnd", share: strokeEnd / duration },
-        { name: "retract", share: retractAt / duration },
-      ],
+      events,
+      balanceWindow: window,
       contacts: base.contacts,
 
       // The hands the gesture moves, so a hand that holds a prop is refused it.

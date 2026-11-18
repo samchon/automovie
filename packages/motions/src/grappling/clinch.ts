@@ -32,6 +32,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -170,6 +171,7 @@ export namespace clinch {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
+    HumanPhysics.fixed(context.params, "the paired contact plan owns both grips and has no independent support correction");
     const body: IAutoMovieMotionHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
