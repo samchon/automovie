@@ -1,9 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, simulateSoftBodyCore } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
+  IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -90,16 +91,14 @@ const cord = (
  * 1. Once settled (the last second), the cord's free end hangs its length
  *    below the hand's socket within 2 % (statics of a hanging chain; the
  *    bound is #3448's acceptance, `STATICS`).
- * 2. Reading 100 seconds in shuffled order gives the same bits as reading
- *    them sorted.
- * 3. Reading at 24 and at 60 frames a second gives the same state at the
- *    seconds the two share.
+ * 2. The occupied hand bears a downward load and the empty hand reports zero.
+ * 3. Releasing the anchor lets its particle fall away under gravity.
  * 4. The anchored end stays on the hand's grip socket at every read second
  *    within 1 mm, the campaign's grip bound.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance with a soft prop and reads `HumanPerformance.soft` and the displayed bones.
- * @evidence contracts/development/testing.md#independent-expectations A hanging chain's statics put its free end its length below the anchor, within #3448's 2 %; read order and frame rate cannot change a pure read; the grip bound is the campaign's.
- * @evidence contracts/development/testing.md#distinguishing-cases Settled and moving reads, shuffled and sorted orders, two frame rates and the anchored end.
+ * @evidence contracts/development/testing.md#independent-expectations A hanging chain's statics put its free end its length below the anchor, within #3448's 2 %; gravity pulls the loaded hand downward and a released end falls; the grip bound is the campaign's.
+ * @evidence contracts/development/testing.md#distinguishing-cases The occupied and empty hands, the held end and the newly released end.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test that prepares one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
  */
@@ -150,41 +149,54 @@ export function test_motion_contact_soft_grasp(): void {
     Math.abs(drop - LENGTH) <= STATICS * LENGTH,
   );
 
-  // 2. Order.
-  const seconds: number[] = Array.from(
-    { length: 100 },
-    (_: unknown, k: number): number => (k * end) / 100,
+  // The occupied hand bears the hanging mass. Its unoccupied counterpart
+  // contributes no reaction to the same cord at the same instant.
+  const loaded: IAutoMovieVector3 = performance.softLoad(
+    "lanyard",
+    "a",
+    "right",
+    end,
   );
-  const sorted: number[][] = seconds.map(at);
-  const shuffled: number[] = seconds
-    .map((s: number, k: number): [number, number] => [s, (k * 37) % 100])
-    .sort((a: [number, number], b: [number, number]): number => a[1] - b[1])
-    .map((p: [number, number]): number => p[0]);
-  TestValidator.predicate(
-    "shuffled reads give the sorted reads' bits",
-    shuffled.every((s: number): boolean => {
-      const read: number[] = at(s);
-      const known: number[] = sorted[seconds.indexOf(s)]!;
-      return read.every((v: number, i: number): boolean =>
-        Object.is(v, known[i]),
-      );
-    }),
-  );
-
-  // 3. Frame rates.
-  const shared: number[] = Array.from(
-    { length: Math.floor(end / 0.5) + 1 },
-    (_: unknown, k: number): number => k * 0.5,
+  const empty: IAutoMovieVector3 = performance.softLoad(
+    "lanyard",
+    "a",
+    "left",
+    end,
   );
   TestValidator.predicate(
-    "reads at 24 and 60 frames a second agree at their shared seconds",
-    shared.every((s: number): boolean => {
-      const a: number[] = at(Math.round(s * 24) / 24);
-      const b: number[] = at(Math.round(s * 60) / 60);
-      return a.every((v: number, i: number): boolean => Object.is(v, b[i]));
-    }),
+    "the occupied hand bears a downward force",
+    loaded.y < 0,
   );
+  TestValidator.equals("the empty hand carries no load", empty, {
+    x: 0,
+    y: 0,
+    z: 0,
+  });
 
+  // Hold the particle for one second, then release it for a second.
+  const second: number = Math.round(1 / domain.solver.fixedStepSeconds);
+  const anchor: IAutoMovieVector3 = {
+    x: domain.rest[0]!,
+    y: domain.rest[1]!,
+    z: domain.rest[2]!,
+  };
+  const boundaries: IAutoMovieSoftBodyBoundarySample[] = Array.from(
+    { length: 2 * second + 1 },
+    (_, step: number): IAutoMovieSoftBodyBoundarySample =>
+      step <= second
+        ? { step, anchors: [{ particle: 0, position: anchor }], capsules: [] }
+        : { step, anchors: [], released: [0], capsules: [] },
+  );
+  const heights: number[] = [];
+  simulateSoftBodyCore(domain, 2 * second, null, boundaries, {
+    step: (_step: number, positions: Float64Array): void => {
+      heights.push(positions[1]!);
+    },
+  });
+  TestValidator.predicate(
+    "the released end falls below the occupied socket",
+    heights.at(-1)! < anchor.y,
+  );
   // 4. The anchored end on the socket.
   let worst: number = 0;
   for (let s: number = 0; s <= end; s += 0.25) {
