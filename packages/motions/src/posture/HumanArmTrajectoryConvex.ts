@@ -12,6 +12,7 @@ import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians"
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
@@ -203,7 +204,7 @@ export namespace HumanArmTrajectoryConvex {
                 Math.max(1e-12, Vector3.dot(span, span)),
             ),
           );
-          const g: IAutoMovieVector3 = near.normal;
+          const g: IAutoMovieVector3 = HumanArmSweepGradient(s0, near, span, u);
           const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
           const gb: IAutoMovieVector3 = Quaternion.rotateVector(
             Quaternion.inverse(sweep.turn),
