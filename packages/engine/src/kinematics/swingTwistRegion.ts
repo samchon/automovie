@@ -271,10 +271,16 @@ function coneFree(constraint: IAutoMovieJointConstraint): boolean {
     let least: number = Math.min(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
     let most: number = Math.max(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
 
-    // A half angle passing a whole number of half turns reaches 1 or -1.
-    for (let turn: number = Math.ceil(range.min / 360); turn * 360 <= range.max; ++turn)
-      if (turn % 2 === 0) most = 1;
-      else least = -1;
+    // A half angle passing a whole number of half turns reaches 1 or -1: an
+    // even turn gives 1 and an odd one -1. Only the first two turns the
+    // range holds can change either, since they already hold both parities;
+    // reading the rest would walk a range of any width one turn at a time.
+    const turn: number = Math.ceil(range.min / 360);
+    for (const held of [turn, turn + 1])
+      if (held * 360 <= range.max) {
+        if (held % 2 === 0) most = 1;
+        else least = -1;
+      }
     return [least, most];
   };
   const [fLow, fHigh]: [number, number] = cosines(flexion);
@@ -306,11 +312,27 @@ function widen(
   ];
   const low: number = Math.min(...ends);
   const high: number = Math.max(...ends);
+  if (!(Number.isFinite(low) && Number.isFinite(high)))
+    throw new Error(`A proximal twist interval must be finite, got [${low}, ${high}]`);
+
+  // A twist interval of a whole turn carries every reached direction all the
+  // way around the rest axis, so every ray reaches the farthest of all; its
+  // shifts would visit every ray anyway, one degree at a time over a width
+  // that may be any finite size.
+  if (high - low >= 360) return new Float64Array(swingTwistBasis.RAYS).fill(Math.max(...table));
   const width: number = 360 / swingTwistBasis.RAYS;
   const turned: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     let most: number = table[ray]!;
-    for (let shift: number = low; shift <= high + 1e-9; shift += width) {
+
+    // Narrower than a turn, the interval holds at most RAYS + 1 shifts a
+    // width apart; the count also ends a walk whose `shift += width` no
+    // longer moves a shift of magnitude past 2^53 widths.
+    for (
+      let shift: number = low, count: number = 0;
+      shift <= high + 1e-9 && count <= swingTwistBasis.RAYS;
+      shift += width, ++count
+    ) {
       const from: number = positiveModulo(
         Math.round(ray - shift / width),
         swingTwistBasis.RAYS,
