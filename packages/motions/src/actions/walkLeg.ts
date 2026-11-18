@@ -270,6 +270,7 @@ export namespace walkLeg {
     const at: (degrees: number) => IAutoMovieVector3 =
       HumanFoot.prepareAnkle(body, side, "mtp", pivot, heading);
     const lean: ReturnType<typeof prepareWalkLegLean.bounded> = prepareWalkLegLean.bounded(body, heading);
+    const span: number = body.measure.thigh + body.measure.shank;
     return (hip: IAutoMovieVector3, pitch: number): number => rise(
       (degrees: number): number => {
         // The ankle record is the reader's own, read here before its next pitch.
@@ -278,6 +279,8 @@ export namespace walkLeg {
       },
       pitch,
       width,
+      true,
+      (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
     );
   }
 
@@ -325,6 +328,7 @@ export namespace walkLeg {
    * @param width The room, degrees, under which the heel begins to rise; zero
    *   keeps the asked pitch until the room is none.
    * @param folds Whether the room may dip before it grows as the heel rises.
+   * @param beyond The native reach-only reading equivalent to negative infinite room, when available.
    * @returns The pitch, no higher than the asked one.
    */
   export function rise(
@@ -332,6 +336,7 @@ export namespace walkLeg {
     pitch: number,
     width: number,
     folds: boolean = true,
+    beyond?: (degrees: number) => boolean,
   ): number {
     // An asked pitch the leg cannot stand on is first raised to the least
     // rise that brings its ankle within the leg's reach, which is continuous
@@ -339,12 +344,13 @@ export namespace walkLeg {
     // pitch as the asked one.
     let asked: number = room(pitch);
     if (asked === -Infinity) {
-      if (room(-STEEPEST) === -Infinity) return -STEEPEST;
+      const unreachable = beyond ?? ((degrees: number): boolean => room(degrees) === -Infinity);
+      if (unreachable(-STEEPEST)) return -STEEPEST;
       let out: number = pitch;
       let within: number = -STEEPEST;
       while (out - within > REACHED) {
         const middle: number = (out + within) / 2;
-        if (room(middle) === -Infinity) out = middle;
+        if (unreachable(middle)) out = middle;
         else within = middle;
       }
       pitch = within;

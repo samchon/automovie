@@ -368,17 +368,31 @@ export function fitHingedChainCandidate(
   // A root whose range reads its rotation leaves its angles unread unless
   // the caller needs them at once (`full`); a rotation with a non-finite
   // component is decomposed, which refuses it.
-  const reading = (
+  function reading(upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, full: boolean): IReading;
+  function reading(upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, full: boolean, legalOnly: boolean): IReading | null;
+  function reading(
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
     full: boolean,
-  ): IReading => {
+    legalOnly: boolean = false,
+  ): IReading | null {
     const angles: IAngles | undefined = rotatedOvershoot !== null && !full &&
       Number.isFinite(upper.x) && Number.isFinite(upper.y) &&
       Number.isFinite(upper.z) && Number.isFinite(upper.w)
       ? undefined : decomposed(upper);
     const u: IAutoMovieJointPose | undefined = angles?.joint;
     const known: IMid = midOf(lower);
+
+    const jointOvershoot = (): number =>
+      (u === undefined
+          ? rotatedOvershoot!(upper)
+          : scoredByChart && !Number.isNaN(angles!.overshoot)
+            ? angles!.overshoot
+            : upperOvershoot(u, upperRotated ? upper : undefined)) +
+        known.overshoot;
+    const admitted: number | undefined = legalOnly && props.obstruction === undefined
+      ? jointOvershoot() : undefined;
+    if (admitted !== undefined && admitted !== 0) return null;
 
     // Task priority reads no hint midpoint. A reference also replaces its
     // strain callback, leaving world frames only to rotation or obstruction.
@@ -425,19 +439,12 @@ export function fitHingedChainCandidate(
       above,
       lowerWorld,
       effort,
-      overshoot:
-        (u === undefined
-          ? rotatedOvershoot!(upper)
-          : scoredByChart && !Number.isNaN(angles!.overshoot)
-            ? angles!.overshoot
-            : upperOvershoot(u, upperRotated ? upper : undefined)) +
-        known.overshoot +
-        blocked,
+      overshoot: (admitted ?? jointOvershoot()) + blocked,
       turned:
         strain === undefined ? anchor * (apart(upper, before[0]) + known.turned) : 0,
       midTurn: known.turned,
     };
-  };
+  }
   // With a strain the swivels are ranked by task priority (Siciliano and
   // Slotine 1991): legality, then the hand's rotation error, errors in one
   // bucket of the joints' tolerance (`ROM_TOLERANCE`) being one, then the strain; the
@@ -919,8 +926,9 @@ export function fitHingedChainCandidate(
             score: (
               upper: IAutoMovieQuaternion,
               lower: IAutoMovieQuaternion,
-            ): fitHingedClosedRoots.IScore => {
-              const read: IReading = reading(upper, lower, true);
+            ): fitHingedClosedRoots.IScore | null => {
+              const read: IReading | null = reading(upper, lower, true, true);
+              if (read === null) return null;
               const offset: IAutoMovieVector3 = across(read.mid!);
               const off: number = Vector3.length(offset);
               const away: number =

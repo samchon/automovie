@@ -160,23 +160,8 @@ export function fitHingedClosedRoots(
   ): void => {
     const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
       posed(swivel);
-    const scored: fitHingedClosedRoots.IScore = props.score(at.upper, at.lower);
-    if (scored.overshoot !== 0) {
-      candidates.push({
-        upper: at.upper,
-        lower: at.lower,
-        joint: scored.joint,
-        above: scored.above,
-        overshoot: scored.overshoot,
-        deviation: scored.deviation,
-        swivel,
-        branch,
-        stop,
-        shown: undefined,
-        least: NaN,
-      });
-      return;
-    }
+    const scored: fitHingedClosedRoots.IScore | null = props.score(at.upper, at.lower);
+    if (scored === null || scored.overshoot !== 0) return;
     const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
       local(scored.above, at.lower),
       basis,
@@ -305,7 +290,7 @@ export namespace fitHingedClosedRoots {
     };
 
     /** The candidate's reading by its bone-local upper and lower rotations. */
-    score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => IScore;
+    score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => IScore | null;
 
     /** The exact displayed rotation error, degrees, of a candidate, given its completed prefix `(upper world * upper) * fixed lower frame`. */
     error: (

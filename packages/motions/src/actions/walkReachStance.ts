@@ -162,9 +162,12 @@ export namespace walkReachStance {
             // The search keeps no placement, so it reads the ankle alone; the
             // record is the reader's own, read here before its next pitch.
             const ankle: IAutoMovieVector3 = (trailAnkle ??= HumanFoot.prepareAnkle(body, side, about, pivot, heading))(degrees);
+            const thighRoom: number = TRAIL - (trailing ??= walkLeg.prepareTrailing(body, yaw))(h, ankle);
+            // Both outcomes of the plantar test admit the asked pitch here.
+            if (degrees === pitch && thighRoom >= EASE) return thighRoom;
             return degrees + lean!(h, ankle) + walkLeg.PLANTAR >
               walkLeg.ANKLE
-              ? TRAIL - (trailing ??= walkLeg.prepareTrailing(body, yaw))(h, ankle)
+              ? thighRoom
               : Infinity;
           },
           pitch,
