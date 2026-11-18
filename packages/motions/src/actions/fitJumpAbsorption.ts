@@ -55,7 +55,8 @@ export function fitJumpAbsorption(
   const limit: number = AutoMovieMotionHumanAudit.LIMITS.jump;
   const { absorbed, stood }: jumpLanding.ILanding = landing;
   const span: number = stood.y - absorbed.y;
-  if (!(span > 0)) return absorbed;
+  if (!(span > 0) || !(seconds > 0) || !Number.isFinite(seconds))
+    return absorbed;
 
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -77,7 +78,10 @@ export function fitJumpAbsorption(
         HumanFoot.point(body, "right", point, landing.feet.right),
     ),
   };
-  const times: number[] = HumanSignature.times(0, seconds);
+  const times: number[] = HumanSignature.times(0, seconds).filter(
+    (t: number): boolean => t < seconds,
+  );
+  times.push(seconds);
 
   /** Maximum sampled sole residual minus the existing metre budget. */
   const excess = (depth: number): number => {
