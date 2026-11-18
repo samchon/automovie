@@ -57,6 +57,22 @@ export namespace AutoMovieMotionHumanAuditBalance {
   /** Half the span of the velocity's central difference when one instant is read alone, seconds. */
   export const STEP: number = 1 / 240;
 
+  /** One action's candidate interval as indices into the original film grid. */
+  interface ISampledInterval {
+    span: HumanPhysics.ISpan;
+    from: number;
+    to: number;
+  }
+
+  /** Displayed bones and the mass centre, computed at most once on the stencil. */
+  interface IStencilSample {
+    bones: Bones;
+    centre?: IAutoMovieVector3;
+  }
+
+  /** Read or allocate the one sample shared by overlapping stencils. */
+  type StencilAt = (seconds: number, bones?: Bones) => IStencilSample;
+
   /**
    * How far the extrapolated centre of mass leaves the feet's hull over the
    * instants where both feet alone bear the body.
@@ -80,12 +96,20 @@ export namespace AutoMovieMotionHumanAuditBalance {
     };
     // Select the plans that can ask for a balance judgement before reading
     // any support geometry or mass data.
-    const spans: IAutoMovieMotionHumanAuditMotion.ISpan[] = motion
-      .segments(subject)
-      .filter((span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
-        HumanPhysics.judged(span),
-      );
-    if (spans.length === 0) return worst;
+    const spans: readonly HumanPhysics.ISpan[] = motion.segments(subject);
+    const candidates: ISampledInterval[] = [];
+    let times: HumanAuditMotion.IGrid | undefined;
+    for (const span of spans)
+      for (const interval of HumanPhysics.intervals(span)) {
+        times ??= HumanAuditMotion.lattice(0, motion.duration, rate);
+        // Preserve the exact action-clock comparison at an endpoint even
+        // when reversing the offset rounds onto the adjacent grid tick.
+        const from: number = Math.max(0, locate(times, interval.from, false) - 1);
+        const to: number = Math.min(times.length - 1, locate(times, interval.to, true));
+        if (from <= to) candidates.push({ span, from, to });
+      }
+    if (times === undefined || candidates.length === 0) return worst;
+    candidates.sort((a: ISampledInterval, b: ISampledInterval): number => a.from - b.from);
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject);
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
@@ -94,40 +118,47 @@ export namespace AutoMovieMotionHumanAuditBalance {
       resolveAutoMovieCenterOfMass.frequency(
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       );
-    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
-    const centres: Map<number, IAutoMovieVector3> = new Map();
-    const centreAt: CentreAt = (seconds: number, bones?: Bones): IAutoMovieVector3 => {
-      const known: ReturnType<typeof centres.get> = centres.get(seconds);
+    const samples: Map<number, IStencilSample> = new Map();
+    const sampleAt: StencilAt = (seconds: number, bones?: Bones): IStencilSample => {
+      const known: IStencilSample | undefined = samples.get(seconds);
       if (known !== undefined) return known;
-      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-        model,
-        bones ?? motion.bones(subject, seconds),
-      );
-      centres.set(seconds, centre);
-      return centre;
+      const sample: IStencilSample = { bones: bones ?? motion.bones(subject, seconds) };
+      samples.set(seconds, sample);
+      return sample;
     };
-    const judged = (t: number): boolean =>
-      spans.some(
-        (s: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
-          s.entryTime <= t && t <= s.end &&
-          (s.plan.balanceWindow === undefined || HumanPhysics.judged(s, t)),
-      );
-    for (let i: number = 0; i < times.length; i++) {
-      const t: number = times[i]!;
-      if (!judged(t)) continue;
+    const centreAt: CentreAt = (seconds: number, bones?: Bones): IAutoMovieVector3 => {
+      const sample: IStencilSample = sampleAt(seconds, bones);
+      sample.centre ??= resolveAutoMovieCenterOfMass.place(model, sample.bones);
+      return sample.centre;
+    };
+    const active: ISampledInterval[] = [];
+    let next: number = 0;
+    for (let i: number = candidates[0]!.from; i < times.length; ++i) {
+      for (let j: number = active.length - 1; j >= 0; --j)
+        if (active[j]!.to < i) active.splice(j, 1);
+      if (active.length === 0) {
+        if (next === candidates.length) break;
+        i = Math.max(i, candidates[next]!.from);
+      }
+      while (next < candidates.length && candidates[next]!.from <= i)
+        active.push(candidates[next++]!);
+      const t: number = times.at(i);
+      if (!active.some(({ span }: ISampledInterval): boolean =>
+        span.entryTime <= t && t <= span.end && HumanPhysics.judged(span, t),
+      )) continue;
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
-      const before: number = times[Math.max(0, i - 1)]!;
-      const after: number = times[Math.min(times.length - 1, i + 1)]!;
+      const before: number = times.at(Math.max(0, i - 1));
+      const after: number = times.at(Math.min(times.length - 1, i + 1));
 
       // The three-point stencil advances monotonically. A mass centre can
       // serve later stencils only while its time remains in this span.
-      for (const known of centres.keys()) if (known < before) centres.delete(known);
+      for (const known of samples.keys()) if (known < before) samples.delete(known);
       const value: number = -marginAt(
         body,
         windows,
-        motion.bones(subject, t),
+        sampleAt(t).bones,
         centreAt,
         t,
         before,
@@ -137,6 +168,19 @@ export namespace AutoMovieMotionHumanAuditBalance {
         worst = { value, seconds: t, where: "both feet" };
     }
     return worst;
+  }
+
+  /** Locate the first sample at (or strictly after) a second on the film grid. */
+  function locate(times: HumanAuditMotion.IGrid, seconds: number, strict: boolean): number {
+    let from: number = 0;
+    let to: number = times.length;
+    while (from < to) {
+      const middle: number = from + Math.floor((to - from) / 2);
+      const at: number = times.at(middle);
+      if (at < seconds || (strict && at === seconds)) from = middle + 1;
+      else to = middle;
+    }
+    return from;
   }
 
   /**

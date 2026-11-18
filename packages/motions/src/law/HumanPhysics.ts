@@ -2,6 +2,7 @@ import { convexHull2D, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionEvent,
@@ -89,6 +90,14 @@ export namespace HumanPhysics {
 
   /** The prepared window, or null when a correction cannot contribute. */
   export type Window = IAutoMovieMotionHumanBalance.Window;
+
+  /** A candidate interval of a placed span, in film seconds. */
+  export interface IJudgedInterval {
+    /** First candidate second. */
+    from: number;
+    /** Last candidate second. */
+    to: number;
+  }
 
   /** A signed distance along the requested direction, or null if its line misses the support hull. */
   export type SupportOffset = number | null;
@@ -309,7 +318,7 @@ export namespace HumanPhysics {
    * @throws {HumanRefusal} As `shift` does.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three sources and their order.
-   * @evidence contracts/development/implementation.md#principled-implementation Explicit and physical-law spans are judged throughout, and a prepared balance only where the actual shift has positive weight.
+   * @evidence contracts/development/implementation.md#principled-implementation Judgement follows the explicit override, the law's physical phase or a balance with positive actual weight.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the explicit override, physical declaration, or prepared balance in that order. Legacy key plans still give the audit their option.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing else turns the check on; a planted, posed action is not judged.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -318,13 +327,50 @@ export namespace HumanPhysics {
    */
   export function judged(span: ISpan, seconds?: number): boolean {
     if (span.physical !== undefined) return span.physical;
-    if (span.law?.physical === true) return true;
+    const physical: IAutoMovieMotionHumanActionPlan.IPhysicalWindow | undefined =
+      span.plan.physicalWindow;
+    const local: number | undefined = seconds === undefined ? undefined : seconds - span.start;
+    if (
+      span.law?.physical === true &&
+      (physical === undefined || local === undefined ||
+        (physical.from <= local && local <= physical.to))
+    ) return true;
     const window: Window | undefined = span.plan.balanceWindow;
     if (window !== undefined)
-      return seconds === undefined
+      return local === undefined
         ? window !== null
-        : weightAt(window, seconds - span.start) > 0;
+        : weightAt(window, local) > 0;
     return balanced(span.params, span.law);
+  }
+
+  /**
+   * The parts of the placed span that can contribute to a balance audit.
+   * `judged` still checks the precise weight at the individual sample.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the film clock and the separate exact sample predicate.
+   * @evidence contracts/development/implementation.md#principled-implementation Intersects each local phase with the span's placed lifetime.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Return the whole span if declared, otherwise take up to two bounded ranges.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains both phases even if their bounds do not overlap.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Produces at most two intervals irrespective of film duration.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Uses the plan's existing numeric bounds.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new interval values.
+   */
+  export function intervals(span: ISpan): IJudgedInterval[] {
+    const physical: IAutoMovieMotionHumanActionPlan.IPhysicalWindow | null | undefined =
+      span.law?.physical === true ? span.plan.physicalWindow : null;
+    const balance: Window | undefined = span.plan.balanceWindow;
+    if (span.physical === false) return [];
+    if (span.physical === true || physical === undefined ||
+        (balance === undefined && balanced(span.params, span.law)))
+      return [{ from: span.entryTime, to: span.end }];
+    const result: IJudgedInterval[] = [];
+    for (const local of [physical, balance]) {
+      if (local === null || local === undefined) continue;
+      const from: number = Math.max(span.entryTime, span.start + local.from);
+      const to: number = Math.min(span.end, span.start + local.to);
+      if (from <= to) result.push({ from, to });
+    }
+    return result;
   }
 
   /** Fit the requested edge durations to a numeric window, preserving their ratio. */

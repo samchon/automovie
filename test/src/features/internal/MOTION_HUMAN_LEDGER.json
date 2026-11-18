@@ -4830,7 +4830,7 @@
           "row": "kind=both",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_kneel"
+            "test_human_motion_law_sweep_posture_kneel_floor"
           ],
           "sweep": "reduced"
         },
@@ -4838,7 +4838,7 @@
           "row": "kind=sitBack",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_kneel"
+            "test_human_motion_law_sweep_posture_kneel_floor"
           ],
           "sweep": "reduced"
         },

@@ -105,7 +105,7 @@ export namespace IAutoMovieMotionHumanAuditMotion {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not copy or recompute any contact or balance terms.
    */
   export interface ISpanPlan
-    extends Pick<IAutoMovieMotionHumanActionPlan, "duration" | "balanceWindow"> {
+    extends Pick<IAutoMovieMotionHumanActionPlan, "duration" | "balanceWindow" | "physicalWindow"> {
     /** The contact windows the plan declares. */
     contacts: readonly IAutoMovieMotionHumanContactWindow[];
   }

@@ -42,6 +42,9 @@ export interface IAutoMovieMotionHumanActionPlan {
   /** The balance window this plan actually uses, or null when its balance is off. */
   balanceWindow?: IAutoMovieMotionHumanBalance.Window;
 
+  /** The part of a physical law that needs physical judgement, in action seconds. */
+  physicalWindow?: IAutoMovieMotionHumanActionPlan.IPhysicalWindow;
+
   /**
    * Seconds since the action's start, from and to, over which `posture`
    * returns one and the same posture, for a plan that holds still there (a
@@ -203,4 +206,23 @@ export interface IAutoMovieMotionHumanActionPlan {
   airborne?(
     rotation: (seconds: number) => IAutoMovieHumanPostureRotation,
   ): void;
+}
+
+/** Prepared terms shared by an action plan and its readers. */
+export namespace IAutoMovieMotionHumanActionPlan {
+  /**
+   * The closed physical phase on the plan's own clock, in seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the clock, unit and endpoint rule.
+   * @evidence contracts/development/design.md#principled-representation The two event times delimit the part of an action whose outcome requires physical judgement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the law that places the phase and the motion audit that judges it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The phase is declared explicitly by its producer without inferring it from poses.
+   */
+  export interface IPhysicalWindow {
+    /** Seconds from the action start to the beginning of the physical phase. */
+    from: number;
+
+    /** Seconds from the action start to the end of the physical phase. */
+    to: number;
+  }
 }
