@@ -13,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
+import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
@@ -32,6 +34,7 @@ type Publish<T> = (posture: Posture, solved?: Seeded) => T;
 type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
 type OptionalSample = WorkingSeatRidePlan.ISample | undefined;
 type OptionalSeeded = Seeded | undefined;
+type Location = Parameters<HumanRefusal["locate"]>[0];
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 /** Freeze a native structured clone before its source and display borrow the same raw graph. */
 function immutable(value: unknown): void {
@@ -89,6 +92,8 @@ export class WorkingSeatRidePlan implements Plan {
   readonly #body: IAutoMovieMotionHumanBody;
   readonly #design: Design;
   readonly #frame: Frame;
+  #located?: Reader;
+  #where?: Location;
 
   constructor(plan: Plan, body: IAutoMovieMotionHumanBody, design: Design, frame: Frame) {
     this.duration = plan.duration;
@@ -108,14 +113,31 @@ export class WorkingSeatRidePlan implements Plan {
     return WorkingSeatRidePlan.#owner(plan) !== undefined;
   }
 
+  /** Placement wraps ordinary posture refusals and binds the same location to private fit reads. */
+  static located(plan: Plan, original: Reader, where: Location): Reader {
+    const located: Reader = prepareJumpPosture.located(original, where);
+    if (#reader in plan && original === plan.#reader) {
+      Object.defineProperty(located, OWNER, { value: plan });
+      plan.#located = located;
+      plan.#where = where;
+    }
+    return located;
+  }
+
   /** Read the actual native provider without exposing its solve to author callbacks. */
   static read(plan: Plan, ...args: Parameters<Reader>): OptionalSample {
     const owner: WorkingSeatRidePlan | undefined = WorkingSeatRidePlan.#owner(plan);
     if (owner === undefined) return undefined;
-    return owner.#sample((pose: Posture, solved?: Seeded): Sample => {
-      if (solved !== undefined) immutable(pose);
-      return new Sample(pose, owner.#body, args[0], solved);
-    }, ...args);
+    try {
+      return owner.#sample((pose: Posture, solved?: Seeded): Sample => {
+        if (solved !== undefined) immutable(pose);
+        return new Sample(pose, owner.#body, args[0], solved);
+      }, ...args);
+    } catch (error) {
+      if (plan.posture === owner.#located && owner.#where && error instanceof HumanRefusal)
+        throw error.locate(owner.#where);
+      throw error;
+    }
   }
 
   /** The one-cell transfer is private to this owner and ends at the first consumption. */
@@ -129,7 +151,7 @@ export class WorkingSeatRidePlan implements Plan {
   static #owner(plan: Plan): WorkingSeatRidePlan | undefined {
     const reader: NativeReader = plan.posture;
     const owner: WorkingSeatRidePlan | undefined = reader[OWNER];
-    return owner instanceof WorkingSeatRidePlan && #reader in owner && reader === owner.#reader ? owner : undefined;
+    return owner instanceof WorkingSeatRidePlan && #reader in owner && (reader === owner.#reader || reader === owner.#located) ? owner : undefined;
   }
 
   #sample<T>(publish: Publish<T>, ...args: Parameters<Reader>): T {
