@@ -16,6 +16,7 @@ import type {
 
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
+import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
@@ -33,6 +34,13 @@ type Gap = (
 
 /** Measure the current occupied wrists and, for a straddle, the knees against their actual support. */
 export namespace HumanCarriedGripGaps {
+  /** A second planted bearer's support height fixes one further world coordinate. */
+  export interface IPlantedContact {
+    /** Region on the borne body carried by this second support. */
+    region: AutoMovieHumanoidRegion;
+    /** The second bearer's resting region height above the common floor, metres. */
+    height: number;
+  }
   /** Prepare the fixed palm geometry once for every active hand in the key-pose fit. */
   export function prepare(
     bearer: IAutoMovieMotionHumanBody,
@@ -40,6 +48,7 @@ export namespace HumanCarriedGripGaps {
     row: IAutoMovieMotionHumanCarried.IRow,
     grips: Grip,
     sides: readonly AutoMovieHumanSide[],
+    planted?: IPlantedContact,
   ): Gaps {
     const reach: Gap[] = sides.map(
       (side: AutoMovieHumanSide): Gap =>
@@ -76,6 +85,15 @@ export namespace HumanCarriedGripGaps {
           });
         },
       );
+      if (planted !== undefined) {
+        const local: IAutoMovieVector3 = HumanCarriedCouplingPose.region(
+          borne,
+          mine,
+          planted.region,
+        );
+        const height: number = fit.place(local).y - planted.height;
+        gaps.push(height, -height);
+      }
       return row.straddles === true
         ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)]
         : gaps;

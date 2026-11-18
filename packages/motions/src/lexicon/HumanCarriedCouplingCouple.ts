@@ -27,6 +27,7 @@ import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
+import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 
 /** The borne regions held by the bearer's left and right hands. */
 type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
@@ -154,6 +155,21 @@ export namespace HumanCarriedCouplingCouple {
       rules.HOLDS[carry],
       ...(rules.NEARER[carry] ?? []),
     ];
+    const secondBones: Bones | undefined =
+      second === undefined
+        ? undefined
+        : HumanCarriedCouplingPose.stood(second.body, { incline: 0, depth: 0 });
+    const planted: HumanCarriedGripGaps.IPlantedContact | undefined =
+      second === undefined
+        ? undefined
+        : {
+            region: second.row.mine,
+            height: HumanCarriedCouplingPose.region(
+              second.body,
+              secondBones!,
+              second.row.theirs,
+            ).y,
+          };
     const choose: (k: number) => IGripFit = (k: number): IGripFit => {
       try {
         return {
@@ -164,6 +180,7 @@ export namespace HumanCarriedCouplingCouple {
             rules.HOLDS[carry],
             second === undefined,
             grips[k]!,
+            planted,
           ),
           held: grips[k]!,
         };
@@ -209,10 +226,6 @@ export namespace HumanCarriedCouplingCouple {
     // body's region on that side, facing as the first does.
     const besides: IBearingSide[] = [{ role: rules.BEARER, row, held }];
     const bearers: Record<string, Bearer> = {};
-    const secondBones: Bones | undefined =
-      second === undefined
-        ? undefined
-        : HumanCarriedCouplingPose.stood(second.body, { incline: 0, depth: 0 });
     if (second !== undefined) {
       const still: Bones = secondBones!;
       const shift: IAutoMovieVector3 = Vector3.subtract(

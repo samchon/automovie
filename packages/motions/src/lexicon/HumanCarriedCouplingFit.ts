@@ -79,6 +79,7 @@ export namespace HumanCarriedCouplingFit {
    * @param borne The borne body.
    * @param row The carry's key and hold geometry.
    * @param held The borne region each bearer hand holds, left then right.
+   * @param planted The additional height fixed by a second bearer standing on the common floor.
    * @param bends Whether the bearer may leave upright to reach the grips.
    * @param grips An optional pair of actual grips, left then right, when the row's nominal regions cannot be reached.
    * @returns The placement within the bearer's origin frame.
@@ -112,6 +113,7 @@ export namespace HumanCarriedCouplingFit {
    * @param borne The borne body.
    * @param row The carry's row.
    * @param held The borne region each bearer hand holds, left then right.
+   * @param planted The additional height fixed by a second bearer standing on the common floor.
    * @param bends Whether the bearer may leave upright: not when a second helper shares the body, whose contacts a bend of the first would carry away.
    * @param grips The borne region each hand grips where the bearer takes a nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left then right: the arms must reach these, while the turn stays fitted to the described holds, so a grip never turns the borne body; the described holds when absent.
    * @returns The placement with the bones used to judge its reach.
@@ -132,6 +134,7 @@ export namespace HumanCarriedCouplingFit {
     held: Grip,
     bends: boolean,
     grips: Grip = held,
+    planted?: HumanCarriedGripGaps.IPlantedContact,
   ): IRead {
     // The borne hip flexion, knee flexion and hip
     // abduction, the bearer's trunk inclination and lowering; each one's
@@ -183,7 +186,7 @@ export namespace HumanCarriedCouplingFit {
       return { fit: registration.fit, mine: registration.bones, theirs };
     }
     const gaps: ReturnType<typeof HumanCarriedGripGaps.prepare> =
-      HumanCarriedGripGaps.prepare(bearer, borne, row, grips, sides);
+      HumanCarriedGripGaps.prepare(bearer, borne, row, grips, sides, planted);
     const keyed: IRead = at(start);
     const keyGaps: number[] = gaps(keyed);
     if (
@@ -200,6 +203,8 @@ export namespace HumanCarriedCouplingFit {
     ]);
     for (const region of [...held, ...grips])
       if (region !== null) observed.add(borne.surfaces.regions[region].bone);
+    if (planted !== undefined)
+      observed.add(borne.surfaces.regions[planted.region].bone);
     if (row.straddles === true) {
       observed.add("leftLowerLeg");
       observed.add("rightLowerLeg");
@@ -431,7 +436,8 @@ export namespace HumanCarriedCouplingFit {
     const met: IReading = solved.evaluation;
     const clear: boolean =
       met.worst <= accuracy ||
-      (row.straddles === true &&
+      (planted === undefined &&
+        row.straddles === true &&
         sides.every(
           (_, index: number): boolean => met.gaps[index]! <= accuracy,
         ) &&
