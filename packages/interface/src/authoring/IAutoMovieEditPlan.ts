@@ -22,7 +22,7 @@ export interface IAutoMovieEditPlan {
   fps: number;
 
   /** Shot placements in playback order; at least one is required. */
-  entries: (IAutoMovieSequenceEntry & {
+  entries: (Omit<IAutoMovieSequenceEntry, "exactSourceEnd"> & {
     /**
      * Resolve both bounds in the referenced shot's built events before
      * applying the normal trim and seam rules. The edit gate requires
@@ -56,7 +56,8 @@ export interface IAutoMovieEditPlan {
    * Compare one sampled prop channel on the two sides of a declared hard cut.
    * Omitted or empty means no prop checks. Both shots must use the same staged
    * scene and write the channel through objectMotions. Reads the outgoing trim
-   * end from the left and the incoming trim start inclusively. Without a trim,
+   * end from the left and the incoming trim start inclusively. For a symbolic
+   * trim the selected event supplies the exact end. Without a trim,
    * those times are the outgoing shot duration and incoming time zero.
    * If the outgoing winning track starts, steps or loops exactly at the cut,
    * the check refuses that boundary because the inclusive sampler would read

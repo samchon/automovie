@@ -22,7 +22,8 @@ import { nclose } from "../internal/predicates";
  * 3. A blank id and a non-finite time are refused at their own bound paths.
  * 4. Reversing the bounds or selecting the same time refuses the span.
  * 5. Raw null and array bounds, invalid bound fields, and two trim forms are refused.
- * 6. A full-shot end whose numeric duration would reconstruct beyond shot duration lowers inward by one representable step.
+ * 6. A full-shot end that rounds outward retains its exact event after inward
+ *    lowering, even for a rate that makes the source tolerance smaller than one ULP.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public edit gate and event projection and checks normalized trims, runtime, seam ownership and refusal paths.
  * @evidence contracts/development/testing.md#independent-expectations Start, seam and end are at 0.5, 1.5 and 3.5 source seconds. Each played duration is divided by two, so the film spans 1.5 seconds and the seam belongs to the second play at 0.5 output seconds.
@@ -214,6 +215,7 @@ export function test_film_cut_sequence_event_trim(): void {
           shot: short.id,
           trim: null,
           trimByEvents: { startEvent: start.id, endEvent: end.id },
+          playbackRate: 1e-10,
           transition: null,
         },
       ],
@@ -226,7 +228,15 @@ export function test_film_cut_sequence_event_trim(): void {
     TestValidator.predicate(
       "lowered duration is the binary64 predecessor of 0.008",
       lowered.duration === 0.007999999999999998 &&
-        lowered.start + lowered.duration <= short.duration,
+        lowered.start + lowered.duration < short.duration,
+    );
+    TestValidator.predicate(
+      "exact source end retains the selected event at the output end",
+      boundary.sequence.shots[0]!.exactSourceEnd === short.duration &&
+        sequenceEventTimeline(boundary.sequence, [short]).some(
+          (event: IAutoMoviePlaybackEvent): boolean =>
+            event.id === end.id && event.globalTime === boundary.runtime,
+        ),
     );
   }
 

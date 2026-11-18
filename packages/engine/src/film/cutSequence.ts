@@ -31,7 +31,7 @@ type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
  *
  * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the entry rate is finite and positive with a representable positive output span; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. An event trim resolves two exact, uniquely occurring built shot events to the same numeric source span before these checks. Pacing and continuity rationale stay prose.
  *
- * `runtime` is in seconds: the sum of each entry's played output span (retained source duration divided by the entry rate) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. For a structurally valid cut, each required event must appear exactly once in the named playback entry after trim and seam ownership. The event requirement reads built shot interaction events. Declared prop requirements compare sampled object-motion channels from the two retained sides of hard cuts. An absent requirement slot is refused. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each numeric trim and transition object by reference, lowering event trims and recording only nondefault playback rates.
+ * `runtime` is in seconds: the sum of each entry's played output span (retained source duration divided by the entry rate) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. For a structurally valid cut, each required event must appear exactly once in the named playback entry after trim and seam ownership. The event requirement reads built shot interaction events. Declared prop requirements compare sampled object-motion channels from the two retained sides of hard cuts. An absent requirement slot is refused. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each numeric trim and transition object by reference, lowering event trims, preserving an exact source end when its numeric trim cannot reconstruct it, and recording only nondefault playback rates.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The edit clock follows [OpenTimelineIO time ranges](https://github.com/AcademySoftwareFoundation/OpenTimelineIO/blob/main/docs/tutorials/time-ranges.md#markers), with source instants placed in a parent timeline. The [OpenTimelineIO linear time warp](https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-serialized-schema.html#LinearTimeWarp-1) uses the same constant source-time scale per output second. One ordered pass carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice. After layout admission, the number of projected matches for each entry and event address must be one and each declared prop channel must agree within its tolerance at its hard cut.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; event requirements reuse `sequenceEventTimeline` after edit admission to respect the same trim and seam rules as playback. Prop comparisons delegate to checkCutPropContinuity.
@@ -143,6 +143,7 @@ export function cutSequence(
 
   /** Store lowered source spans for the ordinary playback entries. */
   const trims: (IAutoMovieTrim | null)[] = [];
+  const exactSourceEnds: Map<number, number> = new Map();
   let runtime: number = 0;
   let previousPlayed: number | null = null;
   let previousIncomingTransition: number = 0;
@@ -224,7 +225,10 @@ export function cutSequence(
               "the trim end event must follow the start event",
               bounds,
             );
-          } else trim = trimBetweenEvents(start, end);
+          } else {
+            trim = trimBetweenEvents(start, end);
+            if (trim.start + trim.duration !== end) exactSourceEnds.set(i, end);
+          }
         }
       }
       trims[i] = trim;
@@ -374,6 +378,9 @@ export function cutSequence(
       ): IAutoMovieSequenceEntry => ({
         shot: entry.shot,
         trim: trims[index]!,
+        ...(exactSourceEnds.has(index)
+          ? { exactSourceEnd: exactSourceEnds.get(index)! }
+          : {}),
         transition: entry.transition,
         ...(entry.playbackRate === undefined || entry.playbackRate === 1
           ? {}

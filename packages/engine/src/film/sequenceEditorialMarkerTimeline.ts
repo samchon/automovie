@@ -3,6 +3,7 @@ import type {
   IAutoMoviePlaybackEntry,
   IAutoMoviePreparePlaybackTimeline,
   IAutoMovieSequence,
+  IAutoMovieSequenceEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
 
@@ -16,9 +17,9 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * retained endpoints are mapped through the same start and rate as playback.
  * Output order is start time, entry index and then id by UTF-16 code units.
  * The prepared layout must come from this same admitted sequence and shot set.
- * At a hard cut between adjacent source spans of the same shot, the incoming
- * trim start supplies the shared seam when the explicitly trimmed outgoing
- * end differs by no more than floating-point roundoff. Membership then uses
+ * A preserved symbolic end defines the source boundary. For numeric trims,
+ * the incoming trim start supplies a same-shot hard-cut seam when the two
+ * bounds differ by no more than floating-point roundoff. Membership uses
  * exact comparisons and output endpoints stay within the played span.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reconciles a same-shot hard-cut seam at roundoff scale, tests exact half-open point membership and positive range intersection, then maps retained endpoints using entry offset, start and rate. Prepared entry starts already account for transitions.
@@ -38,8 +39,8 @@ export function sequenceEditorialMarkerTimeline(
   for (const entry of timeline.entries) {
     const shot: IAutoMovieShot = shotById.get(entry.shot)!.shot;
     const sourceStart: number = entry.offset;
-    const trim = sequence.shots[entry.entry]!.trim;
-    const sourceDuration: number = trim?.duration ?? shot.duration;
+    const source: IAutoMovieSequenceEntry = sequence.shots[entry.entry]!;
+    const sourceDuration: number = source.trim?.duration ?? shot.duration;
     const trimEnd: number = sourceStart + sourceDuration;
 
     // Use one seam value only for adjacent same-shot hard cuts. Keeping
@@ -47,14 +48,15 @@ export function sequenceEditorialMarkerTimeline(
     const next: IAutoMoviePlaybackEntry | undefined =
       timeline.entries[entry.entry + 1];
     const sourceEnd: number =
-      trim !== null &&
+      source.exactSourceEnd ??
+      (source.trim !== null &&
       next !== undefined &&
       next.shot === entry.shot &&
       sequence.shots[next.entry]!.transition === null &&
       next.offset > sourceStart &&
       Math.abs(next.offset - trimEnd) <= Number.EPSILON * trimEnd
         ? next.offset
-        : trimEnd;
+        : trimEnd);
     const rate: number = entry.playbackRate ?? 1;
     const outputEnd: number = entry.start + entry.played;
     for (const marker of shot.editorialMarkers ?? []) {

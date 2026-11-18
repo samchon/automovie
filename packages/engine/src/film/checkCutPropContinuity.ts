@@ -236,9 +236,10 @@ function compileBoundaryDemand(
   return {
     outgoing: beforeShot.objectMotions,
     end:
-      before.trim === null
+      before.exactSourceEnd ??
+      (before.trim === null
         ? beforeShot.duration
-        : before.trim.start + before.trim.duration,
+        : before.trim.start + before.trim.duration),
     incoming: afterShot.objectMotions,
     start: after.trim?.start ?? 0,
   };

@@ -38,7 +38,7 @@ import { sampleFormationMotion } from "../sampleFormationMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { admitShotEditorialMarkers } from "../validation/appendEditorialMarkersArtifact";
+import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
 import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { describeInvalidValue } from "../validation/describeInvalidValue";

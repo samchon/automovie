@@ -4,6 +4,7 @@ import {
   type IAutoMoviePlaybackEvent,
   type IAutoMoviePreparePlaybackTimeline,
   IAutoMovieSequence,
+  type IAutoMovieSequenceEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
 
@@ -16,7 +17,7 @@ const TIME_EPSILON: number = 1e-9;
 /**
  * Place every shot interaction event onto the sequence output clock, once per play.
  *
- * An entry emits the events inside its trimmed source range `[from, to)`, each at `start + (time - offset) / rate`; events outside every trim are omitted. The range is half-open so an event exactly on a contiguous trim seam is emitted once, by the entry that starts there. It closes at `to` in two cases: when the trim ends at the shot's own end, so a shot-final event is never lost, and when no other entry of the same shot both starts at that shot-local instant and starts at this entry's global end, so cutting away exactly on a hit keeps the hit. A replay of the same source span elsewhere on the output clock, such as a flashback, does not take the seam event from the cut, because only a globally contiguous entry shows the same on-screen instant.
+ * An entry emits the events inside its trimmed source range `[from, to)`, each at `start + (time - offset) / rate`; events outside every trim are omitted. The source end uses the exact symbolic trim boundary when present. An event at that boundary uses the played output end. The range is half-open so an event exactly on a contiguous trim seam is emitted once, by the entry that starts there. It closes at `to` in two cases: when the trim ends at the shot's own end, so a shot-final event is never lost, and when no other entry of the same shot both starts at that shot-local instant and starts at this entry's global end, so cutting away exactly on a hit keeps the hit. A replay of the same source span elsewhere on the output clock, such as a flashback, does not take the seam event from the cut, because only a globally contiguous entry shows the same on-screen instant.
  *
  * Each entry that shows an instant emits that instant's events at its own global time, so an event replayed by a flashback lands once per play. The events are ordered by global time, then entry index, then event id by UTF-16 code units. Each keeps its shot-local `time` and adds `shotTime`, `entry`, `shot` and `globalTime`. Throws what {@link sequenceTimeline} throws.
  *
@@ -49,9 +50,9 @@ export function sequenceEventTimeline(
   for (const entry of timeline.entries) {
     const shot: IAutoMovieShot = shotById.get(entry.shot)!.shot;
     const from: number = entry.offset;
-    const duration: number =
-      sequence.shots[entry.entry]!.trim?.duration ?? shot.duration;
-    const to: number = from + duration;
+    const source: IAutoMovieSequenceEntry = sequence.shots[entry.entry]!;
+    const duration: number = source.trim?.duration ?? shot.duration;
+    const to: number = source.exactSourceEnd ?? from + duration;
     const sourceEpsilon: number =
       entry.playbackRate === undefined
         ? TIME_EPSILON
@@ -86,7 +87,9 @@ export function sequenceEventTimeline(
       )
         continue;
       const globalTime: number =
-        entry.playbackRate !== undefined && event.time === to
+        (entry.playbackRate !== undefined ||
+          source.exactSourceEnd !== undefined) &&
+        event.time === to
           ? globalEnd
           : entry.start + (event.time - from) / (entry.playbackRate ?? 1);
       events.push(placed(event, entry, globalTime));

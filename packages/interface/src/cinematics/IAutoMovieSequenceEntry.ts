@@ -14,7 +14,7 @@ import type { IAutoMovieTrim } from "./IAutoMovieTrim";
  * other overlap in those spans.
  *
  * @evidence contracts/development/design.md#principled-representation `sequenceTimeline` takes its source offset from `trim.start` and divides the retained source duration by the rate. The incoming transition duration shifts the placement start on the output clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One optional scalar retimes the referenced source without rewriting the source trim or copying the shot.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The playback rate retimes the source without copying the shot, and the optional exact source end preserves a symbolic boundary that its normalized trim cannot reconstruct.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A transition on the first entry is refused by `cutSequence` and thrown by `sequenceTimeline` rather than silently dropped, and an unknown shot id is refused rather than skipped.
  * @evidence contracts/development/common.md#meaningful-documentation States how the source trim, playback rate and transition determine the played span and output start, and lists admission and default rules.
  */
@@ -27,6 +27,13 @@ export interface IAutoMovieSequenceEntry {
    * analogue, or `null` to play the whole shot.
    */
   trim: IAutoMovieTrim | null;
+
+  /**
+   * Exact source end in shot-local seconds, set by `cutSequence` only when
+   * a symbolic trim's end differs from its numeric reconstruction. Used for
+   * source-boundary comparisons. The stored duration owns the output clock.
+   */
+  exactSourceEnd?: number;
 
   /** Finite positive source seconds per output second. Omit for 1× playback. */
   playbackRate?: number;
