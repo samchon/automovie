@@ -42,17 +42,17 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The seated posture is the standard's, the descent Kralj et al.'s, every limit marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases The three distinct backs are compared within each of the two stature extremes. Default seating, shift and rise have independent stage checks.
- * @evidence contracts/development/testing.md#execution-ownership The lean on the large body, and the slump and rise on the small body, share their films between full audits and independent geometry checks.
+ * @evidence contracts/development/testing.md#execution-ownership The large lean and the small upright, slump and rise share their films between full audits and independent geometry checks.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_law_sweep_posture_seat(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const audited: Map<string, AuditedSit> = new Map();
   for (const [law, row, name] of AUDITED)
-    if (law === "sit" && row !== "default") audited.set(`${row} ${name}`, null);
+    if (law === "sit") audited.set(`${row === "default" ? "back=upright" : row} ${name}`, null);
   complaints.list.push(...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
-    if (law === "sit" && row !== "default")
-      audited.set(`${row} ${name}`, { film, body: motionHumanBody(name), yaw: 0 });
+    if (law === "sit")
+      audited.set(`${row === "default" ? "back=upright" : row} ${name}`, { film, body: motionHumanBody(name), yaw: 0 });
     if (law === "rise")
       motionHumanRiseSignature({ film, body: motionHumanBody(name), yaw: 0 }, name, complaints);
   }));
@@ -75,24 +75,32 @@ export function test_human_motion_law_sweep_posture_seat(): void {
       const contact: number = M.event(s, "seatContact")!;
       const seated: number = M.event(s, "seated")!;
       const ts: number[] = M.times(seated, s.film.duration, M.HELD);
-      for (const side of ["left", "right"] as const) {
-        const hip: number = M.mean(ts, (t: number): number => M.hip(s, t, side));
-        const knee: number = M.mean(ts, (t: number): number => M.knee(s, t, side));
-        complaints.check(
-          `${cell}: seated ${side} hip ${hip.toFixed(1)} and knee ${knee.toFixed(1)} deg, [70, 110] expected (ANSI/HFES 100-2007; provisional)`,
-          hip >= 70 && hip <= 110 && knee >= 70 && knee <= 110,
-        );
-      }
-      back[row] = M.mean(ts, (t: number): number => M.trunk(s, t));
-      // How far the head's joint stands ahead of the shoulder joints.
-      forward[row] = M.mean(ts, (t: number): number => {
-        const head: IAutoMovieVector3 = M.joint(s, t, "head");
-        const left: IAutoMovieVector3 = M.joint(s, t, "leftUpperArm");
-        const right: IAutoMovieVector3 = M.joint(s, t, "rightUpperArm");
-        const heading: IAutoMovieVector3 = M.forward(s.yaw);
-        return (head.x - (left.x + right.x) / 2) * heading.x +
+      const heading: IAutoMovieVector3 = M.forward(s.yaw);
+      let trunkSum: number = 0;
+      let headSum: number = 0;
+      for (const t of ts) {
+        const bones: ReturnType<typeof M.bones> = M.bones(s, t);
+        const neck: IAutoMovieVector3 = bones.get("neck")!.worldPosition;
+        for (const side of ["left", "right"] as const) {
+          const thigh: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+          const shin: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
+          const foot: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
+          const hip: number = M.flexion(neck, thigh, shin);
+          const knee: number = M.flexion(thigh, shin, foot);
+          complaints.check(
+            `${cell}: seated ${side} hip ${hip.toFixed(1)} and knee ${knee.toFixed(1)} deg at ${t.toFixed(3)} s, [70, 110] expected (ANSI/HFES 100-2007; provisional)`,
+            hip >= 70 && hip <= 110 && knee >= 70 && knee <= 110,
+          );
+        }
+        trunkSum += M.trunk(s, t);
+        const head: IAutoMovieVector3 = bones.get("head")!.worldPosition;
+        const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
+        const right: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
+        headSum += (head.x - (left.x + right.x) / 2) * heading.x +
           (head.z - (left.z + right.z) / 2) * heading.z;
-      });
+      }
+      back[row] = trunkSum / ts.length;
+      forward[row] = headSum / ts.length;
       let peak: number = -Infinity;
       let lifted: number = 0;
       for (const t of M.times(0, s.film.duration, M.HELD)) {
