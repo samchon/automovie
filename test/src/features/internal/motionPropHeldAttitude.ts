@@ -24,22 +24,27 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { motionPropHeldDrift } from "./motionPropHeldDrift";
 
 /** How far a glass may lean away from the face and still count as upright: the sine of 1 degree. */
 const AWAY: number = Math.sin(Math.PI / 180);
 
 /**
- * The held objects' attitude on one body, which the
+ * The held objects' attitude and place on one body, which the
  * `test_human_motion_prop_held_attitude_*` specs read one body each: a glass
- * is carried upright and tipped toward the lips only as much as the drinking
- * arm asked, and a held cigarette's end reaches the lips.
+ * is carried upright, tipped toward the lips only as much as the drinking
+ * arm asked, its rim at the mouth and its grip kept (#3358, #3361), and a
+ * held cigarette's end reaches the lips (#3346).
  *
  * Each object stands at waist height before the right shoulder, 0.6 of the
  * arm's length ahead, and is picked up and then used. A glass is taken for
  * its use (`pickUp`'s `use`: the lip at the mouth, the vessel upright), since
  * the grip a hand takes decides what the arm can do with the object later.
- * The `test_human_motion_prop_held_use_*` specs hold the rim's place and the
- * grip.
+ * The drink is one film, followed by a 0.5 s stand, read by every glass
+ * scenario: its attitude, its rim and its grip were read off two films of
+ * the same pick-up and drink, one here and one in the
+ * `test_human_motion_prop_held_use_*` reader, and the stand that ends the
+ * film follows the drink's `relax`, the last instant the attitude is read.
  *
  * Scenarios, on the body:
  * 1. A drink from a held glass. While the glass is carried to the mouth,
@@ -56,17 +61,24 @@ const AWAY: number = Math.sin(Math.PI / 180);
  *    shoulder's height, and a drinker tips the glass at the lips with the
  *    elbow low (Murphy et al. 2011), the arm the hand-to-face law now admits
  *    by the least lean (`AutoMovieMotionHumanTouchDrink.held`).
- * 2. At `atLips` of `smoke` with a held cigarette, its mouth end lies
+ * 2. Through the hold at the mouth, at `atMouth`, halfway to `relax` and at
+ *    `relax`, the glass's rim passes within 15 mm of the mouth region
+ *    (#3361's acceptance for the rim), read as the mouth's distance to the
+ *    rim's circle.
+ * 3. From the grip's closing to the end of the stand the glass stays where
+ *    it was in the hand's own frame within 1 mm (the campaign's bound for a
+ *    grip, `motionPropHeldDrift`).
+ * 4. At `atLips` of `smoke` with a held cigarette, its mouth end lies
  *    within 15 mm of the mouth region.
  *
  * @param name The body.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the scene, why the glass is taken for its use and the 2 scenarios with their bounds, and why the first changed.
- * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame and the mouth region.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the scene, why the glass is taken for its use, why one drink film serves every glass scenario and the 4 scenarios with their bounds, and why the first changed.
+ * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame, the hand and the mouth region.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two performances and their readings, gathered as complaints and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A performance that does not plan is a complaint with the refusal's words; the bounds are the spec's own, unchanged by the split.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two short performances, sampled at up to 17 and 5 instants; the arm's description and the 7 pick-up instants of a complaint are resolved only when the carry's bound fails.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A performance that does not plan is a complaint with the refusal's words; the bounds are the specs' own, unchanged by the split or by the shared film.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two short performances, sampled at up to 17 and 5 instants, the rim read at three of the hold's five and the grip every half second; the arm's description and the 7 pick-up instants of a complaint are resolved only when the carry's bound fails.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once; one drink film feeds the attitude, the rim and the grip, and the grip's reading is `motionPropHeldDrift`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
@@ -105,7 +117,10 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (segment: IAutoMovieMotionHumanSegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -158,7 +173,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     return `upper arm ${angles("rightUpperArm")}, forearm ${angles("rightLowerArm")}, wrist ${angles("rightHand")}, reach ${(Vector3.length(Vector3.subtract(wrist, shoulder)) / (body.measure.upperArm + body.measure.forearm)).toFixed(2)} of the arm, ${residual.toFixed(1)} degrees left after the best forearm turn`;
   };
 
-  // 1. The glass upright at the mouth.
+  // 1 to 3. The drink from the held glass, one film for every reading.
   try {
     const drunk: IAutoMovieMotionHumanPerformance = perform(
       HumanObject.prop("glass", glass, stood),
@@ -168,7 +183,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
           handle: "body",
           use: { tip: "lip", line: "square", at: "mouth" },
         })
-        .handToFace({ task: "drink", prop: "glass" }),
+        .handToFace({ task: "drink", prop: "glass" })
+        .stand({ seconds: 0.5 }),
     );
     const lift: IAutoMovieMotionHumanSegment = drunk.segments("a")[0]!;
     const drink: IAutoMovieMotionHumanSegment = drunk.segments("a")[1]!;
@@ -208,10 +224,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         body,
         0,
       );
-      const turn = (
-        a: IAutoMovieQuaternion,
-        b: IAutoMovieQuaternion,
-      ): number =>
+      const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
         (2 *
           Math.acos(
             Math.min(
@@ -243,11 +256,21 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     }
 
     // 1b. At the mouth: the lean the law asked, read as the glass's axis
-    // carried by the asked hand rotation, and the shown one beside it.
+    // carried by the asked hand rotation, and the shown one beside it; and
+    // 2, at the hold's ends and its middle, the rim's distance from the
+    // mouth.
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      drunk,
+      "a",
+      body,
+      0,
+    );
     const hand: IAutoMovieQuaternion = HumanSignature.bones(
-      HumanSignature.of(drunk, "a", body, 0),
+      reader,
       atMouth,
     ).get("rightHand")!.worldRotation;
+    const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
+    let rim: number = 0;
     const asked: number = from(
       Quaternion.rotateVector(
         drunk.posture("a", atMouth).limbs.rightArm?.rotation ?? hand,
@@ -257,20 +280,55 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     for (let i: number = 0; i <= 4; i++) {
       const seconds: number =
         atMouth + ((instant(drink, "relax") - atMouth) * i) / 4;
-      const shownAxis: IAutoMovieVector3 = axis(seconds);
+      const frame: IAutoMovieRigidTransform = drunk.prop("glass", seconds);
+      const shownAxis: IAutoMovieVector3 = Quaternion.rotateVector(
+        frame.rotation,
+        up,
+      );
       const lean: number = from(shownAxis);
       if (!(shownAxis.z <= AWAY && lean <= asked + step))
         complaints.push(
           `${name}: at ${seconds.toFixed(2)} s at the mouth the held glass leans ${lean.toFixed(1)} degrees with its top ${shownAxis.z <= 0 ? "toward" : "away from"} the face (${((Math.asin(Math.min(1, Math.abs(shownAxis.z))) * 180) / Math.PI).toFixed(1)} degrees of it), toward it or upright within 1 degree and at most the asked ${asked.toFixed(1)} plus ${step} expected (${shown(drunk, seconds, shownAxis)})`,
         );
+
+      // The rim at the hold's ends and its middle: the mouth's distance to
+      // the rim's circle about the glass's axis.
+      if (i % 2 === 0) {
+        const mouth: IAutoMovieVector3 = Vector3.subtract(
+          HumanSignature.region(reader, "mouth", seconds),
+          Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(frame.rotation, { x: 0, y: lip.y, z: 0 }),
+          ),
+        );
+        const along: number = Vector3.dot(mouth, shownAxis);
+        const across: number = Vector3.length(
+          Vector3.subtract(mouth, Vector3.scale(shownAxis, along)),
+        );
+        rim = Math.max(
+          rim,
+          Math.hypot(across - Math.hypot(lip.x, lip.z), along),
+        );
+      }
     }
+    if (!(rim <= 0.015))
+      complaints.push(
+        `${name}: the held glass's rim is ${(rim * 1000).toFixed(1)} mm from the mouth at its farthest in the hold, within 15 mm expected`,
+      );
+
+    // 3. The glass in the hand's frame, from the grip's closing to the end.
+    const moved: number = motionPropHeldDrift(drunk, "glass");
+    if (!(moved <= 0.001))
+      complaints.push(
+        `${name}: the held glass moves ${(moved * 1000).toFixed(1)} mm in the hand's frame, within 1 mm expected`,
+      );
   } catch (error) {
     complaints.push(
       `${name}: the drink from a held glass: expected to plan, got ${(error as Error).message}`,
     );
   }
 
-  // 2. The cigarette's end at the lips.
+  // 4. The cigarette's end at the lips.
   try {
     const smoked: IAutoMovieMotionHumanPerformance = perform(
       HumanObject.prop("cigarette", cigarette, stood),
