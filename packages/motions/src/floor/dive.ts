@@ -62,7 +62,7 @@ export namespace dive {
   export const name: AutoMovieMotionHumanActionKey = "dive";
 
   /** A dive's content is a fall to the floor caught on the hands, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
-  export const physical: true = true;
+  export const physical: boolean = true;
 
   /** Cancel table: a dive or slide is left once it has come to rest. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {

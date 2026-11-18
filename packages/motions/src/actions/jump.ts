@@ -118,7 +118,7 @@ export namespace jump {
   export const name: AutoMovieMotionHumanActionName = "jump";
 
   /** A jump's content is a take-off, a flight and a landing, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
-  export const physical: true = true;
+  export const physical: boolean = true;
 
   /** Cancel table: once landed and settled, a jump gives way to standing or walking. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
