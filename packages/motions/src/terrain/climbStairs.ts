@@ -170,7 +170,6 @@ export namespace climbStairs {
       AutoMovieMotionManner.of(context, p.manner);
 
     // Footprints: the settled flat sole on its tread at the standing lateral place.
-    const flat: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
     const goals: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>> = {
       left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", flats.left.rotation),
       right: AutoMovieMotionHumanLeg.preparePlacement(body, "right", flats.right.rotation),
@@ -185,23 +184,22 @@ export namespace climbStairs {
           body,
           side,
           point,
-          flat(side),
+          flats[side],
         );
         return {
           z:
             framed.local(at).z -
-            framed.local(flat(side).ankle).z,
-          y: at.y - flat(side).ankle.y,
+            framed.local(flats[side].ankle).z,
+          y: at.y - flats[side].ankle.y,
         };
       });
     }
     const soles: Record<"left" | "right", IAutoMovieMotionHumanClearance.IPoint[]> = {
       left: soleOf("left"), right: soleOf("right"),
     };
-    const sole: (side: "left" | "right") => IAutoMovieMotionHumanClearance.IPoint[] = (side: "left" | "right"): IAutoMovieMotionHumanClearance.IPoint[] => soles[side];
     const printOf: (side: "left" | "right", level: number) => IPrint = (side: "left" | "right", level: number): IPrint => {
       if (level === 0) return { placement: entered[side], level: 0 };
-      const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] = sole(side);
+      const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] = soles[side];
       const length: number = toe!.z - heel!.z;
       const edge: number = stairs.first + (level - 1) * stairs.tread;
       // The last tread is the landing: it has no far edge to keep from.
@@ -213,7 +211,7 @@ export namespace climbStairs {
             : sign > 0
               ? edge - EDGE
               : edge + stairs.tread + EDGE - length;
-      const ankle: IAutoMovieVector3 = flat(side).ankle;
+      const ankle: IAutoMovieVector3 = flats[side].ankle;
       return {
         placement: {
           ankle: framed.point({
@@ -221,7 +219,7 @@ export namespace climbStairs {
             y: ankle.y + sign * level * stairs.riser,
             z: heelAt - heel!.z,
           }),
-          rotation: flat(side).rotation,
+          rotation: flats[side].rotation,
         },
         level,
       };
@@ -242,7 +240,7 @@ export namespace climbStairs {
       climbStairsProfile(stairs, EDGE - EDGE_MARGIN, CLEARANCE);
     const required: (side: "left" | "right") => (z: number) => number =
       (side: "left" | "right"): ((z: number) => number) => {
-        const points: readonly IAutoMovieMotionHumanClearance.IPoint[] = sole(side);
+        const points: readonly IAutoMovieMotionHumanClearance.IPoint[] = soles[side];
         return (z: number): number => {
           let height: number = -Infinity;
           for (const point of points)
