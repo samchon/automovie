@@ -74,6 +74,19 @@ export interface IAutoMovieMotionHumanBody {
   /** The rig's bone records by name, the first record of each name in the rig's order, indexed once with the body. */
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>;
 
-  /** The shoulder's clinical angles, degrees, of the side's unloaded hanging arm (`AutoMovieMotionHumanBend.hanging`), the angles an elbow's strain is measured from; read once per side on its first use, null when the rig has no arm chain. */
+  /**
+   * The shoulder's clinical angles, degrees, of the side's unloaded hanging arm (`AutoMovieMotionHumanBend.hanging`), the angles an elbow's strain is measured from; read once per side on its first use, null when the rig has no arm chain.
+   *
+   * @param side The arm's side.
+   * @returns The shoulder's angles, or null for a rig without an arm chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the angles are, what reads them, when they are read and the null.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable member has no algorithm body; `createHumanBody` supplies it from `AutoMovieMotionHumanBend.hanging`.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the provider owns its decomposition.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns the once-per-side read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handle; the provider owns what it keeps.
+   */
   hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
 }
