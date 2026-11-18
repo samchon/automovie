@@ -87,6 +87,7 @@ export * from "./ensemble/HumanEnsemble";
 export * from "./ensemble/HumanFormation";
 export * from "./ensemble/HumanManoeuvre";
 export * from "./ensemble/HumanPopulation";
+export * from "./ensemble/humanQueueAdvance";
 export * from "./ensemble/IHumanAttributeEffects";
 export * from "./ensemble/IHumanEnsemble";
 export * from "./ensemble/IHumanEnsemblePreset";
