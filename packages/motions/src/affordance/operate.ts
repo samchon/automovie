@@ -124,7 +124,9 @@ export namespace operate {
   export const UPRIGHT: number = Math.SQRT1_2;
 
   /** The width of each part a hand aims at, metres (provisional). */
-  export const WIDTH: Readonly<Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>> = {
+  export const WIDTH: Readonly<
+    Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>
+  > = {
     button: 0.02,
     knob: 0.05,
     slider: 0.03,
@@ -152,13 +154,17 @@ export namespace operate {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.mechanism;
+    const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
+      context.params.mechanism;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const at: IAutoMovieMotionTarget =
       mechanism.kind === "insert" ? mechanism.into : mechanism.at;
-    const place: ReturnType<typeof context.aim> = context.aim(at, context.start);
+    const place: ReturnType<typeof context.aim> = context.aim(
+      at,
+      context.start,
+    );
 
     // On a prop that articulates, the hand follows the part the prop poses
     // and the operation drives that articulation; a held prop inserted into
@@ -205,9 +211,16 @@ export namespace operate {
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose, undefined, HumanHand.frameBones(
-          body, side, mechanism.kind === "button" ? "indexTip" : "grip",
-        )),
+        poseBones(
+          body,
+          context.entry.pose,
+          undefined,
+          HumanHand.frameBones(
+            body,
+            side,
+            mechanism.kind === "button" ? "indexTip" : "grip",
+          ),
+        ),
         { origin: context.entry.posture.root, yaw: context.entry.posture.yaw },
         side,
         mechanism.kind === "button" ? "indexTip" : "grip",
@@ -233,12 +246,15 @@ export namespace operate {
       modifiers,
     );
     const duration: number = clock.duration;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const hand: ReturnType<typeof operateHand> = operateHand(context, {
-      clock, place, part, hinge, inserted, upright: UPRIGHT,
+      clock,
+      place,
+      part,
+      hinge,
+      inserted,
+      upright: UPRIGHT,
     });
     const target: ReturnType<typeof operateHand>["target"] = hand.target;
 
@@ -274,31 +290,38 @@ export namespace operate {
           fix: "operate it as an action of its own, or bring the body nearer first",
         });
     }
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "strokeEnd",
-      primitives: [
-        ...(grounded ? [lean.primitive(clock)] : []),
-        AutoMovieMotionHumanArm.stroke({
-          body,
-          clock,
-          side,
-          origin,
-          contact: {
-            kind: "grip",
-            support:
-              mechanism.kind === "insert"
-                ? { kind: "prop", subject: mechanism.prop }
-                : at.kind === "prop"
-                  ? { kind: "prop", subject: at.subject }
-                  : { kind: "ground" },
-          },
-          path: (posture: IAutoMovieMotionHumanPosture, _seconds: number, progress: number): IAutoMovieMotionHumanArmTarget.ITarget =>
-            target(posture, progress),
-        }),
-      ],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "strokeEnd",
+        primitives: [
+          ...(grounded ? [lean.primitive(clock)] : []),
+          AutoMovieMotionHumanArm.stroke({
+            body,
+            clock,
+            side,
+            origin,
+            contact: {
+              kind: "grip",
+              support:
+                mechanism.kind === "insert"
+                  ? { kind: "prop", subject: mechanism.prop }
+                  : at.kind === "prop"
+                    ? { kind: "prop", subject: at.subject }
+                    : { kind: "ground" },
+            },
+            // The part read at the write's own second: a moving part is
+            // intercepted where it is, from the ready pose on.
+            path: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+              progress: number,
+            ): IAutoMovieMotionHumanArmTarget.ITarget =>
+              target(posture, progress, seconds),
+          }),
+        ],
+      });
     return part === undefined
       ? composed
       : { ...composed, drives: [operateDrive.drive(part, clock)] };
