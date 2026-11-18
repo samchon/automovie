@@ -61,9 +61,9 @@ export namespace HumanPerformanceHits {
    * @evidence contracts/development/implementation.md#principled-implementation Actual melee stops, blast impulse geometry and prop-flight contacts produce the existing shared interaction records; time/id sorting defines deterministic order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three original producers share one synchronous per-person observation factory, then feed the original sort and optional target filter; each consumer requests profile-plus-region or region-only FK outputs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps central-difference velocity, provisional profile segment mass, nearest surface/region and producer outcomes; a complete-axis melee read changes no physical acceptance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes original producer queries and O(H log H) sorting for H hits; filtering is O(H). Each actually observed person/demand prepares static names and a synchronous unchanged-table ROM index once. Melee/blast FK returns the profile-plus-region owner union and flight region-only FK returns only region owners, preserving every required ancestry and original native solve; no query pose is reused. A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads. R canonical region-entry pairs are prepared once per unchanged body instead of allocated at every nearest-region query. The four possible melee distal masses each scan their immutable profile at most once, retaining the original first matching segment and absent-mass behavior; every actual point placement/distance and strict first-minimum comparison still executes through the shared point owner, omitting only unused normal/forward rotations and their result wrapper. Scalar distance retains the same ordinary/extreme/nonfinite norm branches without a displacement allocation, and first-minimum selection retains only its current name and scalar instead of allocating a record per improvement.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing weak performance result is used only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read. The body producer fixes region order and bone-local surface frames, so only that immutable entry table and the four fixed distal profile masses are shared; current posed bones and world region points are never retained. The constructor-fixed registry/body and one synchronous unchanged-table build justify per-person/demand prepareBones metadata only; each exact-time callback still observes current placement/stops and creates an independent current pose/FK workspace, sharing only genuine unchanged-table ROM metadata within this build.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. Separate weak body keys own only R fixed region-name/local-frame pairs and at most four distal scalar masses or absences until body release; at most two immutable profile/region owner-name sets also weakly follow that body. Lazy per-person/demand query producers exist only during one synchronous hit build and retain no prior pose, map, world point, endpoint history or external resource.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes original producer queries and O(H log H) sorting for H hits; filtering is O(H). Each actually observed person/demand prepares static names and a synchronous unchanged-table ROM index once. Melee/blast FK returns the profile-plus-region owner union and flight region-only FK returns only region owners, preserving every required ancestry and original native solve; no query pose is reused. A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads. Each nearest-region query lists the R region entries and each melee mass scans the profile, retaining the original first matching segment and absent-mass behavior; every actual point placement/distance and strict first-minimum comparison still executes through the shared point owner, omitting only unused normal/forward rotations and their result wrapper. Scalar distance retains the same ordinary/extreme/nonfinite norm branches without a displacement allocation, and first-minimum selection retains only its current name and scalar instead of allocating a record per improvement.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The placed performance keeps its hits (`hits`) only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read. Current posed bones and world region points are never retained. The constructor-fixed registry/body and one synchronous unchanged-table build justify per-person/demand prepareBones metadata only; each exact-time callback still observes current placement/stops and creates an independent current pose/FK workspace, sharing only genuine unchanged-table ROM metadata within this build.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The placed performance owns its H immutable hit records; temporary producer arrays, endpoint frames and the readers' owner-name sets end after the build. Lazy per-person/demand query producers exist only during one synchronous hit build and retain no prior pose, map, world point, endpoint history or external resource.
    */
   export function hits(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -71,7 +71,7 @@ export namespace HumanPerformanceHits {
   ): readonly IAutoMovieInteractionEvent[] {
     let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
       ? undefined
-      : KEPT.get(self);
+      : self.hits;
     if (all === undefined) {
       const read: IReadBones = reading(self);
       all = [...melee(self, read), ...blasts(self, read), ...flights(self, read)].sort(
@@ -81,7 +81,7 @@ export namespace HumanPerformanceHits {
         ): number =>
           a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
       );
-      if (!self.resolving) KEPT.set(self, all);
+      if (!self.resolving) self.hits = all;
     }
     return subject === undefined
       ? all
@@ -272,23 +272,13 @@ export namespace HumanPerformanceHits {
     };
   }
 
-  /** Only immutable profile/region owner names, with no pose, ROM mapper or sampled point retained. */
+  /** The bones a reading of one kind resolves: the regions' owners, and for contact the colliders' too. */
   function demand(body: IAutoMovieMotionHumanBody, kind: "regions" | "contact"): ReadonlySet<AutoMovieHumanoidBone> {
-    let names: Partial<Record<"regions" | "contact", ReadonlySet<AutoMovieHumanoidBone>>> | undefined = DEMANDS.get(body);
-    if (names === undefined) {
-      names = {};
-      DEMANDS.set(body, names);
-    }
-    let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined = names[kind];
-    if (requested === undefined) {
-      const selected: Set<AutoMovieHumanoidBone> = new Set(
-        kind === "contact" ? HumanColliders.bones(body) : undefined,
-      );
-      for (const [, frame] of regionFrames(body)) selected.add(frame.bone);
-      requested = selected;
-      names[kind] = requested;
-    }
-    return requested;
+    const selected: Set<AutoMovieHumanoidBone> = new Set(
+      kind === "contact" ? HumanColliders.bones(body) : undefined,
+    );
+    for (const [, frame] of regionFrames(body)) selected.add(frame.bone);
+    return selected;
   }
 
   /** The body's named region whose point lies nearest a world point. */
@@ -318,45 +308,18 @@ export namespace HumanPerformanceHits {
   /** The four original distal source segments emitted by the melee limb mapping. */
   type IDistal = "leftLowerArm" | "rightLowerArm" | "leftLowerLeg" | "rightLowerLeg";
 
-  /** First-declared canonical profile mass; no pose, time or hit outcome is retained. */
+  /** The profile's mass of a distal segment, its first record of the bone; none when the profile has none. */
   function distalMass(body: IAutoMovieMotionHumanBody, bone: IDistal): number | undefined {
-    let masses: Map<IDistal, number | undefined> | undefined = MASSES.get(body);
-    if (masses === undefined) {
-      masses = new Map();
-      MASSES.set(body, masses);
-    }
-    if (masses.has(bone)) return masses.get(bone);
-    const mass: number | undefined = body.profile.segments.find(
+    return body.profile.segments.find(
       (segment: IAutoMovieMotionHumanBody["profile"]["segments"][number]): boolean => segment.bone === bone,
     )?.mass;
-    masses.set(bone, mass);
-    return mass;
   }
 
-  /** Immutable profile metadata has at most the four actual melee distal names per body. */
-  const MASSES: WeakMap<IAutoMovieMotionHumanBody, Map<IDistal, number | undefined>> = new WeakMap();
-
-  /** Fixed canonical region order and bone-local frames, never world-posed answers. */
+  /** The body's regions with their bone-local frames, in the body's entry order, which strict first-minimum selection keeps. */
   function regionFrames(body: IAutoMovieMotionHumanBody): IRegions {
-    let regions: IRegions | undefined = REGIONS.get(body);
-    if (regions === undefined) {
-      regions = Object.entries(body.surfaces.regions) as IRegions;
-      REGIONS.set(body, regions);
-    }
-    return regions;
+    return Object.entries(body.surfaces.regions) as IRegions;
   }
 
   /** The body's original entry order, used unchanged by strict first-minimum selection. */
   type IRegions = readonly (readonly [AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame])[];
-
-  /** At most two actual profile/region FK name demands per immutable canonical body. */
-  const DEMANDS: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<"regions" | "contact", ReadonlySet<AutoMovieHumanoidBone>>>> = new WeakMap();
-
-  /** Weak immutable body metadata only; no posed bone, observation or time survives here. */
-  const REGIONS: WeakMap<IAutoMovieMotionHumanBody, IRegions> = new WeakMap();
-  /** The hits kept per placed performance. */
-  const KEPT: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    readonly IAutoMovieInteractionEvent[]
-  > = new WeakMap();
 }

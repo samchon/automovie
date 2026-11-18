@@ -8,17 +8,20 @@ import type {
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
   IAutoMovieIntent,
+  IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBlast,
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceSoft,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPerformanceTrial,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSkill,
   IAutoMovieMotionMeeting,
@@ -137,6 +140,24 @@ export class HumanPerformanceState {
 
   /** The plan the last alignment trial made (`HumanPerformancePlace.place` with `trial`), kept until the next placement reads or drops it; none otherwise. */
   public trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
+
+  /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
+  public readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved> = new Map();
+
+  /** Each prop's articulation writers in film order, by the prop, kept once the performance is placed (`HumanPerformanceObject.writers`). */
+  public readonly writers: Map<string, readonly IAutoMovieMotionHumanPerformanceState.IWriter[]> = new Map();
+
+  /** Each prop's last posed reading with its film second, by the prop, kept once the performance is placed (`HumanPerformanceObject.posed`). */
+  public readonly posed: Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }> = new Map();
+
+  /** Each launched prop's flights, by the prop, kept once the performance is placed (`HumanPropFlight.flights`). */
+  public readonly flights: Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]> = new Map();
+
+  /** The flights of each prop being found, so a launch reading its prop sees the flights before it. */
+  public readonly flying: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> = new Map();
+
+  /** Every hit of the placed performance in time order (`HumanPerformanceHits.hits`), kept on its first read once placed. */
+  public hits: readonly IAutoMovieInteractionEvent[] | undefined;
 
   /**
    * Resolve a performance.
