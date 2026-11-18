@@ -59,7 +59,7 @@ export namespace MotionTrajectoryRotation {
    * @evidence contracts/development/common.md#meaningful-documentation The quaternion is unit and the vector is in body-frame radians.
    * @evidence contracts/development/implementation.md#principled-implementation Right multiplication by the axis-angle exponential preserves the body-frame convention used by both steppers.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Handle absent or zero rotation, then apply the quaternion product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle is the vector's norm, with no small-angle clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle remains in radians for the half-angle trigonometry, with no small-angle clamp or overflowing conversion to degrees.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine's quaternion operations.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state.
@@ -71,10 +71,14 @@ export namespace MotionTrajectoryRotation {
     if (q === null || v === undefined) return q;
     const angle: number = Math.hypot(v.x, v.y, v.z);
     if (angle === 0) return q;
-    return Quaternion.multiply(
-      q,
-      Quaternion.fromAxisAngle(v, (angle * 180) / Math.PI),
-    );
+    const half: number = angle / 2;
+    const sine: number = Math.sin(half);
+    return Quaternion.multiply(q, {
+      x: (v.x / angle) * sine,
+      y: (v.y / angle) * sine,
+      z: (v.z / angle) * sine,
+      w: Math.cos(half),
+    });
   }
 
   /**
