@@ -103,8 +103,20 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "self": {
-        const region: IAutoMovieHumanoidSurfaces.IFrame =
+        const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
           frame.body.surfaces.regions[target.region];
+        if (region === undefined)
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: "target.region",
+            value: target.region,
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(frame.body.surfaces.regions),
+            },
+            reason: `the performer's body has no region named ${target.region}`,
+            fix: "aim at one of the regions the body declares",
+          });
         const placed: ReturnType<
           typeof resolveAutoMovieHumanoidSurfaces.place
         > = resolveAutoMovieHumanoidSurfaces.place(

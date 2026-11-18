@@ -46,21 +46,18 @@ export namespace AutoMovieMotionHumanCourse {
   export const CORRECTIONS: number = 2;
 
   /**
-
-
-  /**
    * Solve a course.
    *
    * @param props The posture builder, the target and the span.
-   * @returns The hips' place along the heading at a second, clamped to the span.
+   * @returns The hips' place along the heading at a second, clamped to the span; a span of no length holds its one solved place.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and its clamping; the namespace gives the law. Companion interpolate: States solved numeric provenance, clamped cubic readback and separation from construction-only pose/FK/ROM state.
-   * @evidence contracts/development/implementation.md#principled-implementation The extrapolated centre of mass condition integrated exactly per step for a held target, the hips placed on the solved posture's centre by fixed-point corrections, read back by a Catmull-Rom cubic. Companion interpolate: Uses the original clamped knot lookup, endpoint half-difference slopes and Catmull-Rom polynomial in its unchanged arithmetic order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous metadata scope owns the original knot loop; only numeric knots/count/step leave it for the unchanged interpolating closure. Companion interpolate: One numeric reader factory owns clamped knot lookup and the same four-term polynomial; the mass/posture construction can release all unrelated state before this reader is returned.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The correction assumes the centre follows the hips one to one and repeats, so a leg that reconfigures is absorbed by the next correction and not by a typed gain. Companion interpolate: No knot, slope, time clamp or polynomial term changes; the original zero-duration and nonfinite arithmetic remain without a fallback or extra sample.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains one complete posture solve at the start and CORRECTIONS complete solves per knot, 48 knots per second. A native fixed mass-name reader prepares once, skips unused foot-support geometry and shares exact FK/static ROM prerequisites across every actual correction. Companion interpolate: Constant work and four bounded knot accesses per actual time query; construction-time geometry and fits are absent from this playback path as before.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot keeps its original previous-place/centre-step initialization. Unchanged body/profile/rig establish fixed mass demand and genuine ROM metadata; the actual posture builder may borrow that synchronous FK source for its raw hip observation, while all current joints/limb/digit fits and mass placements remain evaluated. Companion interpolate: The fixed solved knot array and numeric span coefficients belong to this course; every supplied second computes the same current interpolation and no time/result is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Course construction releases its bounded FK/name/ROM sources and actual posed maps on return or throw. The returned cubic retains only one scalar per knot, count, step and start second; neither posture callbacks, body, source getters nor current solved poses enter it. Companion interpolate: The course owns only its numeric knots, count, step and start second until release; no body, posture callback, mass reader, FK source, ROM projector or prior result is reachable through this factory's lexical scope.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, its clamping and the span of no length; the namespace gives the law.
+   * @evidence contracts/development/implementation.md#principled-implementation The extrapolated centre of mass condition integrated exactly per step for a held target, the hips placed on the solved posture's centre by fixed-point corrections, read back by a Catmull-Rom cubic through the knots.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous metadata scope owns the knot loop; only numeric knots, count and step leave it for the interpolating closure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The correction assumes the centre follows the hips one to one and repeats, so a leg that reconfigures is absorbed by the next correction and not by a typed gain. A span of no length has no step to interpolate across and holds its one place instead of dividing by zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One complete posture solve at the start and CORRECTIONS complete solves per knot, 48 knots per second. A fixed mass-name reader prepares once and shares exact FK and static ROM prerequisites across every correction; each read is constant work on four knots.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot starts from the previous place and the centre's step. Unchanged body, profile and rig fix the mass demand and ROM metadata; the posture builder may borrow the synchronous FK source for its hip observation, while every joint, limb and digit fit and mass placement is evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases its FK, name and ROM sources and posed maps on return or throw. The returned cubic retains one scalar per knot, the count, the step and the start second; no posture callback, body or solved pose enters it.
    */
   export function solve(props: IAutoMovieMotionHumanCourse.IProps): (seconds: number) => number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -116,16 +113,17 @@ export namespace AutoMovieMotionHumanCourse {
   }
 
   /**
-   * Bind the original clamped cubic using only solved numeric course data,
-   * outside the posture/metadata construction scope.
+   * The course's cubic through its solved knots, bound outside the
+   * construction scope so no posture, FK or ROM state is reachable from it:
+   * the knot interval clamped to the span, Catmull-Rom slopes from the
+   * neighbouring knots (the end knots repeated) and the cubic Hermite basis.
+   * A span of no length has one place, held at every second.
    *
-   * States solved numeric provenance, clamped cubic readback and separation from construction-only pose/FK/ROM state.
-   * Uses the original clamped knot lookup, endpoint half-difference slopes and Catmull-Rom polynomial in its unchanged arithmetic order.
-   * One numeric reader factory owns clamped knot lookup and the same four-term polynomial; the mass/posture construction can release all unrelated state before this reader is returned.
-   * No knot, slope, time clamp or polynomial term changes; the original zero-duration and nonfinite arithmetic remain without a fallback or extra sample.
-   * Constant work and four bounded knot accesses per actual time query; construction-time geometry and fits are absent from this playback path as before.
-   * The fixed solved knot array and numeric span coefficients belong to this course; every supplied second computes the same current interpolation and no time/result is cached.
-   * The course owns only its numeric knots, count, step and start second until release; no body, posture callback, mass reader, FK source, ROM projector or prior result is reachable through this factory's lexical scope.
+   * @param knots The hips' place at each knot, metres along the heading.
+   * @param count The intervals between the knots.
+   * @param dt The knots' spacing, seconds.
+   * @param from The span's first second.
+   * @returns The place at a second.
    */
   function interpolate(
     knots: readonly number[],
@@ -135,6 +133,7 @@ export namespace AutoMovieMotionHumanCourse {
   ): (seconds: number) => number {
     const knot: (i: number) => number = (i: number): number =>
       knots[Math.min(count, Math.max(0, i))]!;
+    if (dt === 0) return (): number => knots[count]!;
     return (seconds: number): number => {
       const x: number = Math.min(count, Math.max(0, (seconds - from) / dt));
       const i: number = Math.min(count - 1, Math.floor(x));

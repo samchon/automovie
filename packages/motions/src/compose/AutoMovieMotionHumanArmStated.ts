@@ -6,7 +6,8 @@ import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
  * reaches 1 (`ready`), last leaves 1 (`relax`) and is back at 0 (`end`),
  * or `relax` and `end` at the window's end for a weight that holds 1 to
  * it. Each instant is bracketed on a 1/240 s grid of the window and
- * bisected within its bracket to 1e-12 s.
+ * bisected within its bracket to 1e-12 s, or to the finest bracket a
+ * double resolves at seconds that large.
  *
  * @param weight The carry's weight, 0 at its rest and 1 on its goal.
  * @param from The window's first second.
@@ -14,7 +15,7 @@ import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
  * @returns The span; none for a weight that states no single reach: one that never leaves 0 or never reaches 1, starts off 0, ends between its ends, or leaves 0 again after it returned.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four instants, the hold to the end, the precision and every case with no span.
- * @evidence contracts/development/implementation.md#principled-implementation A weight is a time course of a reach, so its instants are where it crosses its ends; a crossing bracketed by two samples is found by bisection to the precision asked.
+ * @evidence contracts/development/implementation.md#principled-implementation A weight is a time course of a reach, so its instants are where it crosses its ends; a crossing bracketed by two samples is found by bisection to the precision asked, stopping where the midpoint no longer lies strictly inside the bracket so the loop ends at any magnitude of seconds.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan for the brackets and one bisection per instant.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A weight with two reaches or none is not given a span: its law states its own (`AutoMovieMotionHumanArmCarry.ICarry.span`).
  * @evidence contracts/development/implementation.md#efficient-algorithms 240 samples a second of window and forty-odd reads per instant, once per carry.
@@ -44,7 +45,10 @@ export function AutoMovieMotionHumanArmStated(
     let lo: number = at(i - 1);
     let hi: number = at(i);
     while (hi - lo > 1e-12) {
+      // Past the seconds a double tells apart near the bracket the midpoint
+      // is one of its ends, and the bracket is as narrow as it can be.
       const mid: number = (lo + hi) / 2;
+      if (!(mid > lo && mid < hi)) break;
       if (met(weight(mid))) hi = mid;
       else lo = mid;
     }
