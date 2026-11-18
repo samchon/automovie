@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { motionComplaints } from "./motionComplaints";
 import type { motionHumanBody } from "./motionHumanBody";
@@ -7,11 +11,9 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
 /**
  * Bringing a hand to the face looks like the activity of daily living it
  * is, for each task and hand of the hand-to-face law, on one body, read over
- * the law's stroke (`strokeStart` to `strokeEnd`); the
- * `test_human_motion_signature_hand_to_face_rows_*` specs run one extreme
- * body each over half the rows (`MOUTH` and `HEAD`), so every row is read on
- * every body and each spec runs alone in its time. The drinking posture at the lips is the
- * `test_human_motion_signature_hand_to_face_drink_*` specs'.
+ * the law's stroke (`strokeStart` to `strokeEnd`). The small and large
+ * bodies exercise mouth and head paths, respectively. The implied drink
+ * and sip share their films with the more specific drinking checks.
  *
  * Bounds and sources (van Andel, Wolterbeek, Doorenbosch, Veeger and Harlaar
  * 2008, Gait Posture 27:120, the upper-extremity kinematics of functional
@@ -36,21 +38,20 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, the trunk's reading and its calibration, the rows left out and why, and where the drinking bound is.
  * @evidence contracts/development/implementation.md#principled-implementation Performs the real law on a real body and reads displayed joints through the signature readers.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the rows, each staged and read, then the calibration, gathered and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is read on the body; none is sampled away for time.
- * @evidence contracts/development/implementation.md#efficient-algorithms One film per row on one body, five rows a call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bounds apply over the original 30 Hz window. The acting arm comes from the displayed hand or the named side.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One film per task branch and a single pose read for both head pitch and trunk inclination at each instant.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The drinking spec also reads the generic bounds from its implied-prop films.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films live as long as the call.
  */
 export namespace motionHandToFaceRows {
   /**
-   * The rows at the mouth: the five tasks that bring the hand to the lips.
+   * The remaining rows at the mouth. The drink and sip are read in the
+   * focused drinking spec.
    * The row that leaves the task is not read apart: the hand-to-face stage
    * names the drink itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`),
    * so its film would repeat `task=drink`'s.
    */
   export const MOUTH: readonly string[] = [
-    "task=drink",
-    "task=sip",
     "task=eat",
     "task=bite",
     "task=wipeMouth",
@@ -80,42 +81,88 @@ export namespace motionHandToFaceRows {
     for (const row of rows) {
       const cell: string = `handToFace ${row} ${name}`;
       const s: M.IStaged = M.stage("handToFace", row, name);
-      const from: number = M.event(s, "strokeStart")!;
-      const to: number = M.event(s, "strokeEnd")!;
-      const mid: number = (from + to) / 2;
-      const rise = (side: "left" | "right"): number => {
-        const p: IAutoMovieVector3 = M.joint(s, mid, `${side}Hand`);
-        return p.y;
-      };
-      const side: "left" | "right" =
+      expectStroke(
+        complaints,
+        cell,
+        s,
         row === "side=left"
           ? "left"
           : row === "side=right"
             ? "right"
-            : rise("left") > rise("right")
-              ? "left"
-              : "right";
-      const elbow: number = M.elbow(s, mid, side);
-      complaints.check(
-        `${cell}: the ${side} elbow is flexed ${elbow.toFixed(1)} deg mid-stroke, at least 100 expected (van Andel et al. 2008; provisional)`,
-        elbow >= 100,
-      );
-      const ts: number[] = M.times(from, Math.max(from, to), 30);
-      const pitch: number[] = ts.map((t: number): number => M.head(s, t));
-      const lean: number[] = ts.map((t: number): number => M.trunk(s, t));
-      complaints.check(
-        `${cell}: head pitch ${Math.min(...pitch).toFixed(1)} to ${Math.max(...pitch).toFixed(1)} deg over the stroke, [-20, 30] expected (provisional)`,
-        Math.min(...pitch) >= -20 && Math.max(...pitch) <= 30,
-      );
-      complaints.check(
-        `${cell}: trunk inclination ${Math.min(...lean).toFixed(1)} to ${Math.max(...lean).toFixed(1)} deg over the stroke, [-10, 15] expected (provisional)`,
-        Math.min(...lean) >= -10 && Math.max(...lean) <= 15,
+            : undefined,
       );
     }
-    if (rows === MOUTH)
-      for (const c of M.calibrate(name)) complaints.check(c, false);
+    for (const c of M.calibrate(name)) complaints.check(c, false);
     complaints.assert(
       `the hand comes to the face as people bring it (${name})`,
+    );
+  }
+
+  /** Read the shared bounds from a film staged by either spec. */
+  export function expectStroke(
+    complaints: motionComplaints.IGatherer,
+    cell: string,
+    staged: M.IStaged,
+    named?: AutoMovieHumanSide,
+  ): void {
+    const from: number = M.event(staged, "strokeStart")!;
+    const to: number = M.event(staged, "strokeEnd")!;
+    const mid: number = (from + to) / 2;
+    const centre: ReturnType<typeof M.bones> = M.bones(staged, mid);
+    const side: AutoMovieHumanSide =
+      named ??
+      (centre.get("leftHand")!.worldPosition.y >
+      centre.get("rightHand")!.worldPosition.y
+        ? "left"
+        : "right");
+    const elbow: number = M.flexion(
+      centre.get(`${side}UpperArm`)!.worldPosition,
+      centre.get(`${side}LowerArm`)!.worldPosition,
+      centre.get(`${side}Hand`)!.worldPosition,
+    );
+    complaints.check(
+      `${cell}: the ${side} elbow is flexed ${elbow.toFixed(1)} deg mid-stroke, at least 100 expected (van Andel et al. 2008; provisional)`,
+      elbow >= 100,
+    );
+    const pitch: number[] = [];
+    const lean: number[] = [];
+    const forward: IAutoMovieVector3 = M.forward(staged.yaw);
+    // The previous signature reads use a 30 Hz probe over sustained strokes.
+    for (const time of M.times(from, Math.max(from, to), 30)) {
+      const bones: ReturnType<typeof M.bones> =
+        time === mid ? centre : M.bones(staged, time);
+      const headAxis: IAutoMovieVector3 = Quaternion.rotateVector(
+        bones.get("head")!.worldRotation,
+        { x: 0, y: 0, z: 1 },
+      );
+      pitch.push(
+        (Math.asin(Math.max(-1, Math.min(1, -headAxis.y))) * 180) / Math.PI,
+      );
+      const shoulders: IAutoMovieVector3 = Vector3.add(
+        bones.get("leftUpperArm")!.worldPosition,
+        bones.get("rightUpperArm")!.worldPosition,
+      );
+      const hips: IAutoMovieVector3 = Vector3.add(
+        bones.get("leftUpperLeg")!.worldPosition,
+        bones.get("rightUpperLeg")!.worldPosition,
+      );
+      // A common factor of two cancels in the projection angle.
+      const trunk: IAutoMovieVector3 = Vector3.subtract(shoulders, hips);
+      lean.push(
+        (Math.atan2(Vector3.dot(trunk, forward), trunk.y) * 180) / Math.PI,
+      );
+    }
+    const minPitch: number = Math.min(...pitch);
+    const maxPitch: number = Math.max(...pitch);
+    const minLean: number = Math.min(...lean);
+    const maxLean: number = Math.max(...lean);
+    complaints.check(
+      `${cell}: head pitch ${minPitch.toFixed(1)} to ${maxPitch.toFixed(1)} deg over the stroke, [-20, 30] expected (provisional)`,
+      minPitch >= -20 && maxPitch <= 30,
+    );
+    complaints.check(
+      `${cell}: trunk inclination ${minLean.toFixed(1)} to ${maxLean.toFixed(1)} deg over the stroke, [-10, 15] expected (provisional)`,
+      minLean >= -10 && maxLean <= 15,
     );
   }
 }

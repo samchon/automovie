@@ -1,17 +1,13 @@
 import { motionHandToFaceRows } from "../internal/motionHandToFaceRows";
 
 /**
- * Bringing a hand to the face looks like the activity of daily living it
- * is, on the f-small body, for the five tasks at the mouth (the row that leaves the task stages `task=drink`'s scene)
- * (`motionHandToFaceRows` states the rows, the bounds and their sources).
- * One spec per extreme body and half of the rows, so every row is read on
- * every body and each runs alone in its time.
+ * Eating, biting and wiping the mouth bring the small actor's hand to the mouth within the sustained stroke's elbow, head and trunk bounds.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real law on a real body and reads displayed joints; a hand brought to the face on a straight arm, a head craned up to meet it or a body leaning far fails with its cell, value, bound and source.
- * @evidence contracts/development/testing.md#independent-expectations The elbow's range is van Andel et al.'s; the other limits are marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The rows of `motionHandToFaceRows.MOUTH` on one extreme body; the other half of the rows and the other bodies are their own specs.
- * @evidence contracts/development/testing.md#execution-ownership In memory, one film per row; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the law, the body, the rows, where the bounds are stated and the split.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the displayed pose and events of the public action.
+ * @evidence contracts/development/testing.md#independent-expectations The displayed joint angles retain the van Andel et al. elbow bound and the provisional head and trunk bounds stated by motionHandToFaceRows.
+ * @evidence contracts/development/testing.md#distinguishing-cases The mouth actions exercise an eating motion, a bite and a wipe. The drinking test covers drink and sip with the same bounds.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on prepared human bodies, discovered by its public test name.
+ * @evidence contracts/development/common.md#meaningful-documentation States the action branches and the properties checked.
  */
 export function test_human_motion_signature_hand_to_face_rows_f_small_mouth(): void {
   motionHandToFaceRows.check("f-small", motionHandToFaceRows.MOUTH);

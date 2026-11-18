@@ -1,4 +1,5 @@
 import { createDrinkware } from "@automovie/archetypes";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -6,7 +7,6 @@ import type {
   IAutoMovieMotionHumanHandToFaceRows,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanTouchUpright,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,14 +21,14 @@ import {
 } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
+import { motionHandToFaceRows } from "./motionHandToFaceRows";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * The drinking signature of one body, which the
- * `test_human_motion_signature_hand_to_face_drink_*` specs read one body
- * each: the right arm at `atMouth` of a drink and of a sip with the implied
+ * The drinking signature of the reference body: the right arm at
+ * `atMouth` of a drink and of a sip with the implied
  * glass, and of a drink from a real glass the hand took up for that use
  * first (`pickUp` with `use`, then `handToFace` with the prop), once with the
  * vessel searched afresh and once held as the grasp it was taken up by
@@ -56,7 +56,7 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/implementation.md#principled-implementation Performs the real law on a real body and reads displayed joints, and the search's own admission one step below its answer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over three cells, each staged, read and checked, then the optional least-lean check.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cell that does not plan is a complaint with the refusal's words, not a skipped cell.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four films per body; the least-lean check reads the drink's film again at its first second.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four films cover the vessel and grasp branches. Implied drink and sip share their films with the generic stroke checks. Goal diagnostics run only when the shoulder bound fails.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Stages through `motionHumanSignature` and `motionHumanLaw`, reads the region through `HumanTrunk.region` and admits through `AutoMovieMotionHumanTouchDrink.admitted`.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films live as long as the call.
  */
@@ -155,9 +155,12 @@ export namespace motionHandToFaceDrink {
         continue;
       }
       read(complaints, cell, s);
+      if (label.startsWith("task="))
+        motionHandToFaceRows.expectStroke(complaints, cell, s);
       if (least && label.startsWith("task=drink"))
         for (const c of below(s)) complaints.check(`${cell}: ${c}`, false);
     }
+    for (const c of M.calibrate(name)) complaints.check(c, false);
     complaints.assert(`a glass comes to the lips as people drink (${name})`);
   }
 
@@ -168,50 +171,47 @@ export namespace motionHandToFaceDrink {
     s: M.IStaged,
   ): void {
     const at: number = M.event(s, "atMouth")!;
-    const shoulder: IAutoMovieVector3 = M.joint(s, at, "rightUpperArm");
-    const knuckle: IAutoMovieVector3 = M.joint(s, at, "rightLowerArm");
-    const hand: IAutoMovieVector3 = M.joint(s, at, "rightHand");
+    const bones: ReturnType<typeof M.bones> = M.bones(s, at);
+    const hand: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
     // The shoulder's flexion and abduction on the displayed bones, as the
     // source measures them, read from the one owner of that measure.
-    const { flexion, abduction }: { flexion: number; abduction: number } =
-      AutoMovieMotionHumanDrinkingArm.measured(M.bones(s, at), "right", s.yaw);
-    // The arm's goal there, for the fit it came from: the elbow's hint and
-    // the reference arm, and where the fitted elbow and the wrist lie.
-    const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
-      "a",
-      at,
+    const { flexion, abduction } = AutoMovieMotionHumanDrinkingArm.measured(
+      bones,
+      "right",
+      s.yaw,
     );
-    const segments: readonly IAutoMovieMotionHumanSegment[] =
-      s.film.performance.segments("a");
-    const entered: IAutoMovieMotionHumanPosture = s.film.performance.posture(
-      "a",
-      segments[segments.length - 1]!.start,
-    );
-    const mouth: IAutoMovieVector3 = M.region(s, "a", s.body, "mouth", at);
-    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
-    const v = (p: IAutoMovieVector3 | undefined): string =>
-      p === undefined
-        ? "none"
-        : `(${p.x.toFixed(3)}, ${p.y.toFixed(3)}, ${p.z.toFixed(3)})`;
+    const frame = s.body.surfaces.regions.mouth;
+    const mouth: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      frame,
+      bones.get(frame.bone)!,
+    ).point;
     const drinks: boolean =
       flexion <= 53.5 + 2 * 7.0 && abduction <= 39.3 + 2 * 13.0;
-    // On a miss, what the law's own drinking reader reads for this very
-    // posture and goal, so a reader that admits what is not shown is told
-    // apart from a goal or posture the plan did not foresee.
-    const reader: IAutoMovieMotionHumanDrinkingArm.IArm | undefined =
-      drinks || goal === undefined
-        ? undefined
-        : AutoMovieMotionHumanDrinkingArm.read(
-            s.body,
-            posture,
-            "right",
-            goal,
-            false,
-          );
-    complaints.check(
-      `${cell}: at the mouth (${at.toFixed(2)} s) the shoulder is flexed ${flexion.toFixed(1)} and abducted ${abduction.toFixed(1)} deg, at most 67.5 and 65.3 expected (Alt Murphy et al. 2006, mean plus two SD); shoulder ${v(shoulder)}, elbow ${v(knuckle)}, wrist ${v(hand)}, the goal's point ${v(goal?.point)}, rotation ${JSON.stringify(goal?.rotation ?? null)}, hint ${v(goal?.bend)}, reference ${JSON.stringify(goal?.reference ?? null)}; the drinking reader reads ${reader === undefined ? "nothing" : `${reader.flexion.toFixed(1)} and ${reader.abduction.toFixed(1)} deg`} on this posture and goal; neck and head ${JSON.stringify([posture.joints.neck, posture.joints.head])} against ${JSON.stringify([entered.joints.neck, entered.joints.head])} at the act's start, mouth ${v(mouth)}`,
-      drinks,
-    );
+    if (!drinks) {
+      const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
+        "a",
+        at,
+      );
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
+      const planned: IAutoMovieMotionHumanDrinkingArm.IArm | undefined =
+        goal === undefined
+          ? undefined
+          : AutoMovieMotionHumanDrinkingArm.read(
+              s.body,
+              posture,
+              "right",
+              goal,
+              false,
+            );
+      const angles: string =
+        planned === undefined
+          ? "no admissible angles"
+          : `${planned.flexion.toFixed(1)} and ${planned.abduction.toFixed(1)} deg`;
+      complaints.check(
+        `${cell}: at the mouth (${at.toFixed(2)} s) the shoulder is flexed ${flexion.toFixed(1)} and abducted ${abduction.toFixed(1)} deg, at most 67.5 and 65.3 expected (Alt Murphy et al. 2006, mean plus two SD); the plan predicts ${angles} for goal ${JSON.stringify(goal)}`,
+        false,
+      );
+    }
     const gap: number = Math.hypot(
       hand.x - mouth.x,
       hand.y - mouth.y,

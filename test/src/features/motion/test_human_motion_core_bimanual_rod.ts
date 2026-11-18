@@ -147,6 +147,8 @@ export function test_human_motion_core_bimanual_rod(): void {
   );
   let step: number = 0;
   let departure: number = 0;
+  let departureAt: number = 0;
+  let departureSide: string = "";
   let off: number = 0;
   let spacing: number = 0;
   read.forEach((p, i: number): void => {
@@ -175,10 +177,12 @@ export function test_human_motion_core_bimanual_rod(): void {
             (at(i - 1).z - at(i - 2).z) -
             (at(i + 1).z - at(i).z),
         };
-        departure = Math.max(
-          departure,
-          distance(twice, { x: 0, y: 0, z: 0 }) / 2,
-        );
+        const deviation: number = distance(twice, { x: 0, y: 0, z: 0 }) / 2;
+        if (deviation > departure) {
+          departure = deviation;
+          departureAt = seconds;
+          departureSide = side;
+        }
       }
     if (seconds >= span.ready && seconds <= span.relax) {
       // The lead hand is held to its place; the second to the lead, so its
@@ -192,7 +196,7 @@ export function test_human_motion_core_bimanual_rod(): void {
     step * rate <= AutoMovieMotionHumanAudit.LIMITS.speed,
   );
   TestValidator.predicate(
-    `no palm's step departs from its neighbours' mean by more than the audit's jump limit: ${(departure * 1000).toFixed(1)} mm`,
+    `no palm's step departs from its neighbours' mean by more than the audit's jump limit: ${(departure * 1000).toFixed(2)} mm, ${departureSide} palm at ${departureAt.toFixed(4)} s (ready ${span.ready} s, relax ${span.relax} s)`,
     departure <= AutoMovieMotionHumanAudit.LIMITS.jump,
   );
   TestValidator.predicate(

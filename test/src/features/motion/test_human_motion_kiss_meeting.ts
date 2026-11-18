@@ -1,7 +1,11 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
+  IAutoMovieBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -9,6 +13,9 @@ import {
   HumanChain,
   HumanMutual,
   HumanRefusal,
+  poseBones,
+  resolveHumanPosture,
+  stand,
 } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "../internal/MOTION_HUMAN_LAW_STAGES_TOUCH";
@@ -113,7 +120,14 @@ export function test_human_motion_kiss_meeting(): void {
         worst.value <= 0.01,
       );
     } catch (error) {
-      all.check(`${region}: the kiss must play: ${String(error)}`, false);
+      const height: string =
+        region === "forehead"
+          ? `, at least ${(leastForeheadSeparation(scene) * 1000).toFixed(1)} mm vertically beyond the planted kisser's rigid links`
+          : "";
+      all.check(
+        `${region}: the kiss must play: ${String(error)}${height}`,
+        false,
+      );
     }
   }
 
@@ -146,4 +160,71 @@ export function test_human_motion_kiss_meeting(): void {
   all.assert(
     "the kiss meets the real skin only where both poses admit contact",
   );
+}
+
+/** A lower bound on the stationary forehead's height above any planted kiss. */
+function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
+  const kisser: motionHumanLawSweep.IPerson = scene.people[0]!;
+  const kissed: motionHumanLawSweep.IPerson = scene.people[1]!;
+  const body: IAutoMovieMotionHumanBody = kisser.body;
+  const mouth: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] =
+    body.surfaces.regions.mouth;
+  const lengths: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
+    body.skeleton.bones.map(
+      (b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [
+        b.bone,
+        b,
+      ],
+    ),
+  );
+  // Vertical distance never exceeds the sum of rigid link lengths along
+  // the path from a planted sole, through the hips, to the lips.
+  const sockets: readonly AutoMovieHumanoidSocket[] = [
+    "heelLeft",
+    "ballLeft",
+    "toeLeft",
+    "soleLeft",
+    "heelRight",
+    "ballRight",
+    "toeRight",
+    "soleRight",
+  ];
+  const tallest: number =
+    kisser.at.y +
+    chain(mouth.bone) +
+    Vector3.length(mouth.point) +
+    Math.max(
+      ...sockets.map((name: AutoMovieHumanoidSocket): number => {
+        const ground: IAutoMovieMotionHumanBody["surfaces"]["sockets"][AutoMovieHumanoidSocket] =
+          body.surfaces.sockets[name];
+        return chain(ground.bone) + Vector3.length(ground.point);
+      }),
+    );
+  const remained: IAutoMovieMotionHumanPosture = stand.posture(
+    kissed.body,
+    kissed.at,
+    kissed.yaw,
+  );
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    kissed.body,
+    resolveHumanPosture(kissed.body, remained),
+  );
+  const frame: typeof mouth = kissed.body.surfaces.regions.forehead;
+  const height: number = resolveAutoMovieHumanoidSurfaces.place(
+    frame,
+    bones.get(frame.bone)!,
+  ).point.y;
+  return height - tallest;
+
+  /** Sum actual rest translations from a link up to the common pelvis. */
+  function chain(first: AutoMovieHumanoidBone): number {
+    let length: number = 0;
+    for (
+      let bone: IAutoMovieBone = lengths.get(first)!;
+      bone.bone !== "hips";
+      bone = lengths.get(bone.parent!)!
+    )
+      length += Vector3.length(bone.rest.translation);
+    return length;
+  }
 }

@@ -21,51 +21,42 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
 
+type Base = "standing" | "seated";
+type Subject = "a" | "b";
+
+interface IComposition {
+  node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+}
+
+interface IWorldPlacement {
+  at: IAutoMovieVector3;
+  yaw: number;
+}
+
 /**
- * The mutual and prop-handling laws composed over the grammar's bases, roles
- * and props (#3364's composition matrix) for one pair of bodies on one base:
- * each keeps its shipped verdict, with a mug and a ball. The parts
- * `test_human_motion_recompose_mutual_<pair>_<base>` cover the pairs and
- * bases between them, so each stays under the test cap alone.
+ * The seated pair keeps its pelvis within 10 mm of its original seat over
+ * a handshake, mug handover, cheek kiss and pick-up of a mug or football.
+ * The clasp is shared, the wrists stay within a mean hand length at
+ * contact and the closed grip drifts no more than 10 mm (#3201). The mug
+ * giver releases after the receiver closes their grip (Mason and MacKenzie
+ * 2005). Both props lift only after grip closure and stay within 5 mm of
+ * their initial hand-local position. A second seed changes the handshake's
+ * reach timing and keeps the clasp shared.
  *
- * Scenarios, the pairs (average man, small woman) and (small woman, tall
- * man), each facing the other 0.7 m apart, standing or seated at their own
- * popliteal height:
- * 1. Handshake joined by `HumanChain.mutual`: both roles' `clasp` falls at
- *    one second; at it the right wrists lie within the mean hand length of
- *    each other; from `gripClosed` to `release` their distance changes by at
- *    most 10 mm (#3201's step 4 acceptance: drift within 10 mm).
- * 2. High five joined the same way: one `meet` second, wrists within the
- *    mean hand length there.
- * 3. Handover of a mug: the receiver's `gripClosed` comes before the giver's
- *    `release` (release only after the receiver's grip closes, Mason and
- *    MacKenzie 2005).
- * 4. A kiss on the partner's cheek: the kisser's `contact` exists and falls
- *    inside the action.
- * 5. Pick up a mug and a ball and put it down where it stood: `gripClosed`
- *    before `lifted`, and the prop rides the hand between them (its offset
- *    from the right hand changes by at most 5 mm).
- * 6. On the seated base, the pelvis stays within 10 mm of where sitting left
- *    it through each act (the seat is not left).
- * 7. A pass joined by `HumanMutual.pass`, the pair `TOSS` apart, beyond both
- *    arms' reach of the release: the ball thrown at the partner's
- *    right palm is caught, the catch's `secured` after the throw's
- *    `release`; a pass without an anchor is refused; and a kick of a ball on
- *    the floor strikes it (`stroke`) within the act.
- * 8. Replay: the handshake performed again with the same seed is bit for bit
- *    the same; with another seed the hand moves otherwise on its reach to
- *    the clasp, whose velocity peak is drawn (variation, #3359).
+ * The standing pair throws and catches a football beyond arm's reach
+ * and kicks a football from the floor. The throw precedes the catch, and
+ * a toss with no anchor is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs every law of the matrix through the public chains and reads events, displayed bones and prop frames: roles that meet apart, a drifting grip, a release before the receiver's grip, a prop sliding in the hand, a seat left, a catch before its throw, or a non-replaying take is caught.
- * @evidence contracts/development/testing.md#independent-expectations The 10 mm grip drift and the release order are the shipped verdicts of #3229 and #3231 carried by #3364; the hand-length bound is the mutual join's own; the 10 mm seat bound is #3361's seated base; replay is the keyed-draw contract.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bases, two pairs of statures, two props, a mutual and a one-person case per law, and a second seed; each law's own signature sweeps belong to its own specs.
- * @evidence contracts/development/testing.md#execution-ownership The shared body of the four part specs; performs in memory on prepared polygon-man bodies and archetype props, no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the eight scenarios, their bounds and sources.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks order and contact from the public composition, held offsets in hand coordinates and pelvic position throughout the seated acts.
+ * @evidence contracts/development/testing.md#independent-expectations Mass and body geometry come from the fixture. The grip drift, seat drift and prop-slip bounds retain #3201, #3361 and #3364.
+ * @evidence contracts/development/testing.md#distinguishing-cases The seated base supplies the contact and fixed-seat regressions. Standing exercises flight beyond reach and the floor strike. Dedicated tests cover high-five geometry and both handover casts.
+ * @evidence contracts/development/testing.md#execution-ownership The two base specs run the public performance in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the event and geometry contracts for each base.
  */
 export function motionRecomposeMutual(
   first: motionHumanBody.Name,
   second: motionHumanBody.Name,
-  base: "standing" | "seated",
+  base: Base,
 ): void {
   const findings: string[] = [];
   const apart: number = 0.7;
@@ -78,16 +69,15 @@ export function motionRecomposeMutual(
     segment === undefined
       ? NaN
       : segment.start +
-        (segment.plan.events.find(
-          (e: { name: string }): boolean => e.name === event,
-        )?.share ?? NaN) *
+        (segment.plan.events.find((e): boolean => e.name === event)?.share ??
+          NaN) *
           segment.plan.duration;
-  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
+  const bodies: Record<Subject, IAutoMovieMotionHumanBody> = {
     a: motionHumanBody(first),
     b: motionHumanBody(second),
   };
   const label: string = `${first} with ${second}, ${base}`;
-  const start = (who: "a" | "b"): IAutoMovieMotionHumanChain => {
+  const start = (who: Subject): IAutoMovieMotionHumanChain => {
     const body: IAutoMovieMotionHumanBody = bodies[who];
     if (base === "standing")
       return HumanChain.subject(who).stand({ seconds: 0.3 });
@@ -106,9 +96,7 @@ export function motionRecomposeMutual(
     return HumanChain.subject(who).sit({ seat });
   };
   const perform = (
-    composition: {
-      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
-    },
+    composition: IComposition,
     props: IAutoMovieMotionHumanProp[] = [],
     seed: string = "recompose",
     distance: number = apart,
@@ -116,7 +104,7 @@ export function motionRecomposeMutual(
     new HumanPerformance({
       seed,
       props,
-      performers: (["a", "b"] as const).map((subject: "a" | "b") => ({
+      performers: (["a", "b"] as const).map((subject: Subject) => ({
         subject,
         body: bodies[subject],
         at: { x: 0, y: 0, z: subject === "a" ? 0 : distance },
@@ -127,12 +115,11 @@ export function motionRecomposeMutual(
     });
   const seatHeld = (
     p: IAutoMovieMotionHumanPerformance,
-    who: "a" | "b",
+    who: Subject,
     from: number,
     to: number,
     act: string,
   ): void => {
-    if (base !== "seated") return;
     const settled: IAutoMovieVector3 = p
       .bones(who, from)
       .get("hips")!.worldPosition;
@@ -158,104 +145,94 @@ export function motionRecomposeMutual(
       );
     }
   };
-  const hands: number = (bodies.a.measure.hand + bodies.b.measure.hand) / 2;
+  if (base === "seated") {
+    const hands: number = (bodies.a.measure.hand + bodies.b.measure.hand) / 2;
 
-  // 1. Handshake.
-  attempt("handshake", (): void => {
-    const p: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(HumanMutual.handshake, {
-        one: start("a"),
-        other: start("b"),
-      }),
-    );
-    const sa: IAutoMovieMotionHumanSegment | undefined = p.segments("a")[1];
-    const sb: IAutoMovieMotionHumanSegment | undefined = p.segments("b")[1];
-    const clasp: number = instant(sa, "clasp");
-    if (!(Math.abs(clasp - instant(sb, "clasp")) <= 1e-9))
-      findings.push(
-        `${label}: the two clasps fall ${Math.abs(clasp - instant(sb, "clasp")).toFixed(4)} s apart`,
+    // 1. Handshake.
+    attempt("handshake", (): void => {
+      const p: IAutoMovieMotionHumanPerformance = perform(
+        HumanChain.mutual(HumanMutual.handshake, {
+          one: start("a"),
+          other: start("b"),
+        }),
       );
-    const wrists = (t: number): number =>
-      gap(
-        p.bones("a", t).get("rightHand")!.worldPosition,
-        p.bones("b", t).get("rightHand")!.worldPosition,
-      );
-    if (!(wrists(clasp) <= hands))
-      findings.push(
-        `${label}: at the clasp the wrists are ${(wrists(clasp) * 1000).toFixed(0)} mm apart, within ${(hands * 1000).toFixed(0)} mm expected`,
-      );
-    const closed: number = instant(sa, "gripClosed");
-    const released: number = instant(sa, "release");
-    const held: number = wrists(closed);
-    for (let t: number = closed; t <= released; t += 1 / 24)
-      if (Math.abs(wrists(t) - held) > 0.01) {
+      const sa: IAutoMovieMotionHumanSegment | undefined = p.segments("a")[1];
+      const sb: IAutoMovieMotionHumanSegment | undefined = p.segments("b")[1];
+      const clasp: number = instant(sa, "clasp");
+      if (!(Math.abs(clasp - instant(sb, "clasp")) <= 1e-9))
         findings.push(
-          `${label}: the grip drifts ${(Math.abs(wrists(t) - held) * 1000).toFixed(1)} mm at ${t.toFixed(2)} s, within 10 mm expected`,
+          `${label}: the two clasps fall ${Math.abs(clasp - instant(sb, "clasp")).toFixed(4)} s apart`,
         );
-        break;
+      const wrists = (t: number): number =>
+        gap(
+          p.bones("a", t).get("rightHand")!.worldPosition,
+          p.bones("b", t).get("rightHand")!.worldPosition,
+        );
+      if (!(wrists(clasp) <= hands))
+        findings.push(
+          `${label}: at the clasp the wrists are ${(wrists(clasp) * 1000).toFixed(0)} mm apart, within ${(hands * 1000).toFixed(0)} mm expected`,
+        );
+      const closed: number = instant(sa, "gripClosed");
+      const released: number = instant(sa, "release");
+      const held: number = wrists(closed);
+      for (let t: number = closed + 1 / 24; t <= released; t += 1 / 24) {
+        const drift: number = Math.abs(wrists(t) - held);
+        if (drift > 0.01) {
+          findings.push(
+            `${label}: the grip drifts ${(drift * 1000).toFixed(1)} mm at ${t.toFixed(2)} s, within 10 mm expected`,
+          );
+          break;
+        }
       }
-    seatHeld(p, "a", sa!.entryTime, sa!.end, "handshake");
+      seatHeld(p, "a", sa!.entryTime, sa!.end, "handshake");
 
-    // 8. Replay and variation.
-    const again: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(HumanMutual.handshake, {
-        one: start("a"),
-        other: start("b"),
-      }),
-    );
-    if (
-      JSON.stringify(again.pose("a", clasp)) !==
-      JSON.stringify(p.pose("a", clasp))
-    )
-      findings.push(`${label}: the handshake does not replay`);
-    const other: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(HumanMutual.handshake, {
-        one: start("a"),
-        other: start("b"),
-      }),
-      [],
-      "another",
-    );
-    // The reach's velocity peak is drawn (`HumanPrehension.peak`), so another seed moves the hand otherwise on its way to the clasp.
-    const reaching: number = (sa!.entryTime + clasp) / 2;
-    if (
-      JSON.stringify(other.pose("a", reaching)) ===
-      JSON.stringify(p.pose("a", reaching))
-    )
-      findings.push(
-        `${label}: another seed reaches for the clasp exactly alike`,
+      // 8. Replay and variation.
+      const again: IAutoMovieMotionHumanPerformance = perform(
+        HumanChain.mutual(HumanMutual.handshake, {
+          one: start("a"),
+          other: start("b"),
+        }),
       );
-  });
-
-  // 2. High five.
-  attempt("high five", (): void => {
-    const p: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(HumanMutual.highFive, {
-        one: start("a"),
-        other: start("b"),
-      }),
-    );
-    const meet: number = instant(p.segments("a")[1], "meet");
-    if (!(Math.abs(meet - instant(p.segments("b")[1], "meet")) <= 1e-9))
-      findings.push(`${label}: the high five's roles meet apart`);
-    const d: number = gap(
-      p.bones("a", meet).get("rightHand")!.worldPosition,
-      p.bones("b", meet).get("rightHand")!.worldPosition,
-    );
-    if (!(d <= hands))
-      findings.push(
-        `${label}: at the high five the wrists are ${(d * 1000).toFixed(0)} mm apart`,
+      if (
+        JSON.stringify(again.pose("a", clasp)) !==
+        JSON.stringify(p.pose("a", clasp))
+      )
+        findings.push(`${label}: the handshake does not replay`);
+      const other: IAutoMovieMotionHumanPerformance = perform(
+        HumanChain.mutual(HumanMutual.handshake, {
+          one: start("a"),
+          other: start("b"),
+        }),
+        [],
+        "another",
       );
-    seatHeld(
-      p,
-      "a",
-      p.segments("a")[1]!.entryTime,
-      p.segments("a")[1]!.end,
-      "high five",
-    );
-  });
+      // The reach's velocity peak is drawn (`HumanPrehension.peak`), so another seed moves the hand otherwise on its way to the clasp.
+      const reaching: number = (sa!.entryTime + clasp) / 2;
+      if (
+        JSON.stringify(other.pose("a", reaching)) ===
+        JSON.stringify(p.pose("a", reaching))
+      )
+        findings.push(
+          `${label}: another seed reaches for the clasp exactly alike`,
+        );
+      const otherClasp: number = instant(other.segments("a")[1], "clasp");
+      if (
+        !(
+          Math.abs(otherClasp - instant(other.segments("b")[1], "clasp")) <=
+          1e-9
+        ) ||
+        !(
+          gap(
+            other.bones("a", otherClasp).get("rightHand")!.worldPosition,
+            other.bones("b", otherClasp).get("rightHand")!.worldPosition,
+          ) <= hands
+        )
+      )
+        findings.push(`${label}: changing only the seed breaks the clasp`);
+    });
+  }
 
-  // 3. Handover of a mug.
+  // The stage for the seated prop acts also supplies the standing toss.
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "mug",
   });
@@ -270,7 +247,7 @@ export function motionRecomposeMutual(
         })
       : null;
   // A prop on a table before the performer, 0.6 of the arm ahead of the right shoulder: at the waist standing, at the elbow seated (a seated table's height).
-  const before = (who: "a" | "b"): { at: IAutoMovieVector3; yaw: number } => {
+  const before = (who: Subject): IWorldPlacement => {
     const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
     const ahead: number = 0.6 * (m.upperArm + m.forearm);
     const toward: number = who === "a" ? 1 : -1;
@@ -292,100 +269,109 @@ export function motionRecomposeMutual(
       yaw: who === "a" ? 0 : 180,
     };
   };
-  attempt("handover", (): void => {
-    const p: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(
-        HumanMutual.handOver,
-        {
-          giver: start("a").pickUp({ prop: "mug", handle: "handle" }),
-          receiver: start("b"),
-        },
-        { prop: "mug", handle: "body" },
-      ),
-      [HumanObject.prop("mug", mug, before("a"))],
-    );
-    const give: IAutoMovieMotionHumanSegment | undefined = p
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "handOver",
-      );
-    const take: IAutoMovieMotionHumanSegment | undefined = p
-      .segments("b")
-      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "receive");
-    if (!(instant(take, "gripClosed") < instant(give, "release")))
-      findings.push(
-        `${label}: the giver releases at ${instant(give, "release").toFixed(3)} s, before the receiver's grip closes at ${instant(take, "gripClosed").toFixed(3)} s`,
-      );
-    if (give !== undefined)
-      seatHeld(p, "a", give.entryTime, give.end, "handover");
-  });
-
-  // 4. A kiss on the cheek, joined: the kissed looks at the kisser's face.
-  attempt("kiss", (): void => {
-    const p: IAutoMovieMotionHumanPerformance = perform(
-      HumanChain.mutual(
-        HumanMutual.kiss,
-        { kisser: start("a"), kissed: start("b") },
-        { region: "cheekLeft" },
-      ),
-    );
-    const k: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
-    const contact: number = instant(k, "contact");
-    if (!(contact > k.entryTime && contact < k.end))
-      findings.push(
-        `${label}: the kiss's contact falls at ${contact} s, outside the act`,
-      );
-    if (p.segments("b")[1]?.name !== "look")
-      findings.push(`${label}: the kissed does not look at the kisser`);
-    seatHeld(p, "a", k.entryTime, k.end, "kiss");
-  });
-  // 5. Pick up and put down a mug and a ball.
-  for (const [name, prop, handle] of [
-    ["mug", mug, "handle"],
-    ["ball", createBall({ kind: "football" }), "grip"],
-  ] as const)
-    attempt(`pick up a ${name}`, (): void => {
+  if (base === "seated") {
+    attempt("handover", (): void => {
       const p: IAutoMovieMotionHumanPerformance = perform(
-        {
-          node: {
-            kind: "parallel",
-            parts: [
-              start("a")
-                .pickUp({ prop: name, handle })
-                .putDown({ prop: name, at: before("a").at }).node,
-              start("b").node,
-            ],
+        HumanChain.mutual(
+          HumanMutual.handOver,
+          {
+            giver: start("a").pickUp({ prop: "mug", handle: "handle" }),
+            receiver: start("b"),
           },
-        },
-        [HumanObject.prop(name, prop, before("a"))],
+          { prop: "mug", handle: "body" },
+        ),
+        [HumanObject.prop("mug", mug, before("a"))],
       );
-      const pick: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
-      const closed: number = instant(pick, "gripClosed");
-      const lifted: number = instant(pick, "lifted");
-      if (!(closed < lifted))
+      const give: IAutoMovieMotionHumanSegment | undefined = p
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "handOver",
+        );
+      const take: IAutoMovieMotionHumanSegment | undefined = p
+        .segments("b")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "receive",
+        );
+      if (!(instant(take, "gripClosed") < instant(give, "release")))
         findings.push(
-          `${label}: the ${name} lifts at ${lifted} s, before the grip closes at ${closed} s`,
+          `${label}: the giver releases at ${instant(give, "release").toFixed(3)} s, before the receiver's grip closes at ${instant(take, "gripClosed").toFixed(3)} s`,
         );
-      // The prop's place in the right hand's frame, which a held prop keeps.
-      const offset = (t: number): IAutoMovieVector3 => {
-        const hand: IAutoMovieResolvedBone = p.bones("a", t).get("rightHand")!;
-        return Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(p.prop(name, t).position, hand.worldPosition),
-        );
-      };
-      const held: IAutoMovieVector3 = offset(closed + 1 / 24);
-      for (let t: number = closed + 1 / 24; t <= lifted; t += 1 / 24)
-        if (gap(offset(t), held) > 0.005) {
-          findings.push(
-            `${label}: the ${name} slides ${(gap(offset(t), held) * 1000).toFixed(1)} mm in the hand at ${t.toFixed(2)} s, within 5 mm expected`,
-          );
-          break;
-        }
-      seatHeld(p, "a", pick.entryTime, pick.end, `pick up a ${name}`);
+      if (give !== undefined)
+        seatHeld(p, "a", give.entryTime, give.end, "handover");
     });
 
-  // 7. A throw caught and a kick (standing only: a seated kick or catch leaves the seat by design).
+    // 4. A kiss on the cheek, joined: the kissed looks at the kisser's face.
+    attempt("kiss", (): void => {
+      const p: IAutoMovieMotionHumanPerformance = perform(
+        HumanChain.mutual(
+          HumanMutual.kiss,
+          { kisser: start("a"), kissed: start("b") },
+          { region: "cheekLeft" },
+        ),
+      );
+      const k: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
+      const contact: number = instant(k, "contact");
+      if (!(contact > k.entryTime && contact < k.end))
+        findings.push(
+          `${label}: the kiss's contact falls at ${contact} s, outside the act`,
+        );
+      if (p.segments("b")[1]?.name !== "look")
+        findings.push(`${label}: the kissed does not look at the kisser`);
+      seatHeld(p, "a", k.entryTime, k.end, "kiss");
+    });
+    // 5. Pick up and put down a mug and a ball.
+    for (const [name, prop, handle] of [
+      ["mug", mug, "handle"],
+      ["ball", createBall({ kind: "football" }), "grip"],
+    ] as const)
+      attempt(`pick up a ${name}`, (): void => {
+        const p: IAutoMovieMotionHumanPerformance = perform(
+          {
+            node: {
+              kind: "parallel",
+              parts: [
+                start("a")
+                  .pickUp({ prop: name, handle })
+                  .putDown({ prop: name, at: before("a").at }).node,
+                start("b").node,
+              ],
+            },
+          },
+          [HumanObject.prop(name, prop, before("a"))],
+        );
+        const pick: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
+        const closed: number = instant(pick, "gripClosed");
+        const lifted: number = instant(pick, "lifted");
+        if (!(closed < lifted))
+          findings.push(
+            `${label}: the ${name} lifts at ${lifted} s, before the grip closes at ${closed} s`,
+          );
+        // The prop's place in the right hand's frame, which a held prop keeps.
+        const offset = (t: number): IAutoMovieVector3 => {
+          const hand: IAutoMovieResolvedBone = p
+            .bones("a", t)
+            .get("rightHand")!;
+          return Quaternion.rotateVector(
+            Quaternion.inverse(hand.worldRotation),
+            Vector3.subtract(p.prop(name, t).position, hand.worldPosition),
+          );
+        };
+        const frame: number = 1 / 24;
+        const held: IAutoMovieVector3 = offset(closed + frame);
+        for (let t: number = closed + 2 * frame; t <= lifted; t += frame) {
+          const drift: number = gap(offset(t), held);
+          if (drift > 0.005) {
+            findings.push(
+              `${label}: the ${name} slides ${(drift * 1000).toFixed(1)} mm in the hand at ${t.toFixed(2)} s, within 5 mm expected`,
+            );
+            break;
+          }
+        }
+        seatHeld(p, "a", pick.entryTime, pick.end, `pick up a ${name}`);
+      });
+  }
+
+  // Throw, catch and kick use the standing base.
   if (base === "standing") {
     attempt("throw and catch", (): void => {
       const ball: ReturnType<typeof createBall> = createBall({

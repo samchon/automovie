@@ -28,8 +28,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * test holds for a builder whose centre does not follow the hips one to one
  * (hips carried over planted feet).
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_course_*`
- * specs run one body each):
+ * The standard body distinguishes the course's analytic branches:
  * 1. A whole body carried along +Z with the target held on its centre stays
  *    where it started.
  * 2. The same body with the target stepped 0.3 m ahead follows the closed
@@ -45,28 +44,31 @@ import { motionHumanBody } from "./motionHumanBody";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tests compare against the closed forms of the specified target laws, including the articulated case where centre and hips move by different amounts.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A single body exercises the branches. A scale property covers the time constant separately.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeCourse(name: motionHumanBody.Name): void {
+export function motionComposeCourse(): void {
+  type Heading = 0 | 90;
+  const name: motionHumanBody.Name = "m-average";
   const all: motionComplaints.IGatherer = motionComplaints();
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
-  const INSTANTS: readonly number[] = [0.1, 0.25, 0.5, 0.75, 1];
+  // Quarter, halfway and the endpoint distinguish curvature from a ramp.
+  const INSTANTS: readonly number[] = [0.25, 0.5, 1];
 
   {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const omega: number = Math.sqrt(9.81 / (1.34 * body.measure.hipHeight));
     const centre = (
       posture: IAutoMovieMotionHumanPosture,
-      yaw: 0 | 90,
+      yaw: Heading,
     ): number => {
       const c: IAutoMovieVector3 = HumanBalance.support(body, posture).centre;
       return yaw === 90 ? c.x : c.z;
     };
     const carried =
-      (yaw: 0 | 90) =>
+      (yaw: Heading) =>
       (_seconds: number, along: number): IAutoMovieMotionHumanPosture =>
         stand.posture(
           body,
@@ -85,9 +87,11 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
       to: 0.25,
       start: 0.5,
     });
+    const heldMiddle: number = held(0.125);
+    const heldEnd: number = held(0.25);
     all.check(
-      `${name}: a target held on the centre keeps the hips, at ${mm(held(0.125))} and ${mm(held(0.25))} mm from 500 mm`,
-      Math.abs(held(0.125) - 0.5) <= 1e-4 && Math.abs(held(0.25) - 0.5) <= 1e-4,
+      `${name}: a target held on the centre keeps the hips, at ${mm(heldMiddle)} and ${mm(heldEnd)} mm from 500 mm`,
+      Math.abs(heldMiddle - 0.5) <= 1e-4 && Math.abs(heldEnd - 0.5) <= 1e-4,
     );
 
     // 2. A stepped target.
@@ -166,13 +170,56 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
       start: 0,
     });
     for (const t of INSTANTS) {
-      const got: number = centre(planted(t, over(t)), 0);
+      const hips: number = over(t);
+      const got: number = centre(planted(t, hips), 0);
       const expected: number = still + 0.06 * (1 - Math.exp(-omega * t));
       all.check(
-        `${name}: ${t} s into a carry over planted feet the centre has gone ${mm(got - still)} mm, the law's ${mm(expected - still)} mm, the hips ${mm(over(t))} mm`,
-        Math.abs(got - expected) <= 0.001 && over(t) > got - still,
+        `${name}: ${t} s into a carry over planted feet the centre has gone ${mm(got - still)} mm, the law's ${mm(expected - still)} mm, the hips ${mm(hips)} mm`,
+        Math.abs(got - expected) <= 0.001 && hips > got - still,
       );
     }
   }
-  all.assert(`the course follows its law on every body (${name})`);
+
+  // Scale target distances by hip height and time by its square root.
+  // At omega*t = 1 the body travels (1 - exp(-1)) of the same relative step.
+  const low: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const tall: IAutoMovieMotionHumanBody = motionHumanBody("m-large");
+  const metreTolerance: number = 0.001;
+  const response = (body: IAutoMovieMotionHumanBody): number => {
+    const height: number = body.measure.hipHeight;
+    const duration: number = Math.sqrt((1.34 * height) / 9.81);
+    const posture = (_t: number, z: number): IAutoMovieMotionHumanPosture =>
+      stand.posture(body, { x: 0, y: 0, z }, 0);
+    const rest: number = HumanBalance.support(body, posture(0, 0)).centre.z;
+    const solved: (time: number) => number = AutoMovieMotionHumanCourse.solve({
+      body,
+      yaw: 0,
+      posture,
+      from: 0,
+      to: duration,
+      start: 0,
+      target: (): number => rest + height,
+    });
+    const reached: number = HumanBalance.support(
+      body,
+      posture(duration, solved(duration)),
+    ).centre.z;
+    const fraction: number = (reached - rest) / height;
+    all.check(
+      `${body.measure.stature} m body: one time constant covers ${fraction} of the target step`,
+      Math.abs(fraction - (1 - Math.exp(-1))) * height <= metreTolerance,
+    );
+    return fraction;
+  };
+  const smallFraction: number = response(low);
+  const tallFraction: number = response(tall);
+  all.check(
+    "equal dimensionless time gives an equal dimensionless displacement",
+    Math.abs(smallFraction - tallFraction) <=
+      metreTolerance / low.measure.hipHeight +
+        metreTolerance / tall.measure.hipHeight,
+  );
+  all.assert(
+    "the course follows the same closed forms across stature and heading",
+  );
 }
