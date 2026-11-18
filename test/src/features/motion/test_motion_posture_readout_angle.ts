@@ -43,7 +43,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on plain points; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the figure, the 7 scenarios and why the readings must be exact.
  */
-export function test_human_motion_signature_readings(): void {
+export function test_motion_posture_readout_angle(): void {
   const rad = (degrees: number): number => (degrees * Math.PI) / 180;
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
 
@@ -61,7 +61,7 @@ export function test_human_motion_signature_readings(): void {
 
   // The figure facing +Z; `turn` rotates every point about +Y afterwards.
   const figure = (
-    spec: { trunk: number; knee: number; elbow: number; head: number },
+    spec: IAngles,
     turn: number = 0,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
     const spin = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn);
@@ -229,4 +229,12 @@ export function test_human_motion_signature_readings(): void {
     thrown = true;
   }
   TestValidator.predicate("a knee without its foot joint throws", thrown);
+}
+
+/** Joint rotations of the analytic figure, in degrees. */
+interface IAngles {
+  trunk: number;
+  knee: number;
+  elbow: number;
+  head: number;
 }

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
@@ -24,7 +25,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Evaluates one primitive in memory at the named fractions of a second.
  */
 export function test_motion_posture_primitive_head_tilt(): void {
-  const clock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);
@@ -53,12 +54,14 @@ export function test_motion_posture_primitive_head_tilt(): void {
     const pose: IAutoMovieMotionHumanPosture = primitive.write(entry, seconds);
     TestValidator.equals("supporting root", pose.root, entry.root);
     for (const axis of [0, 1, 2] as const) {
-      const actual: number = pose.joints.head![axis] + pose.joints.neck![axis];
-      const held: number = entry.joints.head![axis] + entry.joints.neck![axis];
-      TestValidator.predicate(
-        "held axis plus requested excursion at " + seconds,
-        nclose(actual, held + (axis === 1 ? excursion : 0)),
-      );
+      for (const joint of ["neck", "head"] as const) {
+        const expected: number =
+          entry.joints[joint]![axis] + (axis === 1 ? excursion / 2 : 0);
+        TestValidator.predicate(
+          joint + " angle at " + seconds,
+          nclose(pose.joints[joint]![axis], expected),
+        );
+      }
     }
   }
 }
