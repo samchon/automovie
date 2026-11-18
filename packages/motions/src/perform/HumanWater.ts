@@ -3,7 +3,6 @@ import {
   Quaternion,
   Vector3,
   integrateMotionTrajectory,
-  resolveAutoMovieCenterOfMass,
   resolveHydrodynamicForce,
 } from "@automovie/engine";
 import type {
@@ -66,7 +65,7 @@ export namespace HumanWater {
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let submerged: number = 0;
     let volume: number = 0;
-    const model: IAutoMovieResolveCenterOfMass.IModel = modelOf(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     body.profile.segments.forEach(
       (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
@@ -196,28 +195,5 @@ export namespace HumanWater {
       });
     return out;
   }
-
-  /** Each body's mass model, built once. */
-  const MODELS: WeakMap<
-    IAutoMovieMotionHumanBody,
-    IAutoMovieResolveCenterOfMass.IModel
-  > = new WeakMap();
-
-  /**
-   * A body's mass model, built once.
-   *
-   * @param body The body.
-   * @returns The model, its segments in the profile's order.
-   */
-  function modelOf(
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieResolveCenterOfMass.IModel {
-    let model: IAutoMovieResolveCenterOfMass.IModel | undefined =
-      MODELS.get(body);
-    if (model === undefined) {
-      model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-      MODELS.set(body, model);
-    }
-    return model;
-  }
 }
+
