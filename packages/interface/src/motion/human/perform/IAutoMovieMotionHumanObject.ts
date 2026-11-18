@@ -34,6 +34,9 @@ export namespace IAutoMovieMotionHumanObject {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape, IAutoMovieBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IModel {
+    /** Whether the model declares internal articulation. Omission leaves the adapter unable to certify that a model with a pose method is rigid. */
+    readonly hasArticulations?: boolean;
+
     /** Its contacts, in its own space. */
     affordances?: readonly IAutoMovieAffordance[] | null;
 
@@ -65,12 +68,12 @@ export namespace IAutoMovieMotionHumanObject {
 
     /**
      * The object with its articulations at stated travels, for an object
-     * whose parts move (an archetype's `articulate`); a rigid object has none.
+     * whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
      *
      * @param state Travel by articulation id.
      * @returns The posed object.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`); a rigid object has none.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.

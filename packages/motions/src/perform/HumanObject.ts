@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-
 import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
@@ -74,7 +73,7 @@ export namespace HumanObject {
    * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
    * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
    * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
-   * @returns The prop, posed by its drives and tracks when the object articulates (`IHumanProp.articulate`).
+   * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
    * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
@@ -124,6 +123,9 @@ export namespace HumanObject {
         ? {}
         : { body: model.body }),
 
+      ...(model.hasArticulations === undefined
+        ? {}
+        : { hasArticulations: model.hasArticulations }),
       // An object whose parts move is posed by the performance's state.
       ...(model.articulate === undefined
         ? {}

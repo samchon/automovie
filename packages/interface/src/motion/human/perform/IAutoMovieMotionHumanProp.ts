@@ -145,19 +145,22 @@ export interface IAutoMovieMotionHumanProp {
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
   shapes?: readonly IAutoMoviePhysicalShape[];
 
+  /** Whether the model declares internal articulation. Explicit false allows rigid carry even when a uniform model adapter exposes a pose reader. */
+  readonly hasArticulations?: boolean;
+
   /**
    * The prop posed at stated travels of its articulations, for a prop whose
    * parts an act moves (a door's leaf, a trigger, a bowstring): its contacts
    * and colliders in its own frame with the parts moved. The performance
    * reads it at the travels the drives and tracks give at a second
    * (`HumanPerformance.state`), so a hand reaching a handle after the door
-   * was opened goes to where the handle is. Absent for a rigid prop.
+   * was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
    *
    * @param state Travel by articulation id, in each articulation's own unit; an articulation left out stays at rest.
    * @returns The posed contacts and colliders.
    * @throws {Error} When a travel lies outside its articulation's range.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. Absent for a rigid prop.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.

@@ -36,12 +36,9 @@ import { reposeArchetype } from "./reposeArchetype";
  * - `dimensions` gives the value drawn for each free dimension, `provenance` the band each was drawn in and the model picked on each axis, and `properties` the mass, centre of mass and inertia;
  * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
  * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
- *
  * Lengths are metres, masses kilograms and angles degrees. The model's space has `+Y` up and `+Z` to the front of a thing that has one; an archetype that stands on the floor has its origin on the floor.
- *
  * @template Id The archetype's affordance ids, a closed union the producer declares.
  * @template Dimension The archetype's free dimensions, a closed union the producer declares.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
@@ -149,6 +146,11 @@ export class Archetype<
   /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
   public get state(): Partial<Record<Id, number>> {
     return this.#state;
+  }
+
+  /** @evidence contracts/development/common.md#meaningful-documentation Whether the resolved model declares any articulation, including at rest. */
+  public get hasArticulations(): boolean {
+    return this.#travels.size > 0;
   }
 
   /** The spans this archetype lays between moving frames, at rest. */

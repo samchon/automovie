@@ -29,6 +29,7 @@ import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned
  * appendix D.1, https://arxiv.org/abs/2406.19353). Two distinct hands keep
  * their own contacts during one authored rigid-object motion. The prop's
  * path drives both arms; stance, travel and the entry/exit poses are authored.
+ * A model may explicitly declare rigid geometry even if its adapter exposes a pose reader.
  * Both grips cover the entire interval. Independent arm planning does not
  * certify clearance between performers or with the environment.
  *
@@ -71,7 +72,7 @@ export function AutoMovieMotionHumanSharedCarry(
     prop.motion !== undefined ||
     prop.point !== undefined ||
     prop.soft !== undefined ||
-    prop.articulate !== undefined ||
+    (prop.hasArticulations ?? prop.articulate !== undefined) ||
     (prop.tracks?.length ?? 0) > 0
   )
     throw new RangeError(

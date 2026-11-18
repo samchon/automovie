@@ -11,6 +11,7 @@ export * from "./createLongTool";
 export * from "./createMobilityAid";
 export * from "./createPourVessel";
 export * from "./createScenicContainer";
+export * from "./createScenicParadeBanner";
 export * from "./createScenicStandard";
 export * from "./createSmoking";
 export * from "./createStationery";
