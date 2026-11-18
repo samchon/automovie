@@ -87,10 +87,12 @@ export const resolvePose: (
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
+  topology?: IAutoMovieSkeletonTopology,
   prepared?: ReturnType<typeof preparePoseResolution>,
   requested?: ReadonlySet<string>,
 ): IAutoMovieResolvedBone[] => {
+  const childrenByParent: IAutoMovieSkeletonTopology["childrenByParent"] =
+    topology?.childrenByParent ?? indexSkeletonTopology.children(skeleton);
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
   const articulation: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> =
@@ -134,7 +136,7 @@ export const resolvePose: (
       resolved.push(reading);
 
     const children: readonly IAutoMovieBone[] | undefined =
-      topology.childrenByParent.get(bone.bone);
+      childrenByParent.get(bone.bone);
     if (children !== undefined && children !== null)
       for (const child of children)
         walk(child, reading.worldRotation, reading.worldPosition);
@@ -147,7 +149,7 @@ export const resolvePose: (
     pose.root?.rotation ??
     (prepared === undefined ? IDENTITY : Quaternion.identity());
   const roots: readonly IAutoMovieBone[] | undefined =
-    topology.childrenByParent.get(SKELETON_ROOT_PARENT);
+    childrenByParent.get(SKELETON_ROOT_PARENT);
   if (roots !== undefined && roots !== null)
     for (const root of roots) walk(root, rootRotation, rootTranslation);
 

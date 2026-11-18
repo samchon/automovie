@@ -31,24 +31,11 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Produces the reusable index itself: callers pass it to `resolvePose` and `reachableBoneNames` across poses, and equivalence is the unchanged skeleton object, which the snapshot note makes the caller's responsibility.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned index is owned by the caller and holds one entry per bone plus one set entry per reachable bone, bounded by the skeleton's bone count; nothing is retained here.
  */
-export const indexSkeletonTopology: (
+export function indexSkeletonTopology(
   skeleton: IAutoMovieSkeleton,
-) => IAutoMovieSkeletonTopology = (
-  skeleton: IAutoMovieSkeleton,
-): IAutoMovieSkeletonTopology => {
-  const childrenByParent: Map<AutoMovieSkeletonParentKey, IAutoMovieBone[]> =
-    new Map();
-  const names: Set<AutoMovieHumanoidBone> = new Set();
-  for (const bone of skeleton.bones) {
-    if (names.has(bone.bone))
-      throw new Error(`Skeleton topology has duplicate bone "${bone.bone}".`);
-    names.add(bone.bone);
-    const key: AutoMovieSkeletonParentKey = bone.parent ?? SKELETON_ROOT_PARENT;
-    const children: IAutoMovieBone[] = childrenByParent.get(key) ?? [];
-    children.push(bone);
-    childrenByParent.set(key, children);
-  }
-
+): IAutoMovieSkeletonTopology {
+  const childrenByParent: IAutoMovieSkeletonTopology["childrenByParent"] =
+    indexSkeletonTopology.children(skeleton);
   const reachableBones: Set<AutoMovieHumanoidBone> = new Set();
   const walk: (bone: IAutoMovieBone) => void = (bone: IAutoMovieBone): void => {
     reachableBones.add(bone.bone);
@@ -58,4 +45,43 @@ export const indexSkeletonTopology: (
     walk(root);
 
   return { childrenByParent, reachableBones };
-};
+}
+
+/**
+ * Parent-child indexing for readers that perform their own root traversal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The adjacency projection preserves declaration order, root identity and duplicate-name rejection.
+ * @evidence contracts/development/design.md#principled-representation Uses the same childrenByParent representation as the full topology.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Direct FK already walks from the roots and requires only this index.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts All declared links enter the same index before either traversal.
+ */
+export namespace indexSkeletonTopology {
+  /**
+   * Group declared bones by parent. Reject duplicate names before traversal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines parent grouping and duplicate admission.
+   * @evidence contracts/development/implementation.md#principled-implementation Each declared parent link enters its adjacency list in declaration order, including detached links.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The topology index and direct FK share this single grouping pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Duplicate bone names throw before traversal and null parents use the canonical root key.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pass and O(B) entries for B declared bones. No reachable set is constructed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both hierarchy consumers share these adjacency semantics.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned map borrows declared bone records. The temporary name set is released after construction.
+   */
+  export function children(
+    skeleton: IAutoMovieSkeleton,
+  ): IAutoMovieSkeletonTopology["childrenByParent"] {
+    const childrenByParent: Map<AutoMovieSkeletonParentKey, IAutoMovieBone[]> =
+      new Map();
+    const names: Set<AutoMovieHumanoidBone> = new Set();
+    for (const bone of skeleton.bones) {
+      if (names.has(bone.bone))
+        throw new Error(`Skeleton topology has duplicate bone "${bone.bone}".`);
+      names.add(bone.bone);
+      const key: AutoMovieSkeletonParentKey = bone.parent ?? SKELETON_ROOT_PARENT;
+      const children: IAutoMovieBone[] = childrenByParent.get(key) ?? [];
+      children.push(bone);
+      childrenByParent.set(key, children);
+    }
+    return childrenByParent;
+  }
+}
