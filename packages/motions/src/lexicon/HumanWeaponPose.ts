@@ -4,6 +4,8 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
@@ -17,6 +19,9 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSupport } from "../striking/StrikingSupport";
@@ -45,7 +50,7 @@ export namespace HumanWeaponPose {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
    * @evidence contracts/development/design.md#principled-representation What the stroke and its refusal read of a presentation: the trunk's turn, the posture, the sight line's ends and the hand frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, each read by the plan.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke and grip admission read the same modeled tool and pivot as the pose choice.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
    */
   export interface IPosed {
@@ -69,6 +74,12 @@ export namespace HumanWeaponPose {
 
     /** The firing hand's grip frame the carriage asks. */
     pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+
+    /** Tool geometry in the hand frame, using both prop ends for a one-hand shoulder carriage. */
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
+
+    /** Distance in metres from the tip to the point the stroke keeps. */
+    back: number;
   }
 
   /**
@@ -101,6 +112,20 @@ export namespace HumanWeaponPose {
     const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
     const carriage: IAutoMovieMotionHumanWeaponPresent.Carriage =
       p.carriage ?? "aim";
+    // The shoulder pose, its reach check, and the displayed fit must all
+    // use the same physical end of the prop as their pivot. The tool's
+    // original axis and length describe its tip from the active grip.
+    const piece: IAutoMovieVector3 | undefined = carriage === "shoulder" && s.butt !== undefined
+      ? Vector3.subtract(s.tool.tip, s.butt)
+      : undefined;
+    const shoulderTool: IAutoMovieMotionHumanStrikingHeld.ITool = piece === undefined
+      ? s.tool
+      : { ...s.tool, axis: Vector3.normalize(piece), length: Vector3.length(piece) };
+    // A two-hand plan's support offsets use the original tool axes.
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = s.support === null
+      ? shoulderTool
+      : s.tool;
+    const back: number = carriage === "aim" ? 0 : tool.length;
     // A long gun is shouldered with the support shoulder forward: the
     // trunk turns toward the firing side, and the eye, the shoulders and
     // the reach are read on the turned trunk. At the recover the body stays
@@ -284,33 +309,40 @@ export namespace HumanWeaponPose {
           // from it; the barrel almost perpendicular". The piece's butt-to-
           // muzzle line runs from the holding side's hip to before its
           // shoulder, the butt on the hip.
-          const surface = (
-            id: "hipLeft" | "hipRight" | "shoulderLeft" | "shoulderRight",
-          ): IAutoMovieVector3 => {
+          const left: boolean = s.tool.side === "left";
+          const hipName: AutoMovieHumanoidRegion = left ? "hipLeft" : "hipRight";
+          const shoulderName: AutoMovieHumanoidRegion = left ? "shoulderLeft" : "shoulderRight";
+          // The upper leg carries the hip skin landmark. Read its actual
+          // planted fit instead of the authored angles used for trunk FK.
+          const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+            context.body.surfaces.regions[hipName].bone,
+            context.body.surfaces.regions[shoulderName].bone,
+          ]);
+          const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+          const shown: ReturnType<typeof poseBones> = poseBones(
+            context.body,
+            resolveHumanPosture.seeded(context.body, bladed, undefined, undefined, resolution, names).pose,
+            resolution(),
+            names,
+          );
+          const surface = (id: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
             const region: typeof context.body.surfaces.regions.mouth =
               context.body.surfaces.regions[id];
             return resolveAutoMovieHumanoidSurfaces.place(
               region,
-              bones.get(region.bone)!,
+              shown.get(region.bone)!,
             ).point;
           };
-          const left: boolean = s.tool.side === "left";
-          const hip: IAutoMovieVector3 = surface(left ? "hipLeft" : "hipRight");
-          const before: IAutoMovieVector3 = surface(
-            left ? "shoulderLeft" : "shoulderRight",
-          );
-          const piece: IAutoMovieVector3 =
-            s.butt === undefined
-              ? Vector3.scale(s.tool.axis, s.tool.length)
-              : Vector3.subtract(s.tool.tip, s.butt);
+          const hip: IAutoMovieVector3 = surface(hipName);
+          const before: IAutoMovieVector3 = surface(shoulderName);
           const along: IAutoMovieVector3 = Vector3.normalize(
             Vector3.subtract(before, hip),
           );
           const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
             StrikingRoll.hand(
               context,
-              { ...s.tool, axis: Vector3.normalize(piece) },
-              Vector3.length(piece),
+              shoulderTool,
+              shoulderTool.length,
               hip,
               along,
               0,
@@ -402,7 +434,7 @@ export namespace HumanWeaponPose {
           posture: supported,
         });
       })();
-    return { turn, bladed: supported(pose), eye, target, line, carriage, pose };
+    return { turn, bladed: supported(pose), eye, target, line, carriage, pose, tool, back };
   }
 
   /**

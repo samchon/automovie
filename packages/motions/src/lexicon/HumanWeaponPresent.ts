@@ -131,7 +131,7 @@ export namespace HumanWeaponPresent {
         // Over a carrier the weapon is presented from the carrier's posture
         // where the presentation begins (a stance raised onto a cart's bed),
         // not from the state before the carrier began.
-        const { turn, bladed, eye, target, line, carriage, pose } =
+        const { turn, bladed, eye, target, line, carriage, pose, tool, back }: HumanWeaponPose.IPosed =
           HumanWeaponPose.of(
             context,
             context.carrier?.posture(0) ?? context.entry.posture,
@@ -140,9 +140,9 @@ export namespace HumanWeaponPresent {
           );
         StrikingRoll.reachable(
           context,
-          s.tool,
+          tool,
           pose,
-          s.tool.length,
+          carriage === "aim" ? tool.length : back,
           bladed,
           "face the target, or present the weapon at a ready position",
         );
@@ -155,7 +155,7 @@ export namespace HumanWeaponPresent {
           context,
           s,
           StrikingBlade.plan(context, {
-            tool: s.tool,
+            tool,
             clock: AutoMovieMotionManner.time(
               AutoMovieMotionClock.phrase({
                 prepare: set,
@@ -171,7 +171,7 @@ export namespace HumanWeaponPresent {
               eye,
               carriage === "aim" ? target : null,
             ),
-            back: carriage === "aim" ? 0 : s.tool.length,
+            back,
             // At the recover the left hand holds the firelock above the lock.
             support:
               carriage === "recover" && s.lock !== undefined
@@ -209,7 +209,7 @@ export namespace HumanWeaponPresent {
           ): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
         );
         try {
-          const { bladed, pose, carriage } = HumanWeaponPose.of(
+          const { bladed, pose, tool, back }: HumanWeaponPose.IPosed = HumanWeaponPose.of(
             ahead,
             grip.posture,
             ahead.start,
@@ -218,9 +218,9 @@ export namespace HumanWeaponPresent {
           return [
             {
               posture: bladed,
-              tool: s.tool,
+              tool,
               frame: pose,
-              back: carriage === "aim" ? 0 : s.tool.length,
+              back,
               bound: StrikingRoll.MISS,
             },
           ];
