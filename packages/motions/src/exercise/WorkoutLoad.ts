@@ -81,7 +81,7 @@ export namespace WorkoutLoad {
    * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the holding hand's grip socket is kept where the key's joints put it and the tool's line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
+   * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the bar is centred across the body at the keyed shoulder-to-grip distance and its line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder/elbow/wrist from FK; mid-foot geometry exists only for midfoot rows. The other hand's one actual wrist placement serves both its original elbow solve and final goal, while both original elbow searches remain.
@@ -221,8 +221,8 @@ export namespace WorkoutLoad {
           point: HumanHand.frame(body, bones, side, "grip").point,
           rotation: turn,
         };
-        // The bar's middle is carried over the mid-foot, along the heading
-        // and across it: the hand swings about its shoulder by what the key
+        // Centre the bar across the body. A mid-foot lift also centres it
+        // along the heading. The hand swings about its shoulder by what the key
         // leaves the bar's middle off the mid-foot, so a bar in both hands
         // hangs centred between them, each handle as far out of its own
         // shoulder. Held where the key put the holding hand across, the other
@@ -232,49 +232,46 @@ export namespace WorkoutLoad {
         // keeps its distance from the shoulder: moved level instead, a
         // straight arm fell short of the handle and the other hand slid
         // 20.6 mm along the bar on the small woman.
-        let frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = keyed;
-        if (balance !== undefined) {
-          const ahead: IAutoMovieVector3 = HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-            { x: 0, y: 0, z: 1 },
-          );
-          const shoulder: IAutoMovieVector3 = bones.get(
-            `${side}UpperArm`,
-          )!.worldPosition;
-          const reach: IAutoMovieVector3 = Vector3.subtract(
-            keyed.point,
-            shoulder,
-          );
-          const off: IAutoMovieVector3 = Vector3.subtract(
-            balance,
-            Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
-          );
-          const aside: number =
-            Vector3.dot(reach, across) + Vector3.dot(off, across);
-          const radius: number = Math.sqrt(
-            Math.max(0, Vector3.dot(reach, reach) - aside * aside),
-          );
-          const forth: number = Math.max(
-            -radius,
-            Math.min(
-              radius,
-              Vector3.dot(reach, ahead) + Vector3.dot(off, ahead),
-            ),
-          );
-          frame = {
-            ...keyed,
-            point: Vector3.add(
-              Vector3.add(shoulder, Vector3.scale(across, aside)),
-              Vector3.add(Vector3.scale(ahead, forth), {
-                x: 0,
-                y:
-                  (reach.y > 0 ? 1 : -1) *
-                  Math.sqrt(radius * radius - forth * forth),
-                z: 0,
-              }),
-            ),
-          };
-        }
+        const ahead: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+          { x: 0, y: 0, z: 1 },
+        );
+        const shoulder: IAutoMovieVector3 = bones.get(
+          `${side}UpperArm`,
+        )!.worldPosition;
+        const reach: IAutoMovieVector3 = Vector3.subtract(
+          keyed.point,
+          shoulder,
+        );
+        const off: IAutoMovieVector3 = Vector3.subtract(
+          balance ?? posture.root,
+          Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
+        );
+        const aside: number =
+          Vector3.dot(reach, across) + Vector3.dot(off, across);
+        const radius: number = Math.sqrt(
+          Math.max(0, Vector3.dot(reach, reach) - aside * aside),
+        );
+        const forth: number = Math.max(
+          -radius,
+          Math.min(
+            radius,
+            Vector3.dot(reach, ahead) + (balance === undefined ? 0 : Vector3.dot(off, ahead)),
+          ),
+        );
+        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          ...keyed,
+          point: Vector3.add(
+            Vector3.add(shoulder, Vector3.scale(across, aside)),
+            Vector3.add(Vector3.scale(ahead, forth), {
+              x: 0,
+              y:
+                (reach.y > 0 ? 1 : -1) *
+                Math.sqrt(radius * radius - forth * forth),
+              z: 0,
+            }),
+          ),
+        };
         const first: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
