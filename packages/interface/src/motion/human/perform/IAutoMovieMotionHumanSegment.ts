@@ -2,7 +2,6 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
@@ -101,27 +100,6 @@ export interface IAutoMovieMotionHumanSegment {
 
     /** The legs' seeds the fit chose. */
     seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
-  };
-
-  /**
-   * The action's displayed pose as a table of exact knots
-   * (`HumanSegmentTable`): the knot seconds ascending, each knot's exact
-   * displayed pose and its world bones, and whether the interval from each
-   * knot to the next holds the table's bound; absent until a table read, and
-   * released when the person's memos are forgotten.
-   */
-  table?: {
-    /** The knot seconds, ascending. */
-    knots: number[];
-
-    /** Each knot's exact displayed pose. */
-    poses: IAutoMoviePose[];
-
-    /** Each knot's world bones, by bone. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[];
-
-    /** Whether the interval from each knot to the next holds the bound. */
-    held: boolean[];
   };
 }
 

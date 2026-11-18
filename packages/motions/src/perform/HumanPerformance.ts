@@ -24,7 +24,6 @@ import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -103,19 +102,6 @@ export class HumanPerformance {
    */
   public pose(subject: string, seconds: number): IAutoMoviePose {
     return HumanPerformanceRead.pose(this.resolved, subject, seconds);
-  }
-
-  /**
-   * A person's displayed pose at a film second solved exactly, never read
-   * from the action's pose table (`HumanSegmentTable`): the reference every
-   * table read is held to within its bound.
-   *
-   * @param subject The person.
-   * @param seconds Film seconds.
-   * @returns The pose.
-   */
-  public exact(subject: string, seconds: number): IAutoMoviePose {
-    return HumanSegmentShown.exact(HumanPerformanceRead.person(this.resolved, subject), seconds);
   }
 
   /**

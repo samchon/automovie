@@ -4,7 +4,6 @@ import {
   clampPose,
   indexSkeletonTopology,
   measureAutoMovieHumanoidBody,
-  poseJointCodec,
   prepareChainConstants,
   prepareSkeletonPoseResolution,
   resolveAutoMovieCenterOfMass,
@@ -27,7 +26,7 @@ import { humanSettledJoints } from "../posture/humanSettledJoints";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints, bones by name, joint codec and immutable canonical FK preparation. The bone-local mass model, collider placement and hull faces are prepared by their actual first queries. Recreate it after editing the input rig or profile.
+ * @returns The body with its measure, surfaces, topology, rest joints and immutable canonical FK preparation. The bone-local mass model, collider placement and hull faces are prepared by their actual first queries. Recreate it after editing the input rig or profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
@@ -42,9 +41,7 @@ export function createHumanBody(
   profile: IAutoMoviePhysicalProfile,
 ): IAutoMovieMotionHumanBody {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
-  for (const bone of skeleton.bones as IAutoMovieBone[]) {
-    bones.set(bone.bone, bone);
+  for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(bone.bone, {
       x:
         (bone.parent === null ? 0 : rest.get(bone.parent)!.x) +
@@ -56,7 +53,6 @@ export function createHumanBody(
         (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
         bone.rest.translation.z,
     });
-  }
   const { measure, surfaces }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
     measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
   const topology: IAutoMovieMotionHumanBody["topology"] = indexSkeletonTopology(skeleton);
@@ -114,11 +110,6 @@ export function createHumanBody(
       return massModel;
     },
     rest,
-    bones,
-
-    // The joint codec reads the rig through the same axes and rest frames
-    // as its FK, so a rotation it lowers to angles is the one FK raises.
-    codec: poseJointCodec({ skeleton, jointAxes: HUMANOID_JOINT_AXES, restFrames: HUMANOID_REST_FRAME }),
   };
   return body;
 }

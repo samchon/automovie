@@ -12,7 +12,6 @@ import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
-import { HumanSegmentTable } from "./HumanSegmentTable";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -82,59 +81,18 @@ export namespace HumanSegmentShown {
     }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
-
-    // The action's exact pose at a second. Its last leaf seeds start every
-    // swept fit of the evaluation (leaf, carry, stop and plant fits) from a
-    // held seed (`HumanLimbIncumbent`), which cannot change their answers.
-    const evaluate = (segment: IAutoMovieMotionHumanSegment, at: number): IAutoMoviePose =>
-      segment.incumbents === undefined
-        ? HumanSegmentPose.of(person, segment, at, prepared, demand)
-        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: segment.incumbents },
-          (): IAutoMoviePose => HumanSegmentPose.of(person, segment, at, prepared, demand));
-
-    // A settled person's whole pose is read from the action's table of exact
-    // knots (`HumanSegmentTable`) wherever the table holds its bound.
-    if (active !== undefined && demand === undefined && !person.resolving) {
-      const next: IAutoMovieMotionHumanSegment | undefined = person.segments[person.segments.indexOf(active) + 1];
-      const tabled: IAutoMoviePose | undefined = HumanSegmentTable.read(person, active, seconds, next?.entryTime ?? Infinity,
-        prepared ?? prepareHumanSegmentPose(person.performer.body),
-        (at: number): IAutoMoviePose => evaluate(active, at));
-      if (tabled !== undefined) {
-        const shown: HumanSegment.IShown = { pose: tabled };
-        return keep(person, seconds, shown) ? { pose: tabled, kept: shown } : { pose: tabled };
-      }
-    }
     const pose: IAutoMoviePose = active === undefined
       ? HumanSegmentPose.initial(person, demand, prepared)
-      : evaluate(active, seconds);
+      : active.incumbents === undefined
+        ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
+        // The action's last leaf seeds start every swept fit of this
+        // evaluation (leaf, carry, stop and plant fits) from a held seed
+        // (`HumanLimbIncumbent`), which cannot change their answers.
+        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: active.incumbents },
+          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, demand));
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
-  }
-
-  /**
-   * The displayed pose at a second solved exactly by the display pipeline,
-   * never read from a pose table nor kept: the reference a table read is
-   * held to (`HumanSegmentTable`).
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @returns The pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and that nothing is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation The active action's own exact evaluation, or the standing pose before the first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One selection, one evaluation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No table, kept pose or still representative is read.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One exact evaluation a call.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Shares nothing by design.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function exact(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number): IAutoMoviePose {
-    const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body);
-    const active: IAutoMovieMotionHumanSegment | undefined = HumanSegmentSelection.last(person.segments, seconds);
-    return active === undefined
-      ? HumanSegmentPose.initial(person, undefined, prepared)
-      : HumanSegmentPose.of(person, active, seconds, prepared);
   }
 
   /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
