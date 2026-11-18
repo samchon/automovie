@@ -17,6 +17,7 @@ import { walkFoot } from "./walkFoot";
  * @param body The plan's fixed body.
  * @param gait The gait's lift, straight leg and landing rule.
  * @param at The stance endpoint reader, in action seconds, borrowing only the preparing observation's optional FK source.
+ * @param closing Whether a foot's swing landing at a second lands in its closing stance, which it sets down into at rest whatever the gait; none when absent.
  * @returns A preparer that reads one swing's three endpoints and returns its random-access share reader.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States endpoint ownership, fixed body/gait inputs, action timebase, the preparing observation's FK loan and the three endpoint reads.
@@ -31,6 +32,7 @@ export function walkSwing(
   body: IAutoMovieMotionHumanBody,
   gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing">,
   at: (side: "left" | "right", seconds: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
+  closing: (side: "left" | "right", on: number) => boolean = (): boolean => false,
 ): (
   side: "left" | "right",
   swing: { off: number; on: number },
@@ -59,7 +61,10 @@ export function walkSwing(
       seconds: swing.on - swing.off,
       lift: gait.lift,
       stiff: gait.stiff === side,
-      settles: gait.swing <= 1,
+      // A walking foot sets down at rest; a running one strikes moving,
+      // except into a closing stance, which lands flat to bear a body coming
+      // to stand (`walkFoot.prepareStance`).
+      settles: gait.swing <= 1 || closing(side, swing.on),
     });
   };
 }

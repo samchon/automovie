@@ -36,6 +36,9 @@ import { walkSteps } from "./walkSteps";
 import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
+/** The resolution, seconds, at which a foot's last swing is found back from a take's end: a millisecond, under any swing's tenths of a second, so no swing is stepped over. */
+const CLOSING: number = 1e-3;
+
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
  *
@@ -324,7 +327,26 @@ export namespace walk {
     // Each swing's endpoints are fixed by its foot and its toe-off, so its
     // swing reader is prepared once, the scheduled one and the reached one
     // each, and read at every share of it.
-    const scheduledSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled);
+    // A foot's closing stance is the one it lands in last: its last swing is
+    // found once per foot, read back from the take's end until the schedule
+    // swings it, at the step's resolution `CLOSING`.
+    const lastLanding: Partial<Record<"left" | "right", number>> = {};
+    const closing: (side: "left" | "right", on: number) => boolean = (side: "left" | "right", on: number): boolean => {
+      let last: number | undefined = lastLanding[side];
+      if (last === undefined) {
+        last = -Infinity;
+        for (let t: number = duration; t > 0; t -= CLOSING) {
+          const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = steps.foot(side, t).swing;
+          if (swing !== undefined) {
+            last = swing.on;
+            break;
+          }
+        }
+        lastLanding[side] = last;
+      }
+      return Math.abs(on - last) < CLOSING;
+    };
+    const scheduledSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled, closing);
     const scheduledSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
     const scheduledAt: (side: "left" | "right", swing: { off: number; on: number }) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
       const key: string = `${side}:${swing.off}`;
@@ -430,7 +452,7 @@ export namespace walk {
       }
       return known;
     };
-    const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
+    const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end, closing);
     const reachedSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
     const reachedAt: (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
       const key: string = `${side}:${swing.off}`;

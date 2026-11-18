@@ -136,12 +136,19 @@ export namespace walkFoot {
       }
       return { placement: { ankle: flat.ankle, rotation: { ...level } }, toes: 0 };
     };
-    if (raised > 0) return (t: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
-      // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
+    // A closing stance of a gait on the balls of the feet lands as a walking
+    // foot does, heel first and rolled flat (the reader below): it bears a
+    // body coming to stand, whose extrapolated centre of mass must lie
+    // inside the feet's whole base as the foot takes the weight (Hof,
+    // Gazendam and Sinke 2005), and a heel still raised would leave that base
+    // to the forefoot.
+    if (raised > 0 && !(struck && !leaves)) return (t: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
+      // On the ball throughout: the heel's height, eased up from a flat
+      // start, and the forefoot rocker's pitch where it is steeper.
       const held: number =
         raised *
         (struck ? 1 : minimumJerk.share(t / RISE)) *
-        (leaves ? 1 : 1 - minimumJerk.share((t - strike) / RISE));
+        (leaves ? 1 : 0);
       const degrees: number = Math.min(
         -held,
         t > rise ? push * minimumJerk.share((t - rise) / pushSpan) : 0,
