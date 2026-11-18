@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -94,11 +94,14 @@ export namespace stepOverPath {
     /** The trail heel's rise share at an action second. */
     rising: (seconds: number) => number;
 
+    /** The settled lead foot's rocker share as the trailing ankle lifts over the obstacle. */
+    rocker: (ankleHeight: number) => number;
+
     /** The actual placement and bearing state at an action second. */
     footAt: (side: "left" | "right", seconds: number) => { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean };
 
-    /** Required sole height at an actual world point, metres. */
-    needed: (side: "left" | "right", point: IAutoMovieVector3) => number;
+    /** Required lead socket height along the approach, obstacle and landing, world metres. */
+    needed: (socket: IAutoMovieMotionHumanFoot.Socket, point: IAutoMovieVector3) => number;
   }
 
   /**
@@ -109,9 +112,9 @@ export namespace stepOverPath {
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed body/obstacle geometry, footprint and action-time readers; the namespace supplies all clearance, angle and contact rules.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the same taut clearance path over every heel/ball/toe sample, original toe-up/trail-rocker pitch and minimum-jerk phase, binding only unchanged frame and socket prerequisites.
+   * @evidence contracts/development/implementation.md#principled-implementation The lead trajectory clears its pitched sole. Each lead socket also owns a continuous height requirement at its actual forward position. The trail trajectory clears the obstacle expanded by its ankle-to-sole radius, allowing shank-relative pitch during crossing.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Obstacle admission precedes fixed frame/flat/pivot/socket preparation, the same pitch/profile path builder and random-access foot readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No footfall, obstacle bound, margin, pitch, path probe, strict phase comparison or minimum-jerk arithmetic changes; flat rotations remain fresh and explicit pivot contacts are actually evaluated.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both trajectories use the declared obstacle margin, measured rig sockets, the shared taut-path construction and the scheduled minimum-jerk clock.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading axes, sole offsets and yaw/roll prefixes prepare once; one actual sole rotation serves all three original socket probes instead of reconstructing the same rotation three times.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, obstacle, frame, footprint headings and zero-toe sole geometry; each actual pitch, query point and second still evaluates its own dependent path/contact arithmetic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns fixed footprint/socket/frame readers and two clearance paths until released; no sampled pose, queried foot placement or arbitrary-second cache is retained.
@@ -295,6 +298,11 @@ export namespace stepOverPath {
           ? stepOver.TOE_UP * (smooth(z, from, toe) - smooth(z, toe, heel))
           : 0);
     };
+    const trailRadius: number = Math.max(...HumanFoot.SOCKETS.map(
+      (socket): number => Vector3.length(HumanFoot.offset(body, trail, socket)),
+    ));
+    const departure: number = heeled(trail, feet[trail], -stepOver.PUSH).ankle.y;
+    const summit: number = origin.y + top(trail) + trailRadius;
     const path: (side: "left" | "right", start: number) => (u: number) => IAutoMovieMotionHumanFoot.IPlacement = (
       side: "left" | "right",
       start: number,
@@ -306,6 +314,8 @@ export namespace stepOverPath {
       const b: IAutoMovieVector3 = framed.local(end[side]);
       const across: number = b.x - a.x;
       const forward: number = Math.max(1e-9, b.z - a.z);
+      // The folded trail shank turns the foot through a large arc. Its
+      // measured ankle-to-socket radius bounds every pitch and heading.
       const line: ReturnType<typeof AutoMovieMotionHumanClearance.path> = AutoMovieMotionHumanClearance.path(
         { z: a.z, y: a.y },
         { z: b.z, y: b.y },
@@ -313,7 +323,11 @@ export namespace stepOverPath {
           let height: number = -Infinity;
           for (const point of sole(side, pitch(z)))
             height = Math.max(height, surface(side, z + point.z) - point.y);
-          return height;
+          if (side === lead) return height;
+          const gap: number = Math.max(near - z, z - far, 0);
+          return gap < trailRadius
+            ? Math.max(height, top(side) + Math.sqrt(trailRadius * trailRadius - gap * gap))
+            : height;
         },
       );
       return (u: number): IAutoMovieMotionHumanFoot.IPlacement => {
@@ -363,10 +377,29 @@ export namespace stepOverPath {
       if (t >= b) return { placement: flat(side, end[side]), planted: true };
       return { placement: swings[side]((t - a) / (b - a)), planted: false };
     };
-    // How far a sole socket at a frame-local place must stand above the floor.
-    const needed: IPlan["needed"] = (side: "left" | "right", p: IAutoMovieVector3): number =>
-      origin.y + surface(side, framed.local(p).z);
-
+    // The straight approach and departure on either side of the obstacle
+    // join each lead socket's own flat footprints to its full clearance.
+    const leadTop: number = top(lead);
+    const envelope = (socket: IAutoMovieMotionHumanFoot.Socket): ((z: number) => number) => {
+      const start: number = framed.local(
+        HumanFoot.point(body, lead, socket, flat(lead, feet[lead])),
+      ).z;
+      const finish: number = framed.local(
+        HumanFoot.point(body, lead, socket, flat(lead, end[lead])),
+      ).z;
+      return (z: number): number => {
+        if (z < near)
+          return near > start ? leadTop * Math.max(0, (z - start) / (near - start)) : 0;
+        if (z > far)
+          return finish > far ? leadTop * Math.max(0, (finish - z) / (finish - far)) : 0;
+        return leadTop;
+      };
+    };
+    const envelopes: Record<IAutoMovieMotionHumanFoot.Socket, (z: number) => number> = {
+      heel: envelope("heel"), ball: envelope("ball"), toe: envelope("toe"),
+    };
+    const needed: IPlan["needed"] = (socket, point): number =>
+      origin.y + envelopes[socket](framed.local(point).z);
     return {
       body,
       lead,
@@ -381,6 +414,7 @@ export namespace stepOverPath {
       heeled,
       smooth,
       rising,
+      rocker: (height: number): number => smooth(height, departure, summit),
       footAt,
       needed,
     };

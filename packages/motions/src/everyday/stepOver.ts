@@ -1,5 +1,6 @@
-import { minimumJerk } from "@automovie/engine";
+import { minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieMotionHumanStepOver,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,6 +17,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { walkLeg } from "../actions/walkLeg";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
@@ -49,7 +52,9 @@ import { stepOverPath } from "./stepOverPath";
  * again once its heel does, so the toe clears the edge with the ankle and
  * the knee lower than a level foot would need; where the ankle cannot take
  * the planned pitch and the toes droop, the ankle is raised until every
- * sole point clears. The lead foot lands so the obstacle's middle falls at
+ * sole point clears. The lead toes extend through the pitch the unloaded
+ * ankle cannot supply. The trailing ankle clears the measured sole radius
+ * and its foot turns forward in mid-swing. The lead foot lands so the obstacle's middle falls at
  * mid-swing, at least one tenth of a foot length beyond the far side and
  * no farther than the legs' stride allows; the trail foot lands beside it
  * at the body's rest separation.
@@ -62,7 +67,8 @@ import { stepOverPath } from "./stepOverPath";
  * side. The pelvis stays back over the trail foot until the lead foot is
  * crossing, moves halfway between the feet by the double support and over
  * the landed feet while the trail foot swings, each leg on a minimum-jerk
- * path. It is lowered wherever a planted leg could not reach its foot,
+ * path. The supporting lead heel rises with the trailing ankle's clearance
+ * so the folded trailing knee keeps its range. The pelvis is lowered wherever a planted leg could not reach its foot,
  * and over the second half of each swing toward where the swinging leg
  * will reach its landing, so it has come down when the foot lands instead
  * of dropping at the contact.
@@ -72,10 +78,9 @@ import { stepOverPath } from "./stepOverPath";
  * (provisional: a deliberate two-step crossing near 1 s a step for an adult)
  * times the manner's tempo,
  * the lead swinging over 8 to 42 % and the trail over 50 to 82 %, the
- * pelvis staying between the feet until 70 % so the trail limb crosses with
- * the hip above the obstacle, where hip and knee flexion can lift its toe
- * (trail-limb clearance comes from hip and knee flexion, Chou and Draganich
- * 1997, J Biomech 30:331), then moving over the landed feet.
+ * pelvis transferring over the supporting lead leg by trail mid-swing so
+ * the trailing hip and knee can flex through clearance (Chou and
+ * Draganich 1997, J Biomech 30:331).
  *
  * The obstacle lies ahead along the performer's heading; its near side must
  * be within one leg length of the feet and its height at most 0.55 of the hip
@@ -123,8 +128,8 @@ export namespace stepOver {
   /** Sole clearance of the trail foot over the obstacle's top, metres: the trailing toe clears obstacles by 146 mm on average whatever their height (Chou and Draganich 1997, J Biomech 30:331). */
   export const TRAIL: number = 0.146;
 
-  /** The pelvis transfers over the feet: the first half from 12 % over 38 % of the action, the second from 70 % over 28 % (provisional; the 70 % is the namespace's). */
-  const TRANSFER: readonly [number, number, number, number] = [0.12, 0.38, 0.7, 0.28];
+  /** Onset and duration of the first half of forward transfer, shares of the crossing. */
+  const TRANSFER: readonly [number, number] = [0.12, 0.38];
 
   /**
    * Plan a step over.
@@ -134,11 +139,11 @@ export namespace stepOver {
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace states physical goals, phases and bounds; this entry binds fixed body/foot preparation and permits explicit posture-channel observation demand.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves every sole-clearance path, root lowering, landing anticipation and six-round bounded secant correction. Each internal socket observation retains full direct-joint admission/clamping and the canonical resolver's dependency-selected actual leg fits, with ordinary complete fallback for unsupported context.
+   * @evidence contracts/development/implementation.md#principled-implementation Weight transfers over the lead support before the trailing knee folds. The unloaded ankle follows its shank. A measured sole-radius envelope clears the trailing foot, while the fitted lead sockets follow continuous approach and landing ramps over the full obstacle margin.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed trunk/knee/contact geometry precedes root/foot placement, lowering, active landing claims and actual lifted-foot clearance correction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No event, clearance probe, iteration limit, 2 mm floor, secant ratio, contact, ROM or refusal changes; omitted demand retains the complete original posture computation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Trunk/rest/contact and fixed-knee reach prepare once; each foot trajectory evaluates once per query, planted spans omit unread landing FK, and explicit channel demand corrects only an observed leg. After the first complete clearance round, a moved trial prepares its fixed socket-name demand once for every remaining original round.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed take shares measured body and footprint geometry. Each synchronous query borrows one exact FK reader across lowering/hips/clearance rounds and explicitly requests the observed socket bones from resolver/FK; its unchanged socket membership shares genuine FK demand preparation after the first successful observation. Each partial pose stays inside that observation and never escapes as a complete pose or retained result.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both obstacle margins, contact windows, ankle bounds, six-pass limit and 2 mm clearance tolerance apply across body sizes, speeds and headings.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planted spans omit swing geometry. Only the lead swing requests fitted sole observations, sharing its current hip and shank-range reader over the correction rounds.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body geometry and the lead socket FK demand prepare once per take. Each synchronous posture query borrows one FK reader for root lowering, hip placement and the fitted lead sole. Partial poses stay inside the socket observation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed body/path/trunk readers until released; each query releases its FK workspace and current bone demand on return or throw, without retaining postures, solved poses or queried seconds.
    */
   export function plan(
@@ -158,6 +163,7 @@ export namespace stepOver {
       heeled,
       smooth,
       rising,
+      rocker,
       footAt,
       needed,
     }: stepOverPath.IPlan = stepOverPath.of(context);
@@ -192,13 +198,13 @@ export namespace stepOver {
           trailMiddle,
         ));
     // The pelvis goes halfway to the landed feet from TRANSFER[0] over
-    // TRANSFER[1] of the action, and the rest from TRANSFER[2] over
-    // TRANSFER[3].
+    // TRANSFER[1] of the action, then over the lead support during the
+    // first half of the trail swing.
     const transfers: readonly [number, number, number, number] = [
       TRANSFER[0] * duration,
       TRANSFER[1] * duration,
-      TRANSFER[2] * duration,
-      TRANSFER[3] * duration,
+      windows[trail][0],
+      trailMiddle - windows[trail][0],
     ];
     const rootAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
       const s: number =
@@ -223,6 +229,11 @@ export namespace stepOver {
     const contacts: Record<"left" | "right", IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"), right: HumanFoot.offset(body, "right", "mtp"),
     };
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      HumanFoot.SOCKETS.map((socket): AutoMovieHumanoidBone =>
+        body.surfaces.sockets[`${socket}${lead === "left" ? "Left" : "Right"}`].bone),
+    );
+    const observe: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
     const share: (t: number) => number = (t: number): number => t / duration;
     return {
       duration,
@@ -258,6 +269,19 @@ export namespace stepOver {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
         const footings: Record<"left" | "right", ReturnType<typeof footAt>> = { left: footAt("left", t), right: footAt("right", t) };
+        if (!footings[trail].planted) {
+          // The lead forefoot carries the pelvis through the trailing knee's
+          // deepest fold. The pelvis follows the rocker's ankle translation,
+          // preserving the stance leg's reach while the trailing toes clear.
+          const rested: IAutoMovieVector3 = footings[lead].placement.ankle;
+          const placed: ReturnType<typeof heeled> = heeled(
+            lead, rested, -PUSH * rocker(footings[trail].placement.ankle.y),
+          );
+          root.x += placed.ankle.x - rested.x;
+          root.y += placed.ankle.y - rested.y;
+          root.z += placed.ankle.z - rested.z;
+          footings[lead].placement = placed;
+        }
         for (const side of ["left", "right"] as const) {
           const f: ReturnType<typeof footAt> = footings[side];
           const knee: IAutoMovieVector3 = knees[side](root);
@@ -275,7 +299,7 @@ export namespace stepOver {
         // The trunk carries a walk's forward inclination over the step, the
         // pelvis's share tipping the body about the hips.
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        let posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           AutoMovieMotionHumanLean.pivot(
             body,
@@ -300,78 +324,65 @@ export namespace stepOver {
         // A swinging foot's leg reaches for its landing over the second half
         // of its swing, so the pelvis has come down to where that leg stands
         // when it lands rather than dropping at the contact.
-        let landing: number = 0;
-        const swinging: ("left" | "right")[] = (["left", "right"] as const).filter((side: "left" | "right"): boolean => t > windows[side][0] && t < windows[side][1]);
-        if (swinging.length > 0) {
-          const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, resolution());
-          for (const side of swinging) {
-            const [a, b]: [number, number] = windows[side];
-            landing = Math.max(landing, smooth(t, (a + b) / 2, b) * short(hips[side], end[side]));
-          }
+        const side: AutoMovieHumanSide | undefined = !footings[lead].planted
+          ? lead : !footings[trail].planted ? trail : undefined;
+        if (side === undefined) return posture;
+        const [from, to]: [number, number] = windows[side];
+        const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+        const observed: boolean = channels === undefined || channels.includes(limb);
+        const middle: number = (from + to) / 2;
+        if (!observed && t <= middle) return posture;
+        const hip: IAutoMovieVector3 = hipJoints(
+          body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, resolution(),
+        )[side];
+        const landing: number = t <= middle ? 0 :
+          Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
+        if (landing > 0) {
+          posture.root = { ...posture.root, y: posture.root.y - landing };
+          hip.y -= landing;
         }
-        if (landing > 0)
-          posture = {
-            ...posture,
-            root: { ...posture.root, y: posture.root.y - landing },
-          };
+        if (!observed) return posture;
+        const goal: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
+        const own: IAutoMovieQuaternion = footings[side].placement.rotation;
+        const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(own);
+        let rotation: IAutoMovieQuaternion = own;
+        if (side === trail) {
+          // The folded trailing knee travels in the sagittal plane. Restore
+          // the planted foot's toe-out with zero angular rate at each contact.
+          const turn: number = Math.sin(Math.PI * (t - from) / (to - from)) ** 2;
+          rotation = HumanFoot.rotation(
+            direction.heading + wrapDegrees(yaw - direction.heading) * turn, direction.pitch,
+          );
+        }
+        const range: ReturnType<typeof walkLeg.prepareAnkleRange> =
+          walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
+        const ranged: IAutoMovieQuaternion = range(hip, goal.point, rotation);
+        posture.limbs[limb] = { ...goal, rotation: ranged };
+        if (side === trail) return posture;
 
-        // A swinging foot whose ankle cannot take the planned pitch droops its
-        // toes, and raising its ankle folds the knee and droops them further,
-        // so each swinging ankle rises by secant steps on its sole's deficit,
-        // the most any sole socket stands under what it must clear there (the
-        // step scaled by the last round's ankle-to-deficit ratio, 1 to 4),
-        // until no socket is more than 2 mm under, in at most six rounds, so
-        // the clearance holds on the sole itself.
-        const lifted: ("left" | "right")[] = (["left", "right"] as const).filter(
-          (side: "left" | "right"): boolean => !footings[side].planted &&
-            (channels === undefined || channels.includes(`${side}Leg`)),
-        );
-        if (lifted.length === 0) return posture;
-        const requested: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
-        for (const side of lifted)
-          for (const socket of HumanFoot.SOCKETS)
-            requested.add(body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`].bone);
-        const last: Partial<
-          Record<"left" | "right", { ankle: number; short: number }>
-        > = {};
-        let observe: ReturnType<typeof poseBones.prepare> | undefined;
-        for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
-          const posed: ReturnType<typeof resolveHumanPosture.seeded>["pose"] = resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested, projection).pose;
-          const bones: ReturnType<typeof poseBones> = observe === undefined
-            ? poseBones(body, posed, resolution(), requested)
-            : observe(posed, resolution());
-          const next: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-          let moved: boolean = false;
-          for (const side of lifted) {
-            let short: number = -Infinity;
-            for (const socket of HumanFoot.sockets(body, bones, side))
-              short = Math.max(short, needed(side, socket.point) - socket.point.y);
-            if (short <= 0.002) continue;
-            const limb: "leftLeg" | "rightLeg" =
-              side === "left" ? "leftLeg" : "rightLeg";
-            const goal: IAutoMovieHumanLimbGoal = next[limb]!;
-            const previous: { ankle: number; short: number } | undefined = last[side];
-            const ratio: number =
-              previous === undefined || previous.short - short < 1e-3
-                ? 1
-                : Math.min(
-                    4,
-                    Math.max(
-                      1,
-                      (goal.point.y - previous.ankle) /
-                        Math.max(1e-4, previous.short - short),
-                    ),
-                  );
-            last[side] = { ankle: goal.point.y, short };
-            next[limb] = {
-              ...goal,
-              point: { ...goal.point, y: goal.point.y + short * ratio },
-            };
-            moved = true;
-          }
-          if (!moved) break;
-          posture = { ...posture, limbs: next };
-          if (observe === undefined) observe = poseBones.prepare(body, requested);
+        // Extend the toes by the pitch the unloaded ankle cannot supply.
+        // The lead heel, ball and toe then follow their own approach and
+        // landing ramps. All three retain the full margin above the obstacle.
+        posture.joints[`${lead}Toes`] = [Math.max(0, direction.pitch - HumanFoot.pitch(ranged)), 0, 0];
+        let previousHeight: number = goal.point.y;
+        let previousDeficit: number = -Infinity;
+        let point: IAutoMovieVector3 = goal.point;
+        for (let round: number = 0; round < 6; round++) {
+          const posed: ReturnType<typeof resolveHumanPosture.seeded>["pose"] =
+            resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested, projection).pose;
+          const bones: ReturnType<typeof poseBones> = observe(posed, resolution());
+          let deficit: number = -Infinity;
+          for (const socket of HumanFoot.sockets(body, bones, lead))
+            deficit = Math.max(deficit, needed(socket.socket, socket.point) - socket.point.y);
+          if (deficit <= 0.002) break;
+
+          const decrease: number = previousDeficit - deficit;
+          const ratio: number = decrease < 1e-3 ? 1 :
+            Math.min(4, Math.max(1, (point.y - previousHeight) / decrease));
+          previousHeight = point.y;
+          previousDeficit = deficit;
+          point = { ...point, y: point.y + deficit * ratio };
+          posture.limbs[limb] = { ...goal, point, rotation: range(hip, point, rotation) };
         }
         return posture;
       },
