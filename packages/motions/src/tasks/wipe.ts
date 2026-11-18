@@ -30,6 +30,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
+import { useTool } from "./useTool";
 
 /**
  * Wiping a table, counter or other level surface with the flat palm in
@@ -39,11 +40,11 @@ import { poseBones } from "../posture/poseBones";
  * The goal is the palm flat on the surface, circling its centre with a
  * radius of a quarter of the forearm (provisional) `cycles` times. The hand
  * comes to the surface in the aimed movement time (McIntosh et al. 2018),
- * circles over `PERIOD` seconds a cycle (provisional) with the palm on the
+ * circles at a tool stroke's hand speed (`useTool.STROKE_SPEED`) with the palm on the
  * surface throughout, and returns. A patch whose far side lies beyond the
  * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
- * tips about the hips by the least pitch that keeps the wrist within `REACH`
- * of the arm's length; one still out of reach at the lean's limit is
+ * tips about the hips by the least pitch that keeps the wrist within the
+ * reach of an elbow kept at `ELBOW` degrees (`reach`); one still out of reach at the lean's limit is
  * refused, since it is walked up to first. The preferred working height lies
  * 200 to 250 mm below the elbow (Li, Chang and Zhang 2024, Sensors 24:7056);
  * the law accepts any reachable height and the author places the surface.
@@ -56,7 +57,7 @@ import { poseBones } from "../posture/poseBones";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the stroke, the refusal, the working height's source, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of one arm stroke over a standing base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the reach share, the period and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the kept elbow and its reach share, the circle and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a target; the circle is a share of the forearm.
  */
 export namespace wipe {
@@ -77,11 +78,27 @@ export namespace wipe {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** The share of the arm's length the wrist is kept within, so the elbow never locks straight on the surface (provisional). */
-  export const REACH: number = 0.97;
+  /**
+   * The least flexion the elbow keeps on the surface, degrees: the lower end
+   * of the functional elbow arc of Morrey, Askew and Chao 1981 (J Bone Joint
+   * Surg Am 63:872, 30 to 130 degrees), so the elbow never locks straight.
+   */
+  export const ELBOW: number = 30;
 
-  /** One circle's seconds (provisional). */
-  export const PERIOD: number = 0.9;
+  /**
+   * The share of the arm's length the wrist reaches with the elbow kept at
+   * `ELBOW`: the law of cosines over the body's own upper arm and forearm,
+   * `sqrt(u^2 + f^2 + 2 u f cos ELBOW) / (u + f)`.
+   *
+   * @param body The body.
+   * @returns The share, in (0, 1].
+   */
+  export function reach(body: IAutoMovieMotionHumanBody): number {
+    const u: number = body.measure.upperArm;
+    const f: number = body.measure.forearm;
+    const bent: number = (ELBOW * Math.PI) / 180;
+    return Math.sqrt(u * u + f * f + 2 * u * f * Math.cos(bent)) / (u + f);
+  }
 
   /**
    * The palm's place on the circle at a progress of the stroke.
@@ -168,7 +185,7 @@ export namespace wipe {
         body,
         standing,
         side,
-        share: REACH,
+        share: reach(body),
         wrist: (posture: IAutoMovieMotionHumanPosture, progress: number): IAutoMovieVector3 =>
           wristAt(posture).place(point(progress)).point,
         // The arm on the circle's start, as the stroke lays the palm there.
@@ -202,7 +219,8 @@ export namespace wipe {
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: travel,
-        attack: PERIOD * cycles,
+        // Each circle takes its length at a tool stroke's hand speed.
+        attack: ((2 * Math.PI * radius) / useTool.STROKE_SPEED) * cycles,
         retract: travel,
       }),
       modifiers,

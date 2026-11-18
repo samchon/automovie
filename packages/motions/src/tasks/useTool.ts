@@ -62,12 +62,12 @@ import { HumanToolWork } from "./HumanToolWork";
  * cycle; a saw pushes and pulls its teeth along its line over the work point
  * by a stroke of half the forearm; a spoon circles inside the vessel it
  * stirs (`HumanToolWork`); a screwdriver turns about its own axis into the
- * work, the forearm's pronation and supination of 60 degrees each way
- * (inside the functional forearm rotation of Giachino, Benoit and Heaney
- * 2015, J Wrist Surg 4). The hand reaches the working pose in the aimed
- * movement time (McIntosh et al. 2018), works `cycles` cycles of `PERIODS`
- * seconds (provisional), and returns, its fingers kept closed on the tool
- * as the grip left them. Experts vary amplitude less (Bril et al. 2010, J
+ * work, the forearm's pronation and supination of `TURN` degrees each way.
+ * The hand reaches the working pose in the timing owner's movement time
+ * (`AutoMovieMotionHumanTiming.of`), works `cycles` cycles (a hammer's and a
+ * saw's of `PERIODS` seconds, a stir's the time its circle takes at a tool
+ * stroke's speed, `STROKE_SPEED`), and returns, its fingers kept closed on
+ * the tool as the grip left them. Experts vary amplitude less (Bril et al. 2010, J
  * Exp Psychol Hum Percept Perform 36:825); the seeded variation is not drawn
  * yet. Events: `ready`, per cycle `contact<n>` (the strike, the stroke's
  * middle, the circle's nearest point, the turn's end), and `recover`.
@@ -100,22 +100,50 @@ export namespace useTool {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** Each work's cycle, seconds (provisional). */
-  export const PERIODS: Readonly<Record<IAutoMovieMotionHumanToolWork.Kind, number>> = {
-    hammer: 0.6,
-    saw: 0.8,
-    stir: 1.0,
+  /**
+   * The cycle of a work that keeps its own rhythm, seconds: a saw's push and
+   * pull at the 2.0 Hz mean spontaneous sawing frequency of Starke and Baber
+   * 2017 (PLOS ONE 12:e0173281); a hammer's strike at the 2 Hz its strikers
+   * kept without pausing, where at 1 Hz they paused after each impact
+   * (Petrič et al. 2017, Front Comput Neurosci 11:45). A screwdriver's 0.7 s
+   * has no located measurement (self-paced screwdriving rates are reported
+   * only under pacing); a stir's cycle follows from its circle
+   * (`STROKE_SPEED`).
+   */
+  export const PERIODS: Readonly<Record<Exclude<IAutoMovieMotionHumanToolWork.Kind, "stir">, number>> = {
+    hammer: 0.5,
+    saw: 0.5,
     screwdriver: 0.7,
   };
 
-  /** The slopes below the horizontal a saw's blade is tried at, degrees; the arm's least strain picks one (provisional band about the crosscut's 45). */
+  /**
+   * A tool stroke's mean hand speed, metres per second: two excursions of
+   * 14.0 cm per cycle at 2.10 Hz, real sawing in Starke and Baber 2017
+   * (experiment 5). A circling stroke (a stir, a wipe) goes round its circle
+   * at this speed.
+   */
+  export const STROKE_SPEED: number = 2 * 0.14 * 2.1;
+
+  /**
+   * The slopes below the horizontal a saw's blade is tried at, degrees; the
+   * arm's least strain picks one. The band holds Disston's crosscutting 45
+   * and ripping 60 (Tool Manual for School Shops, 1927); its shallower end
+   * has no located source, and the sourced two alone leave a small body's
+   * arm 30 mm short of the work, which the law does not yet answer by
+   * leaning or stepping.
+   */
   export const SLOPES: readonly number[] = [20, 30, 40, 50, 60];
 
   /** The hammer's raise about the wrist, degrees (provisional). */
   export const RAISE: number = 60;
 
-  /** The screwdriver's turn each way, degrees (Giachino et al. 2015's functional band). */
-  export const TURN: number = 60;
+  /**
+   * The screwdriver's turn each way of the forearm's neutral, degrees: a
+   * stroke of 60, the most comfortable rotation of Bano, Mallick and Khan
+   * 2013 (Int J Ergonomics 4:1), inside the functional 50 of pronation and of
+   * supination of Morrey, Askew and Chao 1981 (J Bone Joint Surg Am 63:872).
+   */
+  export const TURN: number = 30;
 
   /** The hand's palm in its own rest axes, the direction `HumanHand.rotation` turns onto the asked palm. */
   const PALM: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
@@ -295,7 +323,10 @@ export namespace useTool {
         )?.width,
       },
     );
-    const period: number = PERIODS[kind];
+    const period: number =
+      kind === "stir"
+        ? (2 * Math.PI * work.radius) / STROKE_SPEED
+        : PERIODS[kind];
     const phases: IAutoMovieMotionClockPhase[] = [
       { name: "reaching", seconds: travel },
     ];
@@ -337,7 +368,8 @@ export namespace useTool {
         }
         case "saw":
           // The teeth run a quarter of the forearm either way of the work
-          // point, a stroke of half the forearm (provisional).
+          // point, a stroke of half the forearm, about the 14.0 cm median
+          // excursion of real sawing (Starke and Baber 2017, experiment 5).
           return {
             grip: Vector3.add(
               pose.grip,
