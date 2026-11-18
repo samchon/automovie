@@ -11,6 +11,7 @@ import {
   HumanChain,
   HumanHand,
   HumanPerformance,
+  HumanSkill,
   StrikingReach,
   StrikingStroke,
   poseBones,
@@ -109,6 +110,34 @@ export function test_motion_posture_staged_limb(): void {
       );
     }
   }
+  // A stage marker's scatter grows with the distance travelled and shrinks
+  // with the allotted time. Scaling both together leaves the uncertainty unchanged.
+  const trained = HumanSkill.resolve({ level: "trained" }, "stage marker");
+  const novice = HumanSkill.resolve({ level: "novice" }, "stage marker");
+  const sigma = HumanSkill.scatter(trained, upper, 1);
+  all.check(
+    "skill tightens the marker dispersion",
+    sigma > 0 && HumanSkill.scatter(novice, upper, 1) > sigma,
+  );
+  all.check(
+    "stationary markers have no path dispersion",
+    HumanSkill.scatter(trained, 0, 1) === 0,
+  );
+  all.check(
+    "dispersion scales with stage speed",
+    Math.abs(HumanSkill.scatter(trained, 2 * upper, 1) - 2 * sigma) < 1e-12 &&
+      Math.abs(HumanSkill.scatter(trained, 2 * upper, 2) - sigma) < 1e-12,
+  );
+  let invalid: unknown;
+  try {
+    StrikingStroke.impactShare(0);
+  } catch (error) {
+    invalid = error;
+  }
+  all.check(
+    "a stopped path has no descending speed marker",
+    invalid instanceof Error,
+  );
   const SKIN: number = 10;
   const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   for (const name of ["m-average"] as const) {
