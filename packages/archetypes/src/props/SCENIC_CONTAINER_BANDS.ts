@@ -24,9 +24,7 @@ const POD: string = "Speculative sizes for an original fictional cargo pod.";
 const MASS: string = "Estimated prop mass for scene use.";
 
 /**
- * All scenic container dimensions by kind. Historical entries cite the silhouette references and mark each sizing band provisional. The cargo pod ranges describe a fictional design.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the purpose and provenance of the historical, fictional and mass bands.
+ * All scenic container dimensions by kind. Historical entries cite the silhouette references and mark each sizing band provisional. The cargo pod ranges describe a fictional design. All mass bands are estimated prop masses in kilograms.
  */
 export const SCENIC_CONTAINER_BANDS: Readonly<
   Record<

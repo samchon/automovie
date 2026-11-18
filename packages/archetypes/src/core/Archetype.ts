@@ -146,7 +146,7 @@ export class Archetype<
     return this.#state;
   }
 
-  /** @evidence contracts/development/common.md#meaningful-documentation Whether the resolved model declares any articulation, including at rest. */
+  /** Whether the resolved model declares any articulation, including at rest. */
   public get hasArticulations(): boolean {
     return this.#travels.size > 0;
   }

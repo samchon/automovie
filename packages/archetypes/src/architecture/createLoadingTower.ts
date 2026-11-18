@@ -207,15 +207,11 @@ export function createLoadingTower(
 export namespace createLoadingTower {
   /**
    * Foot support on the rear boarding slab, upper platform and gangway, plus the front doorway passage.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes supporting surfaces from the aperture.
    */
   export type Affordance = "boarding" | "platform" | "gangway" | "door";
 
   /**
    * Shell width along X, shell depth along Z, upper floor above grade, gangway projection from the front, and scenic mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines axes and measurement origins.
    */
   export type Dimension =
     | "width"
@@ -226,8 +222,6 @@ export namespace createLoadingTower {
 
   /**
    * Author-fixed dimensions within the scene bands and an optional model id.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the overrides and model identity.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique model id, defaulting to the producer's name. */
@@ -236,8 +230,6 @@ export namespace createLoadingTower {
 
   /**
    * Model lengths are metres and mass is kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Supplies units for the four length inputs and mass.
    */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     width: "m",
@@ -249,8 +241,6 @@ export namespace createLoadingTower {
 
   /**
    * Scene blockout bands, chosen for actor staging and silhouette.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The bands give the authorable range of each scene dimension.
    */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     width: ArchetypeBand.of(

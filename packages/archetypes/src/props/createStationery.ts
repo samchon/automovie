@@ -361,11 +361,6 @@ export namespace createStationery {
    * - `support-grip`: the `+Z` edge of the map's base panel, held across just that panel while folding.
    *
    * Each hinge lifts its part with positive travel from the closed position through 180 degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the grip, working face, axes and riding edges at rest.
-   * @evidence contracts/development/design.md#principled-representation Stable contact ids describe supporting holds, the working face and independent articulation degrees with their carried edges.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The producer and its callers use one id per contact, with an independent edge for each operable part.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A page turn finds its own hinge from the edge; neither it nor the map fold aliases the cover hinge.
    */
   export type Affordance =
     | "grip"

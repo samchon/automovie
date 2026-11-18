@@ -444,29 +444,21 @@ function profileBands(
 export namespace createScenicShip {
   /**
    * The exposed rowing benches, square-rigged deck, and powered workboat silhouettes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the three visible deck arrangements.
    */
   export type Kind = "oared" | "squareSail" | "wheelhouse";
 
   /**
    * Kind choices in historical sequence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Persisted kind choices are enumerated in era order.
    */
   export const KINDS: readonly Kind[] = ["oared", "squareSail", "wheelhouse"];
 
   /**
    * Hull length, maximum beam, draft below still water and deck freeboard in metres, and provisional total mass in kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the still-water reference plane and units.
    */
   export type Dimension = "length" | "beam" | "draft" | "freeboard" | "mass";
 
   /**
    * Deck walkway, the port entry, clear aft deck, helm standing area and aft-facing bench-edge seats on the oared profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the boarding side and the seats' profile and facing.
    */
   export type Affordance =
     | "deck"
@@ -477,8 +469,6 @@ export namespace createScenicShip {
 
   /**
    * The film scene's ship choice and fixed dimension overrides inside its admissible bands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the required profile and optional size controls.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Selects the hull and scenery silhouette. */

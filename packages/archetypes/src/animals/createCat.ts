@@ -51,8 +51,6 @@ export function createCat(
 export namespace createCat {
   /**
    * Optional independently authored instance data.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the stage model identity and the optional mass override in kilograms.
    */
   export interface IParams {
     /** Model id used by ordinary staging and motion APIs. */

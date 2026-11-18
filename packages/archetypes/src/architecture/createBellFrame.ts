@@ -170,15 +170,11 @@ export function createBellFrame(
 export namespace createBellFrame {
   /**
    * Width between outer post faces, depth between outer post faces, roof ridge height and scenic mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines where to measure the frame and height.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /**
    * Author-fixed dimensions within the scene bands and an optional model id.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the overrides and model identity.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique model id, defaulting to the producer's name. */
@@ -187,8 +183,6 @@ export namespace createBellFrame {
 
   /**
    * Model lengths are metres and mass is kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the units for all four controllable axes.
    */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     width: "m",
@@ -199,8 +193,6 @@ export namespace createBellFrame {
 
   /**
    * Scene blockout bands for fictional freestanding scenery.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each sizing interval names its scene reference.
    */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     width: ArchetypeBand.of(

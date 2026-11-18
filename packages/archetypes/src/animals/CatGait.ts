@@ -34,9 +34,7 @@ export namespace CatGait {
   const FORE_LAG: number = 0.206;
 
   /**
-   * Level walking at the measured mean speed in metres per second.
-   *
-   * @evidence contracts/development/design.md#principled-representation One measured level walk uses separate diagonal foot phases and the observed fore and hind support lengths.
+   * Level walking at the measured mean speed in metres per second, with separate diagonal touchdown phases and fore and hind support fractions.
    */
   export const TABLE: QuadrupedGait.ITable = {
     order: ["walk"],

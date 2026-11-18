@@ -404,8 +404,6 @@ export function createSpacecraft(
 export namespace createSpacecraft {
   /**
    * Contacts for the walking route, hatch articulation, cabin mobility and forward crew station.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the authored sites consumed for scene blocking.
    */
   export type Affordance =
     | "boardingWalkway"
@@ -419,8 +417,6 @@ export namespace createSpacecraft {
     | "controlConsole";
   /**
    * Drawn dimensions, in metres. Length excludes the walkway and width is at the cabin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the drawing inputs and their envelope references.
    */
   export type DrawnDimension =
     | "length"
@@ -431,14 +427,10 @@ export namespace createSpacecraft {
     | "walkwayLength";
   /**
    * The drawn dimensions plus the derived scenic mass in kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Separates the output-only mass from drawn dimensions.
    */
   export type Dimension = DrawnDimension | "mass";
   /**
    * Optional fixed dimensions in metres. Omitted fields are drawn from their bands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines how fixed and seeded dimensions are selected.
    */
   export interface IParams extends Partial<Record<DrawnDimension, number>> {
     /** The scene model id, which defaults to spacecraft. */
@@ -447,8 +439,6 @@ export namespace createSpacecraft {
 
   /**
    * Units of the controlled dimensions and derived mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Covers each returned dimension in its recorded unit.
    */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     length: "m",
@@ -462,8 +452,6 @@ export namespace createSpacecraft {
 
   /**
    * Set design bounds. The references identify the visual cue each dimension supports.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Associates the scenery bounds with public reference material.
    */
   export const BANDS: Readonly<Record<DrawnDimension, IArchetypeBand>> = {
     length: ArchetypeBand.metres(

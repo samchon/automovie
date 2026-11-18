@@ -84,8 +84,6 @@ export namespace CatBody {
   /**
    * Withers height in metres from Poradowski et al. Tape girth in metres and
    * mass in kilograms come from Madrigal-Valverde et al.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the two measured cohorts and the units used to size and weigh the reference body.
    */
   export const REFERENCE: Readonly<{
     withers: number;
