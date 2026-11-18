@@ -33,7 +33,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
-import { kissPose } from "./kissPose";
+import { kissPitch } from "./kissPitch";
 import { touchReach } from "./touchReach";
 
 /**
@@ -221,7 +221,7 @@ export namespace kissHandMeeting {
     const limit: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
     const closest: number = Math.min(
       limit,
-      Math.max(0, kissPose.pitch(hip, entry.yaw, start, center)),
+      Math.max(0, kissPitch(hip, entry.yaw, start, center)),
     );
     const feet: IAutoMovieMotionHumanRise.Stance = {
       left: {

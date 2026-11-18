@@ -38,6 +38,7 @@ import { kissCanLower } from "./kissCanLower";
 import { kissBody } from "./kissBody";
 import { kissHandClearance } from "./kissHandClearance";
 import { kissHandMeeting } from "./kissHandMeeting";
+import { kissPitch } from "./kissPitch";
 import { kissPose } from "./kissPose";
 import { kissPresentedHand } from "./kissPresentedHand";
 import { kissProjection } from "./kissProjection";
@@ -206,7 +207,7 @@ export namespace kiss {
       ...neutral,
       pitch: Math.min(
         45,
-        Math.max(-10, kissPose.pitch(hip, entry.yaw, start, at)),
+        Math.max(-10, kissPitch(hip, entry.yaw, start, at)),
       ),
     };
     bowed.miss = miss(bowed);
