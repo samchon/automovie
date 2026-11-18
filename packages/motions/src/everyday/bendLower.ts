@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
