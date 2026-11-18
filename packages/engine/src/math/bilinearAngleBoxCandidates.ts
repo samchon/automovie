@@ -29,7 +29,9 @@ interface IRawInputs {
  * return null so a caller can retain its existing general solver.
  * Repeated queries on one unchanged box may use prepare to share its range
  * admission, endpoint arrays, boundary sine/cosine and range-only bounds;
- * targets keep alias admission, candidate list and reference. Matrix and
+ * targets keep alias admission, candidate list and reference. On a bounded
+ * interval narrower than a half-turn, one nearest alias suffices when the
+ * fixed width proves the remaining turns cannot enter. Matrix and
  * reference admission still precede the unchanged range admission result.
  *
  * Method: David Eberly, Constrained Quaternions Using Euler Angles, sections
@@ -98,9 +100,12 @@ function enumerateBox(
   if (prepared !== undefined && prepared.ends === undefined && ends !== undefined)
     prepared.ends = ends;
   const points: number[] = [];
+  const tight: readonly [boolean, boolean] | undefined =
+    prepared === undefined ? undefined
+      : prepared.tight ??= [narrow(ranges[0]), narrow(ranges[1])];
   // Only prepared unchanged axes share min/max/reference slots and refusals.
   const aliases: (number | null | undefined)[] | undefined =
-    prepared === undefined ? undefined : [];
+    prepared === undefined || (tight?.[0] === true && tight[1]) ? undefined : [];
   const bounded: readonly [boolean, boolean] | undefined =
     prepared === undefined ? undefined
       : prepared.bounded ?? [
@@ -119,6 +124,17 @@ function enumerateBox(
     axis: 0 | 1,
   ): number | null => {
     const range: IAutoMovieAngleRange = ranges[axis];
+    const anchor: number = axis === 0 ? anchorX : anchorY;
+    // A box at most 179 degrees wide contains only aliases within 179
+    // degrees of the anchor. On these bounded numbers every rounded
+    // intermediate is within 2^-39 degrees of its exact value, so any other
+    // turn remains more than 179 degrees away. If the nearest turn misses,
+    // nearestAngleAlias cannot put a different turn inside. Retain the
+    // exact original round, multiply and add, including its zero signs.
+    if (tight?.[axis] === true && Math.abs(angle) <= 1024) {
+      const shifted: number = angle + 360 * Math.round((anchor - angle) / 360);
+      return shifted >= range.min && shifted <= range.max ? shifted : null;
+    }
     // Fixed coordinates are keyed by Object.is, unlike pair membership below.
     // A refused cached lift has already applied any unsafe-index refusal.
     const slot: 0 | 1 | 2 | null = prepared === undefined ? null
@@ -134,7 +150,7 @@ function enumerateBox(
     // cannot refuse; retain the original turn/add/nearestAlias arithmetic.
     if (bounded?.[axis] === true &&
       (slot !== null || (angle >= range.min && angle <= range.max))) {
-      const turn: number = Math.round(((axis === 0 ? anchorX : anchorY) - angle) / 360);
+      const turn: number = Math.round((anchor - angle) / 360);
       const shifted: number = angle + 360 * turn;
       // A zero turn keeps this admitted angle inside, including either zero
       // sign produced by the original multiplication and addition above.
@@ -148,7 +164,7 @@ function enumerateBox(
       ? prepared?.aliasBounds[axis][slot] : undefined;
     const first: number = bounds?.first ?? Math.ceil((range.min - angle) / 360);
     const last: number = bounds?.last ?? Math.floor((range.max - angle) / 360);
-    const turn: number = Math.round(((axis === 0 ? anchorX : anchorY) - angle) / 360);
+    const turn: number = Math.round((anchor - angle) / 360);
     const safe: boolean = bounds?.safe ??
       (Number.isSafeInteger(first) && Number.isSafeInteger(last));
     if (prepared !== undefined && (slot === 0 || slot === 1) && bounds === undefined)
@@ -301,6 +317,9 @@ interface IBoxState {
   /** Whether each finite interval fits the exact bounded-index proof. */
   bounded?: readonly [boolean, boolean];
 
+  /** Whether each fixed axis proves one possible nearest turn. */
+  tight?: readonly [boolean, boolean];
+
   /** Exact endpoint order; signed-zero endpoints remain distinct. */
   ends?: [number[], number[]];
 
@@ -312,6 +331,12 @@ interface IBoxState {
 
   /** Each limiting family's fixed feasible line-intercept interval. */
   familyIntervals: Partial<Record<1 | -1, IFamilyInterval>>;
+}
+
+/** Keep a one-degree margin from a half-turn and bound all lift intermediates. */
+function narrow(range: IAutoMovieAngleRange): boolean {
+  return Math.abs(range.min) <= 1024 && Math.abs(range.max) <= 1024 &&
+    range.max - range.min <= 179;
 }
 
 /** Range-only line-intercept limits before the target's phase is subtracted. */
