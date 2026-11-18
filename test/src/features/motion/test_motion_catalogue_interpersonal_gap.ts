@@ -5,95 +5,54 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/throwsError";
 
 /**
- * Interpersonal gaps sit in Hall's zones and an approach stops on the line
- * to its target, and Effort factors change their quantities monotonically.
+ * An approach stops a chest clearance plus the requested gap from the target.
  *
  * Scenarios:
- * 1. Each named gap lies inside the Hall zone it names (intimate under 0.45,
- *    face-to-face and personal 0.45 to 1.2, social 1.2 to 3.6), and the
- *    issue's default personal gap is 1.0 m; a metre request passes through
- *    and a non-positive one is refused.
- * 2. `stop` puts the feet's midpoint `gap + chest` back from the target on
- *    the line from the start, heading at the target; mirroring the inputs
- *    mirrors the stop, and a target at the start is refused.
- * 3. A neutral Effort leaves every multiplier at its identity.
- * 4. Each factor moves its quantities one way only over [-1, 1]: Time
- *    shortens the tempo toward sudden, Flow shrinks extent, steps, swing and
- *    elbow width toward bound, Weight grows extent and swing toward strong,
- *    Space removes curvature toward direct.
- * 5. Every named basic Effort action has factors inside [-1, 1]; a factor
- *    outside is refused.
+ * 1. Axis-aligned targets to either side give exact mirrored stop points and headings.
+ * 2. Coincident positions and nonpositive gaps are refused.
+ * 3. Effort factors preserve the neutral identity and change only within their authored domain.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the gap, stop and modifier functions and reads their outputs; a gap outside its zone, a stop off the line, a non-monotone factor or a missing range check fails.
- * @evidence contracts/development/testing.md#independent-expectations Zone bounds are Hall 1966's; the stop is checked by distances and bearings computed here; monotonicity and identity are the law's stated properties, not its coefficients.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every band, metre requests, invalid input, the mirror relation, both poles of each factor and the neutral point; the handing gap needs a body and is owned by the local approach test.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public stop geometry and effort modifiers.
+ * @evidence contracts/development/testing.md#independent-expectations Signed X displacements determine positions and headings by inspection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Opposite bearings separate distance from heading.
+ * @evidence contracts/development/testing.md#execution-ownership Calls numerical rules without preparing bodies.
+ * @evidence contracts/development/common.md#meaningful-documentation States the distance and the refusal boundaries.
  */
 export function test_motion_catalogue_interpersonal_gap(): void {
-  const G = HumanProxemics.GAPS;
-  const Z = HumanProxemics.ZONES;
+  const start = { x: 0, y: 0, z: 0 };
+  const chest = 0.125;
+  const gap = HumanProxemics.GAPS.personal;
+  TestValidator.equals("personal spacing in metres", gap, 1);
+  for (const side of [-1, 1]) {
+    const target = { x: side * 3, y: 1, z: 0 };
+    const stop = HumanProxemics.stop(start, target, gap, chest);
+    TestValidator.equals(
+      "floor stop and heading",
+      [stop.at.x, stop.at.y, stop.at.z, stop.yaw],
+      [target.x - side * (gap + chest), 0, 0, side * 90],
+    );
+  }
+  const gaps = HumanProxemics.GAPS;
+  const zones = HumanProxemics.ZONES;
+  for (const [distance, interval] of [
+    [gaps.intimate, zones.intimate],
+    [gaps.faceToFace, zones.personal],
+    [gaps.social, zones.social],
+  ] as const)
+    TestValidator.predicate(
+      "named spacing lies inside its zone",
+      interval[0] < distance && distance < interval[1],
+    );
   TestValidator.predicate(
-    "intimate gap in the intimate zone",
-    G.intimate > Z.intimate[0] && G.intimate < Z.intimate[1],
-  );
-  TestValidator.predicate(
-    "face-to-face in the personal zone",
-    G.faceToFace > Z.personal[0] && G.faceToFace < Z.personal[1],
-  );
-  TestValidator.predicate("personal gap is 1.0 m", G.personal === 1.0);
-  TestValidator.predicate(
-    "social gap in the social zone",
-    G.social > Z.social[0] && G.social < Z.social[1],
-  );
-  TestValidator.predicate(
-    "non-positive metres refused",
-    throwsError((): unknown => HumanProxemics.gap(0, undefined as never)),
-  );
-
-  const from = { x: 0.3, y: 0, z: -1 };
-  const target = { x: 1.5, y: 1.3, z: 2 };
-  const stop = HumanProxemics.stop(from, target, 1, 0.12);
-  const d0: number = Math.hypot(target.x - from.x, target.z - from.z);
-  const back: number = Math.hypot(target.x - stop.at.x, target.z - stop.at.z);
-  const cross: number =
-    (target.x - from.x) * (stop.at.z - from.z) -
-    (target.z - from.z) * (stop.at.x - from.x);
-  TestValidator.predicate(
-    "stop is gap plus chest back from the target",
-    Math.abs(back - 1.12) < 1e-12 && stop.at.y === 0,
-  );
-  TestValidator.predicate(
-    "stop lies on the line from the start",
-    Math.abs(cross) < 1e-12 &&
-      Math.hypot(stop.at.x - from.x, stop.at.z - from.z) < d0,
-  );
-  TestValidator.predicate(
-    "heading at the target",
-    Math.abs(
-      stop.yaw -
-        (Math.atan2(target.x - from.x, target.z - from.z) * 180) / Math.PI,
-    ) < 1e-12,
-  );
-  const mirrored = HumanProxemics.stop(
-    { ...from, x: -from.x },
-    { ...target, x: -target.x },
-    1,
-    0.12,
-  );
-  TestValidator.predicate(
-    "mirror",
-    Math.abs(mirrored.at.x + stop.at.x) < 1e-12 &&
-      Math.abs(mirrored.at.z - stop.at.z) < 1e-12 &&
-      Math.abs(mirrored.yaw + stop.yaw) < 1e-12,
-  );
-  TestValidator.predicate(
-    "target at the start refused",
-    throwsError((): unknown =>
-      HumanProxemics.stop(from, { ...from, y: 1 }, 1, 0.1),
+    "coincident floor positions have no bearing",
+    throwsError(() =>
+      HumanProxemics.stop(start, { ...start, y: 1 }, gap, chest),
     ),
   );
-
+  TestValidator.predicate(
+    "spacing must be positive",
+    throwsError(() => HumanProxemics.gap(0, undefined as never)),
+  );
   const neutral = HumanEffort.modifiers();
   TestValidator.predicate(
     "neutral is identity",

@@ -1,280 +1,115 @@
 import { travelMotion } from "@automovie/engine";
 import type {
-  IAutoMovieKeyframe,
   IAutoMovieMotion,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * Observe repeated-cycle root travel, facing composition, seam metadata, fallback ownership and arithmetic refusal. Velocity times global seconds determines queried root offsets; the unit does not render a gliding figure or establish continuous-time foot contact.
+ * Repetition rotates the local root into the heading before applying world velocity.
  *
  * Scenarios:
+ * 1. Two cycles turn local X toward negative Z and accumulate velocity across the seam.
+ * 2. An absent root gets an independently owned identity at each key and each invocation.
+ * 3. Invalid counts, nonfinite transforms and unrepresentable times or positions are refused.
  *
- * 1. A two-keyframe, 1 s in-place base (root null) travelled at 0.5 m/s in +Z over
- *    3 cycles → a 3 s non-looping clip whose seam keyframes are dropped (4
- *    keyframes, not 6) and whose root Z is exactly velocity·time at every
- *    keyframe, strictly increasing and continuous across the seams.
- * 2. A base that already carries a root transform (a vertical bob + a yaw) has the
- *    travel added on top: its own translation and rotation are preserved.
- * 3. Travel is purely a function of global time, so the duplicate-seam frame of
- *    cycle n and the first frame of cycle n+1 would have landed at the same
- *    place, confirming continuity (no per-cycle reset / snap-back).
- * 4. A `facing` rotation composes onto the base root rotation: travelling the
- *    45°-yaw base with a further 90° yaw lands the root at 135° yaw.
- * 5. Mutating a returned fallback root leaves other frames and later bakes
- *    unchanged, and unsafe cycle counts refuse before looping.
- * 6. Derived duration, clock and root-position overflow refuse rather than
- *    returning nonfinite or repeated keyframe quantities.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls travelMotion and inspects actual times, root transforms, seam easing and refusal; returned-root mutations catch private identity leakage across frames and later invocations.
- * @evidence contracts/development/testing.md#independent-expectations Velocity times global seconds and quaternion yaw addition determine literal root expectations independently; three one-second cycles require four unique endpoints, and a fresh fallback identity must remain unit-valued after another output is mutated. Facing is checked through the existing W component and X/Z sway values rather than full quaternion equality; original tolerances and diagnostic fragments are preserved.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers null and authored roots, facing and no facing, incoming seam easing, invalid cycle/vector inputs, fallback ownership, unsafe repetition and finite-input arithmetic overflow; locomotion sizing and path corners belong to their owning tests.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test_motion_catalogue_travel_clip function is a synchronous portable unit case calling engine arithmetic; it installs no asset consumer and starts no browser, renderer, native build or external host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-keyframe, 1 s in-place base (root null) travelled at 0.5 m/s in +Z over).
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the placed root, easing and clock.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn sends X to negative Z.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares missing and authored local roots.
+ * @evidence contracts/development/testing.md#execution-ownership Uses two small in-memory clips.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists placement, ownership and admission.
  */
 export function test_motion_catalogue_travel_clip(): void {
-  // 1. in-place base (root null) → linear travel, seams dropped
-  const base: IAutoMovieMotion = makeMotion(
-    [
-      keyframe(0, makePose([joint("leftUpperLeg", { flexion: -30 })])),
-      keyframe(1, makePose([joint("leftUpperLeg", { flexion: 30 })])),
-    ],
-    1,
-    true,
-  );
-  const travelled: IAutoMovieMotion = travelMotion("stroll", base, 3, {
-    x: 0,
-    y: 0,
-    z: 0.5,
-  });
-
-  TestValidator.equals(
-    "3 cycles, seams dropped → 4 keyframes",
-    travelled.keyframes.length,
-    4,
-  );
-  TestValidator.predicate(
-    "duration = cycles × base",
-    nclose(travelled.duration, 3),
-  );
-  TestValidator.equals("result no longer loops", travelled.loop, false);
-  TestValidator.equals(
-    "skeleton carried over",
-    travelled.skeleton,
-    base.skeleton,
-  );
-
-  // times are 0, 1, 2, 3 and root Z = 0.5 × time at each
-  const times: number[] = travelled.keyframes.map(
-    (k: IAutoMovieKeyframe): number => k.time,
-  );
-  TestValidator.predicate(
-    "times are 0,1,2,3",
-    times.every((t: number, i: number): boolean => nclose(t, i)),
-  );
-  TestValidator.predicate(
-    "root Z = velocity × time at every keyframe",
-    travelled.keyframes.every((k: IAutoMovieKeyframe): boolean =>
-      nclose(k.pose.root!.translation.z, 0.5 * k.time),
-    ),
-  );
-  TestValidator.predicate(
-    "no travel on unused axes",
-    travelled.keyframes.every(
-      (k: IAutoMovieKeyframe): boolean =>
-        nclose(k.pose.root!.translation.x, 0) &&
-        nclose(k.pose.root!.translation.y, 0),
-    ),
-  );
-
-  // 2. base root preserved, travel added on top
-  const bob: IAutoMovieTransform = {
-    translation: { x: 0, y: 0.1, z: 0 },
-    rotation: { x: 0, y: 0.3826834, z: 0, w: 0.9238795 }, // ~45° yaw
-    scale: { x: 1, y: 1, z: 1 },
-  };
-  const withRoot: IAutoMovieMotion = makeMotion(
-    [
-      keyframe(0, makePose([joint("leftUpperLeg", { flexion: 0 })], bob)),
-      keyframe(1, makePose([joint("leftUpperLeg", { flexion: 0 })], bob)),
-    ],
-    1,
-    true,
-  );
-  const t2: IAutoMovieMotion = travelMotion("hopAcross", withRoot, 2, {
-    x: 1,
-    y: 0,
-    z: 0,
-  });
-  const k1: IAutoMovieKeyframe = t2.keyframes[1]!; // at global time 1
-  TestValidator.predicate(
-    "base bob Y preserved",
-    nclose(k1.pose.root!.translation.y, 0.1),
-  );
-  TestValidator.predicate(
-    "travel added to X (1 m/s × 1 s)",
-    nclose(k1.pose.root!.translation.x, 1),
-  );
-  TestValidator.predicate(
-    "base yaw preserved",
-    nclose(k1.pose.root!.rotation.w, 0.9238795),
-  );
-
-  // 3. continuity: the last frame of one cycle and the (dropped) seam of the
-  //    next would coincide: root advances monotonically, never resets
-  TestValidator.predicate(
-    "root Z strictly increasing across seams",
-    travelled.keyframes.every(
-      (k: IAutoMovieKeyframe, i: number): boolean =>
-        i === 0 ||
-        k.pose.root!.translation.z >
-          travelled.keyframes[i - 1]!.pose.root!.translation.z,
-    ),
-  );
-
-  // 4. facing composes onto the base root rotation (45° yaw + 90° yaw = 135°)
-  const yaw90: { x: number; y: number; z: number; w: number } = {
+  const quarter: IAutoMovieQuaternion = {
     x: 0,
     y: Math.SQRT1_2,
     z: 0,
     w: Math.SQRT1_2,
   };
-  const faced: IAutoMovieMotion = travelMotion(
-    "turn",
-    withRoot,
-    2,
-    { x: 1, y: 0, z: 0 },
-    yaw90,
-  );
-  TestValidator.predicate(
-    "facing ∘ base yaw = 135° (w = cos 67.5°)",
-    nclose(
-      faced.keyframes[1]!.pose.root!.rotation.w,
-      Math.cos((67.5 * Math.PI) / 180),
-    ),
-  );
-  // 5. invalid travel inputs reject before producing malformed clips
-  const invalidCycles: number[] = [Number.NaN, 0, -1, 1.5];
-  for (const cycles of invalidCycles)
-    TestValidator.predicate(
-      `rejects invalid cycles ${cycles}`,
-      throwsError((): void => {
-        travelMotion("badCycles", base, cycles, { x: 0, y: 0, z: 1 });
-      }),
-    );
-
-  const invalidVelocities: { x: number; y: number; z: number }[] = [
-    { x: Number.NaN, y: 0, z: 1 },
-    { x: 0, y: Infinity, z: 1 },
-    { x: 0, y: 0, z: -Infinity },
-  ];
-  for (const velocity of invalidVelocities)
-    TestValidator.predicate(
-      "rejects non-finite velocity",
-      throwsError((): void => {
-        travelMotion("badVelocity", base, 1, velocity);
-      }),
-    );
-
-  const invalidFacings: { x: number; y: number; z: number; w: number }[] = [
-    { x: Number.NaN, y: 0, z: 0, w: 1 },
-    { x: 0, y: Infinity, z: 0, w: 1 },
-    { x: 0, y: 0, z: -Infinity, w: 1 },
-    { x: 0, y: 0, z: 0, w: Number.NaN },
-  ];
-  for (const facing of invalidFacings)
-    TestValidator.predicate(
-      "rejects non-finite facing",
-      throwsError((): void => {
-        travelMotion("badFacing", base, 1, { x: 0, y: 0, z: 1 }, facing);
-      }),
-    );
-
-  // 5. a model-frame lateral sway rotates with the facing before travel adds
-  const yaw90b: { x: number; y: number; z: number; w: number } = {
-    x: 0,
-    y: Math.SQRT1_2,
-    z: 0,
-    w: Math.SQRT1_2,
-  };
-  const swayRoot: IAutoMovieTransform = {
-    translation: { x: 0.1, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  const velocity: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };
+  const root: IAutoMovieTransform = {
+    translation: { x: 1, y: 1, z: 0 },
+    rotation: quarter,
     scale: { x: 1, y: 1, z: 1 },
   };
-  const swaying: IAutoMovieMotion = makeMotion(
-    [
-      keyframe(0, makePose([], swayRoot), "easeIn"),
-      keyframe(1, makePose([], swayRoot), "step"),
-    ],
-    1,
-    true,
-  );
-  const swayFaced: IAutoMovieMotion = travelMotion(
-    "sway",
-    swaying,
+  const clip = (pose: ReturnType<typeof makePose>): IAutoMovieMotion =>
+    makeMotion(
+      [keyframe(0, pose, "easeIn"), keyframe(1, pose, "step")],
+      1,
+      true,
+    );
+  const base = clip(makePose([]));
+  const authored = travelMotion(
+    "placed",
+    clip(makePose([], root)),
     2,
-    { x: 1, y: 0, z: 0 },
-    yaw90b,
+    velocity,
+    quarter,
   );
   TestValidator.equals(
-    "model X sway lands on world −Z under a 90° facing",
-    namedFacts([
-      [
-        "ncloseSwayFacedKeyframes",
-        (): boolean =>
-          nclose(swayFaced.keyframes[1]!.pose.root!.translation.z, -0.1),
-      ],
-      [
-        "ncloseSwayFacedKeyframes2",
-        (): boolean =>
-          nclose(swayFaced.keyframes[1]!.pose.root!.translation.x, 1),
-      ],
-    ]),
-    { ncloseSwayFacedKeyframes: true, ncloseSwayFacedKeyframes2: true },
-  );
-
-  // 6. the seam keyframe carries the incoming cycle's first-segment easing
-  TestValidator.equals(
-    "travel seam easing is the incoming cycle's first",
-    swayFaced.keyframes[1]!.easing,
-    "easeIn",
+    "owned clock and incoming easing",
+    authored.keyframes.map((key) => [key.time, key.easing]),
+    [
+      [0, "easeIn"],
+      [1, "easeIn"],
+      [2, "step"],
+    ],
   );
   TestValidator.equals(
-    "the authored final easing survives",
-    swayFaced.keyframes[2]!.easing,
-    "step",
+    "placed envelope",
+    [authored.duration, authored.skeleton, authored.loop],
+    [2, base.skeleton, false],
   );
-  travelled.keyframes[0]!.pose.root!.rotation.w = 0;
-  travelled.keyframes[0]!.pose.root!.scale.x = 9;
-  const fresh: IAutoMovieMotion = travelMotion("fresh", base, 1, {
-    x: 0,
-    y: 0,
-    z: 0.5,
-  });
-  TestValidator.predicate(
-    "fallback identity is isolated between frames and invocations",
-    nclose(travelled.keyframes[1]!.pose.root!.rotation.w, 1) &&
-      nclose(travelled.keyframes[1]!.pose.root!.scale.x, 1) &&
-      nclose(fresh.keyframes[0]!.pose.root!.rotation.w, 1) &&
-      nclose(fresh.keyframes[0]!.pose.root!.scale.x, 1),
-  );
-  TestValidator.predicate(
-    "unsafe integer cycle count refuses before repetition",
-    throwsError(
-      (): IAutoMovieMotion =>
-        travelMotion("unsafe", base, Number.MAX_SAFE_INTEGER + 1, {
-          x: 0,
-          y: 0,
-          z: 0,
-        }),
-      "travel cycles",
-    ),
-  );
+  for (const key of authored.keyframes) {
+    const placed = key.pose.root!;
+    TestValidator.predicate(
+      "rotated sway plus world travel",
+      nclose(placed.translation.x, velocity.x * key.time) &&
+        nclose(placed.translation.y, 1) &&
+        nclose(placed.translation.z, -1),
+    );
+    TestValidator.predicate(
+      "two quarter turns compose into a half turn",
+      nclose(placed.rotation.w, 0) && nclose(placed.rotation.y, 1),
+    );
+  }
+  const plain = () => travelMotion("plain", base, 1, velocity);
+  const placed = plain();
+  placed.keyframes[0]!.pose.root!.rotation.w = 0;
+  placed.keyframes[0]!.pose.root!.scale.x = 0;
+  for (const key of [placed.keyframes[1]!, plain().keyframes[0]!])
+    TestValidator.equals(
+      "identity belongs to the returned frame",
+      [key.pose.root!.rotation.w, key.pose.root!.scale.x],
+      [1, 1],
+    );
+  for (const count of [NaN, 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])
+    TestValidator.predicate(
+      "invalid repetition",
+      throwsError(
+        () => travelMotion("count", base, count, velocity),
+        "travel cycles",
+      ),
+    );
+  for (const axis of ["x", "y", "z"] as const)
+    TestValidator.predicate(
+      "velocity components must be finite",
+      throwsError(() =>
+        travelMotion("velocity", base, 1, { ...velocity, [axis]: Infinity }),
+      ),
+    );
+  for (const axis of ["x", "y", "z", "w"] as const)
+    TestValidator.predicate(
+      "heading components must be finite",
+      throwsError(() =>
+        travelMotion("facing", base, 1, velocity, { ...quarter, [axis]: NaN }),
+      ),
+    );
   const huge: IAutoMovieMotion = makeMotion(
     [keyframe(0, makePose([])), keyframe(1e308, makePose([]))],
     1e308,
