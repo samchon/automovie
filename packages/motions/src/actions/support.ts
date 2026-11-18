@@ -2,6 +2,7 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -16,18 +17,27 @@ import type {
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { crawl } from "../floor/crawl";
+import { getUp } from "../floor/getUp";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareSupportFloor } from "./prepareSupportFloor";
 import { prepareSupportInterval } from "./prepareSupportInterval";
+import { supportAssist } from "./supportAssist";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 import { supportWindows } from "./supportWindows";
 
 /** Offset decay time of a cut from a support sequence into standing, seconds (provisional: no study of the transition was located). */
 const BLEND: number = 0.3;
+
+/** A support point in world metres, or an unnamed floor place. */
+type Point = IAutoMovieVector3 | null;
+
+/** A key's fixed contact lookup. */
+type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
 
 /**
  * Moving the body's weight across a sequence of supports: each stance's
@@ -112,8 +122,11 @@ export namespace support {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     // Each contact marked by the stance it was set down in.
+    const authored: readonly IAutoMovieMotionHumanSupport.IStance[] = context.params.stances;
     const stances: readonly IAutoMovieMotionHumanSupport.IStance[] = supportContact.placements(
-      context.params.stances,
+      context.params.assist === undefined || authored.length === 0
+        ? authored
+        : [...authored.slice(0, -1), { ...authored.at(-1)!, prefer: getUp.quiet(body) }],
     );
     if (stances.length === 0)
       throw new HumanRefusal({
@@ -150,9 +163,7 @@ export namespace support {
     };
 
     // Each contact's target, read once at the start.
-    const at: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null = (
-      c: IAutoMovieMotionHumanSupport.IContact,
-    ): IAutoMovieVector3 | null => {
+    const at: Place = (c: IAutoMovieMotionHumanSupport.IContact): Point => {
       if (c.target === undefined) return null;
       if (c.target !== "on") return context.aim(c.target, context.start).point;
       const on: IAutoMovieMotionTarget | undefined = context.params.on;
@@ -172,57 +183,20 @@ export namespace support {
       );
     };
 
-    // A bearing support held across stances does not slide: one without a
-    // place keeps where its first key laid it, or its entry place for a part
-    // the body already rests on as it enters.
-    const laid: Map<string, IAutoMovieVector3> = new Map();
-    /** Read each newly held floor datum once on this exact key, preserving first contact identity. */
-    const recordFloors: (
-      posture: IAutoMovieMotionHumanPosture,
-      contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
-    ) => void = (
-      posture: IAutoMovieMotionHumanPosture,
-      contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
-    ): void => {
-      const pending: Set<string> = new Set();
-      const added: { id: string; part: IAutoMovieMotionHumanSupport.Part }[] = [];
-      for (const contact of contacts) {
-        if (contact.target !== undefined) continue;
-        const id: string = supportContact.id(contact);
-        if (laid.has(id) || pending.has(id)) continue;
-        pending.add(id);
-        added.push({ id, part: contact.part });
-      }
-      const points: IAutoMovieVector3[] = supportContact.onFloors(
-        body,
-        posture,
-        added.map(
-          (item: (typeof added)[number]): IAutoMovieMotionHumanSupport.Part => item.part,
-        ),
-      );
-      for (let i: number = 0; i < added.length; ++i)
-        laid.set(added[i]!.id, points[i]!);
-    };
-    recordFloors(
-      entry,
-      stances[0]!.contacts.filter((contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
-        context.entry.supports.some(
-          (support: { part: string }): boolean =>
-            support.part === supportContact.window(contact.part),
-        ),
-      ),
-    );
-    const place: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null = (
-      c: IAutoMovieMotionHumanSupport.IContact,
-    ): IAutoMovieVector3 | null => at(c) ?? laid.get(supportContact.id(c)) ?? null;
+    const { inherited, laid, recordFloors } = prepareSupportFloor(body, context.entry, stances[0]!.contacts, at);
+    const paired: ReturnType<typeof supportAssist.of> = supportAssist.of(context);
+    const locate: (index: number) => Place = (index: number): Place =>
+      (c: IAutoMovieMotionHumanSupport.IContact): Point => paired?.(c, index) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
 
     // A stance's preferred posture (`supportKey.preferred`).
     const preference: (
       stance: IAutoMovieMotionHumanSupport.IStance,
       from: IAutoMovieMotionHumanPosture,
+      place: Place,
     ) => IAutoMovieMotionHumanPosture = (
       stance: IAutoMovieMotionHumanSupport.IStance,
       from: IAutoMovieMotionHumanPosture,
+      place: Place,
     ): IAutoMovieMotionHumanPosture =>
       supportKey.preferred(body, preferred, stance, from, place);
 
@@ -240,11 +214,13 @@ export namespace support {
     const seed: (
       stance: IAutoMovieMotionHumanSupport.IStance,
       from: IAutoMovieMotionHumanPosture,
+      place: Place,
     ) => IAutoMovieMotionHumanPosture = (
       stance: IAutoMovieMotionHumanSupport.IStance,
       from: IAutoMovieMotionHumanPosture,
+      place: Place,
     ): IAutoMovieMotionHumanPosture =>
-      stance.prefer === undefined ? from : preference(stance, from);
+      stance.prefer === undefined ? from : preference(stance, from, place);
 
     // Whether the keys keep the centre of mass over what bears: the physics
     // option, off by default (`IAutoMovieMotionHumanBalance`).
@@ -252,7 +228,7 @@ export namespace support {
 
     // Each key: one fit on its contacts, whose seed is selected by constraint violation.
     const keys: IKey[] = [
-      { posture: preferred, seconds: 0, name: "start", contacts: [] },
+      { posture: preferred, seconds: 0, name: "start", contacts: inherited, place: locate(0) },
     ];
     const push: (key: IKey) => void = (key: IKey): void => {
       keys.push(key);
@@ -261,6 +237,7 @@ export namespace support {
     let seconds: number = 0;
     stances.forEach((stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
       const move: number = stance.seconds ?? SECONDS;
+      const place: Place = locate(i);
       const before: IAutoMovieMotionHumanPosture = keys[keys.length - 1]!.posture;
       const previous: readonly IAutoMovieMotionHumanSupport.IContact[] =
         i === 0 ? [] : stances[i - 1]!.contacts;
@@ -309,14 +286,15 @@ export namespace support {
         // places the limb where the stance it arrives at lays it, from the
         // lift, which holds every support but the swinging limb's.
         const leaving: IAutoMovieMotionHumanSupport.IStance = stances[i - 1]!;
+        const oldPlace: Place = keys.at(-1)!.place;
         seconds += move / 3;
         push({
           posture: supportKey.solved(
             body,
-            preference(leaving, before),
+            preference(leaving, before, oldPlace),
             before,
             kept,
-            place,
+            oldPlace,
             `lift${i}`,
             MISS,
             moved.flatMap(
@@ -326,11 +304,23 @@ export namespace support {
                 const top: IAutoMovieMotionHumanBodyFitTypes.ITarget | null = supportContact.swing(
                   form,
                   m,
-                  place(was),
+                  oldPlace(was),
                   place(m),
                   crawl.LIFT,
                 );
-                return top === null ? [] : [top];
+                if (top === null) return [];
+                if (!m.part.endsWith("Foot")) return [top];
+                // The toe joint's elevation alone leaves the ankle free to
+                // point the heel into the floor. Level the rigid hindfoot
+                // beneath the raised toe, preserving its free heading.
+                const heel: IAutoMovieHumanoidSurfaces.IFrame =
+                  body.surfaces.sockets[m.part === "leftFoot" ? "heelLeft" : "heelRight"];
+                return [top, {
+                  bone: heel.bone,
+                  axes: [],
+                  goal: top.goal,
+                  normal: { local: heel.normal, world: { x: 0, y: -1, z: 0 } },
+                }];
               },
             ),
             balanced,
@@ -338,13 +328,14 @@ export namespace support {
           seconds,
           name: `lift${i}`,
           contacts: kept,
+          place: oldPlace,
         });
         seconds += move / 3;
         const union: IAutoMovieMotionHumanSupport.IContact[] = [...kept, ...added];
         push({
           posture: supportKey.solved(
             body,
-            preference(stance, keys[keys.length - 1]!.posture),
+            preference(stance, keys[keys.length - 1]!.posture, place),
             keys[keys.length - 1]!.posture,
             union,
             place,
@@ -356,6 +347,7 @@ export namespace support {
           seconds,
           name: `bear${i}`,
           contacts: union,
+          place,
         });
         seconds += move / 3;
       } else if (i > 0 && added.length > 0) {
@@ -364,7 +356,7 @@ export namespace support {
         push({
           posture: supportKey.solved(
             body,
-            preference(stance, before),
+            preference(stance, before, place),
             before,
             union,
             place,
@@ -376,15 +368,16 @@ export namespace support {
           seconds,
           name: `bear${i}`,
           contacts: union,
+          place,
         });
         seconds += move / 2;
       } else seconds += move;
       push({
         posture: supportKey.solved(
           body,
-          preference(stance, keys[keys.length - 1]!.posture),
+          preference(stance, keys[keys.length - 1]!.posture, place),
           i === 0
-            ? seed(stance, keys[keys.length - 1]!.posture)
+            ? seed(stance, keys[keys.length - 1]!.posture, place)
             : keys[keys.length - 1]!.posture,
           stance.contacts,
           place,
@@ -396,6 +389,7 @@ export namespace support {
         seconds,
         name: stance.event ?? `stance${i}`,
         contacts: stance.contacts,
+        place,
       });
     });
     const duration: number = seconds;
@@ -407,7 +401,7 @@ export namespace support {
             body,
             key,
             keys[Math.min(i + 1, keys.length - 1)]!,
-            place,
+            key.place,
           ),
       );
 
@@ -417,7 +411,7 @@ export namespace support {
         name: k.name,
         share: k.seconds / duration,
       })),
-      contacts: supportWindows.of(context, stances, keys, duration),
+      contacts: supportWindows.of(context, keys, duration),
       settle: (): void => {
         for (const interval of intervals) interval.settle();
       },
@@ -465,5 +459,8 @@ export namespace support {
 
     /** The contacts it rests on. */
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
+
+    /** The contact positions used to form this key's goals. */
+    place: Place;
   }
 }

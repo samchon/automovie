@@ -133,9 +133,12 @@ export function prepareSupportContactForm(
         },
       };
     }
+    // A palm-to-palm clasp fixes the exposed palm surface on both bodies.
+    const clasp: boolean = c.target !== "on" && c.target?.kind === "person" &&
+      (c.target.region === "palmLeft" || c.target.region === "palmRight");
     const surface: IAutoMovieMotionHumanHand.IFrame | undefined =
       !floor || (normals && c.kind === "bear")
-        ? HumanHand.offset(body, side, c.kind === "grip" ? "grip" : "palm")
+        ? HumanHand.offset(body, side, c.kind === "grip" && !clasp ? "grip" : "palm")
         : undefined;
     return {
       target: {

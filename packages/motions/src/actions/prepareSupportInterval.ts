@@ -46,6 +46,9 @@ interface IInterval {
   settle(): void;
 }
 
+/** A contact the root can keep through an interval. */
+type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
+
 /** A hand or foot held through the interval: its limb and the bones its end and middle joints are. */
 interface IHeld {
   /** The limb goal's name. */
@@ -87,7 +90,8 @@ interface IHeldFrames {
 
 /**
  * Prepare one support interval: the joint blend between its two keys, the
- * root translation that keeps its first common contact on its achieved
+ * root translation that keeps its common knee or trunk contact, or the
+ * first common hand or foot contact, on its achieved
  * point, the floor bound, and an analytic two-bone fit of every hand and
  * foot both keys hold, so no held contact slides while the body moves.
  *
@@ -135,7 +139,12 @@ export function prepareSupportInterval(
         supportContact.same(p, q),
       ),
   );
-  const pin: IAutoMovieMotionHumanSupport.IContact | undefined = common[0];
+  // The arm and leg endpoints have their own late IK. Give the root to
+  // contacts such as a knee or a seat that cannot use that endpoint fit.
+  const pin: Pin = common.find(
+    (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+      !contact.part.endsWith("Foot") && !contact.part.endsWith("Hand"),
+  ) ?? common[0];
   const limbs: IHeld[] = heldLimbs(common);
   let frames: IHeldFrames[] | undefined;
   let fixed:

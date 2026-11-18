@@ -1,11 +1,14 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanJacobian,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,7 +22,14 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
+import { prepareSupportSeed } from "./prepareSupportSeed";
 import { supportContact } from "./supportContact";
+
+/** A contact with no authored or previously laid world position yet. */
+type ContactPoint = IAutoMovieVector3 | null;
+
+/** An imported rig can omit a heel socket. */
+type HeelFrame = IAutoMovieHumanoidSurfaces.IFrame | undefined;
 
 /**
  * A support planner's key postures (`support`): one solved on a stance's
@@ -50,7 +60,7 @@ export namespace supportKey {
    * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms, over the bearing hull only with the balance option, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing, and a swing whose top would cost a contact is dropped from the key rather than traded against it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key, a second fit only where a swing cost a contact; its foot-contact forms share one lazily measured fixed quiet-stance datum.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A feasible preference already minimizes the merit and needs no SQP. An unplaced knee or trunk contact earns one geometric seed alongside the two original seeds. The best seed gets one fit, plus a retry without a swing only if that swing costs a contact.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepareForm operation shares unchanged body geometry across all contacts, and HumanBodyFit.fit remains the actual complete multi-contact solve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -59,7 +69,7 @@ export namespace supportKey {
     preferred: IAutoMovieMotionHumanPosture,
     from: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
-    at: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null,
+    at: (c: IAutoMovieMotionHumanSupport.IContact) => ContactPoint,
     label: string,
     miss: number,
     swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
@@ -67,21 +77,23 @@ export namespace supportKey {
   ): IAutoMovieMotionHumanPosture {
     const form: ReturnType<typeof supportContact.prepareForm> =
       supportContact.prepareForm(body);
+    const points: ContactPoint[] = contacts.map(at);
     const forms: supportContact.IForm[] = contacts.map(
-      (c: IAutoMovieMotionHumanSupport.IContact): supportContact.IForm =>
-        form(c, at(c)),
+      (c: IAutoMovieMotionHumanSupport.IContact, k: number): supportContact.IForm =>
+        form(c, points[k]!),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
         f.bearing === undefined ? [] : [f.bearing],
     );
-    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
+    const holding: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
       ...forms.map(
         (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
           f.target,
       ),
-      ...swings,
+      ...heels(body, from, contacts, points),
     ];
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [...holding, ...swings];
     // Select the less violated of the previous solution and the geometrically
     // placed preference before the one SQP solve. This is a seed selection,
     // not a retry: both candidates are measured on the same full merit rows.
@@ -99,14 +111,25 @@ export namespace supportKey {
       key: HumanFitVariables.vector(variables, preferred),
       price: HumanBodyFit.PRICE,
     });
-    const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
-      HumanFitVariables.vector(variables, from),
-    );
     const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, preferred),
     );
-    const start: IAutoMovieMotionHumanPosture =
+    if (merit.holds(stated.misses)) return preferred;
+    const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
+      HumanFitVariables.vector(variables, from),
+    );
+    let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
+    if (!merit.holds(previous.misses)) {
+      const aligned: ReturnType<typeof prepareSupportSeed> =
+        prepareSupportSeed(body, preferred, contacts, holding);
+      if (aligned !== undefined) {
+        const corrected: HumanBodyFitMerit.IEvaluation = merit.evaluate(HumanFitVariables.vector(variables, aligned));
+        if (merit.holds(corrected.misses)) return aligned;
+        if (corrected.violation < Math.min(stated.violation, previous.violation))
+          start = aligned;
+      }
+    }
     const fitted: (
       on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
     ) => IAutoMovieMotionHumanBodyFitTypes.IResult = (
@@ -124,9 +147,9 @@ export namespace supportKey {
       r: IAutoMovieMotionHumanBodyFitTypes.IResult,
     ): boolean =>
       r.residuals.some(
-        (residual: { point: number; turn: number }, k: number): boolean =>
+        (residual: Residual, k: number): boolean =>
           k < contacts.length &&
-          at(contacts[k]!) !== null &&
+          points[k] !== null &&
           residual.point > miss,
       );
     // A stepping part's swing is an aim of the step, never one of what
@@ -136,16 +159,10 @@ export namespace supportKey {
     // is refused.
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
     if (swings.length > 0 && misses(result))
-      result = fitted(
-        forms.map(
-          (
-            f: supportContact.IForm,
-          ): IAutoMovieMotionHumanBodyFitTypes.ITarget => f.target,
-        ),
-      );
+      result = fitted(holding);
     result.residuals.forEach(
-      (r: { point: number; turn: number }, k: number): void => {
-        if (k < contacts.length && at(contacts[k]!) !== null && r.point > miss)
+      (r: Residual, k: number): void => {
+        if (k < contacts.length && points[k] !== null && r.point > miss)
           throw new HumanRefusal({
             kind: "reach",
             axis: "stances",
@@ -156,6 +173,63 @@ export namespace supportKey {
       },
     );
     return result.posture;
+  }
+
+  /** Keep the horizontal heel datum of a foot already on an unnamed floor placement. */
+  function heels(
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+    points: readonly ContactPoint[],
+  ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] {
+    const feet: IHeel[] = [];
+    for (const [k, contact] of contacts.entries()) {
+      const target: ContactPoint = points[k] ?? null;
+      if (target === null || !supportContact.onFloorTarget(target) || !contact.part.endsWith("Foot")) continue;
+      const side: AutoMovieHumanSide = contact.part === "leftFoot" ? "left" : "right";
+      const frame: HeelFrame = body.surfaces.sockets[side === "left" ? "heelLeft" : "heelRight"];
+      if (frame === undefined) continue;
+      feet.push({
+        frame,
+        toes: `${side}Toes`,
+        target,
+      });
+    }
+    if (feet.length === 0) return [];
+    const names: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      feet.flatMap((foot: IHeel): AutoMovieHumanoidBone[] => [foot.frame.bone, foot.toes]),
+    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, from),
+      undefined,
+      names,
+    );
+    return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
+      const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(foot.frame, bones.get(foot.frame.bone)!);
+      const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
+      return {
+        bone: foot.frame.bone,
+        point: foot.frame.point,
+        goal: { x: foot.target.x + heel.x - toes.x, y: foot.target.y, z: foot.target.z + heel.z - toes.z },
+        axes: ["x", "y", "z"],
+      };
+    });
+  }
+
+  /** The solver's measured miss of one target. */
+  type Residual = IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
+
+  /** An existing floor toe target and the heel whose horizontal offset it keeps. */
+  interface IHeel {
+    /** The rig's heel socket. */
+    frame: IAutoMovieHumanoidSurfaces.IFrame;
+
+    /** The toe datum's bone. */
+    toes: AutoMovieHumanoidBone;
+
+    /** The toe datum's world-metre target. */
+    target: IAutoMovieVector3;
   }
 
   /**
