@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  Quaternion,
   Vector3,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
@@ -22,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanForce } from "../perform/HumanForce";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -158,33 +158,16 @@ export namespace HumanForceResponse {
     // The body's right: +X is its left when it faces +Z.
     const right: IAutoMovieVector3 = { x: -forward.z, y: 0, z: forward.x };
 
-    // The whole body tipped about the ankles by an angle along a direction,
-    // split into the posture's forward pitch and rightward roll. The pivot
-    // is read in the posture's own root frame, so no tip is the posture
-    // itself and the root never jumps when the response begins.
-    const forwardTip: number = Vector3.dot(forward, forward);
-    const rightTip: number = Vector3.dot(forward, right);
+    // The whole body tipped forward about the ankles by an angle: the pull's
+    // part along the facing pitches it, and its part across moves the root
+    // (`drawn`). The pivot is read in the posture's own root frame, so no tip
+    // is the posture itself and the root never jumps when the response
+    // begins (`AutoMovieMotionHumanLean.about`).
     const tipped: (posture: IAutoMovieMotionHumanPosture, degrees: number) => IAutoMovieMotionHumanPosture = (
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const own: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(resolveHumanPosture.heading(posture)),
-        Vector3.subtract(pivot, posture.root),
-      );
-      const turned: IAutoMovieMotionHumanPosture = {
-        ...posture,
-        pitch: posture.pitch + degrees * forwardTip,
-        roll: posture.roll + degrees * rightTip,
-      };
-      return {
-        ...turned,
-        root: Vector3.subtract(
-          pivot,
-          Quaternion.rotateVector(resolveHumanPosture.heading(turned), own),
-        ),
-      };
-    };
+    ): IAutoMovieMotionHumanPosture =>
+      AutoMovieMotionHumanLean.about(posture, pivot, { pitch: degrees, roll: 0 });
     const lean = (offset: number): number =>
       (Math.asin(Math.max(-1, Math.min(1, offset / height))) * 180) / Math.PI;
 

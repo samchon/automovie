@@ -23,7 +23,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a lean tips, about what, why the hips move back and what the legs do.
  * @evidence contracts/development/design.md#principled-representation A lean is a pitch about the hip joint with a horizontal hip shift that keeps the centre of mass over the base of support, the counter-movement of standing balance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), and the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`), and the tilt about any world point (`about`), which the ankle tips of a broken base and a resisted pull read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hip shift is solved by the balance owner on the body and never stated as a constant.
  */
 export namespace AutoMovieMotionHumanLean {
@@ -100,6 +100,48 @@ export namespace AutoMovieMotionHumanLean {
       root: Vector3.subtract(
         held,
         Quaternion.rotateVector(resolveHumanPosture.heading(tilted), hips),
+      ),
+    };
+  }
+
+  /**
+   * A posture turned rigidly about a world point: the pitch and the roll are
+   * added and the root is moved so the point keeps its place in the body's
+   * own frame. A body tipped about its ankles (a broken base, a lean against
+   * a pull) turns so, its planted legs then solved again at the ankles.
+   *
+   * @param posture The posture.
+   * @param point The point turned about, world metres.
+   * @param more The pitch and the roll added, degrees.
+   * @returns The turned posture; the posture's own root and heading when nothing is added.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is added, what stays in place and the frame and unit of each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The point is read in the posture's root frame by the inverse of its heading; the new root is the point less that offset turned by the tilted heading, a rotation of the whole body about the point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inverse-rotated offset, one rotated offset and one subtraction, as `pivot` does about the hips.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset is read from the posture's own root and heading, so a posture that already leans, bends or sways keeps its root where no tilt is added.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture.heading`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function about(
+    posture: IAutoMovieMotionHumanPosture,
+    point: IAutoMovieVector3,
+    more: IAutoMovieMotionHumanLean.IAngles,
+  ): IAutoMovieMotionHumanPosture {
+    const own: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(resolveHumanPosture.heading(posture)),
+      Vector3.subtract(point, posture.root),
+    );
+    const tilted: IAutoMovieMotionHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + more.pitch,
+      roll: posture.roll + more.roll,
+    };
+    return {
+      ...tilted,
+      root: Vector3.subtract(
+        point,
+        Quaternion.rotateVector(resolveHumanPosture.heading(tilted), own),
       ),
     };
   }
