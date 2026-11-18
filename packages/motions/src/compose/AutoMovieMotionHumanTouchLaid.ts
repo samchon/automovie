@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, getConstraint, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
@@ -16,6 +17,7 @@ import type {
 
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -291,30 +293,33 @@ export namespace AutoMovieMotionHumanTouchLaid {
       tangent,
       side,
     );
+    const at: IAutoMovieVector3 = Vector3.add(
+      place.point,
+      Vector3.scale(
+        normal,
+        AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
+      ),
+    );
+    const [faced, lying]: [IAutoMovieVector3, IAutoMovieVector3] = lie(
+      body,
+      posture,
+      side,
+      along,
+      place.point,
+      normal,
+      travel,
+      facing,
+      elbow,
+      from,
+      lean,
+    );
     return AutoMovieMotionHumanTouchEffector.goal(
       body,
       side,
       effector,
-      Vector3.add(
-        place.point,
-        Vector3.scale(
-          normal,
-          AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
-        ),
-      ),
-      ...lie(
-        body,
-        posture,
-        side,
-        along,
-        place.point,
-        normal,
-        travel,
-        facing,
-        elbow,
-        from,
-        lean,
-      ),
+      at,
+      faced,
+      lying,
       hint,
     );
   }
@@ -395,9 +400,20 @@ export namespace AutoMovieMotionHumanTouchLaid {
         rotation: goal.rotation!,
         fallback: "hang",
       });
-      moved = Vector3.distance(next, hint);
+      // The line into the place runs from the elbow the arm takes for that
+      // hand on this bend, so the hand laid on it continues the forearm.
+      const taken: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture(body, {
+          ...posture,
+          limbs: { ...posture.limbs, [`${side}Arm`]: { ...goal, bend: next } },
+        }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
+      ).get(`${side}LowerArm`)!.worldPosition;
+      moved = Math.max(Vector3.distance(next, hint), Vector3.distance(taken, from ?? hint));
       hint = next;
-      from = hint;
+      from = taken;
     }
     if (!(moved <= tolerance))
       throw new HumanRefusal({
