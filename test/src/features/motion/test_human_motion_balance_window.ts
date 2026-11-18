@@ -30,11 +30,13 @@ import { nclose } from "../internal/nclose";
  * 7. The correction on a rectangular support is zero inside. Outside,
  *    the closest reachable boundary gives the signed shift, and a line
  *    running parallel to its missed face refuses a projection.
+ * 8. A physical law's decision uses its declared local phase, with an
+ *    explicitly requested balancing interval still active on its own clock.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the author defaults, action clock, transient and refusal contracts.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises public shift preparation, weight, judgment and support projection. Wrong part precedence, extra lookups, unnecessary audits, ill-named refusals and nonminimal corrections fail.
  * @evidence contracts/development/testing.md#independent-expectations Derives the cue times and compares with the rest-to-rest minimum-jerk polynomial 10u³−15u⁴+6u⁵ from Flash and Hogan 1985. On the rectangular support the nearest boundary or parallel miss follows from its authored axis limits.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers omission, indexed and foreign events, overrides, non-overlapping and overlapping ramps, missing terms, and reachable, unnecessary and unreachable support corrections.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omission, indexed and foreign events, overrides, non-overlapping and overlapping ramps, missing terms, reachable and unreachable support corrections, and both edges of a law's physical phase.
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory unit spec supplies its own action events and cue callback, without solving any body or starting a host.
  */
 export function test_human_motion_balance_window(): void {
@@ -107,6 +109,7 @@ export function test_human_motion_balance_window(): void {
     "a staged physical outcome stays judged outside a balance window",
     HumanPhysics.judged({ ...span, law: { physical: true } }, start),
   );
+  physicalPhase(span);
 
   const bounds: IAutoMovieMotionHumanBalance = {
     by: "hips",
@@ -182,6 +185,37 @@ export function test_human_motion_balance_window(): void {
     TestValidator.equals(`the missing ${field} names its axis`, axis, `balance.${field}`);
   }
   supportOffset();
+}
+
+/** Observe both boundaries in the film clock, independently of balance. */
+function physicalPhase(span: HumanPhysics.ISpan): void {
+  const phase: HumanPhysics.ISpan = {
+    ...span,
+    law: { physical: true },
+    plan: {
+      ...span.plan,
+      balanceWindow: null,
+      physicalWindow: { from: 1, to: 2 },
+    },
+  };
+  const start: number = span.start;
+  TestValidator.predicate(
+    "a physical phase is closed at its action-local bounds and inactive outside",
+    HumanPhysics.judged(phase) &&
+      !HumanPhysics.judged(phase, start + 0.5) &&
+      HumanPhysics.judged(phase, start + 1) &&
+      HumanPhysics.judged(phase, start + 2) &&
+      !HumanPhysics.judged(phase, start + 2.5),
+  );
+  const both: HumanPhysics.ISpan = {
+    ...phase,
+    plan: { ...phase.plan, balanceWindow: span.plan.balanceWindow },
+  };
+  TestValidator.predicate(
+    "an explicit balance window may extend judging beyond the physical phase",
+    HumanPhysics.judged(both, start + 4) &&
+      !HumanPhysics.judged(both, start + 7),
+  );
 }
 
 /** The closest point on an authored axis-aligned support is known exactly. */
