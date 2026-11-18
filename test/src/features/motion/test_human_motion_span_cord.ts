@@ -237,7 +237,9 @@ async function assertDrawSeeks(
         await Promise.resolve();
         placed = seconds;
       },
-      dispose: (): void => scene.clear(),
+      dispose: (): void => {
+        scene.clear();
+      },
     },
     (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] => {
       TestValidator.equals(
@@ -315,7 +317,11 @@ async function assertDrawSeeks(
         },
       );
     }
-    TestValidator.equals("one producer read per exact seek", reads, seeks);
+    TestValidator.equals<readonly number[]>(
+      "one producer read per exact seek",
+      reads,
+      seeks,
+    );
   } finally {
     draw.dispose();
   }
