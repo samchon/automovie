@@ -17,6 +17,7 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { rise } from "../everyday/rise";
 import { seated } from "../everyday/seated";
+import { sitPlace } from "../everyday/sitPlace";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -47,13 +48,15 @@ export namespace HumanTravelCarExit {
    * Turn and move to the bench edge, pass each foot over the sill, then rise
    * on the exterior floor. Refuses loss of seat support, an opening too
    * narrow or low at seat-off, or a final stance inside. The author supplies
-   * the opening clearance, turn timing, landing offset and flexion.
+   * the opening clearance, turn timing, landing offset and flexion. The
+   * pelvis rocks back about the supported seat socket through the two
+   * sill crossings, and the spine completes its duck before the last one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the entered support, authored phase controls and refusal conditions.
    * @evidence contracts/development/design.md#principled-representation Stages authored foot trajectories outside the aperture before transferring support through rise.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Registers only getOut and retains the existing rise events with the added sill and landing markers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the actual bench, placed opening and entered feet, with authored timing and flexion.
-   * @evidence contracts/development/implementation.md#principled-implementation Eased lift, passage, lowering and rotation use minimum jerk. Each foot lands in the stance rise reads at its start, while a delayed foot keeps the entered support until lift.
+   * @evidence contracts/development/implementation.md#principled-implementation Eased lift, passage, lowering and rotation use minimum jerk. Each foot lands in the stance rise reads at its start, while a delayed foot keeps the entered support until lift. The backward rock uses the existing seated lean at the sill and leaves the seat socket on its original course. The authored duck reaches maximum at the trailing sill independently of the slide.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks the opening and entry, places a rise, builds the two foot paths and remaps the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry follows the supplied door; checking the crown at seat-off leaves continuous clearance to inspection.
    * @evidence contracts/development/implementation.md#efficient-algorithms One new entry fit, one starting rise posture and one crown query per plan; each preparation posture evaluates at most two closed-form foot paths.
@@ -341,6 +344,14 @@ export namespace HumanTravelCarExit {
             },
           };
         };
+        // Keep the seat socket on its sliding course while the pelvis rocks
+        // back into the seated lean to open the hips for the raised ankles.
+        const firstSill: number = (1 - stagger) / 2;
+        const lastSill: number = (1 + stagger) / 2;
+        const leaned: number = Math.min(
+          entry.posture.pitch,
+          sitPlace.BACKS.lean.pitch,
+        );
         const posture = (time: number): IAutoMovieMotionHumanPosture => {
           if (time <= 0) return entry.posture;
           if (time >= prepare) {
@@ -352,12 +363,17 @@ export namespace HumanTravelCarExit {
           const u: number = time / prepare;
           const share: number = minimumJerk(u).s;
           const heading: number = entry.posture.yaw + turn * share;
+          const rock: number =
+            minimumJerk.share(u / firstSill) *
+            minimumJerk.share((1 - u) / (1 - lastSill));
+          const pitch: number =
+            entry.posture.pitch + (leaned - entry.posture.pitch) * rock;
           const root: IAutoMovieVector3 = seated.root(
             body,
             Vector3.lerp(start, edge, share),
             {
               yaw: heading,
-              pitch: entry.posture.pitch,
+              pitch,
               roll: entry.posture.roll,
             },
           );
@@ -408,8 +424,8 @@ export namespace HumanTravelCarExit {
             };
           }
           return ducked(
-            { ...entry.posture, root, yaw: heading, limbs },
-            duckDegrees * share,
+            { ...entry.posture, root, yaw: heading, pitch, limbs },
+            duckDegrees * minimumJerk.share(u / lastSill),
           );
         };
 

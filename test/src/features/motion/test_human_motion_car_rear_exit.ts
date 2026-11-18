@@ -3,10 +3,14 @@ import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
@@ -15,12 +19,15 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanObject,
   HumanObstacle,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
   HumanTravelCarExit,
+  seated,
+  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,9 +37,11 @@ import { qclose } from "../internal/predicates";
 /**
  * A seated passenger exits a stationary sedan through its rear side aperture.
  * Shippen (2012) asked subjects to use the door nearest the seating place.
+ * @see https://pureportal.coventry.ac.uk/en/publications/biomechanical-analysis-of-entry-egress-and-loading-of-a-passenger-2/
  *
  * Scenarios:
- * 1. With each rear leaf open, the ankles change sides in the authored order,
+ * 1. From a held three-contact entry on the cushion and cabin floor with
+ *    each rear leaf open, the ankles change sides in the authored order,
  *    clear the sill and jambs, and stay outside through the transfer to rise.
  * 2. The trailing foot keeps its car support until lift. Both feet keep
  *    their landing orientation at the transfer to the rise.
@@ -40,7 +49,7 @@ import { qclose } from "../internal/predicates";
  * 4. A 0.2 m left opening refuses passage.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two mirrored cases, the real opening and the crossing checks.
- * @evidence contracts/development/testing.md#behavioral-verification Drives a public chain with behavior and geometry read from the archetype and reads displayed bones at the endpoints, phase markers and either side of the rise handoff.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages the occupied seat with native planted-leg fitting and the car's seat and floor contacts, then drives the public exit chain and reads displayed bones at the endpoints, phase markers and either side of the rise handoff.
  * @evidence contracts/development/testing.md#independent-expectations Door plane, headroom and jambs come from the articulated car's opening. Shippen establishes the adjacent rear door. The test fixture supplies the turn duration and stagger.
  * @evidence contracts/development/testing.md#distinguishing-cases The two doors reverse the leading foot and exercise the clearance on each side. One narrow opening exercises the shared width check.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory test. One human and car fixture serve two open-door passages and one narrow-door refusal.
@@ -82,15 +91,56 @@ export function test_human_motion_car_rear_exit(): void {
     const sign: number = Math.sign(door.at.x);
     const at: IAutoMovieVector3 = {
       x: bench.at.x + (sign * raw.width!) / 4,
-      y: door.at.y,
+      y: createCar.FLOOR,
       z: bench.at.z + 0.12,
+    };
+    // The clip begins after the passenger has taken the seat.
+    const occupied: IAutoMovieMotionHumanSeated.ISeat = {
+      ...bench,
+      at: { ...bench.at, x: at.x },
+    };
+    const socket: IAutoMovieVector3 = seated.point(body, occupied);
+    const neutral: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      at,
+      occupied.yaw,
+    );
+    const root: IAutoMovieVector3 = seated.root(body, socket, neutral);
+    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+      left: neutral.limbs.leftLeg!.point,
+      right: neutral.limbs.rightLeg!.point,
+    };
+    const posed: IAutoMovieMotionHumanPosture = {
+      ...neutral,
+      root,
+      limbs: stand.legs(body, root, occupied.yaw, feet),
+    };
+    const support: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "prop",
+      subject: "car",
+    };
+    const stage: IAutoMovieMotionHumanActionLaw<Record<string, never>> = {
+      name: "occupyRearSeat",
+      interrupts: {},
+      plan: (): IAutoMovieMotionHumanActionPlan => ({
+        duration: 0.3,
+        base: { kind: "seated" },
+        still: [0, 0.3],
+        events: [],
+        contacts: [
+          { part: "seat", kind: "seat", from: 0, to: 1, support },
+          { part: "leftFoot", kind: "plant", from: 0, to: 1, support },
+          { part: "rightFoot", kind: "plant", from: 0, to: 1, support },
+        ],
+        posture: (): IAutoMovieMotionHumanPosture => posed,
+      }),
     };
     const perform = (
       through: IAutoMovieMotionObstacleAperture,
     ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "rear-seat-egress",
-        laws: [HumanTravelCarExit.getOut],
+        laws: [stage, HumanTravelCarExit.getOut],
         props: [HumanObject.prop("car", opened, placement)],
         performers: [
           {
@@ -102,8 +152,7 @@ export function test_human_motion_car_rear_exit(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3, on: { prop: "car" } })
-          .sit({ seat: { ...bench, at: { ...bench.at, x: at.x } } })
+          .registered("occupyRearSeat", {})
           .registered("getOut", {
             bench,
             width: raw.width!,
@@ -151,6 +200,32 @@ export function test_human_motion_car_rear_exit(): void {
       reader,
       exit.end,
     );
+    const seatFrame: typeof body.surfaces.sockets.seat =
+      body.surfaces.sockets.seat;
+    const seatedAt: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      seatFrame,
+      first.get(seatFrame.bone)!,
+    );
+    if (Vector3.distance(seatedAt, socket) > tolerance)
+      problems.push(
+        side + ": the displayed seat socket misses the occupied cushion",
+      );
+    for (const foot of ["left", "right"] as const) {
+      const sole: number = Math.min(
+        ...HumanFoot.sockets(body, first, foot).map(
+          (sample: IAutoMovieMotionHumanFoot.ISocket): number => sample.point.y,
+        ),
+      );
+      if (Math.abs(sole - at.y) > tolerance)
+        problems.push(
+          side +
+            ": " +
+            foot +
+            " sole does not bear on the cabin floor at entry (" +
+            sole +
+            " m)",
+        );
+    }
     for (const name of names)
       if (
         !(
@@ -213,7 +288,9 @@ export function test_human_motion_car_rear_exit(): void {
         bones.get(crownFrame.bone)!,
       ).point;
       if (Math.abs(outward(crown)) < 0.1 && crown.y > door.at.y + door.height)
-        problems.push(`${side}: crown exceeds the header at ${name}`);
+        problems.push(
+          `${side}: crown exceeds the header at ${name}: y=${crown.y.toFixed(3)} limit=${(door.at.y + door.height).toFixed(3)}, plane=${outward(crown).toFixed(3)}`,
+        );
       if (name === "feetOutside") {
         for (const foot of names)
           if (!(outward(bones.get(foot)!.worldPosition) > 0))
@@ -229,7 +306,9 @@ export function test_human_motion_car_rear_exit(): void {
           Math.abs(along(ankle)) > door.width / 2 - clearance + tolerance ||
           ankle.y < door.at.y + body.measure.ankleHeight + clearance - tolerance
         )
-          problems.push(`${side}: ${foot} misses the clear opening at ${name}`);
+          problems.push(
+            `${side}: ${foot} misses the clear opening at ${name}: plane=${outward(ankle).toFixed(3)} across=${along(ankle).toFixed(3)} width=${door.width.toFixed(3)} y=${ankle.y.toFixed(3)} needed=${(door.at.y + body.measure.ankleHeight + clearance - tolerance).toFixed(3)} target=${JSON.stringify(exit.plan.posture(elapsed).limbs[foot === "leftFoot" ? "leftLeg" : "rightLeg"]?.point)}`,
+          );
       }
     }
 
