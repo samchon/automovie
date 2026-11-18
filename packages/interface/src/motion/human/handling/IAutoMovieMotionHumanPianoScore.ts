@@ -15,7 +15,12 @@ export interface IAutoMovieMotionHumanPianoScore {
   /** Subject id of the fixed upright piano whose buttons are played. */
   prop: string;
 
-  /** Nonempty notes in nondecreasing attack-start order, starting at 0.25 seconds or later. A hand needs travel time between its notes. */
+  /**
+   * Nonempty notes in nondecreasing attack-start order, starting at
+   * 0.25 seconds or later. Notes on one hand form a chord when all four
+   * times match and the keys and digits are distinct. Leave time for the
+   * hand to travel between successive voicings.
+   */
   notes: readonly IAutoMovieMotionHumanPianoScore.INote[];
 }
 

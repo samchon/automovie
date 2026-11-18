@@ -2,7 +2,6 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -21,27 +20,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
 /** A staged guitar note's inputs and entry state. */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;
 
-/** The contact geometry in the guitar's frame, in metres. */
-interface ISites {
-  /** The intersection of the chosen fret and string bars. */
-  stop: IAutoMovieVector3;
-
-  /** The soundboard centre projected onto the chosen string. */
-  pluck: IAutoMovieVector3;
-
-  /** The direction away from the soundboard. */
-  normal: IAutoMovieVector3;
-
-  /** The cross-string half-stroke, bounded by half the closest string spacing. */
-  sweep: IAutoMovieVector3;
-}
-
-/** Tolerance for intersecting the rigid coplanar affordance axes, metres. */
+/** Tolerance for a usable projected shoulder direction, metres. */
 const COINCIDENCE: number = 1e-6;
 
 /**
@@ -138,7 +123,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: "guitarNote takes a stationary, independently staged guitar",
       fix: "stage the guitar on its support with a fixed frame",
     });
-  const sites: ISites = geometry(context.params, reader.prop.affordances ?? []);
+  const sites: ReturnType<typeof resolveGuitarStringContact> =
+    resolveGuitarStringContact(context.params, reader.prop.affordances ?? []);
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
   const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point));
@@ -338,130 +324,6 @@ function handPath(
       },
     };
   };
-}
-
-/** The chosen finite bar crossing and a separate point on its sounding segment. */
-function geometry(
-  params: IAutoMovieMotionHumanGuitarNote,
-  affordances: readonly IAutoMovieAffordance[],
-): ISites {
-  const fret: IAutoMovieAffordance = site(affordances, params.fret, "bar");
-  const string: IAutoMovieAffordance = site(affordances, params.string, "bar");
-  const body: IAutoMovieAffordance = site(affordances, "body", "surface");
-  const along: IAutoMovieVector3 = barAxis(string);
-  const across: IAutoMovieVector3 = barAxis(fret);
-  const origin: IAutoMovieVector3 = string.frame.translation;
-  const delta: IAutoMovieVector3 = Vector3.subtract(
-    fret.frame.translation,
-    origin,
-  );
-  const dot: number = Vector3.dot(along, across);
-  const determinant: number = 1 - dot * dot;
-  const a: number = Vector3.dot(delta, along);
-  const b: number = Vector3.dot(delta, across);
-  const alongFret: number = (a - b * dot) / determinant;
-  const acrossFret: number = (a * dot - b) / determinant;
-  const stop: IAutoMovieVector3 = Vector3.add(
-    origin,
-    Vector3.scale(along, alongFret),
-  );
-  const gap: IAutoMovieVector3 = Vector3.subtract(
-    stop,
-    Vector3.add(fret.frame.translation, Vector3.scale(across, acrossFret)),
-  );
-
-  // A guitar's string points toward the nut and the soundboard is bridgeward.
-  const alongBody: number = Vector3.dot(
-    Vector3.subtract(body.frame.translation, origin),
-    along,
-  );
-  if (
-    !(
-      determinant > COINCIDENCE &&
-      Math.abs(alongFret) <= (string.length ?? 0) / 2 &&
-      Math.abs(acrossFret) <= (fret.length ?? 0) / 2 + COINCIDENCE &&
-      Vector3.length(gap) <= COINCIDENCE &&
-      -(string.length ?? 0) / 2 < alongBody &&
-      alongBody < alongFret
-    )
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "fret",
-      value: [params.fret, params.string],
-      reason:
-        "the fret must cross the string, with the soundboard on the bridge side",
-      fix: "name the rigid fret and string bars of a staged guitar",
-    });
-  const pluck: IAutoMovieVector3 = Vector3.add(
-    origin,
-    Vector3.scale(along, alongBody),
-  );
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-    body.frame.rotation,
-    { x: 0, y: 1, z: 0 },
-  );
-  const sweep: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.cross(along, normal),
-  );
-  let spacing: number = Infinity;
-  for (const other of affordances) {
-    if (
-      other.id === string.id ||
-      other.kind !== "bar" ||
-      !/^string[1-6]$/.test(other.id)
-    )
-      continue;
-    const direction: IAutoMovieVector3 = barAxis(other);
-    const offset: IAutoMovieVector3 = Vector3.subtract(
-      other.frame.translation,
-      pluck,
-    );
-    const lateral: number =
-      Vector3.dot(offset, sweep) -
-      (Vector3.dot(offset, along) * Vector3.dot(direction, sweep)) /
-        Vector3.dot(direction, along);
-    spacing = Math.min(spacing, Math.abs(lateral));
-  }
-  if (!(Number.isFinite(spacing) && spacing > COINCIDENCE))
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "string",
-      value: params.string,
-      reason:
-        "the stroke needs a distinct neighbouring string for its clearance",
-      fix: "use guitar string bars with separate lines",
-    });
-  return { stop, pluck, normal, sweep: Vector3.scale(sweep, spacing / 2) };
-}
-
-/** A named rigid guitar affordance of the kind the law uses. */
-function site(
-  affordances: readonly IAutoMovieAffordance[],
-  id: string,
-  kind: "bar" | "surface",
-): IAutoMovieAffordance {
-  const found: IAutoMovieAffordance | undefined = affordances.find(
-    (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === kind,
-  );
-  if (
-    found === undefined ||
-    found.rides !== undefined ||
-    (kind === "bar" && !(Number.isFinite(found.length) && found.length! > 0))
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "prop",
-      value: id,
-      reason: `the staged guitar needs a rigid ${kind} named ${id}`,
-      fix: "supply a guitar with rigid fret, string and body affordances",
-    });
-  return found;
-}
-
-/** A rigid bar's unit length axis in the guitar frame. */
-function barAxis(bar: IAutoMovieAffordance): IAutoMovieVector3 {
-  return Quaternion.rotateVector(bar.frame.rotation, { x: 1, y: 0, z: 0 });
 }
 
 /** The part of a vector crossing a unit normal. */

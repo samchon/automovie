@@ -433,3 +433,7 @@ export * from "./lexicon/tuckHair";
 export * from "./everyday/crossAnkleOverKnee";
 export * from "./everyday/seatedHeelBounce";
 export * from "./everyday/shiftStandingWeight";
+export * from "./handling/guitarChord";
+export * from "./handling/pianoPedal";
+export * from "./handling/pianoPerformance";
+export * from "./tasks/cymbalStrike";

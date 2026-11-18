@@ -10,7 +10,10 @@ export type { IAutoMovieMotionHumanHeldUse } from "./IAutoMovieMotionHumanHeldUs
 export type { IAutoMovieMotionHumanManipulate } from "./IAutoMovieMotionHumanManipulate";
 export type { IAutoMovieMotionHumanManipulateFacing } from "./IAutoMovieMotionHumanManipulateFacing";
 export type { IAutoMovieMotionHumanGuitarNote } from "./IAutoMovieMotionHumanGuitarNote";
+export type { IAutoMovieMotionHumanGuitarChord } from "./IAutoMovieMotionHumanGuitarChord";
 export type { IAutoMovieMotionHumanPianoScore } from "./IAutoMovieMotionHumanPianoScore";
+export type { IAutoMovieMotionHumanPianoPedal } from "./IAutoMovieMotionHumanPianoPedal";
+export type { IAutoMovieMotionHumanPianoPerformance } from "./IAutoMovieMotionHumanPianoPerformance";
 export type { IAutoMovieMotionHumanPickUp } from "./IAutoMovieMotionHumanPickUp";
 export type { IAutoMovieMotionHumanPrehension } from "./IAutoMovieMotionHumanPrehension";
 export type { IAutoMovieMotionHumanPreshape } from "./IAutoMovieMotionHumanPreshape";
