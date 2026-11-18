@@ -240,12 +240,19 @@ export namespace HumanWeaponHeld {
     plan: IAutoMovieMotionHumanActionPlan,
     aim?: IAutoMovieMotionHumanSupportAim.IAim,
   ): IAutoMovieMotionHumanActionPlan => {
-    if (context.carrier === undefined) return plan;
     const side: AutoMovieHumanSide = s.tool.side;
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    // A weapon held in one hand leaves the other arm free for an action
+    // over it (a bow's string drawn over its presentation); one held in
+    // both hands yields nothing.
+    const yielding: IAutoMovieMotionHumanActionPlan =
+      s.support === null
+        ? { ...plan, yields: [`${other}Arm`, `${other}Hand`] }
+        : plan;
+    if (context.carrier === undefined) return yielding;
     return HumanSupportCarry.plan(
       context,
-      plan,
+      yielding,
       [
         "trunkTurn",
         `${side}Arm`,

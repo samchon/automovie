@@ -49,6 +49,18 @@ export namespace HumanSegmentShown {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): { pose: IAutoMoviePose; kept?: HumanSegment.IShown } {
+    // Under an overlay's own read (`laid`) the pose lacks the person's later
+    // overlays: evaluated for it alone, never taken from or kept in a record.
+    if (LAID.has(person)) {
+      const active: IAutoMovieMotionHumanSegment | undefined =
+        HumanSegmentSelection.last(person.segments, seconds);
+      return {
+        pose:
+          active === undefined
+            ? HumanSegmentPose.initial(person, requested, prepared)
+            : HumanSegmentPose.of(person, active, seconds, prepared, requested),
+      };
+    }
     const cached: HumanSegment.IShown | undefined = person.resolving
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
@@ -67,36 +79,88 @@ export namespace HumanSegmentShown {
     // there, once for the whole stretch, and kept for this second too. A bone
     // demand takes that pose only where it is already kept, since a whole
     // pose costs more than the demand's own.
-    const still: number | undefined = HumanSegmentStill.representative(person, seconds);
+    const still: number | undefined = HumanSegmentStill.representative(
+      person,
+      seconds,
+    );
     if (still !== undefined) {
       const known: HumanSegment.IShown | undefined = person.resolving
         ? person.planning?.get(still)
         : person.cache.get(still);
       if (known !== undefined || demand === undefined) {
         const at: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } =
-          known === undefined ? of(person, still, undefined, prepared) : { pose: known.pose, kept: known };
-        if (at.kept !== undefined && demand === undefined) keep(person, seconds, at.kept);
+          known === undefined
+            ? of(person, still, undefined, prepared)
+            : { pose: known.pose, kept: known };
+        if (at.kept !== undefined && demand === undefined)
+          keep(person, seconds, at.kept);
         return at;
       }
     }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
-    const pose: IAutoMoviePose = active === undefined
-      ? HumanSegmentPose.initial(person, demand, prepared)
-      : active.incumbents === undefined
-        ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
-        // The action's last leaf seeds start every swept fit of this
-        // evaluation (leaf, carry, stop and plant fits) from a held seed
-        // (`HumanLimbIncumbent`), which cannot change their answers.
-        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: active.incumbents },
-          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, demand));
+    const pose: IAutoMoviePose =
+      active === undefined
+        ? HumanSegmentPose.initial(person, demand, prepared)
+        : active.incumbents === undefined
+          ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
+          : // The action's last leaf seeds start every swept fit of this
+            // evaluation (leaf, carry, stop and plant fits) from a held seed
+            // (`HumanLimbIncumbent`), which cannot change their answers.
+            HumanLimbIncumbent.within(
+              { body: person.performer.body, seeds: active.incumbents },
+              (): IAutoMoviePose =>
+                HumanSegmentPose.of(person, active, seconds, prepared, demand),
+            );
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
   }
 
+  /**
+   * Read a person as an overlay placed `count`-th is laid on: the carrier,
+   * the overlays placed before it and the holds' carries, without it and
+   * the overlays after it. An overlay that reads its own performer's
+   * displayed pose (a held prop it works, a bow's string drawn over its
+   * presentation) reads it so, never re-entering its own posture; the
+   * person's state at the overlay's planning is exactly this one.
+   *
+   * @param person The person.
+   * @param count How many of the person's overlays the read keeps, in placement order.
+   * @param read The read.
+   * @returns What the read returns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which overlays the read sees and why.
+   * @evidence contracts/development/implementation.md#principled-implementation The person's overlays are those placed before the reading overlay for the read's synchronous span, the state its planning saw; every display term (carrier, earlier overlays, carries, fits) is evaluated as usual.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped swap of the overlay list, restored in finally, and one mark `of` reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pose read under the scope is never taken from or kept in the person's records, which hold the whole display.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose evaluation per demanded read, of the demanded bones.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ordinary display evaluation; nested scopes restore the enclosing one.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the read: the list and the mark are restored on return or throw.
+   */
+  export function laid<T>(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    count: number,
+    read: () => T,
+  ): T {
+    const all: IAutoMovieMotionHumanSegment.IOverlay[] = person.overlays;
+    const enclosing: boolean = LAID.has(person);
+    person.overlays = all.slice(0, count);
+    LAID.add(person);
+    try {
+      return read();
+    } finally {
+      person.overlays = all;
+      if (!enclosing) LAID.delete(person);
+    }
+  }
+
   /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
-  function keep(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number, kept: HumanSegment.IShown): boolean {
+  function keep(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+    kept: HumanSegment.IShown,
+  ): boolean {
     if (person.resolving) {
       if (person.planning === undefined) return false;
       person.planning.set(seconds, kept);
@@ -134,17 +198,32 @@ export namespace HumanSegmentShown {
     person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
-    bound?: { pose: ReturnType<typeof poseBones.prepare>; reading: ReturnType<typeof poseBones.prepareRead> },
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
+      person.performer.body,
+    ),
+    bound?: {
+      pose: ReturnType<typeof poseBones.prepare>;
+      reading: ReturnType<typeof poseBones.prepareRead>;
+    },
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
-    const entry: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } = of(person, seconds, requested, prepared);
+    const entry: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } = of(
+      person,
+      seconds,
+      requested,
+      prepared,
+    );
     if (entry.kept === undefined)
       return bound === undefined
         ? poseBones(body, entry.pose, prepared.resolution(), requested)
         : bound.pose(entry.pose, prepared.resolution());
-    const reading: ReturnType<typeof poseBones.read> =
-      (entry.kept.reading ??= poseBones.read(body, entry.pose, prepared.resolution()));
-    return bound === undefined ? reading.map(requested) : bound.reading(reading);
+    const reading: ReturnType<typeof poseBones.read> = (entry.kept.reading ??=
+      poseBones.read(body, entry.pose, prepared.resolution()));
+    return bound === undefined
+      ? reading.map(requested)
+      : bound.reading(reading);
   }
 }
+
+/** The people read under an overlay's own scope (`HumanSegmentShown.laid`), whose poses are neither taken from nor kept in their records. */
+const LAID: WeakSet<IAutoMovieMotionHumanSegment.IPerson> = new WeakSet();

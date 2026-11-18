@@ -43,6 +43,7 @@ import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 
 /**
  * One intent placed in the performance: its law found, its entry state
@@ -198,6 +199,8 @@ export namespace HumanPerformancePlace {
       (s: IAutoMovieMotionHumanSegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
     const body: IAutoMovieMotionHumanActionContext<never>["body"] = person.performer.body;
+    // The overlays an overlay is laid on: those placed before it.
+    const laid: number = person.overlays.length;
     const ownBones: (requested?: ReadonlySet<AutoMovieHumanoidBone>) => ReturnType<typeof poseBones> =
       (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
         poseBones(body, entry.pose, undefined, requested);
@@ -359,8 +362,13 @@ export namespace HumanPerformancePlace {
           );
         return {
           prop,
+          // Over a carrier, a prop this performer carries is read on the
+          // pose this action is laid on, never through its own posture.
           frame: (seconds: number): IAutoMovieRigidTransform =>
-            HumanPerformanceRead.prop(self, subject, seconds),
+            HumanPerformanceRead.prop(self, subject, seconds, over ? { subject: intent.subject,
+              bones: (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
+                HumanSegmentShown.laid(person, laid, (): ReturnType<typeof poseBones> =>
+                  HumanSegmentShown.bones(person, seconds, requested)) } : undefined),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
         };
