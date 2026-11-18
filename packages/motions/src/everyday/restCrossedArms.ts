@@ -117,8 +117,14 @@ export function restCrossedArms(
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
     );
+    // With level elbows the distance of the forearm axes at their crossing
+    // is half their wrist-height difference. Place one wrist above and one
+    // below the nominal bearing by a forearm diameter, along the upper arm.
+    const span: number = geometry[other].upper;
+    const shift: number = axis.y === 0 ? 0 : 2 * body.measure.forearmRadius / Math.abs(axis.y);
+    const along: number = Math.max(0, Math.min(span, ALONG * span + (side === "left" ? shift : -shift)));
     const point: IAutoMovieVector3 = Vector3.addScaled(
-      Vector3.addScaled(from, axis, ALONG * geometry[other].upper),
+      Vector3.addScaled(from, axis, along),
       front, body.measure.upperArmRadius,
     );
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {

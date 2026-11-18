@@ -265,7 +265,13 @@ export namespace rest {
     // the last hand arrives: the places lie on the body the arms hang from,
     // so the arms hold these angles through the hold and the body's sway
     // carries the hands with it, and no displayed second asks the fit again.
-    const arrived: IAutoMovieMotionHumanPosture | undefined = sides.length === 0 ? undefined : base.posture(arrive);
+    let arrived: IAutoMovieMotionHumanPosture | undefined = sides.length === 0 ? undefined : base.posture(arrive);
+    if (arrived !== undefined) {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...arrived.joints };
+      for (const side of sides)
+        for (const [bone, angles] of shapes[side]!) joints[bone] = angles;
+      arrived = { ...arrived, joints };
+    }
     const settled: ReturnType<typeof resolveHumanPosture> | undefined = arrived === undefined
       ? undefined : resolveHumanPosture(body, handGoals(body, arrived, requests(arrived)));
     const held: Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>> = {};
