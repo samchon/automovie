@@ -27,14 +27,9 @@ import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
 /**
- * How far the hips move back so the whole-body centre of mass stands over
- * the feet, found on the solved posture itself.
- *
- * A law supplies the posture as a function of backward hip travel. The
- * engine places its segmental centre (Winter, ch. 4) over the bearing foot
- * outlines. Static balance needs only to reach the support boundary (Hof
- * et al. 2005). A closed directional correction is checked on the planted
- * legs, which may move independently of the trunk when they refit.
+ * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
+ * The closest boundary suffices (Hof et al. 2005). The planted legs may
+ * move during fitting, so a rigid correction is checked on the actual pose.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
  * @evidence contracts/development/design.md#principled-representation Pure balance functions and explicit fixed-body centre/dynamic readers return world-metre shifts/margins/offsets and points. The unchanged body owns its engine mass model, while operation-scoped genuine FK/ROM producers share only static or exact checked dependencies.
@@ -62,12 +57,9 @@ export namespace HumanBalance {
    * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
    * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * Where refitting the planted legs defeats a closed correction, the
-   * original search first brings the heels down if possible and solves the
-   * centre against that support. It uses the forefoot if the heels cannot
-   * bear. The bracket covers `range` hip heights and resolves the crossing
-   * to `TOLERANCE`. A missing crossing returns the nearer bracket endpoint
-   * for the law's balance verdict to assess.
+   * Where fitting changes support, a feasible endpoint brackets the first
+   * supported shift to `TOLERANCE`. If the heel cannot bear, the forefoot
+   * bears, and a missing crossing leaves the nearer endpoint for the audit.
    *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
@@ -114,9 +106,19 @@ export namespace HumanBalance {
       const start: IReading = at(0);
       const span: number = range * body.measure.hipHeight;
       if (target === undefined && start.margin >= 0) return 0;
+      const nearest: (back: number) => number = (back: number): number => {
+        if (target !== undefined || at(back).margin <= 0) return back;
+        let supported: number = back;
+        bracketedBisection((current: number): boolean => {
+          if (at(current).margin < 0) return true;
+          supported = current;
+          return false;
+        }, 0, back, TOLERANCE);
+        return supported;
+      };
       if (start.candidate !== undefined && Math.abs(start.candidate) <= span) {
         const landed: IReading = at(start.candidate);
-        if (landed.margin >= 0 && landed.flat === start.flat) return start.candidate;
+        if (landed.margin >= 0 && landed.flat === start.flat) return nearest(start.candidate);
       }
       // The shift from `from` the given way, within the range, at which
       // `error` is no longer positive: the bracket is the range's two ends,
@@ -172,14 +174,14 @@ export namespace HumanBalance {
       );
       if (down.found) {
         const landed: IReading = at(down.back);
-        if (ahead(landed) > 0) return first(down.back, 1, ahead, true).back;
-        if (landed.margin > 0) return down.back;
+        if (ahead(landed) > 0) return nearest(first(down.back, 1, ahead, true).back);
+        if (landed.margin > 0) return nearest(down.back);
       }
       // Otherwise the forefoot: the centre brought over its middle, back when
       // ahead of it, forward when outside behind it.
-      if (ahead(start) > 0) return first(0, 1, ahead, true).back;
+      if (ahead(start) > 0) return nearest(first(0, 1, ahead, true).back);
       if (start.margin > 0) return 0;
-      return first(0, -1, (r: IReading): number => -ahead(r), true).back;
+      return nearest(first(0, -1, (r: IReading): number => -ahead(r), true).back);
     } finally {
       if (model !== undefined) prepareAutoMovieMassModel.release(model);
     }
