@@ -57,9 +57,10 @@ export function test_motion_posture_time_scaled_posture(): void {
       height(plan, (phase - delta) * plan.duration)) /
     (2 * delta * plan.duration);
   const velocity: number = slope(usual);
+  const minimumDownwardSpeed: number = 1e-6;
   TestValidator.predicate(
     "root descends at the sampled phase: " + velocity + " m/s",
-    velocity < -1e-6,
+    -velocity > minimumDownwardSpeed,
   );
   TestValidator.predicate(
     "equal-phase root height at " + phase,
