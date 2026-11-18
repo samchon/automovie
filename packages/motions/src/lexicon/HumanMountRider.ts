@@ -150,16 +150,15 @@ export namespace HumanMountRider {
     posture: IAutoMovieMotionHumanPosture,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
   ): IWrist {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading(posture),
-      { x: 0, y: 0, z: 1 },
-    );
     const across: IAutoMovieVector3 = grip.axis === undefined
       ? { x: 0, y: 0, z: 0 }
       : Vector3.cross(grip.axis, grip.normal);
-    const fingers: IAutoMovieVector3 = Vector3.length(across) < 1e-6
-      ? forward
-      : Vector3.scale(Vector3.normalize(across), grip.across ?? (Vector3.dot(across, forward) < 0 ? -1 : 1));
+    let fingers: IAutoMovieVector3;
+    if (Vector3.length(across) < 1e-6) fingers = forward(posture);
+    else {
+      const side: number = grip.across ?? (Vector3.dot(across, forward(posture)) < 0 ? -1 : 1);
+      fingers = Vector3.scale(Vector3.normalize(across), side);
+    }
     return {
       point: Vector3.add(grip.point, Vector3.add(
         Vector3.scale(grip.normal, PALM * body.measure.hand + (grip.radius ?? 0)),
@@ -197,7 +196,7 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold resolves the posture without its arms once and reads the hand's frame with forward kinematics limited to the hand and its ancestors. The fingers blend linearly over the closed joints given.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's forward-kinematics reader and range-of-motion projector serve the resolution; the relaxed hand is `HumanHand.shape`'s table.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and the projector are used only during the call; the returned goal and joints hold numbers alone.
    */
@@ -225,6 +224,7 @@ export namespace HumanMountRider {
       delete limbs.rightArm;
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(resolution);
+      const requested: ReadonlySet<AutoMovieHumanoidBone> = FREE_HAND[side];
       const hand: IAutoMovieResolvedBone = poseBones(
         body,
         resolveHumanPosture.seeded(
@@ -233,11 +233,11 @@ export namespace HumanMountRider {
           undefined,
           undefined,
           read,
-          undefined,
+          prepareHumanPoseResolution.isNativeSource(resolution) ? requested : undefined,
           projection,
         ).pose,
         read(),
-        new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+        requested,
       ).get(`${side}Hand`)!;
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
@@ -392,3 +392,14 @@ export namespace HumanMountRider {
       : HumanMountReach.reach(body, seated, sides)(points);
   }
 }
+
+/** The rider's forward direction when the grip has yet to establish its finger side. */
+function forward(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
+  return Quaternion.rotateVector(resolveHumanPosture.heading(posture), { x: 0, y: 0, z: 1 });
+}
+
+/** Each free wrist observes its own ancestor chain while approaching a grip. */
+const FREE_HAND: Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>> = {
+  left: new Set(["leftHand"]),
+  right: new Set(["rightHand"]),
+};
