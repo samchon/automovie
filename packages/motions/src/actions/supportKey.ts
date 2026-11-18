@@ -24,6 +24,8 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 import { prepareBilateralSupport } from "./prepareBilateralSupport";
+import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
+import { preparePairedFloorSupport } from "./preparePairedFloorSupport";
 import { prepareSupportSeed } from "./prepareSupportSeed";
 import { supportContact } from "./supportContact";
 
@@ -114,6 +116,11 @@ export namespace supportKey {
       HumanFitVariables.vector(variables, preferred),
     );
     if (merit.holds(stated.misses)) return preferred;
+    if (swings.length === 0) {
+      const paired: ReturnType<typeof preparePairedFloorSupport> =
+        preparePairedFloorSupport(body, preferred, from, contacts, targets, bearing, merit);
+      if (paired !== undefined) return paired;
+    }
     const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, from),
     );
@@ -160,6 +167,11 @@ export namespace supportKey {
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
     if (swings.length > 0 && misses(result))
       result = fitted(holding);
+    if (swings.length === 0 && misses(result)) {
+      const closed: ReturnType<typeof prepareRaisedKneeSupport> =
+        prepareRaisedKneeSupport(body, preferred, from, contacts, holding, bearing, merit);
+      if (closed !== undefined) return closed;
+    }
     // The preceding support can leave a limb against its range boundary.
     // The authored stance supplies its own articulation on the other side
     // of that boundary, even when its initial aggregate error is larger.
