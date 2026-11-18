@@ -45,7 +45,11 @@ export function manipulatePlan(
   span: number,
   reach: number,
 ): IAutoMovieMotionHumanActionPlan {
-  const duration: number = presses[presses.length - 1]!.time + reach * span;
+  // The act lasts to the latest press's lift, which with authored times need
+  // not be the last one named.
+  const duration: number =
+    Math.max(...presses.map((press: IAutoMovieMotionHumanManipulate.IPress): number => press.time)) +
+    reach * span;
   const hands: IHand[] = [];
   for (const side of ["left", "right"] as const) {
     const mine: IAutoMovieMotionHumanManipulate.IPress[] = presses.filter(

@@ -77,7 +77,7 @@ export namespace regrasp {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hand does not hold the object, or a kind's input is missing or names no affordance.
+   * @throws {HumanRefusal} When the hand does not hold the object, a kind's input is missing or names no affordance, or a twist's angle is none or not finite.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the held-hand premise, missing-input refusals and returned plan; the namespace gives twist/regrip/roll goals and timing.
    * @evidence contracts/development/implementation.md#principled-implementation A twist retains the original world-axis rigid orbit and wrist-local pivot contact; regrip/roll retain their original in-hand displacement law.
@@ -123,6 +123,17 @@ export namespace regrasp {
     };
     const angle: number =
       kind === "twist" ? need(context.params.angle, "angle") : 90;
+
+    // A twist's time is in proportion to its angle, so a twist of none has
+    // no time to turn in.
+    if (!(Math.abs(angle) > 0) || !Number.isFinite(angle))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "angle",
+        value: angle,
+        reason: "a twist turns the held object by a finite angle other than none",
+        fix: "give the twist's angle in degrees, positive or negative",
+      });
     const duration: number = (QUARTER * Math.abs(angle)) / 90;
     const window: IAutoMovieMotionHumanContactWindow = {
       part: side === "left" ? "leftHand" : "rightHand",
