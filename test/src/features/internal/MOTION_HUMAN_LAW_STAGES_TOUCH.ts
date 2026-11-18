@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import { touch } from "@automovie/motions";
+import { HumanPerception, touch } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -108,7 +108,11 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
         },
         "presented",
       ),
-      S.chain().act("kiss", kiss).sync({ of: "presented", event: "ready" }),
+      // The kisser sees the hand a reaction time after it is held out
+      // (`HumanPerception.REACTION`, the delay a partner's region is read at).
+      S.chain()
+        .act("kiss", kiss)
+        .sync({ of: "presented", event: "ready", offset: HumanPerception.REACTION }),
     ]);
   },
   highFive: (

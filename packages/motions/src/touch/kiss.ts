@@ -25,6 +25,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
 import { kissPose } from "./kissPose";
@@ -48,9 +49,10 @@ import { kissPose } from "./kissPose";
  * of the mouth's travel, the kiss holds 0.6 s (provisional) and the return
  * takes the approach's time. The feet stay planted where they stand, so no
  * balance is solved: the lean and the rise are the kiss's key poses within
- * their ranges, and the balance verdict reads the result. A difference
- * the lean, the neck and the toes cannot close is left as a miss the verdict
- * reports, and a step in is not drafted yet.
+ * their ranges. A difference of more than `NEAR` that the lean, the neck
+ * and the toes cannot close is out of reach and refused with what they
+ * reach, rather than pressed on into the partner; a step in is not drafted
+ * yet.
  *
  * Events: the phrase instants, with `contact` at `ready` and `part` at
  * `relax`.
@@ -185,7 +187,7 @@ export namespace kiss {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative, or when the solved lean, neck and rise leave the mouth more than `NEAR` from the region.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the solve and the timing.
    * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved against the target at the start, the feet planted and no balance solved, then raised and lowered on the phrase envelope with the head's turn.
@@ -242,6 +244,18 @@ export namespace kiss {
       k: number,
     ): IAutoMovieMotionHumanPosture => kissBody(body, posture, stance, s, k, seated);
     const solved: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
+    // A region the lean, the neck and the rise do not bring the mouth to is
+    // out of reach: the kiss refuses with what they reach, rather than
+    // driving the head on into the partner (laws/authoring.md, Out of reach).
+    if (solved.miss > NEAR)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "region",
+        value: p.region,
+        feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
+        reason: `the mouth stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and the heels raised ${solved.raise.toFixed(0)}`,
+        fix: "come nearer first, or kiss a region within the lean's reach",
+      });
     const travel: number = Vector3.distance(HumanTrunk.region(body, entry, "mouth").point, at);
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
