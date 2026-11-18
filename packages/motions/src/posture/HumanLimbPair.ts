@@ -1,6 +1,7 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
@@ -159,16 +160,10 @@ function solved(
     }
     return authoredBones;
   };
-  const world: (limb: "leftArm" | "rightArm") => IAutoMovieHumanLimbGoal = (
-    limb: "leftArm" | "rightArm",
-  ): IAutoMovieHumanLimbGoal =>
-    HumanLimbFit.world(
-      body,
-      pose,
-      limb,
-      goals[limb === "leftArm" ? "left" : "right"],
-      readAuthored,
-    );
+  const world: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal> = {
+    left: HumanLimbFit.world(body, pose, "leftArm", goals.left, readAuthored),
+    right: HumanLimbFit.world(body, pose, "rightArm", goals.right, readAuthored),
+  };
   // Both arms are fitted on this one pose, so it is admitted once for both.
   const admission: HumanLimbView.IAdmission = { admitted: false };
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
@@ -178,7 +173,7 @@ function solved(
       "leftArm",
       goals.left,
       [],
-      world("rightArm").point,
+      world.right.point,
       near.left,
       resolution,
       admission,
@@ -189,7 +184,7 @@ function solved(
       "rightArm",
       goals.right,
       [],
-      world("leftArm").point,
+      world.left.point,
       near.right,
       resolution,
       admission,
@@ -242,7 +237,7 @@ function solved(
   const meets: (side: "left" | "right") => boolean = (
     side: "left" | "right",
   ): boolean => {
-    const other: "left" | "right" = side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
       body,
       bones,
@@ -273,9 +268,7 @@ function solved(
   const site: (side: "left" | "right") => M.ISite = (
     side: "left" | "right",
   ): M.ISite => {
-    const goal: IAutoMovieHumanLimbGoal = world(
-      side === "left" ? "leftArm" : "rightArm",
-    );
+    const goal: IAutoMovieHumanLimbGoal = world[side];
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
     return {
       point: Vector3.add(
@@ -324,6 +317,33 @@ function solved(
       [...context.back[a]!],
     ],
   );
+  // The segment clearance precheck is conservative. Admission by the
+  // complete posed two-arm model is sufficient at this static instant.
+  if (M.evaluate(context, start).worst.value <= M.TOLERANCE)
+    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+
+  // A free elbow swivel can separate a pair with both hands already on
+  // their sites. Keep one arm fixed, fit the other around its actual
+  // colliders, and require the same two-arm model before using the pose.
+  for (const side of sides) {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
+      body, both, `${side}Arm`, goals[side], [other], world[other].point,
+      own[side].seed === null ? near[side] : { ...own[side].seed, tolerance: hingedArmSwivel.RESOLUTION }, resolution,
+    );
+    const candidate: number[][][] = start.map((frames: number[][], a: number): number[][] =>
+      sides[a] === side
+        ? [frames[0]!, G.encode(context.setups[a]!, arm(fitted.pose, side)), frames[2]!]
+        : frames,
+    );
+    if (M.evaluate(context, candidate).worst.value <= M.TOLERANCE)
+      return {
+        pose: fitted.pose,
+        seeds: { ...seeds, [side]: fitted.seed },
+        values: { left: undefined, right: undefined },
+      };
+  }
+
   const result: { x: number[][][] } = HumanArmOptimiser.optimise(
     context,
     start,

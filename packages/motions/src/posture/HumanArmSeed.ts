@@ -292,8 +292,11 @@ export namespace HumanArmSeed {
     let tried: number = 0;
     for (const q of starts()) {
       ++tried;
+      const candidate: number[][][] = frame(point, q);
+      if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
+        return candidate.map((arm: number[][]): number[] => arm[1]!);
       const at: { x: number[][][]; evaluation: M.IEvaluation } =
-        HumanArmOptimiser.optimise(point, frame(point, q));
+        HumanArmOptimiser.optimise(point, candidate);
       if (at.evaluation.worst.value <= M.TOLERANCE)
         return at.x.map((arm: number[][]): number[] => arm[1]!);
       if (
