@@ -78,7 +78,7 @@ export function test_human_motion_swipe_touchscreen(): void {
     to: number,
     seconds?: number,
     fixture: IAutoMovieMotionHumanProp = tablet,
-    cut?: "relax",
+    cut?: "relax" | 1,
   ): HumanPerformance => {
     const intent = { prop: "tablet", screen: "screen", from, to, seconds };
     const chain = Chain.subject("a")
@@ -99,7 +99,9 @@ export function test_human_motion_swipe_touchscreen(): void {
       laws: [swipeTouchscreen],
       composition: (cut === undefined
         ? chain
-        : chain.until({ event: cut }).swipeTouchscreen(intent)
+        : chain
+            .until(cut === 1 ? { share: cut } : { event: cut })
+            .swipeTouchscreen(intent)
       ).node,
     });
   };
@@ -168,6 +170,18 @@ export function test_human_motion_swipe_touchscreen(): void {
     );
   }
 
+  const continued: readonly IAutoMovieMotionHumanSegment[] = perform(
+    -0.25,
+    0.25,
+    undefined,
+    tablet,
+    1,
+  ).segments("a");
+  TestValidator.predicate(
+    "the next swipe can start exactly after withdrawal",
+    continued.length === 3 && continued[2]!.start === continued[1]!.end,
+  );
+
   const halfTurn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     180,
@@ -214,7 +228,7 @@ export function test_human_motion_swipe_touchscreen(): void {
       rejected = error;
     }
     TestValidator.predicate(
-      `the swipe refuses ${description}`,
+      `the swipe refuses ${description} (${String(rejected)})`,
       rejected instanceof HumanRefusal && rejected.axis === axis,
     );
   }

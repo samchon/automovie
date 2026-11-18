@@ -37,7 +37,7 @@ const CONTACT_SHARE_TOLERANCE: number = 1e-9;
 /**
  * One fingertip reaches a named touchscreen, swipes in its local X direction
  * and withdraws. `strokeStart` is touch-in, `strokeEnd` (also `relax`) is
- * touch-out, and `end` returns the hand to its entry pose. The stroke takes
+ * touch-out. The hand returns to its entry pose at full duration. The stroke takes
  * 285.1 ms by default, the mean touch-in to touch-out duration from Jeong
  * and Liu (2017, doi:10.1080/00140139.2017.1313457). Jeong reports the
  * measured mean in Table 2.6 of his dissertation. The shared transport rule
@@ -55,7 +55,7 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
   {
     name: "swipeTouchscreen",
     interrupts: {
-      any: [{ window: ["end", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
     },
     /**
      * Resolve the screen and compose an index fingertip stroke over the held entry stance.
