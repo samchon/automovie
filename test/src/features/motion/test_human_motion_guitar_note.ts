@@ -7,10 +7,12 @@ import {
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGuitarNote,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -31,14 +33,16 @@ const CONTACT: number = 0.002;
 
 /**
  * A rotated staged guitar with an interior string stopped before a pluck.
- * Check the displayed index tips against the instrument's two sites during
- * the stop and at the pluck. Check that the right fingertip crosses to the
- * other side of the selected string and that both fingers clear at the end.
+ * The string's bar frame is reversed along its length.
+ *
+ * Scenarios:
+ * 1. The displayed left index holds the stop while the right index plucks.
+ * 2. The right index crosses in the same physical direction and both tips clear.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, fingertips and phases under measurement.
  * @evidence contracts/development/testing.md#behavioral-verification Resolves the registered law in a performance and measures displayed skeletal fingertip surfaces.
  * @evidence contracts/development/testing.md#independent-expectations Computes the left target from the produced fret's X station and the string endpoints; projects the soundboard centre onto those endpoints for the right target without consuming planned goals.
- * @evidence contracts/development/testing.md#distinguishing-cases An interior string differs from both bar origins, a rotated stage differs from model coordinates, and before, during and after the pluck distinguish pressing from crossing and releasing.
+ * @evidence contracts/development/testing.md#distinguishing-cases An interior string differs from both bar origins, its reversed frame tests invariance to the bar axis sign, a rotated stage differs from model coordinates, and the phases distinguish pressing from crossing and releasing.
  * @evidence contracts/development/testing.md#execution-ownership Builds an archetype and a canonical polygon body without the viewer or a capture host.
  */
 export function test_human_motion_guitar_note(): void {
@@ -65,6 +69,31 @@ export function test_human_motion_guitar_note(): void {
     y: body.measure.shoulderHeight - body.measure.upperArm - top,
     z: body.rest.get("rightUpperArm")!.z + 0.8 * body.measure.forearm,
   };
+  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+    params.prop,
+    guitar,
+    {
+      position,
+      rotation,
+      fixed: true,
+    },
+  );
+  const halfTurn: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
+  const affordances: IAutoMovieAffordance[] = guitar.affordances.map(
+    (affordance: IAutoMovieAffordance): IAutoMovieAffordance =>
+      affordance.id === params.string
+        ? {
+            ...affordance,
+            frame: {
+              ...affordance.frame,
+              rotation: Quaternion.multiply(
+                affordance.frame.rotation,
+                halfTurn,
+              ),
+            },
+          }
+        : affordance,
+  );
   const film: HumanPerformance = new HumanPerformance({
     seed: "stopped string",
     laws: [guitarNote],
@@ -77,13 +106,7 @@ export function test_human_motion_guitar_note(): void {
         proficiency: { level: "trained" },
       },
     ],
-    props: [
-      HumanObject.prop(params.prop, guitar, {
-        position,
-        rotation,
-        fixed: true,
-      }),
-    ],
+    props: [{ ...prop, affordances }],
     composition: HumanChain.subject("player").registered("guitarNote", params)
       .node,
   });

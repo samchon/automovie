@@ -110,18 +110,8 @@ export function test_motion_group_conversation_gaze(): void {
     ),
   );
 
-  // A sustained one-second glance on every turn isolates gaze direction
-  // and pause ownership from the random cadence of individual glances.
-  let held: IAutoMovieRandom | undefined;
-  for (let index: number = 0; index < 32; ++index) {
-    const stream: IAutoMovieRandom = random.stream(String(index));
-    if ([0, 1, 2].every((draw: number): boolean => stream.float(draw) >= 0.4)) {
-      held = stream;
-      break;
-    }
-  }
-  if (held === undefined)
-    throw new Error("Expected a fixture stream with three sustained glances");
+  // The first three draws for this seed exceed the one-second listener cutoff.
+  const held: IAutoMovieRandom = createAutoMovieRandom("000000000000000a");
   const sustained: IAutoMovieMotionHumanGaze.ILayer[] =
     HumanConversation.groupGaze("c", participants, turns, held, eyes);
   TestValidator.predicate(

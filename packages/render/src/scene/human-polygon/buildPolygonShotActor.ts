@@ -3,8 +3,10 @@ import type {
   IAutoMovieHumanSkeleton,
   IAutoMovieProductionFrameRate,
   IAutoMovieProductionRenderLayer,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieShot,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
@@ -37,9 +39,9 @@ export function buildPolygonShotActor(input: {
   opening: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
   /** Canonical body-frame pose at a shot-local time. */
   poseAt: (seconds: number) => Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
-  /** Actor's scene-world rigid frame at shot-local time, including a static placement away from the origin. */
+  /** Deterministic, synchronous actor rigid frame at shot-local time in scene-world axes. Detach sampling can read the same time again. */
   actorFrameAt?: (seconds: number) => IAutoMovieRigidTransform;
-  /** Compiled shot's exact frame rate. */
+  /** Production frame grid used by the layer's source frame. */
   frameRate: IAutoMovieProductionFrameRate;
   /** Optional palette by emitted bone name. */
   partColors?: Readonly<Record<string, number>>;
@@ -77,22 +79,23 @@ export function buildPolygonShotActor(input: {
         frame: layer.sourceFrame,
         frameRate,
       });
-      const frame: IAutoMovieRigidTransform | undefined =
-        actorFrameAt?.(seconds);
-      if (frame === undefined) {
+      if (actorFrameAt === undefined) {
         drawing.drawAt!(seconds);
         return;
       }
-      const position: Vector3 = new Vector3().copy(frame.position);
-      const rotation: Quaternion = new Quaternion().copy(frame.rotation);
-      const squaredNorm: number = rotation.lengthSq();
+      const {
+        position: translation,
+        rotation: orientation,
+      }: IAutoMovieRigidTransform = actorFrameAt(seconds);
+      const { x: tx, y: ty, z: tz }: IAutoMovieVector3 = translation;
+      const { x, y, z, w }: IAutoMovieQuaternion = orientation;
       if (
-        ![position.x, position.y, position.z].every(Number.isFinite) ||
-        !Number.isFinite(squaredNorm) ||
-        Math.abs(squaredNorm - 1) > 1e-6
+        ![tx, ty, tz, x, y, z, w].every(Number.isFinite) ||
+        Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6
       )
         throw new Error(`Invalid staging frame for polygon actor ${subject}`);
-      rotation.normalize();
+      const position: Vector3 = new Vector3(tx, ty, tz);
+      const rotation: Quaternion = new Quaternion(x, y, z, w).normalize();
       const parent = drawing.object.parent;
       if (parent !== null) {
         parent.worldToLocal(position);

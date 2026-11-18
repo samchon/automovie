@@ -38,7 +38,7 @@ export namespace AutoMovieHumanPolygon {
     /** Complete, deterministic source pose in Human body coordinates at the given seconds. */
     poseAt: (seconds: number) => Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
 
-    /** Actor-local to shot-world rigid frame, identity when omitted. The host applies it through the drawing's parent. */
+    /** Deterministic, synchronous actor-local to shot-world rigid frame, identity when omitted. The host applies it through the drawing's parent. */
     actorFrameAt?: (seconds: number) => IAutoMovieRigidTransform;
   }
 

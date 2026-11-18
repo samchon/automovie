@@ -38,18 +38,31 @@ type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
   );
 
 /** Admit a finite quaternion with the same squared-norm tolerance as a polygon pose. */
-function unitRotation(rotation: Quaternion, label: string): Quaternion {
-  const squaredNorm: number = rotation.lengthSq();
-  if (!Number.isFinite(squaredNorm) || Math.abs(squaredNorm - 1) > 1e-6)
+function unitRotation(
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+  label: string,
+): Quaternion {
+  if (
+    ![x, y, z, w].every(Number.isFinite) ||
+    Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6
+  )
     throw new Error(`Invalid polygon rotation: ${label}`);
-  return rotation.normalize();
+  return new Quaternion(x, y, z, w).normalize();
 }
 
 /** Admit the metre translation of a rigid frame. */
-function finitePosition(position: Vector3, label: string): Vector3 {
-  if (![position.x, position.y, position.z].every(Number.isFinite))
+function finitePosition(
+  x: number,
+  y: number,
+  z: number,
+  label: string,
+): Vector3 {
+  if (![x, y, z].every(Number.isFinite))
     throw new Error(`Invalid polygon position: ${label}`);
-  return position;
+  return new Vector3(x, y, z);
 }
 
 /** Copy one source joint frame for arithmetic without mutating the evaluated pose. */
@@ -59,14 +72,8 @@ function boneFrame(
   if (placement.position.length !== 3 || placement.rotation.length !== 4)
     throw new Error(`Invalid polygon placement: ${placement.bone}`);
   return {
-    position: finitePosition(
-      new Vector3().set(...placement.position),
-      placement.bone,
-    ),
-    rotation: unitRotation(
-      new Quaternion().set(...placement.rotation),
-      placement.bone,
-    ),
+    position: finitePosition(...placement.position, placement.bone),
+    rotation: unitRotation(...placement.rotation, placement.bone),
   };
 }
 
@@ -80,9 +87,12 @@ function actorFrame(
   const { position, rotation }: IAutoMovieRigidTransform =
     actorFrameAt(seconds);
   return {
-    position: finitePosition(new Vector3().copy(position), "actor frame"),
+    position: finitePosition(position.x, position.y, position.z, "actor frame"),
     rotation: unitRotation(
-      new Quaternion().set(rotation.x, rotation.y, rotation.z, rotation.w),
+      rotation.x,
+      rotation.y,
+      rotation.z,
+      rotation.w,
       "actor frame",
     ),
   };
@@ -160,7 +170,9 @@ export function prepareHumanPolygonPresentation(
       prepared = { ...timing, kind: cue.kind, bone: cue.bone };
     } else if (cue.kind === "detach") {
       const translation: Vector3 = finitePosition(
-        new Vector3().copy(cue.translation),
+        cue.translation.x,
+        cue.translation.y,
+        cue.translation.z,
         cue.bone,
       );
       const released: Map<string, IAutoMoviePolygonFrame> = new Map();

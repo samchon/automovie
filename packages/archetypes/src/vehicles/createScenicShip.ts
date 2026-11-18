@@ -86,7 +86,7 @@ const UNITS: Readonly<
 };
 
 /**
- * A rigid, fictional ship for people on deck. The root sits at the still-water line, with the bow toward +Z and +Y up. The boarding side and its passage are along +X. The deck and boarding frames lie on the actual deck top. Boarding faces inward along the frame's +Z. Oared benches have aft-facing +X seat directions. Each kind has an unobstructed aft work area and helm standing position.
+ * A rigid, fictional ship for people on deck. The root sits at the still-water line, with the bow toward +Z and +Y up. The boarding side and its passage are along +X. The deck and boarding frames lie on the actual deck top. Boarding faces inward along the frame's +Z. Each oared bench's seat frame points its +Z axis toward the ship's aft (−Z). Each kind has an unobstructed aft work area and helm standing position.
  *
  * Pair the ship with ArchetypeRide.along and optionally ArchetypeSea.float to carry the same contact frames through a turn or swell. Hull solids, fixed oars and sails, and a wheelhouse with an open aft entry model film silhouettes. The model has no interior below deck or propulsion simulation.
  *

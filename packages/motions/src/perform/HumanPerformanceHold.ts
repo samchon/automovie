@@ -1,6 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceHold,
   IAutoMovieMotionHumanPerformanceState,
@@ -10,6 +9,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -33,6 +33,9 @@ import { HumanPropHold } from "./HumanPropHold";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parent-constraint offset is still stored once at closure; the in-hand motion composes on it rather than re-deriving it.
  */
 export namespace HumanPerformanceHold {
+  /** Active samples on one socket path. Each subject is indexed by film second. */
+  type AutoMovieMountPath = Map<string, Set<number>>;
+
   /**
    * A prop's world frame at a film second (`HumanPerformanceRead.prop`).
    *
@@ -41,14 +44,15 @@ export namespace HumanPerformanceHold {
    * @param seconds Film seconds.
    * @param own The performer reading the prop and their own bones, for a prop they may carry.
    * @returns Its frame.
+   * @throws {HumanRefusal} If the selected socket chain revisits a prop at the same film second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
    * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the prop's grips per read; the offset is memoized on the grip record.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans each visited prop's grips and does a constant number of map and set operations per socket hop. The offset is memoized on the grip record.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Seated offsets are kept on the grip records the grip cache holds.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the offsets on the grip records, released with the performance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The socket path keeps one entry per active sample and releases entries as each hop returns. Only offsets on grip records persist with the performance.
    */
   export function prop(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -56,6 +60,26 @@ export namespace HumanPerformanceHold {
     seconds: number,
     own?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
   ): IAutoMovieRigidTransform {
+    return read(self, subject, seconds, own);
+  }
+
+  /** Resolve a frame while keeping the current chain of socket samples. */
+  function read(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+    own: IAutoMovieMotionHumanPerformanceHold.IPropOwn | undefined,
+    path?: AutoMovieMountPath,
+  ): IAutoMovieRigidTransform {
+    if (path?.get(subject)?.has(seconds))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: `props.${subject}.mounted`,
+        value: subject,
+        reason: `the socket chain returns to ${subject} at ${seconds} s`,
+        fix: "detach one prop from the chain before mounting its carrier",
+      });
+
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
@@ -121,7 +145,19 @@ export namespace HumanPerformanceHold {
       at: number,
       supplied?: typeof own,
     ): IAutoMovieRigidTransform => {
-      if (w.mount !== undefined) return socket(self, w.mount, at, supplied);
+      if (w.mount !== undefined) {
+        const visited: AutoMovieMountPath = path ?? new Map();
+        const times: Set<number> = visited.get(subject) ?? new Set();
+        visited.set(subject, times);
+        times.add(seconds);
+
+        try {
+          return socket(self, w.mount, at, supplied, visited);
+        } finally {
+          times.delete(seconds);
+          if (times.size === 0) visited.delete(subject);
+        }
+      }
       if (w.bone === undefined)
         return HumanPerformanceRead.hand(self, w.subject, w.side, at);
       const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
@@ -149,6 +185,8 @@ export namespace HumanPerformanceHold {
                 g.to >= w.from - 1e-6,
             );
       if (earlier !== undefined) return (w.offset = moved(earlier, earlier.to));
+
+      // At closure the previous carrier supplies the frame on a separate path.
       const before: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
         self,
         subject,
@@ -233,10 +271,8 @@ export namespace HumanPerformanceHold {
     self: IAutoMovieMotionHumanPerformanceState,
     mount: { prop: string; point: string },
     seconds: number,
-    own?: {
-      subject: string;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
+    own: IAutoMovieMotionHumanPerformanceHold.IPropOwn | undefined,
+    path: AutoMovieMountPath,
   ): IAutoMovieRigidTransform {
     const onto: IAutoMovieMotionHumanProp | undefined = self.props.get(
       mount.prop,
@@ -245,11 +281,12 @@ export namespace HumanPerformanceHold {
       throw HumanPerformanceRead.missing("prop", mount.prop, [
         ...self.props.keys(),
       ]);
-    const frame: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
+    const frame: IAutoMovieRigidTransform = read(
       self,
       mount.prop,
       seconds,
       own,
+      path,
     );
     const affordances: readonly IAutoMovieAffordance[] =
       onto.articulate === undefined

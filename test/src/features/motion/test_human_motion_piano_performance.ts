@@ -321,6 +321,21 @@ export function test_human_motion_piano_performance(): void {
   const segment: IAutoMovieMotionHumanSegment =
     longerScore.segments("pianist")[1]!;
   const share: number = late / 2.75;
+  const pedalShare: number = params.pedal.presses[0]!.at / 2.75;
+  if (
+    !segment.plan.contacts.some(
+      (contact): boolean =>
+        contact.part === "rightFoot" &&
+        contact.kind === "pivot" &&
+        contact.region === "heelRight" &&
+        contact.support.kind === "ground" &&
+        contact.from <= pedalShare &&
+        contact.to >= pedalShare,
+    )
+  )
+    findings.push(
+      "the heel pivot must cover the pedal press in the longer score",
+    );
   if (
     !segment.plan.contacts.some(
       (contact): boolean =>

@@ -12,6 +12,7 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   cymbalStrike,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -28,11 +29,12 @@ import { vclose } from "../internal/vclose";
  * 2. The displayed bead's bottom reaches the edge at the authored cue,
  *    within one bead radius.
  * 3. The same bead clears the edge on the approach and rebound.
+ * 4. An articulation reader with no rigidity declaration is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the staged geometry, held prop, cue, contact bound and expected rebound.
  * @evidence contracts/development/testing.md#behavioral-verification Stages the public archetypes, registers the strike, syncs a public chain and reads the displayed prop frames.
  * @evidence contracts/development/testing.md#independent-expectations Derives contact geometry from the visible plate and bead, and samples at an authored cue and offsets measured in video frames.
- * @evidence contracts/development/testing.md#distinguishing-cases Compares a raised central bell, a rim impact and clearance on both sides of the cue.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares a raised central bell, a rim impact and clearance on both sides of the cue, and refusal when a pose reader leaves rigidity undeclared.
  * @evidence contracts/development/testing.md#execution-ownership Uses one polygon performer and an in-memory performance with three display samples.
  */
 export function test_human_motion_cymbal_strike(): void {
@@ -128,6 +130,35 @@ export function test_human_motion_cymbal_strike(): void {
     "the decisive instant falls on the authored beat",
     stroke !== undefined &&
       nclose(stroke.start + (stroke.plan.contact ?? NaN), beat),
+  );
+
+  if (stroke === undefined) throw new Error("The staged strike was not placed");
+  let refused: boolean = false;
+  try {
+    cymbalStrike.plan({
+      ...stroke.context,
+      params: { hand: "right", stick: "stick", cymbal: "cymbal" },
+      prop: (subject) => {
+        const read = stroke.context.prop(subject);
+        return subject === "cymbal"
+          ? {
+              ...read,
+              prop: {
+                ...read.prop,
+                hasArticulations: undefined,
+                articulate: () => ({ affordances: cymbal.affordances }),
+              },
+            }
+          : read;
+      },
+    });
+  } catch (error) {
+    if (!(error instanceof HumanRefusal)) throw error;
+    refused = error.kind === "affordance" && error.axis === "cymbal";
+  }
+  TestValidator.predicate(
+    "a cymbal with a pose reader needs an explicit rigid declaration",
+    refused,
   );
 
   const beadRadius: number = bead.geometry.shape.radius;

@@ -19,10 +19,11 @@ import { nclose } from "../internal/predicates";
  * 2. The second trim retains the handoff at 1.5 output seconds and passes.
  * 3. Two retained events with the required id in one play are ambiguous and fail.
  * 4. An out-of-range entry index, blank event id and missing requirement slot fail at their own paths.
+ * 5. JSON null records, non-string ids and non-array lists return located violations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls public cutSequence and checks retention through acceptance, the output event timeline and field-specific refusal. This catches matching whole source shots, matching a different play, accepting the first of several matches and ignoring malformed addresses.
  * @evidence contracts/development/testing.md#independent-expectations The source handoff at 1.5 seconds lies outside the first one-second trim and half a second into the second. The first trim contributes one second to the output clock. A second event at 1.75 also lies in the latter trim, so selecting either one would hide an ambiguous id. The fixture tests edit admission over a supplied shot, and leaves generating the handoff to the shot authoring tests.
- * @evidence contracts/development/testing.md#distinguishing-cases The fixture presents zero, one and two matches for the same id, with another play of the same source still present. It also requires independent findings for a malformed entry, event id and absent requirement.
+ * @evidence contracts/development/testing.md#distinguishing-cases The fixture presents zero, one and two matches for the same id, with another play of the same source still present. Invalid entry indices and ids, absent slots, JSON nulls and non-array lists produce located violations.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test uses the built shot data and calls ASSEMBLE directly without a renderer or host.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify both source and output times, placement ownership and malformed or ambiguous addresses.
  */
@@ -113,6 +114,21 @@ export function test_film_cut_sequence_required_events(): void {
         "$input.requiredEvents[0].event",
         "$input.requiredEvents[1]",
       ],
+    ],
+    [
+      "null record and numeric event id",
+      {
+        ...needed,
+        requiredEvents: JSON.parse('[null,{"entry":1,"event":12}]'),
+      },
+      shot,
+      ["$input.requiredEvents[0]", "$input.requiredEvents[1].event"],
+    ],
+    [
+      "non-array requirement list",
+      { ...needed, requiredEvents: JSON.parse("{}") },
+      shot,
+      ["$input.requiredEvents"],
     ],
   ];
   for (const [label, candidate, source, paths] of refusals) {

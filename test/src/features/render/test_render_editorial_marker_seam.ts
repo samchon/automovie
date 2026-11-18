@@ -16,10 +16,11 @@ import { nclose } from "../internal/predicates";
  * 1. A hard cut at source 0.3 after a trim from 0.1 of duration 0.2 assigns the seam point only to the incoming entry.
  * 2. Distinct representable points immediately on either side survive, and a replay retains the seam point in its own entry.
  * 3. Playing the whole source and replaying its last representable interval keeps both occurrences of the tail marker.
+ * 4. A retimed span whose source end rounds back to its start keeps the opening point and projects a covering range across the entire second. Neighboring points and a range ending at the opening stay excluded.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads editorial markers from a public render manifest after admitting the cut through cutSequence.
- * @evidence contracts/development/testing.md#independent-expectations The incoming and repeated quarter-second plays start at 0.2 and 0.45. Neighboring source doubles stay exact while the output comparisons allow rounding. A full play at fourfold speed maps source time to one quarter of that value and places the start of the replay at 0.25 seconds.
- * @evidence contracts/development/testing.md#distinguishing-cases The decimal endpoint rounds upward and brackets an exact seam with neighboring source doubles, detecting both duplicated ownership and epsilon-based marker loss.
+ * @evidence contracts/development/testing.md#independent-expectations The incoming and repeated quarter-second plays start at 0.2 and 0.45. Neighboring source doubles stay exact while the output comparisons allow rounding. A full play at fourfold speed maps source time to one quarter of that value and places the start of the replay at 0.25 seconds. Dividing the tiny duration by its equal rate gives one second, and a range extending to 1.5 covers that entire source interval.
+ * @evidence contracts/development/testing.md#distinguishing-cases The decimal endpoint rounds upward and brackets an exact seam with neighboring source doubles. A positive retimed play distinguishes a covering range, an edge touch and the opening point when the source bounds round to the same instant.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous spec runs the edit and render planners without writing frames or opening a host.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the source seam, neighboring doubles, retained replay and an explicit tail inside the full play.
  */
@@ -146,5 +147,70 @@ export function test_render_editorial_marker_seam(): void {
       tailMarkers[0]?.outputEndSeconds === tail / 4 &&
       tailMarkers[1]?.outputStartSeconds === 0.25 &&
       tailMarkers[1]?.outputEndSeconds === 0.25,
+  );
+
+  const opening: IAutoMovieEditorialMarker = {
+    id: "opening",
+    label: "Opening",
+    startSeconds: 1,
+    endSeconds: 1,
+  };
+  const followingSourceStart: number = 1 + Number.EPSILON;
+  const collapsed: ReturnType<typeof planSequenceRender> = renderSequence(
+    {
+      ...shot,
+      duration: 2,
+      editorialMarkers: [
+        opening,
+        { ...opening, id: "before", startSeconds: tail, endSeconds: tail },
+        {
+          ...opening,
+          id: "after",
+          startSeconds: followingSourceStart,
+          endSeconds: followingSourceStart,
+        },
+        { ...opening, id: "range", startSeconds: tail, endSeconds: 1.5 },
+        { ...opening, id: "touch", startSeconds: tail },
+      ],
+    },
+    [
+      {
+        ...incoming,
+        trim: { start: 1, duration: 1e-17 },
+        playbackRate: 1e-17,
+      },
+      { ...incoming, trim: { start: followingSourceStart, duration: 0.25 } },
+    ],
+  );
+  const firstPlayMarkers: IAutoMoviePlaybackEditorialMarker[] | undefined =
+    collapsed.editorialMarkers?.filter(
+      (marker: IAutoMoviePlaybackEditorialMarker): boolean =>
+        marker.entry === 0,
+    );
+  TestValidator.equals(
+    "the opening point and covering range survive the collapsed source span",
+    firstPlayMarkers?.map(
+      (marker: IAutoMoviePlaybackEditorialMarker): string => marker.id,
+    ),
+    [opening.id, "range"],
+  );
+  const openingPlay: IAutoMoviePlaybackEditorialMarker | undefined =
+    firstPlayMarkers?.[0];
+  TestValidator.predicate(
+    "the opening marker stays a point at the start of the one-second play",
+    collapsed.shots[0]?.end === 1 &&
+      openingPlay?.retainedStartSeconds === 1 &&
+      openingPlay.retainedEndSeconds === 1 &&
+      openingPlay.outputStartSeconds === 0 &&
+      openingPlay.outputEndSeconds === 0,
+  );
+  const coveringRange: IAutoMoviePlaybackEditorialMarker | undefined =
+    firstPlayMarkers?.[1];
+  TestValidator.predicate(
+    "the covering range lasts one output second with rounded source bounds",
+    coveringRange?.retainedStartSeconds === 1 &&
+      coveringRange.retainedEndSeconds === 1 &&
+      coveringRange.outputStartSeconds === 0 &&
+      coveringRange.outputEndSeconds === 1,
   );
 }

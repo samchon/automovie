@@ -22,11 +22,11 @@ import { vclose } from "../internal/vclose";
  * 1. A bend starts from the live pose and uses the posed forearm's local axes and joint pivot to carry the hand.
  * 2. A detaching forearm and hand start where the moving actor was at the exact fractional cue time. They translate and turn in shot world, then hold. Layer source frame 17 supplies the midpoint at 4 fps.
  * 3. The other actor's cue has no effect. The unaffected head and the attached arm continue moving with the actor while existing meshes and buffers survive forward and reverse seeks.
- * 4. A malformed live placement on the detached branch is refused while the previous displayed pose remains intact.
+ * 4. A malformed live placement or staging frame at a different source time is refused while attached and detached parts retain their last displayed positions.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds through buildPolygonShotActor and seeks through drawAt and drawLayer. It probes registered Three meshes and compares mesh and geometry identities. The checks distinguish wrong cue subject, pivot, frame, release pose, interpolation and seek history.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds through buildPolygonShotActor and seeks through drawLayer, including film pass preparation. It probes registered Three meshes and compares mesh and geometry identities. The checks distinguish wrong cue subject, pivot, frame, release pose, interpolation and seek history.
  * @evidence contracts/development/testing.md#independent-expectations The actor's positive Y quarter-turn maps (x,y,z) to (z,y,-x). The forearm's positive Z quarter-turn maps its X axis to body Y, so the bend turns the hand offset from body Z to body X. The detachment turns a shot-world -Z offset toward -X while moving its pivot along shot-world X. The probes use these rigid-transform relations without testing silhouette quality.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers bend onset and completion, pre-release live motion, fractional release, intermediate and clamped detach, a foreign subject, unaffected branches and revisits in both directions. Construction and disposal refusal belong to test_viewer_human_polygon.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers bend onset and completion, pre-release live motion, fractional release, intermediate and clamped detach, a foreign subject, unaffected branches and revisits in both directions. Missing and nonnumeric components distinguish malformed source data from admitted placements. Construction and disposal refusal belong to test_viewer_human_polygon.
  * @evidence contracts/development/testing.md#execution-ownership One in-memory drawing and the existing portable compositor fixture exercise the render layer without a display context.
  * @evidence contracts/development/common.md#meaningful-documentation Names the sampled phases, coordinate frames, subject scope and seek behavior.
  */
@@ -35,7 +35,11 @@ export function test_render_polygon_body_presentation(): void {
     createHumanPolygonFixture();
   const quarter: number = Math.SQRT1_2;
   const release: number = 3.25;
-  let malformed: boolean = false;
+  let malformed:
+    | "sparse position"
+    | "pose rotation"
+    | "actor rotation"
+    | undefined;
   const { drawing, drawLayer }: ReturnType<typeof buildPolygonShotActor> =
     buildPolygonShotActor({
       opening: input,
@@ -90,21 +94,33 @@ export function test_render_polygon_body_presentation(): void {
                 return { ...placement, position: [2, 0, 1] };
               case "rightLowerArm":
                 return { ...placement, position: [seconds, 0, 0] };
-              case "rightHand":
-                return {
+              case "rightHand": {
+                const hand: IAutoMovieHumanBonePlacement = {
                   ...placement,
-                  position: [malformed ? Number.NaN : seconds + 1, 0, 0],
+                  position: [seconds + 1, 0, 0],
+                  rotation: [...placement.rotation],
                 };
+                if (malformed === "sparse position")
+                  Reflect.deleteProperty(hand.position, "2");
+                if (malformed === "pose rotation")
+                  Reflect.set(hand.rotation, "3", String(hand.rotation[3]));
+                return hand;
+              }
               default:
                 return placement;
             }
           },
         ),
       }),
-      actorFrameAt: (seconds: number): IAutoMovieRigidTransform => ({
-        position: { x: 0, y: seconds, z: 0 },
-        rotation: { x: 0, y: quarter, z: 0, w: quarter },
-      }),
+      actorFrameAt: (seconds: number): IAutoMovieRigidTransform => {
+        const frame: IAutoMovieRigidTransform = {
+          position: { x: 0, y: seconds, z: 0 },
+          rotation: { x: 0, y: quarter, z: 0, w: quarter },
+        };
+        if (malformed === "actor rotation")
+          Reflect.set(frame.rotation, "x", null);
+        return frame;
+      },
     });
   const actor: THREE.Group = new THREE.Group();
   actor.position.set(2, -3, 1);
@@ -194,18 +210,25 @@ export function test_render_polygon_body_presentation(): void {
       )
         defects.push(`mesh identity at ${seconds}`);
     }
-    malformed = true;
-    let refused: unknown;
-    try {
-      drawLayer({ shot: "shot", sourceFrame: 24, weight: 1 });
-    } catch (error) {
-      refused = error;
+    for (const invalid of [
+      "sparse position",
+      "pose rotation",
+      "actor rotation",
+    ] as const) {
+      malformed = invalid;
+      let refused: unknown;
+      try {
+        drawLayer({ shot: "shot", sourceFrame: 17, weight: 1 });
+      } catch (error) {
+        refused = error;
+      }
+      if (
+        !(refused instanceof Error) ||
+        !probe("rightHand", [1, release, -release]) ||
+        !probe("head", [0, 7.6, 0])
+      )
+        defects.push(`invalid ${invalid} changed or reached the display`);
     }
-    if (
-      !(refused instanceof Error) ||
-      !probe("rightHand", [1, release, -release])
-    )
-      defects.push("malformed live placement changed the last valid display");
     TestValidator.equals(
       "polygon presentation after arbitrary seeks",
       defects,

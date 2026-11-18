@@ -27,11 +27,12 @@ import { qclose, vclose } from "../internal/predicates";
  * 1. A tray and nested tag read their explicit socket offsets on a translating and turning cart.
  * 2. A grip preserves the transfer pose and subsequent cart travel leaves the tray and tag in the hand.
  * 3. Missing props and sockets, cycles, competing authorities and invalid offsets refuse construction.
+ * 4. A reverse mount refuses prop reads only after it closes a live cycle. Removing the tray first permits the same reverse mount.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the moving support, nested child, grip and admission cases.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public performance constructor and prop reader, sampling before, at and after the grip, plus malformed mount inputs.
  * @evidence contracts/development/testing.md#independent-expectations The sockets add one metre in local X each, with an authored two-metre tray offset and one-metre tag offset. A half-turn changes the sign of each X displacement. The resulting Y half-turn and X quarter-turn have quaternion components (0, √½, -√½, 0). A zero-sway standing hand and the parked support keep the transfer's pose constant while the cart later translates away.
- * @evidence contracts/development/testing.md#distinguishing-cases The nested tag and final cart move discriminate a moving mount from a fixed frame and from an attachment that persists after the hand takes over. Refusals cover missing references, invalid numeric values, authority and both self and indirect cycles.
+ * @evidence contracts/development/testing.md#distinguishing-cases The nested tag and final cart move discriminate a moving mount from a fixed frame and from an attachment that persists after the hand takes over. The reverse mount checks the exact handoff boundary and distinguishes a live cycle from reuse of an earlier carrier after detachment. Initial refusals cover missing references, invalid numeric values, authority and both self and indirect cycles.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous spec uses an authored stand hold and pure world-frame queries.
  */
 export function test_human_motion_initial_prop_mount(): void {
@@ -104,11 +105,14 @@ export function test_human_motion_initial_prop_mount(): void {
         holds: [{ side: "right", prop: "tray", from: 0.5 }],
       }),
     };
-  const create = (props: IAutoMovieMotionHumanProp[]): HumanPerformance =>
+  const create = (
+    props: IAutoMovieMotionHumanProp[],
+    law: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = take,
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "initial-mount",
       props,
-      laws: [take],
+      laws: [law],
       performers: [
         {
           subject: "stagehand",
@@ -118,7 +122,7 @@ export function test_human_motion_initial_prop_mount(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("stagehand").registered("takeTray", {
+      composition: HumanChain.subject("stagehand").registered(law.name, {
         seconds: 1.5,
         sway: 0,
       }).node,
@@ -153,6 +157,43 @@ export function test_human_motion_initial_prop_mount(): void {
     points: {},
     affordances: [socket],
   };
+  const reverse = (
+    detachTray: boolean,
+  ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
+    ...stand,
+    name: "reverseMount",
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+    ): IAutoMovieMotionHumanActionPlan => ({
+      ...stand.plan(context),
+      holds: detachTray ? [{ side: "right", prop: "tray", from: 0.25 }] : [],
+      mounts: [{ prop: "cart", onto: "tray", point: "dock", from: 0.5 }],
+    }),
+  });
+  const cyclic: HumanPerformance = create([tray, restCart], reverse(false));
+  TestValidator.predicate(
+    "the cart still has its rest frame at the reverse mount boundary",
+    vclose(cyclic.prop("cart", 0.75).position, zero),
+  );
+  for (const subject of ["cart", "tray"]) {
+    let refusal: unknown;
+    try {
+      cyclic.prop(subject, 1);
+    } catch (error) {
+      refusal = error;
+    }
+    TestValidator.predicate(
+      "a live reverse mount refuses the world frame with a mount diagnostic",
+      refusal instanceof HumanRefusal &&
+        refusal.axis === `props.${subject}.mounted`,
+    );
+  }
+  const detached: HumanPerformance = create([tray, restCart], reverse(true));
+  TestValidator.predicate(
+    "the reverse mount preserves the cart frame when the tray was detached first",
+    vclose(detached.prop("cart", 1).position, zero, 1e-6),
+  );
+
   const refuses = (
     props: IAutoMovieMotionHumanProp[],
     axis: string,

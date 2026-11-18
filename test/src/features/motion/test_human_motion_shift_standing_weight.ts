@@ -72,11 +72,9 @@ export function test_human_motion_shift_standing_weight(): void {
       const shift: IAutoMovieMotionHumanSegment =
         performance.segments("actor")[1]!;
       const start: number = shift.start;
-      const centre = (seconds: number): IAutoMovieVector3 => {
-        const bones: ReturnType<typeof performance.bones> = performance.bones(
-          "actor",
-          seconds,
-        );
+      const centre = (
+        bones: ReturnType<typeof performance.bones>,
+      ): IAutoMovieVector3 => {
         const left: IAutoMovieVector3 =
           bones.get("leftUpperLeg")!.worldPosition;
         const right: IAutoMovieVector3 =
@@ -87,18 +85,32 @@ export function test_human_motion_shift_standing_weight(): void {
           z: (left.z + right.z) / 2,
         };
       };
-      const frame: IAutoMovieMotionHumanFrame = { origin: centre(start), yaw };
+      const initial: ReturnType<typeof performance.bones> = performance.bones(
+        "actor",
+        start,
+      );
+      const heldAt: number = start + 0.95;
+      const heldBones: ReturnType<typeof performance.bones> = performance.bones(
+        "actor",
+        heldAt,
+      );
+      const finalBones: ReturnType<typeof performance.bones> =
+        performance.bones("actor", shift.end);
+      const frame: IAutoMovieMotionHumanFrame = {
+        origin: centre(initial),
+        yaw,
+      };
       const halfway: IAutoMovieVector3 = HumanFrame.local(
         frame,
-        centre(start + 0.4),
+        centre(performance.bones("actor", start + 0.4)),
       );
       const held: IAutoMovieVector3 = HumanFrame.local(
         frame,
-        centre(start + 0.95),
+        centre(heldBones),
       );
       const final: IAutoMovieVector3 = HumanFrame.local(
         frame,
-        centre(shift.end),
+        centre(finalBones),
       );
       TestValidator.predicate(
         name + " signed shift with stationary height and heading",
@@ -108,20 +120,12 @@ export function test_human_motion_shift_standing_weight(): void {
           vclose(final, { x: returns ? 0 : by, y: 0, z: 0 }, 0.001),
       );
 
-      const initial: ReturnType<typeof performance.bones> = performance.bones(
-        "actor",
-        start,
-      );
-      for (const time of [
-        start + 0.19,
-        start + 0.73,
-        start + 0.95,
-        shift.end,
-      ]) {
-        const bones: ReturnType<typeof performance.bones> = performance.bones(
-          "actor",
-          time,
-        );
+      for (const [time, bones] of [
+        [start + 0.19, performance.bones("actor", start + 0.19)],
+        [start + 0.73, performance.bones("actor", start + 0.73)],
+        [heldAt, heldBones],
+        [shift.end, finalBones],
+      ] as const) {
         for (const foot of ["leftFoot", "rightFoot"] as const) {
           const a: IAutoMovieResolvedBone = initial.get(foot)!;
           const b: IAutoMovieResolvedBone = bones.get(foot)!;

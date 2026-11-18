@@ -1,10 +1,17 @@
-import { compileDefinedShot, defineShot } from "@automovie/engine";
+import {
+  compileDefinedShot,
+  defineShot,
+  validateShotArtifact,
+} from "@automovie/engine";
 import type {
   IAutoMovieAuthoringDiagnostic,
+  IAutoMovieConstraintViolation,
   IAutoMovieDefinedShot,
   IAutoMoviePolygonBodyCue,
+  IAutoMovieShot,
   IAutoMovieShotProgram,
   IAutoMovieSkeleton,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,11 +34,13 @@ import { nclose, qclose, vclose } from "../internal/predicates";
  *    in the emitted shot with independently owned records.
  * 2. An unknown subject, a non-finite start and a pair of overlapping
  *    branches report their source fields together at the performance gate.
+ * 3. The restored shot passes artifact validation with its staged skeleton.
+ *    The same gate identifies cues on overlapping or unavailable bones.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the staged duel, admitted source clock and transform, data ownership, and two refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Compiles the authored program through stage, blocking and performance, then reads the emitted shot and source diagnostics.
- * @evidence contracts/development/testing.md#independent-expectations Explicit cue facts determine the emitted clock, transform and target. The unknown node and NaN start have literal diagnostic paths.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks an admitted cue and identity of its array, record and transform fields, then submits three independent errors in one compile. The overlapping descendant is authored before its ancestor.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the staged duel, admitted source clock and transform, data ownership and performance and artifact refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles the authored program through stage, blocking and performance, then reads the emitted shot and source diagnostics. Revalidates serialized cues through the public artifact gate with the replay rig.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit cue facts determine the emitted clock and transform. The fixture's lower arm descends from its upper arm. Both that overlap and an unavailable rig identify the lower arm cue.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks cue ownership and three independent authoring faults. Artifact checks cover intact serialization, an unavailable rig and an overlapping descendant authored before its ancestor.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous source test uses the portable compiler and shared duel fixtures in memory.
  */
 export function test_film_polygon_body_cues(): void {
@@ -129,6 +138,37 @@ export function test_film_polygon_body_cues(): void {
       cue.rotation !== authored.rotation &&
       cue.translation !== authored.translation,
   );
+
+  const restored: IAutoMovieShot = JSON.parse(
+    JSON.stringify(compiled.source.shot),
+  );
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
+  const resolveSkeleton = (): IAutoMovieSkeleton => skeleton;
+  TestValidator.predicate(
+    "the restored cue passes artifact validation with the staged skeleton",
+    validateShotArtifact(restored, compiled.source.scene, null, resolveSkeleton)
+      .success,
+  );
+  const rejected: readonly IAutoMovieValidation[] = [
+    validateShotArtifact(
+      { ...restored, polygonBodyCues: [cue, { ...cue, bone: "leftUpperArm" }] },
+      compiled.source.scene,
+      null,
+      resolveSkeleton,
+    ),
+    validateShotArtifact(restored, compiled.source.scene, null, () => null),
+  ];
+  for (const [index, validation] of rejected.entries()) {
+    if (validation.success)
+      throw new Error(`invalid cue case ${index} admitted`);
+    TestValidator.equals(
+      `the artifact gate locates the unsupported target in case ${index}`,
+      validation.violations.map(
+        (item: IAutoMovieConstraintViolation): string => item.path,
+      ),
+      ["$input.polygonBodyCues[0].bone"],
+    );
+  }
 
   const refused: ReturnType<typeof compile> = compile([
     { ...authored, subject: "unstaged-actor" },

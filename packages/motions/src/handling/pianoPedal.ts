@@ -297,6 +297,7 @@ function plan(
       {
         ...support,
         kind: "pivot",
+        region: "heelRight",
         from: first / duration,
         to: last / duration,
       },

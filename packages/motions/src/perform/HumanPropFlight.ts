@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
@@ -58,12 +59,13 @@ export namespace HumanPropFlight {
    * @param self The performance.
    * @param subject The prop.
    * @returns The flights.
+   * @throws {HumanRefusal} When the final flight does not reach a staged interception.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines film ordering, action-window launch filtering, the placed horizon during scheduling, borrowed cached output and predecessor flights exposed during recursive construction.
-   * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows and stably sorts them by film time. A hit that schedules a later action may be searched through the end of the already placed actions. Once placed, the final schedule provides the horizon. The first later grip or launch limits each flight's collision and continuation horizon. Recursive frame reads see only flights already built.
+   * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows and stably sorts them by film time. A hit that schedules a later action may be searched through the end of the already placed actions. Once placed, the final schedule provides the horizon. The first later grip or launch limits each flight's collision and continuation horizon. Recursive frame reads see only flights already built. Final capture checks require the selected flight to agree with the staged grip before the result is cached.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection/order, flight construction and per-performance retention stay distinct; sweep and continuation laws remain with their existing owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. Final-state cache identity does not independently detect caller mutation of performance inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection computes the provisional horizon during the existing segment/launch traversal, sorts L matching launches in O(L log L), and then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection computes the provisional horizon during the existing segment/launch traversal, sorts L matching launches in O(L log L), and then adds each flight's sweep/continuation cost and output. Final capture admission walks the sorted grip and flight lists once and samples one flight per staged grip. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. BUILDING shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
@@ -104,7 +106,10 @@ export namespace HumanPropFlight {
         }
       }
     launches.sort((a, b): number => a.seconds - b.seconds);
-    if (launches.length === 0) return [];
+    if (launches.length === 0) {
+      if (!self.resolving) admitCaptures(self, subject, []);
+      return [];
+    }
     const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
     const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> =
       BUILDING.get(self) ?? new Map();
@@ -123,6 +128,7 @@ export namespace HumanPropFlight {
             launches[index + 1]?.seconds,
           ),
         );
+      if (!self.resolving) admitCaptures(self, subject, out);
     } finally {
       map.delete(subject);
     }
@@ -201,7 +207,15 @@ export namespace HumanPropFlight {
       seconds,
       since,
     );
-    if (latest === undefined) return undefined;
+    return latest === undefined ? undefined : sample(self, latest, seconds);
+  }
+
+  /** Read the displayed frame from an already selected flight. */
+  function sample(
+    self: IAutoMovieMotionHumanPerformanceState,
+    latest: IAutoMovieMotionHumanPropFlight.IFlight,
+    seconds: number,
+  ): IAutoMovieRigidTransform {
     if (seconds < latest.end) {
       const state: IAutoMovieProjectileState = projectileAt(
         latest.projectile,
@@ -235,6 +249,47 @@ export namespace HumanPropFlight {
       : HumanPropFrame.compose(carrier, contact.offset);
   }
 
+  /** Check each staged grip against the completed, still uncached flight list. */
+  function admitCaptures(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    flights: readonly IAutoMovieMotionHumanPropFlight.IFlight[],
+  ): void {
+    let next: number = 0;
+    for (const grip of HumanPerformanceRead.grips(self, subject)) {
+      const capture: typeof grip.capture = grip.capture;
+      if (capture === undefined) continue;
+
+      // Both lists are in film order. The latest launch owns a tie, and
+      // an earlier launch cannot regain custody after a later launch.
+      while (next < flights.length && flights[next]!.launch <= grip.from)
+        ++next;
+      const flight: IAutoMovieMotionHumanPropFlight.IFlight | undefined =
+        flights[next - 1];
+      if (
+        flight?.published === capture.launch &&
+        grip.from <= (flight.supersededAt ?? Infinity) &&
+        flight.capturedAt === grip.from
+      ) {
+        const displayed: IAutoMovieRigidTransform = sample(
+          self,
+          flight,
+          grip.from,
+        );
+        if (capture.matches(displayed)) continue;
+      }
+      throw new HumanRefusal({
+        kind: "reach",
+        performer: grip.subject,
+        act: "stageCatch",
+        axis: "ball",
+        value: subject,
+        reason: `the final flight misses the staged interception at ${grip.from} s`,
+        fix: "align the published launch and catch on an unobstructed path",
+      });
+    }
+  }
+
   /** Fly one launch to its first contact and on, by the outcome its body's data give. */
   function fly(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -259,7 +314,7 @@ export namespace HumanPropFlight {
       )
         break;
       superseded = grip.from;
-      if (grip.capture === launch) capture = grip.from;
+      if (grip.capture?.launch === launch) capture = grip.from;
     }
     const shown: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
       self,

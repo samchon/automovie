@@ -26,8 +26,9 @@ const COINCIDENCE: number = 1e-6;
 
 /**
  * Resolve the crossing of one pitched string with a fret and the place to
- * sound it over the body. Also measure the transverse half-spacing used to
- * clear the other strings in a single-note stroke.
+ * sound it over the body. The sounding segment runs from the fret toward the
+ * string endpoint beyond the projected soundboard centre. Also measure the
+ * transverse half-spacing used to clear the other strings in a single-note stroke.
  *
  * @param params The rigid bar ids of the fret and string.
  * @param affordances The staged guitar's model-space affordances.
@@ -35,7 +36,7 @@ const COINCIDENCE: number = 1e-6;
  * @throws {HumanRefusal} When these bars or the sounding segment are incompatible.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the three sites, the model frame and the distance unit.
- * @evidence contracts/development/implementation.md#principled-implementation Intersects the finite bar axes and projects the soundboard centre on the sounding side.
+ * @evidence contracts/development/implementation.md#principled-implementation Intersects the finite bar axes and requires a distinct projected soundboard centre inside the string. Their relative order sets the sweep orientation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the bars and soundboard, then find the fret crossing, pluck site and nearest lateral neighbour.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects remote, parallel or non-intersecting fret and string bars, with no fallback contact.
  * @evidence contracts/development/implementation.md#efficient-algorithms Scans the rigid affordance list a bounded number of times.
@@ -49,41 +50,41 @@ export function resolveGuitarStringContact(
   const fret: IAutoMovieAffordance = site(affordances, params.fret, "bar");
   const string: IAutoMovieAffordance = site(affordances, params.string, "bar");
   const body: IAutoMovieAffordance = site(affordances, "body", "surface");
-  const along: IAutoMovieVector3 = barAxis(string);
+  const axis: IAutoMovieVector3 = barAxis(string);
   const across: IAutoMovieVector3 = barAxis(fret);
   const origin: IAutoMovieVector3 = string.frame.translation;
+  const halfLength: number = (string.length ?? 0) / 2;
   const delta: IAutoMovieVector3 = Vector3.subtract(
     fret.frame.translation,
     origin,
   );
-  const dot: number = Vector3.dot(along, across);
+  const dot: number = Vector3.dot(axis, across);
   const determinant: number = 1 - dot * dot;
-  const a: number = Vector3.dot(delta, along);
+  const a: number = Vector3.dot(delta, axis);
   const b: number = Vector3.dot(delta, across);
   const alongFret: number = (a - b * dot) / determinant;
   const acrossFret: number = (a * dot - b) / determinant;
   const stop: IAutoMovieVector3 = Vector3.add(
     origin,
-    Vector3.scale(along, alongFret),
+    Vector3.scale(axis, alongFret),
   );
   const gap: IAutoMovieVector3 = Vector3.subtract(
     stop,
     Vector3.add(fret.frame.translation, Vector3.scale(across, acrossFret)),
   );
-
-  // A guitar's string points toward the nut and the soundboard is bridgeward.
   const alongBody: number = Vector3.dot(
     Vector3.subtract(body.frame.translation, origin),
-    along,
+    axis,
   );
+
   if (
     !(
       determinant > COINCIDENCE &&
-      Math.abs(alongFret) <= (string.length ?? 0) / 2 &&
+      Math.abs(alongFret) <= halfLength &&
       Math.abs(acrossFret) <= (fret.length ?? 0) / 2 + COINCIDENCE &&
       Vector3.length(gap) <= COINCIDENCE &&
-      -(string.length ?? 0) / 2 < alongBody &&
-      alongBody < alongFret
+      Math.abs(alongBody) < halfLength &&
+      alongBody !== alongFret
     )
   )
     throw new HumanRefusal({
@@ -91,12 +92,19 @@ export function resolveGuitarStringContact(
       axis: "fret",
       value: [params.fret, params.string],
       reason:
-        "the fret must cross the string, with the soundboard on the bridge side",
+        "the fret must cross the string away from the soundboard projection, which must lie inside the string",
       fix: "name the rigid fret and string bars of a staged guitar",
     });
   const pluck: IAutoMovieVector3 = Vector3.add(
     origin,
-    Vector3.scale(along, alongBody),
+    Vector3.scale(axis, alongBody),
+  );
+
+  // The bars carry no endpoint labels. Use the direction from the pluck to
+  // the stop so reversing the authored bar leaves the sweep unchanged.
+  const along: IAutoMovieVector3 = Vector3.scale(
+    axis,
+    Math.sign(alongFret - alongBody),
   );
   const normal: IAutoMovieVector3 = Quaternion.rotateVector(
     body.frame.rotation,

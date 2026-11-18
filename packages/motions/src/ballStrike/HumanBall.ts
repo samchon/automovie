@@ -54,8 +54,32 @@ export namespace HumanBall {
     axis: string,
   ): IBall {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-    const affordances: readonly IAutoMovieAffordance[] =
-      read.prop.affordances ?? [];
+    return placed(
+      read.prop,
+      (): IAutoMovieRigidTransform => read.frame(seconds),
+      axis,
+    );
+  }
+
+  /**
+   * Read a ball using its declared grip and a supplied world frame reader.
+   * The reader runs after the sized grip is admitted.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admissible grip, world output and frame read order.
+   * @evidence contracts/development/implementation.md#principled-implementation Transforms the sized grip's model-space centre by the world frame and uses half the aperture as the radius.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the same grip admission and transform for initial and final flight samples.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects an absent or unsized grip without sampling the frame.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the prop's affordances once and reads one frame.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller supplies each frame reader.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no frame or reader.
+   */
+  export function placed(
+    prop: IAutoMovieMotionHumanPropReader["prop"],
+    readFrame: () => IAutoMovieRigidTransform,
+    axis: string,
+  ): IBall {
+    const subject: string = prop.subject;
+    const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
     const grip: IAutoMovieAffordance | undefined = affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === "grip",
     );
@@ -71,7 +95,7 @@ export namespace HumanBall {
         reason: `${subject} declares no ${grip === undefined ? "grip" : "aperture on its grip"} to read a ball's centre and size from`,
         fix: "name a ball whose grip is its centre with its diameter as the aperture, as createBall declares",
       });
-    const frame: IAutoMovieRigidTransform = read.frame(seconds);
+    const frame: IAutoMovieRigidTransform = readFrame();
     return {
       centre: Vector3.add(
         frame.position,

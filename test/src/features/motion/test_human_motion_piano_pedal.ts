@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPianoPedal,
   IAutoMovieMotionHumanSeated,
@@ -103,6 +104,19 @@ export function test_human_motion_piano_pedal(): void {
   const heel: IAutoMovieVector3 = HumanFoot.sockets(body, stage, "right")[0]!
     .point;
   const findings: string[] = [];
+
+  const pivotWindow: IAutoMovieMotionHumanContactWindow | undefined =
+    performance
+      .segments("pianist")[1]!
+      .plan.contacts.find(
+        (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+          contact.part === "rightFoot" &&
+          contact.kind === "pivot" &&
+          contact.support.kind === "ground",
+      );
+  if (pivotWindow?.region !== "heelRight")
+    findings.push("the ground pivot must identify the right heel");
+
   if (
     Math.abs(radius * Math.sin((hinge.travel! * Math.PI) / 180) - 0.012) > 1e-8
   )

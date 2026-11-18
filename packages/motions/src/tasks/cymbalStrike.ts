@@ -81,7 +81,7 @@ function plan(
     read.prop.fixed !== true ||
     read.prop.motion !== undefined ||
     read.prop.point !== undefined ||
-    read.prop.hasArticulations === true ||
+    (read.prop.hasArticulations ?? read.prop.articulate !== undefined) ||
     Quaternion.rotateVector(
       Quaternion.multiply(
         read.frame(context.start).rotation,

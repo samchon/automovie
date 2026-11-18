@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPianoScore,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
@@ -16,6 +17,8 @@ import {
   HumanPerformance,
   HumanRefusal,
   pianoScore,
+  poseBones,
+  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. The chord begins on two resting keys, depresses them together and
  *    releases while the other hand still holds its key.
  * 2. The adjacent unscored key stays level throughout both hands' contacts.
- * 3. A later note can take a key the other hand has released and vacated.
+ * 3. At full depression of a transferred key, only the new fingertip meets it.
  * 4. Duplicate assignments, zero-gap transfers and unreachable spans are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two hands' tasks and the three admission cases.
@@ -168,21 +171,49 @@ export function test_human_motion_piano_chord(): void {
       (candidate: IAutoMovieMotionHumanSegment): boolean =>
         candidate.id === "phrase",
     )!;
-  const transfer: IAutoMovieMotionHumanPianoScore.INote = {
+  const transfer = {
     ...left,
     key: index.key,
     from: 1.6,
     at: 1.8,
     release: 1.9,
     to: 2,
-  };
+  } as const satisfies IAutoMovieMotionHumanPianoScore.INote;
   const transferred: IAutoMovieMotionHumanActionPlan = pianoScore.plan({
     ...segment.context,
     params: { prop: "upright", notes: [left, index, middle, transfer] },
   });
-  const digits = transferred.posture(transfer.at).digits;
+  const transferPosture: IAutoMovieMotionHumanPosture = transferred.posture(
+    transfer.at,
+  );
+  const digits = transferPosture.digits;
   if (digits?.rightIndex !== undefined || digits?.leftIndex === undefined)
     findings.push("the released key did not pass exclusively to the left hand");
+
+  const transferredBones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, transferPosture),
+  );
+  const transferredKey: IAutoMovieAffordance = piano.affordance(transfer.key);
+  const depressed: IAutoMovieVector3 = piano
+    .articulate({ [transfer.key]: transferredKey.travel! })
+    .affordance(transfer.key).frame.translation;
+  for (const [region, contacts] of [
+    ["indexTipLeft", true],
+    ["indexTipRight", false],
+  ] as const) {
+    const surface: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
+    const tip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      surface,
+      transferredBones.get(surface.bone)!,
+    ).point;
+    const gap: number = Vector3.length(Vector3.subtract(tip, depressed));
+    if (!Number.isFinite(gap) || gap <= 0.005 !== contacts)
+      findings.push(
+        `${region} is ${gap} m from the transferred ${transfer.key}`,
+      );
+  }
 
   // A placed score must refuse either ambiguous assignment or a missed
   // chord, before it publishes any of the prop drives.

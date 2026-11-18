@@ -46,7 +46,7 @@ const STROKE: number = 0.18;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the supported open-close action and the geometric and contact outcomes.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the explicitly registered law through HumanPerformance and reads the posed model and displayed bones.
- * @evidence contracts/development/testing.md#independent-expectations Projects physical boxes to measure the seam gap and working sites. Stop distance and fingertip bounds are test inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Projects physical boxes to measure the seam gap and working sites. The authored stop distance and the minimum-jerk stroke determine the threshold times independently of the reported travel. The fingertip bound is a test input.
  * @evidence contracts/development/testing.md#distinguishing-cases Checks both travel directions, retention before and after release, and independent malformed models and requests.
  * @evidence contracts/development/testing.md#execution-ownership A motion feature test using the canonical polygon body and the public bag producer.
  */
@@ -117,8 +117,14 @@ export function test_human_motion_zip(): void {
   const closed: readonly IAutoMovieModelPart[] = sample(openStart).parts;
   const openAgain: readonly IAutoMovieModelPart[] = sample(closeStart).parts;
   const lipNames: readonly [string, string] = ["lip-1--1", "lip-1-1"];
-  const seamEdge: number = bound(part(closed, lipNames[0]), "x", 1);
-  const stemRest: number = bound(part(closed, "slider-stem"), "x", -1);
+  const seamEdge: number = bound(part(model.parts, lipNames[0]), "x", 1);
+  const stemRest: number = bound(part(model.parts, "slider-stem"), "x", -1);
+  const thresholds: readonly { offset: number; share: number }[] = [
+    -0.00005, 0.00005,
+  ].map((offset: number): { offset: number; share: number } => ({
+    offset,
+    share: strokeShare((seamEdge - stemRest + offset) / STROKE),
+  }));
   for (const [begin, end, initialParts, direction] of [
     [openStart, openEnd, closed, 1],
     [closeStart, closeEnd, openAgain, -1],
@@ -130,23 +136,11 @@ export function test_human_motion_zip(): void {
       "the physical tab travels between the two stops",
       Math.abs(final - initial - direction * STROKE) < 1e-9,
     );
-    // Locate an interior threshold from the closed lip and moving stem boxes.
-    // The two targets are 50 µm to either side, where a wrong pivot exposes
-    // the overlap from lip thickness before the gap visibly widens.
-    // Travel is a translation in metres along +X. Search the scalar drive
-    // and pose the physical boxes only at the two resulting times.
-    for (const offset of [-0.00005, 0.00005]) {
-      const threshold: number = seamEdge - stemRest + offset;
-      let early: number = begin;
-      let late: number = end;
-      for (let iteration: number = 0; iteration < 30; ++iteration) {
-        const middle: number = (early + late) / 2;
-        const travel: number = performance.state("pouch", middle).zipper!;
-        if (direction * (travel - threshold) < 0) early = middle;
-        else late = middle;
-      }
+    // The 50 µm offsets expose a wrong lip pivot before the gap visibly widens.
+    for (const { offset, share } of thresholds) {
+      const elapsed: number = direction === 1 ? share : 1 - share;
       const boxes: readonly IAutoMovieModelPart[] = sample(
-        (early + late) / 2,
+        begin + elapsed * (end - begin),
       ).parts;
       TestValidator.predicate(
         `the physical stem reaches the threshold offset ${offset} in direction ${direction}`,
@@ -271,6 +265,19 @@ export function test_human_motion_zip(): void {
       refused,
     );
   }
+}
+
+/** Invert the minimum-jerk stroke with less than 3 nm of travel error. */
+function strokeShare(travel: number): number {
+  let low: number = 0;
+  let high: number = 1;
+  for (let iteration: number = 0; iteration < 26; ++iteration) {
+    const share: number = (low + high) / 2;
+    const progress: number = share ** 3 * (10 - 15 * share + 6 * share ** 2);
+    if (progress < travel) low = share;
+    else high = share;
+  }
+  return (low + high) / 2;
 }
 
 /** Locate a named box on the displayed pouch. */

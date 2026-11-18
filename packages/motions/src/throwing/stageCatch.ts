@@ -8,6 +8,8 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropHold,
   IAutoMovieMotionPropLaunch,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanBall } from "../ballStrike/HumanBall";
@@ -20,9 +22,11 @@ import { catchObject } from "./catchObject";
  * `registered("stageCatch", { from, ball })` on the catcher. A portable
  * drag-free prop must reach the base law's interception point on its
  * actual flight before this law gives its grip custody of the prop.
+ * The source window supplies the provisional planning horizon. Final flight
+ * admission checks that the launch survives and its frame matches the grip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the registered use, relevant source window, supported prop and authoritative catch instant.
- * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed, already placed launch identity at the interception the base plan names.
+ * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed launch identity and frame check at the interception the base plan names.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the catch's parameter and plan types plus the prop reader's public placement. The film and hand carry still belong to the performance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No second catch trajectory, grip proxy or special body model. The opt-in law admits a staged capture only where its existing arm plan and the authoritative prop trajectory agree.
  */
@@ -98,13 +102,23 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
       // The placed flight and the arm plan must see the same ball at contact.
       // The projectile campaign's parity contract bounds this difference in metres.
       const flightParity: number = 1e-6;
-      const gap: number = Vector3.length(
-        Vector3.subtract(
-          HumanBall.of(context, ball, context.start + contact, "ball").centre,
-          plan.object(contact),
-        ),
-      );
-      if (!(gap <= flightParity))
+      const expected: IAutoMovieVector3 = plan.object(contact);
+      const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
+      const capture: NonNullable<IAutoMovieMotionPropHold["capture"]> = {
+        launch,
+        matches: (frame: IAutoMovieRigidTransform): boolean =>
+          Vector3.length(
+            Vector3.subtract(
+              HumanBall.placed(
+                model,
+                (): IAutoMovieRigidTransform => frame,
+                "ball",
+              ).centre,
+              expected,
+            ),
+          ) <= flightParity,
+      };
+      if (!capture.matches(reader.frame(context.start + contact)))
         throw new HumanRefusal({
           kind: "reach",
           axis: "ball",
@@ -127,7 +141,7 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
               side,
               prop: ball,
               from: contact / plan.duration,
-              capture: launch,
+              capture,
             }),
           ),
         ],

@@ -15,6 +15,8 @@ import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
+import { validateNonEmptyId } from "../validation/validateNonEmptyId";
+import { validateObjectArtifact } from "../validation/validateObjectArtifact";
 
 /** One declared prop-channel requirement. */
 type PropRequirement = NonNullable<
@@ -90,13 +92,14 @@ export function checkCutPropContinuity(
     const requirement: PropRequirement | undefined = requirements[index];
     const path: string = `$input.requiredPropContinuity[${index}]`;
     const findings: IAutoMovieViolationCollector = new ViolationCollector();
-    if (requirement === undefined) {
-      findings.push(
-        "type",
+    if (
+      !validateObjectArtifact(
+        requirement,
         path,
-        "prop continuity requirement is absent",
-        undefined,
-      );
+        "prop continuity requirement",
+        findings.items,
+      )
+    ) {
       checks.push({ violations: findings.items });
       continue;
     }
@@ -193,7 +196,7 @@ function compileBoundaryDemand(
       "incoming entry must be an integer indexing a play after the first",
       entry,
     );
-  out.nonEmpty(`${path}.node`, node, "prop node id");
+  validateNonEmptyId(node, `${path}.node`, "prop node id", out.items);
   if (!NODE_CHANNEL_PATHS.has(component))
     out.push(
       "type",

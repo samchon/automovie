@@ -25,6 +25,7 @@ import type {
 import {
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
   HumanVerdicts,
   stageCatch,
   stand,
@@ -41,6 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios:
  * 1. The complete catch takes custody and carries the foam ball.
  * 2. A catch cut at preparation stops before custody.
+ * 3. A relaunch placed after the catch replaces its tagged flight before closure.
  *
  * The catch plane is the catch contract's documented 0.6 arm lengths
  * ahead of the performer. The emitter sends the ball to that plane in
@@ -52,8 +54,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation Describes the opt-in capture, ballistic interception, spatial handoff, and geometric tolerances.
  * @evidence contracts/development/testing.md#behavioral-verification Registers the staged catch and release through public performance inputs, then reads the flight, contacts, ball frames and palm. A floating grip, lost capture, position jump or subsequent ghost impact fails.
  * @evidence contracts/development/testing.md#independent-expectations Computes intercept time from release time and forward travel, and height from constant gravity. The palm's distance comes from the authored radius and the carry invariant comes from rigid hand motion.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples the end of the ballistic path, the first held position and later carried position. A no-contact flight cut by a tagged grip is distinct from the unended flights in the separate horizon spec.
- * @evidence contracts/development/testing.md#execution-ownership Creates two in-memory performances with one prepared body, an authored release and a complete or cut single-hand catch. Reads boundary and carrying samples and uses one frame interval for the body portion of the film-wide flight verdict.
+ * @evidence contracts/development/testing.md#distinguishing-cases Samples the end of the ballistic path, the first held position and later carried position. A no-contact flight cut by a tagged grip is distinct from the unended flights in the separate horizon spec. A subsequently placed launch checks final custody independently of the provisional law check.
+ * @evidence contracts/development/testing.md#execution-ownership Creates three in-memory performances with one prepared body, a release and a single-hand catch, and a later-placed relaunch for the refusal case. Reads boundary and carrying samples and uses one frame interval for the body portion of the film-wide flight verdict.
  */
 export function test_human_motion_stage_catch(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -95,19 +97,25 @@ export function test_human_motion_stage_catch(): void {
       name: "releaseFoamBall",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
-      ): IAutoMovieMotionHumanThrowObject.IPlan => ({
-        ...stand.plan(context),
-        launch: {
-          point,
-          target: expected,
-          seconds: launch.seconds,
-          velocity: launch.velocity,
-        },
-        launches: [launch],
-      }),
+      ): IAutoMovieMotionHumanThrowObject.IPlan => {
+        const published: IAutoMovieMotionPropLaunch =
+          context.subject === "redirector"
+            ? { ...launch, seconds: launch.seconds + flightTime / 2 }
+            : launch;
+        return {
+          ...stand.plan(context),
+          launch: {
+            point: published.point,
+            target: expected,
+            seconds: published.seconds,
+            velocity: published.velocity,
+          },
+          launches: [published],
+        };
+      },
     };
-  /** Compose the same release with the full or shortened catch. */
-  const take = (cut: boolean): HumanPerformance => {
+  /** Compose the release and catch, optionally placing a second launch afterward. */
+  const take = (cut: boolean, redirect: boolean = false): HumanPerformance => {
     const catcher: IAutoMovieMotionHumanChain = HumanChain.subject(
       "catcher",
     ).registered("stageCatch", {
@@ -135,6 +143,17 @@ export function test_human_motion_stage_catch(): void {
           yaw: 180,
           proficiency: { level: "trained" },
         },
+        ...(redirect
+          ? [
+              {
+                subject: "redirector",
+                body,
+                at: { x: -4, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" as const },
+              },
+            ]
+          : []),
       ],
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("emitter").registered(
@@ -143,6 +162,13 @@ export function test_human_motion_stage_catch(): void {
           "foam-release",
         ).node,
         catcher.node,
+        ...(redirect
+          ? [
+              HumanChain.subject("redirector").registered("releaseFoamBall", {
+                seconds: 2,
+              }).node,
+            ]
+          : []),
       ),
     });
   };
@@ -254,5 +280,20 @@ export function test_human_motion_stage_catch(): void {
           (hit: IAutoMovieInteractionEvent): boolean =>
             hit.object === launch.prop,
         ),
+  );
+
+  let redirected: unknown;
+  try {
+    take(false, true).flights(launch.prop);
+  } catch (error) {
+    redirected = error;
+  }
+  TestValidator.predicate(
+    "a relaunch placed after planning invalidates the staged capture",
+    redirected instanceof HumanRefusal &&
+      redirected.axis === "ball" &&
+      redirected.reason.startsWith(
+        "the final flight misses the staged interception",
+      ),
   );
 }

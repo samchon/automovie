@@ -2,6 +2,7 @@ import {
   IAutoMovieConstraintViolation,
   IAutoMovieScene,
   IAutoMovieShot,
+  IAutoMovieSkeleton,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
@@ -25,12 +26,16 @@ import { validateUniqueIds } from "./validateUniqueIds";
 /**
  * Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  *
+ * A replay host can pass its staged skeleton resolver to check polygon cue
+ * pivots and branch overlap on the same rig it will draw. Without a resolver,
+ * cue checks cover staged node ids, bone names, duplicate targets and fields.
+ *
  * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
- * @evidence contracts/development/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
- * @evidence contracts/development/implementation.md#efficient-algorithms Performance/clip/node/camera/coverage populations drive scans, maps and track-buffer validation; channel serialization also contributes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Request-local id sets and light-kind map share scene lookup work across shot fields.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the structural shot boundary and optional motion and staged skeleton lookups.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Performance, clip, node, camera and coverage records drive scans, maps and track-buffer validation. With a skeleton resolver, cue admission also indexes each targeted rig and traverses the ancestor path of each targeted bone.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Request-local id sets and light-kind maps share scene lookup work across shot fields. Cues on the same subject share one skeleton lookup and parent index.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only report rows escape; borrowed artifacts/registries remain caller-owned and no playback host is started.
  */
 
@@ -38,6 +43,7 @@ export const validateShotArtifact: (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
   motionIds: ReadonlySet<string> | null,
+  skeleton?: (subject: string) => IAutoMovieSkeleton | null,
 ) => IAutoMovieValidation = (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
@@ -47,6 +53,7 @@ export const validateShotArtifact: (
    * valid reference IS, not where a host keeps its clips.
    */
   motionIds: ReadonlySet<string> | null,
+  skeleton?: (subject: string) => IAutoMovieSkeleton | null,
 ): IAutoMovieValidation => {
   const collector: ViolationCollector = new ViolationCollector();
   const violations: IAutoMovieConstraintViolation[] = collector.items;
@@ -200,6 +207,7 @@ export const validateShotArtifact: (
     sceneNodes,
     shot.duration,
     collector,
+    skeleton,
   );
   appendPracticalSurfacesArtifact(
     shot.practicalSurfaces,

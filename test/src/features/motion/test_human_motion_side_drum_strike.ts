@@ -4,6 +4,7 @@ import type {
   IAutoMovieModelPart,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -29,11 +30,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. The displayed bead clears the head by 30 mm 120 ms before and after
  *    impact, and both readings resolve against the same fixed drum.
  * 3. The same stage refuses a stroke called for the empty left hand.
+ * 4. Both a time-dependent head point and an articulation reader with no
+ *    rigidity declaration are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, cue, geometry bounds and the wrong-hand case.
  * @evidence contracts/development/testing.md#behavioral-verification A staged pick-up and registered stroke go through the public chain, cue scheduler and displayed prop frames.
  * @evidence contracts/development/testing.md#independent-expectations Uses the authored cue time, the model's head and face and the visible bead's sphere support point, rather than planner offsets or event-derived sample times.
- * @evidence contracts/development/testing.md#distinguishing-cases The hit, approach and rebound samples distinguish a held contact from a strike, and an empty called hand must refuse.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks impact clearance, ownership of the stick, and refusal of time-dependent or undeclared-rigidity head geometry.
  * @evidence contracts/development/testing.md#execution-ownership Uses one ordinary polygon body and in-memory scenes through the test runner.
  */
 export function test_human_motion_side_drum_strike(): void {
@@ -56,7 +59,10 @@ export function test_human_motion_side_drum_strike(): void {
   const beadCenter: IAutoMovieVector3 = bead.transform.translation;
   const beadRadius: number = bead.geometry.shape.radius;
   const beat: number = 4;
-  const stage = (hand: "left" | "right"): IAutoMovieMotionHumanPerformance =>
+  const stage = (
+    hand: "left" | "right",
+    point?: IAutoMovieMotionHumanProp["point"],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "side drum",
       laws: [sideDrumStrike],
@@ -79,11 +85,14 @@ export function test_human_motion_side_drum_strike(): void {
           },
           rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         }),
-        HumanObject.prop("drum", drum, {
-          at: { x: -0.2, y: 0.85 - head.y, z: 0.61 },
-          yaw: 0,
-          fixed: true,
-        }),
+        {
+          ...HumanObject.prop("drum", drum, {
+            at: { x: -0.2, y: 0.85 - head.y, z: 0.61 },
+            yaw: 0,
+            fixed: true,
+          }),
+          ...(point === undefined ? {} : { point }),
+        },
       ],
       composition: HumanChain.subject("a")
         .stand({ seconds: 0.3 })
@@ -148,6 +157,50 @@ export function test_human_motion_side_drum_strike(): void {
   }
   TestValidator.predicate(
     "the called hand must already hold the stick",
+    refused,
+  );
+
+  refused = false;
+  try {
+    stage("right", (id, seconds) =>
+      id === "head" && seconds >= beat
+        ? {
+            point: Vector3.add(head, { x: 0, y: 0.03, z: 0 }),
+            normal: { x: 0, y: 1, z: 0 },
+          }
+        : undefined,
+    );
+  } catch (error) {
+    if (!(error instanceof HumanRefusal)) throw error;
+    refused = error.kind === "affordance" && error.axis === "drum";
+  }
+  TestValidator.predicate("the head must remain fixed through impact", refused);
+
+  refused = false;
+  try {
+    sideDrumStrike.plan({
+      ...stroke.context,
+      params: { hand: "right", stick: "stick", drum: "drum" },
+      prop: (subject) => {
+        const read = stroke.context.prop(subject);
+        return subject === "drum"
+          ? {
+              ...read,
+              prop: {
+                ...read.prop,
+                hasArticulations: undefined,
+                articulate: () => ({ affordances: drum.affordances }),
+              },
+            }
+          : read;
+      },
+    });
+  } catch (error) {
+    if (!(error instanceof HumanRefusal)) throw error;
+    refused = error.kind === "affordance" && error.axis === "drum";
+  }
+  TestValidator.predicate(
+    "a drum with a pose reader needs an explicit rigid declaration",
     refused,
   );
 }
