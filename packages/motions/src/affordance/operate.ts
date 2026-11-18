@@ -8,14 +8,17 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionManner,
   IAutoMovieMotionTarget,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -26,7 +29,11 @@ import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLea
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBalance } from "../everyday/HumanBalance";
+import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { operateDrive } from "./operateDrive";
@@ -95,12 +102,31 @@ export namespace operate {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "operate";
 
+  /** On request the planted operator balances while the mechanism takes the hand's force. */
+  export const balance: IAutoMovieMotionHumanBalance = {
+    by: "hips",
+    from: { event: "strokeStart" },
+    to: { event: "strokeEnd" },
+  };
+
   /** Cancel table: the hand lets go of the part and the body stands or walks. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
-    walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    walk: [
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
   };
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
@@ -291,13 +317,73 @@ export namespace operate {
           fix: "operate it as an action of its own, or bring the body nearer first",
         });
     }
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params,
+      operate,
+      context.start,
+      { duration, events: clock.events() },
+      context.instant,
+    );
+    const reachLean: IAutoMovieMotionHumanPrimitive | undefined = grounded
+      ? lean.primitive(clock)
+      : undefined;
+    const corrections: IAutoMovieMotionHumanPrimitive[] = [];
+    if (window !== null) {
+      const trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined =
+        window.by === "trunk" ? prepareHumanTrunkBalance(body) : undefined;
+      corrections.push({
+        ...reachLean,
+        channels: reachLean?.channels ?? [
+          trunk === undefined ? "root" : "trunk",
+        ],
+        from: reachLean?.from ?? Math.max(0, window.from),
+        to: reachLean?.to ?? Math.min(duration, window.to),
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          _before?: IAutoMovieMotionHumanPrimitive.Reader,
+          resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
+          projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
+        ): IAutoMovieMotionHumanPosture => {
+          posture =
+            reachLean?.write(
+              posture,
+              seconds,
+              _before,
+              resolution,
+              projection,
+            ) ?? posture;
+          const weight: number = HumanPhysics.weightAt(window, seconds);
+          if (weight === 0) return posture;
+          if (trunk !== undefined)
+            return trunk(posture, weight, resolution, projection);
+          const direction: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
+          const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
+            HumanBalance.support(body, posture, resolution, projection),
+            direction,
+          );
+          return shift === null || shift === 0
+            ? posture
+            : {
+                ...posture,
+                root: Vector3.addScaled(
+                  posture.root,
+                  direction,
+                  shift * weight,
+                ),
+              };
+        },
+      });
+    }
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "strokeEnd",
         primitives: [
-          ...(grounded ? [lean.primitive(clock)] : []),
+          ...(window === null && reachLean !== undefined
+            ? [reachLean]
+            : corrections),
           AutoMovieMotionHumanArm.stroke({
             body,
             clock,
@@ -323,8 +409,12 @@ export namespace operate {
           }),
         ],
       });
-    return part === undefined
-      ? composed
-      : { ...composed, drives: [operateDrive.drive(part, clock)] };
+    return {
+      ...composed,
+      balanceWindow: window,
+      ...(part === undefined
+        ? {}
+        : { drives: [operateDrive.drive(part, clock)] }),
+    };
   }
 }
