@@ -187,7 +187,7 @@ export namespace HumanSupportFrame {
     if (support.kind === "ground")
       return {
         support,
-        position: { x: 0, y: 0, z: 0 },
+        position: { x: 0, y: support.height ?? 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
         velocity: { x: 0, y: 0, z: 0 },
         acceleration: { x: 0, y: 0, z: 0 },

@@ -433,6 +433,7 @@ export namespace climbStairs {
     for (const side of ["left", "right"] as const) {
       const list: (typeof prints)["left"] = prints[side];
       for (let i: number = 0; i < list.length; i++) {
+        const level: number = list[i]!.print.level;
         const from: number =
           i === 0 ? 0 : clock.at(`treadContact${list[i]!.step}`) / duration;
         const to: number =
@@ -445,9 +446,11 @@ export namespace climbStairs {
           from,
           to,
           support:
-            list[i]!.print.level === 0 || p.on === undefined
+            level === 0
               ? { kind: "ground" }
-              : { kind: "prop", subject: p.on },
+              : p.on === undefined
+                ? { kind: "ground", height: stairs.frame.origin.y + sign * level * stairs.riser }
+                : { kind: "prop", subject: p.on },
         });
       }
     }

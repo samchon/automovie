@@ -128,10 +128,7 @@ export namespace IAutoMovieMotionHumanContactWindow {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type Support =
-    | {
-        /** Support discriminant: ground, prop or another person. */
-        kind: "ground";
-      }
+    | IGround
     | {
         /** Support discriminant: ground, prop or another person. */
         kind: "prop";
@@ -154,4 +151,12 @@ export namespace IAutoMovieMotionHumanContactWindow {
         /** Supporting person's bone when the contact is specified by bone rather than region. */
         bone: AutoMovieHumanoidBone;
       };
+
+  /** A stationary horizontal surface, such as the floor or a stair tread. */
+  export interface IGround {
+    /** Support discriminant. */
+    kind: "ground";
+    /** The surface's world height in metres. Defaults to the world floor. */
+    height?: number;
+  }
 }

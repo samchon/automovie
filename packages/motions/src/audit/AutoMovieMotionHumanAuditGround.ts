@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,9 +25,8 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * is read at its two ends and at the motion's own grid instants between
  * them, the poses the other checks read as well. Slip is the
  * contact's horizontal distance from where that socket first was the contact
- * in the same plant window; lift is the contact's height off the floor, read
- * only for a plant whose support is the ground (a plant on a step or a prop
- * stands at that support's height).
+ * in the same plant window; lift is the contact's distance from its declared
+ * stationary surface, such as the world floor or a stair tread.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the floor, the contact rule with its source and what each reading measures.
  * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones.
@@ -89,8 +89,8 @@ export namespace AutoMovieMotionHumanAuditGround {
   }
 
   /**
-   * The farthest a foot planted on the ground is from the floor, above or
-   * below, within any of its plant windows.
+   * The farthest a foot is above or below its declared stationary surface
+   * within any of its plant windows.
    *
    * @param motion The motion.
    * @param subject The person.
@@ -129,9 +129,11 @@ const plants = (
       (part !== "leftFoot" && part !== "rightFoot")
     )
       continue;
-    if (height && window.contact.support.kind !== "ground") continue;
-    const anchors: Map<IAutoMovieMotionHumanFoot.Socket, IAutoMovieVector3> =
-      new Map();
+    const surface: IAutoMovieMotionHumanContactWindow.Support = window.contact.support;
+    if (height && surface.kind !== "ground") continue;
+    const elevation: number = surface.kind === "ground" ? (surface.height ?? 0) : 0;
+    const anchors: Map<IAutoMovieMotionHumanFoot.Socket, IAutoMovieVector3> | undefined =
+      height ? undefined : new Map();
     for (const t of [
       window.from,
       ...frames.filter(
@@ -147,12 +149,12 @@ const plants = (
       let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
       for (const socket of sole)
         if (socket.point.y < contact.point.y - 1e-6) contact = socket;
-      const anchor: IAutoMovieVector3 =
-        anchors.get(contact.socket) ?? contact.point;
-      anchors.set(contact.socket, anchor);
-      const value: number = height
-        ? Math.abs(contact.point.y)
-        : Math.hypot(contact.point.x - anchor.x, contact.point.z - anchor.z);
+      let value: number = Math.abs(contact.point.y - elevation);
+      if (anchors !== undefined) {
+        const anchor: IAutoMovieVector3 = anchors.get(contact.socket) ?? contact.point;
+        anchors.set(contact.socket, anchor);
+        value = Math.hypot(contact.point.x - anchor.x, contact.point.z - anchor.z);
+      }
       if (value > worst.value)
         worst = { value, seconds: t, where: `${window.action} ${part}` };
     }

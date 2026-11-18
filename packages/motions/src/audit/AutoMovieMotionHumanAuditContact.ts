@@ -178,8 +178,9 @@ export namespace AutoMovieMotionHumanAuditContact {
               continue;
             const where: string = `${window.action} ${part}`;
             const low: IAutoMovieMotionHumanFoot.ISocket = lowest(sole);
-            if (low.point.y > out.afloat.value)
-              out.afloat = { value: low.point.y, seconds: t, where };
+            const above: number = low.point.y - (window.contact.support.height ?? 0);
+            if (above > out.afloat.value)
+              out.afloat = { value: above, seconds: t, where };
             if (lowest(before).socket !== low.socket) continue;
             const v: number = speed(low);
             if (v > out.loose.value)
