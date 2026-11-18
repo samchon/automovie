@@ -1323,6 +1323,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchLaid.settled",
+      "tests": [
+        "test_human_motion_signature_salute"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchEffector.axis",
       "tests": [
         "test_human_motion_compose_touch_effector"
