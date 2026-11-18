@@ -2831,6 +2831,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamselbowkindsidetargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "site": {
             "oneOf": [
               {
@@ -3081,6 +3085,86 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [],
         "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanBalance": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "oneOf": [
+              {
+                "const": "hips"
+              },
+              {
+                "const": "trunk"
+              }
+            ],
+            "description": "The part moved to keep the centre of mass over the support."
+          },
+          "weight": {
+            "type": "number",
+            "description": "The share of the needed shift applied, from 0 to 1. Defaults to 1 after the law's recommendation."
+          },
+          "from": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance.IBound",
+            "description": "The instant it starts."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance.IBound",
+            "description": "The instant it ends."
+          },
+          "ramp": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance.IRamp",
+            "description": "The blend durations inside the bounds. By default the weight takes effect at the bounds."
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "A balancing shift an action computes only when given; absent on the\nparams, none is computed. Each field absent takes the law's\nrecommendation (`IAutoMovieMotionHumanActionLaw.balance`). Without a\nrecommendation, the weight is 1 and the bounds are applied immediately.\nA missing part or bound is refused by field name.\n\nAbsent, nothing physical is computed: no balance shift, no centre-of-mass\nloop, no balance solve and no integration, and the posture is the law's\nown kinematic one; a law's studied compensation lives in its key poses.\nGiven, the shift is one closed-form evaluation of the part it moves,\nscaled by its weight between its two instants, never iterated: animation\ntools keep such terms off a posed character until asked, Houdini's\nfull-body IK taking its centre-of-mass target only as an optional record\nwith its weight inside it (`hou.ik.solvePhysFBIK`), and a simulation pays\nevery step, substep and solver iteration of its interval where a posed\ninstant pays one read. Its bounds are events, not shares of the action\n(laws/declaration.md: other work addresses an action through its named\nevents, because a fraction breaks when the duration changes with the\nbody), resolved as the scheduled instants are."
+      },
+      "IAutoMovieMotionHumanBalance.IBound": {
+        "type": "object",
+        "properties": {
+          "of": {
+            "type": "string",
+            "description": "The action or cue whose event it is; this action when absent."
+          },
+          "event": {
+            "type": "string",
+            "description": "The event's name; `start` and `end` name the action's own ends."
+          },
+          "index": {
+            "type": "number",
+            "description": "Zero-based occurrence of a repeated event; 0 when absent."
+          },
+          "offset": {
+            "type": "number",
+            "description": "Signed seconds added to the event's instant; 0 when absent."
+          }
+        },
+        "required": [
+          "event"
+        ],
+        "additionalProperties": false,
+        "description": "An instant named by an event, as the scheduled instants name theirs."
+      },
+      "IAutoMovieMotionHumanBalance.IRamp": {
+        "type": "object",
+        "properties": {
+          "in": {
+            "type": "number",
+            "description": "Seconds from the opening bound to full weight, nonnegative."
+          },
+          "out": {
+            "type": "number",
+            "description": "Seconds from full weight down to zero at the closing bound, nonnegative."
+          }
+        },
+        "required": [
+          "in",
+          "out"
+        ],
+        "additionalProperties": false,
+        "description": "Minimum-jerk blends at the two ends of a balance window, measured in seconds.\nWhen their sum exceeds the window, both are shortened by the same factor."
       },
       "IAutoMovieMotionHumanHeldUse.IGrasp": {
         "type": "object",
@@ -3759,6 +3843,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskind": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -4060,6 +4148,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindsidetargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "site": {
             "oneOf": [
               {
@@ -4325,6 +4417,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkindtargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -4597,6 +4693,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsaimkindshapeturn": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -4808,6 +4908,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsaimkindshape": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -5023,6 +5127,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindshape": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -5271,6 +5379,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindothersidetargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "site": {
             "oneOf": [
               {
@@ -6377,6 +6489,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountholdkindtangenttarget": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "with": {
             "oneOf": [
               {
@@ -6660,6 +6776,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindtargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -7006,6 +7126,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountkind": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -7286,6 +7410,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountkindpoint": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -7900,6 +8028,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdrise": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "oneOf": [
               {
@@ -7936,6 +8068,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkindrise": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "knee": {
             "oneOf": [
               {
@@ -7969,6 +8105,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsdepthheelshold": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
             "description": "How it is performed."
@@ -7980,6 +8120,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamshold": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "depth": {
             "oneOf": [
               {
@@ -8050,6 +8194,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskind-o2": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "toward": {
             "oneOf": [
               {
@@ -9206,6 +9354,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "number",
             "description": "Backrest height above the surface, metres; backless when absent."
           },
+          "workingSeat": {
+            "type": "boolean",
+            "description": "For a seat fixed by task geometry, use the body's reachable contacts."
+          },
           "astride": {
             "type": "boolean",
             "description": "Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent."
@@ -9671,6 +9823,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "string",
             "description": "The partner."
           },
+          "handRole": {
+            "oneOf": [
+              {
+                "const": "kisser"
+              },
+              {
+                "const": "presenter"
+              }
+            ],
+            "description": "The participant in a shared hand kiss. When absent, a kiss reads an already presented hand or the named region of the other person."
+          },
           "side": {
             "oneOf": [
               {
@@ -9698,6 +9861,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "partner": {
             "type": "string",
             "description": "The partner."
+          },
+          "handRole": {
+            "oneOf": [
+              {
+                "const": "kisser"
+              },
+              {
+                "const": "presenter"
+              }
+            ],
+            "description": "The participant in a shared hand kiss. When absent, a kiss reads an already presented hand or the named region of the other person."
           },
           "side": {
             "oneOf": [
@@ -9727,6 +9901,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountkindwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -10005,6 +10183,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkindwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -10339,6 +10521,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindmannerwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -10682,6 +10868,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkindsidewith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -10949,6 +11139,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsgriphold": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "partner": {
             "type": "string",
             "description": "The partner gripped."
@@ -11115,6 +11309,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountkindtangentwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -11382,6 +11580,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsclearcountkindtangentwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -11645,6 +11847,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskindwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -11927,6 +12133,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamshold-o2": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "partner": {
             "type": "string",
             "description": "The partner gripped."
@@ -12136,6 +12346,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountholdkindwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -12410,6 +12624,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsdepthhold": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "heels": {
             "oneOf": [
               {
@@ -12856,6 +13074,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkind": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -13136,6 +13358,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskind-o4": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "reps": {
             "type": "integer",
             "description": "Whole-number repetitions, at least one; 3 when absent.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
@@ -14464,6 +14690,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkindsidetargetwith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "site": {
             "oneOf": [
               {
@@ -15273,6 +15503,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscycles": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "on": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The middle of the patch wiped, on the surface's top."
@@ -16292,6 +16526,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdkind-o1": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "knee": {
             "oneOf": [
               {
@@ -16318,6 +16556,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsholdtoward": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "side": {
             "oneOf": [
               {
@@ -16528,6 +16770,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskind-o12": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "cycles": {
             "type": "integer",
             "description": "How many crawl cycles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
@@ -16947,6 +17193,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamsstances": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "on": {
             "oneOf": [
               {
@@ -17083,10 +17333,60 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent."
+          },
+          "assist": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSupport.IAssist",
+            "description": "A paired support whose two matching hand contacts move through one shared course."
           }
         },
         "required": [],
         "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSupport.IAssist": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSupport.AssistRole",
+            "description": "The role this performer takes."
+          },
+          "partner": {
+            "type": "string",
+            "description": "The other role's subject id."
+          },
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The hand each participant contributes to the clasp."
+          }
+        },
+        "required": [
+          "role",
+          "partner",
+          "side"
+        ],
+        "additionalProperties": false,
+        "description": "Partners and the hand used to take weight during an assisted rise."
+      },
+      "IAutoMovieMotionHumanSupport.AssistRole": {
+        "oneOf": [
+          {
+            "const": "helped"
+          },
+          {
+            "const": "helper"
+          }
+        ],
+        "description": "The paired support's role in an assisted rise."
+      },
+      "AutoMovieHumanSide": {
+        "oneOf": [
+          {
+            "const": "left"
+          },
+          {
+            "const": "right"
+          }
+        ],
+        "description": "A person's own anatomical side, independent of camera or scene orientation.\nHuman's limb construction and clinical controls use the same identities."
       },
       "IAutoMovieMotionHumanLexiconSportSwingParams": {
         "type": "object",
@@ -19442,6 +19742,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamscountkindsidewith": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -19988,17 +20292,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "side"
         ],
         "additionalProperties": false
-      },
-      "AutoMovieHumanSide": {
-        "oneOf": [
-          {
-            "const": "left"
-          },
-          {
-            "const": "right"
-          }
-        ],
-        "description": "A person's own anatomical side, independent of camera or scene orientation.\nHuman's limb construction and clinical controls use the same identities."
       },
       "IAutoMovieMotionHumanLexiconUpperPhraseParams": {
         "type": "object",
@@ -21922,6 +22215,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamskind-o16": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -22722,6 +23019,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanOperate.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "mechanism": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanOperate.Mechanism",
             "description": "What is operated."
@@ -23643,6 +23944,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "OmitIParamspointtarget": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "oneOf": [
               {
@@ -23970,6 +24275,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanTouch.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "target": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
@@ -25506,6 +25815,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanGesture.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanGestureStroke.Kind",
             "description": "The gesture."
@@ -27399,6 +27712,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanSit.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "seat": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSeated.ISeat",
             "description": "The seat."
@@ -27448,6 +27765,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanRise.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "to": {
             "oneOf": [
               {
@@ -27492,6 +27813,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanBend.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "toward": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The point the hand goes to."
@@ -27702,6 +28027,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanBrace.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "toward": {
             "oneOf": [
               {
@@ -28813,6 +29142,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanCrouch.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "depth": {
             "oneOf": [
               {
@@ -28853,6 +29186,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanKneel.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "oneOf": [
               {
@@ -29211,6 +29548,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanSupport.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "stances": {
             "type": "array",
             "items": {
@@ -29354,6 +29695,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent."
+          },
+          "assist": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSupport.IAssist",
+            "description": "A paired support whose two matching hand contacts move through one shared course."
           }
         },
         "required": [
@@ -30460,6 +30805,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanCrawl.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "oneOf": [
               {
@@ -30516,6 +30865,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanClinch.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "partner": {
             "type": "string",
             "description": "The partner gripped."
@@ -30809,6 +31162,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanWipe.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "on": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
             "description": "The middle of the patch wiped, on the surface's top."
@@ -31036,6 +31393,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
             "description": "The partner's region."
           },
+          "handRole": {
+            "oneOf": [
+              {
+                "const": "kisser"
+              },
+              {
+                "const": "presenter"
+              }
+            ],
+            "description": "The participant in a shared hand kiss. When absent, a kiss reads an already presented hand or the named region of the other person."
+          },
           "side": {
             "oneOf": [
               {
@@ -31174,6 +31542,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanExercise.IParams": {
         "type": "object",
         "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBalance",
+            "description": "A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift\nof its part, scaled by its weight between its two event-named instants,\neach field absent taking the law's recommendation. Absent, none: the\nposture is the law's own kinematic one with no balance shift or\ncentre-of-mass reading."
+          },
           "kind": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanExercise.Kind",
             "description": "The exercise."
