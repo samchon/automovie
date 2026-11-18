@@ -40,14 +40,34 @@ export function sampleMotion(
 }
 
 /**
- * Root-only sampling for world placement, velocities and camera clearance.
+ * Pose and root projections for geometry and world placement.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The root reader shares the full sampler's time, easing, neutral root and endpoint ownership.
- * @evidence contracts/development/design.md#principled-representation A root query returns the same optional transform carried by a full pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Placement and camera consumers need only this projection of the motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projections share the same segment selection and root interpolation.
+ * @evidence contracts/development/common.md#meaningful-documentation Both readers share the full sampler's time, easing and endpoint ownership.
+ * @evidence contracts/development/design.md#principled-representation Pose and root queries return the corresponding part of a full motion sample.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Geometry readers need body poses, while placement and camera consumers need their roots.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts All projections use the same segment selection and the same interpolation for the values they return.
  */
 export namespace sampleMotion {
+  /**
+   * Sample the clinical pose of admitted motion at clip-local seconds.
+   * This uses the full sample's skeleton, joint order, easing and neutral
+   * values. Endpoint pose wrappers borrow their key's joints and root.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the output, clock, interpolation and endpoint ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the full sample's key search, pose interpolation and endpoint wrapping.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the shared motion clock and pose readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Evaluates every authored pose joint under the original rules and preserves the original skeleton override.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One segment lookup and joint interpolation, independent of the number of expression channels.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full samples and this projection share both pose readers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the resulting pose wrapper and interior joints; no query state is retained.
+   */
+  export function pose(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMoviePose {
+    return readAt(motion, seconds, poseAtKey, poseBetween);
+  }
+
   /**
    * Sample the root of an admitted motion, borrowing endpoint transforms.
    *
@@ -104,6 +124,19 @@ function readAt<T>(
   return interior(motion, lo, hi, t);
 }
 
+function poseAtKey(motion: IAutoMovieMotion, key: IAutoMovieKeyframe): IAutoMoviePose {
+  return { ...key.pose, skeleton: motion.skeleton };
+}
+
+function poseBetween(
+  motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMoviePose {
+  return interpolatePose(motion.skeleton, lo.pose, hi.pose, t);
+}
+
 function rootAtKey(
   _motion: IAutoMovieMotion,
   key: IAutoMovieKeyframe,
@@ -127,7 +160,7 @@ function between(
   t: number,
 ): IAutoMovieMotionSample {
   return {
-    pose: interpolatePose(motion.skeleton, lo.pose, hi.pose, t),
+    pose: poseBetween(motion, lo, hi, t),
     expression: interpolateExpression(lo.expression, hi.expression, t),
   };
 }
@@ -152,7 +185,7 @@ const toSample: (
   motion: IAutoMovieMotion,
   frame: IAutoMovieKeyframe,
 ): IAutoMovieMotionSample => ({
-  pose: { ...frame.pose, skeleton: motion.skeleton },
+  pose: poseAtKey(motion, frame),
   expression: frame.expression,
 });
 

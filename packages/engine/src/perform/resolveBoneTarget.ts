@@ -43,7 +43,7 @@ export const resolveBoneTarget: (
   const pose: IAutoMoviePose =
     motion === undefined
       ? context.restPose
-      : sampleMotion(motion, seconds).pose;
+      : sampleMotion.pose(motion, seconds);
   const [resolved]: IAutoMovieResolvedBone[] = resolvePose(
     pose,
     context.rig,

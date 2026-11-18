@@ -404,7 +404,7 @@ const resolveMap: (
 ): Map<AutoMovieHumanoidBone, IAutoMovieVector3> =>
   new Map(
     resolvePose(
-      sampleMotion(actor.motion, time).pose,
+      sampleMotion.pose(actor.motion, time),
       actor.skeleton,
       actor.jointAxes,
       actor.restFrames,

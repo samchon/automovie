@@ -83,7 +83,7 @@ export const validateSelfIntersection: (
             const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> =
               new Map(
                 resolvePose(
-                  sampleMotion(props.motion, time).pose,
+                  sampleMotion.pose(props.motion, time),
                   props.skeleton,
                   props.jointAxes,
                   props.restFrames,

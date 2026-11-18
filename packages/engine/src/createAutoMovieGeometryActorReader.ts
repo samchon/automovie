@@ -219,12 +219,12 @@ const actorPoseAt: (
     throw new Error(
       `Actor "${actor}" references missing motion "${motionId}". Recompile the shot source.`,
     );
-  return sampleMotion(
+  return sampleMotion.pose(
     motion,
     performance === undefined
       ? time
       : Math.max(0, time - performance.startOffset),
-  ).pose;
+  );
 };
 
 const actorSpatialAt: (

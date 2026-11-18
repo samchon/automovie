@@ -92,7 +92,7 @@ export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
   for (let i: number = 0; i <= count; ++i) {
     const t: number = props.start + (i / count) * props.duration;
     const local: IAutoMovieTransform =
-      restBone ?? boneAt(sampleMotion(parentMotion!, t).pose);
+      restBone ?? boneAt(sampleMotion.pose(parentMotion!, t));
     const parentWorld: IAutoMovieTransform =
       props.parentTransformAt?.(t) ?? props.parentTransform;
     const worldPos: IAutoMovieVector3 = Vector3.add(
