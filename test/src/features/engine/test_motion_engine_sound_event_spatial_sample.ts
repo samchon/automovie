@@ -18,7 +18,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh partial planning carriers, motion clips and resulting plans through the existing fixture; no filesystem, decoder/audio device, native solver, renderer, browser or GPU is used and no foreign method is replaced.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Planning captures independent propagation assumptions and adopted room mappings before callers mutate their inputs.).
  */
-export function test_engine_sound_event_spatial_sample(): void {
+export function test_motion_engine_sound_event_spatial_sample(): void {
   const {
     digest,
     profile,
