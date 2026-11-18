@@ -1609,7 +1609,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     },
     "stumble": {
       "$ref": "#/components/schemas/OmitIParamsspeed",
-      "description": "A stumble from a shove at walking speed (1.2 m/s, provisional)."
+      "description": "A stumble from a shove the body steps out of: a 0.5 m/s push from ahead, about what the largest backward lean young adults recover from by stepping gives a small woman (`HumanPose.stumble`)."
     },
     "sunSalutation": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
@@ -7500,7 +7500,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stumble": {
             "$ref": "#/components/schemas/OmitIParamsspeed",
-            "description": "A stumble from a shove at walking speed (1.2 m/s, provisional)."
+            "description": "A stumble from a shove the body steps out of: a 0.5 m/s push from ahead, about what the largest backward lean young adults recover from by stepping gives a small woman (`HumanPose.stumble`)."
           }
         },
         "required": [
