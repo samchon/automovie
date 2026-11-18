@@ -1,3 +1,4 @@
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
 import type { IAutoMovieFog } from "../scene/IAutoMovieFog";
 import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
@@ -13,8 +14,8 @@ import type { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
  * This is an engine input. Positions and couplings stay declarative so `stageScene` can validate identities and lower the set into deterministic scene data. Node ids must be non-blank and unique across actors, set pieces, cameras and lights.
  *
  * @evidence contracts/development/design.md#principled-representation `stageScene` checks referential integrity and finite ranges, not craft: every cast member placed exactly once and every placement a cast member, unique non-blank ids across the four node lists, camera and mount targets that resolve, and the space, fog and environment through their own validators; it then lowers actors and set pieces to scene nodes, cameras to resolved scene cameras and lights to scene lights.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The set is one record of typed lists, one per kind of placement, plus optional world members lowered verbatim; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An omitted `space` lowers to an explicit `space: null` while an omitted `fog` or `environment` is left absent, so a scene states whether it has a ground and an unstaged atmosphere does not change the bytes of scenes that never declared one; no node id or set shape is special-cased.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The set is one record of typed lists, one per kind of placement, plus optional world members, with one authored form selected for fog; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An omitted `space` lowers to an explicit `space: null` while fog is omitted when neither fog form is authored and environment is omitted when unstaged, so a scene states whether it has a ground and an unstaged atmosphere does not change the bytes of scenes that never declared one; no node id or set shape is special-cased.
  * @evidence contracts/development/common.md#meaningful-documentation States who owns the record and who consumes it, the id uniqueness rule, what each optional member lowers to when omitted, which validator checks it, that `plan` is never read, and that a shot needs at least one camera.
  */
 export interface IAutoMovieStage {
@@ -42,9 +43,23 @@ export interface IAutoMovieStage {
   space?: IAutoMovieSpace;
 
   /**
-   * The set's atmosphere, range-checked and lowered verbatim onto the composed scene's `fog`. Omitted composes a scene with no `fog` member, which renders without atmosphere.
+   * The set's fog specified by density, range-checked and lowered verbatim. Author this field or `fogVisibility`. Omit both for a scene without fog.
    */
   fog?: IAutoMovieFog;
+
+  /**
+   * Calibrate the set's fog by the fraction of the subject color retained at a reference camera-axis depth. Staging solves the FogExp2 law for a finite scene density. Use either this field or `fog`.
+   */
+  fogVisibility?: {
+    /** Positive finite reference camera-axis depth in metres. */
+    cameraDepthM: number;
+
+    /** Finite fraction of subject color retained at that depth, in (0, 1]. One produces zero fog density. */
+    transmittance: number;
+
+    /** Linear fog color approached as transmittance decreases. */
+    color: IAutoMovieColor;
+  };
 
   /**
    * Image lighting, exposure, tone mapping and shadow policy, checked against these lights by `validateSceneEnvironment` and lowered verbatim. Omitted leaves those decisions to the host renderer.

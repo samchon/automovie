@@ -3,10 +3,10 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * Seeded environmental billboard emitter with explicit transport and live-instance budgets. Fog, smoke and dust share the same bounded stream representation.
  *
- * @evidence contracts/development/design.md#principled-representation Seeded emission, lifetime/size ranges, transport velocities and an integer live-particle cap define the intended stream domain. sampleCompiledEffect derives state from cue time floored to the absolute step with a 1e-9 quotient allowance; the documented numeric ranges and positive step remain caller premises after whole-world gate retirement.
+ * @evidence contracts/development/design.md#principled-representation Seeded emission, lifetime and initial size ranges, an optional bounded final size, transport velocities and an integer live-particle cap define the intended stream domain. sampleCompiledEffect derives state from cue time floored to the absolute step with a 1e-9 quotient allowance; materializeCompiledEffects checks that a supplied final size is finite and between the maximum initial size and 20 metres. The other documented ranges and positive step remain caller premises.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Emission, appearance, motion and runtime budget form separate groups, with one closed effect-family discriminator and one supported alpha blend law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Effect names select no hidden subject preset. With an admitted integer cap, sampling stops after maxParticles live outputs and far-distance thinning retains indices divisible by four; candidate arrays can exceed that cap, and the sampler does not validate malformed direct recipes.
- * @evidence contracts/development/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and metre size ranges, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
+ * @evidence contracts/development/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and initial and final sizes in metres, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
  */
 export interface IAutoMovieEffectRecipe {
   /** Stable recipe id. */
@@ -41,13 +41,20 @@ export interface IAutoMovieEffectRecipe {
       max: number;
     };
 
-    /** Ordered inclusive world-size endpoints in metres, within `[0.01, 20]`. */
+    /** Ordered inclusive initial world-size endpoints in metres, within `[0.01, 20]`. */
     size: {
       /** Smallest sampled billboard extent, world metres. */
       min: number;
 
       /** Largest sampled billboard extent, world metres, at least min. */
       max: number;
+
+      /**
+       * Final airborne billboard extent in metres, from max through 20.
+       * The extent grows linearly from its seeded initial size over the
+       * particle lifetime, or stops growing on landing. Omit for fixed size.
+       */
+      end?: number;
     };
 
     /** Exact opaque hexadecimal RGB color. */
