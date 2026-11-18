@@ -16,6 +16,8 @@ import type {
 
 import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { HumanTrunk } from "../everyday/HumanTrunk";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * A seated reach with the trunk below the arm in task priority: the hand's
@@ -195,6 +197,23 @@ export namespace HumanSeatedReach {
     };
   }
 
+  /** Use the placed body's actual flexion charts when the caller knows the moving shoulder. */
+  function shoulderAt(
+    role: IAutoMovieMotionMeetingRole,
+    joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
+    original: IAutoMovieVector3,
+    shoulder?: AutoMovieHumanoidBone,
+  ): (share: number) => IAutoMovieVector3 {
+    const entry: IAutoMovieMotionHumanPosture | undefined = role.entry?.posture;
+    if (shoulder === undefined || entry === undefined || joints.length === 0)
+      return prepareLean(role, joints, original);
+    const read: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(role.body, new Set<AutoMovieHumanoidBone>([shoulder]));
+    const workspace: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    return (share: number): IAutoMovieVector3 => share === 0 ? original
+      : read(posed(role.body, entry, joints, share), workspace).get(shoulder)!.worldPosition;
+  }
+
   /**
    * A posture leaned forward by a share of each joint's room: the whole
    * body pitched about the hips for the hip joints, which keeps the hips
@@ -250,6 +269,7 @@ export namespace HumanSeatedReach {
    * @param roles The two roles, in the meeting's order.
    * @param sides Their arms, each with its acting shoulder, unleaned, in the same order.
    * @param resolve The meeting's resolution of two arms, throwing when they cannot meet.
+   * @param shoulder The acting joint when the authored body's exact shoulder path is needed.
    * @returns The resolution's answer for the leaned arms.
    * @throws {Error} The resolution's own error when even the full lean cannot bring the arms together.
    *
@@ -268,11 +288,12 @@ export namespace HumanSeatedReach {
     roles: readonly [IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingRole],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,
+    shoulder?: AutoMovieHumanoidBone,
   ): Result {
     const chains: [IAutoMovieMotionHumanSeatedReach.IJoint[], IAutoMovieMotionHumanSeatedReach.IJoint[]] = [rooms(roles[0]), rooms(roles[1])];
     const readers: readonly ((share: number) => IAutoMovieVector3)[] = [
-      prepareLean(roles[0], chains[0], sides[0].shoulder),
-      prepareLean(roles[1], chains[1], sides[1].shoulder),
+      shoulderAt(roles[0], chains[0], sides[0].shoulder, shoulder),
+      shoulderAt(roles[1], chains[1], sides[1].shoulder, shoulder),
     ];
     const leaned = (share: number): [Side, Side] =>
       [0, 1].map(
@@ -312,19 +333,20 @@ export namespace HumanSeatedReach {
 
   /**
    * One seated role's own least share of its joints' rooms that brings a
-   * point within its arm's limit: none when the arm reaches it, the whole
-   * room when nothing less does.
+   * point within its arm's limit: none when the arm reaches it, the closest
+   * shoulder position when the full flexion arc falls short.
    *
    * @param role The role.
    * @param shoulder Its acting shoulder joint, world metres.
    * @param point The point, world metres.
    * @param limit The arm's full reach, metres.
+   * @param joint The acting joint when the authored body's exact shoulder path is needed.
    * @returns The share and the joints it is a share of.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result's three cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The least share in [0, 1] at which the leaned shoulder's distance to the point is within the limit, by bisection; the distance falls as the trunk leans toward a point ahead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two end tests and one bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point beyond the full lean returns the whole room, and the arm's own fit reports the miss.
+   * @evidence contracts/development/implementation.md#principled-implementation The least share in [0, 1] at which the leaned shoulder's distance to the point is within the limit, by bisection on the approach, with a golden-section closest-approach search when the fully flexed shoulder has passed the target.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The standing reach, the flexed reach and the first entry into the reachable interval.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Closest approach is measured on the posed shoulder arc with the actual segment lengths, and the arm's own fit reports any remaining miss.
    * @evidence contracts/development/implementation.md#efficient-algorithms One distance per bisection step.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role/chain axes and pivots are shared only within this synchronous bisection; every changed share retains the original actual turn sequence and distance measurement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed geometry reader ends with return or failure; returned room records and scalar share retain no frame reader or candidate history.
@@ -334,22 +356,22 @@ export namespace HumanSeatedReach {
     shoulder: IAutoMovieVector3,
     point: IAutoMovieVector3,
     limit: number,
+    joint?: AutoMovieHumanoidBone,
   ): IAutoMovieMotionHumanSeatedReach.INeedResult {
     const joints: IAutoMovieMotionHumanSeatedReach.IJoint[] = rooms(role);
-    const read: (share: number) => IAutoMovieVector3 = prepareLean(role, joints, shoulder);
-    const within = (share: number): boolean =>
-      Vector3.length(
-        Vector3.subtract(read(share), point),
-      ) <= limit;
-    if (joints.length === 0 || within(0)) return { share: 0, joints };
-    if (!within(1)) return { share: 1, joints };
+    const read: (share: number) => IAutoMovieVector3 = shoulderAt(role, joints, shoulder, joint);
+    const distance = (share: number): number => Vector3.distance(read(share), point);
+    if (joints.length === 0 || distance(0) <= limit) return { share: 0, joints };
+    const width: number = resolution([[role, joints, shoulder]]);
+    let high: number = 1;
+    if (distance(high) > limit) {
+      // The shoulder follows an arc. A deep bend may carry it below and
+      // away from a wrist it could reach earlier on that same arc.
+      high = nearest(distance, width, limit);
+      if (distance(high) > limit) return { share: high, joints };
+    }
     return {
-      share: bracketedBisection(
-        (share: number): boolean => !within(share),
-        0,
-        1,
-        resolution([[role, joints, shoulder]]),
-      ),
+      share: bracketedBisection((share: number): boolean => distance(share) > limit, 0, high, width),
       joints,
     };
   }
@@ -375,4 +397,31 @@ export namespace HumanSeatedReach {
     );
     return Number.EPSILON ** 0.5 / Math.max(swing, Number.MIN_VALUE);
   };
+}
+
+/** Find a reachable witness on the flexion arc, or its closest approach if it misses. */
+function nearest(distance: (share: number) => number, width: number, limit: number): number {
+  const golden: number = (Math.sqrt(5) - 1) / 2;
+  let low: number = 0;
+  let high: number = 1;
+  let left: number = high - golden * (high - low);
+  let right: number = low + golden * (high - low);
+  let a: number = distance(left);
+  let b: number = distance(right);
+  while (high - low > width && Math.min(a, b) > limit) {
+    if (a <= b) {
+      high = right;
+      right = left;
+      b = a;
+      left = high - golden * (high - low);
+      a = distance(left);
+    } else {
+      low = left;
+      left = right;
+      a = b;
+      right = low + golden * (high - low);
+      b = distance(right);
+    }
+  }
+  return a <= b ? left : right;
 }
