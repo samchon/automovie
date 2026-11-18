@@ -1,6 +1,10 @@
-import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
+import {
+  AutoMovieMotionAudit as Audit,
+  measurePhysicalMotionConstraint as measure,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionGeometry as Geometry,
+  IAutoMovieMeasurePhysicalMotionConstraint,
   IAutoMovieMotionAudit,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegmentState,
@@ -9,20 +13,20 @@ import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** Disconnected carriers audit without invented native masses or joints.
+/**
+ * Physical constraints measure explicit world witnesses and inspect only declared geometry.
  *
  * Scenarios:
- * 1. Two independent collision carriers and an observation-only origin satisfy an analytic distance promise.
- * 2. Duplicate frames, missing materials/joint carriers, invalid transforms and nonfinite observations refuse.
- * 3. Physical and geometric descriptions are exclusive; native profile validation remains mandatory on the physical path.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMovieMotionAudit`, `AutoMoviePhysicsCache` on in-memory inputs and asserts the returned observations through no assertion call; 3 numbered scenarios (first: Two independent collision carriers and an observation-only origin satisfy an analytic distance promise.; last: Physical and geometric descriptions are exclusive; native profile validation remains mandatory on the...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Two independent collision carriers and an observation-only origin satisfy an analytic distance promise.; last: Physical and geometric descriptions are exclusive; native profile validation remains mandatory on the...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_motion_geometry`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two independent collision carriers and an observation-only origin satisfy an analytic distance promise.).
+ * - A free witness may measure a disconnected carrier. Malformed segment identifiers, shapes, joints and sampled states are rejected.
+ * - A rigid local point and a point on a ray have independent analytic positions. Orthogonal and straight three-point chains produce different bends.
+ * - One sampled frame reports simultaneous target, distance and angle violations.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public constraint measure and numerical auditor directly on one instantaneous frame.
+ * @evidence contracts/development/testing.md#independent-expectations Positions follow a quarter turn or projection along a unit ray. Angle expectations are zero or a right angle from the assigned point coordinates.
+ * @evidence contracts/development/testing.md#distinguishing-cases Observed and missing witnesses, valid and malformed carriers, endpoint and angular metrics and aggregated findings.
+ * @evidence contracts/development/testing.md#execution-ownership All frames are analytic. No generated performance or motion clip is required.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the independent constraints and observation rules.
  */
-export async function test_physical_motion_geometry(): Promise<void> {
+export async function test_motion_physical_audit_witnesses(): Promise<void> {
   const geometry: Geometry = {
     segments: ["first", "second"].map(
       (bone: string): Geometry["segments"][number] => ({
@@ -85,6 +89,91 @@ export async function test_physical_motion_geometry(): Promise<void> {
     allowed: (): boolean => false,
   };
   assert.deepEqual((await Audit.run(input)).findings, []);
+  const states = (await input.sample(0)).bodies.observed!;
+  const root = states.first!,
+    hand = states.second!,
+    pivot = states["observed-origin"]!;
+  const chain = { root, hand, pivot };
+  const goal: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint = {
+    kind: "goal",
+    label: "ray",
+    start: 0,
+    end: 0,
+    point: { bone: "hand", ray: { from: "root", distance: 0.065 } },
+    target: () => ({ x: 2.065, y: 1, z: 0 }),
+    maximum: 0.001,
+  };
+  assert.ok(measure(goal, chain, 0) < 1e-12);
+  const turned = {
+    ...root,
+    rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
+  };
+  assert.ok(
+    measure(
+      {
+        ...goal,
+        point: { bone: "root", localPoint: { x: 1, y: 0, z: 0 } },
+        target: () => ({ x: 1, y: 2, z: 0 }),
+      },
+      { ...chain, root: turned },
+      0,
+    ) < 1e-12,
+  );
+  const angle: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint = {
+    kind: "angle",
+    label: "three points",
+    from: { bone: "root" },
+    pivot: { bone: "pivot" },
+    to: { bone: "hand" },
+    start: 0,
+    end: 0,
+    minimum: 3,
+  };
+  assert.ok(
+    Math.abs(
+      measure(
+        angle,
+        { ...chain, hand: { ...hand, position: { x: 0, y: 2, z: 0 } } },
+        0,
+      ) -
+        Math.PI / 2,
+    ) < 1e-12,
+  );
+  assert.ok(measure(angle, { ...chain, hand: state(-1) }, 0) < 1e-12);
+  const measured = await Audit.run({
+    ...input,
+    bodies: [
+      {
+        ...input.bodies[0]!,
+        constraints: [
+          {
+            ...goal,
+            point: { bone: "first" },
+            target: () => ({ x: 1.01, y: 1, z: 0 }),
+          },
+          {
+            kind: "distance",
+            label: "separation",
+            from: { bone: "first" },
+            to: { bone: "second" },
+            start: 0,
+            end: 0,
+            maximum: 0.5,
+          },
+          {
+            ...angle,
+            from: { bone: "observed-origin" },
+            pivot: { bone: "first" },
+            to: { bone: "second" },
+          },
+        ],
+      },
+    ],
+  });
+  assert.deepEqual(
+    measured.findings.map((f) => f.kind),
+    ["goal", "distance", "angle"],
+  );
   const before: string = JSON.stringify(geometry);
   const mutations: ((value: Geometry) => void)[] = [
     (value: Geometry): void => {

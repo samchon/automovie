@@ -55,6 +55,7 @@ interface IHeldReading {
  * posture; a short walk follows, carrying the glass.
  *
  * Scenarios:
+ * A quarter turn carries the mug lip and direction through its held axis. Coincident landmarks cannot define the axis.
  * on the average man and the small woman:
  * 1. At every sixth of a second from the reader's start to the film's end,
  *    the lip placed from the reading on the displayed right hand (the grip
@@ -294,19 +295,7 @@ interface IGap {
   seconds: number;
 }
 
-/**
- * Two points on a rigid mug define its working axis.
- *
- * Scenarios:
- * 1. Rotate and translate the mug. The lip moves as a point and the axis as a direction.
- * 2. A coincident pair cannot define an axis.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public held-tool frame, including its refusal axis.
- * @evidence contracts/development/testing.md#independent-expectations Subtracts the two authored contact points and analytically rotates their displacement through a quarter turn.
- * @evidence contracts/development/testing.md#distinguishing-cases The frame is translated, rotated, and then given two coincident endpoints.
- * @evidence contracts/development/testing.md#execution-ownership Uses a real mug asset and no film.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the frames and the degenerate case.
- */
+/** A rotated mug carries its lip along its axis, and coincident landmarks cannot define an axis. */
 function checkHeldAxis(): void {
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "mug",
