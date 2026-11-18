@@ -37,7 +37,7 @@ import { StrikingStroke } from "./StrikingStroke";
  * lifts the knee to the target's height with the foot folded under it, and
  * the ankle travels straight from there to the fitted contact on the same
  * unit, in the same pelvis frame, while the carriage drives the pelvis along
- * the line behind it (`IKickGeometry.ICarriage.drive`). The hinge's arc from a
+ * the line behind it (`IAutoMovieMotionHumanKickGeometry.ICarriage.drive`). The hinge's arc from a
  * chamber that only folds the contact leg's knee is a front snap: it swings
  * the foot up from below the target, through an opponent's lead thigh.
  *
