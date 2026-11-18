@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieChainBone,
   IAutoMovieFitChainToTargetProps,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -147,6 +148,9 @@ export namespace fitSeededChainToTarget {
      * The signature acquires nothing.
      */
     rotation(pose: IAutoMoviePose): IAutoMovieQuaternion;
+
+    /** Actual joint centre and rotation after projection, in the same model frame as fit targets. */
+    effector(pose: IAutoMoviePose): IAutoMovieChainBone;
   }
 
   /**
@@ -288,6 +292,15 @@ function preparedWorkspace(
         observe?.("coldAttempt");
         return finish(cold, fitChainBend(cold, workspace));
       },
+      effector: (pose: IAutoMoviePose): IAutoMovieChainBone =>
+        workspace.prepared !== null
+          ? resolvePreparedChainFrames({ prepared: workspace.prepared, joints: pose.joints,
+              jointAxes: workspace.props.jointAxes, restFrames: workspace.props.restFrames,
+              rig: workspace.rig }).effector
+          : poseResolution === undefined
+            ? resolveBoneMap(workspace.props.skeleton, pose, workspace.props.topology,
+                workspace.props.jointAxes, workspace.props.restFrames, resolution).get(workspace.props.chain.effector)!
+            : poseResolution.resolve(pose, resolution, new Set([workspace.props.chain.effector]))[0]!,
       rotation: (pose: IAutoMoviePose): IAutoMovieQuaternion =>
         workspace.prepared === null
           ? poseResolution === undefined ? resolveBoneMap(

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieChainBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -19,8 +20,8 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  * @evidence contracts/development/common.md#meaningful-documentation States current world goal/contact, side, actual prepared workspace and point-fitting policy; no-contact goals return their one ordinary fit.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the original fixed-point contact relation and one-step Anderson mixing, retaining the nearest actual fitted contact and its actual toe correction when iteration does not close.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds contact re-aiming once, while HumanLimbFit owns attachment/obstacle/source construction and selects ordinary versus explicit continuous-curve point fitting.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original20-micrometre contact resolution,16-pass budget, mixing bound, original arithmetic and best-candidate policy remain unchanged; no sampled contact or altered goal replaces a fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fit without an offset contact; otherwise one fit and at most fifteen re-aimed fits, each continuing the previous pass's seed (a refinement within one swivel step to the cold resolution, `hingedArmSwivel.RESOLUTION`) rather than a full search, and bounded vector work.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the 20-micrometre admission, original 16 mixed orientation passes and original accepted branch. An offset wrist failing actual FK admission can take up to fifteen improving projected-position corrections at the same bound.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One fit without an offset contact. Both re-aim phases are bounded by REAIM_PASSES, continue the previous seed and stop on admission. The wrist-only projected correction also stops on its first non-improving fit.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same goal-specific workspace across actual re-aimed targets; a later pass continues the previous pass's swivel seed for a target millimetres away (a seed from this same synchronous fit, never another instant's); each fit and rotation remains current and the actual chosen toes travel with that candidate.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Goal, workspace, fit policy and bounded current/best candidate state are synchronous local data. Returned records retain no reader, callback, source factory, history or handle.
  */
@@ -35,6 +36,7 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
   let nearestRotation: IAutoMovieQuaternion | undefined;
   let nearest: IAutoMovieSeededChainFit = fitted;
   let nearestMiss: number = Infinity;
+  let nearestPoint: IAutoMovieVector3 = point;
 
   // A current orientation changes the offset point; keep its best actual contact if mixing does not close.
   for (let i: number = 0; i < REAIM_PASSES; ++i) {
@@ -44,6 +46,7 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     const missSize: number = Vector3.length(miss);
     if (missSize < nearestMiss) {
       nearest = fitted;
+      nearestPoint = point;
       nearestMiss = missSize;
       if (leg) nearestRotation = reached;
     }
@@ -66,6 +69,27 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     fitted = fit(point, fitted.seed === null ? undefined
       : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
   }
+  if (!leg) {
+    // A projected wrist can miss the requested centre even when its orientation
+    // has converged. Close the residual in the actual socket frame.
+    fitted = nearest;
+    point = nearestPoint;
+    nearestMiss = Infinity;
+    for (let i: number = 0; i < REAIM_PASSES; ++i) {
+      const frame: IAutoMovieChainBone = fitter.effector(fitted.pose);
+      const contact: IAutoMovieVector3 = Vector3.add(frame.worldPosition, Quaternion.rotateVector(frame.worldRotation, goal.contact));
+      const residual: IAutoMovieVector3 = Vector3.subtract(anchor, contact);
+      const error: number = Vector3.length(residual);
+      if (error >= nearestMiss) break;
+      nearest = fitted;
+      nearestMiss = error;
+      if (error < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
+      point = Vector3.add(point, residual);
+      fitted = fit(point, fitted.seed === null ? undefined
+        : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
+    }
+    return nearest;
+  }
   fitted = nearest;
   if (nearestRotation === undefined) return fitted;
   const toes: number = Math.max(0, HumanFoot.pitch(goal.rotation) - HumanFoot.pitch(nearestRotation));
@@ -79,8 +103,8 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
   };
 }
 
-/** Original provisional20-micrometre re-aim resolution, finer than every contact verdict. */
+/** Original provisional 20-micrometre re-aim resolution, finer than every contact verdict. */
 const REAIM_TOLERANCE: number = 2e-5;
 
-/** Original provisional16-fit ceiling; prior measured heel-off near-limit cases need up to11. */
+/** Maximum fits per correction phase. Prior measured near-limit heel-off needs up to eleven orientation fits. */
 const REAIM_PASSES: number = 16;
