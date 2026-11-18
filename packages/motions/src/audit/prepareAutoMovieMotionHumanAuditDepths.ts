@@ -34,7 +34,7 @@ import { HumanColliders } from "../posture/HumanColliders";
  * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance. The inverse of the segment's rotation, each shape's bounding sphere in the segment's frame and each hull's own inverse rotation depend on `b` alone, so they are the values every reading against `b` computed, computed once.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure What depends on `b` alone precedes one reader that keeps the original probe, shape and face loops.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine still owns every hull face and shape distance; no query, bound, face order, deepest comparison or tolerance changes, and the room is read off the screen's own distances.
- * @evidence contracts/development/implementation.md#efficient-algorithms For a pose read as P ordered pairs against one segment of H shapes, the segment's inverse rotation and its H bounding spheres are computed once instead of P times, and a hull's inverse rotation and its faces (the engine's hull of its points, looked up per probe before) once at its first use. Each reading keeps its sphere screening, its selected point transforms and the face loop's early cut. The room costs one subtraction per shape on the distance the screen already takes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For a pose read as P ordered pairs against one segment of H shapes, the segment's inverse rotation and its H bounding spheres are computed once instead of P times, and a hull's inverse rotation and its faces (the engine's hull of its points, looked up per probe before) once at its first use. Each reading keeps its sphere screening, its selected point transforms and the face loop's early cut. A room request takes the original distance for every shape. Without one, ordinary squared distances at or above a certified squared radius need no square root.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared across the readings of one pose against this placed segment: the three values above, functions of `b`'s pose and shape transforms only. The caller that placed the segments holds the reader and drops it with them, so no reader meets another pose.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds `b`, its inverse rotation, one sphere per shape and at most one inverse rotation per hull until its caller drops it; each reading returns a fresh depth array and keeps no probe, segment or depth.
  */
@@ -49,18 +49,21 @@ export function prepareAutoMovieMotionHumanAuditDepths(
 
   // Each shape's bounding sphere in the segment's frame: a probe outside it
   // is outside the shape, which then adds no depth.
-  const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
+  const balls: IProbeBall[] = b.shapes.map(
     (
       shape: IAutoMoviePhysicalShape,
-    ): { centre: IAutoMovieVector3; radius: number } => {
+    ): IProbeBall => {
       const ball: IAutoMovieMotionHumanColliders.IBall =
         HumanColliders.bound(shape);
+      const squared: number = ball.radius * ball.radius;
       return {
         centre: Vector3.add(
           shape.transform.position,
           Quaternion.rotateVector(shape.transform.rotation, ball.centre),
         ),
         radius: ball.radius,
+        outsideSquared: squared >= 2 ** -1000 && squared <= 2 ** 1000 &&
+          Math.sqrt(squared) >= ball.radius ? squared : Infinity,
       };
     },
   );
@@ -103,18 +106,21 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       let roomy: number = -Infinity;
       for (let s: number = 0; s < b.shapes.length; s++) {
         const shape: IAutoMoviePhysicalShape = b.shapes[s]!;
-        const ball: { centre: IAutoMovieVector3; radius: number } = balls[s]!;
+        const ball: IProbeBall = balls[s]!;
         const bx: number = lx - ball.centre.x;
         const by: number = ly - ball.centre.y;
         const bz: number = lz - ball.centre.z;
         const squared: number = bx * bx + by * by + bz * bz;
         // `Vector3.distance`: the square root wherever the square neither
         // underflows nor overflows, its own scaled form elsewhere.
+        const ordinary: boolean = squared >= 2 ** -1000 && squared <= 2 ** 1000;
+        // Monotonicity of sqrt proves the original outside comparison.
+        if (room === undefined && ordinary && squared >= ball.outsideSquared) continue;
         const apart: number =
-          squared >= 2 ** -1000 && squared <= 2 ** 1000
+          ordinary
             ? Math.sqrt(squared)
             : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
-        roomy = Math.max(roomy, ball.radius - apart);
+        if (room !== undefined) roomy = Math.max(roomy, ball.radius - apart);
         if (apart >= ball.radius) continue;
         if (shape.kind !== "hull") {
           local ??= { x: lx, y: ly, z: lz };
@@ -162,6 +168,12 @@ export function prepareAutoMovieMotionHumanAuditDepths(
     }
     return out;
   };
+}
+
+/** A placed sphere with its certified lower squared distance for outside probes. */
+interface IProbeBall extends IAutoMovieMotionHumanColliders.IBall {
+  /** Infinity where the ordinary square root does not certify the radius. */
+  outsideSquared: number;
 }
 
 /** The identity frame a shape's distance is read in. */
