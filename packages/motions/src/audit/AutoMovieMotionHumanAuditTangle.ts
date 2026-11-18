@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, advanceAutoMovieGrid } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -13,9 +13,9 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMotionHumanAuditTangleMargin";
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoMovieMotionHumanAuditExemption";
-import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
 /**
  * How deep a displayed body's own parts pass into one another: the tangle a
@@ -82,19 +82,28 @@ export namespace AutoMovieMotionHumanAuditTangle {
   /**
    * Read a person's self-penetration over the whole motion.
    *
+   * The result is the one reading every pair at every grid instant gives
+   * ({@link pose} at each instant, each pair keeping its deepest, first
+   * instant on a tie), from fewer pair readings: a pair read at an instant
+   * is read again only at the first instant its margin does not certify
+   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`), the
+   * margin being how far its depth can grow before it would add to the
+   * pair's record and the bound how far its two segments can have moved,
+   * measured from the motion's own poses on the grid.
+   *
    * @param motion The motion.
    * @param subject The person.
    * @param body Their body.
    * @param rate Grid samples per second.
    * @returns The deepest pair and every pair.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States subject, body, sampling rate and the deepest-per-pair sampled motion result; contact windows explain skipped or depth-allowed pairs.
-   * @evidence contracts/development/implementation.md#principled-implementation A deterministic motion grid reads actual poses; active declared self-contacts supply the original exclusions/skin depths, and each unordered pair retains its deepest sampled instant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build contact windows, visit the original grid, accumulate deepest pair records, then sort by depth.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps inclusive window endpoints, grid order, strict first-time ties, structural baselines and original contact mapping; existing contact-part/skeleton casts reflect the canonical Human-window producer and are not broadened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For G grid samples and S parts, keeps the original O(G*S*S) broad pair work plus selected bidirectional probe/shape queries; local pair storage is bounded by encountered pairs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The model owns shared body probes and baselines; each instant still resolves its actual displayed bones and performs its original pose reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Grid, exemption and deepest maps end with the call; returned results are owned by the caller. Existing weak body models retain only their own geometry/reference state.
+   * @evidence contracts/development/common.md#meaningful-documentation States subject, body, sampling rate, the deepest-per-pair sampled motion result and the certified reading that gives it; contact windows explain skipped or depth-allowed pairs.
+   * @evidence contracts/development/implementation.md#principled-implementation A deterministic motion grid reads actual poses; active declared self-contacts supply the original exclusions/skin depths, and each unordered pair retains its deepest sampled instant. Conservative advancement leaves a pair unread only at instants where its depth, less any allowance, cannot exceed what it already recorded (or the nanometre a first record needs), so the record is the full scan's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build contact windows, place every grid instant's segments and their travel, visit the grid in order reading the pairs that are due, accumulate deepest pair records, then sort by depth.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps inclusive window endpoints, grid order, strict first-time ties, structural baselines and original contact mapping; a pair is left unread only by a certificate measured on the motion's own poses, never by sampling; existing contact-part/skeleton casts reflect the canonical Human-window producer and are not broadened.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For G grid samples and S parts, O(G*S) placements and travel, O(G*S*S) broad comparisons, and bidirectional probe/shape queries only for the pairs a margin leaves due: none while a pair's segments hold still or stay clear by more than they move. Local pair storage is bounded by encountered pairs; the placements are G*S.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The model owns shared body probes and baselines; each instant still resolves its actual displayed bones, which the audit's other readings share through the caller's motion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Grid placements, travel table, due indices, exemption and deepest maps end with the call; returned results are owned by the caller. Existing weak body models retain only their own geometry/reference state.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -102,13 +111,31 @@ export namespace AutoMovieMotionHumanAuditTangle {
     body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditTangle.IResult {
+    const m: M.IModel = M.model(body);
     const exempt: IExemption[] = exemptions(motion, subject, body);
-    const deepest: Map<string, IAutoMovieMotionHumanAuditTangle.IPair> = new Map();
-    for (const t of HumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    )) {
+    const deepest: Map<string, IAutoMovieMotionHumanAuditTangle.IPair> =
+      new Map();
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
+
+    // Every instant's placed segments and each segment's travel to it, so a
+    // pair read at an instant is next read at the first instant its margin
+    // does not certify (`advanceAutoMovieGrid`); `due` holds that instant
+    // per pair, by the pair's index.
+    const frames: IAutoMovieMotionHumanColliders.IPlaced[][] = times.map(
+      (t: number): IAutoMovieMotionHumanColliders.IPlaced[] =>
+        HumanColliders.placed(body, motion.bones(subject, t)),
+    );
+    const travelled: Float64Array[] = Margin.travel(m, frames);
+    const count: number = m.parts.length;
+    const due: Int32Array = new Int32Array(count * count);
+
+    // Each pair's record, by its index: the greatest depth it read, or the
+    // nanometre a first record must pass.
+    const recorded: Float64Array = new Float64Array(count * count).fill(
+      Margin.NANOMETRE,
+    );
+    for (let k: number = 0; k < times.length; k++) {
+      const t: number = times[k]!;
       const skip: Set<string> = new Set();
       const pressed: Map<string, number> = new Map();
       for (const e of exempt)
@@ -116,15 +143,56 @@ export namespace AutoMovieMotionHumanAuditTangle {
           for (const key of e.pairs)
             if (e.depth === undefined) skip.add(key);
             else pressed.set(key, Math.max(pressed.get(key) ?? 0, e.depth));
-      for (const pair of pose(body, motion.bones(subject, t), skip, pressed)) {
+      for (const pair of Margin.within(
+        m,
+        frames[k]!,
+        skip,
+        pressed,
+        unordered,
+        {
+          due: (index: number): boolean => k >= due[index]!,
+
+          // A pair read here cannot add to its record while both segments
+          // travel less than its base plus the depth recorded for it (the
+          // nanometre a depth must pass to be recorded at all, before any);
+          // a pressed allowance only lowers what is read, so it is left
+          // out. A pair whose bounding spheres were apart is not read
+          // before the two travel the gap between them.
+          heard: (
+            index: number,
+            base: number,
+            apart: boolean,
+            depth: number,
+          ): void => {
+            recorded[index] = Math.max(recorded[index]!, depth);
+            const i: number = Math.floor(index / count);
+            const j: number = index % count;
+            due[index] = advanceAutoMovieGrid(
+              k,
+              times.length - 1,
+              apart ? base : base + recorded[index]!,
+              (from: number, to: number): number =>
+                travelled[to]![i]! -
+                travelled[from]![i]! +
+                (travelled[to]![j]! - travelled[from]![j]!),
+            );
+          },
+        },
+      )) {
         const key: string = unordered(pair.a, pair.b);
-        const known: IAutoMovieMotionHumanAuditTangle.IPair | undefined = deepest.get(key);
+        const known: IAutoMovieMotionHumanAuditTangle.IPair | undefined =
+          deepest.get(key);
         if (known === undefined || pair.depth > known.depth)
           deepest.set(key, { ...pair, seconds: t });
       }
     }
-    const pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [...deepest.values()].sort(
-      (x: IAutoMovieMotionHumanAuditTangle.IPair, y: IAutoMovieMotionHumanAuditTangle.IPair): number => y.depth - x.depth,
+    const pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [
+      ...deepest.values(),
+    ].sort(
+      (
+        x: IAutoMovieMotionHumanAuditTangle.IPair,
+        y: IAutoMovieMotionHumanAuditTangle.IPair,
+      ): number => y.depth - x.depth,
     );
     return {
       worst:
@@ -162,42 +230,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
     skip: ReadonlySet<string> = new Set(),
     pressed: ReadonlyMap<string, number> = new Map(),
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
-    const m: M.IModel =
-      M.model(body);
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
-    const centres: IAutoMovieVector3[] = placed.map(
-      (p: IAutoMovieMotionHumanColliders.IPlaced, i: number): IAutoMovieVector3 =>
-        M.centre(p, m.parts[i]!),
+    return Margin.within(
+      M.model(body),
+      HumanColliders.placed(body, bones),
+      skip,
+      pressed,
+      unordered,
     );
-
-    // Each segment read in is prepared once for this placement.
-    const targets: NonNullable<Parameters<typeof M.beyond>[4]> = [];
-    for (let i: number = 0; i < placed.length; i++)
-      for (let j: number = i + 1; j < placed.length; j++) {
-        if (m.related[i]![j]!) continue;
-        const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
-        if (Vector3.distance(centres[i]!, centres[j]!) >= reach)
-          continue;
-
-        // A pair's key is built only where some pair is skipped or pressed.
-        if (skip.size !== 0 && skip.has(unordered(placed[i]!.bone, placed[j]!.bone))) continue;
-        const forward: number = M.excess(m, placed, i, j, targets);
-        const backward: number = M.excess(m, placed, j, i, targets);
-        const depth: number =
-          Math.max(forward, backward) -
-          (pressed.size === 0 ? 0 : (pressed.get(unordered(placed[i]!.bone, placed[j]!.bone)) ?? 0));
-
-        // A nanometre: below it a depth is the rounding of the two frames.
-        if (depth > 1e-9)
-          out.push({
-            a: placed[forward >= backward ? i : j]!.bone,
-            b: placed[forward >= backward ? j : i]!.bone,
-            depth,
-            seconds: 0,
-          });
-      }
-    return out;
   }
 
   /**
@@ -225,34 +264,12 @@ export namespace AutoMovieMotionHumanAuditTangle {
     other: IAutoMovieMotionHumanBody,
     otherBones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
-    const m: M.IModel =
-      M.model(body);
-    const o: M.IModel =
-      M.model(other);
-    const mine: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const theirs: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      other,
-      otherBones,
+    return Margin.entering(
+      M.model(body),
+      HumanColliders.placed(body, bones),
+      M.model(other),
+      HumanColliders.placed(other, otherBones),
     );
-    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
-
-    // Each of the other body's segments is prepared once for this placement.
-    const read: NonNullable<Parameters<typeof M.beyond>[4]> = [];
-    for (let i: number = 0; i < mine.length; i++)
-      for (let j: number = 0; j < theirs.length; j++) {
-        const reach: number = m.parts[i]!.radius + o.parts[j]!.radius;
-        const apart: number = Vector3.distance(
-          M.centre(mine[i]!, m.parts[i]!),
-          M.centre(theirs[j]!, o.parts[j]!),
-        );
-        if (apart >= reach) continue;
-        let depth: number = 0;
-        for (const d of (read[j] ??= prepareAutoMovieMotionHumanAuditDepths(theirs[j]!))(m.parts[i]!.probes, mine[i]!))
-          depth = Math.max(depth, d);
-        if (depth > 1e-9)
-          out.push({ a: mine[i]!.bone, b: theirs[j]!.bone, depth, seconds: 0 });
-      }
-    return out;
   }
 
   /**
@@ -285,9 +302,9 @@ export namespace AutoMovieMotionHumanAuditTangle {
     prepared?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     targets: NonNullable<Parameters<typeof M.beyond>[4]> = [],
   ): number {
-    const m: M.IModel =
-      M.model(body);
-    const placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] = prepared ?? HumanColliders.placed(body, bones);
+    const m: M.IModel = M.model(body);
+    const placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
+      prepared ?? HumanColliders.placed(body, bones);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -297,7 +314,9 @@ export namespace AutoMovieMotionHumanAuditTangle {
     // world placements, never depth or score results.
     const centres: IAutoMovieVector3[] = [];
     const points: IAutoMovieVector3[][] = [];
-    const centre: (part: number) => IAutoMovieVector3 = (part: number): IAutoMovieVector3 => {
+    const centre: (part: number) => IAutoMovieVector3 = (
+      part: number,
+    ): IAutoMovieVector3 => {
       let point: IAutoMovieVector3 | undefined = centres[part];
       if (point === undefined) {
         point = M.centre(placed[part]!, m.parts[part]!);
@@ -307,7 +326,10 @@ export namespace AutoMovieMotionHumanAuditTangle {
     };
 
     // A positive depth still measures and clamps its lever on every query.
-    const lever: (part: number, corner: number) => number = (part: number, corner: number): number => {
+    const lever: (part: number, corner: number) => number = (
+      part: number,
+      corner: number,
+    ): number => {
       let list: IAutoMovieVector3[] | undefined = points[part];
       if (list === undefined) {
         list = [];
@@ -315,7 +337,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
       }
       let point: IAutoMovieVector3 | undefined = list[corner];
       if (point === undefined) {
-        point = Vector3.add(placed[part]!.pose.position, Quaternion.rotateVector(placed[part]!.pose.rotation, m.parts[part]!.probes[corner]!));
+        point = Vector3.add(
+          placed[part]!.pose.position,
+          Quaternion.rotateVector(
+            placed[part]!.pose.rotation,
+            m.parts[part]!.probes[corner]!,
+          ),
+        );
         list[corner] = point;
       }
       return Math.max(1e-3, Vector3.distance(point, shoulder));
@@ -385,10 +413,7 @@ const exemptions: (
   body: IAutoMovieMotionHumanBody,
 ): IExemption[] => {
   const out: IExemption[] = [];
-  for (const window of HumanAuditMotion.windows(
-    motion,
-    subject,
-  )) {
+  for (const window of HumanAuditMotion.windows(motion, subject)) {
     const support: typeof window.contact.support = window.contact.support;
     if (support.kind !== "person" || support.subject !== subject) continue;
 
