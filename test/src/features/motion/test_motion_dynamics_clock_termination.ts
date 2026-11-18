@@ -1,9 +1,23 @@
-import { followPathMotion, sampleTimes, windowSampleTimes } from "@automovie/engine";
+import {
+  Quaternion,
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+  followPathMotion,
+  resolvePose,
+  sampleTimes,
+  windowSampleTimes,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditMotion,
+  HumanConversation,
+  HumanFreedomChoice,
+  HumanWater,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { createValidMotion } from "../internal/fixtures";
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
@@ -20,6 +34,76 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_clock_termination(): void {
+  for (const [side, sign] of [
+    ["left", -1],
+    ["right", 1],
+  ] as const)
+    TestValidator.equals(
+      "turn enumeration terminates with one antipode",
+      HumanFreedomChoice.turns(45, side),
+      [
+        0,
+        sign * 45,
+        -sign * 45,
+        sign * 90,
+        -sign * 90,
+        sign * 135,
+        -sign * 135,
+        180,
+      ],
+    );
+  for (const step of [0, -15, NaN, 1e-300])
+    TestValidator.predicate(
+      "nonadvancing turn spacing refused",
+      throwsError(() => HumanFreedomChoice.turns(step, "right")),
+    );
+  TestValidator.equals(
+    "infinite spacing leaves only zero",
+    HumanFreedomChoice.turns(Infinity, "right"),
+    [0],
+  );
+  const gaze = (from: number) =>
+    HumanConversation.gaze(
+      "a",
+      "b",
+      [{ speaker: "a", from, to: 30 }],
+      createAutoMovieRandom(deriveAutoMovieSeed("talk", "0")),
+      1.6,
+    );
+  TestValidator.predicate(
+    "glance clock starts at a valid turn boundary",
+    throwsError(() => gaze(-1)) &&
+      throwsError(() => gaze(-Infinity)) &&
+      gaze(0)[0]?.from === 0 &&
+      gaze(0)[0]?.target.kind === "person",
+  );
+  const body = motionHumanBody("m-average");
+  const rotation = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90);
+  const bones = new Map(
+    resolvePose(
+      { skeleton: body.skeleton.id, root: null, joints: [] },
+      body.skeleton,
+    ).map(
+      (b) =>
+        [
+          b.bone,
+          {
+            ...b,
+            worldPosition: Quaternion.rotateVector(rotation, b.worldPosition),
+            worldRotation: Quaternion.multiply(rotation, b.worldRotation),
+          },
+        ] as const,
+    ),
+  );
+  const high = 2 ** 34;
+  const low = HumanWater.float(body, bones, { surface: 0 }),
+    raised = HumanWater.float(body, bones, { surface: high });
+  TestValidator.predicate(
+    "float search terminates when surface ULP exceeds tolerance",
+    low === null
+      ? raised === null
+      : raised !== null && nclose(raised, high + low, 1e-6 + 4 * 2 ** -18),
+  );
   const gait = { ...createValidMotion(), loop: true };
   const walk = (waypoints: IAutoMovieVector3[]) =>
     followPathMotion({ id: "path", gait, waypoints, speed: 1 });
