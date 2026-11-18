@@ -177,41 +177,43 @@ export function test_human_motion_travel_gaits(): void {
           complaints.push(
             `${name} ${label}: the ${strike.side} foot does not bear a 24th of a second after its strike at ${strike.seconds.toFixed(2)} s`,
           );
-      const hips = (t: number): { y: number; z: number } => {
-        const l: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          t,
-          "leftUpperLeg",
-        );
-        const r: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          t,
-          "rightUpperLeg",
-        );
-        return { y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
-      };
       const first: IFootfall = strikes[0]!;
       const last: IFootfall = strikes[strikes.length - 1]!;
-      const places: number[] = strikes.map(
-        (s: IFootfall): number =>
-          HumanSignature.joint(reader, s.seconds + after, `${s.side}Foot`).z,
-      );
-
-      // The strikes and the instants half way between them.
       const ts: number[] = strikes.flatMap(
-        (s: IFootfall, i: number): number[] =>
+        (strike: IFootfall, i: number): number[] =>
           i === 0
-            ? [s.seconds + after]
-            : [
-                (strikes[i - 1]!.seconds + s.seconds) / 2 + after,
-                s.seconds + after,
-              ],
-      );
-      const fore: number[] = ts.map(
-        (t: number): number =>
-          HumanSignature.joint(reader, t, "leftHand").z - hips(t).z,
+            ? [strike.seconds + after]
+            : [(strikes[i - 1]!.seconds + strike.seconds) / 2 + after, strike.seconds + after],
       );
 
+      // Each footfall and intervening midpoint supplies one displayed pose.
+      let height: number = 0;
+      let knee: number = 0;
+      let apart: number = 0;
+      const fore: number[] = [];
+      const hipEnds: number[] = [];
+      const footEnds: number[] = [];
+      for (const [i, seconds] of ts.entries()) {
+        const frame: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(reader, seconds);
+        const leftHip: IAutoMovieVector3 = frame.get("leftUpperLeg")!.worldPosition;
+        const rightHip: IAutoMovieVector3 = frame.get("rightUpperLeg")!.worldPosition;
+        const leftHand: IAutoMovieVector3 = frame.get("leftHand")!.worldPosition;
+        const hipZ: number = (leftHip.z + rightHip.z) / 2;
+        height += (leftHip.y + rightHip.y) / 2;
+        apart += Math.abs(leftHand.x - frame.get("rightHand")!.worldPosition.x);
+        fore.push(leftHand.z - hipZ);
+        const flexion: (side: "left" | "right") => number = (side: "left" | "right"): number => HumanSignature.flexion(
+          frame.get(`${side}UpperLeg`)!.worldPosition,
+          frame.get(`${side}LowerLeg`)!.worldPosition,
+          frame.get(`${side}Foot`)!.worldPosition,
+        );
+        knee += Math.min(flexion("left"), flexion("right"));
+        if (i === 0 || i === ts.length - 1) {
+          hipEnds.push(hipZ);
+          const end: IFootfall = i === 0 ? first : last;
+          footEnds.push(frame.get(`${end.side}Foot`)!.worldPosition.z);
+        }
+      }
       // Half way from the other foot's toe-off to each strike, or just before the strike where the other foot is still down by name.
       const lifts: IFootfall[] = named("ToeOff");
       const flight: boolean = strikes
@@ -233,25 +235,13 @@ export function test_human_motion_travel_gaits(): void {
           );
         });
       return {
-        speed:
-          (hips(last.seconds + after).z - hips(first.seconds + after).z) /
-          (last.seconds - first.seconds),
+        speed: (hipEnds[1]! - hipEnds[0]!) / (last.seconds - first.seconds),
         cadence: (60 * (strikes.length - 1)) / (last.seconds - first.seconds),
-        step: (places[places.length - 1]! - places[0]!) / (places.length - 1),
-        hips: HumanSignature.mean(ts, (t: number): number => hips(t).y),
-        knee: HumanSignature.mean(ts, (t: number): number =>
-          Math.min(
-            HumanSignature.knee(reader, t, "left"),
-            HumanSignature.knee(reader, t, "right"),
-          ),
-        ),
+        step: (footEnds[1]! - footEnds[0]!) / (strikes.length - 1),
+        hips: height / ts.length,
+        knee: knee / ts.length,
         swing: Math.max(...fore) - Math.min(...fore),
-        apart: HumanSignature.mean(ts, (t: number): number =>
-          Math.abs(
-            HumanSignature.joint(reader, t, "leftHand").x -
-              HumanSignature.joint(reader, t, "rightHand").x,
-          ),
-        ),
+        apart: apart / ts.length,
         flight,
       };
     };
