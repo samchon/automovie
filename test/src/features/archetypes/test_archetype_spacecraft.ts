@@ -186,7 +186,7 @@ export function test_archetype_spacecraft(): void {
   );
   expect(
     "side wall leaves room at the cabin center",
-    portWall.low > 1.7 && cabinWall < -1.7,
+    portWall.low > 1.7 && -1.7 > cabinWall,
   );
 
   const closedHandle: IAutoMovieVector3 =

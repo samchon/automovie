@@ -149,7 +149,7 @@ export function test_motion_group_conversation_gaze(): void {
     layer.apply(standing, seconds, context).joints.leftEye?.[2] ?? 0;
   TestValidator.predicate(
     "C turns the left eye toward the two speakers on opposite sides",
-    eyeYaw(1.5) > 5 && eyeYaw(4.5) < -5,
+    eyeYaw(1.5) > 5 && -5 > eyeYaw(4.5),
   );
   TestValidator.predicate(
     "the pause restores the base eye yaw",

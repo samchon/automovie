@@ -124,7 +124,7 @@ export function test_archetype_props_pour_vessel(): void {
       ) &&
         shapes.some(
           (shape: IAutoMoviePhysicalShape): boolean =>
-            separation(shape, inside, below) < -0.001,
+            -0.001 > separation(shape, inside, below),
         ) &&
         handle.kind === "handle" &&
         handle.grip === "hook" &&
