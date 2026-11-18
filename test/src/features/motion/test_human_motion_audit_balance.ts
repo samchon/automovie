@@ -60,6 +60,8 @@ type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
  *    by pendulum length is equal after removing the sole's own geometry.
  * 9. On the average man, planted palms extend the hull to a mass centre
  *    beyond the feet. Adding a bearing knee keeps it inside the hull.
+ * 10. Separated physical and balance phases each admit one original grid tick.
+ *     Their derivatives use only the immediate neighbours on that same grid.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads public measure and margin on a real mass model, counting bone reads of the unjudged fixture. A wrong velocity span, pendulum length, judgment gate or bearing hull fails.
  * @evidence contracts/development/testing.md#independent-expectations The distance outside is Hof's closed form over the stance's centre of mass and sole points. At fixed v/sqrt(g l), the advance is proportional to l. The palm fixture's chosen translations place the centre ahead of the feet and behind the palms.
@@ -219,7 +221,48 @@ export function test_human_motion_audit_balance(): void {
       `${name}: an unjudged action takes no displayed-bone samples`,
       posed.value === 0 && posed.where === "none" && boneReads === before,
     );
-    if (name === "m-average") palms(body, stance);
+    if (name === "m-average") {
+      palms(body, stance);
+      const span: HumanPhysics.ISpan = {
+        name: "accelerating stance",
+        start: 0,
+        entryTime: 0,
+        end: 1,
+        law: { physical: true },
+        plan: {
+          duration: 1,
+          contacts: [plant("leftFoot", 0), plant("rightFoot", 0)],
+          physicalWindow: { from: 3 / 16, to: 5 / 16 },
+          balanceWindow: {
+            by: "hips", weight: 1, ramp: { in: 0, out: 0 },
+            from: 11 / 16, to: 13 / 16,
+          },
+        },
+      };
+      const reads: Set<number> = new Set<number>();
+      const sparse: IAutoMovieMotionHumanAuditMotion = motionAuditMoved(
+        stance, 1,
+        (_bone: AutoMovieHumanoidBone, seconds: number): IAutoMovieVector3 => {
+          reads.add(seconds);
+          return { x: 0, y: 0, z: seconds ** 2 };
+        },
+        [span],
+      );
+      const rate: number = 8;
+      const judged: IAutoMovieMotionHumanAuditMeasure =
+        AutoMovieMotionHumanAuditBalance.measure(sparse, "a", body, rate);
+      const ticks: number[] = [...reads].map((t: number): number => t * rate)
+        .sort((a: number, b: number): number => a - b);
+      TestValidator.equals("only ticks 2 and 6 and their neighbours supply bones", ticks, [1, 2, 3, 5, 6, 7]);
+
+      // The central difference of z(t) = t² is exactly 2t at either tick.
+      const peak: number = 6 / rate;
+      TestValidator.predicate(
+        "the second phase has the greater analytic extrapolation",
+        judged.seconds === peak && judged.where === "both feet" &&
+          nclose(judged.value, centre + 2 * peak * lead - zToe),
+      );
+    }
   }
   TestValidator.predicate(
     "Froude similarity preserves the advance in pendulum lengths",
