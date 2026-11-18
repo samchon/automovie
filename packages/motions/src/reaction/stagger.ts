@@ -465,6 +465,6 @@ export namespace stagger {
       recovery,
       duration,
     );
-    return { ...composed, contacts };
+    return { ...composed, contacts, physicalWindow: { from: 0, to: recovery.settled } };
   }
 }

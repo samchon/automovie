@@ -373,7 +373,11 @@ export namespace perturb {
       to: 1,
       support: { kind: "ground" },
     });
-    return { ...composed, contacts: [plant("leftFoot"), plant("rightFoot")] };
+    return {
+      ...composed,
+      contacts: [plant("leftFoot"), plant("rightFoot")],
+      physicalWindow: speed === 0 ? null : { from: 0, to: duration },
+    };
   }
 
   /**

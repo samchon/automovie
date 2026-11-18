@@ -134,7 +134,7 @@ export namespace HumanForceResponse {
     return {
       ...answer,
       duration,
-      physicalWindow: {
+      physicalWindow: answer.physicalWindow === null ? null : {
         from: onset + (answer.physicalWindow?.from ?? 0),
         to: onset + (answer.physicalWindow?.to ?? answer.duration),
       },
