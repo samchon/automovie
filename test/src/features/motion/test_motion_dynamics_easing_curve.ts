@@ -1,4 +1,4 @@
-import { cubicBezierEasing } from "@automovie/engine";
+import { cubicBezierEasing, ease } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -17,6 +17,25 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_easing_curve(): void {
+  TestValidator.predicate(
+    "unnamed controls use linear progress and clamp outside the interval",
+    ease("cubicBezier", 0.25) === 0.25 &&
+      ease("linear", -1) === 0 &&
+      cubicBezierEasing([0, 0, 1, 1], 2) === 1,
+  );
+  TestValidator.predicate(
+    "nonfinite progress refused",
+    throwsError(() => ease("linear", NaN)) &&
+      throwsError(() => cubicBezierEasing([0, 0, 1, 1], NaN)),
+  );
+  for (const axis of [0, 1, 2, 3]) {
+    const controls: [number, number, number, number] = [0, 0, 1, 1];
+    controls[axis] = Infinity;
+    TestValidator.predicate(
+      "every control coordinate must be finite",
+      throwsError(() => cubicBezierEasing(controls, 0.5)),
+    );
+  }
   // At parameter 3/4 the cubic time coordinate is 9/16 and the easing ordinate is 27/32.
   TestValidator.predicate(
     "inverse through stationary abscissa",
