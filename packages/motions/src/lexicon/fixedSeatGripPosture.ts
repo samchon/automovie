@@ -115,7 +115,7 @@ function clavicle(
     hand?.parent !== elbow.bone ||
     limit.twist !== null ||
     limit.swingTwist !== undefined ||
-    limit.swingDeg != null ||
+    (limit.swingDeg !== undefined && limit.swingDeg !== null) ||
     axes.flexion.y !== 1 ||
     axes.abduction.z !== 1 ||
     upper.rest.translation.y !== 0
