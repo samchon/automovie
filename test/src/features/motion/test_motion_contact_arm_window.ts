@@ -87,6 +87,21 @@ export function test_motion_contact_arm_window(): void {
     ).point;
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const initial = HumanHand.frame(
+    body,
+    poseBones(body, resolveHumanPosture(body, quiet)),
+    side,
+    "palm",
+    "flat",
+  ).point;
+  TestValidator.predicate(
+    "zero reach weight preserves the incoming palm",
+    distance(palm(span.start), initial) <= 0.001,
+  );
+  TestValidator.predicate(
+    "zero return duration preserves the held endpoint",
+    distance(palm(span.relax), palm(span.end)) <= 1e-9,
+  );
   const frames: number = Math.round(span.end * 30);
   const read: IAutoMovieVector3[] = Array.from(
     { length: frames + 1 },

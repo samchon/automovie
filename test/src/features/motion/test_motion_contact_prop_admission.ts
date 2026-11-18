@@ -143,7 +143,7 @@ export function test_motion_contact_prop_admission(): void {
       ],
       composition: HumanChain.subject("a").registered("mountParts").node,
     });
-    for (const seconds of [0.25, 0.5, 0.75]) {
+    for (const seconds of [0, 0.5, 1]) {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         film.bones("a", seconds);
       const hips: IAutoMovieResolvedBone = bones.get("hips")!;

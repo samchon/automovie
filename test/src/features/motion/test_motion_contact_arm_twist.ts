@@ -61,6 +61,7 @@ export function test_motion_contact_arm_twist(): void {
     ) *
       180) /
     Math.PI;
+  const wristOrigins = new Map<string, IAutoMovieVector3>();
   for (const side of ["left", "right"] as const)
     for (const [twist, axis, toward] of [
       [0, "thumb", { x: 0, y: 1, z: 0 }],
@@ -81,6 +82,19 @@ export function test_motion_contact_arm_twist(): void {
       };
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, posture));
+      const wrist = bones.get(`${side}Hand`)!.worldPosition;
+      const initial = wristOrigins.get(side);
+      if (initial === undefined) wristOrigins.set(side, wrist);
+      else if (
+        Math.hypot(
+          wrist.x - initial.x,
+          wrist.y - initial.y,
+          wrist.z - initial.z,
+        ) > 0.001
+      )
+        complaints.push(
+          side + " rolling the forearm translates the wrist pivot",
+        );
       const shown: IAutoMovieVector3 = Quaternion.rotateVector(
         bones.get(`${side}Hand`)!.worldRotation,
         AutoMovieMotionHumanTouchEffector.axis(side, axis),

@@ -60,6 +60,25 @@ export function test_motion_contact_retarget_contact(): void {
     z: 0.25,
   });
 
+  // Identical proportions can hold both original world contacts without correction.
+  const straight = proportionedRig("equal-proportions");
+  const equal = retargetHumanoidMotion({
+    motion,
+    source,
+    target: straight,
+  });
+  if (equal.motion === null)
+    throw new Error("equal proportions refused contact retarget");
+  for (const foot of ["leftFoot", "rightFoot"] as const) {
+    for (const k of [0, 1])
+      TestValidator.predicate(
+        "an equal-length foot retains its world contact",
+        missBy(
+          keyframeWorld(straight, equal.motion, k, foot),
+          keyframeWorld(source, motion, k, foot),
+        ) <= 0.001,
+      );
+  }
   // 1. a warning per foot, not a failure.
   const pinned: ReturnType<typeof retargetHumanoidMotion> =
     retargetHumanoidMotion({ motion, source, target });

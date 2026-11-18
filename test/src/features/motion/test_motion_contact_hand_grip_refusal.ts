@@ -20,6 +20,8 @@ export function test_motion_contact_hand_grip_refusal(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const a: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("m-large");
+  const separation = 2 * b.measure.stature;
+  const minimumGap = separation - a.measure.stature - b.measure.stature;
   let refused: unknown;
   try {
     motionHumanLaw.perform(
@@ -29,7 +31,7 @@ export function test_motion_contact_hand_grip_refusal(): void {
         {
           subject: "b",
           body: b,
-          at: { x: 0, y: 0, z: 2 * b.measure.stature },
+          at: { x: 0, y: 0, z: separation },
           yaw: 180,
         },
       ],
@@ -44,7 +46,11 @@ export function test_motion_contact_hand_grip_refusal(): void {
     `beyond reach the kiss names its region: ${String(refused)}`,
     refused instanceof HumanRefusal &&
       refused.kind === "reach" &&
-      refused.axis === "region",
+      refused.axis === "region" &&
+      refused.value === "forehead" &&
+      refused.feasible?.kind === "range" &&
+      refused.feasible.unit === "m" &&
+      minimumGap > (refused.feasible.maximum ?? Infinity),
   );
   all.assert("an unreachable forehead is refused on its region");
 }

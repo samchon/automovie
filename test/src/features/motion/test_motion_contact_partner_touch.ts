@@ -156,6 +156,32 @@ export function test_motion_contact_partner_touch(): void {
     "each of the 15 actual queries reads its current surface once",
     reads === 15,
   );
+  // Mirror the carrier itself, independently of the hand pose. A palm hold
+  // must take its translation from that frame at this actual query time.
+  const mirrored = AutoMovieMotionHumanTouch.goal({
+    ...fixed,
+    region: (_p, t) => {
+      const world = carrier(t);
+      return { point: { ...world, x: -world.x }, normal: { x: 0, y: 0, z: 1 } };
+    },
+  });
+  const t = start + span / 2;
+  const mirrorWrist = mirrored(posture, t);
+  const mirrorPalm = Vector3.add(
+    mirrorWrist.point,
+    Quaternion.rotateVector(mirrorWrist.rotation!, offset),
+  );
+  const ordinary = hold(posture, t);
+  const ordinaryPalm = Vector3.add(
+    ordinary.point,
+    Quaternion.rotateVector(ordinary.rotation!, offset),
+  );
+  all.check(
+    "a reflected carrier reflects only the target coordinate",
+    Math.abs(mirrorPalm.x + ordinaryPalm.x) <= 1e-9 &&
+      Math.abs(mirrorPalm.y - ordinaryPalm.y) <= 1e-9 &&
+      Math.abs(mirrorPalm.z - ordinaryPalm.z) <= 1e-9,
+  );
   all.assert(
     "touch paths use only the requested sample of their moving surface",
   );
