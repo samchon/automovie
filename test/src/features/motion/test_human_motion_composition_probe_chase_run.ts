@@ -4,7 +4,10 @@ import { motionCompositionProbe } from "../internal/motionCompositionProbe";
 
 /**
  * A composition probe of the coverage ledger (`motionCompositionProbe`)
- * plans and keeps every physical bound. A chase by run: a run to where a person walking away goes.
+ * plans and keeps every physical bound. A chase by run: a run to the gap
+ * behind where a person running away stops. A quarry who walks away is
+ * overtaken inside the gap, a run being over twice a walk's speed, so the
+ * chaser would run through her; following a walker is the approach probe's.
  *
  * Performed by the average man, with the small woman as partner. A probe
  * that plans with a clean verdict report is expressible by composition; a
