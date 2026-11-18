@@ -1,40 +1,87 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanWalkSteps,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  walkSteps,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { WalkPace } from "../../../../packages/motions/src/actions/WalkPace";
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
 /**
- * Swing duration decides whether both feet can share support at landing.
+ * A straight, externally paced walk places the ankle ahead of the pelvis
+ * by half a step in double support and by half of contact in flight,
+ * accounting for where the foot rolls between heel and ball.
  *
  * Scenarios:
- * 1. Just below and at one period, the landing is half a step ahead.
- * 2. Just above one period, midstance bisects contact, measured at the
- *    centre of pressure. Its offset from the ankle reduces the ankle lead.
+ * 1. Swing just below or at one period leaves the footprint half a step ahead.
+ * 2. Swing just above one period centres the pressure path over midstance.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the support transition and the two frames used to locate a landing.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the lead used to place a footprint at the instant of contact.
- * @evidence contracts/development/testing.md#independent-expectations For a one-metre step the centre-of-pressure offset in metres equals its step fraction. Contact lasts two periods less the swing, so half of contact gives the centre's landing lead.
- * @evidence contracts/development/testing.md#distinguishing-cases A one-millisecond change around a one-second period crosses the shared-support boundary. A nonzero offset distinguishes the flight branch at equality.
- * @evidence contracts/development/testing.md#execution-ownership Constructs three constant-size pace plans without a scene or a body.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the contact transition and reads a flat ankle after landing.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public foot schedule on a fixed-speed straight path.
+ * @evidence contracts/development/testing.md#independent-expectations At one metre per second, elapsed seconds give distance in metres. Half the contact interval locates midstance, corrected by the midpoint of the heel and ball offsets in step units.
+ * @evidence contracts/development/testing.md#distinguishing-cases Swing varies by one millisecond either side of a one-second period. The nonzero foot offset distinguishes both branch results at equality.
+ * @evidence contracts/development/testing.md#execution-ownership Three small public step plans share a single actor's standing entry.
  */
 export function test_human_motion_pose_contract_footfall_lead(): void {
-  const period: number = 1;
-  const offset: number = 0.1;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const entry: IAutoMovieMotionHumanEntryState = new HumanPerformance({
+    seed: "footfall",
+    performers: [
+      {
+        subject: "walker",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("walker").stand({ seconds: 1, sway: 0 })
+      .node,
+  }).segments("walker")[0]!.context.entry;
+  const start: number =
+    (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2;
+  const distance: number = 10;
+  const offset: number =
+    (HumanFoot.offset(body, "left", "heel").z +
+      HumanFoot.offset(body, "left", "mtp").z) /
+    2;
   for (const swing of [0.999, 1, 1.001]) {
-    const pace: WalkPace = new WalkPace({
-      steps: 4,
-      longest: 1,
-      distance: 4,
+    const plan: IAutoMovieMotionHumanWalkSteps.IPlan = walkSteps.plan({
+      body,
+      entry,
+      to: {
+        x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
+        y: 0,
+        z: start + distance,
+      },
       speed: 1,
-      share: swing / period,
-      lead: offset,
-      period: (): number => period,
+      longest: 1,
+      swing,
+      period: (): number => 1,
+      travel: (seconds: number): number =>
+        Math.max(0, Math.min(1, seconds / distance)),
     });
-    const contact: number = 2 * period - swing;
-    const expected: number = swing <= period ? 0.5 : contact / (2 * period) - offset;
+    const strikes = plan.events.filter((event) =>
+      event.name.includes("HeelStrike"),
+    );
+    const landing: number = strikes.find(
+      (event) => event.name === "leftHeelStrike3",
+    )!.seconds;
+    const step: number = distance / (strikes.length - 1);
+    const contact: number = 2 - swing;
+    const lead: number = swing <= 1 ? 0.5 : contact / 2 - offset / step;
+    const ankle: number = plan.foot("left", landing + contact / 3).placement
+      .ankle.z;
     TestValidator.predicate(
-      `landing lead at ${swing} periods of swing`,
-      nclose(pace.front, expected, 1e-12),
+      `flat ankle after landing with swing ${swing}`,
+      nclose(ankle, start + landing + lead, 1e-9),
     );
   }
 }
