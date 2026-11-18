@@ -1,3 +1,4 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
@@ -73,6 +74,38 @@ export namespace IAutoMovieMotionHumanSupport {
 
     /** The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent. */
     on?: IAutoMovieMotionTarget;
+
+    /** A paired support whose two matching hand contacts move through one shared course. */
+    assist?: IAssist;
+  }
+
+  /**
+   * The paired support's role in an assisted rise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The helper receives the other person's weight and the helped person moves from seated support to the feet.
+   * @evidence contracts/development/design.md#principled-representation Each role has distinct support keys and the roles use the same two hand-contact points.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Support uses the role only when an action declares an assisted rise.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The role changes the authored stance, not the reach or refusal allowance.
+   */
+  export type AssistRole = "helper" | "helped";
+
+  /**
+   * Partners and the hand used to take weight during an assisted rise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the support roles, participating subject and the side of both hands.
+   * @evidence contracts/development/design.md#principled-representation The concrete keyed hand course arises from the two rendered bodies; author parameters only identify its participants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanCoupled.helpUp authors the paired roles and the support plan reads them together once.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The action's own contact windows and reach constraints still apply.
+   */
+  export interface IAssist {
+    /** The role this performer takes. */
+    role: AssistRole;
+
+    /** The other role's subject id. */
+    partner: string;
+
+    /** The hand each participant contributes to the clasp. */
+    side: AutoMovieHumanSide;
   }
 
   /**
