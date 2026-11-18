@@ -40,7 +40,6 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
-
   /**
    * The carry from a start to a second of a support whose frame a function
    * gives.
@@ -179,7 +178,8 @@ export namespace HumanSupportCarry {
    * @param context The action's context.
    * @param plan The plan made in the world at the start.
    * @param prop The prop the body stands or walks on.
-   * @returns The carried plan, its plants on the prop.
+   * @returns The carried plan with its plants on the prop. The prop frame
+   * does not certify a stationary window in world coordinates.
    */
   export function on(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
@@ -188,12 +188,16 @@ export namespace HumanSupportCarry {
   ): IAutoMovieMotionHumanActionPlan {
     const frame = (seconds: number): IAutoMovieRigidTransform =>
       context.prop(prop).frame(seconds);
+    const { still: _still, legsStill: _legsStill, ...moving } = plan;
     return {
-      ...plan,
-      contacts: plan.contacts.map((c: IAutoMovieMotionHumanActionPlan["contacts"][number]): IAutoMovieMotionHumanActionPlan["contacts"][number] =>
-        c.kind === "plant" && c.support.kind === "ground"
-          ? { ...c, support: { kind: "prop" as const, subject: prop } }
-          : c,
+      ...moving,
+      contacts: plan.contacts.map(
+        (
+          c: IAutoMovieMotionHumanActionPlan["contacts"][number],
+        ): IAutoMovieMotionHumanActionPlan["contacts"][number] =>
+          c.kind === "plant" && c.support.kind === "ground"
+            ? { ...c, support: { kind: "prop" as const, subject: prop } }
+            : c,
       ),
       posture: (
         seconds: number,
@@ -223,7 +227,8 @@ export namespace HumanSupportCarry {
    * @param plan The plan made at the start.
    * @param channels The channels the plan claims over its carrier.
    * @param aim The line kept on a world target; none when absent.
-   * @returns The carried plan.
+   * @returns The carried plan. The ground branch keeps the input's
+   * stationarity bounds; another support can move its world goals.
    * @throws {HumanRefusal} When keeping the aim twists the trunk out of its range (`HumanSupportAim.check`).
    */
   export function plan(
@@ -251,10 +256,19 @@ export namespace HumanSupportCarry {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): IAutoMovieMotionHumanPosture => {
-      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + seconds);
+      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
+        frame,
+        context.start,
+        context.start + seconds,
+      );
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
-      const own: IAutoMovieMotionHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution, projection);
+      const own: IAutoMovieMotionHumanPosture = plan.posture(
+        seconds,
+        aim === undefined ? requested : undefined,
+        resolution,
+        projection,
+      );
       const made: IAutoMovieMotionHumanPosture = {
         ...posture(carry, own),
         root: own.root,
@@ -265,8 +279,9 @@ export namespace HumanSupportCarry {
         : HumanSupportAim.posture(carry, made, aim);
     };
     if (aim !== undefined) HumanSupportAim.check(carried, plan.duration);
+    const { still: _still, legsStill: _legsStill, ...moving } = plan;
     return {
-      ...plan,
+      ...moving,
       channels,
       posture: carried,
       ...(plan.launches === undefined
@@ -294,7 +309,11 @@ export namespace HumanSupportCarry {
     frame: (seconds: number) => IAutoMovieRigidTransform,
     l: IAutoMovieMotionPropLaunch,
   ): IAutoMovieMotionPropLaunch {
-    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + l.seconds);
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
+      frame,
+      context.start,
+      context.start + l.seconds,
+    );
     const support: IAutoMovieVector3 = HumanSupportFrame.at(
       context,
       context.start + l.seconds,
