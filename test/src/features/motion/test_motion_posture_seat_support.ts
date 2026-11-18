@@ -277,7 +277,8 @@ function checkHighSeat(complaints: string[]): void {
         error instanceof HumanRefusal &&
         error.kind === kind &&
         error.axis === axis &&
-        error.feasible != null &&
+        error.feasible !== undefined &&
+        error.feasible !== null &&
         (kind !== "base" ||
           (error.feasible.kind === "alternatives" &&
             error.feasible.values.includes("rise")))

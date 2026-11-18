@@ -1,55 +1,219 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFloorFall,
+  HumanFloorRoll,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 
-import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionComplaints } from "../internal/motionComplaints";
-import { motionPostureBranches } from "../internal/motionPostureBranches";
+import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Lying on the back, front or side changes support without skating or penetrating the floor.
+ * Floor entry transfers the feet's support to the ground.
  *
  * Scenarios:
- * 1. The default back-down and explicit front-down routes use different bearing sides.
- * 2. Left and right lateral routes enter on opposite limbs and retain distinct observed supports.
- * 3. The displayed shoulders and hips identify the side that faces the floor at rest. The exit declares the lying base.
+ * - During a tuck the feet stay planted, the head passes below the hips, and
+ *   the turning body stays near the ground as it travels in the chosen direction.
+ * - A side dive clears both feet while preserving the chest axis. A slide
+ *   travels forward. Both finish with low hips and declared seat support.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the law's distinguishing inputs and preserves their staged context.
- * @evidence contracts/development/testing.md#behavioral-verification Performs the actual public law and applies the timing, contact, range, spin and display audits to its staged performances.
- * @evidence contracts/development/testing.md#independent-expectations The same floor, tangle and contact limits constrain every route. These limits are independent of the result the law returns.
- * @evidence contracts/development/testing.md#distinguishing-cases The default back-down and explicit front-down routes use different bearing sides. Left and right lateral routes enter on opposite limbs and retain distinct observed supports.
- * @evidence contracts/development/testing.md#execution-ownership The discovered test stages and audits the selected solo branches in memory.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples displayed world joints, chest rotation and the actual ground contact through the public floor laws.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the original geometric campaign bounds of 5 mm plant slip, 50 mm foot clearance, 20 degrees chest rotation, 150 mm lowest joint and 400 mm hip height. Directed travel is at least 400 mm rolling or 600 mm falling.
+ * @evidence contracts/development/testing.md#distinguishing-cases Forward/backward rotation, left/right flight and forward sliding are distinct directed outputs. All use one initial stance.
+ * @evidence contracts/development/testing.md#execution-ownership One real plan per distinct floor-entry direction on a single prepared body.
+ * @evidence contracts/development/common.md#meaningful-documentation Bounds are distances and angles of the displayed body.
  */
 export function test_motion_posture_floor_support_entry(): void {
-  const complaints: motionComplaints.IGatherer = motionComplaints();
-  const findings: string[] = motionPostureBranches(
-    [
-      ["lieDown", "default", "f-small"],
-      ["lieDown", "position=prone", "m-large"],
-      ["lieDown", "position=lateralLeft", "f-small"],
-      ["lieDown", "position=lateralRight", "m-large"],
-    ],
-    (film, [, row, name]): void => {
-      // Construct anatomical axes from displayed joint centres. A lying
-      // side is the one facing the floor, independently of the plan's labels.
-      const t: number = (motionHumanLaw.event(film, "settled") + film.duration) / 2;
-      const bones: motionHumanLaw.Bones = film.bones("a", t);
-      const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
-      const right: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
-      const lateral: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(left, right));
-      const along: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(
-        Vector3.lerp(left, right, 0.5), bones.get("hips")!.worldPosition,
-      ));
-      const front: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(lateral, along));
-      const onSide: boolean = row === "position=lateralLeft" || row === "position=lateralRight";
-      const up: number = onSide
-        ? (row === "position=lateralLeft" ? -lateral.y : lateral.y)
-        : (row === "position=prone" ? -front.y : front.y);
-      const competing: number = Math.max(Math.abs(along.y), Math.abs(onSide ? front.y : lateral.y));
-      complaints.check(`lieDown ${row} ${name}: requested anatomical axis projects ${up} upward, other axes at most ${competing}`,
-        up > competing);
-      motionPostureBranches.checkBase(complaints.list, film.performance, `lieDown ${row} ${name}`, "lying");
-    },
-  );
-  complaints.list.push(...findings);
-  complaints.assert("Lying on either side changes support and leaves the lying base");
+  const findings = motionComplaints();
+  const body = motionHumanBody("f-small");
+  const laws = [
+    HumanFloorRoll.forwardRoll,
+    HumanFloorRoll.backwardRoll,
+    HumanFloorFall.goalkeeperDiveLeft,
+    HumanFloorFall.goalkeeperDiveRight,
+    HumanFloorFall.slidingTackle,
+  ];
+  for (const law of laws) {
+    const label = law.name;
+    try {
+      const p = new HumanPerformance({
+        seed: "floor-support",
+        laws: [law],
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("a")
+          .stand({ seconds: 0.3 })
+          .registered(label, {}).node,
+      });
+      const segment = p.segments("a")[1]!;
+      const joint = (
+        bone: AutoMovieHumanoidBone,
+        seconds: number,
+      ): IAutoMovieVector3 => p.bones("a", seconds).get(bone)!.worldPosition;
+      const event = (name: string): number => {
+        const e = segment.plan.events.find((e) => e.name === name);
+        if (!e) throw new Error(`Missing ${name}`);
+        return segment.start + segment.plan.duration * e.share;
+      };
+      const low = (t: number): number =>
+        Math.min(
+          ...Array.from(p.bones("a", t).values(), (b) => b.worldPosition.y),
+        );
+      const through = (
+        from: number,
+        to: number,
+        check: (t: number) => boolean,
+      ): boolean => {
+        for (let t = from; t < to; t += 1 / 24) if (!check(t)) return false;
+        return check(to);
+      };
+      const end = segment.end;
+      const start = segment.start;
+      const hips = joint("hips", end);
+      const shift = Vector3.subtract(hips, joint("hips", start));
+      if (label === "forwardRoll" || label === "backwardRoll") {
+        const sign = label === "forwardRoll" ? 1 : -1;
+        const over = event("over");
+        findings.check(
+          label + " inverts and travels",
+          joint("head", over).y < joint("hips", over).y &&
+            sign * shift.z >= 0.4,
+        );
+        findings.check(
+          label + " remains grounded",
+          through(event("tucked"), event("rolled"), (t) => low(t) <= 0.15),
+        );
+        for (const foot of ["leftFoot", "rightFoot"] as const) {
+          const first = joint(foot, start);
+          findings.check(
+            label + " crouch plants " + foot,
+            through(
+              start,
+              event("tucked"),
+              (t) =>
+                Vector3.length(Vector3.subtract(joint(foot, t), first)) <=
+                0.005,
+            ),
+          );
+        }
+        continue;
+      }
+      if (label === "slidingTackle")
+        findings.check(label + " travels forward", shift.z >= 0.6);
+      else {
+        const sign = label === "goalkeeperDiveLeft" ? 1 : -1;
+        findings.check(
+          label + " travels head first",
+          sign * shift.x >= 0.6 && sign * (joint("head", end).x - hips.x) > 0,
+        );
+        const from = event("takeOff"),
+          to = event("landed");
+        for (const foot of ["leftFoot", "rightFoot"] as const)
+          findings.check(
+            label + " clears " + foot,
+            joint(foot, (from + to) / 2).y - joint(foot, start).y >= 0.05,
+          );
+        const facing = (t: number) =>
+          Quaternion.rotateVector(p.bones("a", t).get("chest")!.worldRotation, {
+            x: 0,
+            y: 0,
+            z: 1,
+          });
+        const first = facing(from);
+        findings.check(
+          label + " preserves chest heading",
+          through(
+            from,
+            to,
+            (t) =>
+              Vector3.dot(first, facing(t)) >= Math.cos((20 * Math.PI) / 180),
+          ),
+        );
+      }
+      findings.check(label + " lands low", hips.y <= 0.4 && low(end) <= 0.15);
+      findings.check(
+        label + " declares seat support at landing",
+        segment.plan.contacts.some(
+          (c) => c.part === "seat" && c.support.kind === "ground" && c.to >= 1,
+        ),
+      );
+    } catch (error) {
+      findings.list.push(label + ": " + String(error));
+    }
+  }
+  for (const position of [
+    "supine",
+    "prone",
+    "lateralLeft",
+    "lateralRight",
+  ] as const) {
+    const rightOrFront = position === "prone" || position === "lateralRight";
+    const performer = {
+      subject: "a",
+      body: rightOrFront ? motionHumanBody("m-large") : body,
+      at: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      proficiency: { level: "trained" as const },
+    };
+    const lying = new HumanPerformance({
+      seed: "sweep-1",
+      performers: [performer],
+      composition: HumanChain.subject("a").lieDown(
+        position === "supine" ? {} : { position },
+      ).node,
+    });
+    const segment = lying.segments("a")[0]!;
+    const settled = segment.plan.events.find((e) => e.name === "settled");
+    if (!settled) {
+      findings.list.push(position + " lacks settled event");
+      continue;
+    }
+    const time =
+      (segment.start + settled.share * segment.plan.duration + segment.end) / 2;
+    const bones = lying.bones("a", time);
+    const left = bones.get("leftUpperArm")!.worldPosition,
+      right = bones.get("rightUpperArm")!.worldPosition;
+    const lateral = Vector3.normalize(Vector3.subtract(left, right));
+    const along = Vector3.normalize(
+      Vector3.subtract(
+        Vector3.lerp(left, right, 0.5),
+        bones.get("hips")!.worldPosition,
+      ),
+    );
+    const front = Vector3.normalize(Vector3.cross(lateral, along));
+    const side = position === "lateralLeft" || position === "lateralRight";
+    const vertical = side
+      ? position === "lateralLeft"
+        ? -lateral.y
+        : lateral.y
+      : position === "prone"
+        ? -front.y
+        : front.y;
+    findings.check(
+      position + " faces its bearing side",
+      vertical >
+        Math.max(Math.abs(along.y), Math.abs(side ? front.y : lateral.y)),
+    );
+    findings.check(
+      position + " declares a lying base",
+      segment.plan.base?.kind === "lying",
+    );
+    const verdict = HumanVerdicts.of(lying);
+    if (!verdict.clean)
+      findings.list.push(position + ": " + HumanVerdicts.describe(verdict));
+  }
+  findings.assert("floor support transfers");
 }
