@@ -93,13 +93,13 @@ export namespace wipe {
    * @param progress The stroke's progress in [0, 1].
    * @returns World metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world centre, metre radius, degree heading, cycle count, progress and returned circular world point.
-   * @evidence contracts/development/implementation.md#principled-implementation The original 2*pi*cycles*progress phase gives a local sine/cosine circle, transformed through the supplied horizontal frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared localCircle owner feeds the existing HumanFrame point transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Phase, radius, translated cosine and floating-point grouping are unchanged, without clamping or a sampled path.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant phase and rigid-transform work has no varying population.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The cold public helper and plan's fixed-frame producer use the same localCircle numerical owner.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world point without retained state.
+   * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and the returned world point.
+   * @evidence contracts/development/implementation.md#principled-implementation The phase `2 pi cycles progress` on a circle of the radius about the centre, starting at its point nearest the performer, in the heading's floor frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One local circle (`localCircle`) and one floor-frame transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The point is computed for any progress, never sampled or clamped.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's own circle uses the same `localCircle`, so the case kit's check and the stroke agree.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function circle(
     centre: IAutoMovieVector3,
@@ -118,13 +118,13 @@ export namespace wipe {
    * @returns The plan.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed level patch, circle, hand, phase plan and original whole-circle reach refusal; full default bends remain current while reach-only wrist reads request geometry alone.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing standing base, least reachable lean, balance steps, palm circle, aimed travel time and planted arm stroke, using the shared fixed-frame and hand-target geometry owners.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed circle and palm geometry feed separate actual full targets and point-only reach reads; the original lean/clock/arm composition remains intact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No circle sample, actual arm bend, balance solve, scan/bisection, reach share, contact or timing is changed; the omitted bend result was discarded by the wrist-only callback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed yaw trigonometry and palm alignment/offsets prepare once for repeated queries. Each lean wrist read omits its previously discarded Bend search; actual arm targets still run every original numerical bend search. Entry FK outputs only the relaxed palm's required frames; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The action fixes body/side/surface/shape, patch centre/normal, heading and explicit forward. Shared localCircle and existing HumanHandTarget owners preserve the arithmetic; changing posture/point and all actual solves remain current.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns constant fixed circle/palm geometry, body metadata and the existing bounded lean steps until release. Every target/wrist is fresh, with no sampled pose, result/time history or external resource.
+   * @evidence contracts/development/common.md#meaningful-documentation States the refusals and the plan; the namespace gives the goal, the stroke, the lean, the timing and the sources.
+   * @evidence contracts/development/implementation.md#principled-implementation The palm's goal is its place on the circle at the stroke's progress, laid flat with the fingers ahead; a patch beyond the standing arm is leaned into by the least pitch that keeps the wrist within `REACH` (`AutoMovieMotionHumanLeanInto`), checked at plan time over one whole circle; the reach takes the aimed movement time of the hand's way to the circle's start (McIntosh et al. 2018).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Circle and palm geometry, the lean with its refusal, the entry hand, the clock, then the lean and the planted stroke.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A patch out of reach at the lean's limit is refused, never clamped; the palm is planted on the surface's own support.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The heading's frame and the palm's alignment are prepared once; the plan-time reach check reads nine places of one circle, each a wrist read with no elbow search; each stroke second costs one palm target.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The circle (`localCircle`), the frame (`HumanFrame.prepare`) and the palm targets (`AutoMovieMotionHumanTarget.prepareHand`, `HumanHandTarget.prepareFrame`) are prepared once for the plan's fixed hand, surface and heading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the prepared geometry and the lean for its lifetime; nothing grows with the seconds evaluated.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWipe.IParams>,
@@ -132,6 +132,7 @@ export namespace wipe {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
+    // Three circles when the author names none (provisional).
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -175,7 +176,9 @@ export namespace wipe {
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
       });
-    // Refuse at plan time a patch a circle of which leaves the reach.
+    // Refuse at plan time a patch a circle of which leaves the reach: nine
+    // places an eighth of a turn apart cover one whole circle, which every
+    // later circle repeats.
     for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / (8 * cycles));
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
@@ -188,10 +191,12 @@ export namespace wipe {
     const travel: number = AutoMovieMotionHumanTiming.aimed(
       Vector3.length(
         Vector3.subtract(
-          centre,
+          point(0),
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),
       ),
+      // The palm lands anywhere within 0.1 m of the circle's start on a
+      // level surface (provisional target width).
       0.1,
     );
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
@@ -228,8 +233,8 @@ export namespace wipe {
   }
 }
 
-/** Original local phase/coordinate arithmetic, shared by cold and fixed-frame circles. */
+/** The circle about the centre in the heading's floor frame: starting at its point nearest the performer, `cycles` turns over the progress. */
 function localCircle(radius: number, cycles: number, progress: number): IAutoMovieVector3 {
   const a: number = 2 * Math.PI * cycles * progress;
-  return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) + radius };
+  return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) };
 }

@@ -2,20 +2,22 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Prepare one private work axis while reading the original live wrist orbit.
+ * A held tool's working pose turned about a fixed world axis through a
+ * pivot (`useTool`): a hammer's head raised about the grip, a screwdriver
+ * turned about its own line through the work point.
  *
- * @param pose The original work grip and hand rotation, read at every query.
- * @param axis The private arithmetic world axis, unchanged through this reader.
- * @param about The original world-metre pivot, whose coordinates remain live.
- * @returns A fresh original world grip/rotation for every actual degree angle.
+ * @param pose The working pose: the grip's world point, metres, and the hand's world rotation.
+ * @param axis The world axis the pose turns about; need not be unit length.
+ * @param about The world point the axis passes through, metres.
+ * @returns For a turn in degrees (right-handed about `axis`), the turned grip and hand rotation, fresh records.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the privately computed fixed axis from borrowed live work/pivot coordinates, actual degree input, lazy axis preparation and fresh world-metre/quaternion output.
- * @evidence contracts/development/implementation.md#principled-implementation Every query retains pivot+rotate(axisAngle,grip-pivot) and turn-times-work rotation. Only the private arithmetic axis's normalization prerequisites are shared; borrowed pivot/pose values are re-read normally.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The canonical lazy axis-angle producer feeds one original rigid point and attitude body; useTool's actual hammer/screwdriver branches still own their angle laws.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual axis-angle precedes the original live offset subtraction. Zero/nonfinite axes retain canonical behavior; no borrowed orbit snapshot, zero-orbit shortcut, profile/contact change or extra quaternion normalization is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms One private fixed axis length serves Q turns. Every query retains the original live subtraction, angle trigonometry, vector rotation/addition and quaternion multiplication with constant fresh output storage. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work useTool constructs its left/forward axes as private arithmetic vectors never exposed to callbacks. That actual ownership proves only axis reuse; it does not infer borrowed aim points or pose graphs immutable, and no output/fit is cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one private axis reader and its original live work/pivot references until release. Every query releases its offset scratch and returns fresh grip/rotation records without body/context, FK loan, angle history or external handle.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is turned, the frames and units of every input and the turn's sense.
+ * @evidence contracts/development/implementation.md#principled-implementation A rigid rotation about a line: the grip goes to `about + q (grip - about)` and the hand's rotation to `q r`, with `q` the axis-angle quaternion, so the tool turns with the hand as one body.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The axis is prepared once; each turn is one quaternion, one rotated offset and one product.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pose and the pivot are read at each call, so the turn is always of the pose the caller holds.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The axis's normalisation is done once for every turn (`Quaternion.prepareAxisAngle`); each turn costs constant work.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each turn is its own angle's; nothing is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds the pose, the axis and the pivot until the plan that owns it is dropped; each result is fresh.
  */
 export function HumanToolTurn(
   pose: { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion },

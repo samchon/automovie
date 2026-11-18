@@ -133,13 +133,13 @@ export namespace useTool {
    * @returns The plan with its tool.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or the two coincide, or a stir's work point is no vessel the spoon reaches into.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states tool frames, working goals, cycle timing and sources; parameters and refusals identify each admitted input.
-   * @evidence contracts/development/implementation.md#principled-implementation The held face follows the original per-kind cyclic goal and tool-line attitude. Its actual wrist-local offset is the existing limb contact, so a rotation residual re-aims the working face rather than only the grip; each changing posture still receives the same least-strain elbow solve.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Tool/work preparation precedes pose selection, clock construction and composition through the existing arm primitive.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original cycle count, periods, amplitudes, saw slopes, work targets, grip contacts and refusals remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed held geometry, period and edge-cycle frame prepare once. Hammer/screwdriver share only the length of their private arithmetic rotation axis; every original pivot/grip subtraction remains live, and other kinds never construct that producer. Every cyclic goal and elbow solve remains, with only entry hand ancestry read for origin. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's left/forward axes are private fresh arithmetic vectors, but borrowed aim-point coordinates remain live. Every angle, pivot read, cyclic goal and changing body fit remains actual; original half-cycle edge reuse and synchronous current-person FK/ROM forwarding remain.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed tool/clock/grip/finger geometry. Current-call FK/ROM inputs are forwarded and never stored, without sampled poses, retained numerical readers or result/time history.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace states the tool's frames, the working goals, the cycle timing and the sources; the parameters and the refusals name each admitted input.
+   * @evidence contracts/development/implementation.md#principled-implementation The goal is the held tool's working point on the work: the hand's rotation is the least turn that lays the tool's line on the work's (`HumanHand.prepareAlignment`), the grip follows rigidly from it, each cycle moves that pose by its kind's periodic law, and the face's offset from the wrist is the limb's contact, so a wrist that cannot reach the asked attitude is re-aimed to keep the face on the work.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Hold and work, the working pose, the clock, the cycle law, then the arm stroke with the kept grip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tool's reach is its own contacts and the work point the author's target; the saw's slope is chosen by the arm's own strain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One alignment preparation, one strain-ranked elbow solve per saw slope tried (five), one entry hand read; per second one cycle pose and one elbow hint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The working pose, the turn's axis and the pose at a contact's half cycle are computed once for the plan, since none depends on the second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the tool's geometry, the clock and the kept fingers for its lifetime; nothing grows with the seconds evaluated.
    */
   export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>): IAutoMovieMotionHumanUseTool.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -152,6 +152,7 @@ export namespace useTool {
       context.entry.holds.right !== subject
         ? "left"
         : "right");
+    // Four cycles when the author names none (provisional).
     const cycles: number = context.params.cycles ?? 4;
     HumanBound.whole("cycles", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -181,6 +182,9 @@ export namespace useTool {
       AutoMovieMotionHumanHeld.point(held, "grip").point,
     );
     const length: number = Vector3.length(reach);
+
+    // A face within a centimetre of the grip gives the tool no line to lay
+    // on the work (provisional floor).
     if (!(length >= 0.01))
       throw new HumanRefusal({
         kind: "affordance",
@@ -201,7 +205,9 @@ export namespace useTool {
     const contact: IAutoMovieVector3 = Vector3.add(gripOffset, face.point);
 
     // The working pose: the hand turned the least that lays the tool's line
-    // on the work's, with a hammer's face and a saw's teeth turned down.
+    // on the work's, with a hammer's face and a saw's teeth turned down. A
+    // face direction within about 18 degrees of the line (|cos| >= 0.95)
+    // names no side to turn down, so the palm keys the turn instead.
     const keyed: boolean =
       (kind === "hammer" || kind === "saw") &&
       Math.abs(Vector3.dot(face.direction, line)) < 0.95;
@@ -276,6 +282,7 @@ export namespace useTool {
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),
       ),
+      // The grip stops within 0.03 m of its place (provisional target width).
       0.03,
     );
     const period: number = PERIODS[kind];
@@ -298,14 +305,15 @@ export namespace useTool {
     const recover: number = clock.at("recover");
     const strokePeriod: number = (recover - ready) / cycles;
 
-    let turning: ReturnType<typeof HumanToolTurn> | undefined;
-    const turn: (axis: IAutoMovieVector3, degrees: number, about: IAutoMovieVector3) => Pick<IWork, "grip" | "rotation"> = (
-      axis: IAutoMovieVector3,
-      degrees: number,
-      about: IAutoMovieVector3,
-    ): Pick<IWork, "grip" | "rotation"> => {
-      return (turning ??= HumanToolTurn(pose, axis, about))(degrees);
-    };
+    // The turning works: a hammer's head rises about the wrist, the axis
+    // across the body; a screwdriver turns about its own line through the
+    // work point.
+    const turn: ((degrees: number) => Pick<IWork, "grip" | "rotation">) | undefined =
+      kind === "hammer"
+        ? HumanToolTurn(pose, left, placeHumanHandSurface(gripOffset, pose.grip, pose.rotation).point)
+        : kind === "screwdriver"
+          ? HumanToolTurn(pose, forward, on)
+          : undefined;
 
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
     const cycle: (phase: number) => Pick<IWork, "grip" | "rotation"> = (
@@ -315,9 +323,11 @@ export namespace useTool {
         case "hammer": {
           // The head rises about the wrist and comes down on the work.
           const c: number = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase);
-          return turn(left, -RAISE * c, pose.grip);
+          return turn!(-RAISE * c);
         }
         case "saw":
+          // The teeth run a quarter of the forearm either way of the work
+          // point, a stroke of half the forearm (provisional).
           return {
             grip: Vector3.add(
               pose.grip,
@@ -343,7 +353,7 @@ export namespace useTool {
           };
         }
         case "screwdriver":
-          return turn(forward, TURN * Math.sin(2 * Math.PI * phase), on);
+          return turn!(TURN * Math.sin(2 * Math.PI * phase));
       }
     };
     const edge: ReturnType<typeof cycle> = cycle(0.5);
