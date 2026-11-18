@@ -168,12 +168,14 @@ export namespace shift {
     HumanPreparedPlayback.attach(planned, body, {
       mode: "posture",
       prepare: (): void => {
-        palms = prepareSeatedPalms(body, entry);
+        // A world digit goal can change the flat hand's local articulation.
+        palms = entry.digits === undefined ? prepareSeatedPalms(body, entry) : undefined;
       },
       phases: bounds.slice(0, -1).map((from, index) => ({
         from,
         to: bounds[index + 1]!,
         sample: (seconds, channels, resolution, projection) =>
+          palms !== undefined && entry.digits === undefined &&
           prepareHumanPoseResolution.isNativeSource(resolution)
             ? { posture: read(seconds, channels, resolution, projection, palms) }
             : undefined,
