@@ -70,6 +70,7 @@ export namespace AutoMovieMotionHumanPlaced {
         rest: props.rest,
         weight: props.weight,
         ...(props.span === undefined ? {} : { span: props.span }),
+        ...(props.together === undefined ? {} : { together: props.together }),
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,

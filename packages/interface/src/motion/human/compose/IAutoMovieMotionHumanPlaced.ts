@@ -67,6 +67,9 @@ export namespace IAutoMovieMotionHumanPlaced {
     /** The action's instants the arm's whole action is planned over, the reach to the place, the hold on it and the return (`AutoMovieMotionHumanArm.carried`'s `span`), in the law's clock instants or as the weight states them (`AutoMovieMotionHumanArm.stated`); the deprecated joint-space carry when absent. */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
 
+    /** A planned arm group when both hands reach the same site together. */
+    together?: IAutoMovieMotionHumanArmPlanned.ITogether;
+
     /**
      * The place at a second.
      *
@@ -87,14 +90,7 @@ export namespace IAutoMovieMotionHumanPlaced {
       seconds: number,
       resolution?: IAutoMoviePoseResolution.ISource,
       projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
-    ): {
-      /** Desired hand-surface point in world metres. */
-      point: IAutoMovieVector3;
-      /** Desired hand-surface normal in world coordinates. */
-      facing: IAutoMovieVector3;
-      /** Preferred fingers direction in world coordinates; omitted leaves the default hand-facing construction. */
-      forward?: IAutoMovieVector3;
-    };
+    ): IPlace;
 
     /** The hand surface; the palm when absent. */
     surface?: IAutoMovieMotionHumanHand.Surface;
@@ -106,6 +102,16 @@ export namespace IAutoMovieMotionHumanPlaced {
     bend?: IAutoMovieMotionHumanBend.Arm;
   }
 
+  /** A hand-surface target placed in world coordinates. */
+  export interface IPlace {
+    /** Desired hand-surface point in world metres. */
+    point: IAutoMovieVector3;
+    /** Desired hand-surface normal in world coordinates. */
+    facing: IAutoMovieVector3;
+    /** Preferred fingers direction; absent uses the default facing construction. */
+    forward?: IAutoMovieVector3;
+  }
+
   /**
    * Where the wrist stands when a hand surface lies on a place. Input place of AutoMovieMotionHumanPlaced.wrist. The point, the direction the surface faces and where the fingers point.
    *
@@ -114,12 +120,8 @@ export namespace IAutoMovieMotionHumanPlaced {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.wrist, place).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export type IWristPlace = {
-    /** Hand-surface target point in world metres. */
-    point: IAutoMovieVector3;
-    /** Target surface normal in world coordinates. */
-    facing: IAutoMovieVector3;
+  export interface IWristPlace extends IPlace {
     /** Preferred fingers direction in world coordinates. */
     forward: IAutoMovieVector3;
-  };
+  }
 }
