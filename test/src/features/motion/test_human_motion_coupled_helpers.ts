@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,6 +26,18 @@ import {
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** A pair's helper and helped actor ids. */
+type HelpSubject = "a" | "b";
+
+/** A supported walk adds a second helper. */
+type WalkSubject = HelpSubject | "c";
+
+/** The floor position and heading of one helper at entry. */
+interface IHelperPlace {
+  at: IAutoMovieVector3;
+  yaw: number;
+}
+
 /**
  * The helpers' compositions of #3440 keep their bounds: helping someone up
  * from the floor (`HumanCoupled.helpUp`, a support sequence whose hand
@@ -41,9 +54,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * (m-average, m-average), the first named helping:
  * 1. `helpUp`, the helped person lying first and the helper standing a
  *    foot's length beyond the helped right wrist, facing it (`helperStand`): the helped hand's grip on the
- *    helper opens and closes within the rise, the feet bear to its end, the
- *    palms meet within 10 mm at the grip's middle, and the helped body ends
- *    standing.
+ *    helper opens and closes within the rise, the feet bear before release
+ *    and through the end, and the palms meet within 10 mm when the grip
+ *    opens, in its middle and at release. The helped body ends standing.
  * 2. `supportWalk`, two average men helping the small woman and two small
  *    women helping the large man, the second helper standing where the
  *    coupling's frame puts it (`secondAt`): each helper bears a positive share
@@ -71,13 +84,13 @@ export function test_human_motion_coupled_helpers(): void {
   // 1. Helping someone up from the floor.
   for (const names of PAIRS) {
     const cell: string = `helpUp, ${names[0]} helping ${names[1]}`;
-    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
+    const bodies: Record<HelpSubject, IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
     let film: IAutoMovieMotionHumanPerformance;
     try {
-      const stand: { at: IAutoMovieVector3; yaw: number } = helperStand(
+      const stand: IHelperPlace = helperStand(
         bodies.b,
         bodies.a,
       );
@@ -107,8 +120,8 @@ export function test_human_motion_coupled_helpers(): void {
       );
       continue;
     }
-    const segments = film.segments("b");
-    const rise = segments[segments.length - 1]!;
+    const segments: readonly IAutoMovieMotionHumanSegment[] = film.segments("b");
+    const rise: IAutoMovieMotionHumanSegment = segments[segments.length - 1]!;
     const grips: IAutoMovieMotionHumanContactWindow[] =
       rise.plan.contacts.filter(
         (w: IAutoMovieMotionHumanContactWindow): boolean =>
@@ -124,8 +137,12 @@ export function test_human_motion_coupled_helpers(): void {
       grips.length > 0 && grips.every((w) => w.from < w.to && w.to < 1),
     );
     all.check(
-      `${cell}: the feet bear to the end, read ${feet.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
-      feet.some((w) => w.to === 1),
+      `${cell}: the feet begin bearing before release and continue to the end, read ${feet.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
+      feet.some(
+        (foot: IAutoMovieMotionHumanContactWindow): boolean =>
+          foot.to === 1 &&
+          grips.every((grip: IAutoMovieMotionHumanContactWindow): boolean => foot.from <= grip.to),
+      ),
     );
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
@@ -139,19 +156,20 @@ export function test_human_motion_coupled_helpers(): void {
       bodies.a,
       0,
     );
-    for (const w of grips) {
-      const t: number = rise.start + ((w.from + w.to) / 2) * rise.plan.duration;
-      const gap: number = Vector3.length(
-        Vector3.subtract(
-          HumanSignature.region(reader, "palmRight", t),
-          HumanSignature.region(helper, "palmRight", t),
-        ),
-      );
-      all.check(
-        `${cell}: at the grip's middle the palms are ${(gap * 1000).toFixed(1)} mm apart, ${CONTACT * 1000} mm at most expected`,
-        gap <= CONTACT,
-      );
-    }
+    for (const w of grips)
+      for (const share of [w.from, (w.from + w.to) / 2, w.to]) {
+        const t: number = rise.start + share * rise.plan.duration;
+        const gap: number = Vector3.length(
+          Vector3.subtract(
+            HumanSignature.region(reader, "palmRight", t),
+            HumanSignature.region(helper, "palmRight", t),
+          ),
+        );
+        all.check(
+          `${cell}: at grip share ${share.toFixed(3)} the palms are ${(gap * 1000).toFixed(1)} mm apart, ${CONTACT * 1000} mm at most expected`,
+          gap <= CONTACT,
+        );
+      }
     const end: number = rise.start + rise.plan.duration;
     const upright: number =
       HumanSignature.joint(reader, end, "head").y -
@@ -168,7 +186,7 @@ export function test_human_motion_coupled_helpers(): void {
     ["f-small", "f-small", "m-large"],
   ] as const) {
     const cell: string = `supportWalk, ${names[0]} and ${names[1]} helping ${names[2]}`;
-    const bodies: Record<"a" | "c" | "b", IAutoMovieMotionHumanBody> = {
+    const bodies: Record<WalkSubject, IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       c: motionHumanBody(names[1]),
       b: motionHumanBody(names[2]),
@@ -253,7 +271,7 @@ export function test_human_motion_coupled_helpers(): void {
         ) <= 1e-9,
     );
     const readers: Record<
-      "a" | "c" | "b",
+      WalkSubject,
       IAutoMovieMotionHumanSignature.IReader
     > = {
       a: HumanSignature.of(film, "a", bodies.a, 0),
@@ -296,7 +314,7 @@ export function test_human_motion_coupled_helpers(): void {
 function helperStand(
   helped: IAutoMovieMotionHumanBody,
   helper: IAutoMovieMotionHumanBody,
-): { at: IAutoMovieVector3; yaw: number } {
+): IHelperPlace {
   const lying: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "helper-stand",
     performers: [

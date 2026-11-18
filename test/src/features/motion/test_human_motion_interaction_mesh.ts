@@ -18,6 +18,28 @@ import {
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** Four corner indices from the public mesh. */
+type Tetrahedron = IAutoMovieTetrahedralizeDelaunay.IMesh["tetrahedra"][number];
+
+/** The slot of one participant in the pair. */
+type PairSide = 0 | 1;
+
+/** A test reference pair with the index of each participant's joint. */
+interface IPair {
+  points: IAutoMovieVector3[];
+  bones: IAutoMovieMotionHumanInteractionMesh.IBone[];
+  index: (body: PairSide, bone: AutoMovieHumanoidBone) => number;
+}
+
+/** The point and radius given by intersecting the three bisector planes. */
+interface ISphere {
+  centre: IAutoMovieVector3;
+  radius: number;
+}
+
+/** A flat tetrahedron has no unique circumsphere. */
+type Sphere = ISphere | null;
+
 /**
  * The interaction mesh (#3438, Ho, Komura and Tai 2010) adapts a
  * two-person key pose to another pair of bodies: the mesh over both bodies'
@@ -59,7 +81,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    offset from the held neck within 10 mm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the mesh and adapts real polygon men's joints through the engine's mesh and the motions package's public adaptation; a non-Delaunay or inverted mesh, a moved identity, a stretched bone, an open contact, a lost key offset or a non-deterministic result fails with its numbers.
- * @evidence contracts/development/testing.md#independent-expectations The Delaunay property and orientation are geometric definitions checked directly; the bone lengths come from the target bodies' rest joints, not from the solve.
+ * @evidence contracts/development/testing.md#independent-expectations A determinant of the corner differences gives orientation without asking the tetrahedralizer, and bisector-plane intersection gives the Delaunay oracle. Bone lengths come from the target bodies' rest joints.
  * @evidence contracts/development/testing.md#distinguishing-cases The reference pair, both orders of a pair of opposite builds, the identity, the hold through the motions' owner and two refusals.
  * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and solves in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the bounds with their sources and the 7 scenarios.
@@ -73,11 +95,7 @@ export function test_human_motion_interaction_mesh(): void {
   const pair = (
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
-  ): {
-    points: IAutoMovieVector3[];
-    bones: IAutoMovieMotionHumanInteractionMesh.IBone[];
-    index: (body: 0 | 1, bone: AutoMovieHumanoidBone) => number;
-  } => {
+  ): IPair => {
     const points: IAutoMovieVector3[] = [];
     const indices: Map<string, number> = new Map();
     const gap: number = a.measure.footLength;
@@ -109,13 +127,13 @@ export function test_human_motion_interaction_mesh(): void {
     return {
       points,
       bones,
-      index: (body: 0 | 1, bone: AutoMovieHumanoidBone): number =>
+      index: (body: PairSide, bone: AutoMovieHumanoidBone): number =>
         indices.get(`${body}:${bone}`)!,
     };
   };
 
   // 1. The mesh.
-  const reference = pair(
+  const reference: IPair = pair(
     motionHumanBody("m-average"),
     motionHumanBody("f-average"),
   );
@@ -147,12 +165,12 @@ export function test_human_motion_interaction_mesh(): void {
     ),
   );
   for (const t of mesh.tetrahedra) {
-    const v: number = tetrahedralizeAutoMovieDelaunay.volume(points, t);
+    const v: number = orientedVolume(points, t);
     all.check(
       `tetrahedron ${t.join(",")} has volume ${v}, positive expected`,
       v > 0,
     );
-    const sphere = circumsphere(points, t);
+    const sphere: Sphere = circumsphere(points, t);
     if (sphere === null) continue;
     for (let i: number = 0; i < points.length; i++) {
       if (t.includes(i)) continue;
@@ -195,7 +213,7 @@ export function test_human_motion_interaction_mesh(): void {
     ["m-large", "f-small"],
   ] as const) {
     const cell: string = `${names[0]} with ${names[1]}`;
-    const target = pair(motionHumanBody(names[0]), motionHumanBody(names[1]));
+    const target: IPair = pair(motionHumanBody(names[0]), motionHumanBody(names[1]));
     const contact: IAutoMovieMotionHumanInteractionMesh.IContact = {
       a: reference.index(0, "leftHand"),
       b: reference.index(1, "rightHand"),
@@ -239,11 +257,11 @@ export function test_human_motion_interaction_mesh(): void {
     const joggle: number =
       tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
     const flat: number = 3 * (2 * Math.sqrt(3) * joggle) * (2 * extent) ** 2;
-    const inverted: number = mesh.tetrahedra.filter(
-      (t: readonly [number, number, number, number]): boolean =>
-        tetrahedralizeAutoMovieDelaunay.volume(reference.points, t) > flat &&
-        tetrahedralizeAutoMovieDelaunay.volume(adapted.points, t) <= 0,
-    ).length;
+    const inverted: number = mesh.tetrahedra.filter((t: Tetrahedron): boolean => {
+      const original: number = orientedVolume(reference.points, t);
+      return Math.abs(original) > flat &&
+        Math.sign(orientedVolume(adapted.points, t)) !== Math.sign(original);
+    }).length;
     all.check(
       `${cell}: ${inverted} tetrahedra are inverted on the adapted points, none expected`,
       inverted === 0,
@@ -422,38 +440,51 @@ export function test_human_motion_interaction_mesh(): void {
   all.assert("the interaction mesh keeps a hold's relations on any pair");
 }
 
-/** A tetrahedron's circumsphere by the bisector planes' equations; null when flat. */
+/** Intersect the three perpendicular bisectors in coordinates relative to a corner. */
 function circumsphere(
   points: readonly IAutoMovieVector3[],
-  t: readonly [number, number, number, number],
-): { centre: IAutoMovieVector3; radius: number } | null {
+  t: Tetrahedron,
+): Sphere {
   const a: IAutoMovieVector3 = points[t[0]]!;
-  const rows: IAutoMovieVector3[] = [t[1], t[2], t[3]].map(
-    (i: number): IAutoMovieVector3 =>
-      Vector3.scale(Vector3.subtract(points[i]!, a), 2),
-  );
-  const rhs: number[] = [t[1], t[2], t[3]].map(
-    (i: number): number =>
-      Vector3.dot(points[i]!, points[i]!) - Vector3.dot(a, a),
-  );
-  const det = (
-    u: IAutoMovieVector3,
-    v: IAutoMovieVector3,
-    w: IAutoMovieVector3,
-  ): number => Vector3.dot(u, Vector3.cross(v, w));
-  const d: number = det(rows[0]!, rows[1]!, rows[2]!);
+  const u: IAutoMovieVector3 = Vector3.subtract(points[t[1]]!, a);
+  const v: IAutoMovieVector3 = Vector3.subtract(points[t[2]]!, a);
+  const w: IAutoMovieVector3 = Vector3.subtract(points[t[3]]!, a);
+  const d: number = determinant(u, v, w);
   if (d === 0) return null;
-  const solve = (k: 0 | 1 | 2): number => {
-    const m: IAutoMovieVector3[] = rows.map(
-      (r: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
-        k === 0
-          ? { x: rhs[i]!, y: r.y, z: r.z }
-          : k === 1
-            ? { x: r.x, y: rhs[i]!, z: r.z }
-            : { x: r.x, y: r.y, z: rhs[i]! },
-    );
-    return det(m[0]!, m[1]!, m[2]!) / d;
-  };
-  const centre: IAutoMovieVector3 = { x: solve(0), y: solve(1), z: solve(2) };
-  return { centre, radius: Vector3.length(Vector3.subtract(a, centre)) };
+  // The translated centre c satisfies 2 u·c = u·u and the two analogues.
+  const offset: IAutoMovieVector3 = Vector3.scale(
+    Vector3.add(
+      Vector3.add(
+        Vector3.scale(Vector3.cross(v, w), Vector3.dot(u, u)),
+        Vector3.scale(Vector3.cross(w, u), Vector3.dot(v, v)),
+      ),
+      Vector3.scale(Vector3.cross(u, v), Vector3.dot(w, w)),
+    ),
+    1 / (2 * d),
+  );
+  return { centre: Vector3.add(a, offset), radius: Vector3.length(offset) };
+}
+
+/** Six times signed volume as the determinant of three corner differences. */
+function orientedVolume(
+  points: readonly IAutoMovieVector3[],
+  t: Tetrahedron,
+): number {
+  const a: IAutoMovieVector3 = points[t[0]]!;
+  return determinant(
+    Vector3.subtract(points[t[1]]!, a),
+    Vector3.subtract(points[t[2]]!, a),
+    Vector3.subtract(points[t[3]]!, a),
+  );
+}
+
+/** Expand along the first row without invoking the geometric solver. */
+function determinant(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+): number {
+  return a.x * (b.y * c.z - b.z * c.y) -
+    a.y * (b.x * c.z - b.z * c.x) +
+    a.z * (b.x * c.y - b.y * c.x);
 }

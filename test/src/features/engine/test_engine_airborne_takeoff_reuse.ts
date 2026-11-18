@@ -1,19 +1,32 @@
 import {
   Quaternion,
   Vector3,
+  integrateAirborneRotation,
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Exact-point reuse in shooting preserves actual turns and reports the miss
- * against the full request, including when no continuation stage succeeds.
+ * Airborne shooting lands a full turn, respects momentum ceilings and
+ * avoids repeating an equivalent solve.
+ *
+ * Scenarios:
+ * 1. A one-turn isotropic body has an independently known orientation and
+ *    residual with unrestricted, half-turn and zero momentum ceilings.
+ * 2. The impossible zero-momentum request uses no more than one distinct
+ *    evaluation per continuation stage and playback performs no fresh reads.
+ * 3. A tilted anisotropic principal axis gives a known feasible turn.
+ *    Fixed and adaptive shooting land across two world frames, including a
+ *    native single-part history and raw history readers.
  *
  * An isotropic body with I=2 kg m², no relative shape momentum and one
  * second in flight has q(t)=Rx(Lx t/2), so one somersault requires Lx=4 pi.
@@ -27,16 +40,23 @@ import { TestValidator } from "@nestia/e2e";
  * step-halving trials need no fresh integration of that same zero point.
  * This is a deterministic work bound, separate from physical tolerances.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the isotropic closed form, feasible and impossible requests, residual units and the stage/read bound.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public shooting with full, half and zero momentum ceilings, reads actual returned flight attitudes and full-request residuals, and counts an owned real history callback rather than a foreign method.
- * @evidence contracts/development/testing.md#independent-expectations I omega=L gives Lx=4 pi and exact Rx(Lx t/2); zero momentum gives identity and a full one-revolution miss independently of Newton, continuation or cache bookkeeping.
- * @evidence contracts/development/testing.md#distinguishing-cases A feasible turn, a bounded partial success and no successful stage; eleven actual playback instants, physical ceiling, unwrapped endpoint and separate projected-duplicate work.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory isotropic physical history and owned callback counters through the public engine; no source replacement, renderer or process is used.
+ * @evidence contracts/development/common.md#meaningful-documentation States the physical requests, independent landing and winding, residual units and work bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public shooting and observes its playback, full-request residuals and an owned history callback. A missed turn, placement dependence, inadmissible momentum or repeated equivalent solving fails.
+ * @evidence contracts/development/testing.md#independent-expectations I omega=L gives the isotropic orientation and the anisotropic constant rotation about a principal axis. The tilted-axis ellipse gives one winding and lands at the starting orientation, without assuming a unique solved momentum.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three momentum ceilings, fixed and adaptive integration with a tilted axis, identity and rotated world frames, raw and native histories and exact-point work.
+ * @evidence contracts/development/testing.md#execution-ownership One in-memory unit spec builds numeric tensors through public engine functions and starts no host.
  */
 export function test_engine_airborne_takeoff_reuse(): void {
+  const complaints: string[] = [];
+  isotropic(complaints);
+  tilted(complaints);
+  TestValidator.equals("shooting preserves the physical request", complaints, []);
+}
+
+/** Isotropic feasibility, published residual and exact-point work bound. */
+function isotropic(complaints: string[]): void {
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const complaints: string[] = [];
   for (const maximum of [Infinity, 2 * Math.PI, 0]) {
     let starts: number = 0;
     const history: IAutoMovieIntegrateAirborneRotation.IHistory = (
@@ -108,9 +128,115 @@ export function test_engine_airborne_takeoff_reuse(): void {
     if (starts !== work)
       complaints.push("playback reevaluated the released shooting history");
   }
-  TestValidator.equals(
-    "shooting reuse preserves the full physical request",
-    complaints,
-    [],
+}
+
+/**
+ * Check the nonlinear correction when the requested lateral axis differs
+ * from the independently feasible turn axis. With moments (1,2,3) and
+ * principal frame Rz(20°), a=Rz(20°)X gives L=2πa for one second. The
+ * long axis's YZ ellipse encloses the origin because 20° is below 45°.
+ */
+function tilted(complaints: string[]): void {
+  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const moments: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
+  const principal: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 0, z: 1 },
+    20,
   );
+  const axis: IAutoMovieVector3 = Quaternion.rotateVector(principal, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
+    (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
+      inertia: { moments, rotation: principal },
+      relative: origin,
+    });
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
+    mass: 1,
+    segments: [{ bone: "hips", mass: 1, point: origin, inertia: moments, axes: identity }],
+  };
+  const native: integrateAirborneRotation.ICachedHistory =
+    integrateAirborneRotation.history(
+      model,
+      (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        new Map([
+          ["hips", {
+            bone: "hips",
+            localRotation: identity,
+            worldPosition: origin,
+            worldRotation: principal,
+          }],
+        ]),
+    );
+  // The flight pass's adaptive integration budget, with zero absolute tolerance.
+  const precision: NonNullable<IAutoMovieIntegrateAirborneRotation.IProps["tolerance"]> =
+    { relative: 0.005, absolute: 0 };
+  try {
+    for (const q0 of [
+      identity,
+      Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 97),
+    ])
+      for (const adaptive of [false, true]) {
+        const selected: IAutoMovieIntegrateAirborneRotation.IHistory =
+          adaptive && q0 === identity ? native : history;
+        const known: IAutoMovieIntegrateAirborneRotation.IFlight =
+          integrateAirborneRotation({
+            history: selected,
+            t0: 0,
+            t1: 1,
+            q0,
+            momentum: Quaternion.rotateVector(q0, Vector3.scale(axis, 2 * Math.PI)),
+            ...(adaptive ? { tolerance: precision } : {}),
+          });
+        const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+          history: selected,
+          t0: 0,
+          t1: 1,
+          q0,
+          somersault: 1,
+          twist: 0,
+          ...(adaptive ? { integration: precision } : {}),
+        });
+        const world: string = q0 === identity ? "identity world" : "rotated world";
+        for (const [label, flight] of [["known", known], ["solved", solved.flight]] as const) {
+          const winding: number = turns(flight, q0);
+          const landing: number = Quaternion.angle(q0, flight.orientation(1));
+          const tolerance: number = solveAirborneTakeoff.TOLERANCE;
+          if (!(Math.abs(winding - 2 * Math.PI) <= tolerance && landing <= tolerance))
+            complaints.push(
+              `tilted ${label}, ${world}, adaptive=${adaptive}: winding=${winding}, landing=${landing}`,
+            );
+        }
+        if (!solved.met)
+          complaints.push(
+            `tilted ${world}, adaptive=${adaptive}: known-feasible request refused with ${JSON.stringify(solved.residual)}`,
+          );
+      }
+  } finally {
+    native.clear();
+  }
+}
+
+/** Unwrap the observed long-axis direction in the takeoff's YZ plane. */
+function turns(
+  flight: IAutoMovieIntegrateAirborneRotation.IFlight,
+  q0: IAutoMovieQuaternion,
+): number {
+  let winding: number = 0;
+  let previous: number = 0;
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(q0);
+  // Two reads per 60 Hz display frame keep adjacent samples well within a half turn.
+  const samples: number = 120;
+  for (let k: number = 0; k <= samples; ++k) {
+    const relative: IAutoMovieQuaternion = Quaternion.multiply(inverse, flight.orientation(k / samples));
+    const long: IAutoMovieVector3 = Quaternion.rotateVector(relative, { x: 0, y: 1, z: 0 });
+    const angle: number = Math.atan2(long.z, long.y);
+    const change: number = angle - previous;
+    winding += change - 2 * Math.PI * Math.round(change / (2 * Math.PI));
+    previous = angle;
+  }
+  return winding;
 }

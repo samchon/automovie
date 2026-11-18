@@ -15,12 +15,17 @@ import type {
 import {
   AutoMovieMotionHumanAuditBalance,
   HumanFoot,
+  HumanPhysics,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
+import { nclose } from "../internal/nclose";
+
+/** The audit fixture's world-space bone table. */
+type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
 /**
  * The balance audit on real bodies: the extrapolated centre of mass of Hof,
@@ -49,18 +54,20 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  *    carry does not depend on the span it is differenced over.
  * 6. With the right foot planted only from 0.5 s, the forward film is read
  *    from 0.5 s on; with a hand gripping a rail throughout it is not read.
- * 7. The same forward film in an action that is not physical (no staged
- *    physical outcome and no physics asked, `HumanPhysics.judged`) is not
- *    read; scenarios 1 to 6 mark their action physical.
+ * 7. The same forward film with the physical flag off keeps its zero
+ *    verdict and reads no displayed bones.
+ * 8. For both bodies at the same Froude number, the extrapolation divided
+ *    by pendulum length is equal after removing the sole's own geometry.
+ * 9. On the average man, planted palms extend the hull to a mass centre
+ *    beyond the feet. Adding a bearing knee keeps it inside the hull.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure and margin on a real body's mass model; a velocity taken over the wrong span, a pendulum of the wrong length, or an instant read while a hand bears the body fails.
- * @evidence contracts/development/testing.md#independent-expectations The distance outside is Hof's closed form over the stance's own centre of mass and sole points, with the eigenfrequency written out from the body's hip height.
- * @evidence contracts/development/testing.md#distinguishing-cases Still, slow, fast forward and fast backward; two statures; declared, partly declared and gripped.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the construction with its formula and lists the 7 scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public measure and margin on a real mass model, counting bone reads of the unjudged fixture. A wrong velocity span, pendulum length, judgment gate or bearing hull fails.
+ * @evidence contracts/development/testing.md#independent-expectations The distance outside is Hof's closed form over the stance's centre of mass and sole points. At fixed v/sqrt(g l), the advance is proportional to l. The palm fixture's chosen translations place the centre ahead of the feet and behind the palms.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes still, slow, fast forward and backward, two pendulum lengths, late contact, grip, unjudged and ground support by additional parts.
+ * @evidence contracts/development/testing.md#execution-ownership The test program discovers one in-memory audit spec on two prepared bodies with no renderer or host.
+ * @evidence contracts/development/common.md#meaningful-documentation States the carry, independent formula, hull and judgment branches.
  */
 export function test_human_motion_audit_balance(): void {
-  type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const ground: IAutoMovieMotionHumanContactWindow["support"] = {
     kind: "ground",
   };
@@ -75,9 +82,13 @@ export function test_human_motion_audit_balance(): void {
     support: ground,
   });
 
+  // The reference 1 m/s forward carry sets one dimensionless speed.
+  const referenceHip: number = motionHumanBody("m-average").measure.hipHeight;
+  const normalized: number[] = [];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance: Bones = motionHumanStance(body);
+    let boneReads: number = 0;
     const film = (
       speed: number,
       contacts: IAutoMovieMotionHumanContactWindow[] = [
@@ -89,11 +100,10 @@ export function test_human_motion_audit_balance(): void {
       motionAuditMoved(
         stance,
         1,
-        (_bone: AutoMovieHumanoidBone, t: number): IAutoMovieVector3 => ({
-          x: 0,
-          y: 0,
-          z: speed * t,
-        }),
+        (_bone: AutoMovieHumanoidBone, t: number): IAutoMovieVector3 => {
+          ++boneReads;
+          return { x: 0, y: 0, z: speed * t };
+        },
         [
           {
             name: "stand",
@@ -118,12 +128,9 @@ export function test_human_motion_audit_balance(): void {
     );
     const zToe: number = Math.max(...sole);
     const zHeel: number = Math.min(...sole);
-    const lead: number =
-      1 /
-      Math.sqrt(
-        AutoMovieGravity.STANDARD /
-          (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight),
-      );
+    // Hof et al. use 1.34 times the measured trochanteric height.
+    const length: number = 1.34 * body.measure.hipHeight;
+    const lead: number = Math.sqrt(length / AutoMovieGravity.STANDARD);
 
     const still: IAutoMovieMotionHumanAuditMeasure = measure(film(0));
     const margin: number = AutoMovieMotionHumanAuditBalance.margin(
@@ -194,12 +201,79 @@ export function test_human_motion_audit_balance(): void {
       `${name}: a gripping hand leaves the instant unread`,
       gripped.value === 0 && gripped.where === "none",
     );
+    const scaledSpeed: number = Math.sqrt(body.measure.hipHeight / referenceHip);
+    const scaled: IAutoMovieMotionHumanAuditMeasure =
+      scaledSpeed === 1 ? forward : measure(film(scaledSpeed));
+    TestValidator.predicate(
+      `${name}: the Froude-scaled carry still crosses the toe line`,
+      scaled.value > 0,
+    );
+    normalized.push((scaled.value + zToe - centre) / length);
+
+    const before: number = boneReads;
     const posed: IAutoMovieMotionHumanAuditMeasure = measure(
       film(1, undefined, false),
     );
     TestValidator.predicate(
-      `${name}: an action that stages no physical outcome and asks no physics is not judged`,
-      posed.value === 0 && posed.where === "none",
+      `${name}: an unjudged action takes no displayed-bone samples`,
+      posed.value === 0 && posed.where === "none" && boneReads === before,
     );
+    if (name === "m-average") palms(body, stance);
   }
+  TestValidator.predicate(
+    "Froude similarity preserves the advance in pendulum lengths",
+    nclose(normalized[0]!, normalized[1]!, 1e-6),
+  );
+}
+
+/** Check contact topology on a still, explicitly judged posture. */
+function palms(body: IAutoMovieMotionHumanBody, stance: Bones): void {
+  // Move the non-foot mass 0.3 m and the palms 0.6 m to put the centre
+  // between two separate bearing regions without using the hull solver.
+  const move = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+    /(Foot|Toes)$/.test(bone)
+      ? { x: 0, y: 0, z: 0 }
+      : /(Hand|Thumb|Index|Middle|Ring|Little)/.test(bone)
+        ? { x: 0, y: 0, z: 0.6 }
+        : { x: 0, y: 0, z: 0.3 };
+  const ground = (
+    part: IAutoMovieMotionHumanContactWindow["part"],
+    kind: IAutoMovieMotionHumanContactWindow["kind"] = "plant",
+  ): IAutoMovieMotionHumanContactWindow => ({
+    part, kind, from: 0, to: 1, support: { kind: "ground" },
+  });
+  const margin = (contacts: IAutoMovieMotionHumanContactWindow[]): number => {
+    const span: IAutoMovieMotionHumanAuditMotion.ISpan = {
+      name: "lean",
+      start: 0,
+      entryTime: 0,
+      end: 1,
+      physical: true,
+      plan: { duration: 1, contacts },
+    };
+    TestValidator.predicate("the palm fixture explicitly judges balance", HumanPhysics.judged(span));
+    return AutoMovieMotionHumanAuditBalance.margin(
+      motionAuditMoved(stance, 1, move, [span]),
+      "a",
+      body,
+      body.massModel,
+      0.5,
+    );
+  };
+  const feet: IAutoMovieMotionHumanContactWindow[] = [
+    ground("leftFoot"),
+    ground("rightFoot"),
+  ];
+  const hands: IAutoMovieMotionHumanContactWindow[] = [
+    ...feet,
+    ground("leftHand"),
+    ground("rightHand"),
+  ];
+  const planted: number = margin(hands);
+  const kneeling: number = margin([...hands, ground("leftLowerLeg", "bear")]);
+  const unsupported: number = margin(feet);
+  TestValidator.predicate(
+    `planted palms extend the hull: margins ${planted}, ${kneeling} with a knee, ${unsupported} on the feet alone`,
+    planted > 0 && kneeling > 0 && unsupported < 0,
+  );
 }

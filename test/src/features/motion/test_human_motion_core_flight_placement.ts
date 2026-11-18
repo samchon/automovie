@@ -36,8 +36,9 @@ import { qunit } from "../internal/qunit";
  * 2. Both actual films must wind once in their own takeoff frames; equal
  *    unturned jumps or equal identity endpoints cannot satisfy the test.
  * 3. Every displayed bone follows (x,y,z)->(z+3,y,-x-2), with matching local
- *    rotation and the corresponding world rotation at 60 Hz in flight,
- *    before takeoff and after landing. Positions retain the existing
+ *    rotation and the corresponding world rotation at 60 Hz in flight at
+ *    equal phase, and at each film's takeoff and touchdown and on either
+ *    side of them. Positions retain the existing
  *    placement test's Euclidean 1 mm bound; quaternion dot error is 1e-9.
  *    Takeoff, touchdown and total duration retain their 1e-6-second bound.
  *
@@ -50,7 +51,7 @@ import { qunit } from "../internal/qunit";
  * @evidence contracts/development/common.md#meaningful-documentation States the unchanged actual fixture, transformed target, ground-preserving symmetry, winding observation and original positional/time bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Builds two actual public turned performances, compares all displayed bone positions/rotations and checks each actual takeoff-relative winding; a world-root contribution to shape dynamics, lost articulation or ignored turn fails.
  * @evidence contracts/development/testing.md#independent-expectations Gravity is invariant under horizontal translation and yaw. The explicit quarter-turn gives expected points and left-multiplied quaternions, while one requested cycle gives 2 pi winding independently of shooting residuals.
- * @evidence contracts/development/testing.md#distinguishing-cases A nonzero yaw and translation, transformed world target, real adaptive shooting and resolved polygon-body joints, both sides of the flight and a full-cycle observation distinguish root-space equivalence from the existing default unturned placement case.
+ * @evidence contracts/development/testing.md#distinguishing-cases A nonzero yaw and translation, transformed world target, real adaptive shooting and resolved polygon-body joints, exact boundaries and both adjacent phases distinguish root-space equivalence from the default unturned placement case. Event timing is checked separately from the phase comparison.
  * @evidence contracts/development/testing.md#execution-ownership A deferred CPU entry owns two real canonical performances with fresh body identities; no fake body, test-only law, foreign method replacement, renderer or process is introduced.
  */
 export function test_human_motion_core_flight_placement(): void {
@@ -131,17 +132,17 @@ export function test_human_motion_core_flight_placement(): void {
   const frames: readonly IAutoMovieQuaternion[] = takeoffs.map(
     (q: IAutoMovieQuaternion): IAutoMovieQuaternion => Quaternion.inverse(q),
   );
-  const compare: (seconds: number) => void = (seconds: number): void => {
+  const compare = (seconds: number, movedSeconds: number = seconds): void => {
     const one: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = here.bones(
       "a",
       seconds,
     );
     const two: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = there.bones(
       "a",
-      seconds,
+      movedSeconds,
     );
     motionHumanFrame(one, `origin flight ${seconds}`);
-    motionHumanFrame(two, `placed flight ${seconds}`);
+    motionHumanFrame(two, `placed flight ${movedSeconds}`);
     if (one.size !== two.size)
       findings.push(`placement changed bone count at ${seconds}`);
     for (const [bone, value] of one) {
@@ -172,20 +173,27 @@ export function test_human_motion_core_flight_placement(): void {
         )
       )
         findings.push(
-          `${bone} at ${seconds}: placed point misses ${distance} m or its rotation differs`,
+          `${bone} at ${seconds}/${movedSeconds}: placed point misses ${distance} m or its rotation differs`,
         );
     }
   };
   compare(0);
-  compare(Math.max(0, from - 1e-3));
-  const samples: number = Math.max(1, Math.ceil((to - from - 1e-6) * 60));
+  compare(Math.max(0, from - 1e-3), Math.max(0, placed[0] - 1e-3));
+  // Use the same exact event-relative phase in both films. Their independently
+  // validated event times can differ by roundoff at a piecewise boundary.
+  const boundary: number = 1e-6;
+  const samples: number = Math.max(1, Math.ceil((to - from - boundary) * 60));
   const winding: number[] = [0, 0];
   const previous: number[] = [0, 0];
+  const spans: readonly (readonly [number, number])[] = [origin, placed];
+  const films: readonly IAutoMovieMotionHumanPerformance[] = [here, there];
   for (let k: number = 0; k <= samples; k++) {
-    const seconds: number =
-      k === samples ? to - 1e-6 : from + ((to - from - 1e-6) * k) / samples;
-    compare(seconds);
-    for (const [index, film] of [here, there].entries()) {
+    const times: number[] = spans.map(([open, close]: readonly [number, number]): number =>
+      k === samples ? close - boundary : open + ((close - open - boundary) * k) / samples,
+    );
+    compare(times[0]!, times[1]!);
+    for (const [index, film] of films.entries()) {
+      const seconds: number = times[index]!;
       const q: IAutoMovieQuaternion = root(film, seconds);
       if (!qunit(q)) {
         findings.push(`flight ${index} has invalid root at ${seconds}`);
@@ -214,10 +222,11 @@ export function test_human_motion_core_flight_placement(): void {
       previous[index] = angle;
     }
   }
-  for (const [index, film] of [here, there].entries()) {
+  for (const [index, film] of films.entries()) {
+    const touchdown: number = spans[index]![1];
     const lastTurn: number = Quaternion.angle(
-      root(film, to - 2e-6),
-      root(film, to - 1e-6),
+      root(film, touchdown - 2 * boundary),
+      root(film, touchdown - boundary),
     );
     if (
       !(
@@ -230,8 +239,12 @@ export function test_human_motion_core_flight_placement(): void {
         `flight ${index} actually winds ${winding[index]! / (2 * Math.PI)} revolutions`,
       );
   }
-  compare(to);
-  compare(here.duration);
+  compare(to, placed[1]);
+  compare(
+    Math.min(here.duration, to + boundary),
+    Math.min(there.duration, placed[1] + boundary),
+  );
+  compare(here.duration, there.duration);
   TestValidator.equals(
     "an actual turned Human flight follows world placement symmetry",
     findings,

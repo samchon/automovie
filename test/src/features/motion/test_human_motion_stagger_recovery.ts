@@ -8,19 +8,20 @@ import {
   HumanRefusal,
   HumanVerdicts,
 } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * The reading of the stagger recovery specs on one body: the body stands a
+ * A stagger recovery: the body stands a
  * moment, then is pushed, and recovers by stepping or is refused as a fall.
  *
- * Scenes:
- * - pushed at 0.5 m/s, inside every body's capture region, in each of the
+ * Scenarios:
+ * 1. Pushed at 0.5 m/s, inside each body's capture region, in each of the
  *   four directions: backward (the blow from ahead), forward (from behind),
  *   to the right (from a point on its left) and to the left (from a point
- *   on its right); each plans with a clean verdict report;
- * - pushed backward at 1.5 m/s, past what four recovery steps catch: it is
+ *   on its right). Each plans with a clean verdict report.
+ * 2. Pushed backward at 1.5 m/s, past what four recovery steps catch: it is
  *   refused as a `HumanRefusal` on `parameter`/`speed`, its value the speed
  *   and its range from none to the fastest push the body catches that way,
  *   which lies between 0.5 and 1.5 m/s.
@@ -39,20 +40,30 @@ import { motionHumanBody } from "./motionHumanBody";
  * 9 degrees on the small woman, is caught by every body; 1.5 m/s, a lean
  * of 28 and 26 degrees, lies past every measured backward threshold.
  *
- * @param name The body.
- * @returns What went wrong; empty when every scene reads as stated.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the staging, the scenes and what each must show.
- * @evidence contracts/development/implementation.md#principled-implementation Builds each stagger through the public chain and reads the shipped verdict report and the refusal's axis, value and range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One staging, four caught pushes and one refused.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal of a caught push, any broken bound, or a fall refused on another axis is a complaint with what was read.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four short films and one refused plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the stagger recovery specs, one per body.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the staging, the capture-point relation and the caught and refused speeds.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans each direction through the public chain and checks the displayed recovery's verdicts or the refusal's axis, value and feasible speed range.
+ * @evidence contracts/development/testing.md#independent-expectations Hof's capture point converts the two speed limits into the comparison with the measured lean-and-release thresholds. The dynamics are audited on the display by the ordinary physical bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two measured statures, the four signs of the principal directions, and a backward push outside the capture region.
+ * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory spec stages two prepared polygon bodies, each with four short recoveries and one refused push.
  */
-export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
+export function test_human_motion_stagger_recovery(): void {
+  const findings: string[] = [];
+  for (const name of ["f-small", "m-average"] as const)
+    recovery(name, findings);
+  TestValidator.equals(
+    "a push is caught by recovery steps or refused as a fall",
+    findings,
+    [],
+  );
+}
+
+/** Collect the displayed and refused boundary cases for one morphology. */
+function recovery(name: motionHumanBody.Name, out: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const pushed = (speed: number, from?: IAutoMovieMotionTarget) =>
+  const pushed = (
+    speed: number,
+    from?: IAutoMovieMotionTarget,
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "stagger",
       performers: [
@@ -68,12 +79,11 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
         .stand({ seconds: 0.3 })
         .stagger({ speed, ...(from === undefined ? {} : { from }) }).node,
     });
-  const out: string[] = [];
   const caught = (
     label: string,
     speed: number,
     from?: IAutoMovieMotionTarget,
-  ) => {
+  ): void => {
     try {
       const report: string = HumanVerdicts.describe(
         HumanVerdicts.of(pushed(speed, from)),
@@ -107,7 +117,7 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
     frame: "world",
   });
 
-  // 3. A push past four steps is refused as a fall, with the body's limit.
+  // 2. A push past four steps is refused as a fall, with the body's limit.
   try {
     pushed(1.5);
     out.push(
@@ -119,7 +129,7 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
         `${name} pushed backward at 1.5 m/s: threw ${error instanceof Error ? error.message : String(error)}, a HumanRefusal expected`,
       );
     else {
-      const range = error.feasible;
+      const range: HumanRefusal["feasible"] = error.feasible;
       if (error.kind !== "parameter" || error.axis !== "speed")
         out.push(
           `${name} pushed backward at 1.5 m/s: refused on ${error.kind}/${error.axis}, parameter/speed expected`,
@@ -139,5 +149,4 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
         );
     }
   }
-  return out;
 }
