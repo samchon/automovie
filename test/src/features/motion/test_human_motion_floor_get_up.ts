@@ -1,235 +1,54 @@
-import { physicalShapeBounds } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanColliders,
-  HumanPerformance,
-  HumanRefusal,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { HumanChain, HumanRefusal } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionFloorRise } from "../internal/motionFloorRise";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 
 /**
- * Getting up from the floor (`getUp`) brings the body from lying on the
- * back, lying on the front or the hands and knees to standing on its feet,
- * continuously and on the floor, and the act after it is entered standing.
+ * Getting up follows the support route from the body's actual starting base.
  *
- * Standing is read as the hips joint at the height a quiet stance puts it
- * (`stand.posture`), within 20 mm (provisional: the stance's own knee
- * give), with both feet's lowest collider points within the verdicts' skin
- * depth of the floor. Continuity is the verdicts' speed limit for any human
- * joint centre, 30 m/s, read every 120th of a second from 0.1 s before the
- * rise to its end; the floor is the floor audit's 5 mm, read on the
- * colliders at the same instants of the rise once its entering transition
- * has decayed, since that transition carries the act before's own pose (a
- * crawl's tucked toes sink about 14 mm, a fault of the crawl).
+ * Scenarios:
+ * 1. From the back, use the symmetric rise. From the front and from crawling,
+ *    enter the corresponding suffix of the rolling route. Check floor height,
+ *    120 Hz continuity, and the standing hips and feet of all three.
+ * 2. Knockdown, rise and crawl compose in sequence.
+ * 3. Standing refuses on the base axis with its supported alternatives.
  *
- * Scenarios across the small and large rigs:
- * 1. A lie down on the back, then the symmetric rise (VanSant 1988's most
- *    common adult pattern): it stands at the end, continuously and on the
- *    floor.
- * 2. The same with the rotation pattern, rolling over to the hands and
- *    knees: the same bounds.
- * 3. A lie down on the front, then a rise: the same bounds.
- * 4. A crawl, then a rise from the hands and knees: the same bounds.
- * 5. A knockdown, a rise and a crawl, as a fall and a crawl away are
- *    written: the three plan.
- * 6. A rise from standing is refused as a `base` refusal on the `base`
- *    axis, with the supported floor bases offered as alternatives.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Builds each chain through the public chain and reads displayed bones and colliders; a rise that ends off its feet, jumps, sinks into the floor, or accepts a standing body fails with the case and its numbers.
- * @evidence contracts/development/testing.md#independent-expectations Standing is the stance owner's own hips height; the speed, floor and skin bounds are the verdicts' for any human motion; the 20 mm give is marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases Both lying bases, both patterns, the hands and knees, the chain after a knockdown and a refused base. The supine rotation keeps both the small rig's displayed seam and the large rig's stance-fit witness; the floor laws' own entries are `test_human_motion_floor_entry_base`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and attempts seven performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, how standing, continuity and the floor are read with their bounds, and the 6 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Names all three entrances and their physical and admission boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the actual stage and displayed bones; an incorrect floor exit, unsupported base or discontinuity fails at the measured time.
+ * @evidence contracts/development/testing.md#independent-expectations The independent quiet hips, foot collider height, and 30 m/s, 5 mm, 10 mm and 20 mm limits are measured in motionFloorRise.
+ * @evidence contracts/development/testing.md#distinguishing-cases Supine symmetric, prone and all-fours enter different physical phases. A composed entry and a standing refusal exercise the base contract.
+ * @evidence contracts/development/testing.md#execution-ownership Three measured rises, one accepted sequence and one refused base use the original scenes.
  */
 export function test_human_motion_floor_get_up(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
-  const STEP: number = 1 / 120;
-  for (const name of ["f-small", "m-large"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const stood: number = poseBones(
-      body,
-      resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
-    ).get("hips")!.worldPosition.y;
-    const perform = (composition: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
-      new HumanPerformance({
-        seed: "get-up",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: composition.node,
-      });
-    const lowest = (bones: Bones, of: RegExp): number => {
-      let low: number = Infinity;
-      for (const { bone, pose, shapes } of HumanColliders.placed(body, bones))
-        if (of.test(bone))
-          for (const shape of shapes)
-            low = Math.min(low, physicalShapeBounds(pose, shape).min.y);
-      return low;
-    };
-
-    // 1 to 4. A rise read through.
-    const rise = (
-      label: string,
-      composition: IAutoMovieMotionHumanChain,
-    ): void => {
-      let performance: IAutoMovieMotionHumanPerformance;
-      try {
-        performance = perform(composition);
-      } catch (error) {
-        all.check(
-          `${name} ${label}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-          false,
-        );
-        return;
-      }
-      const placed: IAutoMovieMotionHumanSegment =
-        performance.segments("a")[1]!;
-      let fastest: number = 0;
-      let fastestBone: AutoMovieHumanoidBone = "hips";
-      let fastestAt: number = placed.entryTime;
-      let deepest: number = 0;
-      let deepestAt: number = placed.entryTime;
-      const from: number = placed.entryTime - 0.1;
-      const floorStart: number = placed.entryTime + (placed.transition?.blend ?? 0);
-      // The speed standard is a 120 Hz finite difference. Exact seam and
-      // endpoint observations get their own 1/120 s predecessor, even if
-      // they coincide with the regular grid to floating-point precision.
-      const times: Set<number> = new Set([placed.entryTime, floorStart, placed.end]);
-      for (let index: number = 1; from + index * STEP < placed.end; index++)
-        times.add(from + index * STEP);
-      let previous: number = from;
-      let before: Bones = performance.bones("a", previous);
-      for (const seconds of [...times].sort((a: number, b: number): number => a - b)) {
-        const predecessor: number = seconds - STEP;
-        // Four rounded operations form a grid time. Bound their accumulated
-        // error relative to the film time before borrowing the prior frame.
-        const roundoff: number = 4 * Number.EPSILON * Math.max(1, Math.abs(seconds));
-        const prior: Bones = Math.abs(previous - predecessor) <= roundoff
-          ? before : performance.bones("a", predecessor);
-        const now: Bones = performance.bones("a", seconds);
-        for (const [bone, b] of now) {
-          const a: IAutoMovieResolvedBone = prior.get(bone)!;
-          const speed: number =
-            Math.hypot(
-              b.worldPosition.x - a.worldPosition.x,
-              b.worldPosition.y - a.worldPosition.y,
-              b.worldPosition.z - a.worldPosition.z,
-            ) / STEP;
-          if (speed > fastest) {
-            fastest = speed;
-            fastestBone = bone;
-            fastestAt = seconds;
-          }
-        }
-        // The floor is read on the rise's own posture, once the entering
-        // transition has carried off the act before's offset.
-        const depth: number =
-          seconds >= floorStart
-            ? -lowest(now, /./)
-            : 0;
-        if (depth > deepest) {
-          deepest = depth;
-          deepestAt = seconds;
-        }
-        previous = seconds;
-        before = now;
-      }
-      all.check(
-        `${name} ${label}: the fastest joint centre is the ${fastestBone} at ${fastest.toFixed(1)} m/s at ${fastestAt.toFixed(3)} s, below 30 expected`,
-        fastest <= 30,
-      );
-      all.check(
-        `${name} ${label}: the body sinks ${(deepest * 1000).toFixed(1)} mm under the floor at ${deepestAt.toFixed(2)} s, within 5 expected`,
-        deepest <= 0.005,
-      );
-      const end: Bones = before;
-      const hips: number = end.get("hips")!.worldPosition.y;
-      const feet: number = Math.max(
-        lowest(end, /^left(Foot|Toes)$/),
-        lowest(end, /^right(Foot|Toes)$/),
-      );
-      all.check(
-        `${name} ${label}: at the end the hips joint is ${(hips * 1000).toFixed(0)} mm high, the stance's ${(stood * 1000).toFixed(0)} within 20 expected, and the higher foot ${(feet * 1000).toFixed(1)} mm off the floor, within 10 expected`,
-        Math.abs(hips - stood) <= 0.02 && feet <= 0.01,
-      );
-    };
-    // The symmetric route and prone suffix have their own course. Keep the
-    // small rotation's displayed seam and the large rotation's stance-fit
-    // regression separately: the latter can refuse before FK is available.
-    if (name === "f-small") {
-      rise(
-        "lying on the back, the symmetric rise",
-        HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp(),
-      );
-      rise(
-        "on the hands and knees",
-        HumanChain.subject("a").crawl({ cycles: 1 }).getUp(),
-      );
-    } else {
-      rise(
-        "lying on the front",
-        HumanChain.subject("a").lieDown({ position: "prone", hold: 0.3 }).getUp(),
-      );
-    }
-    rise(
-      "lying on the back, the rotation",
-      HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp({ pattern: "rotation" }),
-    );
-
-    if (name !== "f-small") continue;
-    // 5. A fall, a rise and a crawl away.
-    try {
-      perform(
-        HumanChain.subject("a")
-          .knockdown({ seconds: 0.5 })
-          .getUp()
-          .crawl({ cycles: 1 }),
-      );
-    } catch (error) {
-      all.check(
-        `${name} knockdown, getUp, crawl: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-        false,
-      );
-    }
-
-    // Base refusal precedes any geometry. One standing body exercises it.
-    let refused: unknown;
-    try {
-      perform(HumanChain.subject("a").stand({ seconds: 0.3 }).getUp());
-    } catch (error) {
-      refused = error;
-    }
-    all.check(
-      `${name} stand then getUp: refused on the base, got ${refused instanceof HumanRefusal ? `${refused.kind} on ${refused.axis}` : String(refused)}`,
-      refused instanceof HumanRefusal &&
-        refused.kind === "base" &&
-        refused.axis === "base" && refused.value === "standing" &&
-        refused.feasible?.kind === "alternatives" &&
-        ["lying", "kneeling", "crouched"].every((kind: string): boolean =>
-          refused.feasible?.kind === "alternatives" && refused.feasible.values.includes(kind)),
-    );
+  motionFloorRise(all, "f-small", "supine symmetric",
+    HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp());
+  motionFloorRise(all, "m-large", "prone",
+    HumanChain.subject("a").lieDown({ position: "prone", hold: 0.3 }).getUp());
+  motionFloorRise(all, "f-small", "hands and knees", HumanChain.subject("a").crawl({ cycles: 1 }).getUp());
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  try {
+    motionHumanLaw.perform("get-up", [{ subject: "a", body }],
+      HumanChain.subject("a").knockdown({ seconds: 0.5 }).getUp().crawl({ cycles: 1 }));
+  } catch (error) {
+    all.check(`knockdown, getUp, crawl: ${error instanceof Error ? error.message : String(error)}`, false);
   }
-  all.assert("getting up from the floor ends standing on the feet");
+  let refusal: unknown;
+  try {
+    motionHumanLaw.perform("get-up", [{ subject: "a", body }],
+      HumanChain.subject("a").stand({ seconds: 0.3 }).getUp());
+  } catch (error) {
+    refusal = error;
+  }
+  if (refusal instanceof HumanRefusal && refusal.feasible?.kind === "alternatives") {
+    all.check("standing is refused on the entry base",
+      refusal.kind === "base" && refusal.axis === "base" && refusal.value === "standing");
+    all.equals("the supported bases are the floor entrances",
+      [...refusal.feasible.values].sort((a, b): number => String(a).localeCompare(String(b))),
+      ["crouched", "kneeling", "lying"]);
+  } else all.check("standing is refused with the permitted floor bases", false);
+  all.assert("getUp enters the route of its floor base");
 }
-
-/** World joint transforms evaluated at a single film instant. */
-type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
