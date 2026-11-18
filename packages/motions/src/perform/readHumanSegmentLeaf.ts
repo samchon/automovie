@@ -5,6 +5,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
+import { stretchHoldClock } from "../exercise/stretchHoldClock";
 import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
 import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -26,38 +27,103 @@ export function readHumanSegmentLeaf(
   prepared: prepareHumanSegmentPose.IPrepared,
 ): readHumanSegmentLeaf.IReading {
   const reader: typeof segment.plan.posture = segment.plan.posture;
-  const localSeconds: number = Math.min(segment.plan.duration, Math.max(0, t - segment.start));
+  const localSeconds: number = Math.min(
+    segment.plan.duration,
+    Math.max(0, t - segment.start),
+  );
   let working: ReturnType<typeof WorkingSeatRidePlan.read>;
-  if (fits === undefined && observed === undefined && person.layers.length === 0 &&
-      person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0 &&
-      prepareHumanPoseResolution.isNativeSource(prepared.resolution) && WorkingSeatRidePlan.owns(segment.plan)) {
+  if (
+    fits === undefined &&
+    observed === undefined &&
+    person.layers.length === 0 &&
+    person.overlays.length === 0 &&
+    person.holds.length === 0 &&
+    person.stops.size === 0 &&
+    prepareHumanPoseResolution.isNativeSource(prepared.resolution) &&
+    WorkingSeatRidePlan.owns(segment.plan)
+  ) {
     const sample = (): ReturnType<typeof WorkingSeatRidePlan.read> =>
-      WorkingSeatRidePlan.read(segment.plan, localSeconds, undefined, prepared.resolution, prepared.clamp);
-    working = segment.incumbents === undefined ? sample() :
-      HumanLimbIncumbent.within({ body: person.performer.body, seeds: segment.incumbents }, sample);
+      WorkingSeatRidePlan.read(
+        segment.plan,
+        localSeconds,
+        undefined,
+        prepared.resolution,
+        prepared.clamp,
+      );
+    working =
+      segment.incumbents === undefined
+        ? sample()
+        : HumanLimbIncumbent.within(
+            { body: person.performer.body, seeds: segment.incumbents },
+            sample,
+          );
   }
-  const raw: IAutoMovieMotionHumanPosture = working?.posture ?? Reflect.apply(reader, segment.plan, [
-    localSeconds, undefined, prepared.resolution, prepared.clamp,
-  ]);
+  const held: IAutoMovieMotionHumanPosture | undefined =
+    person.layers.length === 0 &&
+    person.overlays.length === 0 &&
+    person.holds.length === 0 &&
+    person.stops.size === 0
+      ? stretchHoldClock.read(
+          segment.plan,
+          person.performer.body,
+          localSeconds,
+          undefined,
+          prepared.resolution,
+          prepared.clamp,
+        )
+      : undefined;
+  const raw: IAutoMovieMotionHumanPosture =
+    working?.posture ??
+    held ??
+    Reflect.apply(reader, segment.plan, [
+      localSeconds,
+      undefined,
+      prepared.resolution,
+      prepared.clamp,
+    ]);
   let direct: resolveHumanPostureSource.IAssembled | undefined;
   let written: IAutoMovieMotionHumanPosture = HumanSegmentLayer.apply(
-    person, raw,
+    person,
+    raw,
     t,
     prepared.resolution,
     prepared.clamp,
-    fits === undefined && person.layers.length === 1 && person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0
-      ? (assembly: resolveHumanPostureSource.IAssembled): void => { direct = assembly; } : undefined,
+    fits === undefined &&
+      person.layers.length === 1 &&
+      person.overlays.length === 0 &&
+      person.holds.length === 0 &&
+      person.stops.size === 0
+      ? (assembly: resolveHumanPostureSource.IAssembled): void => {
+          direct = assembly;
+        }
+      : undefined,
   );
 
-  const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
+  const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(
+    person,
+    segment,
+    t,
+  );
   if (borne.length !== 0) {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...written.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...written.joints,
+    };
     for (const h of borne) Object.assign(joints, h.fingers);
     written = { ...written, joints };
   }
-  const overlaid: HumanSegmentOverlay.IOverlaid =
-    HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-      unplantedHumanObservation(written.limbs, observed), prepared, segment, direct, working);
+  const overlaid: HumanSegmentOverlay.IOverlaid = HumanSegmentOverlay.overlaid(
+    person,
+    written,
+    t,
+    borne,
+    fits,
+    prepared.resolution,
+    unplantedHumanObservation(written.limbs, observed),
+    prepared,
+    segment,
+    direct,
+    working,
+  );
   return {
     posture: {
       ...written,

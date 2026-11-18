@@ -35,6 +35,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { stretchCrossBody } from "./stretchCrossBody";
+import { stretchHoldClock } from "./stretchHoldClock";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
 /**
@@ -119,8 +120,6 @@ export namespace stretch {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanStretch.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
     const hold: number = p.seconds ?? HOLD;
     HumanBound.least("seconds", hold, 0, "s");
     const level: IAutoMovieMotionHumanRange.Level =
@@ -156,6 +155,23 @@ export namespace stretch {
         },
       ],
     );
+    const build = (
+      local: IAutoMovieMotionClock,
+    ): IAutoMovieMotionHumanActionPlan =>
+      compose(context, p, modifiers, level, local);
+    return stretchHoldClock.plan(context, clock, build);
+  }
+
+  /** Build the native stretch's own writers over the given phase clock. */
+  function compose(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
+    p: IAutoMovieMotionHumanStretch.IParams,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+    level: IAutoMovieMotionHumanRange.Level,
+    clock: IAutoMovieMotionClock,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body = context.body;
+    const m = body.measure;
     const weight: (seconds: number) => number =
       AutoMovieMotionClock.prepareEnvelope(
         clock,
@@ -180,7 +196,10 @@ export namespace stretch {
       y: 0,
       z: 0,
     });
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -190,10 +209,13 @@ export namespace stretch {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const rest = (s: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
+    const rest = (
+      s: "left" | "right",
+    ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
     const facing = (
       posture: IAutoMovieMotionHumanPosture,
       local: IAutoMovieVector3,
@@ -227,7 +249,10 @@ export namespace stretch {
         reads: ["root"],
         from: 0,
         to: clock.duration,
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
@@ -255,15 +280,19 @@ export namespace stretch {
         side,
         from: 0,
         to: clock.duration,
-        placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
-          lift(raising(seconds)),
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => lift(raising(seconds)),
         planted: (seconds: number): boolean => raising(seconds) <= 0,
       });
     };
 
     // The standing foot bears throughout; the lifted one until it leaves the
     // floor and again once it is set down.
-    const standingOn: (standing: "left" | "right") => IAutoMovieMotionHumanContactWindow[] = (
+    const standingOn: (
+      standing: "left" | "right",
+    ) => IAutoMovieMotionHumanContactWindow[] = (
       standing: "left" | "right",
     ): IAutoMovieMotionHumanContactWindow[] => [
       {
@@ -348,7 +377,9 @@ export namespace stretch {
               place: (
                 posture: IAutoMovieMotionHumanPosture,
                 _seconds: number,
-                resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
               ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
                 const ride: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
                   point: IAutoMovieVector3,

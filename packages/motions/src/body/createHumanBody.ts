@@ -57,34 +57,45 @@ export function createHumanBody(
         (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
         bone.rest.translation.z,
     });
-  const { measure, surfaces }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
+  const {
+    measure,
+    surfaces,
+  }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
     measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
-  const topology: IAutoMovieMotionHumanBody["topology"] = indexSkeletonTopology(skeleton);
-  const poseResolution: IAutoMovieMotionHumanBody["poseResolution"] = prepareSkeletonPoseResolution(
-    skeleton,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
-    topology,
-  );
-  const chains: Partial<Record<keyof IAutoMovieMotionHumanBody["chains"], prepareChainConstants.IConstants>> = {};
+  const topology: IAutoMovieMotionHumanBody["topology"] =
+    indexSkeletonTopology(skeleton);
+  const poseResolution: IAutoMovieMotionHumanBody["poseResolution"] =
+    prepareSkeletonPoseResolution(
+      skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      topology,
+    );
+  const chains: Partial<
+    Record<
+      keyof IAutoMovieMotionHumanBody["chains"],
+      prepareChainConstants.IConstants
+    >
+  > = {};
   for (const side of ["left", "right"] as const)
     for (const [limb, upper, lower, effector] of [
       ["Arm", "UpperArm", "LowerArm", "Hand"],
       ["Leg", "UpperLeg", "LowerLeg", "Foot"],
     ] as const) {
-      const constants: prepareChainConstants.IConstants | null = prepareChainConstants({
-        skeleton,
-        chain: {
-          upper: `${side}${upper}`,
-          lower: `${side}${lower}`,
-          effector: `${side}${effector}`,
-        },
-        jointAxes: poseResolution.jointAxes,
+      const constants: prepareChainConstants.IConstants | null =
+        prepareChainConstants({
+          skeleton,
+          chain: {
+            upper: `${side}${upper}`,
+            lower: `${side}${lower}`,
+            effector: `${side}${effector}`,
+          },
+          jointAxes: poseResolution.jointAxes,
 
-        // The tables every limb fit of this body passes
-        // (`prepareHumanLimbFit`), which the record's fit readers are for.
-        restFrames: HUMANOID_REST_FRAME,
-      });
+          // The tables every limb fit of this body passes
+          // (`prepareHumanLimbFit`), which the record's fit readers are for.
+          restFrames: HUMANOID_REST_FRAME,
+        });
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
@@ -93,7 +104,8 @@ export function createHumanBody(
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
     if (!bones.has(record.bone)) bones.set(record.bone, record);
-  const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> = new Map();
+  const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
+    new Map();
   const body: IAutoMovieMotionHumanBody = {
     skeleton,
     profile,
@@ -115,7 +127,10 @@ export function createHumanBody(
       return colliderBones;
     },
     get massModel(): IAutoMovieMotionHumanBody["massModel"] {
-      massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
+      massModel ??= resolveAutoMovieCenterOfMass.fromRig(
+        poseResolution,
+        profile,
+      );
       return massModel;
     },
 
@@ -126,10 +141,76 @@ export function createHumanBody(
     },
     rest,
     bones,
-    hanging: (side: AutoMovieHumanSide): IAutoMovieResolvedJointAngles | null => {
-      if (!hung.has(side)) hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
+    hanging: (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieResolvedJointAngles | null => {
+      if (!hung.has(side))
+        hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
       return hung.get(side)!;
     },
   };
+  const readers: IReader[] = [];
+  for (const source of [
+    poseResolution,
+    body.projection,
+    body.projection.joints,
+  ])
+    for (const [key, value] of Object.entries(source))
+      if (typeof value === "function") readers.push({ source, key, value });
+  for (const key of [
+    "poseResolution",
+    "projection",
+    "hanging",
+    "reads",
+  ] as const)
+    readers.push({ source: body, key, value: body[key] });
+  readers.push({
+    source: body.projection,
+    key: "joints",
+    value: body.projection.joints,
+  });
+  for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
+    const pair: (typeof body.reads)[typeof limb] = body.reads[limb];
+    readers.push({ source: body.reads, key: limb, value: pair });
+    for (const [index, read] of pair.entries()) {
+      readers.push({ source: pair, key: String(index), value: read });
+      for (const key of ["bones", "requested", "demand"] as const)
+        readers.push({ source: read, key, value: read[key] });
+      readers.push({ source: read.demand, key: "map", value: read.demand.map });
+    }
+  }
+  NATIVE_READERS.set(body, readers);
   return body;
+}
+
+/** Reader identities supplied at construction, owned by the body itself. */
+const NATIVE_READERS: WeakMap<IAutoMovieMotionHumanBody, readonly IReader[]> =
+  new WeakMap();
+/** One original own property read by the native actor. */
+interface IReader {
+  source: object;
+  key: string;
+  value: unknown;
+}
+/**
+ * Identify bodies whose factory-installed readers can be used by native motion.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the body ownership and reader identity premise.
+ * @evidence contracts/development/design.md#principled-representation Each issued body indexes its original reader properties by object and key. A current descriptor must expose the same value.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The factory records ownership and exposes one predicate. Motion consumers decide whether a matching body qualifies for their own path.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Descriptor reads reject accessor replacements without invoking them. The weak index contains identities alone and releases them with their body.
+ */
+export namespace createHumanBody {
+  /** Whether this body's original FK, projection, hanging and limb readers are still installed. */
+  export function owns(body: IAutoMovieMotionHumanBody): boolean {
+    const readers: readonly IReader[] | undefined = NATIVE_READERS.get(body);
+    return (
+      readers !== undefined &&
+      readers.every(
+        (reader: IReader): boolean =>
+          Object.getOwnPropertyDescriptor(reader.source, reader.key)?.value ===
+          reader.value,
+      )
+    );
+  }
 }
