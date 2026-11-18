@@ -1,5 +1,6 @@
 import { Vector3, convexHull2D, pointInHull, resolveAutoMovieCenterOfMass, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanJacobian } from "../posture/HumanJacobian";
 import { poseBones } from "../posture/poseBones";
@@ -22,7 +24,10 @@ type Balance = (
   weight: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+  sides?: readonly AutoMovieHumanSide[],
+  share?: number,
 ) => IAutoMovieMotionHumanPosture;
+
 
 /** The clinical turn that tilts the upper body without moving the planted feet. */
 const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
@@ -58,12 +63,13 @@ interface IArc {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One posed mass point serves both the whole centre and the rotated subset. The body and its demanded FK setup are fixed for the plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the body's fixed model and FK names. Current posed frames and arc candidates are released on return.
  */
-export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody): Balance {
-  if (!body.bones.has("spine")) return (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => posture;
+export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody, support?: prepareHumanTrunkBalance.ISupport): Balance {
+  if (!body.bones.has("spine")) HumanPhysics.unsupported("trunk", "the body has no lumbar joint for the requested trunk correction");
   const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
   const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "spine",
     ...HumanFoot.bones(body),
+    ...(support?.bones ?? []),
     ...model.segments.map((segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone),
   ]);
   const readPose: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, names);
@@ -72,6 +78,8 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody): Balan
     weight: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    sides?: readonly AutoMovieHumanSide[],
+    share: number = 0,
   ): IAutoMovieMotionHumanPosture => {
     if (weight <= 0) return posture;
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
@@ -79,7 +87,9 @@ export function prepareHumanTrunkBalance(body: IAutoMovieMotionHumanBody): Balan
       resolveHumanPosture.seeded(body, posture, undefined, undefined, read, names, projection).pose,
       read(),
     );
-    const hull: IAutoMovieVector3[] = convexHull2D(HumanFoot.base(body, bones));
+    const hull: IAutoMovieVector3[] = convexHull2D(
+      support === undefined ? HumanFoot.base(body, bones, sides) : support.points(bones, share),
+    );
     if (hull.length < 3) return posture;
     const pivot: IAutoMovieVector3 = bones.get("spine")!.worldPosition;
     const joint: ReturnType<typeof HumanJacobian.read> = HumanJacobian.read(
@@ -153,5 +163,14 @@ function* crossings(arc: IArc, hull: readonly IAutoMovieVector3[]): Iterable<num
     const angle: number = Math.acos(c / radius);
     for (const solution of [phase - angle, phase + angle])
       yield (wrapDegrees((solution * 180) / Math.PI) * Math.PI) / 180;
+  }
+}
+
+/** Additional contacts used by a trunk correction during a mixed-support action. */
+export namespace prepareHumanTrunkBalance {
+  /** The fixed frame demand and the actual support points placed on those frames at an action share. */
+  export interface ISupport {
+    bones: ReadonlySet<AutoMovieHumanoidBone>;
+    points(frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, share: number): IAutoMovieVector3[];
   }
 }

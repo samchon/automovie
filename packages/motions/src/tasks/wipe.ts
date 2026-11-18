@@ -228,9 +228,7 @@ export namespace wipe {
       }),
       modifiers,
     );
-    const window: HumanPhysics.Window = HumanPhysics.prepare(
-      context.params, {}, context.start, { duration: clock.duration, events: clock.events() }, context.instant,
-    );
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(context.params, {}, context.start, clock, context.instant);
     const adjust: ReturnType<typeof prepareGroundedBalance> = prepareGroundedBalance(body, window);
     const reachLean: ReturnType<typeof lean.primitive> = lean.primitive(clock);
     const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({

@@ -1,6 +1,5 @@
 import {
   Vector3,
-  convexHull2D,
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -36,7 +35,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanBalance } from "./HumanBalance";
+import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureHands } from "./gestureHands";
 
@@ -55,10 +54,8 @@ import { gestureHands } from "./gestureHands";
  * goals: the foot on the side away from the force steps back along the
  * force's line by `STAGGER` leg lengths and out until the feet stand a
  * shoulder width apart (a staggered, wider base); the pelvis drops until
- * the knees flex `KNEE` degrees over the middle of the new base and, with
- * the balance option (`IAutoMovieMotionHumanBalance`, off by
- * default), is then moved so the engine's whole-body centre of mass stands
- * over the middle of the new base's hull, found on the solved posture; the trunk inclines 10 degrees toward the
+ * the knees flex `KNEE` degrees over the middle of the new base. A requested
+ * hip or lumbar correction uses the actual bearing sole or soles. The trunk inclines 10 degrees toward the
  * force; and both palms come up ahead of the chest's front surface (its
  * sternum region) along the force, facing it for an `impact` or a `push`,
  * turned up and lower to receive a `catchBody`. The arms rise from the
@@ -137,7 +134,7 @@ export namespace brace {
    * @returns The plan; a duration shorter than `SET + HELD` is raised to it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, when the set is reached and how a short duration is treated; the law's doc gives the sources and the provisional magnitudes.
-   * @evidence contracts/development/implementation.md#principled-implementation The anticipatory adjustments of Massion 1992: the foot away from the force steps back along its line and out to shoulder width, the pelvis drops by the leg-length change of a `KNEE` flexion (law of cosines over thigh and shank), and the root moves so the engine's centre of mass stands over the mean of the new base's hull vertices, measured on the solved posture; the trunk inclines toward the force by the cosine of its bearing, so a force from the side adds no lean.
+   * @evidence contracts/development/implementation.md#principled-implementation The original step and knee geometry place the body. Only the current planted feet constrain a requested shift. The palms are placed on the resulting posture.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts SET and SWING are cited and STEP derived from them; KNEE, STAGGER, HELD, SECONDS, LIFT, LEAN, AHEAD, SPREAD, RECEIVE and ELBOW_OUT are named provisional magnitudes with no source found; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation, one lowering of the centred root so the landing foot asks no drop at `SET`, and the arms' one planned trajectory; each posture costs one leg solve and writes the planned arms. The standing legs' heading-dependent foot data is prepared once for the brace's fixed heading.
@@ -247,12 +244,9 @@ export namespace brace {
     const legsAt: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const bearing: number = Math.cos((forward * Math.PI) / 180);
 
-    // The set root: lowered by the knee flexion over the middle of the new
-    // base, then, with the balance option, moved twice so the engine's centre
-    // of mass stands over the middle of the new base's hull.
+    // The geometric set root is lowered over the middle of the final stance.
     const goal: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
         relaxed,
         lean * bearing,
@@ -270,35 +264,20 @@ export namespace brace {
           }),
         }, resolveHumanPosture.KNEE, resolution);
       };
-      let at: IAutoMovieVector3 = {
+      const at: IAutoMovieVector3 = {
         x: settled.x - centre.x,
         y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
         z: settled.z - centre.z,
       };
-      // Without the balance option the root stays lowered over the middle of
-      // the new base, and no centre of mass is read.
-      if (HumanPhysics.balanced(p))
-      for (let round: number = 0; round < 2; round++) {
-        const held: ReturnType<typeof HumanBalance.support> = HumanBalance.support(body, setAt(at), resolution, projection);
-        const hull: IAutoMovieVector3[] = convexHull2D(held.points);
-        const mid: IAutoMovieVector3 = Vector3.scale(
-          hull.reduce(
-            (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.add(a, b),
-            { x: 0, y: 0, z: 0 },
-          ),
-          1 / hull.length,
-        );
-        at = {
-          x: at.x + mid.x - held.centre.x,
-          y: at.y,
-          z: at.z + mid.z - held.centre.z,
-        };
-      }
       // The set curve ends on the root the set feet are reachable from, so
       // the stepping leg's landing at `SET` asks lowering for no new drop.
       return setAt(at).root;
     })();
+
+    const events: IAutoMovieMotionHumanActionPlan["events"] = [{ name: "set", share: SET / duration }];
+    const window: HumanPhysics.Window = HumanPhysics.prepare(p, {}, context.start, { duration, events }, context.instant);
+    const adjust: ReturnType<typeof prepareGroundedBalance> = prepareGroundedBalance(body, window,
+      (t: number) => t > swing[0] && t < swing[1] ? [back === "left" ? "right" : "left"] : ["left", "right"]);
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
@@ -325,12 +304,13 @@ export namespace brace {
         if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
-      const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+      const raw: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
         body,
         { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: legs },
         resolveHumanPosture.KNEE,
         resolution,
       );
+      const posture: IAutoMovieMotionHumanPosture = adjust(raw, t, undefined, resolution);
       // The hands open on the set's own share: written flat at once from
       // the first instant past zero, the fingers jumped from the entry's.
       return s <= 0
@@ -472,7 +452,8 @@ export namespace brace {
     ];
     return {
       duration,
-      events: [{ name: "set", share: SET / duration }],
+      events,
+      balanceWindow: window,
       contacts,
       posture: (
         seconds: number,

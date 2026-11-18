@@ -2,7 +2,6 @@ import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
@@ -13,7 +12,6 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
-import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -102,12 +100,8 @@ export namespace crawlDown {
 
     /** Each foot tucked behind its knee where the way down ends. */
     tucks: Record<"left" | "right", crawlFeet.ITuck>;
-
-    /** Whether the knees stop over the floor (a bear crawl), so until the hands land the feet alone bear the lean. */
+    /** Whether the knees hover and the tucked toes bear before the palms land. */
     hover: boolean;
-
-    /** The balancing shift asked (`IAutoMovieMotionHumanBalance`): absent, the hips sit and lean back as far as the knees still land, and no centre of mass is read. */
-    balance?: IAutoMovieMotionHumanBalance;
   }
 
   /**
@@ -120,7 +114,7 @@ export namespace crawlDown {
    */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
-    write(base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+    write(base: IAutoMovieMotionHumanPosture, seconds: number, weight?: number): IAutoMovieMotionHumanPosture;
 
     /** The second the knees land, or come to where a bear crawl holds them over the floor. */
     knees: number;
@@ -170,8 +164,6 @@ export namespace crawlDown {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
     };
-    const forward: IAutoMovieVector3 = HumanFrame.forward(S.yaw);
-    const along = (p: IAutoMovieVector3): number => Vector3.dot(p, forward);
     const middle = (pair: Record<"left" | "right", IAutoMovieVector3>) =>
       Vector3.lerp(pair.left, pair.right, 0.5);
     const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
@@ -239,6 +231,14 @@ export namespace crawlDown {
       lean: number;
       angles: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>;
       ends: number[];
+      /** The feet-supported sitting key, solved on its first positive contribution. */
+      satBalance(): number;
+      /** The hips and lean when the hands first reach their fixed places. */
+      handBalance(): IHandKey;
+    }
+    interface IHandKey {
+      back: number;
+      lean: number;
     }
     const solve = (base: IAutoMovieMotionHumanPosture): IStates => {
       const read: ReturnType<typeof prepareCrawlDownResolution> =
@@ -348,39 +348,14 @@ export namespace crawlDown {
         return low;
       };
 
-      // Sitting onto the knees, the feet alone bear: the hips as far back
-      // as balance over the feet asks, the trunk upright.
-      const sitting: number = furthest((): number => 0);
-      const balanced: boolean = HumanPhysics.balanced(props);
-      const satBack: number = !balanced ? sitting : Math.min(
-        sitting,
-        HumanBalance.shift(
-          body,
-          (back: number): IAutoMovieMotionHumanPosture =>
-            armed(heldKneeling(base, back, 0), null, 0),
-          sitting / m.hipHeight,
-        ),
-      );
-
-      // Leaning to the hands, the centre of mass behind the supports that
-      // bear until the hands land: the knees on the floor, or, with the knees
-      // held over it, the tucked feet's toes' joints.
-      const behind: IAutoMovieVector3 = props.hover
-        ? pair((side: "left" | "right"): IAutoMovieVector3 => tucked[side].at)
-        : knee;
-      const error: (back: number) => number = (back: number): number =>
-        along(read.centre(at(back, leanAt(back)))) - along(behind);
-      const leaning: number = Math.min(sitting, furthest(leanAt));
-      const leantBack: number = !balanced
-        ? leaning
-        : error(0) <= 0
-          ? 0
-          : error(leaning) > 0
-            ? leaning
-            : bracketedRoot(error, 0, leaning, HumanBalance.TOLERANCE);
+      // The hips sit back as far as the knees can still reach the floor.
+      const satBack: number = furthest((): number => 0);
+      const leantBack: number = Math.min(satBack, furthest(leanAt));
       const lean: number = leanAt(leantBack);
       const leant: IAutoMovieMotionHumanPosture = at(leantBack, lean);
       const solved: ReturnType<typeof read.pose> = read.pose(leant);
+      let sat: number | undefined;
+      let hand: IHandKey | undefined;
 
       // The time shared by how far the limbs' joints travel.
       const ends: number[] = crawlDownTiming(
@@ -394,6 +369,21 @@ export namespace crawlDown {
         props.sit,
       );
       return {
+        satBalance: (): number => sat ??= Math.min(satBack, HumanBalance.shift(
+          body, (back: number): IAutoMovieMotionHumanPosture => armed(heldKneeling(base, back, 0), null, 0),
+          satBack / m.hipHeight,
+        )),
+        handBalance: (): IHandKey => {
+          if (hand !== undefined) return hand;
+          const support: IAutoMovieVector3 = props.hover ? pair((side) => tucked[side].at) : knee;
+          const forward: IAutoMovieVector3 = HumanFrame.forward(S.yaw);
+          const centre: ReturnType<typeof HumanBalance.prepareCentre> = HumanBalance.prepareCentre(body);
+          const error = (back: number): number =>
+            Vector3.dot(Vector3.subtract(centre(at(back, leanAt(back))), support), forward);
+          const back: number = error(0) <= 0 ? 0 : error(leantBack) > 0 ? leantBack
+            : bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
+          return hand = { back, lean: leanAt(back) };
+        },
         back: { sat: satBack, leant: leantBack },
         lean,
         angles: {
@@ -454,7 +444,7 @@ export namespace crawlDown {
     const s: IStates = solve(S);
     const carriedArms: ReturnType<typeof crawlFrame.prepareArmed> =
       crawlFrame.prepareArmed(body, holding, s.angles);
-    const write = (base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+    const write = (base: IAutoMovieMotionHumanPosture, seconds: number, weight: number = 0): IAutoMovieMotionHumanPosture => {
       const k: number = Math.max(
         1,
         s.ends.findIndex((end: number): boolean => seconds < end),
@@ -465,9 +455,14 @@ export namespace crawlDown {
         (seconds - s.ends[k - 1]!) / (s.ends[k]! - s.ends[k - 1]!),
       );
       const lerp = (a: number, b: number): number => a + (b - a) * u;
+      const sat: number = k > 2 || weight === 0 || (k === 1 && u === 0) ? s.back.sat
+        : s.back.sat + weight * (s.satBalance() - s.back.sat);
+      const hand: IHandKey | undefined = k === 1 || weight === 0 || (k === 2 && u === 0) ? undefined : s.handBalance();
+      const back: number = hand === undefined ? s.back.leant : s.back.leant + weight * (hand.back - s.back.leant);
+      const lean: number = hand === undefined ? s.lean : s.lean + weight * (hand.lean - s.lean);
       // Onto the hands: the hips forward over the knees.
       if (k === s.ends.length - 1)
-        return props.kneeling(base, lerp(s.back.leant, 0), lerp(s.lean, 1));
+        return props.kneeling(base, lerp(back, 0), lerp(lean, 1));
       // Until the hands land the arms are carried from their held angles to
       // the palms, over the whole way to them; the body sits onto the knees
       // from standing, then leans from them.
@@ -475,11 +470,11 @@ export namespace crawlDown {
       const reach: number = minimumJerk.share(seconds / landing);
       if (k === 1)
         return carriedArms(
-          fromStanding(base, heldKneeling(base, s.back.sat, 0), u),
+          fromStanding(base, heldKneeling(base, sat, 0), u),
           reach,
         );
       return carriedArms(
-        heldKneeling(base, lerp(s.back.sat, s.back.leant), lerp(0, s.lean)),
+        heldKneeling(base, lerp(sat, back), lerp(0, lean)),
         reach,
       );
     };

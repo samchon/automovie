@@ -19,7 +19,8 @@ import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAudi
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
 import { HumanBound } from "../law/HumanBound";
-import { HumanPhysics } from "../law/HumanPhysics";
+import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
+import { supportBalance } from "./supportBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -28,7 +29,6 @@ import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportAssist } from "./supportAssist";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
-import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
 import { supportWindows } from "./supportWindows";
 
 /** Offset decay time of a cut from a support sequence into standing, seconds (provisional: no study of the transition was located). */
@@ -48,10 +48,9 @@ type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
  *
  * A key posture is the static multi-contact posture nearest the posture the
  * body enters with that puts every contact on its target and keeps every
- * joint in its range, and with the balance option
- * (`IAutoMovieMotionHumanBalance`, off by default) the centre of mass
- * over the hull of the bearing contacts (`HumanBodyFit`, Bouyarmane and Kheddar 2010; Escande, Kheddar and
- * Miossec 2013), solved from the key before it, as a planner grows its next
+ * joint in its range (HumanBodyFit, Bouyarmane and Kheddar 2010, Escande et al. 2013).
+ * An explicit positive balance request uses the fitted world contacts and
+ * the selected part on the prepared clock. Each new key is solved from the key before it, as a planner grows its next
  * stance from its parent. Between two stances the planner solves a third key
  * on the union of both stances' contacts, so the new contacts bear before
  * the old ones release (Escande et al.'s transition configurations, in
@@ -227,10 +226,6 @@ export namespace support {
     ): IAutoMovieMotionHumanPosture =>
       stance.prefer === undefined ? from : preference(stance, from, place);
 
-    // Whether the keys keep the centre of mass over what bears: the physics
-    // option, off by default (`IAutoMovieMotionHumanBalance`).
-    const balanced: boolean = HumanPhysics.balanced(context.params);
-
     // Each key: one fit on its contacts, whose seed is selected by constraint violation.
     const keys: IKey[] = [
       { posture: preferred, seconds: 0, name: "start", contacts: inherited, place: locate(0) },
@@ -328,7 +323,6 @@ export namespace support {
                 }];
               },
             ),
-            balanced,
           ),
           seconds,
           name: `lift${i}`,
@@ -347,7 +341,6 @@ export namespace support {
             `bear${i}`,
             MISS,
             [],
-            balanced,
           ),
           seconds,
           name: `bear${i}`,
@@ -371,7 +364,6 @@ export namespace support {
             `bear${i}`,
             MISS,
             [],
-            balanced,
           ),
           seconds,
           name: `bear${i}`,
@@ -392,7 +384,6 @@ export namespace support {
           `stance${i}`,
           MISS,
           [],
-          balanced,
         ),
         seconds,
         name: stance.event ?? `stance${i}`,
@@ -415,7 +406,7 @@ export namespace support {
           ),
       );
 
-    return {
+    return supportBalance(context, {
       duration,
       events: keys.slice(1).map((k: IKey): { name: string; share: number } => ({
         name: k.name,
@@ -454,7 +445,7 @@ export namespace support {
         const posed: IAutoMovieMotionHumanPosture = intervals[k]!.write(w, resolution, projection);
         return follow?.(posed, s, _channels) ?? posed;
       },
-    };
+    });
   }
 
   /** A key posture of the plan. */

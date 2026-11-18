@@ -9,6 +9,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -313,8 +314,9 @@ export namespace HumanBalance {
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    sides?: readonly AutoMovieHumanSide[],
   ): IAutoMovieMotionHumanBalance.ISupport {
-    const placed: IPlaced = placement(body, posture, resolution, projection);
+    const placed: IPlaced = placement(body, posture, resolution, projection, undefined, undefined, sides);
     return {
       centre: placed.centre,
       points: placed.base,
@@ -459,6 +461,7 @@ function placement(
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
   frames?: ReturnType<typeof poseBones.prepare>,
   mass?: () => prepareAutoMovieMassModel.IPrepared,
+  sides?: readonly AutoMovieHumanSide[],
 ): IPlaced {
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
   const pose: ReturnType<typeof resolveHumanPosture> =
@@ -470,7 +473,7 @@ function placement(
     feet,
     centre: mass === undefined ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
       : prepareAutoMovieMassModel.place(mass(), bones),
-    base: feet.base(),
+    base: feet.base(sides),
   };
 }
 

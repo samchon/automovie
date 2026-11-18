@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -20,11 +21,14 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
+import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";
 import { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { riseRested } from "./riseRested";
@@ -46,15 +50,11 @@ import { seatedCourse } from "./seatedCourse";
  * minimum-jerk profile over the first half of the rise to a peak of at least
  * `35 + 50 (1 - r)` degrees, so it is still flexing fast when the seat is
  * left (peak trunk flexion closely follows seat-off, Schenkman et al.).
- * Seat-off comes at the first frame from 36 % of the rise, where the flexion
- * phase ends in healthy adults (McDonald, Villarejo Mayor and Lennon 2025,
- * Front Bioeng Biotechnol 13:1605524), to the trunk's peak, at which the extrapolated centre
- * of mass of the engine's whole-body model (Hof, Gazendam and Sinke 2005)
- * enters the feet's base of support: the forward momentum of the flexing
- * trunk then carries the body over the feet. When no frame does, the peak
- * is raised in 5 degree steps up to 70 degrees, then the feet are drawn
- * further back (below), and a rise whose feet stand too far ahead even then
- * is refused. From seat-off the socket travels forward and up to standing
+ * Seat-off occurs at 36 percent of the rise (McDonald, Villarejo Mayor and Lennon 2025,
+ * Front Bioeng Biotechnol 13:1605524). The seat still constrains the pelvis
+ * before release. A requested hip correction starts when the feet take the load.
+ * A lumbar correction uses the actual seat, hand and sole contacts of its phase.
+ * From seat-off the socket travels forward and up to standing
  * at 85 %, the trunk returns upright by the end, and the hands leave the
  * thighs, or the armrests they pushed on, over the next 30 %. The time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
  * height, the seat height being where the socket rests (provisional, as the
@@ -72,9 +72,7 @@ import { seatedCourse } from "./seatedCourse";
  * the knee with the shank 12 degrees forward of vertical, inside the 10 to
  * 15 degrees of a prepared sit-to-stand (moving the feet behind the knees
  * reduces the trunk lean the rise needs; Shepherd and Koh 1996, Scand J
- * Rehabil Med 28:79; values provisional). A body that cannot leave the seat
- * over feet drawn that far draws them further, 2 degrees of shank at a time,
- * up to the ankle's 20 degrees of dorsiflexion (the rig's range of motion).
+ * Rehabil Med 28:79, values provisional).
  * A pelvis that stands more than 1 cm aside of the feet's middle, as after a
  * shift along the seat, has both feet set across by that distance in the
  * same draws, the foot on that side first: the body rises between its feet,
@@ -97,6 +95,9 @@ import { seatedCourse } from "./seatedCourse";
 export namespace rise {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "rise";
+
+  /** Once the seat releases, the feet bear the pelvis until standing (Schenkman et al., 1990, Phys Ther 70:638). */
+  export const balance: IAutoMovieMotionHumanBalance = { by: "hips", from: { event: "seatOff" }, to: { event: "standing" } };
 
   /** Cancel table: a rise cut before seat-off returns to sitting; after standing it may become anything a stand can. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
@@ -138,14 +139,14 @@ export namespace rise {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the feet stand too far ahead to rise over them.
+   * @throws {HumanRefusal} When the requested balancing part cannot move on the selected support.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the context/plan and reach refusal; the namespace gives world-metre socket/plant goals, phase timing, degree bounds and seat-off conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The original socket course, planted legs, trunk flexion and extrapolated mass-centre seat-off rule retain their canonical owners; high seats delegate to the existing dismount law.
+   * @evidence contracts/development/implementation.md#principled-implementation The measured release and height-dependent flexion determine the course. The chosen part uses only the bearing patches available at its current second.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Original foot/pitch/seat-off selection precedes one prepared foot course and two current rise branches sharing the native lowering/hand-rest owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All foot/angle candidates, seat-off scan samples, extrapolation, joint ranges and contact thresholds remain; infeasible feet are refused rather than moved outside the original search.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains all original seat-off candidates/full solves with native observation/FK/ROM preparation. Fixed foot courses, actual edging vector endpoints and constant entry-heading seat offset prepare once; each current posture retains actual hip lowering and active hand observations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Seat-off construction releases its native metadata before the returned plan is built; only selected feet/peak/off data escape. Both current branches delegate raw hip lowering and hand resting to riseRested, sharing only synchronous parent FK/ROM prerequisites while every changed posture/fit remains evaluated.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat socket stays pinned until seat-off. External balance bounds use the placed action clock and never move a contact event.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Seat release is a multiplication. The positive balance window alone admits mass and hull work on the current pose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original leg and hand courses share stance geometry. The prepared numeric bounds serve all posture reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed course/scalars and original entry geometry until release; current-query FK/ROM loans end on return or throw without entering the retained plan or goals.
    */
   export function plan(
@@ -157,8 +158,10 @@ export namespace rise {
     const r: number = (start.y - under) / seated.popliteal(body);
 
     // A seat above the band with a foot off the floor is got off, not risen from over the feet.
-    if (seated.perched(body, context.entry, start, under))
+    if (seated.perched(body, context.entry, start, under)) {
+      HumanPhysics.fixed(context.params, "perch dismounts require the seat and feet together to support the transfer", rise);
       return HumanMountOff.plan(context, start, r);
+    }
     const rising: number =
       seatedCourse.descent(r) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
@@ -272,32 +275,13 @@ export namespace rise {
       return out;
     };
 
-    // Seat-off at the first frame whose extrapolated centre of mass is over
-    // the feet, raising the peak flexion until one is, then drawing the feet
-    // further back.
+    // The seat height sets peak flexion. Release fixes the start of foot-supported hip balance.
     const flex: number = 0.5 * rising;
     const pitchAt: (t: number, peak: number) => number = (t: number, peak: number): number =>
       pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
-    const level: IAutoMovieVector3 = seated.root(body, begin, {
-      yaw,
-      pitch: 0,
-      roll: 0,
-    });
-    const { drawn, peak, off }: ReturnType<typeof riseSeatOff> = riseSeatOff({
-      body,
-      begin,
-      level,
-      yaw,
-      relaxed,
-      angles: SHANK,
-      rising,
-      flexed: flex,
-      ratio: r,
-      legged,
-      drawAt,
-      pitchAt,
-      ...(context.params.balance === undefined ? {} : { balance: context.params.balance }),
-    });
+    const drawn: ReturnType<typeof drawAt> = drawAt(SHANK[0]!);
+    const peak: number = seatedCourse.flexion(r);
+    const off: number = riseSeatOff(rising);
 
     const swings: Partial<Record<"left" | "right", [number, number]>> = {};
     let clock: number = edging;
@@ -449,15 +433,21 @@ export namespace rise {
         },
       );
 
-    return {
-      duration,
-      events: [
+    const events: IAutoMovieMotionHumanActionPlan["events"] = [
         { name: "seatOff", share: share(seatOff) },
         { name: "standing", share: share(prepared + STOOD * rising) },
-      ],
+      ];
+    const requested: HumanPhysics.Window = HumanPhysics.prepare(context.params, rise, context.start, { duration, events }, context.instant);
+    const window: HumanPhysics.Window = requested?.by === "hips" ? HumanPhysics.during(requested, seatOff, duration) : requested;
+    const adjust: ReturnType<typeof prepareGroundedBalance> = window?.by === "trunk"
+      ? prepareBearingTrunkBalance(body, window, duration, contacts)
+      : prepareGroundedBalance(body, window);
+    return {
+      duration, events, balanceWindow: window,
       contacts,
       base: { kind: "standing" },
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => rose(seconds),
+      posture: (seconds, _channels, resolution, projection): IAutoMovieMotionHumanPosture =>
+        adjust(rose(seconds), seconds, undefined, resolution, projection),
     };
   }
 }

@@ -25,6 +25,9 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { kneel } from "../everyday/kneel";
 import { kneelKeys } from "../everyday/kneelKeys";
+import { supportBalance } from "../actions/supportBalance";
+import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -143,7 +146,7 @@ export namespace crawl {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    if (context.params.kind === "inchworm") return crawlInchworm.plan(context);
+    if (context.params.kind === "inchworm") return supportBalance(context, crawlInchworm.plan(context));
     const bear: boolean = context.params.kind === "bear";
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -356,7 +359,6 @@ export namespace crawl {
         : crawlDown.of({
             body,
             standing,
-            ...(context.params.balance === undefined ? {} : { balance: context.params.balance }),
             entry: context.entry.pose,
             sit: ((kneel.PHASES.lower + kneel.PHASES.sit) * period) / CYCLE,
             kneeling: (
@@ -397,6 +399,10 @@ export namespace crawl {
       duration,
       instants,
     );
+    const requested: HumanPhysics.Window = HumanPhysics.fromClock(context.params, {}, context.start, clock, context.instant);
+    const window: HumanPhysics.Window = requested?.by === "hips"
+      ? down === null ? null : HumanPhysics.during(requested, 0, down.seconds)
+      : requested;
     const place: (limb: IAutoMovieMotionHumanCrawl.Limb, seconds: number) => IAutoMovieVector3 =
       crawlCourse.of({
         limbs,
@@ -435,7 +441,7 @@ export namespace crawl {
         down !== null
           ? (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
               seconds < downAt
-                ? down.write(posture, seconds)
+                ? down.write(posture, seconds, window?.by === "hips" ? HumanPhysics.weightAt(window, seconds) : 0)
                 : crawling(posture, seconds)
           : floorEntry.down(
               body,
@@ -494,6 +500,7 @@ export namespace crawl {
             });
         }
 
+    const adjust: ReturnType<typeof prepareBearingTrunkBalance> = prepareBearingTrunkBalance(body, window, duration, contacts);
     // A crawl ends on the hands and the knees, or crouched over the hands
     // and the feet, and the next act is entered on that base.
     return {
@@ -501,8 +508,13 @@ export namespace crawl {
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "down",
-        primitives: [whole],
+        primitives: [window?.by !== "trunk" ? whole : {
+          ...whole,
+          write: (posture, seconds, before, resolution, projection) => adjust(
+            whole.write(posture, seconds, before, resolution, projection), seconds, before, resolution, projection),
+        }],
       }),
+      balanceWindow: window,
       base: { kind: bear ? "crouched" : "kneeling" },
     };
   }

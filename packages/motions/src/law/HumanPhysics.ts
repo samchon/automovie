@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBalance,
+  IAutoMovieMotionClock,
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -228,6 +229,15 @@ export namespace HumanPhysics {
     if (to < from) throw invalid("to", to, "end at or after the opening bound");
     if (to < 0 || timing.duration < from) return null;
     return admitWindow(active, from, to);
+  }
+
+  /** Borrow a named clock, materializing its events only if a positive request names a local event. */
+  export function fromClock(params: IBalanced, law: ILaw, start: number, clock: IAutoMovieMotionClock, resolve?: Instant): Window {
+    let events: readonly IAutoMovieMotionEvent[] | undefined;
+    return prepare(params, law, start, {
+      duration: clock.duration,
+      get events(): readonly IAutoMovieMotionEvent[] { return events ??= clock.events(); },
+    }, resolve);
   }
 
   /**
