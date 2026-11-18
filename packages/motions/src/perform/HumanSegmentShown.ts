@@ -94,11 +94,11 @@ export namespace HumanSegmentShown {
 
     // A settled person's whole pose is read from the action's table of exact
     // knots (`HumanSegmentTable`) wherever the table holds its bound.
-    if (active !== undefined && demand === undefined && !person.resolving && HumanSegmentTable.eligible(person)) {
+    if (active !== undefined && demand === undefined && !person.resolving) {
       const next: IAutoMovieMotionHumanSegment | undefined = person.segments[person.segments.indexOf(active) + 1];
       const tabled: IAutoMoviePose | undefined = HumanSegmentTable.read(person, active, seconds, next?.entryTime ?? Infinity,
         prepared ?? prepareHumanSegmentPose(person.performer.body),
-        (at: number) => ({ pose: evaluate(active, at), seeds: active.incumbents }));
+        (at: number): IAutoMoviePose => evaluate(active, at));
       if (tabled !== undefined) {
         const shown: HumanSegment.IShown = { pose: tabled };
         return keep(person, seconds, shown) ? { pose: tabled, kept: shown } : { pose: tabled };
