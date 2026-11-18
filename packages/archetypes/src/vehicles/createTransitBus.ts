@@ -2,10 +2,12 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   type Archetype,
+  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
+  type IArchetypeBand,
 } from "../core";
 import { addTransitBusSeating } from "./addTransitBusSeating";
 
@@ -17,19 +19,17 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  * threshold and aisle are level with one another. Board the front door toward
  * +X, travel along the aisle and exit the rear door toward −X.
  *
- * The New Flyer 40-foot Xcelsior supplies the nominal envelope, floor height,
- * aisle and wheelbase (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
- * LA Metro's bus and rider guides ground the separate boarding and rear exit
- * paths, travel with a handhold and passenger seating
- * (https://www.metro.net/riding/how-to-ride-metro-bus/
- * and https://www.metro.net/safety-support/rider-guide/). The grasping diameter
- * follows §1192.29(b) (https://www.access-board.gov/ada/vehicles/subpart-b/).
+ * The New Flyer 40-foot Xcelsior supplies the nominal envelope, floor height
+ * and wheelbase (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
+ * LA Metro's [boarding guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider guide](https://www.metro.net/safety-support/rider-guide/) ground the passenger routes and handhold use.
+ * The grasping diameter follows [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
  *
  * @param id The model id within the scene.
+ * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it for the nominal 0.59 m aisle.
  * @returns A bus at rest with both passenger doors shut.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the local axes, controls, passenger routes and sources for the principal proportions.
- * @evidence contracts/development/implementation.md#principled-implementation Uses shared door bay dimensions for the side openings, paired animated leaves and public contacts. Opposite slider axes and a 1:1 follower keep each opening centered.
+ * @evidence contracts/development/implementation.md#principled-implementation One sourced draw sets the width between opposing seat banks and the aisle affordance. Shared door bay dimensions set the side openings, paired leaves and public contacts. Opposite slider axes and a 1:1 follower keep each opening centered.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the cabin, the two axles and wheel housings, and then the door, seat and handhold affordances.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Door locations, pocket-slide mechanisms, flat passenger floor, seat layout and clearances are scenic approximations. Driver controls, working ramps and wheel spin are outside this model.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds a bounded set of primitive parts and binds each moving leaf once.
@@ -38,12 +38,19 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  */
 export function createTransitBus(
   id: string = "transitBus",
-): Archetype<createTransitBus.Affordance, never> {
+  seed?: number | string,
+): Archetype<createTransitBus.Affordance, createTransitBus.Dimension> {
+  const draw: ArchetypeDrawSession<createTransitBus.Dimension> =
+    new ArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
+      aisleWidth: seed === undefined ? 0.59 : undefined,
+    });
+  const { aisleWidth }: Record<createTransitBus.Dimension, number> =
+    draw.dimensions({ aisleWidth: AISLE_BAND });
   const builder: BusBuilder = new ArchetypeBuilder({
     id,
     name: "low-floor transit bus",
     material: "steel",
-    draw: new ArchetypeDrawSession<never>("transitBus", {}, undefined),
+    draw,
   });
 
   builder.box(
@@ -131,13 +138,13 @@ export function createTransitBus(
   addDoor(builder, ENTRY);
   addDoor(builder, EXIT);
 
-  addTransitBusSeating(builder, FLOOR, AISLE, DARK);
+  addTransitBusSeating(builder, FLOOR, aisleWidth, DARK);
   builder.affordance({
     id: "aisle",
     kind: "surface",
     frame: ArchetypeFrame.upright(v(0, FLOOR, 0)),
     extent: null,
-    width: AISLE,
+    width: aisleWidth,
     depth: 2 * (END - 0.07),
   });
   return builder.build(27_750 * ArchetypeUnits.POUND);
@@ -152,6 +159,16 @@ export function createTransitBus(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither arbitrary strings nor generated part ids form part of the contact contract.
  */
 export namespace createTransitBus {
+  /**
+   * The clear span in metres between the innermost seat edges.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the measured span and unit.
+   * @evidence contracts/development/design.md#principled-representation A literal key for the band's value and provenance records.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The one seat-model dimension this producer varies.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The key excludes fixed shell and doorway dimensions.
+   */
+  export type Dimension = "aisleWidth";
+
   /**
    * Front and rear sliders, with their coupled leaves, apertures, thresholds
    * and stanchions. The center aisle and a forward-facing passenger seat are
@@ -177,8 +194,11 @@ export namespace createTransitBus {
     | "seat";
 }
 
-/** Archetype construction with the bus's contact ids and no randomized fit. */
-type BusBuilder = ArchetypeBuilder<createTransitBus.Affordance, never>;
+/** Archetype construction with the bus's contact ids and seating fit. */
+type BusBuilder = ArchetypeBuilder<
+  createTransitBus.Affordance,
+  createTransitBus.Dimension
+>;
 
 /** A curbside bay binds its geometry to both moving and fixed affordances. */
 type DoorBay = Readonly<{
@@ -414,8 +434,12 @@ const DECK_DEPTH: number = 0.16;
 const CEILING: number = FLOOR + 95 * ArchetypeUnits.INCH;
 /** Height over the diesel model's air conditioner. */
 const ROOF: number = 126 * ArchetypeUnits.INCH;
-/** Clear passenger aisle width between the seat banks. */
-const AISLE: number = 0.59;
+/** Clear aisle width across the offered seat models, using the brochure's metric figures. */
+const AISLE_BAND: IArchetypeBand = ArchetypeBand.metres(
+  0.559,
+  0.61,
+  "New Flyer Xcelsior brochure, p. 3, 40-foot Aisle Width (varies with seat model): https://www.newflyer.com/site-content/uploads/2025/12/New-Flyer-Xcelsior-Brochure.pdf",
+);
 /** Side-wall thickness, leaving space behind it for door leaves. */
 const WALL: number = 0.075;
 /** Elevation of the lower body skirt. */

@@ -4,7 +4,10 @@ import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import type { createTransitBus } from "./createTransitBus";
 
 /** Bus geometry and affordances share the same builder. */
-type BusBuilder = ArchetypeBuilder<createTransitBus.Affordance, never>;
+type BusBuilder = ArchetypeBuilder<
+  createTransitBus.Affordance,
+  createTransitBus.Dimension
+>;
 
 /** Nominal seat width including the gap between pads. */
 const SEAT_WIDTH: number = 0.41;
@@ -23,7 +26,7 @@ const v: typeof Vector3.create = Vector3.create;
  * Adds forward-facing passenger rows and the aisle-side seat contact in bus-local metres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the seating geometry and reference frame.
- * @evidence contracts/development/implementation.md#principled-implementation Offsets the mirrored rows by the aisle half-width and derives the contact from the cushion dimensions.
+ * @evidence contracts/development/implementation.md#principled-implementation Offsets the mirrored rows by the aisle half-width. The full-width aisle-side pads and backs bound the clearance, and the seat contact shares the cushion dimensions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The row placement and its sitting affordance share this seating assembly.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Curbside gaps remain in the prescribed row layout. The seat contact uses the same dimensions as its geometry.
  * @evidence contracts/development/implementation.md#efficient-algorithms Visits each prescribed row once and emits a fixed number of solids per row.
@@ -65,15 +68,16 @@ export function addTransitBusSeating(
     );
     for (const seat of [-1, 1] as const) {
       const centre: number = x + (seat * SEAT_WIDTH) / 2;
+      const width: number = side === seat ? SEAT_WIDTH - 0.012 : SEAT_WIDTH;
       builder.box(
         key + "-cushion-" + seat,
-        v(SEAT_WIDTH - 0.012, 0.06, SEAT_DEPTH),
+        v(width, 0.06, SEAT_DEPTH),
         v(centre, y - 0.03, (frontZ + backZ) / 2),
         SEAT,
       );
       builder.box(
         key + "-back-" + seat,
-        v(SEAT_WIDTH - 0.012, BACK_HEIGHT, 0.07),
+        v(width, BACK_HEIGHT, 0.07),
         v(centre, y + BACK_HEIGHT / 2, backZ - 0.035),
         SEAT,
       );

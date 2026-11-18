@@ -20,11 +20,13 @@ import { vclose } from "../internal/vclose";
  *    aisle clearance, the seat surface and the position of each handhold.
  * 3. Check the sourced bus dimensions and the fixed axle positions in both
  *    closed and open poses.
+ * 4. Replay numeric and string seeds, measure the space between the opposing
+ *    seats, and open both doors across different seating fits.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the posed and fixed geometry and the two independent passenger routes.
- * @evidence contracts/development/testing.md#behavioral-verification Admits real models, measures primitive boxes, checks passenger affordance frames and observes a partial as well as a full opening.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits real models, measures primitive boxes and seat clearance, checks passenger affordance frames, and observes partial and full door openings.
  * @evidence contracts/development/testing.md#independent-expectations New Flyer's 40-foot diesel figures give the 102-inch width, 40 ft 2 in body, 14-inch step and 283.75-inch wheelbase. The aisle uses the brochure's metric interval and the handhold uses the Access Board's grasping interval. The scenic door width fixes the leaf positions without using the model's travel values.
- * @evidence contracts/development/testing.md#distinguishing-cases Opens each bay separately to distinguish coupled and uncoupled motion and checks the curbside surfaces through both openings.
+ * @evidence contracts/development/testing.md#distinguishing-cases Opens each bay separately to distinguish coupled and uncoupled motion. Equal seeds replay the seating fit and a different seed changes the physical clearance with both boarding routes intact.
  * @evidence contracts/development/testing.md#execution-ownership Runs deterministically on local factory results without a host.
  */
 export function test_archetype_transit_bus(): void {
@@ -171,6 +173,82 @@ export function test_archetype_transit_bus(): void {
       );
     }
   }
+
+  checkSeatingFits(bus);
+}
+
+/** Measures the seat-bank clearance and the boarding contacts at different fits. */
+function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
+  const seeded: typeof neutral = createTransitBus("city-bus", 0);
+  const replay: typeof neutral = createTransitBus("city-bus", 0);
+  const textSeed: typeof neutral = createTransitBus("city-bus", "0");
+  const other: typeof neutral = createTransitBus("city-bus", "another-fit");
+  TestValidator.predicate(
+    "the neutral width is preserved and equivalent seeds replay physical clearance",
+    () =>
+      nclose(aisleClearance(neutral), 0.59) &&
+      aisleClearance(seeded) === aisleClearance(replay) &&
+      aisleClearance(seeded) === aisleClearance(textSeed) &&
+      !nclose(aisleClearance(seeded), aisleClearance(other)),
+  );
+  for (const bus of [neutral, seeded, other]) {
+    const width: number = aisleClearance(bus);
+    const band: (typeof bus.provenance.bands)["aisleWidth"] =
+      bus.provenance.bands.aisleWidth;
+    const opened: typeof bus = bus.articulate({
+      frontDoor: 0.45,
+      rearDoor: 0.45,
+    });
+    TestValidator.predicate(
+      "physical clearance agrees with the sourced dimension and seat contact",
+      () =>
+        band?.minimum === 0.559 &&
+        band.maximum === 0.61 &&
+        bus.provenance.units.aisleWidth === "m" &&
+        width >= 0.559 - 1e-6 &&
+        width <= 0.61 + 1e-6 &&
+        nclose(width, bus.dimensions.aisleWidth!) &&
+        nclose(width, bus.affordance("aisle").width!) &&
+        nclose(width, aisleClearance(opened)) &&
+        nclose(
+          bus.affordance("seat").frame.translation.x,
+          box(bus, "street-0.98-cushion--1").x,
+        ),
+    );
+    TestValidator.predicate(
+      "the configured bus admits both open doors",
+      () => validateModel({ model: opened }).success,
+    );
+    for (const name of ["front", "rear"] as const) {
+      const z: number = neutral.affordance(`${name}Doorway`).frame.translation
+        .z;
+      const leader: ReturnType<typeof box> = box(opened, name + "Door-panel");
+      const follower: ReturnType<typeof box> = box(
+        opened,
+        name + "DoorFollower-panel",
+      );
+      TestValidator.predicate(
+        name + " door and boarding contacts stay fixed across seating fits",
+        () =>
+          nclose(leader.z - leader.depth / 2, z + 0.45) &&
+          nclose(follower.z + follower.depth / 2, z - 0.45) &&
+          (["Doorway", "Threshold", "GrabRail"] as const).every(
+            (contact): boolean =>
+              vclose(
+                opened.affordance(`${name}${contact}`).frame.translation,
+                neutral.affordance(`${name}${contact}`).frame.translation,
+              ),
+          ),
+      );
+    }
+  }
+}
+
+/** Reads opposing cushion edges at a station with seats on both sides. */
+function aisleClearance(bus: ReturnType<typeof createTransitBus>): number {
+  const street: ReturnType<typeof box> = box(bus, "street-0.98-cushion--1");
+  const curb: ReturnType<typeof box> = box(bus, "curb-0.98-cushion-1");
+  return street.x - street.width / 2 - (curb.x + curb.width / 2);
 }
 
 /** Finds actual geometry so an omitted part fails the specification. */
