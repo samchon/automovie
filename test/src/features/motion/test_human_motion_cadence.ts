@@ -37,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. Without a drum, the French 1791 ordinary time and the British 1792 quick
  *    time march at 76 and 108 steps a minute within 2 % (the regulations'
  *    cadences as reproduced by the Hamilton Papers' annotations), on steps
- *    within 15 % of their paces scaled by hip height.
+ *    within 15 % of their regulation's pace, the same for every marcher.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs marches on a beat track and reads the heel-strike instants the displayed plan names: a cadence that ignores the drum, a spread that ignores discipline, an unlocked member forced onto the beat, a speed jump at a strike, or a regulation's wrong cadence is caught.
  * @evidence contracts/development/testing.md#independent-expectations The drum's tempo and the regulations' cadences are the sources'; elite tighter than militia is the relation the phase-correction model and the attribute table must keep; continuity is the time warp's own guarantee; the step's 15 % is the rounding to whole steps the march test uses.
@@ -194,15 +194,13 @@ export function test_human_motion_cadence(): void {
     ["british1792", "quick", 108],
   ] as const) {
     const run: IMarched = march("line", 3, false, regulation, time);
-    for (const [index, [subject, s]] of [...run.strikes].entries()) {
+    for (const [subject, s] of run.strikes) {
       const c: number = cadence(middle(s));
       if (Math.abs(c - expected) > 0.02 * expected)
         findings.push(
           `${regulation} ${time}: ${subject} marches ${c.toFixed(1)} steps a minute, ${expected} within 2 % expected`,
         );
-      const body: IAutoMovieMotionHumanBody = run.ensemble.members[index]!.body;
-      const pace: number =
-        (HUMAN_DRILL_CADENCES[regulation].pace / 0.93) * body.measure.hipHeight;
+      const pace: number = HUMAN_DRILL_CADENCES[regulation].pace;
       const mid: number[] = middle(s);
       const travelled: number =
         run.performance.posture(subject, mid[mid.length - 1]!).root.z -

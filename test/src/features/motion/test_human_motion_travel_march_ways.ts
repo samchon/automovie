@@ -25,7 +25,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * A drill step is called at 120 a minute whoever marches and however far,
  * so over a way that is not a whole number of steps it is the step that
- * gives, never the cadence. A longer-legged soldier's step is longer. And
+ * gives, never the cadence. The step is the regulation's 30 inches for
+ * every soldier, so a formation keeps its dress (TC 3-21.5). And
  * in any gait the foot the body stands on stays where it was set down.
  *
  * The footfalls are the heel strikes the gait names, between 20 and 85 % of
@@ -36,11 +37,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. A march over 3.3 m, 5.0 m and 7.4 m, none a whole number of drill
  *    steps: the cadence over the middle of the way is 120 steps a minute
  *    within 2 % (US Army TC 3-21.5, quick time).
- * 2. Over each way the step is within 15 % of 30 inches (0.76 m) scaled by
- *    the body's hip height over 0.93 m (the scaling is provisional): a way
- *    of four steps or more is covered in the nearest whole number of them,
+ * 2. Over each way the step is within 15 % of 30 inches (0.762 m), the
+ *    same for every body: a way of four steps or more is covered in the nearest whole number of them,
  *    which moves the step by at most one part in eight.
- * 3. Over 7.4 m the average man's step is longer than the small woman's,
+ * 3. Over 7.4 m the average man's step and the small woman's are one step,
+ *    within a millimetre,
  *    and `doubleTime` over the same way steps 180 times a minute within
  *    2 % on the same step within 15 % (TC 3-21.5, double time; the step is
  *    unverified in the current edition).
@@ -52,9 +53,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    Analysis, so the toe is the point that must not move; the ends of a
  *    stance roll over the heel and the toes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Registers the gaits through the public input, performs them on real bodies and reads the displayed feet; a march whose cadence drifts with the distance, a step that ignores the body, or a skating stance foot fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers the gaits through the public input, performs them on real bodies and reads the displayed feet; a march whose cadence drifts with the distance, a step that differs between bodies, or a skating stance foot fails.
  * @evidence contracts/development/testing.md#independent-expectations The cadence and the step are the drill manual's, the one-in-eight is the arithmetic of rounding to whole steps, and the slip bound is the campaign's; none is read from the gait's tables. A march that keeps its speed and lets the cadence rise on a short way, as the walk does, reads above 122 steps a minute. Limitation: the footfall instants are the gait's own events, checked against the displayed foot at two of them, and the middle third of a stance is read for slip, so the heel and toe rockers at its ends are another test's.
- * @evidence contracts/development/testing.md#distinguishing-cases Three ways off the step grid by three bodies with different legs, a metamorphic pair on leg length, and a second gait for the slip.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three ways off the step grid by three bodies with different legs, a pair of leg lengths that must step alike, and a second gait for the slip.
  * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds twelve short performances in memory, reading about twenty instants of each; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how the footfalls are read, and the 4 scenarios with their bounds and sources.
  */
@@ -73,7 +74,7 @@ export function test_human_motion_travel_march_ways(): void {
 
   for (const name of ["m-average", "f-small", "m-short-legged"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const drill: number = (0.76 / 0.93) * body.measure.hipHeight;
+    const drill: number = 0.762;
     const rows: readonly (readonly [string, number])[] = [
       ["march", 3.3],
       ["march", 5.0],
@@ -235,9 +236,9 @@ export function test_human_motion_travel_march_ways(): void {
   }
   const tall: number | undefined = steps["m-average"];
   const short: number | undefined = steps["f-small"];
-  if (tall !== undefined && short !== undefined && !(tall > short))
+  if (tall !== undefined && short !== undefined && !(Math.abs(tall - short) <= 0.001))
     complaints.push(
-      `the average man's march step is ${tall.toFixed(3)} m and the small woman's ${short.toFixed(3)} m, longer for the longer legs expected`,
+      `the average man's march step is ${tall.toFixed(3)} m and the small woman's ${short.toFixed(3)} m, one step within 1 mm expected`,
     );
   TestValidator.equals("a march keeps its cadence", complaints, []);
 }

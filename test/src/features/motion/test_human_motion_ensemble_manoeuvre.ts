@@ -175,16 +175,10 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     )
   )
     findings.push("no member deploys by the flank");
-  // The unit keeps together: every way is marched at the slowest member's march speed.
-  const slowestMarch: number = Math.min(
-    ...troop.members.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
-        (HumanGait.MARCH.step *
-          m.body.measure.hipHeight *
-          HumanGait.MARCH.cadence) /
-        60,
-    ),
-  );
+  // The unit keeps together: every way is marched at the march's speed,
+  // the regulation's one step and cadence for every member.
+  const slowestMarch: number =
+    (HumanGait.MARCH.step * HumanGait.MARCH.cadence) / 60;
   for (const p of parts.filter(
     (p: IAutoMovieMotionHumanManoeuvre.IPart): boolean => reach(p) > 1e-6,
   )) {
@@ -252,15 +246,8 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   if (wheeling === undefined) findings.push("the wheel keeps no station");
   else {
     const until: number = wheeling.until!;
-    const slowest: number = Math.min(
-      ...ensemble(wide, 24).members.map(
-        (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
-          (HumanGait.MARCH.step *
-            m.body.measure.hipHeight *
-            HumanGait.MARCH.cadence) /
-          60,
-      ),
-    );
+    const slowest: number =
+      (HumanGait.MARCH.step * HumanGait.MARCH.cadence) / 60;
     const bound: number = manoeuvreWheel.LENGTHENED * slowest;
     let fastest: number = 0;
     for (let t: number = 0; t + 1 / 24 <= until + 1e-9; t += 1 / 24) {

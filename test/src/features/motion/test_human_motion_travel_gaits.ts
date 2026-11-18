@@ -42,9 +42,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    steps, and `hurry` at least 10 % faster on longer ones (comfortable
  *    and fast walking differ by about a third in speed, Bohannon 1997).
  * 2. `march` steps 120 times a minute within 2 %, each step within 5 % of
- *    30 inches (0.76 m) scaled by the body's hip height over 0.93 m (US
- *    Army TC 3-21.5, quick time; the scaling is provisional), over a way of
- *    twelve such steps.
+ *    30 inches (0.762 m), the same for every soldier (US Army TC 3-21.5,
+ *    quick time), over a way of twelve such steps.
  * 3. `sneak` is slower than the slow walk on shorter steps, with the hips
  *    lower and the stance knee more bent than in the neutral walk (the
  *    manner presets' acceptance; magnitudes await a stealth-gait study, so
@@ -106,7 +105,7 @@ export function test_human_motion_travel_gaits(): void {
 
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const drill: number = (0.76 / 0.93) * body.measure.hipHeight;
+    const drill: number = 0.762;
     const read = (
       act: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
       label: string,

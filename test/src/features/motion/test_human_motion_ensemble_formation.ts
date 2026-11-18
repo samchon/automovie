@@ -251,7 +251,7 @@ export function test_human_motion_ensemble_formation(): void {
 
     // Through the frame's standing start and its gathering of speed, before it turns its corner (where a rigid line's inner file must swing back, which the stepping plan's way does not), the count kept and the place kept by the step's length.
     const segment: IAutoMovieMotionHumanSegment = march.segments(m.subject)[0]!;
-    const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
+    const half: number = 0.5 * HumanGait.MARCH.step;
     for (const e of segment.plan.events.filter(
       (e: IAutoMovieMotionEvent): boolean => /HeelStrike\d+$/.test(e.name),
     )) {

@@ -336,7 +336,7 @@ function travelSpeeds(
       return Math.sqrt(run.GAITS.run.froude * AutoMovieGravity.STANDARD * l);
     const drill: { cadence: number; step: number } =
       manoeuvre.gait === "double" ? HumanGait.DOUBLE : HumanGait.MARCH;
-    return (drill.step * l * drill.cadence) / 60;
+    return (drill.step * drill.cadence) / 60;
   });
 }
 
