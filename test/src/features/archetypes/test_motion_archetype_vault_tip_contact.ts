@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two films; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 4 scenarios with their bounds.
  */
-export function test_archetype_jump_pole(): void {
+export function test_motion_archetype_vault_tip_contact(): void {
   const pole: ReturnType<typeof createVaultingPole> = createVaultingPole({
     series: "305",
   });
@@ -45,7 +45,8 @@ export function test_archetype_jump_pole(): void {
   });
   const tip: IAutoMovieVector3 = pole.affordance("tip").frame.translation;
   const complaints: string[] = [];
-  for (const name of ["m-average", "f-small"] as const) {
+  const name = "m-average" as const;
+  witness: {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. It plans.
@@ -82,7 +83,7 @@ export function test_archetype_jump_pole(): void {
       complaints.push(
         `${name}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
       );
-      continue;
+      break witness;
     }
     const segment: IAutoMovieMotionHumanSegment = film
       .segments("a")

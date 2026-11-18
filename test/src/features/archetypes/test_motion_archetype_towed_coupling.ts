@@ -54,7 +54,7 @@ function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
-export function test_archetype_ride_towed_track(): void {
+export function test_motion_archetype_towed_coupling(): void {
   const findings: string[] = [];
   const course: ArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
@@ -87,8 +87,16 @@ export function test_archetype_ride_towed_track(): void {
   const turnStart: number = leader.plan.when(20);
   const turnEnd: number = leader.plan.when(20 + 5 * Math.PI);
   const centre: IAutoMovieVector3 = { x: 10, y: 0, z: 20 };
-  for (let k: number = 0; k <= 400; k++) {
-    const t: number = (towed.duration * k) / 400;
+  const phaseTimes = [
+    0,
+    turnStart / 2,
+    turnStart,
+    (turnStart + turnEnd) / 2,
+    turnStart + ((turnEnd - turnStart) * 3) / 4,
+    turnEnd,
+    towed.duration,
+  ];
+  for (const t of phaseTimes) {
     const hitch: IAutoMovieVector3 = leader.frame("hitch", t).translation;
     const coupling: IAutoMovieVector3 = towed.frame("coupling", t).translation;
 

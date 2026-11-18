@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two films; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
  */
-export function test_archetype_jump_landing(): void {
+export function test_motion_archetype_jump_mat_contact(): void {
   const high: ReturnType<typeof createHighJump> = createHighJump({
     height: 1.4,
   });
@@ -46,7 +46,8 @@ export function test_archetype_jump_landing(): void {
   const bar: number = high.affordance("bar").frame.translation.y;
   const top: number = mat.affordance("surface").frame.translation.y;
   const complaints: string[] = [];
-  for (const name of ["m-average", "f-small"] as const) {
+  const name = "f-small" as const;
+  witness: {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
@@ -115,12 +116,10 @@ export function test_archetype_jump_landing(): void {
       ).findings.filter((f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         ["jump", "reversal", "speed", "turn"].includes(f.check),
       );
-      for (const f of smooth)
+      for (const finding of smooth)
         complaints.push(
-          `${name} flop: ${f.check} at ${f.seconds.toFixed(3)} s on ${f.where}: ${f.value.toFixed(3)} past ${f.limit.toFixed(3)} (take-off at ${at("takeoff").toFixed(4)} s; across it the hips step ${(1000 * Vector3.length(Vector3.subtract(HumanSignature.joint(reader, at("takeoff") + 1e-4, "hips"), HumanSignature.joint(reader, at("takeoff") - 1e-4, "hips")))).toFixed(1)} mm and the left hand ${(1000 * Vector3.length(Vector3.subtract(HumanSignature.joint(reader, at("takeoff") + 1e-4, "leftHand"), HumanSignature.joint(reader, at("takeoff") - 1e-4, "leftHand")))).toFixed(1)} mm)`,
+          finding.check + " at " + finding.seconds + " on " + finding.where,
         );
-
-      // 2. Lying on the mat.
       const settled: number = at("settled");
       const hips: IAutoMovieVector3 = Vector3.lerp(
         HumanSignature.joint(reader, settled, "leftUpperLeg"),

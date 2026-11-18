@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two two-person performances; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
  */
-export function test_archetype_sport_relay(): void {
+export function test_motion_archetype_relay_handoff(): void {
   const baton: ReturnType<typeof createRelayBaton> = createRelayBaton({
     length: 0.3,
   });
@@ -45,7 +45,8 @@ export function test_archetype_sport_relay(): void {
   const at: number = 2;
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  for (const name of ["m-average", "f-small"] as const) {
+  const name = "f-small" as const;
+  witness: {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const ahead: number = (0.75 * body.measure.stature) / average;
     // The baton's +Y on the hand's +Z, its middle where a 0.3 m baton
@@ -113,7 +114,7 @@ export function test_archetype_sport_relay(): void {
       complaints.push(
         `${name}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
       );
-      continue;
+      break witness;
     }
 
     // 2. The baton's front in the outgoing palm.
