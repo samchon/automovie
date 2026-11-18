@@ -255,7 +255,7 @@ export namespace AutoMovieMotionHumanLean {
   export function bow(
     props: IAutoMovieMotionHumanLean.IBow,
     window: HumanPhysics.Window = HumanPhysics.prepare(
-      props, {}, 0, { duration: props.to, events: [] },
+      props, { balance: { by: "hips" } }, 0, { duration: props.to, events: [] },
     ),
   ): IAutoMovieMotionHumanPrimitive {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");

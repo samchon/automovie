@@ -266,7 +266,7 @@ export namespace AutoMovieMotionHumanTrunk {
    */
   export function crouch(
     props: IAutoMovieMotionHumanTrunk.ICrouch,
-    window: HumanPhysics.Window = HumanPhysics.fromClock(props, {}, 0, props.clock),
+    window: HumanPhysics.Window = HumanPhysics.fromClock(props, { balance: { by: "hips" } }, 0, props.clock),
   ): IAutoMovieMotionHumanPrimitive {
     if (window?.by === "trunk")
       HumanPhysics.unsupported(window.by, "the crouch prescribes the trunk pitch and moves the hips under it");
@@ -380,7 +380,7 @@ export namespace AutoMovieMotionHumanTrunk {
   ): IAutoMovieMotionHumanPrimitive {
     // Without the balance option the hips stay where the action puts them:
     // no centre of mass is read and nothing is shifted.
-    const window: HumanPhysics.Window = HumanPhysics.fromClock({ balance }, {}, 0, clock);
+    const window: HumanPhysics.Window = HumanPhysics.fromClock({ balance }, { balance: { by: "hips" } }, 0, clock);
     if (window?.by === "trunk")
       HumanPhysics.unsupported(window.by, "the counterbalance primitive moves the root under the extended limb");
     if (window === null)
