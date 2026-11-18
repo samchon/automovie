@@ -5,6 +5,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPour,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -33,11 +35,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    recipient's remaining 50 mL and spills 40 mL. Seeking backward repeats
  *    the pre-overflow balance.
  * 4. Requesting more than the source holds refuses on `transferMl`.
+ * 5. A direct plan refuses either vessel if it declares internal articulation
+ *    or has a pose reader of unknown rigidity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the performance and its geometry, volume and refusal bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads prop transforms through HumanPerformance and the liquid cue through pour.liquid. A stationary source or a balance without overflow fails.
  * @evidence contracts/development/testing.md#independent-expectations Reads local points from the archetypes, checks the authored 40-degree target and the half angle from the symmetric turn progress, and derives the balance from the initial volumes and recipient capacity.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples the upright and tilted poses, both sides of the capacity threshold, backward seeking and insufficient source volume.
+ * @evidence contracts/development/testing.md#distinguishing-cases Samples the upright and tilted poses, both sides of the capacity threshold, backward seeking and insufficient source volume. The rigid native props expose a uniform pose reader, while true and unknown articulation declarations still refuse.
  * @evidence contracts/development/testing.md#execution-ownership Builds short polygon-body performances in memory without a renderer or external state.
  */
 export function test_human_motion_pour(): void {
@@ -220,6 +224,38 @@ export function test_human_motion_pour(): void {
       refusal.kind === "parameter" &&
       refusal.axis === "transferMl",
   );
+  for (const [axis, subject] of [
+    ["source", params.source],
+    ["target", params.target],
+  ] as const)
+    for (const declared of [true, undefined]) {
+      let refusal: unknown;
+      try {
+        pour.plan({
+          ...segment.context,
+          params,
+          prop: (id: string): IAutoMovieMotionHumanPropReader => {
+            const reader: IAutoMovieMotionHumanPropReader =
+              segment.context.prop(id);
+            if (id !== subject) return reader;
+            const { hasArticulations: _, ...rest } = reader.prop;
+            const prop: IAutoMovieMotionHumanProp =
+              declared === undefined
+                ? rest
+                : { ...rest, hasArticulations: declared };
+            return { ...reader, prop };
+          },
+        });
+      } catch (error: unknown) {
+        refusal = error;
+      }
+      TestValidator.predicate(
+        `${axis} with ${declared === true ? "declared" : "unknown"} articulation is refused`,
+        refusal instanceof HumanRefusal &&
+          refusal.kind === "affordance" &&
+          refusal.axis === axis,
+      );
+    }
 }
 
 /** Locate a prop-local point using its displayed rigid transform. */

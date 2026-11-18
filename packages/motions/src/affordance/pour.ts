@@ -118,7 +118,7 @@ export namespace pour {
       source.fixed === true ||
       source.motion !== undefined ||
       source.point !== undefined ||
-      source.articulate !== undefined ||
+      (source.hasArticulations ?? source.articulate !== undefined) ||
       rim === undefined
     )
       throw vesselRefusal(
@@ -431,7 +431,7 @@ function openingOf(
     target.worn !== undefined ||
     target.mounted !== undefined ||
     target.point !== undefined ||
-    target.articulate !== undefined ||
+    (target.hasArticulations ?? target.articulate !== undefined) ||
     mouth === undefined ||
     edge === undefined
   )
