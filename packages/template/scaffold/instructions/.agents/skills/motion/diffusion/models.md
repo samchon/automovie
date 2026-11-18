@@ -1,6 +1,6 @@
 # Motion models
 
-These tables show current motion generators and pose estimators as examples, not a required list, and the user may choose any other. A model's own documentation holds every value, and [clips](clips.md#licenses) sets how to read its license.
+Check the chosen model's current inputs, outputs and values in its documentation. See [clips](clips.md) for license checks.
 
 ## Generators
 

@@ -6,8 +6,8 @@ Statements: [statements/principles/treatments.md](../statements/principles/treat
 
 ## Decided event
 
-Does the body settle what happens, who or what takes part, why, at what cost and with what result, and the state the next event inherits? A result label or a writing policy leaves the core progression for scripts to invent, and a prescription of wording or incidental execution leaves no scene to realize.
+Does the body decide who does what, why, at what cost and with what result? Give scripts the resulting state and room to decide execution.
 
 ## Information design
 
-Can the next author follow the settled event, its causal connections, what the audience already understands, what is revealed or withheld here, and the understanding left at the end? Secrets and reversals are optional; comprehension and the chosen release order are not.
+Can the next author follow the event's causes, what the audience already knows, what changes here and what remains withheld?

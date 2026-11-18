@@ -1,21 +1,16 @@
 # Git ownership
 
-Workers of one campaign share one Git index, so each stages only its own paths and commits under a lock. A worker never mixes in or unstages another worker's staged changes, because a commit takes whatever is staged. Commit and push authority follows AGENTS and the [pull-request](../pull-request/SKILL.md) skill.
+Stage only your own paths. Commit and push under AGENTS and the [pull-request](../pull-request/SKILL.md) skill.
 
 ## The lock
 
-Hold an atomic lock in the common Git directory from staging through commit, with an owner file naming your role and run marker, then release only your own lock:
-
-```bash
-lock="$(git rev-parse --git-common-dir)/campaign.lock"
-mkdir "$lock" && echo "<role> <run marker>" > "$lock/owner"
-```
+Acquire an atomic lock directory named `campaign.lock` under the common Git directory. Its `owner` file names your role and run marker. Hold the lock from staging through commit and release only your own.
 
 Wait while a lock is held. Only the observer removes another run's lock, after confirming that the run named in its owner file has no process.
 
 ## Workers without Git
 
-Codex's `workspace-write` sandbox keeps `.git` and `.agents` read-only, so a Codex worker under it neither stages, takes the lock nor commits. It reports its paths, and the coordinator stages and commits them under the lock unless the user grants the worker broader access.
+A read-only worker reports its paths. The coordinator stages and commits them under the lock.
 
 ## What does not block
 

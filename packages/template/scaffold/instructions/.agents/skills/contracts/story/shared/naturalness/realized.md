@@ -6,4 +6,4 @@ Statements: [statements/naturalness/realized.md](../statements/naturalness/reali
 
 ## Speech yield
 
-Followed in order with its surrounding action, does each exchange's language serve the listener, the situation and the immediate tactic, and does the exchange leave a recognition, refusal, changed position, broken silence or other inherited result? An exchange that only passes information leaves the scene where it began. Whether the words fit the speaker is judged under [speaker plausibility](../principles/realized.md#speaker-plausibility), not here.
+In context, does each exchange's wording serve its listener, situation and tactic while delivering the inherited result? Judge voice under [speaker plausibility](../principles/realized.md#speaker-plausibility).

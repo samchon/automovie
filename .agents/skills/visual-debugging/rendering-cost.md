@@ -1,5 +1,5 @@
 # Rendering cost
 
-Measure rendering cost at the intended resolution, asset population and motion load. Separate startup or compilation, motion evaluation, transform updates and drawing from capture and encoding, so a repair addresses the bottleneck.
+Measure startup or compilation, motion evaluation, transform updates, drawing, capture and encoding separately at the intended resolution, asset count and motion load.
 
-When a lower-specification host is a requirement, observe that host or report it as untested; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises where the project records its decisions.
+Test a lower-spec host when required or report it as untested. Record measured budgets and accepted compromises in the project's decisions.

@@ -6,4 +6,4 @@ Statements: [statements/obligations/brief.md](../statements/obligations/brief.md
 
 ## Coherent brief
 
-Read as a consumer of the planned films, does every person, place and recurring prop several scenes rely on have one findable, current owner, within the commission's scope and representation, without contradiction? A missing owner or a contradiction otherwise surfaces only when a screenplay needs it, and a decision kept only in one screenplay lets the next film contradict it.
+Does each shared person, place and recurring prop have one findable, current decision the planned films can apply consistently within scope and representation?

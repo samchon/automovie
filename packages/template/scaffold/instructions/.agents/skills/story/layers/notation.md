@@ -4,7 +4,7 @@ How scripts and the screenplay are written down: their blocks, their headings an
 
 ## Blocks
 
-Unless the commission adopts another form, write conventional screenplay blocks, as the [BBC format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) and [Final Draft elements](https://www.finaldraft.com/learn/screenplay-formatting-elements/) show: a scene heading such as `INT. LOCATION - DAY`, short present-tense action paragraphs of what can be seen or heard, and a consistent speaker cue, the name in capitals on its own line, before each dialogue block.
+Unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) or [Final Draft](https://www.finaldraft.com/learn/screenplay-formatting-elements/) screenplay blocks. Use a scene heading such as `INT. LOCATION - DAY`, short present-tense paragraphs of visible or audible action, and an uppercase speaker cue on its own line.
 
 Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
 
@@ -14,7 +14,7 @@ Where music is stated, name its usage: `BI` background instrumental, `BV` backgr
 
 ## Identities
 
-A script file is one episode: its H1 names the episode and each H2 is a scene. A screenplay file is one scene: its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 is a beat. Every heading below the H1 has an explicit anchor, such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they set neither shot boundaries nor duration.
+A script episode has an H1 for the episode and H2s for scenes. A screenplay scene has an H1 for the scene, H2s for sections and H3s for beats. Give each lower heading an explicit anchor for code, evidence and review. Shot and timing decisions go in records.
 
 Never reuse or renumber an anchor in any layer, or a scene file's number. Number scene files with room for insertions, such as `010-` and `020-`, and record removals and insertions this way:
 
@@ -25,7 +25,7 @@ Never reuse or renumber an anchor in any layer, or a scene file's number. Number
 
 ## Records
 
-A screenplay scene file's first section opens with the scene's standing state as a list, before its first blocks and scene heading, inside the section so its answers and review cover it. Each entry links the settings or brief decision that owns it, where one does. Each beat's action and dialogue blocks end with its beat record. Both hold what the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks:
+Put the standing-state list inside the first section, before its scene heading and action. Cite owning settings or brief decisions. End each beat with its record. Include the [beat decisions](../../contracts/story/shared/principles/screenplay.md#beat-decisions):
 
 ```markdown
 ### Mara cues the lift {#s03-b04}
@@ -42,4 +42,4 @@ A screenplay scene file's first section opens with the scene's standing state as
 - Sound: the music drops to the strings alone.
 ```
 
-A `Camera` entry that starts a new shot opens with `Cut to`, and any other entry moves or reframes the running shot, so the edit inside a scene is read from the records. The standing state's camera default is the scene's first shot. A transition into the next scene other than a cut, such as `DISSOLVE TO:`, or out of the film, such as `FADE OUT.`, closes the scene file as a transition block.
+Start a shot with `Cut to` in its `Camera` entry. Other entries reframe or move the current shot. Start with the standing-state camera. End a scene with a transition block when leaving by something other than a cut or ending the film.

@@ -1,7 +1,5 @@
 # Conditioning
 
-Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. Do only what the asset's use needs, because each step makes a derivative to keep and verify.
-
 ## Frozen source
 
 Keep the source and every derivative reproducible in this order:
@@ -13,7 +11,7 @@ Keep the source and every derivative reproducible in this order:
 
 For a generated mesh, the record also holds the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
 
-The frozen file is the source, because a URL, a model name or a seed does not identify it and a service's download link can expire within minutes.
+Keep the frozen bytes locally. Service links can expire.
 
 ## What the use needs
 
@@ -21,20 +19,20 @@ Every asset is normalized, cleaned and reduced. Its use adds:
 
 | Further work | For an asset that |
 | --- | --- |
-| [Modularization](modularization.md) | Moves as rigid parts on pivots, such as a door or a robot |
-| [Rigging](rigging.md) | Deforms, such as a creature or a clothed figure |
-| [Connections](modularization.md#frames-and-connections) | Carries crafted parts, such as a held prop |
+| [Modularization](modularization.md) | Moves as rigid parts on pivots |
+| [Rigging](rigging.md) | Deforms |
+| [Connections](modularization.md#frames-and-connections) | Carries crafted parts |
 | Variation | Varies by a parameter |
 
-Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close; do them when that use or the user asks. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
+Add quad topology, new UVs and rebaked maps for subdivision, editing, close views or user requests. After remeshing a textured asset, make new UVs and bake from the frozen source.
 
 ## Steps for every asset
 
 ### Normalization
 
-Finish every service step, such as a remesh or a rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success.
+Finish service-side remeshing or rigging in the service's required orientation. Check the returned orientation.
 
-Then convert the source to the project's unit, axes and handedness in one named step, and check the result against a known real dimension, such as a figure's height. Put the origin where the asset meets the ground, under its center.
+Convert units, axes and handedness in one named step. Check a known dimension. Put the origin below the asset's center at ground level.
 
 ### Cleanup
 
@@ -47,13 +45,13 @@ Remove a defect at the first of these places that can remove it, listed from lea
 | A mesh library script | Duplicate vertices, pieces too small to see, excess triangles and unused data |
 | A repair tool | Holes, inner surfaces and irregular triangles |
 
-The generation service works on its own or an uploaded mesh, through the [models](diffusion/models.md) that remesh, convert or segment. The script uses a mesh library in the project's own language, such as [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer). The repair tool is one such as [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab), or a digital content creation tool run from the command line, such as [Blender](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html). These are examples, not installed dependencies.
+Use a [generator](diffusion/models.md) that remeshes, converts or segments. For scripted cleanup, options include [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer). Repair tools include [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab) and [Blender's CLI](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html).
 
 Correct a texture's baked light and shadow only where it shows wrong in the render.
 
 ### Reduction
 
-Reduce to the triangle count the asset's closest required view needs, at one of the places Cleanup lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices. Reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
+Reduce the mesh for its closest required view. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 

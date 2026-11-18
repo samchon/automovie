@@ -6,4 +6,4 @@ Statements: [statements/discovery/screenplay.md](../statements/discovery/screenp
 
 ## Screenplay requirements
 
-Is the work's audiovisual form stated as choices that can be seen to work or fail here? Cinematic, poetic, immersive, genre and mood labels alone distinguish no form.
+Does the work state testable audiovisual choices? Specify what the audience will see or hear.

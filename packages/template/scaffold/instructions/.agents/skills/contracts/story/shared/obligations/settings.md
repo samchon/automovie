@@ -6,4 +6,4 @@ Statements: [statements/obligations/settings.md](../statements/obligations/setti
 
 ## World and scope
 
-Do the declared promise, scope and representation give every later layer one basis, and does everything a planned scene relies on have one findable owner, at a depth that matches its consequence and without contradiction? Without them each layer assumes its own audience, scale and limits, a presence without behavior stands idle on screen, and a contradiction surfaces only when a scene needs both facts.
+Do the promise, scope and representation give later layers one basis? Can they find one consistent owner for each decision a scene relies on, with enough detail for its effect?

@@ -6,4 +6,4 @@ Statements: [statements/obligations/index.md](../statements/obligations/index.md
 
 ## Canonical navigation
 
-Can a reader predict the next location from each sibling level's stated organizing axis, tell the group purposes apart and reach every owner, without traversing unexplained levels or reassembling copied fragments? A subject scattered without owner routes is rebuilt differently by every reader, and an index that must be reread from the top each time has stopped being one.
+Does each sibling level name an organizing principle that helps readers find each subject's owner without reconstructing it from copies?

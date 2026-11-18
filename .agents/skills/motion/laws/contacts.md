@@ -1,26 +1,26 @@
 # Contacts and supports
 
-A contact is where the body touches something and must not slip: a planted foot, a seat, a grip, a carried object, another performer.
+A contact is a touch point held against slip.
 
 ## Windows and support frames
 
-Each contact holds through a declared window: a plant, a seat, a grip, a rest or a hang. Each window names its support frame, the thing the contact rests on and moves with: the ground, a prop or another performer. Slip and penetration are measured in that frame, so a hand on a moving rail is not reported as sliding.
+Declare each contact's window and support frame. Measure slip and penetration in that frame.
 
-Release a support only after the next one bears the weight, as the heel lands before the other toe leaves.
+Transfer weight to the next support before releasing the current one.
 
 ## Feet
 
-Plant a foot at the point that touches: the ball, the heel, or both. Holding the ankle while the check reads the ball lets the ball drift as the foot pivots.
+Plant the foot at its actual contact points: ball, heel or both.
 
 A heel lift rotates the foot about the metatarsophalangeal axis with the ball fixed in the world, the forefoot rocker of Perry's Gait Analysis. Measure swing clearance at the lowest point of the toe and sole, not at the ankle.
 
-Plan travel as whole steps. A normal step is about 0.41 of stature (Murray, Drought and Kory 1964; Grieve and Gear 1966), and the first and last steps are shorter. Covering even a short distance in one stride splits the legs into a lunge.
+Plan travel in whole steps. Use about 0.41 of stature for a normal step (Murray, Drought and Kory 1964; Grieve and Gear 1966). Shorten the first and last steps.
 
 ## Held objects
 
-At grip closure, store the object's pose in the hand's frame (inverse(hand) · object) and keep it fixed until release, as a parent constraint keeps its offset at activation. Re-deriving the offset during the hold lets the object drift in the hand and tilt when it is set down. Set an object down by giving the hand the goal that puts the object at its target pose through that stored offset.
+At grip closure, store inverse(hand) · object and keep that offset until release. For placement, derive the hand goal from the object's target pose and the stored offset.
 
-Judge a pose that a held tool must keep at both ends of the tool: fit the pose, read back the tool's working point and a second point along its length, and refuse or choose another pose when either is off. A check of the working point alone passes a pose in which the hand's turn gave way, so a muzzle sits on its line while the tool points several degrees off it.
+To verify a held tool's pose, read back its working point and a second point along its length after fitting. Refuse or choose another pose if either misses.
 
 A held object stays held across actions until an action takes that hand over to put it down, hand it on or use it. Until then the hand travels with the body and keeps its grip. Refuse an action that would use a holding hand for something else.
 
@@ -28,14 +28,14 @@ At a handover, the object stays held throughout:
 
 - both hands hold through a shared window while the object's world pose blends from the giver to the receiver;
 - the giver opens only after the receiver's grip has closed;
-- every outcome that keeps the object, such as a withdrawn offer, keeps a hand on it until the object is set down.
+- keep a hand on the object through any outcome that retains it, until set-down.
 
 ## Contact between performers
 
-Compute the shared target of a handshake, a handover or a clinch once, from both bodies' reach, and give it to each performer as its target. Two performers each aiming at where the other is chase each other.
+Compute one shared contact target from both bodies' reach and give it to both performers.
 
-Judge a contact against each performer's final displayed pose. A contact stop, the instant a moving limb is halted at contact, committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a contact stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
+Judge contact at each performer's displayed pose. When a stop changes a displayed pose, recompute contacts against it or solve both performers together at each instant.
 
-A contact stop changes the pose only. The action keeps its duration, its events and its decisive instant, so a partner and the sound still match it at the planned time. Resolve contacts that fall in the same span in time order, each later one seeing the earlier stops.
+Preserve action duration, events and decisive instant when applying a contact stop. Resolve stops in time order so each sees earlier ones.
 
 Measure penetration against each part's own collider, not against one radius shared by a whole limb.

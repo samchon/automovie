@@ -3,8 +3,8 @@
 ## Execution distribution
 
 1. Entry, action-response ordering, speaking turns, direction density, block duration, silence, view changes and exits are compared across the whole.
-2. The answer reports habitual beat sequences and mechanically equal blocks that flatten different situations, such as a standard gesture before every line or an explanatory conclusion after every scene, and compares units for the same audible closing voiceover, question-and-answer pattern or battle progression.
-3. These are execution notation, not habitual patterns, because production sets up each scene independently:
+2. Report recurring beat and block patterns that flatten different situations. Compare patterns of entry, action, speech and closure across units.
+3. The following are execution notation used to set up each scene:
     - repeated scene headings for time, place and weather;
     - adopted actor-specific performance parentheticals;
     - positional identifiers for unnamed participants.

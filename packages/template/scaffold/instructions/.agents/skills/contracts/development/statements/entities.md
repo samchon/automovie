@@ -3,13 +3,13 @@
 ## Settings realization
 
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
-2. Every cited fact is either shown by the entity's form or handed on with the consumer that carries it, such as a canon reference, the generation prompt or a shot's sound description.
-3. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is handed on and not modeled. Exception: a commissioned detail option shows what it was commissioned to show.
+2. Show each cited fact in the entity or identify the consumer that carries it.
+3. Hand off facts the adopted form cannot show. Model them only on a commissioned detail option that can show them.
 4. A person's body parameters derive from the cast record's body facts, or on a short from the standing state for a person only one scene shows, and one prepared body serves both the polygon man and the motion planned for it.
-5. Each parameter of a research law, an installed action or an installed archetype, such as stature, proficiency, style or a seat's height, derives from a cited fact and stays within the range its owner gives.
+5. Derive each law, action or archetype parameter from a cited fact and keep it within its owner's range.
 6. Each measurement names its study and section. Exception: a measurement an installed package supplies with its own source.
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exceptions: on a short, a decision the [brief leaves to the screenplay](../../../story/layers/brief.md#what-it-holds) is cited from the screenplay; when [no narrative pass runs](../../../story/workflow/routes.md#who-writes-the-screenplay), it is recorded in the screenplay, or for a fixed screenplay in the instructions.
+8. Record missing decisions in settings or brief and [study](../../../story/planning/research.md#when-to-study) unsupported measurements first. Cite choices [delegated to a short's screenplay](../../../story/layers/brief.md#what-it-holds) by scene file and anchor. With [no narrative pass](../../../story/workflow/routes.md#who-writes-the-screenplay), record the choice in the screenplay. For a fixed screenplay, record only [implementation choices](../../../story/correction/repair.md#concretization) in the instructions.
 
 ## Object shape
 
@@ -17,7 +17,7 @@
 2. It is composed of small fragments rather than inherited.
 3. It imports no other entity.
 4. Each capability returns an immutable record of what the subject does and to whom, and never a pose, coordinate, offset or time.
-5. A person's or a crowd's capability returns the installed motion vocabulary's own composition of the action, including an action the production [registered](../../../motion/laws/extension.md) with it, and the entity adds no motion of its own. Exception: a clip the user chose or the commission supplies, [retargeted](../../../motion/retargeting.md) onto the person.
+5. Return the installed vocabulary's composition for people and crowds, including [registered extensions](../../../motion/laws/extension.md). Use a commissioned or user-chosen clip only after [retargeting](../../../motion/retargeting.md) it to the person.
 6. State such as equipment by story day, fatigue or a learned habit exists only as an explicit snapshot computed at schedule resolution.
 7. A habit is a trigger-to-response rule, with the trigger and response its fact describes and the timing its research supports.
 

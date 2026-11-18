@@ -8,17 +8,17 @@ The chosen model determines how the motion hint reaches it, and each method pres
 
 Edit or restyle the hint video when positions, timing and camera must follow it closely while surfaces change. An edit can zoom or recenter the frame; state that framing holds and check by overlay.
 
-Use the hint as a reference video when appearance matters more than exact placement. Motion and camera are followed loosely, with [keyframe images](../../image/diffusion/conditioning.md#shot-frames) holding appearance at their instants. The prompt's [input roles](prompts.md#input-roles) say whether the hint is edited or referenced and what each reference supplies.
+Use a reference video for loose placement, motion and camera. Use [keyframes](../../image/diffusion/conditioning.md#shot-frames) to hold appearance at their instants. Set each reference's role under [input roles](prompts.md#input-roles).
 
 ### Layout and control adapters
 
 A gray-layout adapter replaces coarse forms with detailed ones while following the camera path and placement. Shapes can still drift, and some adapters need a first frame made from the hint.
 
-For contacts and positions that must hold exactly, use the model's control adapters, with each channel's strength and any supported frame or region masks. A [dense channel](../../motion/control-channels.md#dense-channels) also holds the coarse shape; combine channels only where the model's documentation allows.
+Use control adapters for precise placements and contacts. Set strength and supported masks by channel. A [dense channel](../../motion/control-channels.md#dense-channels) also carries coarse shape. Combine channels only as documented.
 
 ### Geometry and material channels
 
-When the film's detail is built and the target is a photographed look, give geometry and material channels to a neural renderer. It keeps geometry, materials and camera while computing light and shading; supply lighting separately, often as an environment map. Coarse forms remain coarse.
+For a photographed look on built detail, give a neural renderer geometry and material channels and supply lighting separately. The renderer keeps geometry, materials and camera.
 
 ## Still frames
 

@@ -6,8 +6,8 @@ Statements: [statements/obligations/scripts.md](../statements/obligations/script
 
 ## Partition and titles
 
-Do the boundaries fall where the form delivers change and an earned reason to continue or stop, and does each title gain meaning in its unit? A scene quota or a cut through an unfinished exchange cannot establish a boundary.
+Do boundaries follow meaningful changes with an earned reason to continue or stop? Does each title gain meaning from its unit?
 
 ## Complete execution
 
-Can a filmmaker stage every assigned event from the scripts without inventing it? Missing decisions and decisions buried under directions both make a handoff unusable.
+Can a filmmaker stage every assigned event from the scripts without inventing a decision or losing it among directions?

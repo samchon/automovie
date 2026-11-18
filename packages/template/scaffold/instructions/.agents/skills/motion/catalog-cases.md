@@ -1,6 +1,6 @@
 # Catalog cases
 
-An entity or a motion module is accepted alone, in the catalog, before any film composes it. A motion module is one composed action a scene uses, such as a single exchange between two fighters.
+Accept each entity and reusable motion module in the catalog before composing it into a film.
 
 A case isolates one module with its target, partner response and outcome, and its variants are parameters of the same case composition.
 
@@ -8,9 +8,9 @@ The [catalog film](../development/source-layout.md#scenes-and-films) gives each 
 
 ## Capture and review
 
-Capture the case through the README's command, with `joint` marks where available. Apply [motion judgment](judgment.md) against the case's subject records and any study it follows, and repair all findings before recapturing or expanding the case into a segment.
+Capture with the README command and add `joint` marks where available. Apply [motion judgment](judgment.md) against subject records and studies. Fix findings before recapturing or expanding.
 
-Resolve the case's performance once when it loads. Run a report or audit of it as a separate check, never during loading, playback or capture, where it delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
+Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse reports only with the same inputs and package versions.
 
 ## What each case owes
 
@@ -28,4 +28,4 @@ A flaw that remains in an installed action is never corrected in the production;
 
 ## Record
 
-Record every accepted case, with its revision, in the catalog's [acceptance record](../review/delivery-review.md#acceptance-record).
+The author records each accepted case's revision and views in `docs/acceptance/catalog.md`. Compose only accepted cases. Reapprove a case after its module changes.

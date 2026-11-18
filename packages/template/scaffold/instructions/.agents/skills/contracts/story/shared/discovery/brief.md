@@ -6,4 +6,4 @@ Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
 
 ## Instructions and backcast
 
-Before bulk brief writing, was every instruction broken into its consequential elements and given an owner, and were the planned films read for what several scenes would otherwise invent about people, places and recurring props? A requirement left whole is easy to believe kept and hard to check.
+Before bulk writing, did discovery assign each consequential instruction to an owner? Did it identify the people, places and props the planned scenes must share?

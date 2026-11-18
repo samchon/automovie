@@ -1,8 +1,6 @@
 # Sources
 
-An existing asset is a source beside crafting and generation. Propose, fetch or adopt one when a shot needs it or the user asks, and take it in under [Conditioning](conditioning.md), which decides whether it is used as supplied, rigged, varied by a parameter or recovered.
-
-The channels below are examples; search further for the subject at hand.
+Adopt an existing asset when the shot needs it or the user requests it. Follow [Conditioning](conditioning.md).
 
 ## Channels
 
@@ -20,11 +18,11 @@ The channels below are examples; search further for the subject at hand.
 
 ### codepawl GLB repacks
 
-The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hugging Face repack Amazon Berkeley Objects (`abo-glb`), Google Scanned Objects (`scanned-objects-glb`) and NVIDIA SimReady (`simready-glb`) as GLB: real household and product objects at real-world scale, downloadable in bulk. They keep the originals' CC BY 4.0, so each use credits the original creator, not the repacker.
+[codepawl](https://huggingface.co/datasets/codepawl/abo-glb) repacks Amazon Berkeley Objects (`abo-glb`), Google Scanned Objects (`scanned-objects-glb`) and NVIDIA SimReady (`simready-glb`) as real-scale GLB files. For CC BY 4.0 attribution, credit the original creator.
 
 ### Quixel Megascans
 
-[Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) on Fab offers free photoscanned 3D assets, surfaces and vegetation, downloaded with a Fab account. The [Fab Standard License](https://www.fab.com/eula) allows commercial use and modification in any tool but not standalone redistribution, so the files stay out of public commits. The scans are dense; choose a lower level of detail or simplify when an identifiable form is enough.
+[Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) offers photoscanned assets, surfaces and vegetation with a Fab account. The [Fab Standard License](https://www.fab.com/eula) allows commercial use and modification. Keep source scans out of public commits and simplify where detail is unnecessary.
 
 ### 100STYLE
 

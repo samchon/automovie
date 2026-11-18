@@ -1,32 +1,30 @@
 # Validation
 
-The checks to run on a change, and how to run them beside other agents.
-
 ## Type checking
 
-Use one shared `pnpm ttsc --watch` process in `test/` and read its completed cycles from the same log. Start it only when none runs, because duplicate checkers compete for the plugin cache and CPU without extending coverage. In a coordinated task, its owner starts the process and gives every worker the log path.
+Run `pnpm test:types:watch` from the repository root only when the test program has no active watch. The watch owner shares the log of completed cycles.
 
-The test tsconfig already disables emit. This watch checks the sources its program reaches; report a page or subject module outside that program as unchecked unless the task authorizes its separate validation. Do not start another compiler, build or checking helper to repeat the shared check.
+Reuse the no-emit test watch for its entire program. Report files outside it as unchecked unless authorized to check them separately.
 
 ### Shared verification rounds
 
-Finish the inspection round before fixing findings: collect the completed watch cycle, relevant tests and any renders or logs, then group every finding by cause and contributing factors. Apply the whole coordinated batch before reading the next complete round, because reacting to intermediate saves repeats checks on an unfinished migration.
+Apply the repository's correction-round rule to the completed watch cycle, tests, renders and logs.
 
-Coordinate changed exports and their readers in the same batch, checking remaining uses and name collisions before writing. Keep dependent tests and captures paused while that batch is incomplete; an intermediate diagnostic is not a new review round.
+Batch export changes with their readers. Check uses and collisions before editing. Pause dependent tests and captures until the batch is complete.
 
 ## Tests
 
-Follow any task-specific test-code prohibition and use its required verification instead. Where tests are permitted, prove a change first with the narrowest test that fails without it, then run the affected tests, and let CI run the full suites.
+Follow task-specific test restrictions and any verification they require. Where tests are allowed, start with a narrow failing case, run affected tests and leave full suites to CI.
 
-Put every test one run needs into one `pnpm test --include <names...>`, because each run compiles the whole project before its first test.
+Run all needed cases together with `pnpm test --include <names...>` to compile once.
 
 ### Bundled runs
 
-While developing, run selected tests with `pnpm test:esbuild --include <names...>` from the root instead. It bundles the test program and the packages' sources with esbuild, starts in seconds, and builds into its own `test/bin/<process id>`, removed at the end, so runs may overlap in one checkout.
+From the root, use `pnpm test:esbuild --include <names...>` for bundled development runs. Each run builds in its own `test/bin/<process id>` and removes it at exit, so runs may overlap.
 
 It checks no types and runs no lint, so read the type-check watch first, and keep every test valid under `pnpm test`, which CI runs.
 
-In the bundle `__dirname` is the built file's directory and a computed `require` cannot resolve. A test that finds the repository from its own `__dirname`, or reaches a source that requires a computed path, therefore runs only under `pnpm test`.
+Use `pnpm test` for tests that rely on the source file's `__dirname` or a computed `require` path.
 
 ## Visual changes
 
@@ -34,4 +32,4 @@ Verify a render, viewer or capture change under [visual debugging](../visual-deb
 
 ## Formatting
 
-At a pull request's final preparation for merge, run `pnpm exec prettier --write <changed-files>` once, on only your changed files that the repository's `format` patterns match. Skip when none match, and fix later defects without repeating the pass or rewriting unrelated files.
+Before merging, run `pnpm exec prettier --write <changed-files>` once on your changed files that match the repository's `format` patterns.

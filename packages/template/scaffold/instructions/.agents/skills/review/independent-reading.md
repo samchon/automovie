@@ -6,7 +6,7 @@ An independent reader is a [separate context](../story/workflow/routes.md#separa
 
 Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers).
 
-Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading). Read that item's statements before locking, because a lock that fails them, such as one without a quotation, has to be read again.
+Read every declared unit, in disjoint chunks when needed. Lock the first response and concrete losses against the [independent-reading statements](../contracts/story/shared/principles/review.md#independent-reading) before reading other records.
 
 Read each layer as its recipient:
 
@@ -22,7 +22,7 @@ A recipient's loss stays a finding even when upstream knowledge explains it, and
 
 ## Comparison with parents and contracts
 
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, the parents and the requirements, looking for contradictions; matching quotations do not replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
+Compare decisions, names, notation, quotations, action, picture and sound with the selected contracts, parents and requirements. Follow [factual basis](../story/planning/requirements.md#factual-basis) for fiction's quantities.
 
 Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it as that section sets, and weigh each candidate by the [retention test](../story/answers.md#grounds-for-retaining-a-candidate).
 

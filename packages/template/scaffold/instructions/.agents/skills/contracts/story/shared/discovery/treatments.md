@@ -6,4 +6,4 @@ Statements: [statements/discovery/treatments.md](../statements/discovery/treatme
 
 ## Treatment requirements
 
-Were the work's own rules for its events and for the treatment document found? A settings summary, a genre aspiration or an unowned label supplies neither.
+Did discovery identify the work's requirements for events and the treatment document?

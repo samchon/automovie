@@ -1,13 +1,13 @@
 # Research principles
 
-Each study in `docs/research/`, apart from its index, answers these items in the research location of the story document layout, under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings or brief, screenplay, entities and laws name the study they draw from.
+Each study in `docs/research/` other than the index answers these items under an H1 naming its path. Keep originals in `references/` and index them. Its consumers cite the study.
 
 Statements: [statements/principles/research.md](../statements/principles/research.md).
 
 ## Depicted practice
 
-Can each author who cites the study write or program the practice at the depicted level without inventing it, including, for a performed practice, how densely its actions come and how they are distributed? A rank or an adjective, technique names without laws, a limit of the practice left unrecorded or a value with no source leaves the next author to invent the practice. A deliberately stylized departure is recorded as a choice and is not a gap.
+Can an author use the study to write or program the practice at the depicted level? Include its laws, limits, sourced values and any required action density and distribution. Record deliberate stylization.
 
 ## Traceable sources
 
-Does every observation name its retained source with a locator, such as a page or timestamp, and say what kind of observation it is? A search summary, a portal page or a remembered fact is a route to evidence, not a source.
+Does each observation identify its retained source, locator and observation type so a reader can check it?

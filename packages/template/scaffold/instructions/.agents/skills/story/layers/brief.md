@@ -1,16 +1,14 @@
 # Brief
 
-A short's canon: the few decisions its screenplay cites, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). Write it after discovery, studying what [when to study](../planning/research.md#when-to-study) assigns it.
+A short's canon: the few decisions its screenplay cites, under the [brief criteria](../../contracts/story/shared/principles/brief.md). Write it after discovery, studying what [when to study](../planning/research.md#when-to-study) assigns it.
 
 ## What it holds
 
-Hold only what the [needed-decisions question](../../contracts/story/shared/principles/brief.md#needed-decisions) lists: the decisions about the people, places and recurring props that several scenes must keep true. Everything else, such as a person or object only one scene shows, the camera and the sound, is decided in the screenplay, which code then cites, because a brief decision binds every scene that cites it.
+Use the [needed-decisions question](../../contracts/story/shared/principles/brief.md#needed-decisions) for shared people, places and props. Decide scene-only subjects, camera and sound in the screenplay.
 
 ## Records
 
-Give each subject one file under the [document layout](../document-layout.md#documents), in the settings domain of its kind: `cast` for people, `sets` for places and `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, which stays stable under [identities](notation.md#identities).
-
-User-fixed interpretations and canon references follow [settings records](settings.md#records).
+Record each cast member, set or recurring prop under [canon records](../document-layout.md#canon-records).
 
 ## Growth
 
