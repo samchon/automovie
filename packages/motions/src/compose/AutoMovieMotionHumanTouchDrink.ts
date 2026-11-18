@@ -2,6 +2,7 @@ import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
   IAutoMovieMotionHumanPosture,
@@ -363,6 +364,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       );
     let best: IAutoMovieVector3 | undefined;
     let selected: IAutoMovieHumanLimbGoal | undefined;
+    let reference: IAutoMovieHumanLimbReference | undefined;
     let tilt: number = Infinity;
     for (const facing of AutoMovieMotionHumanTouchUpright.facings(
       place.normal,
@@ -375,13 +377,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
       const wrist: IAutoMovieHumanLimbGoal = laid(facing, posture, place, hint);
       if (admits !== undefined && !admits(wrist.point)) continue;
       const candidate: IAutoMovieHumanLimbGoal = { ...wrist, bend: bound(wrist.point, hint) };
-      const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
-        read(
-          posture,
-          candidate,
-          false,
-          axis,
-        );
+      const improves = (arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean =>
+        holds(arm) && arm.tilt < tilt - ROM_TOLERANCE;
+      const arm: ReturnType<typeof read> = read(posture, candidate, false, axis, improves);
       seen(
         arm,
         `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)}) with the vessel's axis (fingers ${anatomy("fingers")}, palm ${anatomy("palm")}, thumb ${anatomy("thumb")}) in the hand`,
@@ -389,10 +387,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
       // Two tilts within the joints' tolerance (the resolution a fit meets
       // a rotation to) are one, so a rounding-sized difference between a
       // hand's fit and its mirror's never chooses another facing.
-      if (holds(arm) && arm.tilt < tilt - ROM_TOLERANCE) {
+      if (improves(arm)) {
         tilt = arm.tilt;
         best = facing;
         selected = candidate;
+        reference = arm.reference;
       }
 
       // A tilt is an angle, never below 0, and a later facing replaces the
@@ -404,8 +403,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
     const shown: IAutoMovieMotionHumanDrinkingArm.IArm =
       read(
         posture,
-        selected,
-        true,
+        reference === undefined ? selected : { ...selected, reference },
+        reference === undefined,
         axis,
       );
     // In the drinking phase the hand keeps the facing and the lean while
