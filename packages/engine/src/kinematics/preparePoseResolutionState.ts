@@ -41,8 +41,17 @@ interface IState {
   /** The root's revision the frames were composed at. */
   placed: number;
 
-  /** How many rows, from the first, hold the composed frames of that selection and root. */
-  reach: number;
+  /** Rows completed for this selection and root. */
+  rows: Uint8Array;
+
+  /** The last immutable bound demand whose parent-first closure was derived. */
+  planned?: readonly number[];
+
+  /** The rooted indices required by that bound demand. */
+  ancestors?: readonly number[];
+
+  /** The number of completed rows for this selection and root. */
+  completed: number;
 
   /** Private immutable root quaternion, reused only while actual scalars match. */
   rootRotation: IAutoMovieQuaternion;
@@ -75,7 +84,7 @@ const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
  * @evidence contracts/development/implementation.md#principled-implementation Record poses compose admitted joints through parent-first FK. Fixed tuple scans validate all values and select the requested ancestry's articulations. Fixed sources snapshot their admitted articulations before overlays, and an edit a query omits restores the baseline at completion. Genuine rest composes identity articulations under a null root through the same pass, without scale.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Static construction, tuple staging, joint admission, the selection and the composition have their own owners. Record and scalar scans meet at the same completion, root and composition phases here; array and map outputs share one record maker.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary reads admit every current record, fixed-source production admits every baseline record and every query admits all supplied edits, including overwritten/stray records. No target, time, tolerance, editable whitelist or external admission flag certifies a result; numeric demands come only from the same immutable rig's name lookup.
- * @evidence contracts/development/implementation.md#efficient-algorithms A pose of J records costs J ordered admissions, one completion pass over the B rows, a composition pass when the selection or the root changed over the rows up to the deepest demanded bone only (extended by a later read that demands further), and one fresh record per demanded bone. No frame row, revision, recursion or sorted change list exists; K names sort unless bound. A fixed source admits its baseline once, then E edits a query. Rest composes once per rig and copies B records a read. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A pose of J records costs J ordered admissions, one completion pass over the B rows, a composition pass when the selection or the root changed over the demanded ancestor closure (extended for an additional read of the same pose), and one fresh record per demanded bone. One byte per bone tracks completed rows and the last immutable demand retains only its ancestor indices; K names sort unless bound. A fixed source admits its baseline once, then E edits a query. Rest composes once per rig and copies B records a read. Speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The rig's tables are built once per node list. An unchanged selection under an unchanged root keeps its composed frames for every later read of the operation. A reading takes one completed admission's articulations and root as a value, so the readers its producer hands it to share its frames without another admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An operation owns the joint admission's O(U+B) rows, nine numbers a bone of selection and eleven of frames until release; a fixed source adds its own baseline row. Rest frames belong to the rig's tables. Every output is a fresh caller-owned record; no raw pose, query history, task or handle is kept.
  */
@@ -285,7 +294,7 @@ function createState(
   const changes: preparePoseResolutionChanges.ITracker = preparePoseResolutionChanges(tables.count, baseline);
   return { changes,
     joints: preparePoseJointResolution(indices, conventions, fallback, changes),
-    frames: composePoseFrames.frames(tables.count), composed: -1, placed: -1, reach: 0,
+    frames: composePoseFrames.frames(tables.count), composed: -1, placed: -1, rows: new Uint8Array(tables.count), completed: 0,
     rootRotation: IDENTITY, rootTranslation: ORIGIN, rootRevision: 0 };
 }
 
@@ -312,24 +321,14 @@ function readFrames<T extends IAutoMovieResolvedBone[] | Map<AutoMovieHumanoidBo
 ): T {
   const demanded: readonly number[] | undefined = fixedDemand ?? (requested === undefined
     ? undefined : preparePoseBoneDemand(indices, tables.count, requested));
-  // The rows up to the deepest demanded bone: parent first, so its
-  // ancestors and every demanded bone lie in that prefix. A prefix composed
-  // for this selection and root is extended, not composed again.
-  let need: number = tables.count;
-  if (demanded !== undefined) {
-    need = 0;
-    for (const index of demanded) if (index + 1 > need) need = index + 1;
-  }
   const version: number = state.changes.version();
   if (state.composed !== version || state.placed !== state.rootRevision) {
-    composePoseFrames(tables, state.changes.selected, state.rootRotation, state.rootTranslation, state.frames, 0, need);
+    if (demanded !== undefined && demanded.length < tables.count) state.rows.fill(0);
+    state.completed = 0;
     state.composed = version;
     state.placed = state.rootRevision;
-    state.reach = need;
-  } else if (state.reach < need) {
-    composePoseFrames(tables, state.changes.selected, state.rootRotation, state.rootTranslation, state.frames, state.reach, need);
-    state.reach = need;
   }
+  if (state.completed < tables.count) composeDemand(state, tables, demanded);
   const count: number = demanded?.length ?? tables.count;
   for (let ordinal: number = 0; ordinal < count; ++ordinal)
     append(result, composePoseFrames.bone(tables.names, state.frames,
@@ -337,6 +336,48 @@ function readFrames<T extends IAutoMovieResolvedBone[] | Map<AutoMovieHumanoidBo
   return result;
 }
 
+/** Compose newly required parent-first rows, sharing completed ancestors across reads. */
+function composeDemand(
+  state: IState,
+  tables: composePoseFrames.ITables,
+  demanded: readonly number[] | undefined,
+): void {
+  const count: number = tables.count;
+  let ancestors: readonly number[] | undefined;
+  if (demanded !== undefined && demanded.length < count) {
+    if (state.planned !== demanded) {
+      const needed: Set<number> = new Set();
+      for (const output of demanded)
+        for (let index: number = output; index >= 0 && !needed.has(index); index = tables.parents[index]!)
+          needed.add(index);
+      state.ancestors = [...needed].sort((left: number, right: number): number => left - right);
+      state.planned = demanded;
+    }
+    ancestors = state.ancestors;
+  }
+  if (state.completed === 0) {
+    const length: number = ancestors?.length ?? count;
+    composePoseFrames(tables, state.changes.selected, state.rootRotation, state.rootTranslation, state.frames, 0, length, ancestors);
+    if (ancestors !== undefined)
+      for (const index of ancestors) state.rows[index] = 1;
+    state.completed = length;
+    return;
+  }
+
+  // A second demand at this pose adds only the parents and outputs still
+  // missing. The closure's order makes every parent available to the kernel.
+  const missing: number[] = [];
+  const length: number = ancestors?.length ?? count;
+  for (let ordinal: number = 0; ordinal < length; ++ordinal) {
+    const index: number = ancestors === undefined ? ordinal : ancestors[ordinal]!;
+    if (state.rows[index] === 0) missing.push(index);
+  }
+  if (missing.length !== 0) {
+    composePoseFrames(tables, state.changes.selected, state.rootRotation, state.rootTranslation, state.frames, 0, missing.length, missing);
+    for (const index of missing) state.rows[index] = 1;
+    state.completed += missing.length;
+  }
+}
 /** Append one fresh record to an array result. */
 function appendArray(result: IAutoMovieResolvedBone[], frame: IAutoMovieResolvedBone): void {
   result.push(frame);

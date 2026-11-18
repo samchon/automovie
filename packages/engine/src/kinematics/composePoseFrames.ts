@@ -29,6 +29,7 @@ import type {
  * @param rootTranslation Their origin, model metres.
  * @param frames The workspace the frames are written to (`composePoseFrames.frames`).
  * @param from The first row composed; 0 when absent. The rows before it must already hold this pose's frames.
+ * @param indices Optional parent-first row selection. When supplied, from and to index this selection, and each selected parent must already be composed or precede its child.
  * @param to The row after the last composed; every row when absent. A prefix of the rows is complete in itself, since every row's ancestors come before it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the recurrence, the row order it relies on, the root, what is not read or admitted, the units and where the result goes.
@@ -47,6 +48,7 @@ export function composePoseFrames(
   frames: composePoseFrames.IFrames,
   from: number = 0,
   to: number = tables.count,
+  indices?: readonly number[],
 ): void {
   const parents: Int32Array = tables.parents;
   const rests: Float64Array = tables.rests;
@@ -61,7 +63,8 @@ export function composePoseFrames(
   const originX: number = rootTranslation.x;
   const originY: number = rootTranslation.y;
   const originZ: number = rootTranslation.z;
-  for (let index: number = from; index < to; ++index) {
+  for (let ordinal: number = from; ordinal < to; ++ordinal) {
+    const index: number = indices === undefined ? ordinal : indices[ordinal]!;
     const q: number = 4 * index;
     const v: number = 3 * index;
 
