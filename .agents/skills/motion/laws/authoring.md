@@ -1,57 +1,47 @@
 # Effector goals
 
-Almost every action is an interaction: a part of the body meets the floor, a prop, a partner, or a point the performer aims at. That part is the end effector, effector for short, what it reaches is the target, and a goal puts the effector on its target for a window.
+Almost every action is a set of goals, each putting an end effector on its target for a window.
 
-Author every movement as goals, and let inverse kinematics find the joint angles within the rig's range of motion. A goal survives a taller body or a moved prop; a joint angle fitted to one body puts the next body's hand beside the cup.
+Write movement as goals and let inverse kinematics find the joint angles, because a goal survives another body or a moved prop and a fitted joint angle does not.
 
 ## Writing a goal
-
-A goal names five things:
 
 | Part | Names |
 | --- | --- |
 | End effector | A measured point on the body, such as the palm center or the seat bones |
-| Target | Where the effector goes |
-| Approach | Direction and effector orientation, where the act needs one, such as a sole flat on a step |
-| Window | When the goal holds, such as from a grip closing to its release |
+| Target | A declared region or socket, a prop's grip or surface, a point in the set or an aim point |
+| Approach | The direction and orientation the act needs |
+| Window | When the goal holds, such as from grip to release |
 | Tracking | Whether the target is frozen at the window's start or tracked through it |
 
-A target is a declared region or socket of another entity, a prop's grip or surface, a point in the set, or an imagined point the performer aims at.
+Take every distance from the measured body and target, and mark any other value provisional with its source. Take the key poses, timing and windows from the action's study, its primary sources, and a key pose's joint values only where no goal decides the pose.
 
-A goal on a moving body, such as a palm on the chin, attaches to that bone, so a layered sway or breath carries the hand with it.
-
-A tracked target is followed as a person follows one: the goal reads the target where the performer perceived it a reaction time earlier, with the delay taken from the action's study, the primary sources on the real practice. A limb that reads the target at the current instant cannot be dodged, feinted or made to miss.
-
-Take every distance, height and reach from the performer's own measured segments and the target's measured parts. When no measure can supply a value, name it as provisional with its source.
-
-The study supplies the key poses, the timing and the windows. Take joint values straight from those key poses only where no goal determines the pose, such as a guard's carriage or a follow-through.
+A goal on a body attaches to the bone under its target, so a layered sway carries it along. Read a tracked target one reaction time late, with the delay from the study, or the limb cannot be dodged, feinted or made to miss.
 
 ## The path in time
 
-Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985). A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and reaches its target before the speed falls to zero.
+Move an effector on the bell-shaped speed profile of minimum jerk (Flash and Hogan 1985). A throw, strike or kick moves its segments from the trunk outward (Putnam 1993) and arrives still fast.
 
-Lay an effector's path on the body that carries it. When the root travels during the stroke, as in a lunge, give the path relative to the moving shoulder or hip, or carry it by how far that joint is ahead of the advance the path assumed. A path fixed in the world and keyed to the stroke's own progress lets a body that advances on its own clock overtake its hand: the limb folds to its limit, and the tool's tip jumps within one frame.
+When the root travels during the stroke, give the path relative to the moving shoulder or hip. A path fixed in the world lets the body overtake its hand, folding the arm and making a held tool's tip jump.
 
 ## Out of reach
 
-Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it, whether too far or closer than the limb can fold to. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the [outcome is an input](declaration.md#outcome-as-input).
+Before posing, compare the root-to-target distance with the limb's reachable band. Outside it, the action refuses with the reachable range or takes a declared alternative that still reaches, such as a step. An alternative that changes the outcome needs the caller's choice, because the [outcome is an input](declaration.md#outcome-as-input).
 
-A silent clamp moves the contact somewhere the screenplay did not ask for and hides the miss from every check. The action's documentation says which rule it follows, and the code must match that sentence.
+Document the rule and make the code follow it exactly, because a silent clamp moves the contact and hides the miss.
 
 ## The root
 
-Decide the root once, from every demand on it together: the contacts, the far reaches, and balance, which keeps the extrapolated center of mass, the center of mass shifted by its velocity, over the support. Then fit every limb from that root, because separate corrections per limb disagree, and balance left to a check is met after the pose is already wrong.
+Place the root once, from the contacts, the reaches and balance together, then fit every limb from it, because separate corrections per limb disagree. If a contact still cannot be reached, lower, lean or step the root and refit every limb, leaving the contact in place.
 
-Place a body that bears on the floor by the joints that bear, each at the height it has when it bears: an ankle or a toe joint at its standing height, a wrist at the height of a laid palm. Resting a keyed pose on the lowest point of its collision shapes lifts the whole body by whatever hangs lowest in that pose, such as a straight hand under a plank's shoulder, and the true supports then float.
-
-A contact that still cannot be reached shows the root is wrong: revise that one root, by lowering, leaning or stepping, and refit every limb. Never drag a contact off its point to keep the root's path.
+Rest a body that bears on the floor with each bearing joint at its bearing height, such as a wrist at a laid palm's height. Resting it on its lowest collision shape lifts it, and the real supports float.
 
 ## Fit order
 
-Fit supports before reaching limbs: feet on the floor, seat bones on the seat, hands on a held bar. A later fit can pull an earlier contact away, so check every earlier contact after each later fit.
+Fit supports, hands on a held bar included, before reaching limbs, and recheck the earlier contacts after each fit, because a later fit can pull them away.
 
-A bend hint, the direction given to a limb's middle joint, chooses which side the elbow or knee falls on. A solver may still prefer the side its range-of-motion cost favors, so check that the solved middle joint follows the hint. When no hint is given, keep the side the pose being fitted already bends toward at that instant.
+Check that each elbow and knee bends to the side its hint asks, since the solver's range-of-motion cost may prefer the other. Without a hint, keep the side the pose already bends to.
 
-When two limbs rest on each other, as in crossed arms, place them in one direction: fit the first against the body, then the second against the first as solved. Re-placing each against the other in turn flips each elbow between its two sides and does not converge.
+Fit limbs that rest on each other, as in crossed arms, one after the other, because fitting each against the other in turn never settles.
 
-When a fit searches for a pose, such as a grip aperture or a root height, measure each trial after the joint limits are applied, or the search converges on a pose the body cannot take.
+A fit that searches measures each trial after the joint limits apply, or it settles on a pose the body cannot take.
