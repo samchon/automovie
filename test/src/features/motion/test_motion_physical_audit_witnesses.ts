@@ -89,7 +89,7 @@ export async function test_motion_physical_audit_witnesses(): Promise<void> {
     allowed: (): boolean => false,
   };
   assert.deepEqual((await Audit.run(input)).findings, []);
-  const states = (await input.sample(0)).bodies.observed!;
+  const states = input.sample(0).bodies.observed!;
   const root = states.first!,
     hand = states.second!,
     pivot = states["observed-origin"]!;

@@ -8,7 +8,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGaze,
   IAutoMovieMotionHumanGestureStroke,
@@ -19,6 +19,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  selfAction,
   HumanGaze,
   gestureSignal,
   gestureStroke,
@@ -26,7 +27,6 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { nclose } from "../internal/nclose";
@@ -260,137 +260,46 @@ function checkChannelSignals(): void {
     );
 }
 
-function checkAuthoredChannels(): void {
-  const all: motionComplaints.IGatherer = motionComplaints();
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  /** One gesture on the same starting stance and neutral manner. */
-  const perform: (
-    params: IAutoMovieMotionHumanSelfAction.IParams,
-  ) => motionHumanLaw.IFilm = (
-    params: IAutoMovieMotionHumanSelfAction.IParams,
-  ): motionHumanLaw.IFilm =>
-    motionHumanLaw.perform(
-      "self-action",
-      [{ subject: "a", body }],
-      HumanChain.subject("a").selfAction(params),
-    );
-
-  for (const [kind, bone] of [
-    ["neckRoll", "neck"],
-    ["shoulderRoll", "rightShoulder"],
-  ] as const) {
-    const film: motionHumanLaw.IFilm = perform({ kind });
-    const start: number = motionHumanLaw.event(film, "strokeStart");
-    const period: number =
-      (motionHumanLaw.event(film, "strokeEnd") - start) / 2;
-    const neutral: IAutoMovieJointPose | undefined = joint(film, 0, bone);
-    const elbow: IAutoMovieJointPose | undefined = joint(
-      film,
-      0,
-      "rightLowerArm",
-    );
-    const range: NonNullable<
-      (typeof DEFAULT_HUMANOID_ROM)[AutoMovieHumanoidBone]
-    > = DEFAULT_HUMANOID_ROM[bone]!;
-    // The documented light rung is one quarter of the positive range.
-    const flex: number = range.flexion!.max / 4;
-    const across: number = range.abduction!.max / 4;
-    for (const [cycle, x, y] of [
-      [0, 1, 0],
-      [1 / 4, 0, 1],
-      [1 / 2, -1, 0],
-      [3 / 4, 0, -1],
-      [2, 1, 0],
-    ] as const) {
-      const seconds: number = start + cycle * period;
-      const angle: IAutoMovieJointPose | undefined = joint(film, seconds, bone);
-      const f: number = (angle?.flexion ?? 0) - (neutral?.flexion ?? 0);
-      const a: number = (angle?.abduction ?? 0) - (neutral?.abduction ?? 0);
-      all.check(
-        `${kind}, cycle ${cycle}: flexion/abduction ${f}/${a} degrees`,
-        nclose(f, flex * x) && nclose(a, across * y),
-      );
-      const free: IAutoMovieJointPose | undefined = joint(
-        film,
-        seconds,
-        "rightLowerArm",
-      );
-      all.check(
-        `${kind} leaves the right elbow still`,
-        nclose(free?.flexion ?? 0, elbow?.flexion ?? 0) &&
-          nclose(free?.abduction ?? 0, elbow?.abduction ?? 0) &&
-          nclose(free?.twist ?? 0, elbow?.twist ?? 0),
-      );
+function checkAuthoredChannels():void {
+  const body=motionHumanBody("m-average");
+  // All five laws are evaluated from one real standing context without scheduling five performances.
+  const standing=motionHumanLaw.perform("channels",[{subject:"a",body}],HumanChain.subject("a").stand({seconds:1}));
+  const context=standing.performance.segments("a")[0]!.context;
+  const authored=(params:IAutoMovieMotionHumanSelfAction.IParams)=>selfAction.plan({...context,params});
+  const at=(plan:IAutoMovieMotionHumanActionPlan,name:string)=>plan.events.find(e=>e.name===name)!.share*plan.duration;
+  for(const [kind,bone] of [["neckRoll","neck"],["shoulderRoll","rightShoulder"]] as const){
+    const plan=authored({kind}),start=at(plan,"strokeStart"),end=at(plan,"strokeEnd");
+    const initial=resolveHumanPosture(body,plan.posture(0)).joints;
+    const channel=(joints:typeof initial, joint: AutoMovieHumanoidBone)=>{
+      const j=joints.find(v=>v.bone===joint);return [j?.flexion??0,j?.abduction??0,j?.twist??0];
+    };
+    const neutral=channel(initial,bone),elbow=channel(initial,"rightLowerArm"),rom=DEFAULT_HUMANOID_ROM[bone]!;
+    for(const phase of [0,0.25,0.5,0.75,2]){
+      const joints=resolveHumanPosture(body,plan.posture(start+phase*(end-start)/2)).joints;
+      const angles=channel(joints,bone),other=channel(joints,"rightLowerArm");
+      TestValidator.predicate(kind+" circular channel "+phase,
+        nclose(angles[0]!-neutral[0]!,rom.flexion!.max*Math.cos(2*Math.PI*phase)/4) &&
+        nclose(angles[1]!-neutral[1]!,rom.abduction!.max*Math.sin(2*Math.PI*phase)/4) &&
+        other.every((value,i)=>nclose(value,elbow[i]!)));
     }
   }
-
-  for (const kind of ["stretch", "victory"] as const) {
-    const film: motionHumanLaw.IFilm = perform({ kind });
-    const ready: number = motionHumanLaw.event(film, "ready");
-    const shown: motionHumanLaw.Bones = film.bones("a", ready);
-    for (const side of ["left", "right"] as const) {
-      const wrist: AutoMovieHumanoidBone = `${side}Hand`;
-      const raised: IAutoMovieVector3 = shown.get(wrist)!.worldPosition;
-      const shoulder: IAutoMovieVector3 = shown.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const start: IAutoMovieVector3 = film
-        .bones("a", 0)
-        .get(wrist)!.worldPosition;
-      const end: IAutoMovieVector3 = film
-        .bones("a", film.duration)
-        .get(wrist)!.worldPosition;
-      all.check(
-        `${kind} raises the ${side} hand above its shoulder and on its own side`,
-        raised.y > shoulder.y &&
-          (side === "left" ? raised.x > 0 : raised.x < 0),
-      );
-      all.check(
-        `${kind} returns the ${side} hand within 10 mm`,
-        Vector3.distance(start, end) <= 0.01,
-      );
+  const bone=(bones:IAutoMovieResolvedBone[],name:AutoMovieHumanoidBone)=>bones.find(b=>b.bone===name)!.worldPosition;
+  for(const kind of ["stretch","victory"] as const){
+    const plan=authored({kind});
+    const [entry,ready,end]=[0,at(plan,"ready"),plan.duration].map(t=>displayed(body,plan.posture(t)));
+    for(const side of ["left","right"] as const){
+      const wrist=bone(ready!,`${side}Hand`);
+      TestValidator.predicate(kind+" raises and releases "+side,wrist.y>bone(ready!,`${side}UpperArm`).y &&
+        (side==="left"?wrist.x>0:wrist.x<0) && Vector3.distance(bone(entry!,`${side}Hand`),bone(end!,`${side}Hand`))<=0.01);
     }
   }
-
-  const pump: motionHumanLaw.IFilm = perform({
-    kind: "fistPump",
-    side: "left",
-  });
-  const start: number = motionHumanLaw.event(pump, "strokeStart");
-  const period: number = (motionHumanLaw.event(pump, "strokeEnd") - start) / 3;
-  const before: motionHumanLaw.Bones = pump.bones("a", start);
-  const dropped: motionHumanLaw.Bones = pump.bones("a", start + period / 2);
-  const after: motionHumanLaw.Bones = pump.bones("a", start + period);
-  all.check(
-    "one of the default three fist pumps drops at half period and returns",
-    dropped.get("leftHand")!.worldPosition.y <
-      before.get("leftHand")!.worldPosition.y &&
-      Vector3.distance(
-        after.get("leftHand")!.worldPosition,
-        before.get("leftHand")!.worldPosition,
-      ) <= 0.01,
-  );
-  all.check(
-    "the free hand stays at rest during the left fist pump",
-    Vector3.distance(
-      dropped.get("rightHand")!.worldPosition,
-      before.get("rightHand")!.worldPosition,
-    ) <= 0.01,
-  );
-  all.assert("the self actions move only the channels they own");
+  const pump=authored({kind:"fistPump",side:"left"}),start=at(pump,"strokeStart"),period=(at(pump,"strokeEnd")-start)/3;
+  const [entry,down,release]=[start,start+period/2,start+period].map(t=>displayed(body,pump.posture(t)));
+  TestValidator.predicate("a unilateral pump drops and returns its hand without moving the free arm",
+    bone(down!,"leftHand").y<bone(entry!,"leftHand").y &&
+    Vector3.distance(bone(release!,"leftHand"),bone(entry!,"leftHand"))<=0.01 &&
+    Vector3.distance(bone(down!,"rightHand"),bone(entry!,"rightHand"))<=0.01);
 }
-
-/** The actual displayed joint angles, after all ordinary pose resolution. */
-function joint(
-  film: motionHumanLaw.IFilm,
-  seconds: number,
-  bone: AutoMovieHumanoidBone,
-): IAutoMovieJointPose | undefined {
-  return film.performance
-    .pose("a", seconds)
-    .joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
-}
-
 /** Heading acts on the displayed gesture. Cues translate both gaze events together. */
 function checkGestureFrame(): void {
   const body = motionHumanBody("m-average"),
