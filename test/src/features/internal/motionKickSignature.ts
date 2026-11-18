@@ -1,9 +1,12 @@
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions";
+import { HumanColliders, HumanFoot, HumanSignature } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -102,7 +105,7 @@ export function motionKickSignature(
     const set: number = M.event(s, "set") ?? launch;
     const clear: number = M.apart(s, set, partner);
     complaints.check(
-      `${cell}: in the guard (${set.toFixed(2)} s) the two fighters stand ${(clear * 1000).toFixed(0)} mm apart (least joint-to-body distance), not inside each other expected`,
+      `${cell}: in the guard (${set.toFixed(2)} s) the two fighters stand ${(clear * 1000).toFixed(0)} mm apart (least joint-to-body distance), not inside each other expected${clear >= 0 ? "" : `; deepest: ${deepest(s, set, partner)}`}`,
       clear >= 0,
     );
     const foot: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
@@ -111,6 +114,44 @@ export function motionKickSignature(
       foot.y >= s.body.measure.hipHeight / 2,
     );
   }
+}
+
+/**
+ * Which joint of either fighter lies deepest inside the other's colliders at
+ * a second, and in which bone, so a failing guard row names the parts.
+ */
+function deepest(
+  s: M.IStaged,
+  seconds: number,
+  partner: IAutoMovieMotionHumanBody,
+): string {
+  const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    HumanSignature.bones(M.reader(s), seconds);
+  const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    HumanSignature.bones(
+      HumanSignature.of(s.film, "b", partner, s.yaw),
+      seconds,
+    );
+  let worst: { depth: number; text: string } = { depth: Infinity, text: "" };
+  for (const [name, bone] of mine) {
+    const read: IAutoMovieMotionHumanColliders.IDistance =
+      HumanColliders.distance(partner, theirs, bone.worldPosition);
+    if (read.distance < worst.depth)
+      worst = {
+        depth: read.distance,
+        text: `the kicker's ${name} ${(-read.distance * 1000).toFixed(0)} mm inside the partner's ${read.bone}`,
+      };
+  }
+  for (const [name, bone] of theirs) {
+    const read: IAutoMovieMotionHumanColliders.IDistance =
+      HumanColliders.distance(s.body, mine, bone.worldPosition);
+    if (read.distance < worst.depth)
+      worst = {
+        depth: read.distance,
+        text: `the partner's ${name} ${(-read.distance * 1000).toFixed(0)} mm inside the kicker's ${read.bone}`,
+      };
+  }
+  return worst.text;
 }
 
 /**

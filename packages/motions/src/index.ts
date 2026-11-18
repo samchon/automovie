@@ -194,6 +194,7 @@ export * from "./striking/StrikingContact";
 export * from "./striking/StrikingQuality";
 export * from "./striking/StrikingReach";
 export * from "./striking/StrikingSkill";
+export * from "./striking/StrikingGuardYield";
 export * from "./striking/StrikingStance";
 export * from "./striking/StrikingStroke";
 export * from "./striking/StrikingTarget";
