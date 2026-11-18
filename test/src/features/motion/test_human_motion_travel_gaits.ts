@@ -156,7 +156,8 @@ export function test_human_motion_travel_gaits(): void {
           )
           .sort((a: IFootfall, b: IFootfall): number => a.seconds - b.seconds);
       const span: number = segment.end - segment.entryTime;
-      const strikes: IFootfall[] = named("HeelStrike")
+      const allStrikes: IFootfall[] = named("HeelStrike");
+      const strikes: IFootfall[] = allStrikes
         .filter(
           (s: IFootfall): boolean =>
             s.seconds >= segment.entryTime + 0.3 * span &&
@@ -170,6 +171,16 @@ export function test_human_motion_travel_gaits(): void {
         return null;
       }
 
+      if (label === "march") {
+        // The clock engages on the first strike and stops on the last.
+        // Starts, braking poses and the final quiet hold add no step period.
+        const count: number = allStrikes.length - 1;
+        const elapsed: number = allStrikes[count]!.seconds - allStrikes[0]!.seconds;
+        const drillPeriod: number = 60 / 120;
+        const beatsPerMinute: number = 60 * count / elapsed;
+        if (!(Math.abs(beatsPerMinute / 120 - 1) <= 0.02))
+          complaints.push(`${name}: ${count} drill intervals span ${elapsed.toFixed(6)} s, expected ${(count * drillPeriod).toFixed(3)} s at 120 steps/min within 2 %`);
+      }
       // The body shows the footfalls it names: a 24th of a second after a strike the foot bears.
       const after: number = 1 / 24;
       for (const strike of strikes.slice(0, 2))
