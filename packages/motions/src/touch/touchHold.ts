@@ -28,7 +28,6 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingBody } from "../striking/StrikingBody";
-import { StrikingTarget } from "../striking/StrikingTarget";
 import { touchHoldRests } from "./touchHoldRests";
 import { touchRegion } from "./touchRegion";
 
@@ -41,17 +40,17 @@ import { touchRegion } from "./touchRegion";
  * time earlier (`HumanPerception.REACTION`). Between, the hand lies on the
  * partner's body and rides it, as the hand of a clinch, a carry or a
  * handshake does, so the partner's region and colliders are read where the
- * partner was one frame before (`StrikingTarget.LOOK`), the look-back every
- * plan reads another performer through: two people each with a hand on the
- * other would otherwise each read the posture the other is still solving.
- * Read as perceived, the palm of a shove trailed the chest it pushed by up
- * to 0.2 m as the receiver staggered away; a frame behind, it trails by the
- * chest's travel over 1/24 s. The
- * arrival itself (`ready` and `relax`, the instants a touch plans its
- * clearing course against) is still read as perceived, so a course planned
- * on the way never reads the partner at a contact still to come.
+ * partner was a held limb's feedback delay before (`HumanPerception.HELD`):
+ * the hand follows the partner by touch, not by sight, and two people each
+ * with a hand on the other would otherwise each read the posture the other
+ * is still solving. Read as perceived, the palm of a shove trailed the chest
+ * it pushed by up to 0.2 m as the receiver staggered away; felt, it trails by
+ * the chest's travel over the feedback delay. The arrival itself (`ready`
+ * and `relax`, the instants a touch plans its clearing course against) is
+ * still read as perceived, so a course planned on the way never reads the
+ * partner at a contact still to come.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings, the window that separates them, why the hand rides the partner a frame behind and the measured fault.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two readings, the window that separates them, why the hand rides the partner a feedback delay behind and the measured fault.
  * @evidence contracts/development/design.md#principled-representation The hold is the open span between the arrival and the departure on the touch's own clock; inside it the partner is read as a held contact is, outside it as a tracked person.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The window, the context that reads a person as they are, the region reader, the colliders a touch keeps clear of and both as a plan perceives them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No person or action is named; the window is the touch's own clock.
@@ -83,10 +82,10 @@ export namespace touchHold {
    * The context whose aim reads a person as they are, for the hold.
    *
    * @param context The action's context.
-   * @returns The same context with a person's region placed on their bones one frame before the second; every other target aimed as before.
+   * @returns The same context with a person's region placed on their bones a held limb's feedback delay before the second; every other target aimed as before.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what changes and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation A person's region placed on the bones `context.performer` gives one frame before the second, which a performer that names itself reads as it entered.
+   * @evidence contracts/development/implementation.md#principled-implementation A person's region placed on the bones `context.performer` gives a held limb's feedback delay (`HumanPerception.HELD`) before the second, which a performer that names itself reads as it entered.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One aim replaced.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a person is read differently.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One bone read and one placement per aim.
@@ -112,7 +111,7 @@ export namespace touchHold {
         return StrikingBody.region(
           other.body,
           other.bones(
-            seconds - StrikingTarget.LOOK,
+            seconds - HumanPerception.HELD,
             new Set<AutoMovieHumanoidBone>([
               other.body.surfaces.regions[target.region].bone,
             ]),
@@ -167,10 +166,10 @@ export namespace touchHold {
    * @param context The action's context.
    * @param target The partner and the region the hand is laid on.
    * @param clock The touch's clock.
-   * @returns The colliders at a second since the action's start, `clear` and `rests`: where the partner was one frame before during the hold, where the performer saw them a reaction time earlier otherwise.
+   * @returns The colliders at a second since the action's start, `clear` and `rests`: where the partner was a feedback delay before during the hold, where the performer saw them a reaction time earlier otherwise.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both readings and the split.
-   * @evidence contracts/development/implementation.md#principled-implementation The partner's bones read `LOOK` before the second during the hold and `REACTION` before it outside, placed by their collider profile, and split by the bone the body's surface table names for the region and its skeleton neighbours (parent and children).
+   * @evidence contracts/development/implementation.md#principled-implementation The partner's bones read `HumanPerception.HELD` before the second during the hold and `REACTION` before it outside, placed by their collider profile, and split by the bone the body's surface table names for the region and its skeleton neighbours (parent and children).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the window and one partition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment is kept, in one list or the other.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One collider placement per call.
@@ -215,7 +214,7 @@ export namespace touchHold {
         context.start +
           seconds -
           (seconds > ready && seconds < relax
-            ? StrikingTarget.LOOK
+            ? HumanPerception.HELD
             : HumanPerception.REACTION),
         requested,
       );

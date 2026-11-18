@@ -24,6 +24,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPerception } from "../law/HumanPerception";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -253,7 +254,9 @@ export namespace knee {
       if (arms && p.at.kind === "person") {
         const other: IAutoMovieMotionHumanPerformerReader = (partner ??= context.performer(p.at.subject));
         const nape: IAutoMovieVector3 = other
-          .bones(seconds - StrikingTarget.LOOK, NECK)
+          // The clinching hands hold the nape, so they follow it by touch,
+          // a held limb's feedback delay behind (`HumanPerception.HELD`).
+          .bones(seconds - HumanPerception.HELD, NECK)
           .get("neck")!.worldPosition;
         const lateral: IAutoMovieVector3 = Vector3.cross(up, g.heading);
         const aside: number =
@@ -298,6 +301,7 @@ export namespace knee {
     // shank and the foot.
     const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
       free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution, projection?.());
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, leg);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
@@ -310,10 +314,13 @@ export namespace knee {
           course,
           side,
           seconds,
+          undefined,
+          undefined,
+          frames,
         ),
       read: StrikingWeaponTable.reader(
         (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.leg(context.body, course, side, seconds, near, kept),
+          StrikingWeapon.leg(context.body, course, side, seconds, near, kept, frames),
       ),
       on: (): object => shown,
     };
