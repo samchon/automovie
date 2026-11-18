@@ -366,7 +366,12 @@ export namespace HumanSignature {
 
   /**
    * The peak speed of a joint centre over a window, metres per second, by
-   * central differences at 240 Hz.
+   * central differences at 240 Hz: at each instant of the 240 Hz series from
+   * the window's start (`times`), the displacement between the series' own
+   * neighbours over the time between them. Neighbouring differences share
+   * their instants, so each instant of the series, and one past either end,
+   * is read once; an instant less and plus a 240th would lie beside the
+   * series by binary rounding and be read apart.
    *
    * @param reader The performer.
    * @param bone The bone whose joint it is.
@@ -380,18 +385,29 @@ export namespace HumanSignature {
     from: number,
     to: number,
   ): number {
-    const h: number = 1 / 240;
+    const rate: number = 240;
+    const start: number = Math.max(1 / rate, from);
+    const count: number = times(
+      start,
+      Math.min(to, reader.motion.duration - 1 / rate),
+      rate,
+    ).length;
+    if (count === 0) return 0;
+
+    // The series' instant k, from -1 to count, inside the motion, each read
+    // once: the difference at k spans k - 1 to k + 1.
+    const at = (k: number): number =>
+      Math.min(reader.motion.duration, Math.max(0, start + k / rate));
+    const points: IAutoMovieVector3[] = [];
+    for (let k: number = -1; k <= count; k++)
+      points.push(joint(reader, at(k), bone));
     let peak: number = 0;
-    for (const t of times(
-      Math.max(h, from),
-      Math.min(to, reader.motion.duration - h),
-      240,
-    )) {
-      const a: IAutoMovieVector3 = joint(reader, t - h, bone);
-      const b: IAutoMovieVector3 = joint(reader, t + h, bone);
+    for (let k: number = 0; k < count; k++) {
+      const a: IAutoMovieVector3 = points[k]!;
+      const b: IAutoMovieVector3 = points[k + 2]!;
       peak = Math.max(
         peak,
-        Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / (2 * h),
+        Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / (at(k + 1) - at(k - 1)),
       );
     }
     return peak;
