@@ -174,53 +174,31 @@ export namespace StrikingBody {
   }
 
   /**
-   * A region's radius: half the distance from its point to the nearest other
-   * region's point at rest, so every point within it is nearer to this
-   * region than to any other.
+   * A region's radius: the extent the body built for it with its surfaces
+   * (`AutoMovieHumanoidSurfaceExtents`), the disc about its point that is
+   * still that region, so a strike aimed within it lands on that region.
    *
    * @param body The body.
    * @param region The region.
    * @returns The radius, metres.
+   * @throws {Error} When the body's surface table gives the region no extent, a defect of the body's producer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the definition and the property it gives.
-   * @evidence contracts/development/implementation.md#principled-implementation Half the nearest-neighbour distance is the largest ball about a point in which that point is the nearest of the set.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the regions at rest.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the body's own regions, with no radius typed per region.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The first body/region query retains the original O(R) ordered rest-point scan and exact scalar distance branches; later queries read one fixed radius. No posed point is retained and runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical body producer fixes rest joints and bone-local surface frames after creation, so the actual anatomical rest-space radius depends only on that body and region, never actor pose/time or ROM table values.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most R scalar radii for its valid named regions until body release. Temporary rest points end with the first scan, and no pose, world observation, reader or numerical time history is stored.
+   * @evidence contracts/development/common.md#meaningful-documentation States the definition, its owner and the producer defect thrown on.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's own region extent: half the way to the nearest region facing the same way, within its segment's half breadth, read from the body's rest pose when the body is built.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's surface table.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is typed or recomputed here; a missing extent throws rather than falling back.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The extent is the one the body owns, the same the touch law's landing disc reads; no store beside the body keeps a second copy.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(
     body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
-    let radii: Map<AutoMovieHumanoidRegion, number> | undefined = RADII.get(body);
-    if (radii === undefined) {
-      radii = new Map();
-      RADII.set(body, radii);
-    }
-    const known: number | undefined = radii.get(region);
-    if (known !== undefined) return known;
-    const at: (name: AutoMovieHumanoidRegion) => IAutoMovieVector3 = (
-      name: AutoMovieHumanoidRegion,
-    ): IAutoMovieVector3 => {
-      const frame: IAutoMovieHumanoidSurfaces.IFrame =
-        body.surfaces.regions[name];
-      return Vector3.add(body.rest.get(frame.bone)!, frame.point);
-    };
-    const own: IAutoMovieVector3 = at(region);
-    let nearest: number = Infinity;
-    for (const name of Object.keys(
-      body.surfaces.regions,
-    ) as AutoMovieHumanoidRegion[])
-      if (name !== region)
-        nearest = Math.min(
-          nearest,
-          Vector3.distance(at(name), own),
-        );
-    const radius: number = 0.5 * nearest;
-    radii.set(region, radius);
-    return radius;
+    const extent: number | undefined = body.surfaces.regions[region].radius;
+    if (extent === undefined)
+      throw new Error(`The body's surface table gives the region ${region} no extent`);
+    return extent;
   }
 
   /**
@@ -385,6 +363,3 @@ export namespace StrikingBody {
     );
   }
 }
-
-/** Immutable rest/profile geometry only; no posed points or ROM metadata. */
-const RADII: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidRegion, number>> = new WeakMap();

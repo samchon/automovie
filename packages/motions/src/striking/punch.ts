@@ -19,6 +19,7 @@ import type {
 
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { HumanSkill } from "../skill/HumanSkill";
+import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
@@ -218,22 +219,26 @@ export namespace punch {
       side === "left" ? "leftArm" : "rightArm";
     const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
       geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution, projection?.());
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
       radii: StrikingWeapon.armRadii(context.body),
       from: context.start,
-      to: context.start + shown + 0.1,
+      to: context.start + shown + KickForm.WEAPON_TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.arm(
           context.body,
           course,
           side,
           seconds,
+          undefined,
+          undefined,
+          frames,
         ),
       read: StrikingWeaponTable.reader(
         (seconds: number, near: Parameters<typeof StrikingWeapon.arm>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.arm>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.arm(context.body, course, side, seconds, near, kept),
+          StrikingWeapon.arm(context.body, course, side, seconds, near, kept, frames),
       ),
       on: (): object => geometry(),
     };

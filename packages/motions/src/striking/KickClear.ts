@@ -88,6 +88,10 @@ export namespace KickClear {
       );
     const radii: ReturnType<typeof StrikingWeapon.legRadii> =
       StrikingWeapon.legRadii(body);
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(
+      body,
+      timing.side === "left" ? "leftLeg" : "rightLeg",
+    );
 
     // Whether a plan's leg meets the partner before its contact, on the
     // plan's own free course with no correction and no stop.
@@ -145,6 +149,9 @@ export namespace KickClear {
           course,
           timing.side,
           t0 + seconds,
+          undefined,
+          undefined,
+          frames,
         );
         for (let i: number = 0; i < radii.length; i++) {
           const girth: number | readonly [number, number] = radii[i]!;

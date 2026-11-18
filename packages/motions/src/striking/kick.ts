@@ -155,6 +155,7 @@ export namespace kick {
       timing.side === "left" ? "leftLeg" : "rightLeg";
     const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
       geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels, resolution, projection?.());
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb,
@@ -167,10 +168,13 @@ export namespace kick {
           course,
           timing.side,
           seconds,
+          undefined,
+          undefined,
+          frames,
         ),
       read: StrikingWeaponTable.reader(
         (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.leg(context.body, course, timing.side, seconds, near, kept),
+          StrikingWeapon.leg(context.body, course, timing.side, seconds, near, kept, frames),
       ),
       on: (): object => geometry(),
     };

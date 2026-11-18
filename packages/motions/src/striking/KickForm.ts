@@ -140,7 +140,7 @@ export namespace KickForm {
   /** How far the knee's bend hint sits from the solved knee, as a share of the thigh (provisional). */
   export const HINT_SHARE: number = 0.25;
 
-  /** How long past the planned contact the leg stays a weapon, seconds (provisional: the through-travel's settling). */
+  /** How long past the planned contact a striking limb stays a weapon, seconds, the kick's and the knee's leg and the punch's arm alike (provisional: the through-travel's settling). */
   export const WEAPON_TAIL: number = 0.1;
 
   /** The foot capsule's radius as a share of the ankle height (provisional: half the foot's depth). */
