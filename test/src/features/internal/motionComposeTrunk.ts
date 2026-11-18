@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -14,6 +14,7 @@ import {
   AutoMovieMotionHumanTrunk,
   GymnasticsFlight,
   HumanBalance,
+  HumanFoot,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -236,8 +237,8 @@ export namespace motionComposeTrunk {
         pitch,
       });
 
-    // 1. Refusals.
-    for (const [depth, pitch] of [
+    // Depth and pitch are admitted before the body is read.
+    if (name === "f-small") for (const [depth, pitch] of [
       [-0.01, 0],
       [0.1, -1],
       [Number.NaN, 0],
@@ -258,8 +259,8 @@ export namespace motionComposeTrunk {
       [0.3, 0],
       [0.3, 30],
     ] as const) {
-        const cell: string = `${name}: a crouch of ${share} hip heights and ${pitch} degrees`;
-        const depth: number = share * hipHeight;
+      const cell: string = `${name}: a crouch of ${share} hip heights and ${pitch} degrees`;
+      const depth: number = share * hipHeight;
       const phrase: IAutoMovieMotionHumanPrimitive = phraseOf(depth, pitch, BALANCE);
       const unshifted: IAutoMovieMotionHumanPosture = phraseOf(depth, pitch).write(standing, 0.625);
       const unshiftedMargin: number = HumanBalance.margin(body, unshifted);
@@ -268,7 +269,15 @@ export namespace motionComposeTrunk {
           [phrase.channels, phrase.from, phrase.to],
           [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
         );
-        for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
+        const times: number[] = [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25];
+        // The clock is independent of body shape. At the acceleration
+        // extrema of the minimum-jerk quintic the linear and eased shares
+        // separate; at the midpoint alone they are indistinguishable.
+        if (name === "f-small" && share === 0.3 && pitch === 30) {
+          const u: number = (3 - Math.sqrt(3)) / 6;
+          times.push(0.25 * u, 1 + 0.25 * (1 - u));
+        }
+        for (const seconds of times) {
           const written: IAutoMovieMotionHumanPosture = phrase.write(
             standing,
             seconds,
@@ -276,7 +285,9 @@ export namespace motionComposeTrunk {
           const pose: Bones = bones(written);
           const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
           const inclined: number = tipped(pose) - tipped(upright);
-          const margin: number = HumanBalance.margin(body, written);
+          const margin: number = resolveAutoMovieCenterOfMass.margin(
+            resolveAutoMovieCenterOfMass.place(body.massModel, pose), HumanFoot.base(body, pose),
+          );
           const at: string = `${cell} at ${seconds} s`;
           if (seconds === 0 || seconds === 1.25)
             all.check(
@@ -284,22 +295,18 @@ export namespace motionComposeTrunk {
               gap(pose.get("hips")!.worldPosition, hips) <= 1e-6 &&
                 Math.abs(inclined) <= 1e-6,
             );
-          else if (seconds === 0.125 || seconds === 1.125)
+          else {
+            const u: number = Math.min(1, seconds / 0.25, (1.25 - seconds) / 0.25);
+            const eased: number = u ** 3 * (10 - 15 * u + 6 * u ** 2);
             all.check(
-              `${at} is part of the way down, ${mm(sunk)} mm of ${mm(depth)} mm`,
-              depth === 0
-                ? Math.abs(sunk) <= 1e-6
-                : sunk > 0.05 * depth && sunk < 0.95 * depth,
+              `${at} sinks ${mm(sunk)} mm and inclines ${inclined.toFixed(2)}°, expected ${mm(depth * eased)} mm and ${(pitch * eased).toFixed(2)}°`,
+              Math.abs(sunk - depth * eased) <= 1e-6 && Math.abs(inclined - pitch * eased) <= 0.5,
             );
-          else
-            all.check(
-              `${at} is at its depth and its pitch, ${mm(sunk)} mm of ${mm(depth)} mm and ${inclined.toFixed(2)} degrees`,
-              Math.abs(sunk - depth) <= 1e-6 &&
-                Math.abs(inclined - pitch) <= 0.5,
-            );
+          }
+          const drift: number = slip(pose, upright);
           all.check(
-            `${at} keeps both feet on their plants, the farther ball off by ${mm(slip(pose, upright))} mm`,
-            slip(pose, upright) <= 0.001,
+            `${at} keeps both feet on their plants, the farther ball off by ${mm(drift)} mm`,
+            drift <= 0.001,
           );
           if (seconds === 0.625)
             minimumSupportShift(

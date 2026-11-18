@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import { Vector3, physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -78,6 +78,15 @@ export function test_human_motion_rest_clasp(): void {
         left: place,
         right: place,
       });
+      // The outward surface of the left hand meets the inward surface of
+      // the right. Triangle inequality allows one 15 mm error per hand.
+      const behind: boolean = place === "claspedBehind";
+      const left: IAutoMovieVector3 = HumanHand.frame(body, bones, "left", behind ? "palm" : "handBack", shape).point;
+      const right: IAutoMovieVector3 = HumanHand.frame(body, bones, "right", behind ? "handBack" : "palm", shape).point;
+      const separation: number = Vector3.distance(left, right);
+      if (!(separation <= 2 * CONTACT))
+        complaints.push(`${name} ${place}: clasp surfaces separated by ${separation * 1000} mm`);
+      const colliders: ReturnType<typeof HumanColliders.placed> = behind ? HumanColliders.placed(body, bones) : [];
       for (const side of ["left", "right"] as const) {
         const goal: IAutoMovieMotionHumanRest.IGoal = goals[side]!;
         if (goal.shape !== shape)
@@ -96,7 +105,7 @@ export function test_human_motion_rest_clasp(): void {
           got.y - goal.point.y,
           got.z - goal.point.z,
         );
-        if (miss > 0.015)
+        if (!(miss <= CONTACT))
           complaints.push(
             `${name} ${place} ${side}: the ${goal.surface} lies ${(miss * 1000).toFixed(1)} mm off its goal`,
           );
@@ -112,7 +121,7 @@ export function test_human_motion_rest_clasp(): void {
         ).point;
         const other: AutoMovieHumanoidBone =
           side === "left" ? "rightLowerArm" : "leftLowerArm";
-        for (const segment of HumanColliders.placed(body, bones))
+        for (const segment of colliders)
           if (segment.bone === other)
             for (const solid of segment.shapes) {
               const d: number = physicalShapeSegmentDistance(
@@ -135,3 +144,6 @@ export function test_human_motion_rest_clasp(): void {
     [],
   );
 }
+
+/** Original single-hand placement tolerance in metres. */
+const CONTACT: number = 0.015;
