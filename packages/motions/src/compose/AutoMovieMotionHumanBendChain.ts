@@ -27,56 +27,33 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * colliders the forearm must clear.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is prepared and for whom.
- * @evidence contracts/development/design.md#principled-representation IChain owns the actual side-specific engine geometry and world-metre obstacle frames; an opaque bilateral source shares only actual common body/root/heading prerequisites.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Search consumes IChain/of; handling's bilateral preparation uses prepare/IPrepared for actual crawl/load pairs without exposing mutable source data.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine owns chain geometry/admission and the profile owns obstacles; opaque provenance and exact source matching never replace side-specific preparation or hand-goal sweeps.
+ * @evidence contracts/development/design.md#principled-representation IChain owns the actual side-specific engine geometry and world-metre obstacle frames; a bilateral source shares only the trunk pose, its workspace and its placement.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Search consumes IChain/of; handling's bilateral preparation uses prepare/IPrepared for actual crawl/load pairs.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine owns chain geometry/admission and the profile owns obstacles; a shared source never replaces side-specific preparation or hand-goal sweeps.
  */
 export namespace AutoMovieMotionHumanBendChain {
-  /** Private provenance makes the shared source a product of this owner. */
-  const BRAND: unique symbol = Symbol("AutoMovieMotionHumanBendChain");
-
-  /** Weak ownership follows the caller's synchronous bilateral preparation. */
-  const SOURCES: WeakMap<IPrepared, ISource> = new WeakMap();
-
-  /** Actual unchanged body/frame prerequisites shared by the two arm preparations. */
-  interface ISource {
-    /** Body identity and its borrowed immutable definition dependencies. */
-    body: IAutoMovieMotionHumanBody;
-    skeleton: IAutoMovieMotionHumanBody["skeleton"];
-    profile: IAutoMovieMotionHumanBody["profile"];
-    topology: IAutoMovieMotionHumanBody["topology"];
-    poseResolution: IAutoMovieMotionHumanBody["poseResolution"];
-    rest: IAutoMovieMotionHumanBody["rest"];
-
-    /** Copied world-metre root and heading values establish frame equivalence. */
-    root: IAutoMovieVector3;
-    yaw: number;
-    pitch: number;
-    roll: number;
-
-    /** Genuine fixed source pose/axes, without any hand goal or selected bend. */
-    pose: IAutoMoviePose;
-    axes: ReturnType<typeof skeletonJointAxes>;
-
-    /** Borrowed operation workspace ends after both sides have been visited. */
-    resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
-    sides: Set<AutoMovieHumanSide>;
-
-    /** Private actual trunk placement, copied before an outward chain receives it. */
-    shapes?: IAutoMovieMotionHumanColliders.IPlaced[];
-  }
-
   /**
-   * Opaque fixed-body/trunk source for one synchronous bilateral preparation.
+   * One trunk both arm chains are prepared on in one synchronous bilateral
+   * preparation: the trunk pose, the workspace its forward kinematics runs
+   * in and the trunk's colliders placed by the first side.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Only prepare creates this handle; of checks actual provenance, body dependencies and exact world root/heading before sharing source work. Release it with the paired operation.
-   * @evidence contracts/development/design.md#principled-representation The private symbol brands actual body/frame preparation, while the private weak owner holds copied metre coordinates and genuine source data; a handle represents no target or valid IK solution.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Handling's bilateral BendPreparation supplies this one opaque handle to the two existing chain preparations; no caller-authored frames or colliders are accepted.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown or mismatched handles take the ordinary path. The brand alone never certifies source equivalence or bypasses actual chain/ROM admission.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds; `prepare` makes it and `of` reads it for a chain on the same body and posture.
+   * @evidence contracts/development/design.md#principled-representation The record is the shared source itself: the empty-joint trunk pose, a workspace dropped once both sides are prepared, and the trunk placement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Handling's bilateral BendPreparation passes it from `prepare` to the two `of` calls; no caller-authored frames or colliders are accepted.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It carries no target, elbow or solved chain; each side still runs its own engine chain preparation.
    */
   export interface IPrepared {
-    /** Private producer provenance; no source data is exposed for mutation. */
-    readonly [BRAND]: true;
+    /** The trunk pose, the posture's root and heading with no joint. */
+    readonly pose: IAutoMoviePose;
+
+    /** The forward-kinematics workspace, dropped once both sides are prepared. */
+    resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
+
+    /** The sides prepared so far. */
+    readonly sides: Set<AutoMovieHumanSide>;
+
+    /** The trunk's placed colliders, world metres, from the first side; each chain receives a copy. */
+    shapes?: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
   /**
@@ -110,7 +87,7 @@ export namespace AutoMovieMotionHumanBendChain {
    * @param body The body.
    * @param posture The root and the heading; an absent pitch or roll is 0.
    * @param side The arm.
-   * @param source Optional genuine unchanged bilateral source; mismatch uses ordinary preparation.
+   * @param source The bilateral source prepare made for this body and posture, when both arms are prepared together.
    * @returns The chain with the trunk's shapes posed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the null case.
@@ -118,8 +95,8 @@ export namespace AutoMovieMotionHumanBendChain {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, one engine preparation and one record; an optional genuine bilateral source owns only common frame/FK/placement work.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the chain is null, never a guessed chain.
    * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's merged raw-axis snapshot. Chain FK demands three chain bones/ancestry and trunk FK only the original axial obstacle names. A genuine bilateral source performs its trunk placement once, then copies S outward frames per chain through one static visitor, without a per-chain copy callback allocation; each side retains actual engine chain preparation. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable body FK producer and exact root/heading establish common source work. Optional provenance/dependency checks reject unrelated sources, and private placed frames are copied before return. All original side-specific chain/ROM decisions remain actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordinary lazy reader ends at return/throw. A bilateral token borrows its one workspace until both sides have been attempted, then drops that reference; the token's fixed source/placement ends with its synchronous owner. Returned chains retain fresh geometry/collider frames and borrowed immutable shapes, with no reader or time-keyed result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable body FK producer and the source's root and heading, the caller's own posture, establish common source work; placed frames are copied before return. All original side-specific chain/ROM decisions remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordinary lazy reader ends at return/throw. A bilateral source borrows its one workspace until both sides have been attempted, then drops that reference; its pose and placement end with its synchronous owner. Returned chains retain fresh geometry/collider frames and borrowed immutable shapes, with no reader or time-keyed result.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -127,10 +104,8 @@ export namespace AutoMovieMotionHumanBendChain {
     side: AutoMovieHumanSide,
     source?: IPrepared,
   ): IChain | null {
-    const shared: ISource | undefined = source === undefined
-      ? undefined : matchingSource(source, body, posture);
-    const axes: ReturnType<typeof skeletonJointAxes> =
-      shared?.axes ?? body.poseResolution.jointAxes;
+    const shared: IPrepared | undefined = source;
+    const axes: ReturnType<typeof skeletonJointAxes> = body.poseResolution.jointAxes;
     const pose: IAutoMoviePose = shared?.pose ?? {
       skeleton: body.skeleton.id,
       root: Transform.of(
@@ -186,63 +161,43 @@ export namespace AutoMovieMotionHumanBendChain {
   }
 
   /**
-   * Bind one actual unchanged body/root/heading for its two arm preparations.
-   * Construction copies fixed coordinates and forms their original heading;
-   * numerical chain admission/FK/placement remain lazy at actual of calls.
+   * The source both arms of one trunk are prepared on: the posture's root
+   * and heading as a pose with no joint, and a workspace for its forward
+   * kinematics. The caller passes it to `of` for each side, on the same body
+   * and posture.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines synchronous unchanged-body scope, copied world-metre root/degree heading, optional borrowed reader and lazy original numerical admission.
-   * @evidence contracts/development/implementation.md#principled-implementation Both arm sources use the same empty-joint trunk pose. Copy that actual fixed root, compute its original heading once, and let the existing chain and collider owners perform each demanded preparation in original side order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This sole producer owns shared source data behind an opaque token; of owns source matching, each actual side and fresh outward records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal, selected elbow, score, candidate, readiness assertion or foreign preparation enters the handle. Body definitions retain their existing immutable-body contract; changed frame scalars or replaced dependencies select the original cold path.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant construction and frame matching precede original per-side chain preparation. The first successful side computes requested trunk FK and S placements once; subsequent sides copy S current frames without repeated placement arithmetic. No speedup is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact copied root/heading plus actual immutable body/rig/profile/topology/rest/FK identities establish shared source geometry. The operation reader shares completed rows only, and every side still performs its own engine chain/domain preparation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases one token with its synchronous pair. Its weak entry retains one fixed pose, O(S) private trunk placements and at most one operation reader; after both side attempts the reader/supplier reference is dropped even on throw. Returned chains contain no token or reader.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the source holds, its optional borrowed reader and the caller's same-body, same-posture contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Both arm sources use the same empty-joint trunk pose, formed once from the posture's root and heading; the chain and collider owners run their preparations at each `of` in side order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record; `of` reads it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal, selected elbow, score or candidate enters the source.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant construction; the first successful side computes the trunk FK and S placements once and the second copies them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's one body and posture make the trunk the same for both sides; every side still performs its own engine chain preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases the source with its synchronous pair; it retains one pose, O(S) trunk placements and at most one reader, dropped after both sides even on throw. Returned chains hold no source or reader.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanBend.ISolve["posture"],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IPrepared {
-    const token: IPrepared = Object.freeze<IPrepared>({ [BRAND]: true });
-    const axes: ReturnType<typeof skeletonJointAxes> = body.poseResolution.jointAxes;
-    const root: IAutoMovieVector3 = {
-      x: posture.root.x, y: posture.root.y, z: posture.root.z,
-    };
-    const yaw: number = posture.yaw;
-    const pitch: number = posture.pitch ?? 0;
-    const roll: number = posture.roll ?? 0;
-    SOURCES.set(token, {
-      body, skeleton: body.skeleton, profile: body.profile,
-      topology: body.topology, poseResolution: body.poseResolution, rest: body.rest,
-      root, yaw, pitch, roll, axes,
+    return {
       pose: {
         skeleton: body.skeleton.id,
-        root: Transform.of(root, resolveHumanPosture.heading({ yaw, pitch, roll })),
+        root: Transform.of(
+          { x: posture.root.x, y: posture.root.y, z: posture.root.z },
+          resolveHumanPosture.heading({
+            yaw: posture.yaw,
+            pitch: posture.pitch ?? 0,
+            roll: posture.roll ?? 0,
+          }),
+        ),
         joints: [],
       },
       resolution: prepareHumanPoseResolution(resolution),
       sides: new Set(),
-    });
-    return token;
+    };
   }
 
-  /** Reject foreign/replaced sources and any actual root/heading edit. */
-  function matchingSource(
-    token: IPrepared,
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
-  ): ISource | undefined {
-    const source: ISource | undefined = SOURCES.get(token);
-    return source !== undefined && source.body === body &&
-      source.skeleton === body.skeleton && source.profile === body.profile &&
-      source.topology === body.topology && source.poseResolution === body.poseResolution &&
-      source.rest === body.rest && Object.is(source.root.x, posture.root.x) &&
-      Object.is(source.root.y, posture.root.y) && Object.is(source.root.z, posture.root.z) &&
-      Object.is(source.yaw, posture.yaw) && Object.is(source.pitch, posture.pitch ?? 0) &&
-      Object.is(source.roll, posture.roll ?? 0) ? source : undefined;
-  }
-
-  /** Keep private source placement independent of every public chain's mutation. */
+  /** Keep the source's placement independent of every returned chain's mutation. */
   function copyShapes(shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[]): IAutoMovieMotionHumanColliders.IPlaced[] {
     return shapes.map(copyShape);
   }

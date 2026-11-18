@@ -5,10 +5,12 @@ import {
   prepareSkeletonPoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedJointAngles,
   IAutoMovieSkeleton,
   IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
@@ -107,6 +109,9 @@ export function test_motion_compose_swivel(): void {
     rest,
     measure: { upperArm: 0.3, forearm: 0.25 },
     profile: { segments: [] },
+    bones: new Map(skeleton.bones.map((b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [b.bone, b])),
+    hanging: (side: AutoMovieHumanSide): IAutoMovieResolvedJointAngles | null =>
+      AutoMovieMotionHumanBend.hanging(body, side),
   } as unknown as IAutoMovieMotionHumanBody;
   const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>

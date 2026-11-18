@@ -68,21 +68,20 @@ export namespace AutoMovieMotionHumanBendPreparation {
   /**
    * Prepare one actual unchanged body/trunk/side for all of its requested sweeps.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed source geometry and the original hanging-arm reader, with variable solve/strain goals on the returned object.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing search owner prepares the real arm chain, colliders and neutral angles once; both methods retain their original distinct ranks and admission/policy.
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed source geometry and the body's hanging arm, with variable solve/strain goals on the returned object.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing search owner prepares the real arm chain and colliders once and reads the body's hanging angles; both methods retain their original distinct ranks and admission/policy.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared search is shared by the original solve and strain adapters, retaining one numerical sweep owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original exact-zero legality, error text, fallback rule and Infinity result are copied without threshold, candidate or sampling changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For Q requested sweeps the one chain/FK/neutral preparation replaces Q identical preparations; each actual sweep and its refinements still execute.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For Q requested sweeps the one chain/FK preparation replaces Q identical preparations; each actual sweep and its refinements still execute.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes unchanged body/profile/rig/ROM and rootXYZ/yaw/pitch/roll/side; differing goals/ranks share no answer. A finite authored support-state plan may retain contexts only when exact state ownership proves those inputs, privately immutable coordinates prevent output aliasing, and changed fixed geometry creates another context.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The selector or bounded authored support-state plan owns each chain/collider/neutral context until release. Body and original fallback geometry remain borrowed and unchanged; no operation FK reader, query wrist/result, pose sample history or external handle escapes.
    */
   export function of(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
-    hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
     source?: AutoMovieMotionHumanBendChain.IPrepared,
   ): IPrepared {
     const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
-      AutoMovieMotionHumanBendSearch.prepare(fixed, hang, source);
+      AutoMovieMotionHumanBendSearch.prepare(fixed, source);
     return {
       solve: (goal: IGoal): IAutoMovieVector3 => {
         const found: AutoMovieMotionHumanBendSearch.ICandidate | string = search(goal,
@@ -112,14 +111,13 @@ export namespace AutoMovieMotionHumanBendPreparation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Fixes body/profile/rig/ROM and rootXYZ/yaw/pitch/roll; each requested side receives the original prepared solve/strain methods. Optional FK belongs to this same synchronous person call and may not be retained by a plan.
    * @evidence contracts/development/implementation.md#principled-implementation First actual side creates one genuine lazy trunk source; each side still prepares its original chain/neutral geometry in requested order, and every actual goal/rank/sweep keeps its original solve/refusal policy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private trunk token and at-most-two side contexts delegate to of/Search/Chain numerical owners without another solver or result representation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unused side is forced, no wrist/elbow/contact answer is reused, and no caller flag or token bypasses Chain.of's actual source membership/fixed-coordinate checks and cold fallback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk source and at-most-two side contexts delegate to of/Search/Chain numerical owners without another solver or result representation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unused side is forced and no wrist/elbow/contact answer is reused; every side runs Chain.of's own chain preparation on the shared trunk.
    * @evidence contracts/development/implementation.md#efficient-algorithms Paired arm solves share one lazy actual empty-joint trunk FK/profile placement and original static metadata instead of preparing it twice; each side chain and all actual target sweeps remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual crawl/load call sites fix this exact body/trunk frame while requesting left/right in original order. The genuine source owner validates those scalar dependencies, while changed goals/ranks remain actual and unsupported sources fall back normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases this reader, its token/optional FK loan and at-most-two contexts before returning the person evaluation. No plan, output goal or returned posture retains them, and no current target/result/time history or external handle is stored.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual crawl/load call sites fix this exact body/trunk frame while requesting left/right in original order; the one source is made from that same body and posture, and changed goals/ranks remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases this reader, its source/optional FK loan and at-most-two contexts before returning the person evaluation. No plan, output goal or returned posture retains them, and no current target/result/time history or external handle is stored.
    */
   export function both(fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
-    hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
     resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2]):
       (side: AutoMovieHumanSide) => IPrepared {
     let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;
@@ -128,7 +126,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
       let current: IPrepared | undefined = sides[side];
       if (current === undefined) {
         source ??= AutoMovieMotionHumanBendChain.prepare(fixed.body, fixed.posture, resolution);
-        current = of({ ...fixed, side }, hang, source);
+        current = of({ ...fixed, side }, source);
         sides[side] = current;
       }
       return current;

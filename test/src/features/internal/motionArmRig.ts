@@ -5,13 +5,16 @@ import {
   prepareSkeletonPoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedJointAngles,
   IAutoMovieSkeleton,
   IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanBend } from "@automovie/motions";
 
 /**
  * Build a hand-made body for the elbow solver: a T pose with identity rest
@@ -64,7 +67,7 @@ export const motionArmRig: () => IAutoMovieMotionHumanBody = (): IAutoMovieMotio
     });
   }
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton);
-  return {
+  const body: IAutoMovieMotionHumanBody = {
     skeleton,
     topology,
     // The rig as the body holds it: the solver reads the body's own
@@ -78,5 +81,9 @@ export const motionArmRig: () => IAutoMovieMotionHumanBody = (): IAutoMovieMotio
     rest,
     measure: { upperArm: 0.3, forearm: 0.25 },
     profile: { segments: [] },
+    bones: new Map(skeleton.bones.map((b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [b.bone, b])),
+    hanging: (side: AutoMovieHumanSide): IAutoMovieResolvedJointAngles | null =>
+      AutoMovieMotionHumanBend.hanging(body, side),
   } as unknown as IAutoMovieMotionHumanBody;
+  return body;
 };

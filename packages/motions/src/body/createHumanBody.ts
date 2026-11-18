@@ -9,14 +9,17 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
+  IAutoMovieResolvedJointAngles,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanLimbReads } from "../posture/humanLimbReads";
 import { humanSettledJoints } from "../posture/humanSettledJoints";
@@ -26,7 +29,7 @@ import { humanSettledJoints } from "../posture/humanSettledJoints";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints and immutable canonical FK preparation. The bone-local mass model, collider placement and hull faces are prepared by their actual first queries. Recreate it after editing the input rig or profile.
+ * @returns The body with its measure, surfaces, topology, rest joints, bone records by name and immutable canonical FK preparation. The bone-local mass model, collider placement, hull faces and each side's hanging arm are prepared by their actual first queries. Recreate it after editing the input rig or profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
@@ -34,7 +37,7 @@ import { humanSettledJoints } from "../posture/humanSettledJoints";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig or profile lacking a needed bone throws inside the engine owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed segment/hull bounds compute at their original measurement observation and serve surface bounds. Unobserved mass performs no rest work; first mass access borrows the genuine rig's actual neutral rest computation instead of repeating raw FK, while mass transforms/admission still run once. Hull faces remain lazy and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work withSurfaces shares actual neutral bounds across the unchanged derivation. The privately captured genuine poseResolution supplies mass rest independently of public method/property replacement, through the same static neutral rows ordinary FK uses. Plans share one successful lazy mass model; failed reads are retried and source edits require a new body.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources withSurfaces releases its temporary geometry owner in finally before returning independent measure/surfaces. The body owns O(B) static FK and first-read mass data; its getter retains only source inputs/one successful model. FK uses weak operation keys and collider geometry uses weak body/point keys; all release with those owners.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources withSurfaces releases its temporary geometry owner in finally before returning independent measure/surfaces. The body owns O(B) static FK, its O(B) name index, first-read mass data and at most two hanging-arm angle triples; its getter retains only source inputs/one successful model. FK uses weak operation keys and collider geometry uses weak body/point keys; all release with those owners.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -85,6 +88,10 @@ export function createHumanBody(
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
   let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
+  for (const record of skeleton.bones as IAutoMovieBone[])
+    if (!bones.has(record.bone)) bones.set(record.bone, record);
+  const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> = new Map();
   const body: IAutoMovieMotionHumanBody = {
     skeleton,
     profile,
@@ -110,6 +117,11 @@ export function createHumanBody(
       return massModel;
     },
     rest,
+    bones,
+    hanging: (side: AutoMovieHumanSide): IAutoMovieResolvedJointAngles | null => {
+      if (!hung.has(side)) hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
+      return hung.get(side)!;
+    },
   };
   return body;
 }

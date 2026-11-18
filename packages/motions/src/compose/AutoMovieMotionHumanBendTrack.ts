@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 
 /**
@@ -159,11 +159,7 @@ export namespace AutoMovieMotionHumanBendTrack {
     for (let k: number = 0; props.from + k * STEP < props.to; ++k) times.push(props.from + k * STEP);
     times.push(props.to);
     let knots: (IAutoMovieSwivelSeed | null)[] | undefined;
-    const hang: Parameters<typeof AutoMovieMotionHumanBendSearch.continued>[1] = (
-      body: IAutoMovieMotionHumanBody,
-      side: AutoMovieHumanSide,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanBend.hang(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side);
+
     const request: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanBend.ISolve = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -179,10 +175,10 @@ export namespace AutoMovieMotionHumanBendTrack {
     // knot before it, are the sequence's own steps (`AutoMovieMotionHumanBendWalk`).
     const continued: (solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed) => ISolved | null = (
       solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed): ISolved | null =>
-      AutoMovieMotionHumanBendWalk.walk(solve, hang, seed);
+      AutoMovieMotionHumanBendWalk.walk(solve, seed);
     const knot: (solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null) => IAutoMovieSwivelSeed | null = (
       solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null): IAutoMovieSwivelSeed | null =>
-      AutoMovieMotionHumanBendWalk.next(solve, hang, last)?.seed ?? null;
+      AutoMovieMotionHumanBendWalk.next(solve, last)?.seed ?? null;
     return {
       prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void => {
         const solved: (IAutoMovieSwivelSeed | null)[] = [];
@@ -230,5 +226,5 @@ export namespace AutoMovieMotionHumanBendTrack {
 /** A search's candidate with the seed it was chosen at (`AutoMovieMotionHumanBendSearch.continued`'s result when there is one). */
 type ISolved = AutoMovieMotionHumanBendWalk.ISolved;
 
-/** The knots' spacing, seconds: the frame grid the planner's holds are sampled on (`AutoMovieMotionHumanArmPlanned`, `AutoMovieMotionHumanArmFollow`). */
-const STEP: number = 1 / 30;
+/** The knots' spacing, seconds: the frame grid the planner's holds are sampled on (`AutoMovieMotionHumanArmCourse.STEP`). */
+const STEP: number = AutoMovieMotionHumanArmCourse.STEP;

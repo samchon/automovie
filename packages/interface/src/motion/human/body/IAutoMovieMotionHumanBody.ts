@@ -1,11 +1,14 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMovieClampPose } from "../../../pose/IAutoMovieClampPose";
 import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
 import type { IAutoMovieResolveCenterOfMass } from "../../../pose/IAutoMovieResolveCenterOfMass";
+import type { IAutoMovieResolvedJointAngles } from "../../../pose/IAutoMovieResolvedJointAngles";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { IAutoMovieSkeletonTopology } from "../../../pose/IAutoMovieSkeletonTopology";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieBodyMeasure } from "../../../skeleton/IAutoMovieBodyMeasure";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
@@ -67,4 +70,10 @@ export interface IAutoMovieMotionHumanBody {
 
   /** Rest joint positions, canonical metres. */
   rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
+
+  /** The rig's bone records by name, the first record of each name in the rig's order, indexed once with the body. */
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>;
+
+  /** The shoulder's clinical angles, degrees, of the side's unloaded hanging arm (`AutoMovieMotionHumanBend.hanging`), the angles an elbow's strain is measured from; read once per side on its first use, null when the rig has no arm chain. */
+  hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
 }
