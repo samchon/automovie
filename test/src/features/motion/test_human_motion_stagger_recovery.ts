@@ -145,12 +145,25 @@ function recovery(name: motionHumanBody.Name, out: string[]): void {
       if (
         range === null ||
         range.kind !== "range" ||
+        range.minimum !== 0 ||
+        range.unit !== "m/s" ||
         range.maximum === null ||
         !(range.maximum > 0.5 && range.maximum < 1.5)
       )
         out.push(
           `${name} pushed backward at 1.5 m/s: the refusal's range is ${JSON.stringify(range)}, a limit between 0.5 and 1.5 m/s expected`,
         );
+      else if (name === "m-average") {
+        // The physical range recommended to the caller includes its maximum.
+        // Replan exactly that speed using the same entry and push direction.
+        try {
+          const boundary: HumanPerformance = pushed(range.maximum);
+          if (!boundary.segments("a").some((segment: IAutoMovieMotionHumanSegment): boolean => segment.name === "stagger"))
+            out.push(`${name}: reported maximum ${range.maximum} m/s has no recovery segment`);
+        } catch (failure) {
+          out.push(`${name}: the advertised inclusive maximum ${range.maximum} m/s is refused: ${String(failure)}`);
+        }
+      }
     }
   }
 }
