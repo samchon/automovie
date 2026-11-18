@@ -68,6 +68,7 @@ export namespace HumanPerformanceContacts {
           c.part === `${held.side}Hand` &&
           c.kind === "grip" &&
           c.support.kind === "prop" &&
+          c.support.carries !== false &&
           c.support.subject === held.prop,
       );
       if (take !== undefined) {

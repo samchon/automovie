@@ -101,6 +101,7 @@ export namespace HumanPerformanceGrips {
           if (
             c.kind === "grip" &&
             c.support.kind === "prop" &&
+            c.support.carries !== false &&
             c.support.subject === subject &&
             (c.part === "leftHand" || c.part === "rightHand")
           ) {

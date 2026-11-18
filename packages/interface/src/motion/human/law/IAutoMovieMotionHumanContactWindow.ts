@@ -132,6 +132,8 @@ export namespace IAutoMovieMotionHumanContactWindow {
     | {
         /** Support discriminant: ground, prop or another person. */
         kind: "prop";
+        /** Whether this grip transports the whole prop. Defaults to true. */
+        carries?: boolean;
         /** Scene subject id of the supporting prop or person. */
         subject: string;
       }

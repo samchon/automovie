@@ -395,7 +395,7 @@ export namespace operate {
                 mechanism.kind === "insert"
                   ? { kind: "prop", subject: mechanism.prop }
                   : at.kind === "prop"
-                    ? { kind: "prop", subject: at.subject }
+                    ? { kind: "prop", subject: at.subject, carries: false }
                     : { kind: "ground" },
             },
             // The part read at the write's own second: a moving part is
