@@ -132,6 +132,14 @@ export namespace throwObject {
    *
    * @param plan A plan.
    * @returns Its launch, or undefined when it is not a throw's.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the absent case.
+   * @evidence contracts/development/implementation.md#principled-implementation A throw's plan carries its launch as a member, so a catcher reads the path the throw solved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A plan without the member answers undefined, never a guessed path.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(plan: IAutoMovieMotionHumanActionPlan): IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined {
     return (plan as Partial<IAutoMovieMotionHumanThrowObject.IPlan>).launch;

@@ -47,9 +47,6 @@ import { HumanForceExchange } from "./HumanForceExchange";
  */
 export namespace HumanForceThrow {
   /**
-
-
-  /**
    * Plan the throw after the broken base: the swing about the thrower's
    * fulcrum, the release and the flight to the landing.
    *

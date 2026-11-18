@@ -150,6 +150,14 @@ export namespace touchRegion {
    * @param target The hand's target.
    * @param site The hand's site, the first hand's only.
    * @returns Metres, or `undefined`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three sources of the radius in their order and when there is none.
+   * @evidence contracts/development/implementation.md#principled-implementation A site's own radius bounds where the hand lands about it; without one the region's own extent on its body does, read from the body's surface table.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Four guarded returns, one per source.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is invented for a prop or a point.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The radius is the surface table's, read and not restated.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function disc(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,

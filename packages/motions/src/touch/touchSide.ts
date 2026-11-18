@@ -39,6 +39,11 @@ import { touchRegion } from "./touchRegion";
  * carried through the strain's terms) are one, and keep the right hand, the
  * law's default before this choice; a mirrored body's two strains differ
  * only by rounding.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the candidates, the holder's rule, the strain measure, the pairing, the own-arm rule and the tie.
+ * @evidence contracts/development/design.md#principled-representation A choice between the two closed hand sides, ranked by the elbow search's own strain measure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One selector, read by the touch law; the strain's resolution stays private.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row, region, partner or body is named; the tie keeps the law's default.
  */
 export namespace touchSide {
   /**
@@ -152,6 +157,14 @@ export namespace touchSide {
    * @param side The arm.
    * @param strain The strain, unitless.
    * @returns The bound, unitless; `Infinity` for an infinite strain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its derivation and the terms and ranges it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation First-order error propagation of the angle resolution through the strain's squared terms, bounded over the terms by Cauchy-Schwarz with the least half range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The five half ranges, then one closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An axis without a range adds no term; an infinite strain has an infinite bound.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ranges are the engine's `getConstraint` on the body's rig, as the elbow search reads them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function resolution(
     body: IAutoMovieMotionHumanBody,

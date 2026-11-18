@@ -107,7 +107,7 @@ export namespace touchSite {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, two refusals, one rotated vector.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a share past the contact's ends and a contact without a length are refused with what would be accepted.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prop through the context, the owner of its displayed frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each call retains its original constant geometry. Only drawn/literal tangent offsets need a tangent basis; along displacement and shoulder projection skip that unused basis. A drawn site prepares square root/trigonometric polar coefficients once rather than repeating them across limb-search/frame reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One linear lookup over the prop's few contacts and one rotation at plan time; each film second then costs one frame read and one rotation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the prop's reader and one vector.
    */
   export function span(
