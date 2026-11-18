@@ -59,27 +59,13 @@ export function test_human_motion_core_hand_rotation(): void {
       body,
       stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
     );
-    const bone = (
-      pose: IAutoMoviePose,
-      which: AutoMovieHumanoidBone,
-    ): IAutoMovieResolvedBone => poseBones(body, pose).get(which)!;
-    const shoulder: IAutoMovieVector3 = bone(
-      standing,
-      "rightUpperArm",
-    ).worldPosition;
+    const stance = poseBones(body, standing);
+    const shoulder: IAutoMovieVector3 =
+      stance.get("rightUpperArm")!.worldPosition;
+    const elbow: IAutoMovieVector3 = stance.get("rightLowerArm")!.worldPosition;
     const reach: number =
-      Vector3.length(
-        Vector3.subtract(
-          bone(standing, "rightLowerArm").worldPosition,
-          shoulder,
-        ),
-      ) +
-      Vector3.length(
-        Vector3.subtract(
-          bone(standing, "rightHand").worldPosition,
-          bone(standing, "rightLowerArm").worldPosition,
-        ),
-      );
+      Vector3.distance(shoulder, elbow) +
+      Vector3.distance(elbow, stance.get("rightHand")!.worldPosition);
     const point: IAutoMovieVector3 = {
       x: shoulder.x,
       y: shoulder.y - 0.15 * reach,
@@ -96,14 +82,19 @@ export function test_human_motion_core_hand_rotation(): void {
       "rightArm",
       { point, bend },
     );
-    const own: IAutoMovieQuaternion = bone(free, "rightHand").worldRotation;
+    const neutral = poseBones(body, free);
+    const wrist: IAutoMovieResolvedBone = neutral.get("rightHand")!;
+    const own: IAutoMovieQuaternion = wrist.worldRotation;
     const axis: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
-        bone(free, "rightHand").worldPosition,
-        bone(free, "rightLowerArm").worldPosition,
+        wrist.worldPosition,
+        neutral.get("rightLowerArm")!.worldPosition,
       ),
     );
-
+    const readHand = poseBones.prepare(
+      body,
+      new Set<AutoMovieHumanoidBone>(["rightHand"]),
+    );
     const rows: { turn: number; off: number; shown: IAutoMovieQuaternion }[] =
       [];
     let slid: { value: number; turn: number } = { value: 0, turn: 0 };
@@ -117,7 +108,7 @@ export function test_human_motion_core_hand_rotation(): void {
         "rightArm",
         { point, bend, rotation: asked },
       );
-      const hand: IAutoMovieResolvedBone = bone(fitted, "rightHand");
+      const hand: IAutoMovieResolvedBone = readHand(fitted).get("rightHand")!;
       const moved: number = Vector3.length(
         Vector3.subtract(hand.worldPosition, point),
       );

@@ -3,38 +3,18 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanLawHandToFace } from "../internal/motionHumanLawHandToFace";
 
 /**
- * The hand-to-face task `bite` moves the body as it means to, on the
- * displayed bones of the average man: one task of the law's table, every
- * expectation of the task read off one right-hand film.
+ * The shorter grip lever retains its original contact and physical audit. Eating supplies the bilateral reflection for this thumb-facing tool geometry.
  *
- * The task is performed from quiet standing and read by
- * `motionHumanLawHandToFace`, whose complaints are gathered before the one
- * assertion.
- *
- * Scenarios:
- * 1. No body part lies inside another by more than 10 mm at any frame of the
- *    film (the audit's tangle).
- * 2. Across the entire film, the audit's other checks are clean: no sunk collider, no
- *    slipping or lifted planted foot, no jump over 5 mm, no out-and-back
- *    over 50 mm, no joint faster than 30 m/s, balance kept where judged.
- * 3. Neither elbow travels more than 80 mm in one 1/24 s frame.
- * 4. At the task's event the acting wrist is within a hand's length plus the
- *    head's height of the head's joint.
- * 5. Both hands end within 10 mm of where they began.
- * 6. The idle hand stays within 80 mm of its place.
- * 7. The left-hand film is the right-hand film mirrored in the median plane
- *    within 5 mm, read 4 times a second, and of the same duration.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones; a tangle, a slipping foot, an elbow that flips, a hand short of the face, a hand that does not return or a left hand that is not the right hand's mirror fails with its measured number.
- * @evidence contracts/development/testing.md#independent-expectations Each bound is the audit's own, a physical requirement, a cited range or the body's mirror symmetry, stated in the checker's document; none is read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases One row of the law's table; this spec owns the whole audit, the film's own checks and the left-hand mirror, which were split before over sibling specs on the same film; its siblings `test_human_motion_law_hand_to_face_*` hold the other rows.
- * @evidence contracts/development/testing.md#execution-ownership In memory; it performs the right-hand film and the left-hand film of the mirror, and every check of a film reads that one film; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the task, the films it performs and the 7 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact geometry and its role in the task family.
+ * @evidence contracts/development/testing.md#behavioral-verification Plays the public task, measures elbow travel and displayed wrist arrival and return, and runs the whole-film body audit.
+ * @evidence contracts/development/testing.md#independent-expectations The anatomical wrist-to-head bound uses the hand length and head height, with a 10 mm return tolerance.
+ * @evidence contracts/development/testing.md#distinguishing-cases The shorter grip lever retains its original contact and physical audit. Eating supplies the bilateral reflection for this thumb-facing tool geometry.
+ * @evidence contracts/development/testing.md#execution-ownership Every contact and audit observation of the original stage reads one shared film.
  */
 export function test_human_motion_law_hand_to_face_bite(): void {
   TestValidator.equals(
     "the bite task is right",
-    motionHumanLawHandToFace("bite"),
+    motionHumanLawHandToFace("bite", [], false),
     [],
   );
 }

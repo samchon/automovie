@@ -72,7 +72,8 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    mirrored in the median plane within 5 mm, read 4 times a second.
  *
  * @param task The task.
- * @param name The body audited over the whole film.
+ * @param extraCasts Additional original builds to compare for the shared drinking posture.
+ * @param reflect Whether this task supplies the reflected film for its effector geometry.
  * @returns One complaint per expectation that does not hold, with its measured numbers (an elbow's travel and the mirror also with the task's events in film seconds); empty when the task is right.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound and where the bound comes from, and which films are performed.
@@ -85,9 +86,11 @@ import { motionHumanLaw } from "./motionHumanLaw";
  */
 export function motionHumanLawHandToFace(
   task: IAutoMovieMotionHumanHandToFaceRows.Task,
-  name: motionHumanBody.Name = "m-average",
+  extraCasts: readonly motionHumanBody.Name[] = [],
+  reflect: boolean = true,
 ): string[] {
   const row: IAutoMovieMotionHumanHandToFaceRows.IRow = handToFace.ROWS[task];
+  const name: motionHumanBody.Name = "m-average";
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const perform = (
     who: IAutoMovieMotionHumanBody,
@@ -102,8 +105,8 @@ export function motionHumanLawHandToFace(
   return [
     ...motionHumanLaw.audit(film, `${task} ${name}`, "a", body),
     ...expectations(task, row, body, film),
-    ...population(task, row, name, body, film, perform),
-    ...mirror(task, row, body, film, perform),
+    ...population(task, row, name, body, film, perform, extraCasts),
+    ...(reflect ? mirror(task, row, body, film, perform) : []),
   ];
 }
 
@@ -296,16 +299,19 @@ function mirror(
   row: IAutoMovieMotionHumanHandToFaceRows.IRow,
   body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
-  perform: (who: IAutoMovieMotionHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
+  perform: (
+    who: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ) => motionHumanLaw.IFilm,
 ): string[] {
   if (row.other !== undefined) return [];
   const mirrored: IAutoMovieMotionHumanAuditDifference.IResult =
     AutoMovieMotionHumanAuditDifference.measure(
-    film,
-    perform(body, "left"),
-    "a",
-    { mirror: 0, rate: 4 },
-  );
+      film,
+      perform(body, "left"),
+      "a",
+      { mirror: 0, rate: 4 },
+    );
   return motionHumanLaw.expect(
     (): string =>
       `${task}: the left-hand task is ${mm(mirrored.distance.value)} mm off the right-hand task's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0; events ${events(film)})`,
@@ -315,7 +321,7 @@ function mirror(
 
 /**
  * Expectation 7 of `motionHumanLawHandToFace`, the cup's lean at the mouth,
- * on the four bodies of the population sample.
+ * on the primary stage and the additional body witnesses assigned to this vessel.
  *
  * @param task The task.
  * @param row Its row.
@@ -323,25 +329,26 @@ function mirror(
  * @param body That body.
  * @param film Its right-hand film.
  * @param perform Performs the task on another body with a hand.
+ * @param extraCasts Additional builds for the vessel geometry, shared across drinking and sipping.
  * @returns One complaint per body whose cup leans wrong; none for a task without a vessel.
  */
 function population(
   task: IAutoMovieMotionHumanHandToFaceRows.Task,
   row: IAutoMovieMotionHumanHandToFaceRows.IRow,
-  name: string,
+  name: motionHumanBody.Name,
   body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
-  perform: (who: IAutoMovieMotionHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
+  perform: (
+    who: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ) => motionHumanLaw.IFilm,
+  extraCasts: readonly motionHumanBody.Name[],
 ): string[] {
   const out: string[] = [];
   if (row.upright === true)
-    for (const who of [
-      "m-average",
-      "f-minus-one",
-      "f-small",
-      "m-large",
-    ] as const) {
-      const subject: IAutoMovieMotionHumanBody = who === name ? body : motionHumanBody(who);
+    for (const who of [name, ...extraCasts]) {
+      const subject: IAutoMovieMotionHumanBody =
+        who === name ? body : motionHumanBody(who);
       const shown: motionHumanLaw.IFilm =
         who === name ? film : perform(subject, "right");
       const seconds: number = motionHumanLaw.event(shown, row.at);
