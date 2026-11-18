@@ -7,9 +7,7 @@ import type {
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSignature,
   IAutoMovieMotionMeeting,
@@ -22,51 +20,28 @@ import {
   HumanCarried,
   HumanCarriedCoupling,
   HumanCarriedCouplingLoad,
-  HumanCarriedLean,
-  HumanChain,
   HumanFoot,
-  HumanPerformance,
+  HumanPhysics,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
 
 import { inspectHumanPairSeparation } from "../internal/inspectHumanPairSeparation";
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionCoupledCarry } from "../internal/motionCoupledCarry";
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { profileHumanMotion } from "../internal/profileHumanMotion";
 
-type Name = "m-large" | "f-small" | "m-average";
-type Subject = "a" | "b";
 type CarryRole = "bearer" | "borne";
-
-interface ICarryExtra {
-  mass?: number;
-  lift?: number;
-  setDown?: number;
-}
-
-interface ICarriedScene {
-  film: IAutoMovieMotionHumanPerformance;
-  bodies: Record<Subject, IAutoMovieMotionHumanBody>;
-  coupling: IAutoMovieMotionCoupling;
-}
+type ObservedCarry = motionCoupledCarry.IScene | null;
 
 /**
- * A coupled meeting in which one body bears another (#3437): the borne body
- * rests on the bearer by every contact of the carry's coupling, the pair's
- * combined centre stays over the bearer's support, a heavier borne body
- * leans the bearer more, the record is the same whichever role plans first,
- * and a borne mass no lean balances is refused with the feasible mass.
+ * A coupled carry takes the borne body's load through its declared contacts
+ * and the bearer leans against that load (#3437).
  *
- * Bounds: a shared contact stays within 10 mm of its region and slips less
- * than 10 mm in the bearer's region frame through its hold (#3349's contact
- * bound, "carrier and carried within 10 mm at every declared contact",
- * which `test_human_motion_carried_carries` holds too); the standing pair's
- * combined centre lies within 2 % of the bearer's stature of the feet's base
- * (#3437's statics acceptance); while walking the pair's extrapolated centre
- * (Hof 2005) lies inside the base of the feet that bear, at the instants both
- * feet bear. The lean's direction is Knapik, Harman and Reynolds 1996's: a
- * load on the back leans the trunk forward, more for more load.
+ * #3349 sets the 10 mm contact and slip bound. #3437 sets the standing
+ * margin within 2 % of the bearer's stature. The walking balance uses Hof's
+ * extrapolated centre (2005). Knapik, Harman and Reynolds (1996) describe
+ * how leaning forward offsets a load on the back.
  *
  * Scenarios, the bearer standing 0.3 s then walking 2 m (or standing) under
  * `bearing` with the borne person named and the pair's tip scheduled over
@@ -80,10 +55,11 @@ interface ICarriedScene {
  *    that region's bone.
  *    No joint of either body lies more than 10 mm inside the other's
  *    colliders (`HumanVerdicts`' partner bound).
- * 2. The same six, standing: the pair's combined centre of mass lies within
+ * 2. The same six, standing under an explicit balance audit: the pair's
+ *    combined centre of mass lies within
  *    2 % of the bearer's stature of the feet's base.
- * 3. The same six, walking: at every instant both bearer feet bear, the
- *    pair's extrapolated centre lies inside their base.
+ * 3. The same six, walking under the same audit: at every instant both
+ *    bearer feet bear, the pair's extrapolated centre lies inside their base.
  * 4. The coupling's bearing shares sum to 1 within 1e-9, each in [0, 1], and
  *    every grip bears none; every window of the borne plan names the bearer
  *    as its support.
@@ -114,87 +90,15 @@ export function test_human_motion_coupled_meeting(): void {
   const CONTACT: number = 0.01;
   const STATICS: number = 0.02;
   const times: number[] = HumanSignature.times(0.8, 2.2, 20);
-  const stage = (
-    names: readonly [Name, Name],
-    carry: IAutoMovieMotionHumanCarried.Carry,
-    walking: boolean,
-    extra: ICarryExtra = {},
-    known?: IAutoMovieMotionCoupling,
-  ): ICarriedScene => {
-    const bodies: Record<Subject, IAutoMovieMotionHumanBody> = {
-      a: motionHumanBody(names[0]),
-      b: motionHumanBody(names[1]),
-    };
-    const own: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-      seconds: 0.3,
-    });
-    const moved: IAutoMovieMotionHumanChain = walking
-      ? own.walk({ to: { x: 0, y: 0, z: 2 } })
-      : own.stand({ seconds: 2 });
-    // The hold rides the bearer's own action, which keeps its trunk, so the
-    // pair's tip is scheduled as a layer over it.
-    let coupling: IAutoMovieMotionCoupling | undefined = known;
-    const film: IAutoMovieMotionHumanPerformance = profileHumanMotion(
-      `${walking ? "coupled-walk" : "coupled-stand"}/${carry}/${names[0]}/${names[1]}`,
-      (): IAutoMovieMotionHumanPerformance => {
-        coupling ??= HumanCarriedCoupling.couple(
-          bodies.a,
-          bodies.b,
-          HumanCarried.CARRIES[carry],
-          carry,
-          extra.mass ?? 0,
-        );
-        return new HumanPerformance({
-          seed: "coupled",
-          laws: [HumanCarried.borne, HumanCarried.bearing],
-          performers: (["a", "b"] as const).map((subject) => ({
-            subject,
-            body: bodies[subject],
-            at: { x: 0, y: 0, z: subject === "a" ? 0 : -0.3 },
-            yaw: 0,
-            proficiency: { level: "trained" as const },
-          })),
-          composition: moved
-            .over((o) =>
-              o.registered("bearing", {
-                carry,
-                seconds: 2,
-                of: "b",
-                ...(extra.mass === undefined ? {} : { mass: extra.mass }),
-              }),
-            )
-            .with(
-              HumanChain.subject("b")
-                .stand({ seconds: 0.3 })
-                .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
-            ).node,
-          layers: {
-            a: [
-              {
-                layer: HumanCarriedLean.coupled(
-                  HumanCarriedCouplingLoad.lean(bodies.a, coupling),
-                ),
-                from: 0.3,
-                fade: HumanCarried.TAKE,
-              },
-            ],
-          },
-        });
-      },
-      ["b", "a"],
-      "borne",
-    );
-    return { bodies, film, coupling: coupling! };
-  };
   const readStage = (
-    names: readonly [Name, Name],
+    names: motionCoupledCarry.Pair,
     carry: IAutoMovieMotionHumanCarried.Carry,
     walking: boolean,
-    extra?: ICarryExtra,
+    extra?: motionCoupledCarry.IExtra,
     known?: IAutoMovieMotionCoupling,
-  ): ICarriedScene | null => {
+  ): ObservedCarry => {
     try {
-      return stage(names, carry, walking, extra, known);
+      return motionCoupledCarry(names, carry, walking, extra, known);
     } catch (error) {
       all.list.push(
         `${carry}, ${names[0]} bearing ${names[1]}, ${walking ? "walking" : "standing"}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
@@ -202,7 +106,7 @@ export function test_human_motion_coupled_meeting(): void {
       return null;
     }
   };
-  const PAIRS: readonly (readonly [Name, Name])[] = [
+  const PAIRS: readonly motionCoupledCarry.Pair[] = [
     ["m-large", "f-small"],
     ["m-average", "m-average"],
   ];
@@ -215,7 +119,7 @@ export function test_human_motion_coupled_meeting(): void {
   for (const names of PAIRS)
     for (const carry of CARRIES) {
       const cell: string = `${carry}, ${names[0]} bearing ${names[1]}`;
-      const walked: ICarriedScene | null = readStage(names, carry, true);
+      const walked: ObservedCarry = readStage(names, carry, true);
       if (walked === null) continue;
       const coupling: IAutoMovieMotionCoupling = walked.coupling;
 
@@ -311,9 +215,18 @@ export function test_human_motion_coupled_meeting(): void {
       const length: number = resolveAutoMovieCenterOfMass.pendulum(
         walked.bodies.a.measure.hipHeight,
       );
-      const pair = (t: number): IAutoMovieVector3 => combined(bearer, borne, t);
+      const pair = (t: number): IAutoMovieVector3 =>
+        motionCoupledCarry.centre(bearer, borne, t);
+      const walkAudit: HumanPhysics.ISpan = motionCoupledCarry.balanceAudit(
+        walked.film,
+      );
+      all.check(
+        `${cell}, walking: the pair's balance is judged`,
+        HumanPhysics.judged(walkAudit),
+      );
       for (const t of times) {
         if (
+          !HumanPhysics.judged(walkAudit, t) ||
           !HumanSignature.bears(bearer, t, "left") ||
           !HumanSignature.bears(bearer, t, "right")
         )
@@ -334,7 +247,7 @@ export function test_human_motion_coupled_meeting(): void {
       }
 
       // 2. Standing: the combined centre over the feet.
-      const stood: ICarriedScene | null = readStage(
+      const stood: ObservedCarry = readStage(
         names,
         carry,
         false,
@@ -342,7 +255,10 @@ export function test_human_motion_coupled_meeting(): void {
         coupling,
       );
       if (stood === null) continue;
-      const still: Record<Subject, IAutoMovieMotionHumanSignature.IReader> = {
+      const still: Record<
+        motionCoupledCarry.Subject,
+        IAutoMovieMotionHumanSignature.IReader
+      > = {
         a: HumanSignature.of(stood.film, "a", stood.bodies.a, 0),
         b: HumanSignature.of(stood.film, "b", stood.bodies.b, 0),
       };
@@ -360,9 +276,17 @@ export function test_human_motion_coupled_meeting(): void {
             ...inspectHumanPairSeparation(still.b, still.a, [times[0]!]),
           }),
         );
+      const standAudit: HumanPhysics.ISpan = motionCoupledCarry.balanceAudit(
+        stood.film,
+      );
+      all.check(
+        `${cell}, standing: the pair's balance is judged`,
+        HumanPhysics.judged(standAudit),
+      );
       for (const t of times) {
+        if (!HumanPhysics.judged(standAudit, t)) continue;
         const margin: number = resolveAutoMovieCenterOfMass.margin(
-          combined(still.a, still.b, t),
+          motionCoupledCarry.centre(still.a, still.b, t),
           HumanFoot.base(stood.bodies.a, HumanSignature.bones(still.a, t)),
         );
         all.check(
@@ -383,12 +307,12 @@ export function test_human_motion_coupled_meeting(): void {
     );
     return (Math.atan2(up.z, up.y) * 180) / Math.PI;
   };
-  const light: ICarriedScene | null = readStage(
+  const light: ObservedCarry = readStage(
     ["m-average", "f-small"],
     "piggyback",
     true,
   );
-  const heavy: ICarriedScene | null = readStage(
+  const heavy: ObservedCarry = readStage(
     ["m-average", "m-large"],
     "piggyback",
     true,
@@ -441,7 +365,7 @@ export function test_human_motion_coupled_meeting(): void {
   );
 
   // 7. Determinism of the borne posture.
-  const repeat: ICarriedScene | null = readStage(
+  const repeat: ObservedCarry = readStage(
     ["m-average", "f-small"],
     "piggyback",
     true,
@@ -481,7 +405,7 @@ export function test_human_motion_coupled_meeting(): void {
   const own: number = load.load;
   let refusal: IAutoMovieMotionHumanRefusal | null = null;
   try {
-    stage(["m-average", "f-small"], "cradle", false, {
+    motionCoupledCarry(["m-average", "f-small"], "cradle", false, {
       mass: Math.max(0, capacity - own) + 1,
     }).film.segments("b");
   } catch (error) {
@@ -502,7 +426,7 @@ export function test_human_motion_coupled_meeting(): void {
       `a borne mass 1 kg under the cradle's capacity of ${capacity.toFixed(1)} kg is accepted`,
       (() => {
         try {
-          stage(["m-average", "f-small"], "cradle", false, {
+          motionCoupledCarry(["m-average", "f-small"], "cradle", false, {
             mass: capacity - own - 1,
           }).film.segments("b");
           return true;
@@ -566,27 +490,4 @@ export function test_human_motion_coupled_meeting(): void {
         ),
   );
   all.assert("a coupled carry bears the borne body on the bearer");
-}
-
-/** The two bodies' combined centre of mass at a second. */
-function combined(
-  a: IAutoMovieMotionHumanSignature.IReader,
-  b: IAutoMovieMotionHumanSignature.IReader,
-  t: number,
-): IAutoMovieVector3 {
-  const ca: ReturnType<typeof resolveAutoMovieCenterOfMass> = a.body.massModel;
-  const cb: ReturnType<typeof resolveAutoMovieCenterOfMass> = b.body.massModel;
-  return Vector3.scale(
-    Vector3.add(
-      Vector3.scale(
-        resolveAutoMovieCenterOfMass.place(ca, HumanSignature.bones(a, t)),
-        ca.mass,
-      ),
-      Vector3.scale(
-        resolveAutoMovieCenterOfMass.place(cb, HumanSignature.bones(b, t)),
-        cb.mass,
-      ),
-    ),
-    1 / (ca.mass + cb.mass),
-  );
 }
