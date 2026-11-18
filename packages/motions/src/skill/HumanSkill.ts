@@ -37,16 +37,23 @@ import type {
  */
 export namespace HumanSkill {
   /**
-   * The named levels' values on the proficiency scale: novice and elite at
-   * its ends, amateur and trained between them (provisional placement: no
-   * located study maps the four names onto one scale).
+   * The named levels' values: the scale is Fitts and Posner's (1967, Human
+   * Performance) three stages of skill learning, cognitive, associative and
+   * autonomous, laid end to end. A novice begins the cognitive stage (0), an
+   * amateur has reached the associative stage, a trained performer the
+   * autonomous one, and an elite performer has completed it (1). The stages
+   * are ordinal: no study measures their spans on one scale (practice hours
+   * do not, since the best and the good violinists of Ericsson, Krampe and
+   * Tesch-Römer 1993 did not differ in accumulated practice on Macnamara
+   * and Maitra's 2019 replication), so each stage takes an equal third and
+   * the two inner levels sit at its boundaries.
    */
   export const LEVELS: Readonly<
     Record<"novice" | "amateur" | "trained" | "elite", number>
   > = {
     novice: 0,
-    amateur: 0.35,
-    trained: 0.7,
+    amateur: 1 / 3,
+    trained: 2 / 3,
     elite: 1,
   };
 
@@ -223,16 +230,21 @@ export namespace HumanSkill {
   }
 
   /**
-   * A duration with timing variability: `T + sigma N(0, 1)` with
-   * `sigma = sqrt(motor^2 + (CV T)^2)`, Wing and Kristofferson's two-level
-   * model, kept above half the planned duration, since the model's normal
-   * has unbounded tails and a duration cannot shrink to nothing (provisional
-   * floor).
+   * A duration with timing variability: a log-normal draw whose mean is the
+   * planned `T` and whose standard deviation is Wing and Kristofferson's
+   * two-level `sigma = sqrt(motor^2 + (CV T)^2)`. A duration is positive and
+   * its spread grows with its length (the scalar property of timing, Gibbon
+   * 1977, Psychological Review 84:279), so its distribution is the
+   * log-normal, the one of a positive quantity with multiplicative noise,
+   * rather than a normal whose tail crosses zero: with
+   * `s^2 = ln(1 + sigma^2 / T^2)` and `m = ln T - s^2 / 2`, the draw is
+   * `exp(m + s N(0, 1))`, which has the two-level model's mean and variance
+   * exactly and needs no floor.
    *
    * @param skill The skill.
    * @param random The stream.
    * @param seconds The planned duration.
-   * @returns The realised duration.
+   * @returns The realised duration, positive for a positive plan; a plan of no time is returned as given.
    */
   export function jitter(
     skill: IAutoMovieMotionHumanSkill,
@@ -241,7 +253,9 @@ export namespace HumanSkill {
   ): number {
     const cv: number = quantity(skill, "timing", 0.07, 0.025);
     const motor: number = quantity(skill, "timing", 0.025, 0.01);
+    if (!(seconds > 0)) return seconds;
     const sigma: number = Math.sqrt(motor * motor + (cv * seconds) ** 2);
-    return Math.max(0.5 * seconds, seconds + sigma * normal(random, 0));
+    const spread: number = Math.log(1 + (sigma * sigma) / (seconds * seconds));
+    return Math.exp(Math.log(seconds) - spread / 2 + Math.sqrt(spread) * normal(random, 0));
   }
 }
