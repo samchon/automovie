@@ -1,11 +1,13 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMovieClampPose } from "../../../pose/IAutoMovieClampPose";
+import type { IAutoMoviePoseJointCodec } from "../../../pose/IAutoMoviePoseJointCodec";
 import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
 import type { IAutoMovieResolveCenterOfMass } from "../../../pose/IAutoMovieResolveCenterOfMass";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { IAutoMovieSkeletonTopology } from "../../../pose/IAutoMovieSkeletonTopology";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieBodyMeasure } from "../../../skeleton/IAutoMovieBodyMeasure";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
@@ -67,4 +69,10 @@ export interface IAutoMovieMotionHumanBody {
 
   /** Rest joint positions, canonical metres. */
   rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
+
+  /** The rig's bones by name: each bone's parent and rest transform. */
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>;
+
+  /** The maps between a joint's clinical angles and its bone-local rotation on this rig (`poseJointCodec` with the canonical axes and rest frames), for work that treats a pose's joints as rotations. */
+  codec: IAutoMoviePoseJointCodec.ICodec;
 }
