@@ -151,13 +151,12 @@ export namespace HumanObject {
             point: (
               id: string,
               seconds: number,
-            ):
-              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-              | undefined => {
+            ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined => {
               if (!ids.has(id)) return undefined;
               const at: IAutoMovieTransform = contact(id, seconds);
               return {
                 point: at.translation,
+                rotation: at.rotation,
                 normal: Quaternion.rotateVector(at.rotation, {
                   x: 0,
                   y: 1,
@@ -238,6 +237,7 @@ export namespace HumanObject {
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
+      ...(found.workingSeat === undefined ? {} : { workingSeat: found.workingSeat }),
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
       ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
