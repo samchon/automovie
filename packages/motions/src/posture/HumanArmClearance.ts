@@ -156,24 +156,6 @@ export namespace HumanArmClearance {
   }
 
   /**
-   * Turn the bounding-sphere screen of `overshoot` off or on again
-   * (`HumanArmOvershoot.broad`).
-   *
-   * @param on Whether queries are screened.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the existing global diagnostic screen switch and its boolean input.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the diagnostic toggle to the single overshoot owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One unchanged delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This switch changes only whether conservative screens run; the exact distance policy remains with HumanArmOvershoot.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One boolean assignment in the delegated owner.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No numerical value is computed or reused.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no resource and retains no extra state.
-   */
-  export function broad(on: boolean): void {
-    HumanArmOvershoot.broad(on);
-  }
-
-  /**
    * A pose with one arm's three joints replaced.
    *
    * @param pose The pose.

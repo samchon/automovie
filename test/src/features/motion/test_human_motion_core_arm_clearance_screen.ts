@@ -1,3 +1,4 @@
+import { Quaternion, physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -16,8 +17,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The bounding-sphere screen of a forearm's clearance changes nothing: the
- * overshoot read with the screen is the overshoot read without it, to the
- * last bit, for arms that hang clear, brush the flank, cross the chest and
+ * public overshoot, which screens, equals an exhaustive reading of its
+ * documented rule that queries every shape at every sample (exhaustive),
+ * within 1e-12 degrees, for arms that hang clear, brush the flank, cross the chest and
  * reach into the thigh.
  *
  * Scenarios, the average man and the small woman, each standing upright
@@ -27,10 +29,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * and in front of the face), each read for the left and the right arm,
  * with the wrist's goal excusing its own depth and without, and against
  * the other body's colliders as `others`. Every reading with the screen
- * equals the reading without it as a number.
+ * equals the exhaustive reading.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public `HumanArmClearance.overshoot` on real bodies' placed colliders with the screen on and off; a screen that spares a query whose result would have raised the depth fails.
- * @evidence contracts/development/testing.md#independent-expectations The reading without the screen is the oracle; the screen claims to change nothing, so any difference is a defect, whatever its size.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public `HumanArmClearance.overshoot` on real bodies' placed colliders against the exhaustive reading; a screen that spares a query whose result would have raised the depth fails.
+ * @evidence contracts/development/testing.md#independent-expectations The exhaustive reading of the documented rule, written here, is the oracle; the screen claims to change nothing, so any difference beyond 1e-12 degrees, the rounding of a prepared against a direct distance query, is a defect.
  * @evidence contracts/development/testing.md#distinguishing-cases Arms clear of every shape, against the flank, across the chest, inside a thigh and inside another body, on both sides, with and without a goal.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads a few thousand overshoots with no performance; one standing pose each, since the screen reads the shapes, not the pose.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, what is swept and the comparison.
@@ -96,22 +98,26 @@ export function test_human_motion_core_arm_clearance_screen(): void {
                     [],
                     others,
                   ] as readonly (readonly IAutoMovieMotionHumanColliders.IPlaced[])[]) {
-                    const read = (on: boolean): number => {
-                      HumanArmClearance.broad(on);
-                      return HumanArmClearance.overshoot(
-                        me.body,
-                        shapes,
-                        elbow,
-                        wrist,
-                        side,
-                        against,
-                        goal,
-                      );
-                    };
-                    const full: number = read(false);
-                    const screened: number = read(true);
+                    const full: number = exhaustive(
+                      me.body,
+                      shapes,
+                      elbow,
+                      wrist,
+                      side,
+                      against,
+                      goal,
+                    );
+                    const screened: number = HumanArmClearance.overshoot(
+                      me.body,
+                      shapes,
+                      elbow,
+                      wrist,
+                      side,
+                      against,
+                      goal,
+                    );
                     ++compared;
-                    if (!Object.is(full, screened))
+                    if (!(Math.abs(full - screened) <= 1e-12))
                       complaints.push(
                         `${pair[k]!} ${side} arm, elbow (${ex}, ${ez}), wrist (${wx}, ${wy}, ${wz}), goal ${goal}, ${against.length === 0 ? "alone" : "beside the other body"}: ${screened} degrees with the screen and ${full} without`,
                       );
@@ -120,7 +126,6 @@ export function test_human_motion_core_arm_clearance_screen(): void {
         }
     }
   }
-  HumanArmClearance.broad(true);
   if (compared < 1000)
     complaints.push(
       `only ${compared} readings compared, at least 1000 expected`,
@@ -130,4 +135,71 @@ export function test_human_motion_core_arm_clearance_screen(): void {
     complaints.slice(0, 20),
     [],
   );
+}
+
+/**
+ * A forearm's overshoot as `HumanArmClearance.overshoot` documents it, read
+ * with no screen: every shape queried at every one of the eight axis samples
+ * and at the wrist. The elbow keeps its side of the chest's median plane by
+ * the forearm's radius (no other arm is among the shapes), and each sample
+ * keeps the forearm's radius falling linearly to the wrist but never below
+ * the radius less the audit's 10 mm skin, the wrist's own depth excused in
+ * proportion where a goal put it.
+ */
+function exhaustive(
+  body: IAutoMovieMotionHumanBody,
+  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  elbow: IAutoMovieVector3,
+  wrist: IAutoMovieVector3,
+  side: "left" | "right",
+  others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  goal: boolean,
+): number {
+  const radius: number = body.measure.forearmRadius;
+  const tissue: number = 0.01;
+  const own: (p: IAutoMovieVector3, centre: IAutoMovieVector3, out: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3, centre: IAutoMovieVector3, out: IAutoMovieVector3,
+  ): number =>
+    (p.x - centre.x) * out.x + (p.y - centre.y) * out.y + (p.z - centre.z) * out.z;
+  let depth: number = 0;
+  const chest: IAutoMovieMotionHumanColliders.IPlaced | undefined =
+    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "upperChest") ??
+    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "chest");
+  if (chest !== undefined) {
+    const out: IAutoMovieVector3 = Quaternion.rotateVector(chest.pose.rotation, {
+      x: side === "left" ? 1 : -1,
+      y: 0,
+      z: 0,
+    });
+    const centre: IAutoMovieVector3 = chest.pose.position;
+    depth = Math.max(0, Math.min(radius, own(wrist, centre, out)) - own(elbow, centre, out));
+  }
+  const all: { segment: IAutoMovieMotionHumanColliders.IPlaced; free: boolean }[] = [
+    ...shapes.map((segment: IAutoMovieMotionHumanColliders.IPlaced): { segment: IAutoMovieMotionHumanColliders.IPlaced; free: boolean } => ({ segment, free: false })),
+    ...others.map((segment: IAutoMovieMotionHumanColliders.IPlaced): { segment: IAutoMovieMotionHumanColliders.IPlaced; free: boolean } => ({ segment, free: true })),
+  ];
+  type IShape = IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
+  const distance: (segment: IAutoMovieMotionHumanColliders.IPlaced, shape: IShape, p: IAutoMovieVector3) => number = (
+    segment: IAutoMovieMotionHumanColliders.IPlaced, shape: IShape, p: IAutoMovieVector3,
+  ): number =>
+    physicalShapeSegmentDistance(segment.pose, shape, p, p);
+  let grazing: number = 0;
+  if (goal)
+    for (const { segment, free } of all)
+      if (!free)
+        for (const shape of segment.shapes)
+          grazing = Math.min(grazing, distance(segment, shape, wrist));
+  for (let i: number = 0; i < 8; i++) {
+    const s: number = i / 8;
+    const at: IAutoMovieVector3 = {
+      x: elbow.x + (wrist.x - elbow.x) * s,
+      y: elbow.y + (wrist.y - elbow.y) * s,
+      z: elbow.z + (wrist.z - elbow.z) * s,
+    };
+    const needed: number = Math.max(radius * (1 - s), radius - tissue);
+    for (const { segment, free } of all)
+      for (const shape of segment.shapes)
+        depth = Math.max(depth, needed + (free ? 0 : grazing * s) - distance(segment, shape, at));
+  }
+  return ((depth / body.measure.upperArm) * 180) / Math.PI;
 }

@@ -19,7 +19,7 @@ import { HumanShapeFraming } from "./HumanShapeFraming";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
  * @evidence contracts/development/design.md#principled-representation A capsule of linearly tapering radius against the body's own profile colliders, with the median plane for the elbow's side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reading and its screen switch; `HumanArmClearance` owns the colliders it is read against and the arm readings built on it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The reading and its prepared form; `HumanArmClearance` owns the colliders it is read against and the arm readings built on it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The radius is the body's measured forearm radius; no margin is added and no law is named.
  */
 export namespace HumanArmOvershoot {
@@ -43,7 +43,7 @@ export namespace HumanArmOvershoot {
    * @evidence contracts/development/implementation.md#principled-implementation An elbow goes no farther across the chest's median plane than its wrist's goal, or a forearm's radius beyond its hint, and while the other arm is still to come and its goal is not across, two arms sent to places on their own sides do not cross, so the elbow then keeps the forearm's radius on its own side, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the wrist's own depth excuses nothing, since no goal put the wrist there. Against `rests` the goal puts the hand on the surface, so the wrist lies nearer it than the forearm's room needs (a palm on a partner's chest left the wrist 1.2 mm from it, where a 41 mm forearm needs 31 mm, and the fit gave up 61 mm of its reach to clear it): the needed clearance falls by the wrist's shortfall from the room it needs there, in proportion along the forearm as the wrist's own depth does, so the wrist end asks no more than the goal gives.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The room read once, one bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk or on a partner is not refused; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist that surely lies too far outside the shape for the query to raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`): the bounding sphere decides first, then a hull's face planes, the face that last decided tried first and the scan stopped at the first face that decides (`beyond`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist that surely lies too far outside the shape for the query to raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is: the bounding sphere decides first, then a hull's face planes, the face that last decided tried first and the scan stopped at the first face that decides (`beyond`).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same evaluate owner serves this one-off reading and prepare's varying candidates; only opaque unchanged shape geometry is shared, and every wrist/sample distance, allowance and screen remains actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak frame/room caches remain unchanged. This one-off call creates a query map only at an exact query, retains no point/result and releases it on return or throw.
    */
@@ -107,27 +107,6 @@ export namespace HumanArmOvershoot {
         hint,
         shared,
       );
-  }
-
-  /**
-   * Turn the bounding-sphere screen of `of` off or on again. Off,
-   * every near shape is queried at every sample and at the wrist, which is
-   * what a check of the screen against the full reading compares with; it
-   * is on unless turned off. The screen only spares queries whose result
-   * cannot change the reading, so both give the same degrees.
-   *
-   * @param on Whether queries are screened.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the original screen switch, default-on behavior and full-reading comparison purpose.
-   * @evidence contracts/development/implementation.md#principled-implementation Screening omits only queries whose conservative bounds cannot change the original depth; turning it off retains every near-shape wrist/sample query.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One assignment updates the existing screen flag read by of and prepared readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes neither shape geometry, sample count, clearance allowances nor success criteria; it preserves the existing explicit screen control rather than replacing a query result.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Assigns one boolean in constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The switch performs no repeated numerical work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the existing module boolean, without a body, frame, target or reader.
-   */
-  export function broad(on: boolean): void {
-    BROAD.on = on;
   }
 }
 
@@ -207,9 +186,7 @@ function evaluate(
 
     // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
     if (bound.faces !== undefined) {
-      const gap: number = BROAD.on
-        ? along(elbow, wrist, bound.centre) - bound.radius - radius
-        : 0;
+      const gap: number = along(elbow, wrist, bound.centre) - bound.radius - radius;
       if (gap > MARGIN) continue;
       if (
         !(gap < -MARGIN) &&
@@ -237,7 +214,7 @@ function evaluate(
     if (
       goal &&
       !shape.free &&
-      !(BROAD.on && HumanShapeFraming.beyond(wrist, shape.framed, MARGIN))
+      !HumanShapeFraming.beyond(wrist, shape.framed, MARGIN)
     )
       grazing = Math.min(grazing, distance(shape, wrist, queries));
   }
@@ -250,10 +227,7 @@ function evaluate(
     if (
       goal &&
       shape.rest &&
-      !(
-        BROAD.on &&
-        HumanShapeFraming.beyond(wrist, shape.framed, radius - TISSUE + MARGIN)
-      )
+      !HumanShapeFraming.beyond(wrist, shape.framed, radius - TISSUE + MARGIN)
     )
       resting = Math.min(
         resting,
@@ -277,7 +251,6 @@ function evaluate(
       // the greatest as it is: the needed clearance less the least the
       // distance can be, `grazing` only lowering it.
       if (
-        BROAD.on &&
         HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN)
       )
         continue;
@@ -358,8 +331,6 @@ function along(
   );
 }
 
-/** Whether the bounding spheres spare the exact distance queries they cannot change (`HumanArmClearance.broad`). */
-const BROAD: { on: boolean } = { on: true };
 
 /** How far, metres, a bound must clear what it is compared with before a query is spared: far above the rounding of a body-scale distance, far below anything a forearm's room reads. */
 const MARGIN: number = 1e-9;
