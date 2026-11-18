@@ -44,7 +44,7 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * steps back onto its tucked toes while the hips travel along the heading
  * from where they stand to where the step key puts them as the foot travels,
  * so they trail the foot and arrive after it lands; with the balance option
- * (`IAutoMovieMotionHumanBalanceOption`) they run instead a course that
+ * (`IAutoMovieMotionHumanBalance`) they run instead a course that
  * keeps the extrapolated centre of mass between the feet
  * ({@link AutoMovieMotionHumanCourse}; Hof, Gazendam and Sinke 2005), going
  * to the middle between the two feet. Through the
@@ -345,7 +345,7 @@ export namespace kneel {
 
     // The courses. Without the balance option the hips travel the step's own
     // key line, from where they stand to where the step key puts them, on
-    // that share (`IAutoMovieMotionHumanBalanceOption`: no centre of mass is read).
+    // that share (`IAutoMovieMotionHumanBalance`: no centre of mass is read).
     // With it, the extrapolated centre of mass goes from where it stands to
     // the middle between the feet (`AutoMovieMotionHumanCourse`); the
     // landing height is read from the step's own course first.

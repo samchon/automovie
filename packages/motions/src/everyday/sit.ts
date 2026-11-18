@@ -413,7 +413,7 @@ export namespace sit {
     );
     const held: number = contact - fall;
     // The weight-over-the-feet course is the balance option's
-    // (`IAutoMovieMotionHumanBalanceOption`); without it the seat socket goes
+    // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
     // back on its own minimum-jerk progress and no centre of mass is read.
     const balancing: boolean = HumanPhysics.balanced(context.params);
     const reaches: number[] = !balancing ? [] : ((): number[] => {

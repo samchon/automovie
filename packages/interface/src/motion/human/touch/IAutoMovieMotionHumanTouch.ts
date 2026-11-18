@@ -14,7 +14,7 @@ import type { IAutoMovieMotionHumanTouchForm } from "../compose/IAutoMovieMotion
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
@@ -72,13 +72,13 @@ export namespace IAutoMovieMotionHumanTouch {
    */
   export interface IParams {
     /**
-     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
      * of its part, scaled by its weight between its two event-named instants,
      * each field absent taking the law's recommendation. Absent, none: the
      * posture is the law's own kinematic one with no balance shift or
      * centre-of-mass reading.
      */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
 
     /** The region touched: a partner's (`person`) or the performer's own (`self`). */
     target: IAutoMovieMotionTarget;

@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
 /**
  * Crawling on hands and knees along the heading, from standing: the body
@@ -67,13 +67,13 @@ export namespace IAutoMovieMotionHumanCrawl {
    */
   export interface IParams {
     /**
-     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
      * of its part, scaled by its weight between its two event-named instants,
      * each field absent taking the law's recommendation. Absent, none: the
      * posture is the law's own kinematic one with no balance shift or
      * centre-of-mass reading.
      */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
 
     /** On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. */
     kind?: IAutoMovieMotionHumanCrawl.Kind;

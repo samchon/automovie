@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
 /**
  * Bracing for an expected impact, push or a falling body: the stance
@@ -52,13 +52,13 @@ export namespace IAutoMovieMotionHumanBrace {
    */
   export interface IParams {
     /**
-     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
      * of its part, scaled by its weight between its two event-named instants,
      * each field absent taking the law's recommendation. Absent, none: the
      * posture is the law's own kinematic one with no balance shift or
      * centre-of-mass reading.
      */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
 
     /** Where the force comes from; straight ahead when absent. */
     toward?: IAutoMovieMotionTarget;

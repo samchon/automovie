@@ -56,7 +56,7 @@ import { gestureHands } from "./gestureHands";
  * force's line by `STAGGER` leg lengths and out until the feet stand a
  * shoulder width apart (a staggered, wider base); the pelvis drops until
  * the knees flex `KNEE` degrees over the middle of the new base and, with
- * the balance option (`IAutoMovieMotionHumanBalanceOption`, off by
+ * the balance option (`IAutoMovieMotionHumanBalance`, off by
  * default), is then moved so the engine's whole-body centre of mass stands
  * over the middle of the new base's hull, found on the solved posture; the trunk inclines 10 degrees toward the
  * force; and both palms come up ahead of the chest's front surface (its

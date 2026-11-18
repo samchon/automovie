@@ -326,7 +326,7 @@ export namespace HumanBalance {
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanBalance.ISupportResult {
+  ): IAutoMovieMotionHumanBalance.ISupport {
     const placed: IPlaced = placement(body, posture, resolution, projection);
     return {
       centre: placed.centre,

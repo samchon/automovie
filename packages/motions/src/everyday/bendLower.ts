@@ -2,7 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBalanceOption,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
@@ -321,7 +321,7 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param reach How near the shoulder must come to the target, metres; `pitch`'s palm reach when absent.
-   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalanceOption`); absent, the hips are not shifted and one pitch solve is made.
+   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalance`); absent, the hips are not shifted and one pitch solve is made.
    * @returns The solved lowering.
    * @throws {HumanRefusal} As `pitch`, when the strategy cannot reach the target.
    *
@@ -340,7 +340,7 @@ export namespace bendLower {
     side: AutoMovieHumanSide,
     strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     reach?: number,
-    balance?: IAutoMovieMotionHumanBalanceOption,
+    balance?: IAutoMovieMotionHumanBalance,
   ): IAutoMovieMotionHumanBendLower.ISolved {
     // Without the balance option the hips stay over the feet as the
     // strategy places them: no centre of mass is read, the lean is nought.

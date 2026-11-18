@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanBalanceOption,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
@@ -342,7 +342,7 @@ export namespace bend {
     side: AutoMovieHumanSide,
     strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
-    balance?: IAutoMovieMotionHumanBalanceOption,
+    balance?: IAutoMovieMotionHumanBalance,
   ): IAutoMovieMotionHumanBendLower.ISolved {
     const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
     try {

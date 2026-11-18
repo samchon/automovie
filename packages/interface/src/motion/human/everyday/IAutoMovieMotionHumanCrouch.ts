@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
@@ -65,13 +65,13 @@ export namespace IAutoMovieMotionHumanCrouch {
    */
   export interface IParams {
     /**
-     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
      * of its part, scaled by its weight between its two event-named instants,
      * each field absent taking the law's recommendation. Absent, none: the
      * posture is the law's own kinematic one with no balance shift or
      * centre-of-mass reading.
      */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
 
     /** How deep; `partial` when absent. */
     depth?: IAutoMovieMotionHumanCrouch.Depth;

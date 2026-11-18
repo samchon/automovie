@@ -38,7 +38,7 @@ const BLEND: number = 0.3;
  * A key posture is the static multi-contact posture nearest the posture the
  * body enters with that puts every contact on its target and keeps every
  * joint in its range, and with the balance option
- * (`IAutoMovieMotionHumanBalanceOption`, off by default) the centre of mass
+ * (`IAutoMovieMotionHumanBalance`, off by default) the centre of mass
  * over the hull of the bearing contacts (`HumanBodyFit`, Bouyarmane and Kheddar 2010; Escande, Kheddar and
  * Miossec 2013), solved from the key before it, as a planner grows its next
  * stance from its parent. Between two stances the planner solves a third key
@@ -247,7 +247,7 @@ export namespace support {
       stance.prefer === undefined ? from : preference(stance, from);
 
     // Whether the keys keep the centre of mass over what bears: the physics
-    // option, off by default (`IAutoMovieMotionHumanBalanceOption`).
+    // option, off by default (`IAutoMovieMotionHumanBalance`).
     const balanced: boolean = HumanPhysics.balanced(context.params);
 
     // Each key: one fit on its contacts, whose seed is selected by constraint violation.

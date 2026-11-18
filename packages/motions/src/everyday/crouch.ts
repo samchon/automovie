@@ -65,7 +65,7 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * allow: a full squat with flat heels leaves the thigh past the hip's range
  * at the crouching ankle, so it asks for `heels: "up"`.
  *
- * With the balance option (`IAutoMovieMotionHumanBalanceOption`; off by
+ * With the balance option (`IAutoMovieMotionHumanBalance`; off by
  * default, when the trunk keeps the inclination it stands with and no centre
  * of mass is read) the trunk's forward inclination is found by bisection at every eighth of
  * the descent, and by a secant search from those between them, so that the
@@ -428,7 +428,7 @@ export namespace crouch {
     // lowest pose; with the heels rising it reaches the middle of the
     // forefoot (`HumanBalance.offset`) by the share the heels leave the
     // floor at, and stays over it. That course is the balance option's
-    // (`IAutoMovieMotionHumanBalanceOption`); without it no centre of mass
+    // (`IAutoMovieMotionHumanBalance`); without it no centre of mass
     // is read and the trunk keeps the upright inclination it stands with.
     const inclination: ReturnType<typeof prepareCrouchInclination> =
       !HumanPhysics.balanced(context.params)

@@ -235,7 +235,7 @@ export namespace AutoMovieMotionHumanLean {
 
   /**
    * A bow: the trunk pitched by a share of a peak, and with the balance option
-   * (`IAutoMovieMotionHumanBalanceOption`, off by default) the hips moved back by the
+   * (`IAutoMovieMotionHumanBalance`, off by default) the hips moved back by the
    * balance shift solved once at the peak ({@link HumanBalance.shift}) and
    * scaled between by the pitch's sine, the lever of the trunk's weight ahead
    * of the hips.

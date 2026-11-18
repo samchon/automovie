@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 
 /**
@@ -77,13 +77,13 @@ export namespace IAutoMovieMotionHumanRise {
    */
   export interface IParams {
     /**
-     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
      * of its part, scaled by its weight between its two event-named instants,
      * each field absent taking the law's recommendation. Absent, none: the
      * posture is the law's own kinematic one with no balance shift or
      * centre-of-mass reading.
      */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
 
     /**
      * Where the body gets off a high seat: ahead of it, or to one side of a

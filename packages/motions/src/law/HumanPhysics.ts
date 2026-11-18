@@ -1,13 +1,13 @@
 import type {
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionHumanAuditMotion,
-  IAutoMovieMotionHumanBalanceOption,
+  IAutoMovieMotionHumanBalance,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "./HumanRefusal";
 
 /**
- * The one reader of the balance option (`IAutoMovieMotionHumanBalanceOption`):
+ * The one reader of the balance option (`IAutoMovieMotionHumanBalance`):
  * the shift an action applies, by how much at a film second, and whether
  * the audit judges the body's balance over it. Absent on the params, none:
  * a posed, planted action computes no centre of mass and is not checked
@@ -29,7 +29,7 @@ export namespace HumanPhysics {
   /** An action's params as the option reads them: the balance, when given. */
   export interface IBalanced {
     /** The balancing shift; none when absent. */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
   }
 
   /** An action's law as the option reads it. */
@@ -38,7 +38,7 @@ export namespace HumanPhysics {
     physical?: boolean;
 
     /** The law's recommended shift, every field set (`IAutoMovieMotionHumanActionLaw.balance`); none when absent. */
-    balance?: IAutoMovieMotionHumanBalanceOption;
+    balance?: IAutoMovieMotionHumanBalance;
   }
 
   /** An action as the audit reads it, a placed action also carrying its law and params. */
@@ -53,16 +53,16 @@ export namespace HumanPhysics {
   /** A shift with every field resolved: the caller's or the law's. */
   export interface IShift {
     /** The part moved to keep the centre of mass over the support. */
-    by: IAutoMovieMotionHumanBalanceOption.Part;
+    by: IAutoMovieMotionHumanBalance.Part;
 
     /** The share of the full shift applied, 0 to 1. */
     weight: number;
 
     /** The instant it starts. */
-    from: IAutoMovieMotionHumanBalanceOption.IBound;
+    from: IAutoMovieMotionHumanBalance.IBound;
 
     /** The instant it ends. */
-    to: IAutoMovieMotionHumanBalanceOption.IBound;
+    to: IAutoMovieMotionHumanBalance.IBound;
   }
 
   /** The shift an action applies (`shift`), or none. */
@@ -89,13 +89,13 @@ export namespace HumanPhysics {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record; retains nothing.
    */
   export function shift(params?: IBalanced, law?: ILaw): Shift {
-    const given: IAutoMovieMotionHumanBalanceOption | undefined = params?.balance;
+    const given: IAutoMovieMotionHumanBalance | undefined = params?.balance;
     if (given === undefined) return null;
-    const recommended: IAutoMovieMotionHumanBalanceOption = law?.balance ?? {};
-    const by: IAutoMovieMotionHumanBalanceOption.Part | undefined = given.by ?? recommended.by;
+    const recommended: IAutoMovieMotionHumanBalance = law?.balance ?? {};
+    const by: IAutoMovieMotionHumanBalance.Part | undefined = given.by ?? recommended.by;
     const weight: number | undefined = given.weight ?? recommended.weight;
-    const from: IAutoMovieMotionHumanBalanceOption.IBound | undefined = given.from ?? recommended.from;
-    const to: IAutoMovieMotionHumanBalanceOption.IBound | undefined = given.to ?? recommended.to;
+    const from: IAutoMovieMotionHumanBalance.IBound | undefined = given.from ?? recommended.from;
+    const to: IAutoMovieMotionHumanBalance.IBound | undefined = given.to ?? recommended.to;
     if (by === undefined) throw missing("by");
     if (weight === undefined) throw missing("weight");
     if (from === undefined) throw missing("from");
@@ -141,7 +141,7 @@ export namespace HumanPhysics {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record; retains nothing.
    */
   export function instant(
-    bound: IAutoMovieMotionHumanBalanceOption.IBound,
+    bound: IAutoMovieMotionHumanBalance.IBound,
     own: string,
   ): AutoMovieMotionHumanScheduledInstant {
     return {

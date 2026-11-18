@@ -4,7 +4,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
-  IAutoMovieMotionHumanBalanceOption,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -353,7 +353,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @param rise The instants the limb starts extending and is fullest at.
    * @param fall The instants the limb starts returning and is back at.
    * @param extended The action's posture at the limb's fullest extension.
-   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalanceOption`); absent, the hips are not shifted and no centre of mass is read.
+   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalance`); absent, the hips are not shifted and no centre of mass is read.
    * @returns The primitive, on the root.
    * @throws {HumanRefusal} `base` on `balance` when no place of the hips within `HumanBalance.REACH` brings the centre of mass inside the feet.
    *
@@ -371,7 +371,7 @@ export namespace AutoMovieMotionHumanTrunk {
     rise: readonly [string, string],
     fall: readonly [string, string],
     extended: IAutoMovieMotionHumanPosture,
-    balance?: IAutoMovieMotionHumanBalanceOption,
+    balance?: IAutoMovieMotionHumanBalance,
   ): IAutoMovieMotionHumanPrimitive {
     // Without the balance option the hips stay where the action puts them:
     // no centre of mass is read and nothing is shifted.

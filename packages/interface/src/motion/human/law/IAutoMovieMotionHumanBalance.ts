@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+
 /**
  * A balancing shift an action computes only when given; absent on the
  * params, none is computed. Each field absent takes the law's
@@ -23,25 +25,43 @@
  * @evidence contracts/development/design.md#minimal-and-owned-surface The four terms a closed-form shift reads; nothing else.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent is none; a field is the caller's or the law's, else refused; no share of a duration names an instant.
  */
-export interface IAutoMovieMotionHumanBalanceOption {
+export interface IAutoMovieMotionHumanBalance {
   /** The part moved to keep the centre of mass over the support. */
-  by?: IAutoMovieMotionHumanBalanceOption.Part;
+  by?: IAutoMovieMotionHumanBalance.Part;
 
   /** The share of the full shift applied, 0 to 1. */
   weight?: number;
 
   /** The instant it starts. */
-  from?: IAutoMovieMotionHumanBalanceOption.IBound;
+  from?: IAutoMovieMotionHumanBalance.IBound;
 
   /** The instant it ends. */
-  to?: IAutoMovieMotionHumanBalanceOption.IBound;
+  to?: IAutoMovieMotionHumanBalance.IBound;
 }
 
 /**
- * Companion types of {@link IAutoMovieMotionHumanBalanceOption}.
+ * Companion types of {@link IAutoMovieMotionHumanBalance}.
  *
  */
-export namespace IAutoMovieMotionHumanBalanceOption {
+export namespace IAutoMovieMotionHumanBalance {
+  /**
+   * A posture's whole-body centre of mass and the support points of its
+   * feet (the bearing outline of each, `HumanFoot.base`), world metres: what
+   * `HumanBalance.support` reads to judge a body's balance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two readings, their frame and unit, and their reader.
+   * @evidence contracts/development/design.md#principled-representation The centre and the support points, each world metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What HumanBalance.support returns; nothing else.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3; the readings stay with their producer.
+   */
+  export interface ISupport {
+    /** Whole-body centre of mass of the supplied posture in world metres; not the support polygon's centre. */
+    centre: IAutoMovieVector3;
+
+    /** World-space support points in metres, used to judge the body's balance. */
+    points: IAutoMovieVector3[];
+  }
+
   /**
    * The part a balancing shift moves.
    *

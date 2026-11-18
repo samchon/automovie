@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieMotionHumanBalanceOption,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -62,8 +62,8 @@ export function riseSeatOff(props: {
 
   /** Original current trunk flexion at a second and peak, degrees. */
   pitchAt: (seconds: number, peak: number) => number;
-  /** The balancing shift asked (`IAutoMovieMotionHumanBalanceOption`): absent, the feet are drawn to the first shank angle, the trunk peaks at the seat's own flexion and the seat leaves at `SEAT_OFF` of the rise, with no centre of mass read. */
-  balance?: IAutoMovieMotionHumanBalanceOption;
+  /** The balancing shift asked (`IAutoMovieMotionHumanBalance`): absent, the feet are drawn to the first shank angle, the trunk peaks at the seat's own flexion and the seat leaves at `SEAT_OFF` of the rise, with no centre of mass read. */
+  balance?: IAutoMovieMotionHumanBalance;
 }): {
   drawn: Record<"left" | "right", IAutoMovieVector3>;
   peak: number;

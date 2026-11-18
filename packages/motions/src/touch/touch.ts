@@ -254,7 +254,7 @@ export namespace touch {
         body,
         standing: entry,
         ...(grounded ? { feet: context.entry.feet } : {}),
-        // Balance only when the caller asks (`IAutoMovieMotionHumanBalanceOption`).
+        // Balance only when the caller asks (`IAutoMovieMotionHumanBalance`).
         ...(HumanPhysics.balanced(p) ? { balance: true } : {}),
         side: first,
         share: REACH,

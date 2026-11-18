@@ -42,7 +42,7 @@ export namespace supportKey {
    * @param label The key's name, for the refusal.
    * @param miss How far a contact may miss its target, millimetres.
    * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
-   * @param balance Whether the fit keeps the centre of mass over the bearing hull, the balance option (`IAutoMovieMotionHumanBalanceOption`); absent or false, the key is the contacts' posture nearest the preference and no centre of mass is read.
+   * @param balance Whether the fit keeps the centre of mass over the bearing hull, the balance option (`IAutoMovieMotionHumanBalance`); absent or false, the key is the contacts' posture nearest the preference and no centre of mass is read.
    * @returns The posture.
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
