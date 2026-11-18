@@ -1,6 +1,7 @@
 export * from "./AutoMovieMatrix3";
 export * from "./Matrix4";
 export * from "./Quaternion";
+export * from "./prepareLinearSystem";
 export * from "./prepareQuaternionSlerpRate";
 export * from "./Transform";
 export * from "./Vector3";
