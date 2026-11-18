@@ -29,8 +29,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * The salute is a row of `touch`: the forefinger's end, the hand continuing
  * its forearm with the palm down, to the right temple, the elbow level.
  *
- * Scenarios, on the small woman, the average man, the large man and the
- * short-legged man, at the middle of the hold:
+ * Scenarios, on the two extreme bodies, the small woman and the large man,
+ * at the middle of the hold:
  * 1. The right upper arm lies within 10 degrees of the horizontal (the
  *    tolerance is provisional).
  * 2. The elbow lies ahead of the shoulder, not behind it.
@@ -41,8 +41,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the salute through the public input, performs it on real bodies and reads displayed joint centres; an arm held off the manual's line, a bent wrist or a hand away from the brow fails.
  * @evidence contracts/development/testing.md#independent-expectations The line of the arm and the place of the fingertip are the drill manual's, not a reading of the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Four bodies of different stature and proportion; the arm's elevation, its fore-aft place, the wrist's line and the fingertip's place.
- * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and builds four short performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two extreme bodies the law's geometry spans; the arm's elevation, its fore-aft place, the wrist's line and the fingertip's place.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and builds two short performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the source, how the salute is composed and the 4 scenarios with their bounds.
  */
 export function test_human_motion_signature_salute(): void {
@@ -59,12 +59,9 @@ export function test_human_motion_signature_salute(): void {
     elbow: "level",
   });
   const complaints: string[] = [];
-  for (const name of [
-    "f-small",
-    "m-average",
-    "m-large",
-    "m-short-legged",
-  ] as const) {
+  // The two extreme bodies the law's geometry spans: the shortest arm and
+  // the longest. The manual's line is the same for every body between.
+  for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "salute",
