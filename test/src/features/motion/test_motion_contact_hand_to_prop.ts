@@ -4,8 +4,8 @@ import {
   createTool,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide } from "@automovie/interface";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,

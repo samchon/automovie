@@ -1,5 +1,8 @@
-import { physicalShapePairDistance } from "@automovie/engine";
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Vector3,
+  physicalShapePairDistance,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,

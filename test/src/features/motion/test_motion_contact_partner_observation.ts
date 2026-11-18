@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -51,7 +50,7 @@ export function test_motion_contact_partner_observation(): void {
     ],
     HumanChain.pair(HumanChain.subject("a"), HumanChain.subject("b")).handshake(
       { pumps: 2 },
-    ),
+    ).node,
   );
   const closed: number = motionHumanLaw.event(film, "gripClosed");
   const release: number = motionHumanLaw.event(film, "release");

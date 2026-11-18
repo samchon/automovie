@@ -3,8 +3,8 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { AutoMovieHumanSide } from "@automovie/interface";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,

@@ -6,15 +6,13 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanReach,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
-import {
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanSport,
+  poseBones,
+  resolveHumanPosture,
+  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";

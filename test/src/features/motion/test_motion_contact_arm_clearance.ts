@@ -1,6 +1,6 @@
 import { getConstraint, jointRomOvershoot } from "@automovie/engine";
-import type { AutoMovieHumanSide } from "@automovie/interface";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
