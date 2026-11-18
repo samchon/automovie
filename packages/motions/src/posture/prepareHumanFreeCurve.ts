@@ -73,7 +73,7 @@ export function prepareHumanFreeCurve(
 
   /** Actual current admission/solve remains the ordinary owner in every fallback. */
   function cold(share: number, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined, anchor: boolean = false): HumanPosturePreparation.IPrepared {
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): HumanPosturePreparation.IPrepared {
     return HumanPosturePreparation.continued(body, at(share), {}, resolution, projection);
   }
 
@@ -255,7 +255,7 @@ export function prepareHumanFreeCurve(
     if (share === pivot) return origin;
     const kept: { share: number; value: IAnchor } | undefined = anchors.get(level);
     if (kept?.share === share) return kept.value;
-    const prepared: HumanPosturePreparation.IPrepared = cold(share, resolution, projection, true);
+    const prepared: HumanPosturePreparation.IPrepared = cold(share, resolution, projection);
     const value: IAnchor | undefined = observe(prepared, at(share));
     if (value !== undefined) anchors.set(level, { share, value });
     return value;
@@ -301,10 +301,10 @@ export function prepareHumanFreeCurve(
       if (initial.rotation !== undefined || !HumanPostureRaw.eligible(initial) || Object.keys(initial.limbs).length === 0) {
         supported = false; return cold(share, resolution, projection);
       }
-      const prepared: HumanPosturePreparation.IPrepared = cold(0, resolution, projection, true);
+      const prepared: HumanPosturePreparation.IPrepared = cold(0, resolution, projection);
       origin = observe(prepared, at(0));
       if (origin === undefined) {
-        const middle: HumanPosturePreparation.IPrepared = cold(0.5, resolution, projection, true);
+        const middle: HumanPosturePreparation.IPrepared = cold(0.5, resolution, projection);
         const interior: IAnchor | undefined = observe(middle, at(0.5));
         if (interior !== undefined) { pivot = 0.5; origin = interior; }
       }
