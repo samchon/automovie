@@ -213,8 +213,16 @@ export namespace HumanInteractionMesh {
     // Starting from the authored geometric guess where its sides allow,
     // tighten the equality penalty between converged sparse local solves.
     // The barrier coefficient stays fixed throughout each line search.
-    const guess: Float64Array = props.start === undefined ? reference : flat(props.start);
-    let x: Float64Array = evaluate(guess, baseStiffness, baseStiffness).flipped === 0 ? guess : reference;
+    let x: Float64Array = reference;
+    let current: IEvaluation = original;
+    if (props.start !== undefined) {
+      const guess: Float64Array = flat(props.start);
+      const observed: IEvaluation = evaluate(guess, baseStiffness, baseStiffness);
+      if (observed.flipped === 0) {
+        x = guess;
+        current = observed;
+      }
+    }
     if (props.bones.length === 0) {
       const direct: Float64Array | undefined = fixedContacts(props.contacts, reference);
       if (direct !== undefined && feasible(evaluate(direct, baseStiffness, baseStiffness))) {
@@ -230,7 +238,8 @@ export namespace HumanInteractionMesh {
     let penalty: number = baseStiffness * (extent / accuracy);
     const largest: number = baseStiffness * (extent / accuracy) ** 2;
     const limit: number = Math.sqrt(Number.EPSILON) * extent;
-    let current: IEvaluation = evaluate(x, penalty, stiffness);
+    // The loop gate reads only feasibility, independent of either
+    // stiffness. Its first model evaluates the energy with its own weights.
     for (let round: number = 0; round < x.length && !feasible(current); round++) {
       const terms: Step.IRow[] = [];
       current = evaluate(x, penalty, round === 0 ? 1 : stiffness, terms);
