@@ -113,7 +113,7 @@ export namespace staggerClose {
     // Over the swing the stepping foot alone bears, its centre of pressure
     // held where `bear` holds it, so xi - p grows as e^(omega t).
     const xi0: IAutoMovieVector3 = pendulum.xi();
-    const held: IAutoMovieVector3 = StaggerPendulum.nearest(pendulum.bearing([anchor]), xi0);
+    const held: IAutoMovieVector3 = staggerNearest.of(pendulum.bearing([anchor]), xi0);
     const predicted: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
       Vector3.add(held, Vector3.scale(Vector3.subtract(xi0, held), Math.exp(w * seconds)));
     const closing: IAutoMovieMotionHumanFoot.IPlacement = closingFor(

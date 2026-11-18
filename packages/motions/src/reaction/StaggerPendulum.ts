@@ -195,29 +195,6 @@ export class StaggerPendulum {
     return { x: p.x, y: 0, z: p.z };
   }
 
-  /**
-   * The point of a convex outline nearest a point, the point itself when
-   * inside, on the floor.
-   *
-   * @param outline The outline.
-   * @param point The point.
-   * @returns The nearest point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States convex floor-outline projection and the unchanged inside-point result.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the original inside test and complete closed-edge projection search, including collapsed edges and first strict-distance winner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to staggerNearest's single original containment/projection kernel, also consumed by fixed-outline settling preparation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original three-coordinate projection arithmetic, span>0 decision and distance ties; callers provide a nonempty floor outline.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(v) edge work for v corners and constant live best-point storage; distance reads avoid one temporary subtraction vector per edge.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each point is searched against current outline coordinates; no nearest answer is reused across points.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the original inside point or a fresh selected edge point, retaining no query state.
-   */
-  public static nearest(
-    outline: readonly IAutoMovieVector3[],
-    point: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    return staggerNearest(outline, point);
-  }
-
   /** The state back to the push.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Restores initial feet, zero travel/time and push-scaled velocity.
@@ -334,14 +311,11 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Support, nearest projection and the shared advance owner retain separate responsibilities.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original pressure and duration without reducing an integration phase.
    * @evidence contracts/development/implementation.md#efficient-algorithms One bounded support/projection scan and one closed-form advance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses exact outline geometry and the same advance equations as transfer; no dynamic answer is cached.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the side's footprint outline and the one held-pressure propagator (`advance`); no dynamic answer is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds the original single phase to this search-owned state and retains no extra query data.
    */
   public bear(sides: readonly ("left" | "right")[], seconds: number): void {
-    this.advance(
-      StaggerPendulum.nearest(this.bearing(sides), this.xi()),
-      seconds,
-    );
+    this.advance(staggerNearest.of(this.bearing(sides), this.xi()), seconds);
   }
 
   /**
@@ -368,11 +342,8 @@ export class StaggerPendulum {
     // and never at its touch-down.
     const p0: IAutoMovieVector3 =
       this.phases.at(-1)?.p ??
-      StaggerPendulum.nearest(this.bearing(["left", "right"]), this.xi());
-    const p1: IAutoMovieVector3 = StaggerPendulum.nearest(
-      this.bearing([stance]),
-      p0,
-    );
+      staggerNearest.of(this.bearing(["left", "right"]), this.xi());
+    const p1: IAutoMovieVector3 = staggerNearest.of(this.bearing([stance]), p0);
 
     // One span in closed form over the whole shift (`staggerTransfer`).
     this.phases.push({ from: this.t, p: p0, s: this.s, v: this.v, to: p1, span: seconds });
@@ -391,24 +362,17 @@ export class StaggerPendulum {
   /** The pendulum over a span with its centre of pressure held.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Advances centre-relative travel/velocity over supplied seconds and records the starting phase.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the original inverted-pendulum cosh/sinh propagator through advanceAt.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One duration-specific factor preparation feeds the shared state update.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact frequency, supplied pressure, duration and vector-update grouping.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant closed-form work per original phase.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares update equations with the transfer path whose duration factors are already known.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds exactly one original phase; factor scratch dies at return and the search owns phase-array lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation The linear inverted pendulum's closed-form propagator under a held centre of pressure: s - p grows by cosh and v by sinh of omega times the span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the span's starting state, then one state update.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time step: the span is integrated exactly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant closed-form work per span.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course readers evaluate the recorded span with the same propagator (`staggerPendulumCourses`).
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds one phase record to the search-owned phase array.
    */
   public advance(p: IAutoMovieVector3, seconds: number): void {
-    this.advanceAt(p, seconds, Math.cosh(this.w * seconds), Math.sinh(this.w * seconds));
-  }
-
-  /**
-   * Advance the original held-pressure law using cosh/sinh for this exact
-   * frequency and duration. Record the starting phase before replacing the
-   * state; fixed-interval transfers lend their identical prepared factors.
-   */
-  private advanceAt(p: IAutoMovieVector3, seconds: number, ch: number, sh: number): void {
     const w: number = this.w;
+    const ch: number = Math.cosh(w * seconds);
+    const sh: number = Math.sinh(w * seconds);
     this.phases.push({ from: this.t, p, s: this.s, v: this.v });
     const next: IAutoMovieVector3 = Vector3.add(
       Vector3.add(p, Vector3.scale(Vector3.subtract(this.s, p), ch)),

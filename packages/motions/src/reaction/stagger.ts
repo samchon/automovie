@@ -250,7 +250,7 @@ export namespace stagger {
 
     // The root's level shift at a second, `balanced` interpolated; the feet
     // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
-    const shiftAt = (seconds: number): IAutoMovieVector3 => {
+    const shiftAt: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 => {
       const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
       const k: number = Math.floor(at);
       const a: IAutoMovieVector3 | undefined = balanced[k];
@@ -421,7 +421,7 @@ export namespace stagger {
     const unshifted: ReturnType<StaggerFeet["solve"]>[] = samples.map(
       (seconds: number): ReturnType<StaggerFeet["solve"]> => feet.solve(seconds),
     );
-    const lend = <T>(i: number, read: () => T): T => {
+    const lend: <T>(i: number, read: () => T) => T = <T>(i: number, read: () => T): T => {
       lent = balanced.length === 0 ? { seconds: samples[i]!, solved: unshifted[i]! } : undefined;
       try {
         return read();
@@ -455,7 +455,7 @@ export namespace stagger {
     // legs' share of the residual, and the shift is the sum of that series,
     // read from the residual with no shift and the one its shift leaves
     // (`staggerShift`).
-    const residuals = (): IAutoMovieVector3[] =>
+    const residuals: () => IAutoMovieVector3[] = (): IAutoMovieVector3[] =>
       samples.map((seconds: number, i: number): IAutoMovieVector3 => {
         const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
           resolved.centre(i, composed.posture(seconds)),
@@ -473,11 +473,10 @@ export namespace stagger {
     const second: IAutoMovieVector3[] = residuals();
     balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
     feet.shifted(shiftAt);
-    return {
-      ...composed,
-      get contacts(): IAutoMovieMotionHumanContactWindow[] {
-        return staggerContacts(recovery, duration);
-      },
-    };
+    const contacts: IAutoMovieMotionHumanContactWindow[] = staggerContacts(
+      recovery,
+      duration,
+    );
+    return { ...composed, contacts };
   }
 }

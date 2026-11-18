@@ -2,51 +2,52 @@ import { Vector3, pointInHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Project a floor point onto the original convex support outline, retaining
- * an inside point and the first strictly nearer closed-edge projection.
+ * The point of a convex support outline on the floor nearest a point, where
+ * a stagger's centre of pressure is held (`StaggerPendulum`, `staggerClose`):
+ * the point itself when it lies inside, else its projection onto the
+ * nearest closed edge.
  *
- * @param outline The nonempty convex floor outline, world or centre-relative metres.
- * @param point The point in that same frame.
- * @returns The input inside point or original nearest-edge point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the nonempty convex floor premise, common metre frame, inside identity and strict nearest-edge tie rule; prepare documents exact copied geometry and its changing-point reader.
- * @evidence contracts/development/implementation.md#principled-implementation Uses original pointInHull containment followed by every closed edge's clamped dot/span projection and three-coordinate distance. Preparation computes each fixed b-a and dot(ab,ab) once, while every actual changing point still runs the same projection and winner comparisons.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection kernel serves this one-shot reader and the fixed-outline preparation; the engine owns vector arithmetic and containment.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves span>0 collapsed-edge handling, every copied x/y/z scalar, edge order, arithmetic grouping and strict d<gap ties without a new margin or remembered answer. The prepared path exposes no mutable private vertex.
- * @evidence contracts/development/implementation.md#efficient-algorithms One-shot queries take O(v) containment/projection and constant live winner storage without preparing inside points. Explicit fixed-outline preparation takes O(v) time/storage once; each O(v) millisecond query omits repeated edge subtraction/span products and temporary vectors.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One-shot queries read the supplied outline directly. The settling operation's explicit copied outline proves fixed edge prerequisites; each query point remains actual, and changing support requires a new preparation rather than another point's answer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot projection retains nothing. One caller-owned prepared closure holds v copied vertices and v edge records until settling ends, with no query history or handles; inside outputs borrow the actual query point and projected outputs expose no private vertex.
- */
-export function staggerNearest(
-  outline: readonly IAutoMovieVector3[],
-  point: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return project(outline, point);
-}
-
-/**
- * Fixed-outline preparation for the same pressure projection.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The companion supplies one explicitly fixed convex support reader, with each queried pressure point still actual.
- * @evidence contracts/development/design.md#principled-representation Retains copied floor vertices and their original edge difference/span, not a sampled pressure trajectory or fitted support.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The settling loop consumes this one preparation; StaggerPendulum.nearest retains the one-shot entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pressure, containment result, constraint margin or motion sample is stored or approximated.
+ * @evidence contracts/development/common.md#meaningful-documentation States the projection, its premise of a nonempty convex floor outline and its readers.
+ * @evidence contracts/development/design.md#principled-representation Floor points in one metre frame; a prepared outline keeps its copied corners and each edge's difference and squared span, never a projected answer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `of` for one query and `prepare` for the settling loop's many queries on one fixed outline.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No margin, sampled pressure or remembered answer is stored.
  */
 export namespace staggerNearest {
   /**
-   * Prepare one fixed outline for actual changing pressure queries.
+   * The point of an outline nearest a point.
    *
-   * @param outline The nonempty convex floor outline, copied exactly in metres.
-   * @returns The original projection rule for each same-frame point.
+   * @param outline The nonempty convex floor outline, metres.
+   * @param point The point, in the same frame.
+   * @returns The point itself inside, else the nearest edge point; the first strictly nearer edge wins a tie.
    *
-   * Each ordered edge keeps its original b-a and dot(ab,ab). Every changing
-   * point still runs containment, clamped point-edge projection, distance and
-   * strict winner comparisons through the shared kernel, with the original
-   * collapsed-edge and inside decisions. No queried answer is remembered.
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the inside rule and the tie rule.
+   * @evidence contracts/development/implementation.md#principled-implementation Containment by the engine's `pointInHull`, then every closed edge's clamped projection, the nearest kept; a collapsed edge projects to its corner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kernel shared with `prepare`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin or tolerance moves the point.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(v) containment and edge projections for v corners.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function of(
+    outline: readonly IAutoMovieVector3[],
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return project(outline, point);
+  }
+
+  /**
+   * Prepare one fixed outline for many queries.
    *
-   * One copied vertex/edge array costs O(v) preparation/storage; each O(v)
-   * query avoids repeating fixed edge arithmetic. The caller releases this
-   * reader with settling, and no returned vector exposes its private vertices.
+   * @param outline The nonempty convex floor outline, copied, metres.
+   * @returns The projection of each queried point onto the copied outline, as `of` gives it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is copied and what each query returns.
+   * @evidence contracts/development/implementation.md#principled-implementation The same kernel as `of`, its edges' differences and squared spans computed once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One copy of the corners and one edge record each, then the shared kernel per query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every query runs the containment test and every edge projection; no answer is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(v) preparation once; each O(v) query skips the edge arithmetic that does not change.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The outline is copied, so the prepared edges stay those of the outline given whatever the caller does with it after.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader holds v corners and v edge records until its caller, the settling loop, releases it; a returned point never exposes a private corner.
    */
   export function prepare(
     outline: readonly IAutoMovieVector3[],
@@ -62,17 +63,17 @@ export namespace staggerNearest {
   }
 }
 
-/** One fixed edge's original arithmetic prerequisites. */
+/** One fixed edge's prerequisites. */
 interface IEdge {
   /** The edge's first point, metres in the outline frame. */
   readonly a: IAutoMovieVector3;
-  /** Its original b-a, metres. */
+  /** Its second point less its first, metres. */
   readonly ab: IAutoMovieVector3;
-  /** dot(ab,ab), square metres. */
+  /** dot(ab, ab), square metres. */
   readonly span: number;
 }
 
-/** Keep the original ordered projection; only fixed edge operands may be lent. */
+/** The nearest point of an outline, its edges' prerequisites read from `edges` when given. */
 function project(
   outline: readonly IAutoMovieVector3[],
   point: IAutoMovieVector3,
@@ -98,5 +99,7 @@ function project(
       best = q;
     }
   }
-  return edges !== undefined && best !== undefined && best === outline[0] ? { ...best } : best;
+
+  // A prepared outline's own corner is copied out, so no caller holds it.
+  return edges !== undefined && best === outline[0] ? { ...best } : best;
 }

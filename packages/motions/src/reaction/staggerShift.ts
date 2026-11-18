@@ -45,7 +45,7 @@ export function staggerShift(
   first: IAutoMovieVector3,
   second: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  const summed = (e0: number, e1: number): number => {
+  const summed: (e0: number, e1: number) => number = (e0: number, e1: number): number => {
     const share: number = Math.abs(e0) > 1e-9 ? e1 / e0 : NaN;
     return share >= 0 && share <= SHARE ? e0 / (1 - share) : e0 + e1;
   };

@@ -32,7 +32,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the problem, the two answers and which bases get which.
  * @evidence contracts/development/design.md#principled-representation The base axis decides the start (`HumanBase`): the laws plan from the entry state (the motion skill's laws rule), and the bases they have no route from are refused, as the transitions rule asks of an impossible change of plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the standing reference, the displayed entry, the blend and its per-joint blend, read by `crawl`, `crawlDown`, `crawlFrame`, `crawlInchworm` and `lieDown`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the start, the displayed entry, the way down, the transition and its per-joint blend, read by `crawl`, `crawlDown`, `crawlFrame`, `crawlInchworm`, `getUp` and `lieDown`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is named here; each passes its own name to the gate.
  */
 export namespace floorEntry {
@@ -106,7 +106,7 @@ export namespace floorEntry {
    * @throws {HumanRefusal} `base` for a base the law has no way down from (`standing`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two starts and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The gate, then the law's own stance or `reference` and `displayed`.
+   * @evidence contracts/development/implementation.md#principled-implementation The gate, then the law's own stance, or an upright stance at the entry (`stand.posture` under the displayed hips or between the entry's ankles) and `displayed`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the gate.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond one resolution off the feet.
@@ -182,37 +182,18 @@ export namespace floorEntry {
   /**
    * An upright stance at the entry, the reference a floor law measures its
    * geometry from when the body is not standing: over the floor under the
-   * entry's hips, or under the middle of its ankles, heading the entry's
-   * way.
-   *
-   * @param context The action's context.
-   * @param over What the stance stands over.
-   * @returns The standing posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the stance is for, where it stands and its heading.
-   * @evidence contracts/development/implementation.md#principled-implementation `stand.posture`, the owner of a quiet stance, placed at a floor point read off the entry's displayed bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One floor point and one stance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stance is only the law's measure; it is never shown, since the law blends from the displayed entry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original quiet-standing construction. A reference alone reads only displayed root/heading or two entry ankles; it builds no unobserved clinical joint map. Start still creates its one required J-joint blend source.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares referenceFrom's original anchor and standing owner with start; start can lend its already constructed actual display, while this standalone call still observes the supplied entry normally.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * entry's hips, or under the middle of its ankles, heading the entry's way.
+   * It is only the law's measure and is never shown, since the law blends
+   * from the displayed entry (`stand.posture` at a floor point read off it).
    */
-  export function reference(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    over: "hips" | "feet",
-  ): IAutoMovieMotionHumanPosture {
-    return referenceFrom(context, over);
-  }
-
-  /** Reuse only this call's actual immutable entry display while preserving the original anchor and standing geometry. */
   function referenceFrom(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     over: "hips" | "feet",
-    entered?: IAutoMovieMotionHumanPosture,
+    entered: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     const at: IAutoMovieVector3 =
       over === "hips"
-        ? hips(context.body, entered ?? displayedFrame(context))
+        ? hips(context.body, entered)
         : Vector3.scale(
             Vector3.add(
               context.entry.feet.left.ankle,
@@ -277,47 +258,16 @@ export namespace floorEntry {
   }
 
   /**
-   * A blend between two postures written by joint angles alone: every
-   * joint's angles, the heading the short way round and the tips go by the
-   * weight, and the hips joint travels on the straight line between its two
-   * places, the root following from it. Carrying the root instead would
-   * swing the hips through the air between two tilted bodies, whose roots
-   * lie far from their hips. Where the blended angles would put a limb
-   * deeper under the floor than the two ends have it, the body is raised by
-   * the difference (`knockdown.rest`).
-   *
-   * @param body The body.
-   * @param from The posture at weight 0, with no limb goal.
-   * @param to The posture at weight 1, with no limb goal.
-   * @param weight The weight in [0, 1].
-   * @param resolution Optional exact FK source borrowed only during this transition query.
-   * @param projection Optional genuine same-body ROM metadata from this query.
-   * @returns The blended posture; `from` at 0 and `to` at 1.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what moves how, why the hips carry the root and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint-space interpolation of two whole postures, with the root placed under the interpolated hips by the posture's own heading, the relation the resolver places the hips by.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the joints, one root and one floor reading of the blend and of each end.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ends return the given postures unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold, plus three forward kinematics over the body's shapes for the floor reading.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function blend(
-    body: IAutoMovieMotionHumanBody,
-    from: IAutoMovieMotionHumanPosture,
-    to: IAutoMovieMotionHumanPosture,
-    weight: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanPosture {
-    return between(body, from, to)(weight, resolution, projection);
-  }
-
-  /**
-   * Prepare a transition between two fixed joint-space floor postures. The
-   * endpoints are immutable for this transition's lifetime; only progress
-   * changes. Their hip points and floor clearances are measured lazily on
-   * the first interior query and retained with this finite transition.
+   * Prepare a transition between two fixed postures written by joint angles
+   * alone: every joint's angles, the heading the short way round and the
+   * tips go by the weight, and the hips joint travels on the straight line
+   * between its two places, the root following from it. Carrying the root
+   * instead would swing the hips through the air between two tilted bodies,
+   * whose roots lie far from their hips. Where the blended angles would put
+   * a limb deeper under the floor than the two ends have it, the body is
+   * raised by the difference (`knockdown.prepareRest`). The endpoints stay
+   * unchanged for the transition's lifetime; their hip points and floor
+   * clearances are measured on the first interior query and kept with it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States endpoint immutability, progress, lazy endpoint-measurement lifetime and optional nonescaping synchronous FK/ROM sources on each returned read.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same joint interpolation, shortest yaw and hip-carried root as blend, raising only the blend's floor penetration beyond the endpoints' interpolated penetration.

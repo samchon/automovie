@@ -136,7 +136,7 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
    * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original independent root, trunk and joint primitives, their phase/fold reads and three 16-step fit bisections. Fixed named phase interval preparation and demanded floor geometry avoid repeated prerequisites without removing actual measures or claiming measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The root writer lends only current composition FK/ROM metadata to its actual floor measure. A planning IIFE shares exact FK/projector prerequisites across standing then seated reads, with every joint still projected. Entry yaw is read at the original offset expression sites and every original phase call remains observable through the clock's guarded live callback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed phase preparation and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current root-writer call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, one fold measure reader bound to its body, two numeric measures, fixed phase preparation and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current root-writer call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
@@ -167,6 +167,8 @@ export namespace knockdown {
     // and hips are along its heading standing and seated: the feet stay where
     // they stood until the seat lands, and the seat stays where it landed.
     const fitted: KnockdownFloor.IFit = KnockdownFloor.fit(body, back(SEATED));
+    const measure: ReturnType<typeof KnockdownFloor.prepareMeasure> =
+      KnockdownFloor.prepareMeasure(body);
     const at: (
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -175,8 +177,7 @@ export namespace knockdown {
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): KnockdownFloor.IMeasure => KnockdownFloor.measure(
-      body,
+    ): KnockdownFloor.IMeasure => measure(
       KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
       resolution,
       projection,
