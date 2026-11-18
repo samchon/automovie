@@ -37,11 +37,6 @@ import type {
  */
 export namespace StrikingAim {
   /**
-
-
-  
-
-  /**
    * The observation seconds of a strike: from the launch, one per step, up to
    * the last one whose correction still lasts its shortest duration.
    *
