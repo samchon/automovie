@@ -221,8 +221,11 @@ export namespace kneelKeys {
       }
       return (lo + hi) / 2;
     };
-    // Six substitutions of the pitch for the slope it gives the shank
-    // (provisional iteration count: the loop has no stopping test).
+    // Six substitutions of the pitch for the slope it gives the shank. The
+    // map contracts: a degree of pitch moves the ankle by the toe-joint-to-
+    // ankle lever times a radian's share, about 0.12 m / 0.43 m of the shank's
+    // slope, so each round shrinks the error to about 0.3 of the last and six
+    // rounds take a 30 degree start below 0.03 degrees.
     let pitch: number = 90 - dorsiflexion;
     for (let i: number = 0; i < 6; i++) {
       const rise: number = ankle(foot(back(pitch), pitch)).y - kneeAt.y;
