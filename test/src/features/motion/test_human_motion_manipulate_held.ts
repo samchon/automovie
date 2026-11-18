@@ -6,6 +6,7 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
   resolvePose,
+  rotationBetween,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -24,6 +25,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -32,6 +34,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   poseBones,
+  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,8 +64,9 @@ const HOLDERS: readonly AutoMovieHumanoidBone[] = [
  *
  * The pad is already in the hand at the start of the shot. Two reachable
  * sites come from direct forward kinematics of distinct, authored flexion
- * poses within the thumb's range. The independent oracle transforms those
- * fixed sites by the displayed prop frame at each authored press time.
+ * poses within the thumb's range. Each site's surface faces the thumb at its
+ * authored contact pose. The independent oracle transforms the fixed sites by
+ * the displayed prop frame at each authored press time.
  *
  * Scenarios:
  *
@@ -84,26 +88,27 @@ export function test_human_motion_manipulate_held(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const fingerAngles: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const bone of HOLDERS) fingerAngles[bone] = [45, 0, 0];
-  const poseJoints: IAutoMovieJointPose[] = HOLDERS.map(
-    (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => ({
-      bone,
-      flexion: 45,
-      abduction: 0,
-      twist: 0,
-    }),
-  );
-  /** Resolve the fixture's forward rig with the given thumb flexion, independently of the overlay. */
+  /** The carrier moves its root while keeping the same authored grip. */
+  const carrying = (seconds: number): IAutoMovieMotionHumanPosture => ({
+    root: { x: seconds, y: 0, z: 0 },
+    yaw: 0,
+    pitch: 0,
+    roll: 0,
+    limbs: {},
+    joints: fingerAngles,
+  });
+
+  /** Use the carrier's clinical joint defaults before measuring the two explicitly flexed thumb poses by forward kinematics. */
   const forward = (flexion: number): IAutoMovieResolvedBone[] =>
     resolvePose(
-      {
-        skeleton: body.skeleton.id,
-        root: null,
-        joints: [
-          ...poseJoints,
-          { bone: "rightThumbProximal", flexion: 20, abduction: 0, twist: 0 },
-          { bone: "rightThumbDistal", flexion, abduction: 0, twist: 0 },
-        ],
-      },
+      resolveHumanPosture(body, {
+        ...carrying(0),
+        joints: {
+          ...fingerAngles,
+          rightThumbProximal: [20, 0, 0],
+          rightThumbDistal: [flexion, 0, 0],
+        },
+      }),
       body.skeleton,
       HUMANOID_JOINT_AXES,
       HUMANOID_REST_FRAME,
@@ -116,19 +121,24 @@ export function test_human_motion_manipulate_held(): void {
   const surface: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions.thumbTipRight;
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
-  const sites: IAutoMovieVector3[] = [first, second].map(
-    (bones: IAutoMovieResolvedBone[]): IAutoMovieVector3 => {
+  const sites: IAutoMovieTransform[] = [first, second].map(
+    (bones: IAutoMovieResolvedBone[]): IAutoMovieTransform => {
       const distal: IAutoMovieResolvedBone = bones.find(
         (bone: IAutoMovieResolvedBone): boolean => bone.bone === surface.bone,
       )!;
-      const tip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-        surface,
-        distal,
-      ).point;
-      return Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(tip, hand.worldPosition),
-      );
+      const tip: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+        resolveAutoMovieHumanoidSurfaces.place(surface, distal);
+      return {
+        ...Transform.identity(),
+        translation: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(tip.point, hand.worldPosition),
+        ),
+        rotation: rotationBetween(
+          { x: 0, y: 1, z: 0 },
+          Quaternion.rotateVector(inverse, Vector3.scale(tip.normal, -1)),
+        ),
+      };
     },
   );
   const prop: IAutoMovieMotionHumanProp = {
@@ -137,12 +147,12 @@ export function test_human_motion_manipulate_held(): void {
     points: {},
     affordances: sites.map(
       (
-        translation: IAutoMovieVector3,
+        frame: IAutoMovieTransform,
         index: number,
       ): NonNullable<IAutoMovieMotionHumanProp["affordances"]>[number] => ({
         id: `key${index + 1}`,
         kind: "button",
-        frame: { ...Transform.identity(), translation },
+        frame,
         extent: null,
       }),
     ),
@@ -156,14 +166,7 @@ export function test_human_motion_manipulate_held(): void {
       contacts: [],
       events: [],
       holds: [{ side: "right", prop: "pad", from: 0, fingers: fingerAngles }],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => ({
-        root: { x: seconds, y: 0, z: 0 },
-        yaw: 0,
-        pitch: 0,
-        roll: 0,
-        limbs: {},
-        joints: fingerAngles,
-      }),
+      posture: carrying,
     }),
   };
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
@@ -254,7 +257,7 @@ export function test_human_motion_manipulate_held(): void {
     ).point;
     const target: IAutoMovieVector3 = Vector3.add(
       world.position,
-      Quaternion.rotateVector(world.rotation, sites[pressed]!),
+      Quaternion.rotateVector(world.rotation, sites[pressed]!.translation),
     );
     TestValidator.predicate(
       `key ${pressed + 1} travels with the prop and is pressed within 2 mm`,
