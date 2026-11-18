@@ -27,6 +27,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -90,10 +91,10 @@ export namespace useTool {
   /** Cancel table: work stops between cycles. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     putDown: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 
@@ -134,8 +135,13 @@ export namespace useTool {
    */
   export const SLOPES: readonly number[] = [20, 30, 40, 50, 60];
 
-  /** The hammer's raise about the wrist, degrees (provisional). */
-  export const RAISE: number = 60;
+  /**
+   * The hammer's raise about the wrist from the strike to the full windup,
+   * degrees: the 70 ± 10 degrees of wrist motion from windup to impact in a
+   * simulated hammering task (Leventhal et al. 2010, J Hand Surg Am 35:1097,
+   * Results, "Wrist and Forearm Motion").
+   */
+  export const RAISE: number = 70;
 
   /**
    * The screwdriver's turn each way of the forearm's neutral, degrees: a
