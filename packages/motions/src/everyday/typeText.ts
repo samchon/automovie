@@ -177,8 +177,8 @@ export namespace typeText {
   /** Seconds before the first press, the time to reach the first key from where the hands are (provisional). */
   const LEAD: number = 0.3;
 
-  /** The fingers' direction in the keyboard's frame: ahead and tipped down toward the keys (provisional). */
-  const FINGERS: IAutoMovieVector3 = { x: 0, y: -0.5, z: 1 };
+  /** Vertical drop per horizontal metre along the typing fingers (provisional). */
+  const FINGER_SLOPE: number = -0.5;
 
   /** How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s share (provisional). */
   const OUT: number = 0.1;
@@ -356,19 +356,21 @@ export namespace typeText {
     // between keys in the hover plane, or pressing.
     const tipAt: (side: AutoMovieHumanSide, t: number) => IAutoMovieVector3 =
       typeTextPresses(keys, times, interval, home, frame, HOVER, TRAVEL);
-    const fingers: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
-      FINGERS,
-    );
+
+    // Each forearm approaches its home key from its shoulder. Align the
+    // fingers with that approach so the wrist stays behind the index tip.
+    function handRotation(side: AutoMovieHumanSide): IAutoMovieQuaternion {
+      const homePoint: IAutoMovieVector3 = HumanFrame.point(frame, home[side]);
+      const approach: IAutoMovieVector3 = Vector3.subtract(homePoint, shoulders[side]);
+      const planar: IAutoMovieVector3 = approach.x === 0 && approach.z === 0
+        ? HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw }, { x: 0, y: 0, z: 1 })
+        : Vector3.normalize({ ...approach, y: 0 });
+      const fingers: IAutoMovieVector3 = { ...planar, y: FINGER_SLOPE };
+      return HumanHand.rotation(side, { fingers, palm: { x: 0, y: -1, z: 0 } });
+    }
     const hands: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
-      left: HumanHand.rotation("left", {
-        fingers,
-        palm: { x: 0, y: -1, z: 0 },
-      }),
-      right: HumanHand.rotation("right", {
-        fingers,
-        palm: { x: 0, y: -1, z: 0 },
-      }),
+      left: handRotation("left"),
+      right: handRotation("right"),
     };
     const shaped: readonly [
       AutoMovieHumanoidBone,
