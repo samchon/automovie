@@ -401,7 +401,8 @@ export function motionRecomposeTravel(
           "climbLadder",
         ] as const
       ).entries()) {
-        if (!covers(cell)) continue;
+        // The coupled approach below owns the same neutral and weary performances.
+        if (law === "approach" || !covers(cell)) continue;
         const plainly: IAutoMovieMotionHumanPerformance | undefined = play(
           law,
           "neutral",
@@ -690,8 +691,14 @@ export function motionRecomposeTravel(
           facing: Math.abs(((heading - toward + 540) % 360) - 180),
         };
       };
-      const free = gap(play("approach", "to the partner"));
-      const slow = gap(play("approach", "weary to the partner", weary));
+      const plainApproach: IAutoMovieMotionHumanPerformance | undefined = play("approach", "to the partner");
+      const wearyApproach: IAutoMovieMotionHumanPerformance | undefined = play("approach", "weary to the partner", weary);
+      const neutralDuration: number = length(plainApproach);
+      const wearyDuration: number = length(wearyApproach);
+      if (!(wearyDuration > neutralDuration))
+        findings.push(`${name}: weary approach lasts ${wearyDuration} s against neutral ${neutralDuration} s, longer expected`);
+      const free: ReturnType<typeof gap> = gap(plainApproach);
+      const slow: ReturnType<typeof gap> = gap(wearyApproach);
       if (!(Math.abs(slow.gap - free.gap) <= 0.02))
         findings.push(
           `${name}: a weary approach stops ${slow.gap.toFixed(3)} m from the partner against ${free.gap.toFixed(3)} m, within 0.02 m expected (#3227)`,
