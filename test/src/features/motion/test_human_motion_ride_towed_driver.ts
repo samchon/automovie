@@ -94,13 +94,50 @@ export function test_human_motion_ride_towed_driver(): void {
     initial,
     "seat",
   );
-  const standAt: IAutoMovieVector3 = ride.frame("footboard", 0).translation;
+  const board: IAutoMovieAffordance = cart.affordance("footboard");
+  const boardAt: IAutoMovieTransform = ride.frame("footboard", 0);
+  const onBoard = (x: number, z: number): IAutoMovieVector3 =>
+    Vector3.add(
+      boardAt.translation,
+      Quaternion.rotateVector(boardAt.rotation, { x, y: 0, z }),
+    );
   const seatSurface: IAutoMovieAffordance = cart.affordance("seat");
   const instants: readonly number[] = [
     departuresAt,
     ride.plan.when(straight + arc / 2),
     ride.plan.when(straight + arc),
   ];
+  /** The provisional hand station follows the actual flexible material as the hitch turns. */
+  const contact = (id: string, seconds: number): IAutoMovieTransform => {
+    const nominal: IAutoMovieTransform = ride.frame(
+      id as createCart.Affordance,
+      seconds,
+    );
+    if (id !== "leftLineGrip" && id !== "rightLineGrip") return nominal;
+    const side: "left" | "right" = id === "leftLineGrip" ? "left" : "right";
+    const line: ArchetypeRide.ILineState = ride
+      .at(seconds)
+      .lines!.find(
+        (laid: ArchetypeRide.ILineState): boolean => laid.id === `line-${side}`,
+      )!;
+    const from: IAutoMovieVector3 = line.points.at(-1)!;
+    const to: IAutoMovieVector3 = line.points.at(-2)!;
+    const span: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const along: IAutoMovieVector3 = Vector3.normalize(span);
+    const share: number = Math.min(
+      1,
+      Math.max(
+        0,
+        Vector3.dot(Vector3.subtract(nominal.translation, from), span) /
+          Vector3.dot(span, span),
+      ),
+    );
+    return ArchetypeFrame.facing(
+      Vector3.lerp(from, to, share),
+      Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+      along,
+    );
+  };
   const findings: string[] = [];
 
   /** Report the missed contact in millimetres without interrupting the sweep. */
@@ -110,21 +147,24 @@ export function test_human_motion_ride_towed_driver(): void {
   };
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    // The driver boards at the seat-side edge of the real board. The seat's
+    // two footrests are separate ball contacts on that rectangle.
+    const boardRear: number = -board.depth! / 2;
+    const foot: number = boardRear + body.measure.footLength / 2;
+    const standAt: IAutoMovieVector3 = onBoard(0, foot);
+    const drivingSeat: IAutoMovieMotionHumanSeated.ISeat = {
+      ...seat,
+      footrests: {
+        left: onBoard(board.width! / 8, foot),
+        right: onBoard(-board.width! / 8, foot),
+      },
+    };
     let performance: HumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "towed-driver",
         laws: [HumanRide.ride],
-        props: [
-          HumanObject.prop(
-            "cart",
-            cart,
-            initial,
-            placement,
-            (id: string, seconds: number): IAutoMovieTransform =>
-              ride.frame(id as createCart.Affordance, seconds),
-          ),
-        ],
+        props: [HumanObject.prop("cart", cart, initial, placement, contact)],
         performers: [
           {
             subject: "driver",
@@ -136,12 +176,12 @@ export function test_human_motion_ride_towed_driver(): void {
         ],
         composition: HumanChain.subject("driver")
           .stand({ seconds: 0.3, on: { prop: "cart" } })
-          .sit({ seat, seconds: 0.5 })
+          .sit({ seat: drivingSeat, seconds: 0.5 })
           .registered("ride", {
             on: "cart",
             seconds: ride.duration,
             seat: "seat",
-            hands: { left: "leftLine", right: "rightLine" },
+            hands: { left: "leftLineGrip", right: "rightLineGrip" },
           }).node,
       });
     } catch (error) {

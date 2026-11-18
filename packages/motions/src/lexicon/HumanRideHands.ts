@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
@@ -17,6 +18,7 @@ import type {
 
 import { seated as seatSocket } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
 import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
@@ -39,10 +41,12 @@ export namespace HumanRideHands {
   /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1), degrees. */
   const ROWING: readonly [number, number] = [-28, 49];
 
-  /** A moving round handle carries its measured skin distance from the wrist. */
+  /** Material-aware round handles and rein contacts over the ride's ordinary hold geometry. */
   export interface IMaterialGrip extends IAutoMovieMotionHumanMountRider.IHoldGrip {
     /** Metres from the palm centreline to its skin at the authored holding station. */
     palmDepth?: number;
+    /** A rein meets the body's actual wrist-relative palm surface. */
+    reinPalm?: IAutoMovieMotionHumanHand.IFrame;
   }
 
   /** Each hand's current, complete support-relative hold. */
@@ -53,6 +57,8 @@ export namespace HumanRideHands {
     /** The holding hand and its measured depth after a full articulated frame is observed. */
     side: AutoMovieHumanSide;
     palmDepth?: number;
+    /** The canonical palm frame retained for a rein over all pose reads. */
+    reinPalm?: IAutoMovieMotionHumanHand.IFrame;
     /** The named point within the support. */
     id: string;
 
@@ -137,15 +143,20 @@ export namespace HumanRideHands {
           reason: `${on} has no point ${id} for the ${side} hand`,
           fix: "name one of the support's points",
         });
-      if (id !== undefined)
+      if (id !== undefined) {
+        const affordance: IAutoMovieAffordance | undefined = support.prop.affordances?.find(
+          (a: IAutoMovieAffordance): boolean => a.id === id,
+        );
         handles[side] = {
           id,
           side,
           rest: support.prop.points[id]!,
-          affordance: support.prop.affordances?.find(
-            (a: IAutoMovieAffordance): boolean => a.id === id,
-          ),
+          affordance,
+          ...(affordance?.kind === "rein"
+            ? { reinPalm: HumanHand.offset(context.body, side, "palm") }
+            : {}),
         };
+      }
     }
 
     const base = context.entry.base;
@@ -215,6 +226,7 @@ export namespace HumanRideHands {
       }
       return {
         ...(material ? { palmDepth: held.palmDepth } : {}),
+        ...(held.reinPalm === undefined ? {} : { reinPalm: held.reinPalm }),
         point:
           part?.point ??
           Vector3.add(
@@ -248,11 +260,11 @@ export namespace HumanRideHands {
       );
       const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
       for (const side of holding) {
-        const grip: IAutoMovieMotionHumanMountRider.IHoldGrip | undefined =
+        const grip: IMaterialGrip | undefined =
           grips[side];
         if (grip === undefined) continue;
         const point: IAutoMovieVector3 = Vector3.add(origin.position, Quaternion.rotateVector(back, Vector3.subtract(grip.point, frame.position)));
-        points[side] = fixedSeat
+        points[side] = fixedSeat || grip.reinPalm !== undefined
           ? HumanMountRider.wrist(context.body, seated, {
               ...grip,
               point,
