@@ -87,7 +87,7 @@ export function test_motion_posture_paired_event(): void {
       posture: (): IAutoMovieMotionHumanPosture => context.entry.posture,
     }),
   };
-  const cues: { music: IAutoMovieScheduleCue[] } = {
+  const cues: Record<"music", IAutoMovieScheduleCue[]> = {
     music: HumanCue.beats({ bpm: 96, count: 8 }),
   };
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({

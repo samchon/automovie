@@ -26,8 +26,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * straight leg turns a millimetre at the ankle into a centimetre at the
  * knee.
  *
- * Scenarios, on the four extreme bodies, each standing 0.5 s, walking 3 m
- * and standing 0.5 s:
+ * Scenarios:
  * 1. Across the cut into the walk, from 1 ms before to 1 ms after, the hip,
  *    knee and ankle joint centres of both legs and the pelvis each travel
  *    less than 1 mm (a body at a standstill moves nothing in 2 ms).

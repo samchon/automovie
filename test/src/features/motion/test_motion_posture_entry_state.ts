@@ -32,12 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * seat and the seat's contact, as a mount onto a saddle does, without
  * moving the body.
  *
- * Scenarios, on the average man. One body bounds the claim: the performance
- * hands each action the base and the holds the actions before it declared,
- * bookkeeping that reads no body measure, and the seat it passes on is the
- * one the test declared. The body enters only the sit's and the pick-up's
- * own plans, whose bodies are `test_human_motion_base_supports`'s and the
- * `test_human_motion_pick_up_*` specs':
+ * Scenarios:
  * 1. Entered first, an action is on a standing base with both hands empty.
  * 2. After sitting down on a chair, an action is on a seated base.
  * 3. After an action that declares a seated base with an astride seat, the
