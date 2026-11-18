@@ -10,6 +10,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
+import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
 
 /** The sitting law's unchanged entry, target and descent geometry. */
 interface IProps {
@@ -104,7 +105,8 @@ export function prepareSitLowering(
   };
   const downDuration: number = contact - down;
   const settleDuration: number = descent - contact;
-  return (
+  let transfer: number = 0;
+  const read = (
     t: number,
     back: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -149,6 +151,16 @@ export function prepareSitLowering(
       pitch: tilt.pitch,
       roll: 0,
     });
+    // On approach the thighs come under the leaning trunk. The chest
+    // takes only their impending overlap, giving the flexion back as the
+    // seated back settles. This leaves the pelvis and both supports fixed.
+    const moved: number = transfer * lowered * (1 - settle);
+    if (moved > 0) {
+      const spine: NonNullable<typeof joints.spine> = tilt.joints.spine ?? [0, 0, 0];
+      const chest: NonNullable<typeof joints.chest> = tilt.joints.chest ?? [0, 0, 0];
+      tilt.joints.spine = [spine[0] - moved, spine[1], spine[2]];
+      tilt.joints.chest = [chest[0] + moved, chest[1], chest[2]];
+    }
     return resolveHumanPosture.lower(
       body,
       {
@@ -163,4 +175,6 @@ export function prepareSitLowering(
       resolution,
     );
   };
+  transfer = seatedLumbarTransfer(body, read(contact, 1));
+  return read;
 }

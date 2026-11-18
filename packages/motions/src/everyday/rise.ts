@@ -1,5 +1,6 @@
 import { ANKLE_DORSIFLEXION, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -32,6 +33,7 @@ import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";
 import { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { riseRested } from "./riseRested";
+import { prepareRisePalmRoll } from "./prepareRisePalmRoll";
 import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
@@ -430,8 +432,12 @@ export namespace rise {
             1 - minimumJerk.share((u - away) / releasing),
           );
         };
+    const palmRoll: ReturnType<typeof prepareRisePalmRoll> = prepareRisePalmRoll(body, risingPosture(seatOff),
+      (["left", "right"] as const).filter((side: AutoMovieHumanSide): boolean => rests?.[side] === undefined));
+    const supported = (t: number): IAutoMovieMotionHumanPosture => palmRoll(risingPosture(t),
+      minimumJerk.share((t - prepared) / away) * (1 - minimumJerk.share((t - seatOff) / releasing)));
     const bearing: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
-      AutoMovieMotionHumanArmChain.continued(body, released, risingPosture);
+      AutoMovieMotionHumanArmChain.continued(body, released, supported);
     const rose: (seconds: number) => IAutoMovieMotionHumanPosture = (seconds: number): IAutoMovieMotionHumanPosture =>
       seconds < released ? bearing(seconds) : risingPosture(seconds);
 
