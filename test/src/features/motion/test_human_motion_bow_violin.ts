@@ -53,12 +53,13 @@ export function test_human_motion_bow_violin(): void {
   const Chain: ReturnType<
     typeof HumanChain.extend<{ bowViolin: typeof bowViolin }>
   > = HumanChain.extend({ bowViolin });
+  // Take the bow by its declared grip. The following stroke fits its own
+  // target on the string using the held bow's actual attachment.
   const pick = (): ReturnType<typeof Chain.subject> =>
     Chain.subject("player").pickUp({
       prop: "bow",
       hand: "right",
       handle: "grip",
-      use: { tip: "hairTip", line: "forearm" },
     });
   const pickup: HumanPerformance = new HumanPerformance({
     seed: "bow",
