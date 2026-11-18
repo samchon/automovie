@@ -26488,6 +26488,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "The foot that steps first; `right` when absent."
           },
+          "on": {
+            "type": "string",
+            "description": "The prop the flight belongs to, its subject id, so a foot on a tread bears on it; the fixed floor frame when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
             "description": "How it is performed."

@@ -1,7 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -22,6 +21,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
@@ -38,6 +38,9 @@ import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
 import { climbStairsProfile } from "./climbStairsProfile";
+
+/** Offset decay time of a cut out of the arrived climb, seconds (provisional: no study of the transition was located). */
+const BLEND: number = 0.3;
 
 /**
  * Climbing a flight of stairs up or down from standing before its first
@@ -77,7 +80,11 @@ import { climbStairsProfile } from "./climbStairsProfile";
  * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and
  * 280 mm; a riser above 0.35 of the hip height or a tread shorter than 0.6
  * of the foot is refused with the body's feasible range (provisional limits).
- * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1.
+ * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1. A foot
+ * on a tread bears on the prop `on` names, or on the fixed floor frame when
+ * no prop is named; a foot on the floor before the flight bears on the
+ * ground. The treads repeat the settled stance's flat feet, while the feet
+ * leave the floor from where the entry put them.
  *
  * Not yet: handrail use (no `bar` affordance exists, A8), landing turns,
  * ramps and slopes, which belong to the walk on a sloped support.
@@ -94,10 +101,10 @@ export namespace climbStairs {
   /** Cancel table: the climb ends into standing or walking once both feet are on the last tread. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
     ],
     walk: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
     ],
   };
 
@@ -142,9 +149,12 @@ export namespace climbStairs {
     const p: IAutoMovieMotionHumanClimbStairs.IParams = context.params;
     const lead: "left" | "right" = p.lead ?? "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
-    const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
+    // The feet leave the floor from the entry; the treads repeat the
+    // settled stance's flat feet (`stand.footprints`).
+    const stood: stand.IFootprints = stand.footprints(context);
+    const standing: IAutoMovieMotionHumanPosture = stood.standing;
+    const entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.entered;
+    const flats: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.settled;
     const yaw: number = standing.yaw;
     const stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight = flight(body, standing, p);
     const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
@@ -152,17 +162,7 @@ export namespace climbStairs {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
 
-    // Footprints: the sole on its tread at the standing lateral place.
-    const flatOf: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
-      return {
-        ankle: goal.point,
-        rotation: goal.rotation ?? HumanFrame.turn(yaw),
-      };
-    };
-    const flats: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
-      left: flatOf("left"), right: flatOf("right"),
-    };
+    // Footprints: the settled flat sole on its tread at the standing lateral place.
     const flat: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
     const goals: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>> = {
       left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", flats.left.rotation),
@@ -193,7 +193,7 @@ export namespace climbStairs {
     };
     const sole: (side: "left" | "right") => IAutoMovieMotionHumanClearance.IPoint[] = (side: "left" | "right"): IAutoMovieMotionHumanClearance.IPoint[] => soles[side];
     const printOf: (side: "left" | "right", level: number) => IPrint = (side: "left" | "right", level: number): IPrint => {
-      if (level === 0) return { placement: flat(side), level: 0 };
+      if (level === 0) return { placement: entered[side], level: 0 };
       const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] = sole(side);
       const length: number = toe!.z - heel!.z;
       const edge: number = stairs.first + (level - 1) * stairs.tread;
@@ -232,7 +232,7 @@ export namespace climbStairs {
     // point on or above the surface under it, and `CLEARANCE` above an edge
     // it is passing.
     const profile: (z: number) => number =
-      climbStairsProfile(stairs, EDGE - 0.003, CLEARANCE);
+      climbStairsProfile(stairs, EDGE - EDGE_MARGIN, CLEARANCE);
     const required: (side: "left" | "right") => (z: number) => number =
       (side: "left" | "right"): ((z: number) => number) => {
         const points: readonly IAutoMovieMotionHumanClearance.IPoint[] = sole(side);
@@ -258,7 +258,7 @@ export namespace climbStairs {
         steps.push({ side: lead, level: i }, { side: trail, level: i });
 
     // The clock: a step period per swing, the swing at its end, and a settle.
-    const period: number = (60 / CADENCE) * Math.sqrt(m.hipHeight / 0.93);
+    const period: number = (60 / CADENCE) * Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP);
     const instants: IAutoMovieMotionClockInstant[] = [];
     steps.forEach((_: unknown, j: number): void => {
       instants.push(
@@ -268,7 +268,7 @@ export namespace climbStairs {
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of((steps.length + 0.3) * period, instants),
+      AutoMovieMotionClock.of((steps.length + SETTLE) * period, instants),
       modifiers,
       { holds: [] },
     );
@@ -444,9 +444,9 @@ export namespace climbStairs {
           from,
           to,
           support:
-            list[i]!.print.level === 0
+            list[i]!.print.level === 0 || p.on === undefined
               ? { kind: "ground" }
-              : { kind: "prop", subject: "stairs" },
+              : { kind: "prop", subject: p.on },
         });
       }
     }
@@ -461,10 +461,19 @@ export namespace climbStairs {
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   interface IPrint {
+    /** The ankle and foot rotation, world metres. */
     placement: IAutoMovieMotionHumanFoot.IPlacement;
+
+    /** The tread, 1 the first; 0 for the floor before the flight. */
     level: number;
   }
 }
 
 /** The trunk's forward inclination ascending stairs, degrees (provisional: more than a walk's, McFadyen and Winter 1988, J Biomech 21:733). */
 const ASCENT_LEAN: number = 8;
+
+/** How much narrower than `EDGE` the band around a nosing that asks for clearance is, metres: a planted sole held `EDGE` from the nosing lies outside the band, not on its edge. */
+const EDGE_MARGIN: number = 0.003;
+
+/** Step periods the climb holds both feet on the last tread after arriving (provisional). */
+const SETTLE: number = 0.3;
