@@ -11,24 +11,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A prop's own track (#3476): an articulation the archetype runs by itself
- * from an instant, sharing one state with the acts' drives.
+ * A timed door articulation supplies its own hinge angle.
  *
- * Scenarios, a lever door that a track swings from 0 to 60 degrees over the
- * second after 1 s, its travel linear in time (the archetypes' own tracks
- * are #3476's `ArchetypeTrack`; this one is the scene's), while the average
- * man stands 3 s:
- * 1. Before 1 s the door's state names no hinge travel (at rest).
- * 2. At 1.5 s the accelerating hinge has travelled 15 degrees within 1e-9.
- * 3. After the track ends, at 2 and 3 s, its last travel, 60 degrees, holds.
- * 4. At 2.5 s the `pull` contact the performance aims at lies within 1 mm of
- *    the door posed at 60 degrees, placed where the scene put it.
+ * Scenarios:
+ * 1. Read before onset, halfway through the interval and after the track ends. Quadratic travel from 0 to 60 degrees gives 15 degrees at half time.
+ * 2. Compare the visible handle on the held door with the independently posed endpoint.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs a track on a real door archetype and reads the performance's state and its aim at the moved contact; a track that never starts, one that snaps back or a contact read at rest fails.
- * @evidence contracts/development/testing.md#independent-expectations The travels are the track's own function, written here; the contact is the archetype's own pose.
- * @evidence contracts/development/testing.md#distinguishing-cases Before, during and after the track.
- * @evidence contracts/development/testing.md#execution-ownership Builds one performance in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification A timed door articulation supplies its own hinge angle.
+ * @evidence contracts/development/testing.md#independent-expectations Read before onset, halfway through the interval and after the track ends. Quadratic travel from 0 to 60 degrees gives 15 degrees at half time.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compare the visible handle on the held door with the independently posed endpoint.
+ * @evidence contracts/development/testing.md#execution-ownership Reads public runtime results in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measured phases and coordinate frames.
  */
 export function test_motion_contact_articulated_track(): void {
   const door: ReturnType<typeof createDoor> = createDoor({

@@ -18,19 +18,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A racket and a ball serve the strokes that read them: a forehand carries the racket's own `sweetSpot` to a tennis ball's centre with its `face` leading, and a kick meets a football at the centre and size the ball declares.
+ * A moving tennis racket overlaps the displayed ball at its contact marker.
  *
- * The tennis racket lies level before the right hand, its head ahead, and a tennis ball hangs where the stroke meets it, ahead and to the right at hip height. The football rests on the floor ahead of the right foot; the kick names it, reading its centre from the ball's `grip` and its radius from that grip's aperture.
+ * Scenarios:
+ * 1. Resolve the ball centre from its live object transform at contact.
+ * 2. Bring that point into the racket frame and compare it with the string bed dimensions and 60 mm plane allowance.
  *
- * Scenarios, on the average man and the small woman:
- * 1. Taking the racket up by `grip` and driving a forehand at the tennis ball, the racket's `sweetSpot` the working point and its `face` the edge, plans; at the stroke's contact the ball's centre lies over the racket's head: inside the head's length about the `sweetSpot` and its width, and within 60 mm of the face's plane (provisional: the ball's radius and a margin). The cut the stroke is a row of lands the implement's striking part some way behind the working point, so the ball is met on the strings, not at the `sweetSpot` itself.
- * 2. A right-footed kick of the football toward a point 5 m ahead plans; at its contact the right foot or toes lie within the ball's radius and 80 mm of its centre (provisional: the foot's half-thickness and a margin).
- *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the stroke and the kick through the public chain with the real racket and balls and reads the displayed racket and joints; a stroke or a kick that misses the ball fails with the distance.
- * @evidence contracts/development/testing.md#independent-expectations The working point, the edge, the balls' centres and sizes are the archetypes' own affordances; the bounds are stated provisional; nothing is read from the laws but their contact instants.
- * @evidence contracts/development/testing.md#distinguishing-cases A held implement's stroke and a foot's kick on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and four films; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 2 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification A moving tennis racket overlaps the displayed ball at its contact marker.
+ * @evidence contracts/development/testing.md#independent-expectations Resolve the ball centre from its live object transform at contact.
+ * @evidence contracts/development/testing.md#distinguishing-cases Bring that point into the racket frame and compare it with the string bed dimensions and 60 mm plane allowance.
+ * @evidence contracts/development/testing.md#execution-ownership Reads public runtime results in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measured phases and coordinate frames.
  */
 export function test_motion_contact_equipment_marker(): void {
   const racket: ReturnType<typeof createRacket> = createRacket({

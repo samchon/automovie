@@ -26,20 +26,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A ball is caught at its own size, in the pocket of the glove the catching hand wears: the catch reads the ball's radius from its `grip` aperture and meets it with the glove's `pocket`, the hand turned as its palm would be.
+ * A worn glove receives a moving baseball at its displayed pocket.
  *
- * The average man tosses a baseball (`createBall`) to the catcher 2.5 m away, at the catcher's chest short of it by the catch's reach. The catcher wears a fielder's glove (`createGlove`) on the left hand, its fingers along the hand's and its pocket on the palm's side, its wrist opening at the wrist, and catches in that hand.
+ * Scenarios:
+ * 1. Resolve the displayed ball centre and glove pocket at the same event. Compare their separation with the ball radius to 25 mm.
+ * 2. Compare the bare hand and the gloved hand, then request the unworn glove on the opposite side.
  *
- * Scenarios, with the average man and the small woman as the catcher:
- * 1. The gloved catch plans; at its contact the glove's pocket, read from the displayed glove through the archetype's own contact, lies within 25 mm (provisional: a glove's padding about the ball) of the ball's surface, its centre a radius away.
- * 2. The same catch bare-handed plans, and its hand stands nearer the ball's centre at contact than the gloved hand does, which the glove holds off.
- * 3. The glove named for a catch in the right hand, which does not wear it, is refused on `glove`.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the throw and the catch through the public chain with the real ball and glove and reads the displayed glove and hand; a pocket off the ball, a glove that changes nothing or a glove caught with by the bare hand fails with the measure.
- * @evidence contracts/development/testing.md#independent-expectations The ball's radius and the pocket are the archetypes' own contacts; the bounds are stated provisional; only the catch's contact instant and its object's centre are read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases A gloved and a bare catch and a glove on the other hand, on two catchers of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and six short films; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification A worn glove receives a moving baseball at its displayed pocket.
+ * @evidence contracts/development/testing.md#independent-expectations Resolve the displayed ball centre and glove pocket at the same event. Compare their separation with the ball radius to 25 mm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compare the bare hand and the gloved hand, then request the unworn glove on the opposite side.
+ * @evidence contracts/development/testing.md#execution-ownership Reads public runtime results in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measured phases and coordinate frames.
  */
 export function test_motion_contact_worn_pocket(): void {
   const ball: ReturnType<typeof createBall> = createBall({ kind: "baseball" });

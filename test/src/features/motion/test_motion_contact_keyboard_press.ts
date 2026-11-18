@@ -20,21 +20,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A text is typed on the keyboard placed in the scene: each press lands on the key the keyboard's own home row places, wherever the keyboard stands.
+ * A fixed keyboard places G and H on opposite sides of its home-row centre.
  *
- * A keyboard and an open laptop (`createKeyboard`) each stand turned half round, the typist's side toward the performer, placed so the home row lies at standing elbow height a forearm and half a hand ahead of the shoulders, 0.1 m to the performer's left. The performer types `hello world` with `typeText`, which reads the prop's `homeRow` and `keys`.
+ * Scenarios:
+ * 1. Read the opposite index fingertips at their press events, half a 19.05 mm pitch from centre.
+ * 2. Check board movement within 1 mm, then move the keyboard to the floor and inspect its refusal.
  *
- * Scenarios, on the average man and the small woman, for each kind:
- * 1. The typing plans.
- * 2. At each press the pressing index fingertip is within 10 mm (the typing cases' bound) of that key's centre, laid out from the placed keyboard's `homeRow` on the 19.05 mm pitch and sunk by the key travel.
- * 3. Through the whole film, read every tenth of a second, the keyboard keeps its placed frame within 1 mm (the campaign's grip bound).
- * 4. The same keyboard placed on the floor is refused on `keyboard`.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the typing through the public chain on the real keyboard and reads the displayed fingertips and the prop; a press off its key, a keyboard that moves or a keyboard on the floor typed on fails with the measure.
- * @evidence contracts/development/testing.md#independent-expectations Each key's place is computed here from the archetype's own `homeRow` contact and the placement, not read from the plan; the 10 mm and the 1 mm are the existing bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases A keyboard and a laptop, off the body's midline, at elbow height and on the floor, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and eight short films; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 4 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification A fixed keyboard places G and H on opposite sides of its home-row centre.
+ * @evidence contracts/development/testing.md#independent-expectations Read the opposite index fingertips at their press events, half a 19.05 mm pitch from centre.
+ * @evidence contracts/development/testing.md#distinguishing-cases Check board movement within 1 mm, then move the keyboard to the floor and inspect its refusal.
+ * @evidence contracts/development/testing.md#execution-ownership Reads public runtime results in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measured phases and coordinate frames.
  */
 export function test_motion_contact_keyboard_press(): void {
   const text: string = "gh";

@@ -24,31 +24,17 @@ import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
 /**
- * Native moving arm bakes reread borrowed rig and clinical-frame scalars
- * after their actual target/frame callbacks, despite stable object identities.
- * This tests the reference synthesizer's portable kernel inputs, rather than
- * a production's admission or a deforming Human mesh playback contract.
+ * Gesture synthesis reads live geometry while baking a numeric clip.
  *
  * Scenarios:
- * 1. Reach, point and strike each retain the original1-second24Hz grid plus
- *    their exact full-extension landmark. On the absolute shot clock starting
- *    at2, initial target lookup precedes each sample's target then frame.
- * 2. Target and frame callbacks edit the same lower/hand rest translations
- *    in place over A/B/A intervals. At every full-envelope sample, full raw
- *    FK with that sample's actual input snapshot must reach the literal point.
- *    The two changed lever lengths cannot cancel: their difference is4cm.
- * 3. A separate reach changes only the same lower-flexion neutral scalar
- *    from0 to15 and back. Actual current clinical readback must still reach
- *    the same point; rig, frame-table and affine-record identities never change.
- * 4. Reverse-order reads of the completed numeric clip invoke no target or
- *    frame callback. Inter-key approximation and partial arm envelopes retain
- *    their owning tests; contact is asserted only at the original full phase.
+ * 1. Compare explicit clinical, raw and default frames for the terminal elbow and the held point.
+ * 2. Change arm length or clinical neutral in place and reconstruct each extended wrist from the rig at that instant. Read the completed clip again in reverse temporal order.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed mutable kernel sources, callback/shot-clock ordering, original sample/envelope policy, geometry versus clinical mutations, then-current FK interpretation and four scenarios with explicit playback limitations.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public makeActorSynthesizer for actual moving reach/point/strike actions, edits owned source scalars only inside their genuine callbacks, records every time/order, and reconstructs full raw FK from the numeric keyframes under the corresponding actual input snapshots. False identity-only source reuse, skipped/reordered callbacks or retained live callbacks fail observable target/time/lifetime assertions.
- * @evidence contracts/development/testing.md#independent-expectations The declared24Hz endpoint-inclusive1s grid has25 times; reach/point's0.5 landmark already belongs to it, while strike's0.4 adds one. Each bake has one initial target lookup then target/frame pairs at start+time. The authored model/world point(-0.18,1.2,0.35) is fixed under an identity actor frame; held reach/point and the exact jab peak must meet the existing native2e-3m component bound. In-place lever changes0.08/0.04m move a stale geometry answer by at least0.04m by the reverse triangle inequality. Raw FK observes geometry independently of the native source preparation, though it shares engine clinical kinematics.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all three native arm branches, initial versus sampled reads, target-before-frame effects, absolute versus local clocks, regular versus added landmark times, stable-identity A/B/A rest geometry, same-record affine edits, full-phase contact and callback-free reverse numeric playback. This is a borrowed-input numerical contract, without continuous-contact, animation-of-rig or whole-shot admission claims.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable engine unit owns the existing bare-arm kernel fixture, contexts, mutable rig/frame records, callbacks, traces and snapshots. It calls public synthesis/sampling/FK only, adds no new producer/API, replaces no foreign function/global, and starts no Human producer, viewer, process or compiler.
+ * @evidence contracts/development/testing.md#behavioral-verification Gesture synthesis reads live geometry while baking a numeric clip.
+ * @evidence contracts/development/testing.md#independent-expectations Compare explicit clinical, raw and default frames for the terminal elbow and the held point.
+ * @evidence contracts/development/testing.md#distinguishing-cases Change arm length or clinical neutral in place and reconstruct each extended wrist from the rig at that instant. Read the completed clip again in reverse temporal order.
+ * @evidence contracts/development/testing.md#execution-ownership Reads public runtime results in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measured phases and coordinate frames.
  */
 export function test_motion_contact_live_rig_sampling(): void {
   const rig = motionFitArms.arms();
