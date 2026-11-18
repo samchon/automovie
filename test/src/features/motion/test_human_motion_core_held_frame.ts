@@ -28,6 +28,18 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+interface IHeldLip {
+  point: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+}
+
+interface IHeldReading {
+  lip?: IHeldLip;
+  left?: unknown;
+  missing?: unknown;
+  handless?: unknown;
+}
+
 /**
  * What a hand holds is read once, in that hand's frame, and stays there: a
  * point of the held prop found from that reading is where the film shows
@@ -45,7 +57,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    socket's point and the hand bone's rotation) lies within 1 mm of the
  *    lip of the displayed glass, the campaign's bound on a grip's drift.
  * 2. The lip's direction from the reading is a unit vector.
- * 3. Asked of the left hand, which holds nothing, the reading is an
+ * 3. On the average body, asked of the left hand, which holds nothing, the reading is an
  *    `affordance` refusal on `prop`; asked for a contact the glass lacks,
  *    it is an `affordance` refusal on `point` that lists `lip`.
  * 4. Asked of a body whose skeleton lacks the right hand's bone, the reading
@@ -53,20 +65,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the chain through the public input and compares the point the reading gives, carried by the displayed hand, with the displayed prop's own point; a reading in another frame, one that drifts, or a missing refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations The displayed glass comes from the performance's own carry of the prop and the hand from the displayed pose; the 1 mm is the campaign's grip bound. Neither is computed by the reading.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the holding action itself and a later action that only carries; the holding hand, the empty hand, a contact the prop lacks and a body without the hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies verify the geometry through the holding action and a later carry. One body's reader exercises the metadata-only branches for the empty hand, missing point and missing bone.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 4 scenarios with their bound.
  */
 export function test_human_motion_core_held_frame(): void {
   const complaints: string[] = [];
+  const archetype = createDrinkware({ kind: "glass" });
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const read: {
-      lip?: { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
-      left?: unknown;
-      missing?: unknown;
-      handless?: unknown;
-    } = {};
+    const read: IHeldReading = {};
+    const checkRefusals: boolean = name === "m-average";
     const refused = (build: () => unknown): unknown => {
       try {
         build();
@@ -84,39 +93,40 @@ export function test_human_motion_core_held_frame(): void {
         const held: IAutoMovieMotionHumanHeld.IHeld =
           AutoMovieMotionHumanHeld.of(context, "right", "glass");
         read.lip = AutoMovieMotionHumanHeld.point(held, "lip");
-        read.left = refused((): unknown =>
-          AutoMovieMotionHumanHeld.of(context, "left", "glass"),
-        );
-        read.missing = refused((): unknown =>
-          AutoMovieMotionHumanHeld.point(held, "spout"),
-        );
-        read.handless = refused((): unknown =>
-          AutoMovieMotionHumanHeld.of(
-            {
-              ...context,
-              // The body indexes its rig by name once, when it is made, so
-              // a rig with the hand taken out carries its index without it.
-              body: {
-                ...context.body,
-                skeleton: {
-                  ...context.body.skeleton,
-                  bones: context.body.skeleton.bones.filter(
-                    (bone: IAutoMovieBone): boolean =>
-                      bone.bone !== "rightHand",
+        if (checkRefusals) {
+          read.left = refused((): unknown =>
+            AutoMovieMotionHumanHeld.of(context, "left", "glass"),
+          );
+          read.missing = refused((): unknown =>
+            AutoMovieMotionHumanHeld.point(held, "spout"),
+          );
+          read.handless = refused((): unknown =>
+            AutoMovieMotionHumanHeld.of(
+              {
+                ...context,
+                // Remove the hand from both the skeleton and its name index.
+                body: {
+                  ...context.body,
+                  skeleton: {
+                    ...context.body.skeleton,
+                    bones: context.body.skeleton.bones.filter(
+                      (bone: IAutoMovieBone): boolean =>
+                        bone.bone !== "rightHand",
+                    ),
+                  },
+                  bones: new Map(
+                    [...context.body.bones].filter(
+                      ([bone]: [string, IAutoMovieBone]): boolean =>
+                        bone !== "rightHand",
+                    ),
                   ),
                 },
-                bones: new Map(
-                  [...context.body.bones].filter(
-                    ([bone]: [string, IAutoMovieBone]): boolean =>
-                      bone !== "rightHand",
-                  ),
-                ),
               },
-            },
-            "right",
-            "glass",
-          ),
-        );
+              "right",
+              "glass",
+            ),
+          );
+        }
         return {
           duration: 0.5,
           events: [],
@@ -140,7 +150,7 @@ export function test_human_motion_core_held_frame(): void {
     };
     const glass: IAutoMovieMotionHumanProp = HumanObject.prop(
       "glass",
-      createDrinkware({ kind: "glass" }),
+      archetype,
       {
         at: {
           x: 0.15,
@@ -176,8 +186,7 @@ export function test_human_motion_core_held_frame(): void {
       );
       continue;
     }
-    const lip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
-      read.lip!;
+    const lip: IHeldLip = read.lip!;
 
     // 1. The reading, carried by the displayed hand, against the displayed glass.
     const socket: (typeof body.surfaces.sockets)["gripRight"] =
@@ -189,10 +198,11 @@ export function test_human_motion_core_held_frame(): void {
       t <= film.duration + 1e-9;
       t += 1 / 6
     ) {
-      const hand: IAutoMovieResolvedBone = film.bones("a", t).get("rightHand")!;
+      const bones = film.bones("a", t);
+      const hand: IAutoMovieResolvedBone = bones.get("rightHand")!;
       const grip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         socket,
-        film.bones("a", t).get(socket.bone)!,
+        bones.get(socket.bone)!,
       ).point;
       const carried: IAutoMovieVector3 = Quaternion.rotateVector(
         hand.worldRotation,
@@ -225,6 +235,8 @@ export function test_human_motion_core_held_frame(): void {
       complaints.push(
         `${name}: the lip's direction has length ${length.toFixed(6)}, 1 expected`,
       );
+
+    if (!checkRefusals) continue;
 
     // 3. What is not held, and what the prop lacks.
     if (

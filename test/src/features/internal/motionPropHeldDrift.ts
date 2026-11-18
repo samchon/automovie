@@ -52,9 +52,11 @@ export function motionPropHeldDrift(
     );
   };
   const first: IAutoMovieVector3 = seat(from);
-  let worst: number = Number.isFinite(from) ? 0 : NaN;
+  let worst: number = [from, first.x, first.y, first.z].every(Number.isFinite)
+    ? 0
+    : NaN;
   for (
-    let seconds: number = from;
+    let seconds: number = from + 0.5;
     seconds <= performance.duration;
     seconds += 0.5
   )

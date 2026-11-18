@@ -45,9 +45,24 @@ export function test_human_motion_operate_insert(): void {
     kind: "holster",
   });
   const DEPTH: number = 0.1;
+  const BOUND: number = 5e-3;
+  const tip: IAutoMovieVector3 = gun.affordance("muzzle").frame.translation;
+  const socket = holster.affordance("socket");
+  const stand = { at: { x: 0.2, y: 0.9, z: 0.45 }, yaw: 0, fixed: true };
+  const frame = HumanObject.frame(stand);
+  const mouth: IAutoMovieVector3 = Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, socket.frame.translation),
+  );
+  const inward: IAutoMovieVector3 = Vector3.scale(
+    Quaternion.rotateVector(
+      Quaternion.multiply(frame.rotation, socket.frame.rotation),
+      { x: 0, y: 1, z: 0 },
+    ),
+    -1,
+  );
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const stand = { at: { x: 0.2, y: 0.9, z: 0.45 }, yaw: 0, fixed: true };
     let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
@@ -89,29 +104,6 @@ export function test_human_motion_operate_insert(): void {
       continue;
     }
     const segment = performance.segments("a")[1]!;
-    const socket = holster.affordance("socket");
-    const frame = HumanObject.frame(stand);
-    const mouth: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, socket.frame.translation),
-    );
-    const inward: IAutoMovieVector3 = Vector3.scale(
-      Quaternion.rotateVector(
-        Quaternion.multiply(frame.rotation, socket.frame.rotation),
-        { x: 0, y: 1, z: 0 },
-      ),
-      -1,
-    );
-    const muzzle = (t: number): IAutoMovieVector3 => {
-      const at = performance.prop("gun", t);
-      return Vector3.add(
-        at.position,
-        Quaternion.rotateVector(
-          at.rotation,
-          gun.affordance("muzzle").frame.translation,
-        ),
-      );
-    };
     const { strokeStart, strokeEnd } = Object.fromEntries(
       segment.plan.events.map((e) => [
         e.name,
@@ -119,10 +111,19 @@ export function test_human_motion_operate_insert(): void {
       ]),
     ) as Record<string, number>;
     let off: number = 0;
-    for (let k: number = 0; k <= 10; k++) {
-      const t: number = strokeStart! + ((strokeEnd! - strokeStart!) * k) / 10;
-      const d: IAutoMovieVector3 = Vector3.subtract(muzzle(t), mouth);
+    const depths: number[] = [];
+    const intervals: number = 10;
+    for (let k: number = 0; k <= intervals; k++) {
+      const t: number =
+        strokeStart! + ((strokeEnd! - strokeStart!) * k) / intervals;
+      const at = performance.prop("gun", t);
+      const muzzle: IAutoMovieVector3 = Vector3.add(
+        at.position,
+        Quaternion.rotateVector(at.rotation, tip),
+      );
+      const d: IAutoMovieVector3 = Vector3.subtract(muzzle, mouth);
       const along: number = Vector3.dot(d, inward);
+      depths.push(along);
       off = Math.max(
         off,
         Vector3.length(Vector3.subtract(d, Vector3.scale(inward, along))),
@@ -130,18 +131,16 @@ export function test_human_motion_operate_insert(): void {
     }
     TestValidator.predicate(
       `${name}: the muzzle keeps to the socket's axis (${(1000 * off).toFixed(1)} mm)`,
-      off <= 5e-3,
+      off <= BOUND,
     );
-    const depth = (t: number): number =>
-      Vector3.dot(Vector3.subtract(muzzle(t), mouth), inward);
+    const middle: number = depths[intervals / 2]!;
     TestValidator.predicate(
-      `${name}: the muzzle goes the depth in at the middle (${depth((strokeStart! + strokeEnd!) / 2).toFixed(3)} m)`,
-      Math.abs(depth((strokeStart! + strokeEnd!) / 2) - DEPTH) <= 5e-3,
+      `${name}: the muzzle goes the depth in at the middle (${middle.toFixed(3)} m)`,
+      Math.abs(middle - DEPTH) <= BOUND,
     );
     TestValidator.predicate(
       `${name}: the muzzle is at the mouth at the stroke's ends`,
-      Math.abs(depth(strokeStart!)) <= 5e-3 &&
-        Math.abs(depth(strokeEnd!)) <= 5e-3,
+      Math.abs(depths[0]!) <= BOUND && Math.abs(depths[intervals]!) <= BOUND,
     );
   }
 

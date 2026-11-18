@@ -17,7 +17,6 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertSportSprintStart } from "../internal/assertSportSprintStart";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -40,23 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    was released.
  * 4. Over two rows of the same kind at novice and elite proficiency, the
  *    pitch plans at both.
- * 5. The composition matrix: every row of the six sport families above
- *    plans alone on the smallest and the largest body (`f-small`,
- *    `m-large`) at novice and at elite proficiency.
- * 6. The sprint start's set, on `f-small`, `m-average` and `m-large` at
- *    elite proficiency, against the anthropometry-driven block setting's
- *    measurements (Cavedon et al. 2019, PLoS One 14:e0213979, table 2): at
- *    the `set` event the front (left) knee's included angle is 90 degrees
- *    within the angle a 1 mm miss of its hip-to-ankle distance turns it by
- *    through the law of cosines, 1 mm the limb fit's convergence scale
- *    (`KickForm.TOLERANCE`); the rear knee is 117 degrees within one
- *    standard deviation (11), and the front hip, between the thigh and the
- *    line from the hip joint to the shoulders, 43 within one (6); and the
- *    whole body's centre of mass stands behind the line by its sex's
- *    measured distance, 16.2 cm for a woman (Ciacci et al. 2017) and 22.9 cm
- *    for a man (Slawinski et al. 2010), both as Valamatos et al. 2022 report
- *    them, within the limb fit's 1 mm.
- * 7. A throw-in of a football held from a `pickUp`, at a point on the floor
+ * 5. A throw-in of a football held from a `pickUp`, at a point on the floor
  *    15 m ahead, on the same two bodies: the ball is launched at the
  *    throw-in's `stroke`, rising at the distance-best release angle, 30
  *    degrees (Linthorne and Everett 2006), within the joints' resolution
@@ -64,14 +47,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    within 10 mm (the issue's flight bound); and each foot stays within
  *    5 mm of where it stood (both feet on the ground, the Laws of the Game,
  *    with the issue's slip bound).
- * 8. A throw-in given a ball and no target is refused, a `parameter`
+ * 6. A throw-in given a ball and no target is refused, a `parameter`
  *    refusal on `at`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the rows' records and performs a pitch with a real ball archetype; a row of the wrong law, a renamed skill, a ball left at the release or a proficiency that does not plan fails.
- * @evidence contracts/development/testing.md#independent-expectations The names and families are the shipped table's; the 2 m is a flight that left the hand, a bound well under the 10 m aimed at; the knee angles are Harland and Steele's, bounded by the limb fit's convergence scale, the release angle Linthorne and Everett's within the joints' resolution, and the flight and slip bounds the issue's.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row family; three bodies; novice and elite; a throw-in with and without a ball.
- * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds about seventy short performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the eight numbered scenarios with their bounds and sources.
+ * @evidence contracts/development/testing.md#independent-expectations The names and families are the shipped table's. The 2 m is a flight that left the hand, well under the 10 m aimed at. The release angle is Linthorne and Everett's within the joints' resolution, and the flight and slip bounds come from the issue.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every row family, novice and elite, and a throw-in with and without a target. The focused sprint-start test checks displayed set geometry.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds only the pitch and throw-in performances in memory. The distinct geometry of registered sport rows is checked through the lexicon row specs.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six scenarios with their bounds and sources.
  */
 export function test_human_motion_sport_rows(): void {
   const rows = (lexicon: object): IAutoMovieMotionHumanActionLaw<never>[] =>
@@ -268,53 +251,8 @@ export function test_human_motion_sport_rows(): void {
     }
 
   const complaints: string[] = [];
-  const solo = (
-    body: IAutoMovieMotionHumanBody,
-    level: "novice" | "elite",
-    law: IAutoMovieMotionHumanActionLaw<never>,
-    params: object,
-  ): IAutoMovieMotionHumanPerformance | string => {
-    try {
-      return new HumanPerformance({
-        seed: "sport",
-        laws: [law],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level },
-          },
-        ],
-        composition: HumanChain.subject("a").registered(
-          law.name,
-          params as never,
-        ).node,
-      });
-    } catch (error) {
-      return error instanceof Error ? error.message : String(error);
-    }
-  };
 
-  // 5. The composition matrix.
-  for (const name of ["f-small", "m-large"] as const)
-    for (const level of ["novice", "elite"] as const)
-      for (const [law] of kinds) {
-        const built: IAutoMovieMotionHumanPerformance | string = solo(
-          motionHumanBody(name),
-          level,
-          law,
-          {},
-        );
-        if (typeof built === "string")
-          complaints.push(`${name} ${level} ${law.name}: ${built}`);
-      }
-
-  // 6. The sprint start's set.
-  assertSportSprintStart(complaints);
-
-  // 7 and 8. A throw-in of a football.
+  // 5 and 6. A throw-in of a football.
   const football = createBall({ kind: "football" });
   for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

@@ -23,8 +23,7 @@ const STATICS: number = 0.02;
 /** The most a hanging strap may lean off plumb, degrees: the lean at which its end still hangs its length below the hand within `STATICS`. */
 const PLUMB: number = (Math.acos(1 - STATICS) * 180) / Math.PI;
 
-/** A soft lattice of `columns` by `rows` particles from an origin along two axes, compliant, with handle affordances at named particles. */
-const lattice = (props: {
+interface ILattice {
   subject: string;
   columns: number;
   rows: number;
@@ -38,7 +37,10 @@ const lattice = (props: {
   selfCollision?: boolean;
   /** The particles' rest places, row-major, when they do not lie on the lattice's two axes. */
   path?: readonly IAutoMovieVector3[];
-}): IAutoMovieMotionHumanProp => {
+}
+
+/** A compliant soft lattice with handle affordances at named particles. */
+const lattice = (props: ILattice): IAutoMovieMotionHumanProp => {
   const rest: number[] = [];
   const at = (c: number, r: number): IAutoMovieVector3 =>
     props.path?.[r * props.columns + c] ??
@@ -353,7 +355,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
         origin: {
           x: two ? 0 : -m.shoulderHalfWidth,
           y: m.waistHeight,
-          z: two ? reach : reach,
+          z: reach,
         },
         u: { x: 0, y: 0, z: 0 },
         v: two
@@ -429,24 +431,24 @@ export function test_human_motion_lexicon_rows_soft(): void {
       performers: [performer("a", 0, 0)],
       composition: HumanChain.subject("a").stand({ seconds: 2 }).node,
     });
-    if (!finite(p, "lace")) complaints.push("lace: a non-finite particle");
     const bound: number =
       2 * radius -
       lace.soft!.solver.fixedStepSeconds * lace.soft!.solver.referenceSpeed;
-    let least: number = Infinity;
+    let leastSquared: number = Infinity;
+    let finiteLace: boolean = true;
     for (let t: number = 0; t <= p.duration; t += 0.1) {
       const s: number[] = p.soft("lace", t);
+      finiteLace = finiteLace && s.every(Number.isFinite);
       for (let i: number = 0; i < 21; i++)
-        for (let j: number = i + 2; j < 21; j++)
-          least = Math.min(
-            least,
-            Math.hypot(
-              s[i * 3]! - s[j * 3]!,
-              s[i * 3 + 1]! - s[j * 3 + 1]!,
-              s[i * 3 + 2]! - s[j * 3 + 2]!,
-            ),
-          );
+        for (let j: number = i + 2; j < 21; j++) {
+          const x: number = s[i * 3]! - s[j * 3]!;
+          const y: number = s[i * 3 + 1]! - s[j * 3 + 1]!;
+          const z: number = s[i * 3 + 2]! - s[j * 3 + 2]!;
+          leastSquared = Math.min(leastSquared, x * x + y * y + z * z);
+        }
     }
+    if (!finiteLace) complaints.push("lace: a non-finite particle");
+    const least: number = Math.sqrt(leastSquared);
     if (!(least >= bound))
       complaints.push(
         `lace: two particles come ${(least * 1000).toFixed(2)} mm apart, at least ${(bound * 1000).toFixed(2)} mm expected`,

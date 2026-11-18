@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanLexiconSchemas } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanLexiconSchemas,
+  IAutoMovieMotionHumanRefusal,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HUMAN_LEXICON_SCHEMAS,
+  HumanPerformanceParams,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -25,21 +29,20 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  *    that accepts no member beyond its properties, so a call with a misspelt
  *    parameter (`toe` for `to`, or any name the row lacks) is rejected by
  *    it.
- * 3. Every row, built in the scene the lexicon's row net stages it in (the
- *    average man, the small woman as the partner where it has one), is
- *    refused past each bound its schema states for a numeric member: a
+ * 3. At its parameter gate, every row is refused past each bound its schema
+ *    states for a numeric member: a
  *    tenth below a least value, at an exclusive least value, a tenth above
  *    a greatest value, and half a unit off a whole number. The refusal is a
  *    `HumanRefusal` on that member whose feasible range names the same
- *    value and the unit the schema states for it. A row the net stages in
- *    a test of its own is not built here.
+ *    value and unit. The gate runs before body planning. A registered
+ *    walk additionally verifies that the public chain uses the gate.
  * 4. Every bounded number anywhere in the schemas states its unit
  *    (`x-unit`, empty for a pure number), so no refusal of a bound loses it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the exported schemas and builds every row through the public chain past each stated bound; a row without a schema, an open object, a bound the law does not refuse or a refusal naming another range fails.
- * @evidence contracts/development/testing.md#independent-expectations The rows are the lexicon's own and the refusals the laws' own; the test only checks that the generated and the hand-written readings agree, neither being taken as the other's oracle.
+ * @evidence contracts/development/testing.md#behavioral-verification Mutates each bounded value at the real parameter gate and checks the refusal axis, range and unit. A public registered walk with a misspelled parameter checks that the same gate is reached in normal performance placement.
+ * @evidence contracts/development/testing.md#independent-expectations The schema states the contract before a body plans. Numeric inputs on the wrong side of the stated boundaries must be refused at the named parameter, carrying the published limit and unit.
  * @evidence contracts/development/testing.md#distinguishing-cases Every row for coverage and closure; every tagged member past each least, exclusive least, greatest and whole-number bound, with its unit; every bounded number for a stated unit.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men once and builds refused plans only, never a displayed pose.
+ * @evidence contracts/development/testing.md#execution-ownership Reads parameter contracts in memory and prepares one body for the public registration seam.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it matters and the 4 scenarios.
  */
 export function test_human_motion_lexicon_schemas(): void {
@@ -80,22 +83,10 @@ export function test_human_motion_lexicon_schemas(): void {
 
       // 3. Past each bound the schema states, the law refuses on that member, naming the same bound.
       for (const [key, value] of Object.entries(schema.properties ?? {})) {
-        const member: {
-          type?: unknown;
-          minimum?: number;
-          exclusiveMinimum?: number;
-          maximum?: number;
-          "x-unit"?: string;
-        } = (resolved(value as ISchema) ?? {}) as {
-          type?: unknown;
-          minimum?: number;
-          exclusiveMinimum?: number;
-          maximum?: number;
-          "x-unit"?: string;
-        };
+        const member: INumeric = (resolved(value as ISchema) ?? {}) as INumeric;
         const least: number | undefined =
           member.minimum ?? member.exclusiveMinimum;
-        const asks: (readonly [string, number, "minimum" | "maximum"])[] = [
+        const asks: BoundaryProbe[] = [
           ...(member.minimum !== undefined
             ? [["below its least", member.minimum - 0.1, "minimum"] as const]
             : []),
@@ -116,27 +107,29 @@ export function test_human_motion_lexicon_schemas(): void {
             : []),
         ];
         for (const [what, asked, end] of asks) {
-          const thrown: unknown = LexiconRowNet.attempt(law.name, {
-            [key]: asked,
-          });
-          const range: {
-            minimum?: number | null;
-            maximum?: number | null;
-            unit?: string;
-          } =
+          let thrown: unknown;
+          try {
+            HumanPerformanceParams.check(law.name, {
+              ...LexiconRowNet.given(law.name),
+              [key]: asked,
+            });
+          } catch (error) {
+            thrown = error;
+          }
+          const range: IAutoMovieMotionHumanRefusal.IRange | undefined =
             thrown instanceof HumanRefusal && thrown.feasible?.kind === "range"
               ? thrown.feasible
-              : {};
+              : undefined;
           const named: number | undefined =
             end === "minimum" ? least : member.maximum;
           if (
             !(thrown instanceof HumanRefusal) ||
             thrown.axis !== key ||
-            range[end] !== named ||
-            range.unit !== (member["x-unit"] ?? "")
+            range?.[end] !== named ||
+            range?.unit !== (member["x-unit"] ?? "")
           )
             complaints.push(
-              `${family} ${law.name}: ${key} ${asked} (${what} ${named}) expected a refusal on ${key} naming ${named} ${JSON.stringify(member["x-unit"] ?? "")}, got ${thrown instanceof HumanRefusal ? `${thrown.message} (unit ${JSON.stringify(range.unit)})` : thrown instanceof Error ? thrown.message : String(thrown)}`,
+              `${family} ${law.name}: ${key} ${asked} (${what} ${named}) expected a refusal on ${key} naming ${named} ${JSON.stringify(member["x-unit"] ?? "")}, got ${thrown instanceof HumanRefusal ? `${thrown.message} (unit ${JSON.stringify(range?.unit)})` : thrown instanceof Error ? thrown.message : String(thrown)}`,
             );
         }
       }
@@ -165,4 +158,37 @@ export function test_human_motion_lexicon_schemas(): void {
   };
   visit(HUMAN_LEXICON_SCHEMAS, "schemas");
   TestValidator.equals("the schemas match the lexicon", complaints, []);
+
+  const misspelled: unknown = LexiconRowNet.attempt("stroll", { toe: true });
+  TestValidator.predicate(
+    "the registered walk refuses its misspelled parameter before planning",
+    misspelled instanceof HumanRefusal &&
+      misspelled.kind === "parameter" &&
+      misspelled.axis === "toe" &&
+      misspelled.value === true,
+  );
 }
+
+/** The generated numeric terms this test reads for its boundary probes. */
+interface INumeric {
+  /** Runtime JSON schema type. */
+  type?: unknown;
+
+  /** Included lower endpoint. */
+  minimum?: number;
+
+  /** Excluded lower endpoint. */
+  exclusiveMinimum?: number;
+
+  /** Included upper endpoint. */
+  maximum?: number;
+
+  /** The expected unit named by the refusal. */
+  "x-unit"?: string;
+}
+
+/** The named end of a refused range. */
+type End = "minimum" | "maximum";
+
+/** A value outside an independently stated numeric boundary. */
+type BoundaryProbe = readonly [description: string, asked: number, end: End];

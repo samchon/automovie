@@ -68,15 +68,24 @@ const key = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   shapes: motionHandleShapes(KEY),
 });
 
-/** The world point of a key-frame point at a second. */
+/** Transforms a point on the key with its measured frame. */
 const point = (
-  p: IAutoMovieMotionHumanPerformance,
+  frame: IAutoMovieRigidTransform,
   local: IAutoMovieVector3,
-  seconds: number,
 ): IAutoMovieVector3 => {
-  const f: IAutoMovieRigidTransform = p.prop("key", seconds);
-  return Vector3.add(f.position, Quaternion.rotateVector(f.rotation, local));
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, local),
+  );
 };
+
+/** A measured step retains its endpoints when its interval is quartered. */
+interface IKeyStep {
+  start: number;
+  distance: number;
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+}
 
 /**
  * A held object turned and shifted in the hand (#3447).
@@ -138,6 +147,9 @@ export function test_human_motion_regrasp(): void {
   };
 
   // 1-3. Twists both ways.
+  const tip: IAutoMovieVector3 = KEY.find((a) => a.id === "tip")!.frame
+    .translation;
+  const offAxis: IAutoMovieVector3 = { x: 0.01, y: 0.02, z: 0 };
   for (const angle of [90, -90])
     try {
       const turned: IAutoMovieMotionHumanPerformance = perform(
@@ -151,45 +163,31 @@ export function test_human_motion_regrasp(): void {
           }).node,
       );
       const [from, to] = span(turned);
-      const axis0: IAutoMovieVector3 = point(
-        turned,
-        { x: 0, y: 0, z: 0 },
-        from,
-      );
-      const axis1: IAutoMovieVector3 = point(
-        turned,
-        { x: 0.03, y: 0, z: 0 },
-        from,
-      );
-      const off0: IAutoMovieVector3 = point(
-        turned,
-        { x: 0.01, y: 0.02, z: 0 },
-        from,
-      );
+      const initial: IAutoMovieRigidTransform = turned.prop("key", from);
+      const axis0: IAutoMovieVector3 = initial.position;
+      const axis1: IAutoMovieVector3 = point(initial, tip);
+      const off0: IAutoMovieVector3 = point(initial, offAxis);
       const hand0 = turned.bones("a", from).get("rightHand")!;
       const seat0: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(hand0.worldRotation),
-        Vector3.subtract(
-          turned.prop("key", from).position,
-          hand0.worldPosition,
-        ),
+        Vector3.subtract(initial.position, hand0.worldPosition),
       );
       let drift: number = 0;
       let slip: number = 0;
-      for (let t: number = from; t <= to; t += 1 / 60) {
+      let last: IAutoMovieRigidTransform = initial;
+      let lastTime: number = from;
+      for (let t: number = from + 1 / 60; t <= to; t += 1 / 60) {
+        last = turned.prop("key", t);
+        lastTime = t;
         drift = Math.max(
           drift,
-          Vector3.length(
-            Vector3.subtract(point(turned, { x: 0, y: 0, z: 0 }, t), axis0),
-          ),
-          Vector3.length(
-            Vector3.subtract(point(turned, { x: 0.03, y: 0, z: 0 }, t), axis1),
-          ),
+          Vector3.length(Vector3.subtract(last.position, axis0)),
+          Vector3.length(Vector3.subtract(point(last, tip), axis1)),
         );
         const hand = turned.bones("a", t).get("rightHand")!;
         const seat: IAutoMovieVector3 = Quaternion.rotateVector(
           Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(turned.prop("key", t).position, hand.worldPosition),
+          Vector3.subtract(last.position, hand.worldPosition),
         );
         slip = Math.max(slip, Vector3.length(Vector3.subtract(seat, seat0)));
       }
@@ -213,7 +211,7 @@ export function test_human_motion_regrasp(): void {
       );
       const miss: number = Vector3.length(
         Vector3.subtract(
-          point(turned, { x: 0.01, y: 0.02, z: 0 }, to),
+          point(lastTime === to ? last : turned.prop("key", to), offAxis),
           expected,
         ),
       );
@@ -240,29 +238,52 @@ export function test_human_motion_regrasp(): void {
     // the 1/240 s grid is quartered `LEVELS` times, its largest quarter
     // followed each time. A continuous path's step shrinks with its
     // interval; a jump does not.
-    const step = (a: number, b: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          shifted.prop("key", b).position,
-          shifted.prop("key", a).position,
-        ),
-      );
-    let start: number = from;
+    const position = (t: number): IAutoMovieVector3 =>
+      shifted.prop("key", t).position;
+    const longer = (
+      measured: IKeyStep,
+      start: number,
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+    ): IKeyStep => {
+      const distance: number = Vector3.length(Vector3.subtract(b, a));
+      return distance > measured.distance
+        ? { start, distance, from: a, to: b }
+        : measured;
+    };
     let width: number = 1 / 240;
-    for (let t: number = from; t + width <= to; t += width)
-      if (step(t, t + width) > step(start, start + width)) start = t;
+    let previous: IAutoMovieVector3 = position(from);
+    let next: IAutoMovieVector3 = position(from + width);
+    let largest: IKeyStep = {
+      start: from,
+      distance: Vector3.length(Vector3.subtract(next, previous)),
+      from: previous,
+      to: next,
+    };
+    for (let t: number = from + width; t + width <= to; t += width) {
+      previous = next;
+      next = position(t + width);
+      largest = longer(largest, t, previous, next);
+    }
     for (let level: number = 0; level < Continuity.LEVELS; level++) {
       width /= 4;
-      let best: number = start;
-      for (let q: number = 1; q < 4; q++)
-        if (
-          step(start + q * width, start + (q + 1) * width) >
-          step(best, best + width)
-        )
-          best = start + q * width;
-      start = best;
+      const start: number = largest.start;
+      const end: IAutoMovieVector3 = largest.to;
+      previous = largest.from;
+      next = position(start + width);
+      largest = {
+        start,
+        distance: Vector3.length(Vector3.subtract(next, previous)),
+        from: previous,
+        to: next,
+      };
+      for (let q: number = 1; q < 4; q++) {
+        previous = next;
+        next = q === 3 ? end : position(start + (q + 1) * width);
+        largest = longer(largest, start + q * width, previous, next);
+      }
     }
-    const jump: number = step(start, start + width);
+    const jump: number = largest.distance;
     if (!(jump <= AutoMovieMotionHumanAudit.LIMITS.jump))
       complaints.push(
         `regrip: the key still steps ${(jump * 1000).toFixed(2)} mm over ${(width * 1e6).toFixed(1)} microseconds, within the continuity audit's ${AutoMovieMotionHumanAudit.LIMITS.jump * 1000} mm jump expected`,

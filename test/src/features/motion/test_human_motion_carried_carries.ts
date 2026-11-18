@@ -20,6 +20,19 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+type CarryFixture = "m-average" | "f-small";
+type CarrySubject = "a" | "b";
+
+interface ICarryPhases {
+  lift?: number;
+  setDown?: number;
+}
+
+interface ICarriedStage {
+  film: IAutoMovieMotionHumanPerformance;
+  bodies: Record<CarrySubject, IAutoMovieMotionHumanBody>;
+}
+
 /**
  * A person carried in a named carry rests on the carrier: the region of
  * their body the carry rests on stays on the carrier's region it rests on,
@@ -67,7 +80,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
  * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's hold bound and the regions are the carries' descriptions; both bodies are read as displayed, never from a plan.
  * @evidence contracts/development/testing.md#distinguishing-cases Eight carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds ten short performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Reuses the default piggyback film for the resting region, the wrists and the lean comparison, and builds separate performances for the other carry or transition inputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 6 scenarios.
  */
 export function test_human_motion_carried_carries(): void {
@@ -90,16 +103,13 @@ export function test_human_motion_carried_carries(): void {
   };
   const complaints: string[] = [];
   const stage = (
-    names: readonly ["m-average" | "f-small", "m-average" | "f-small"],
+    names: readonly [CarryFixture, CarryFixture],
     carry: IAutoMovieMotionHumanCarried.Carry | null,
     by: string = "a",
     lean: boolean = false,
-    phases: { lift?: number; setDown?: number } = {},
-  ): {
-    film: IAutoMovieMotionHumanPerformance;
-    bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>;
-  } => {
-    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
+    phases: ICarryPhases = {},
+  ): ICarriedStage => {
+    const bodies: Record<CarrySubject, IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
@@ -149,10 +159,12 @@ export function test_human_motion_carried_carries(): void {
     };
   };
 
+  const pair: readonly [CarryFixture, CarryFixture] = ["m-average", "f-small"];
+  const held: ICarriedStage = stage(pair, "piggyback");
   // 1 and 2. The resting region stays on the carrier.
   for (const [names, carries] of [
     [
-      ["m-average", "f-small"],
+      pair,
       [
         "piggyback",
         "cradle",
@@ -170,7 +182,8 @@ export function test_human_motion_carried_carries(): void {
     ],
   ] as const)
     for (const carry of carries) {
-      const { film, bodies }: ReturnType<typeof stage> = stage(names, carry);
+      const { film, bodies }: ICarriedStage =
+        names === pair && carry === "piggyback" ? held : stage(names, carry);
       const carrier: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
@@ -204,18 +217,20 @@ export function test_human_motion_carried_carries(): void {
     }
 
   // 3. The carrier's hands hold.
-  const pair: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
-  const held: ReturnType<typeof stage> = stage(pair, "piggyback");
-  const free: ReturnType<typeof stage> = stage(pair, null);
+  const free: ICarriedStage = stage(pair, null);
+  const reader = (
+    staged: ICarriedStage,
+  ): IAutoMovieMotionHumanSignature.IReader =>
+    HumanSignature.of(staged.film, "a", staged.bodies.a, 0);
+  const heldReader: IAutoMovieMotionHumanSignature.IReader = reader(held);
+  const heldBones = HumanSignature.bones(heldReader, 1.3);
+  const freeBones = HumanSignature.bones(reader(free), 1.3);
   for (const side of ["left", "right"] as const) {
-    const wrist = (film: IAutoMovieMotionHumanPerformance): IAutoMovieVector3 =>
-      HumanSignature.joint(
-        HumanSignature.of(film, "a", held.bodies.a, 0),
-        1.3,
-        `${side}Hand`,
-      );
     const moved: number = Vector3.length(
-      Vector3.subtract(wrist(held.film), wrist(free.film)),
+      Vector3.subtract(
+        heldBones.get(`${side}Hand`)!.worldPosition,
+        freeBones.get(`${side}Hand`)!.worldPosition,
+      ),
     );
     if (!(moved > 0.05))
       complaints.push(
@@ -224,46 +239,46 @@ export function test_human_motion_carried_carries(): void {
   }
 
   // 5. The lean against the load is summed onto the walk's own trunk.
-  const leaned: ReturnType<typeof stage> = stage(pair, "piggyback", "a", true);
-  const chest = (
-    film: IAutoMovieMotionHumanPerformance,
+  const leaned: IAutoMovieMotionHumanSignature.IReader = reader(
+    stage(pair, "piggyback", "a", true),
+  );
+  const angles = (
+    shown: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    axis: IAutoMovieVector3,
-  ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
-      HumanSignature.bones(
-        HumanSignature.of(film, "a", held.bodies.a, 0),
-        seconds,
-      ).get("chest")!.worldRotation,
-      axis,
-    );
-  for (const seconds of [1.3, 1.6, 1.9]) {
-    const tip = (film: IAutoMovieMotionHumanPerformance): number => {
-      const up: IAutoMovieVector3 = chest(film, seconds, { x: 0, y: 1, z: 0 });
-      return (Math.atan2(up.z, up.y) * 180) / Math.PI;
-    };
+  ): readonly [tip: number, turn: number] => {
+    const bones =
+      shown === heldReader && seconds === 1.3
+        ? heldBones
+        : HumanSignature.bones(shown, seconds);
+    const chest = bones.get("chest")!.worldRotation;
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(chest, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     // The walk's turn of the chest is read against its hips, so the whole
     // body's pitch, which turns both, leaves it as the walk holds it.
-    const turn = (film: IAutoMovieMotionHumanPerformance): number => {
-      const bones = HumanSignature.bones(
-        HumanSignature.of(film, "a", held.bodies.a, 0),
-        seconds,
-      );
-      const side: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.multiply(
-          Quaternion.inverse(bones.get("hips")!.worldRotation),
-          bones.get("chest")!.worldRotation,
-        ),
-        { x: 1, y: 0, z: 0 },
-      );
-      return (Math.atan2(-side.z, side.x) * 180) / Math.PI;
-    };
-    const forward: number = tip(leaned.film) - tip(held.film);
+    const side: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.multiply(
+        Quaternion.inverse(bones.get("hips")!.worldRotation),
+        chest,
+      ),
+      { x: 1, y: 0, z: 0 },
+    );
+    return [
+      (Math.atan2(up.z, up.y) * 180) / Math.PI,
+      (Math.atan2(-side.z, side.x) * 180) / Math.PI,
+    ];
+  };
+  for (const seconds of [1.3, 1.6, 1.9]) {
+    const [heldTip, heldTurn] = angles(heldReader, seconds);
+    const [leanedTip, leanedTurn] = angles(leaned, seconds);
+    const forward: number = leanedTip - heldTip;
     if (!(Math.abs(forward - 20) <= 1))
       complaints.push(
         `piggyback: at ${seconds} s the leaning carrier's chest tips ${forward.toFixed(1)} degrees farther forward than without the lean, 20 within 1 expected`,
       );
-    const kept: number = Math.abs(turn(leaned.film) - turn(held.film));
+    const kept: number = Math.abs(leanedTurn - heldTurn);
     if (!(kept <= 1))
       complaints.push(
         `piggyback: at ${seconds} s the lean changes the chest's turn in the walk by ${kept.toFixed(1)} degrees, 1 at most expected`,

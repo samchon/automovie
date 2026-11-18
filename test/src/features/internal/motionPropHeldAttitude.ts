@@ -164,10 +164,9 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     const residual: number = Math.abs(
       degrees(Vector3.dot(fixed, forearm)) - degrees(forearm.y),
     );
+    const pose = performance.pose("a", seconds);
     const angles = (bone: string): string => {
-      const joint = performance
-        .pose("a", seconds)
-        .joints.find((j): boolean => j.bone === bone);
+      const joint = pose.joints.find((j): boolean => j.bone === bone);
       return `[${(joint?.flexion ?? 0).toFixed(0)}, ${(joint?.abduction ?? 0).toFixed(0)}, ${(joint?.twist ?? 0).toFixed(0)}]`;
     };
     return `upper arm ${angles("rightUpperArm")}, forearm ${angles("rightLowerArm")}, wrist ${angles("rightHand")}, reach ${(Vector3.length(Vector3.subtract(wrist, shoulder)) / (body.measure.upperArm + body.measure.forearm)).toFixed(2)} of the arm, ${residual.toFixed(1)} degrees left after the best forearm turn`;
@@ -270,21 +269,26 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       atMouth,
     ).get("rightHand")!.worldRotation;
     const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
+    const lipRadius: number = Math.hypot(lip.x, lip.z);
+    const atLipsFrame: IAutoMovieRigidTransform = drunk.prop("glass", atMouth);
+    const atLipsAxis: IAutoMovieVector3 = Quaternion.rotateVector(
+      atLipsFrame.rotation,
+      up,
+    );
+    const finishHold: number = instant(drink, "relax");
     let rim: number = 0;
     const asked: number = from(
       Quaternion.rotateVector(
         drunk.posture("a", atMouth).limbs.rightArm?.rotation ?? hand,
-        Quaternion.rotateVector(Quaternion.inverse(hand), axis(atMouth)),
+        Quaternion.rotateVector(Quaternion.inverse(hand), atLipsAxis),
       ),
     );
     for (let i: number = 0; i <= 4; i++) {
-      const seconds: number =
-        atMouth + ((instant(drink, "relax") - atMouth) * i) / 4;
-      const frame: IAutoMovieRigidTransform = drunk.prop("glass", seconds);
-      const shownAxis: IAutoMovieVector3 = Quaternion.rotateVector(
-        frame.rotation,
-        up,
-      );
+      const seconds: number = atMouth + ((finishHold - atMouth) * i) / 4;
+      const frame: IAutoMovieRigidTransform =
+        i === 0 ? atLipsFrame : drunk.prop("glass", seconds);
+      const shownAxis: IAutoMovieVector3 =
+        i === 0 ? atLipsAxis : Quaternion.rotateVector(frame.rotation, up);
       const lean: number = from(shownAxis);
       if (!(shownAxis.z <= AWAY && lean <= asked + step))
         complaints.push(
@@ -305,10 +309,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         const across: number = Vector3.length(
           Vector3.subtract(mouth, Vector3.scale(shownAxis, along)),
         );
-        rim = Math.max(
-          rim,
-          Math.hypot(across - Math.hypot(lip.x, lip.z), along),
-        );
+        rim = Math.max(rim, Math.hypot(across - lipRadius, along));
       }
     }
     if (!(rim <= 0.015))

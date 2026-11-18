@@ -1,8 +1,8 @@
 import type {
   IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
@@ -12,6 +12,7 @@ import {
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { profileHumanMotion } from "./profileHumanMotion";
 
 /**
  * The net every lexicon family's test casts over its rows: each row is
@@ -247,17 +248,20 @@ export namespace LexiconRowNet {
   ];
 
   /** The two builds, each performing with the other as its partner. */
-  const PAIRINGS: readonly (readonly [string, string])[] = [
+  const PAIRINGS: readonly Pairing[] = [
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ];
 
-  /** The two polygon men, prepared at the first cast and kept for the test process. */
-  let prepared: Record<string, IAutoMovieMotionHumanBody> | undefined;
-
-  /** Every row of the lexicon, registered for each performance. */
-  const laws = (): IAutoMovieMotionHumanActionLaw<never>[] =>
-    Object.values(HUMAN_LEXICON).flat();
+  /** Sport branches with separate contact or airborne geometry. */
+  export const SPORT: Readonly<Record<SportGroup, readonly string[]>> = {
+    start: ["sprintStart", "handstand"],
+    martial: ["horseStance", "karatePunches"],
+    push: ["taiChiPush"],
+    ball: ["dribble", "volleyDig", "volleySet", "throwIn"],
+    baseball: ["catcherCrouch", "fieldGrounder", "battingStance"],
+    racket: ["readyPosition", "splitStep", "golfAddress"],
+  };
 
   /** A performer's chain out of a short stand. */
   const starting = (subject: string): IAutoMovieMotionHumanChain =>
@@ -267,50 +271,56 @@ export namespace LexiconRowNet {
   const check = (
     complaints: string[],
     label: string,
-    names: readonly [string, string],
+    names: Pairing,
     gap: number | null,
-    build: () => {
-      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
-    },
+    build: Build,
+    laws: readonly IAutoMovieMotionHumanActionLaw<never>[],
     placed?: string,
   ): void => {
-    prepared ??= {
-      "m-average": motionHumanBody("m-average"),
-      "f-small": motionHumanBody("f-small"),
-    };
-    const body = (name: string): IAutoMovieMotionHumanBody => prepared![name]!;
     try {
-      const performance: IAutoMovieMotionHumanPerformance =
-        new HumanPerformance({
-          seed: "lexicon",
-          laws: laws(),
-          performers: [
-            {
-              subject: "a",
-              body: body(names[0]),
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-            ...(gap === null
-              ? []
-              : [
-                  {
-                    subject: "b",
-                    body: body(names[1]),
-                    at: { x: 0, y: 0, z: gap },
-                    yaw: 180,
-                    proficiency: { level: "trained" as const },
-                  },
-                ]),
-          ],
-          composition: build().node,
-        });
-      const name: string | undefined = performance.segments("a")[1]?.name;
-      if (placed !== undefined && name !== placed)
-        complaints.push(
-          `${label} on ${names[0]}: placed as ${name}, ${placed} expected`,
-        );
+      const performance: IAutoMovieMotionHumanPerformance = profileHumanMotion(
+        `${label}/${names[0]}`,
+        (): IAutoMovieMotionHumanPerformance =>
+          new HumanPerformance({
+            seed: "lexicon",
+            laws,
+            performers: [
+              {
+                subject: "a",
+                body: motionHumanBody(names[0]),
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
+              },
+              ...(gap === null
+                ? []
+                : [
+                    {
+                      subject: "b",
+                      body: motionHumanBody(names[1]),
+                      at: { x: 0, y: 0, z: gap },
+                      yaw: 180,
+                      proficiency: { level: "trained" as const },
+                    },
+                  ]),
+            ],
+            composition: build().node,
+          }),
+        gap === null ? ["a"] : ["a", "b"],
+        placed,
+      );
+      if (placed !== undefined) {
+        const action: IAutoMovieMotionHumanSegment | undefined =
+          performance.segments("a")[1];
+        if (action?.name !== placed)
+          complaints.push(
+            `${label} on ${names[0]}: placed as ${action?.name}, ${placed} expected`,
+          );
+        else if (!(action.end > action.entryTime))
+          complaints.push(
+            `${label} on ${names[0]}: the placed action lasts no time`,
+          );
+      }
     } catch (error) {
       complaints.push(
         `${label} on ${names[0]}: ${error instanceof Error ? error.message : String(error)}`,
@@ -319,52 +329,75 @@ export namespace LexiconRowNet {
   };
 
   /**
-   * Cast the net over a family's rows, or over one part of them.
+   * Cast the net over a family's rows, or over a group of named branches.
    *
    * @param family The family's key in `HUMAN_LEXICON`.
-   * @param part Which rows of the family, as `[index, parts]`: those whose position leaves `index` when divided by `parts`; all of them when absent.
+   * @param names The rows that exercise the branch under test; every row when absent.
+   * @param omit Whether the branch names are excluded to cover the rest of the family.
+   * @param performer Limit an individually costly branch to this one of the already staged performers.
    * @returns The complaints; none when every row is performable.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, how a part is chosen and the result.
+   * @evidence contracts/development/common.md#meaningful-documentation States the family, the optional named branch selection and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Each row is built alone, or on its partner at its own distance, for both pairings of the two builds; a strike is planned by one performer, chosen by its position.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two pairings, one pass over the rows, one build each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A family or a part that holds no row is itself a complaint, so nothing passes by walking nothing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing family or named row is itself a complaint, so nothing passes by walking nothing.
    * @evidence contracts/development/implementation.md#efficient-algorithms One performance per row and pairing.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two polygon men are prepared once per process and shared by every cast.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each performance is dropped after its name is read.
    */
   export function rows(
     family: string,
-    part?: readonly [number, number],
+    names?: readonly string[],
+    omit: boolean = false,
+    performer?: motionHumanBody.Name,
   ): string[] {
     const complaints: string[] = [];
-    const chosen: IAutoMovieMotionHumanActionLaw<never>[] = (
-      HUMAN_LEXICON[family] ?? []
-    ).filter(
-      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
-        part === undefined || index % part[1] === part[0],
-    );
-    if (chosen.length === 0)
+    const laws: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+      HUMAN_LEXICON[family] ?? [];
+    if (laws.length === 0)
       complaints.push(`the family ${family} holds no row to perform`);
-    PAIRINGS.forEach((names: readonly [string, string], turn: number): void => {
-      chosen.forEach(
+    for (const name of names ?? [])
+      if (
+        !laws.some(
+          (law: IAutoMovieMotionHumanActionLaw<never>): boolean =>
+            law.name === name,
+        )
+      )
+        complaints.push(`the family ${family} has no row named ${name}`);
+    const pairings: readonly Pairing[] =
+      family === "sport" ? [...PAIRINGS, ["m-large", "f-small"]] : PAIRINGS;
+    if (
+      performer !== undefined &&
+      !pairings.some((pair: Pairing): boolean => pair[0] === performer)
+    )
+      complaints.push(
+        `the family ${family} has no performer named ${performer}`,
+      );
+    pairings.forEach((pair: Pairing, turn: number): void => {
+      if (performer !== undefined && pair[0] !== performer) return;
+      laws.forEach(
         (law: IAutoMovieMotionHumanActionLaw<never>, index: number): void => {
-          if (STAGED.includes(law.name)) return;
+          if (
+            STAGED.includes(law.name) ||
+            (names !== undefined && names.includes(law.name) === omit)
+          )
+            return;
           const scene: readonly [number, object] | undefined = PAIRED[law.name];
           if (scene === undefined)
             check(
               complaints,
               law.name,
-              names,
+              pair,
               null,
               () => starting("a").registered(law.name, ALONE[law.name] ?? {}),
+              [law],
               law.name,
             );
           else if (!STRIKES.includes(law.name) || index % 2 === turn)
             check(
               complaints,
               law.name,
-              names,
+              pair,
               scene[0],
               () =>
                 TRACKING.includes(law.name)
@@ -374,6 +407,7 @@ export namespace LexiconRowNet {
                   : starting("a")
                       .registered(law.name, scene[1])
                       .with(starting("b")),
+              [law],
               law.name,
             );
         },
@@ -408,6 +442,7 @@ export namespace LexiconRowNet {
    *
    * @param row The row's name.
    * @param replaced Parameters laid over what the net's tables give the row.
+   * @param staged Whether the row receives its usual fixture. False asks for the row alone with exactly the given parameters.
    * @returns The error the build threw; null when it planned.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the scene, the replacement and the result.
@@ -418,22 +453,33 @@ export namespace LexiconRowNet {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the polygon men prepared for `rows`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The performance is dropped.
    */
-  export function attempt(row: string, replaced: object): unknown {
-    const scene: readonly [number, object] | undefined = PAIRED[row];
-    const params: object = { ...(scene?.[1] ?? ALONE[row] ?? {}), ...replaced };
-    let caught: unknown = null;
-    prepared ??= {
-      "m-average": motionHumanBody("m-average"),
-      "f-small": motionHumanBody("f-small"),
-    };
+  export function attempt(
+    row: string,
+    replaced: object,
+    staged: boolean = true,
+  ): unknown {
+    const scene: readonly [number, object] | undefined = staged
+      ? PAIRED[row]
+      : undefined;
+    const params: object = staged
+      ? { ...(scene?.[1] ?? ALONE[row] ?? {}), ...replaced }
+      : replaced;
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(
+      HUMAN_LEXICON,
+    )
+      .flat()
+      .filter(
+        (law: IAutoMovieMotionHumanActionLaw<never>): boolean =>
+          law.name === row,
+      );
     try {
       new HumanPerformance({
         seed: "lexicon",
-        laws: laws(),
+        laws,
         performers: [
           {
             subject: "a",
-            body: prepared["m-average"]!,
+            body: motionHumanBody("m-average"),
             at: { x: 0, y: 0, z: 0 },
             yaw: 0,
             proficiency: { level: "trained" },
@@ -443,7 +489,7 @@ export namespace LexiconRowNet {
             : [
                 {
                   subject: "b",
-                  body: prepared["f-small"]!,
+                  body: motionHumanBody("f-small"),
                   at: { x: 0, y: 0, z: scene[0] },
                   yaw: 180,
                   proficiency: { level: "trained" as const },
@@ -458,9 +504,9 @@ export namespace LexiconRowNet {
         ).node,
       });
     } catch (error) {
-      caught = error;
+      return error;
     }
-    return caught;
+    return null;
   }
 
   /**
@@ -481,23 +527,41 @@ export namespace LexiconRowNet {
   export function scenes(): string[] {
     const complaints: string[] = [];
     for (const names of PAIRINGS) {
-      check(complaints, "carried", names, 0.3, () =>
-        starting("a")
-          .walk({ to: { x: 0, y: 0, z: -2 } })
-          .with(starting("b").registered("carried", { by: "a", seconds: 2 })),
+      check(
+        complaints,
+        "carried",
+        names,
+        0.3,
+        () =>
+          starting("a")
+            .walk({ to: { x: 0, y: 0, z: -2 } })
+            .with(starting("b").registered("carried", { by: "a", seconds: 2 })),
+        HUMAN_LEXICON.carried!,
       );
-      check(complaints, "a salute over a walk", names, null, () =>
-        starting("a")
-          .walk({ to: { x: 0, y: 0, z: 3 } })
-          .over((o) => o.registered("salute")),
+      check(
+        complaints,
+        "a salute over a walk",
+        names,
+        null,
+        () =>
+          starting("a")
+            .walk({ to: { x: 0, y: 0, z: 3 } })
+            .over((o) => o.registered("salute")),
+        HUMAN_LEXICON.emblem!,
       );
       // Each record is joined on its own: their roles and parameters
       // differ, so one loop over both does not type.
-      check(complaints, `the mutual ${HumanSocial.bump.name}`, names, 0.7, () =>
-        HumanChain.mutual(HumanSocial.bump, {
-          one: starting("a"),
-          other: starting("b"),
-        }),
+      check(
+        complaints,
+        `the mutual ${HumanSocial.bump.name}`,
+        names,
+        0.7,
+        () =>
+          HumanChain.mutual(HumanSocial.bump, {
+            one: starting("a"),
+            other: starting("b"),
+          }),
+        HUMAN_LEXICON.social!,
       );
       check(
         complaints,
@@ -509,8 +573,18 @@ export namespace LexiconRowNet {
             guest: starting("a"),
             host: starting("b"),
           }),
+        HUMAN_LEXICON.social!,
       );
     }
     return complaints;
   }
 }
+
+/** The subject and partner, from the same public body fixture. */
+type Pairing = readonly [motionHumanBody.Name, motionHumanBody.Name];
+
+/** A sport group with independent entry or target geometry. */
+type SportGroup = "start" | "martial" | "push" | "ball" | "baseball" | "racket";
+
+/** The composition seam a lexicon test builds. */
+type Build = () => Pick<IAutoMovieMotionHumanChain, "node">;

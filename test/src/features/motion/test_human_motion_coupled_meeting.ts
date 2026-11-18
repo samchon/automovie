@@ -30,8 +30,26 @@ import {
   HumanSignature,
 } from "@automovie/motions";
 
+import { inspectHumanPairSeparation } from "../internal/inspectHumanPairSeparation";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { profileHumanMotion } from "../internal/profileHumanMotion";
+
+type Name = "m-large" | "f-small" | "m-average";
+type Subject = "a" | "b";
+type CarryRole = "bearer" | "borne";
+
+interface ICarryExtra {
+  mass?: number;
+  lift?: number;
+  setDown?: number;
+}
+
+interface ICarriedScene {
+  film: IAutoMovieMotionHumanPerformance;
+  bodies: Record<Subject, IAutoMovieMotionHumanBody>;
+  coupling: IAutoMovieMotionCoupling;
+}
 
 /**
  * A coupled meeting in which one body bears another (#3437): the borne body
@@ -80,7 +98,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    the cradle's capacity: an extra mass one kilogram above it is refused as a
  *    `participant` refusal on `mass` whose feasible maximum is the capacity,
  *    and one kilogram below it is accepted.
- * 9. With a lift and a set-down of 0.5 s each, at every sampled share at
+ * 9. With a lift and a set-down of 0.5 s each, at every share at
  *    least one window bears the borne body (a foot on the ground or a
  *    contact on the bearer), and the feet's windows on the ground close no
  *    earlier than the first bearing window on the bearer opens.
@@ -93,7 +111,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_coupled_meeting(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
-  type Name = "m-large" | "f-small" | "m-average";
   const CONTACT: number = 0.01;
   const STATICS: number = 0.02;
   const times: number[] = HumanSignature.times(0.8, 2.2, 20);
@@ -101,12 +118,10 @@ export function test_human_motion_coupled_meeting(): void {
     names: readonly [Name, Name],
     carry: IAutoMovieMotionHumanCarried.Carry,
     walking: boolean,
-    extra: { mass?: number; lift?: number; setDown?: number } = {},
-  ): {
-    film: IAutoMovieMotionHumanPerformance;
-    bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>;
-  } => {
-    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
+    extra: ICarryExtra = {},
+    known?: IAutoMovieMotionCoupling,
+  ): ICarriedScene => {
+    const bodies: Record<Subject, IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
@@ -118,52 +133,74 @@ export function test_human_motion_coupled_meeting(): void {
       : own.stand({ seconds: 2 });
     // The hold rides the bearer's own action, which keeps its trunk, so the
     // pair's tip is scheduled as a layer over it.
-    const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
-      bodies.a,
-      bodies.b,
-      HumanCarried.CARRIES[carry],
-      carry,
-      extra.mass ?? 0,
+    let coupling: IAutoMovieMotionCoupling | undefined = known;
+    const film: IAutoMovieMotionHumanPerformance = profileHumanMotion(
+      `${walking ? "coupled-walk" : "coupled-stand"}/${carry}/${names[0]}/${names[1]}`,
+      (): IAutoMovieMotionHumanPerformance => {
+        coupling ??= HumanCarriedCoupling.couple(
+          bodies.a,
+          bodies.b,
+          HumanCarried.CARRIES[carry],
+          carry,
+          extra.mass ?? 0,
+        );
+        return new HumanPerformance({
+          seed: "coupled",
+          laws: [HumanCarried.borne, HumanCarried.bearing],
+          performers: (["a", "b"] as const).map((subject) => ({
+            subject,
+            body: bodies[subject],
+            at: { x: 0, y: 0, z: subject === "a" ? 0 : -0.3 },
+            yaw: 0,
+            proficiency: { level: "trained" as const },
+          })),
+          composition: moved
+            .over((o) =>
+              o.registered("bearing", {
+                carry,
+                seconds: 2,
+                of: "b",
+                ...(extra.mass === undefined ? {} : { mass: extra.mass }),
+              }),
+            )
+            .with(
+              HumanChain.subject("b")
+                .stand({ seconds: 0.3 })
+                .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
+            ).node,
+          layers: {
+            a: [
+              {
+                layer: HumanCarriedLean.coupled(
+                  HumanCarriedCouplingLoad.lean(bodies.a, coupling),
+                ),
+                from: 0.3,
+                fade: HumanCarried.TAKE,
+              },
+            ],
+          },
+        });
+      },
+      ["b", "a"],
+      "borne",
     );
-    return {
-      bodies,
-      film: new HumanPerformance({
-        seed: "coupled",
-        laws: [HumanCarried.borne, HumanCarried.bearing],
-        performers: (["a", "b"] as const).map((subject) => ({
-          subject,
-          body: bodies[subject],
-          at: { x: 0, y: 0, z: subject === "a" ? 0 : -0.3 },
-          yaw: 0,
-          proficiency: { level: "trained" as const },
-        })),
-        composition: moved
-          .over((o) =>
-            o.registered("bearing", {
-              carry,
-              seconds: 2,
-              of: "b",
-              ...(extra.mass === undefined ? {} : { mass: extra.mass }),
-            }),
-          )
-          .with(
-            HumanChain.subject("b")
-              .stand({ seconds: 0.3 })
-              .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
-          ).node,
-        layers: {
-          a: [
-            {
-              layer: HumanCarriedLean.coupled(
-                HumanCarriedCouplingLoad.lean(bodies.a, coupling),
-              ),
-              from: 0.3,
-              fade: HumanCarried.TAKE,
-            },
-          ],
-        },
-      }),
-    };
+    return { bodies, film, coupling: coupling! };
+  };
+  const readStage = (
+    names: readonly [Name, Name],
+    carry: IAutoMovieMotionHumanCarried.Carry,
+    walking: boolean,
+    extra?: ICarryExtra,
+    known?: IAutoMovieMotionCoupling,
+  ): ICarriedScene | null => {
+    try {
+      return stage(names, carry, walking, extra, known);
+    } catch (error) {
+      all.list.push(
+        `${carry}, ${names[0]} bearing ${names[1]}, ${walking ? "walking" : "standing"}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return null;
+    }
   };
   const PAIRS: readonly (readonly [Name, Name])[] = [
     ["m-large", "f-small"],
@@ -178,12 +215,9 @@ export function test_human_motion_coupled_meeting(): void {
   for (const names of PAIRS)
     for (const carry of CARRIES) {
       const cell: string = `${carry}, ${names[0]} bearing ${names[1]}`;
-      const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
-        motionHumanBody(names[0]),
-        motionHumanBody(names[1]),
-        HumanCarried.CARRIES[carry],
-        carry,
-      );
+      const walked: ICarriedScene | null = readStage(names, carry, true);
+      if (walked === null) continue;
+      const coupling: IAutoMovieMotionCoupling = walked.coupling;
 
       // 4. The shares.
       const bearing: IAutoMovieMotionCoupling.IContact[] =
@@ -205,7 +239,6 @@ export function test_human_motion_coupled_meeting(): void {
         );
 
       // 1, 3 and 4. Walking: contacts, slip and the extrapolated centre.
-      const walked = stage(names, carry, true);
       const borne: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         walked.film,
         "b",
@@ -269,18 +302,16 @@ export function test_human_motion_coupled_meeting(): void {
       }
       // The bodies do not pass into each other beyond the partner verdict's
       // bound (`HumanVerdicts`' `partner`, 10 mm).
-      let deepest: number = Number.POSITIVE_INFINITY;
-      for (const t of times)
-        deepest = Math.min(deepest, HumanSignature.apart(borne, bearer, t));
+      const deepest: ReturnType<typeof inspectHumanPairSeparation> =
+        inspectHumanPairSeparation(borne, bearer, times);
       all.check(
-        `${cell}, walking: a joint lies ${(-deepest * 1000).toFixed(1)} mm inside the other body, ${CONTACT * 1000} mm at most expected`,
-        deepest >= -CONTACT,
+        `${cell}, walking at ${deepest.seconds.toFixed(2)} s: ${deepest.where} by ${(-deepest.distance * 1000).toFixed(1)} mm, ${CONTACT * 1000} mm at most expected`,
+        deepest.distance >= -CONTACT,
       );
       const length: number = resolveAutoMovieCenterOfMass.pendulum(
         walked.bodies.a.measure.hipHeight,
       );
-      const pair = (t: number): IAutoMovieVector3 =>
-        combined(bearer, borne, walked.bodies, t);
+      const pair = (t: number): IAutoMovieVector3 => combined(bearer, borne, t);
       for (const t of times) {
         if (
           !HumanSignature.bears(bearer, t, "left") ||
@@ -303,14 +334,35 @@ export function test_human_motion_coupled_meeting(): void {
       }
 
       // 2. Standing: the combined centre over the feet.
-      const stood = stage(names, carry, false);
-      const still: Record<"a" | "b", IAutoMovieMotionHumanSignature.IReader> = {
+      const stood: ICarriedScene | null = readStage(
+        names,
+        carry,
+        false,
+        undefined,
+        coupling,
+      );
+      if (stood === null) continue;
+      const still: Record<Subject, IAutoMovieMotionHumanSignature.IReader> = {
         a: HumanSignature.of(stood.film, "a", stood.bodies.a, 0),
         b: HumanSignature.of(stood.film, "b", stood.bodies.b, 0),
       };
+      if (
+        process.env.AUTOMOVIE_PROFILE_MOTION?.split(",").includes(
+          "coupled-static-witness",
+        ) === true
+      )
+        console.log(
+          JSON.stringify({
+            stage: "coupled-static-witness",
+            carry,
+            bearer: names[0],
+            borne: names[1],
+            ...inspectHumanPairSeparation(still.b, still.a, [times[0]!]),
+          }),
+        );
       for (const t of times) {
         const margin: number = resolveAutoMovieCenterOfMass.margin(
-          combined(still.a, still.b, stood.bodies, t),
+          combined(still.a, still.b, t),
           HumanFoot.base(stood.bodies.a, HumanSignature.bones(still.a, t)),
         );
         all.check(
@@ -322,35 +374,42 @@ export function test_human_motion_coupled_meeting(): void {
 
   // 5. A heavier borne body leans the bearer more.
   const tip = (
-    film: IAutoMovieMotionHumanPerformance,
-    body: IAutoMovieMotionHumanBody,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     t: number,
   ): number => {
     const up: IAutoMovieVector3 = Quaternion.rotateVector(
-      HumanSignature.bones(HumanSignature.of(film, "a", body, 0), t).get(
-        "chest",
-      )!.worldRotation,
+      HumanSignature.bones(reader, t).get("chest")!.worldRotation,
       { x: 0, y: 1, z: 0 },
     );
     return (Math.atan2(up.z, up.y) * 180) / Math.PI;
   };
-  const light = stage(["m-average", "f-small"], "piggyback", true);
-  const heavy = stage(["m-average", "m-large"], "piggyback", true);
-  for (const t of [1.3, 1.6, 1.9]) {
-    const a: number = tip(light.film, light.bodies.a, t);
-    const b: number = tip(heavy.film, heavy.bodies.a, t);
-    all.check(
-      `piggyback at ${t} s: the bearer's chest tips ${b.toFixed(1)} degrees carrying m-large and ${a.toFixed(1)} carrying f-small, more for the heavier expected`,
-      b > a,
-    );
+  const light: ICarriedScene | null = readStage(
+    ["m-average", "f-small"],
+    "piggyback",
+    true,
+  );
+  const heavy: ICarriedScene | null = readStage(
+    ["m-average", "m-large"],
+    "piggyback",
+    true,
+  );
+  if (light !== null && heavy !== null) {
+    const lightBearer = HumanSignature.of(light.film, "a", light.bodies.a, 0);
+    const heavyBearer = HumanSignature.of(heavy.film, "a", heavy.bodies.a, 0);
+    for (const t of [1.3, 1.6, 1.9]) {
+      const a: number = tip(lightBearer, t);
+      const b: number = tip(heavyBearer, t);
+      all.check(
+        `piggyback at ${t} s: the bearer's chest tips ${b.toFixed(1)} degrees carrying m-large and ${a.toFixed(1)} carrying f-small, more for the heavier expected`,
+        b > a,
+      );
+    }
   }
 
   // 6. The coupling does not depend on which role is computed first.
-  const roles = (
-    order: readonly ("bearer" | "borne")[],
-  ): IAutoMovieMotionMeetingRole[] =>
+  const roles = (order: readonly CarryRole[]): IAutoMovieMotionMeetingRole[] =>
     order.map(
-      (name: "bearer" | "borne"): IAutoMovieMotionMeetingRole => ({
+      (name: CarryRole): IAutoMovieMotionMeetingRole => ({
         name,
         subject: name === "bearer" ? "a" : "b",
         body: motionHumanBody(name === "bearer" ? "m-average" : "f-small"),
@@ -382,22 +441,28 @@ export function test_human_motion_coupled_meeting(): void {
   );
 
   // 7. Determinism of the borne posture.
-  const once = stage(["m-average", "f-small"], "piggyback", true);
-  const twice = stage(["m-average", "f-small"], "piggyback", true);
-  for (const t of [0.9, 1.5, 2.1]) {
-    const p = (
-      film: IAutoMovieMotionHumanPerformance,
-      body: IAutoMovieMotionHumanBody,
-    ): string =>
-      JSON.stringify(
-        [...HumanSignature.bones(HumanSignature.of(film, "b", body, 0), t)].map(
-          ([bone, b]) => [bone, b.worldPosition, b.worldRotation],
-        ),
+  const repeat: ICarriedScene | null = readStage(
+    ["m-average", "f-small"],
+    "piggyback",
+    true,
+  );
+  if (light !== null && repeat !== null) {
+    const firstBorne = HumanSignature.of(light.film, "b", light.bodies.b, 0);
+    const secondBorne = HumanSignature.of(repeat.film, "b", repeat.bodies.b, 0);
+    for (const t of [0.9, 1.5, 2.1]) {
+      const p = (reader: IAutoMovieMotionHumanSignature.IReader): string =>
+        JSON.stringify(
+          [...HumanSignature.bones(reader, t)].map(([bone, b]) => [
+            bone,
+            b.worldPosition,
+            b.worldRotation,
+          ]),
+        );
+      all.check(
+        `piggyback at ${t} s: the borne pose is the same in two performances`,
+        p(firstBorne) === p(secondBorne),
       );
-    all.check(
-      `piggyback at ${t} s: the borne pose is the same in two performances`,
-      p(once.film, once.bodies.b) === p(twice.film, twice.bodies.b),
-    );
+    }
   }
 
   // 8. The capacity and its boundary.
@@ -448,23 +513,32 @@ export function test_human_motion_coupled_meeting(): void {
     );
 
   // 9. The lift and the set-down as a support sequence.
-  const lifted = stage(["m-average", "f-small"], "piggyback", false, {
+  const lifted = readStage(["m-average", "f-small"], "piggyback", false, {
     lift: 0.5,
     setDown: 0.5,
   });
+  if (lifted === null) {
+    all.assert("a coupled carry bears the borne body on the bearer");
+    return;
+  }
   const segments = lifted.film.segments("b");
   const plan = segments[segments.length - 1]!.plan;
   const contacts: readonly IAutoMovieMotionHumanContactWindow[] = plan.contacts;
   const bears = (w: IAutoMovieMotionHumanContactWindow): boolean =>
     w.kind === "plant" || w.kind === "bear" || w.kind === "seat";
-  for (let share: number = 0; share <= 1 + 1e-9; share += 0.05)
-    all.check(
-      `with a lift: at share ${share.toFixed(2)} some window bears the borne body`,
-      contacts.some(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          bears(w) && w.from <= share + 1e-9 && w.to >= share - 1e-9,
-      ),
-    );
+  // Cover the closed unit interval with the union of the bearing windows.
+  const windows: IAutoMovieMotionHumanContactWindow[] = contacts
+    .filter(bears)
+    .sort((a, b) => a.from - b.from);
+  let covered: number = 0;
+  for (const w of windows) {
+    if (!(w.from - 1e-9 <= covered)) break;
+    covered = Math.max(covered, w.to + 1e-9);
+  }
+  all.check(
+    `with a lift: bearing windows must cover the whole action; they cover through share ${covered.toFixed(9)}`,
+    covered >= 1,
+  );
   const onBearer: IAutoMovieMotionHumanContactWindow[] = contacts.filter(
     (w: IAutoMovieMotionHumanContactWindow): boolean =>
       bears(w) && w.support.kind === "person",
@@ -498,22 +572,21 @@ export function test_human_motion_coupled_meeting(): void {
 function combined(
   a: IAutoMovieMotionHumanSignature.IReader,
   b: IAutoMovieMotionHumanSignature.IReader,
-  bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>,
   t: number,
 ): IAutoMovieVector3 {
-  const ma: number = resolveAutoMovieCenterOfMass(
-    bodies.a.skeleton,
-    bodies.a.profile,
-  ).mass;
-  const mb: number = resolveAutoMovieCenterOfMass(
-    bodies.b.skeleton,
-    bodies.b.profile,
-  ).mass;
+  const ca: ReturnType<typeof resolveAutoMovieCenterOfMass> = a.body.massModel;
+  const cb: ReturnType<typeof resolveAutoMovieCenterOfMass> = b.body.massModel;
   return Vector3.scale(
     Vector3.add(
-      Vector3.scale(HumanSignature.centre(a, t), ma),
-      Vector3.scale(HumanSignature.centre(b, t), mb),
+      Vector3.scale(
+        resolveAutoMovieCenterOfMass.place(ca, HumanSignature.bones(a, t)),
+        ca.mass,
+      ),
+      Vector3.scale(
+        resolveAutoMovieCenterOfMass.place(cb, HumanSignature.bones(b, t)),
+        cb.mass,
+      ),
     ),
-    1 / (ma + mb),
+    1 / (ca.mass + cb.mass),
   );
 }
