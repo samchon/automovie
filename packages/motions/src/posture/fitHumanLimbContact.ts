@@ -28,9 +28,14 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  */
 export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IAutoMovieHumanLimbGoal,
   side: AutoMovieHumanSide, leg: boolean,
-  fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
-  let fitted: IAutoMovieSeededChainFit = fit(goal.point);
-  if (goal.contact === undefined || goal.rotation === undefined) return fitted;
+  fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
+  if (goal.contact === undefined || goal.rotation === undefined) return fit(goal.point);
+  let frame: IContactPrefix | undefined;
+  let chosen: IContactPrefix | undefined;
+  const capture: fitHumanLimbContact.ICapture = (rotation, position): void => {
+    frame = { rotation, position };
+  };
+  let fitted: IAutoMovieSeededChainFit = fit(goal.point, undefined, capture);
   const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
   let point: IAutoMovieVector3 = goal.point;
   let last: IReaimIteration | undefined;
@@ -41,13 +46,14 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
 
   // A current orientation changes the offset point; keep its best actual contact if mixing does not close.
   for (let i: number = 0; i < REAIM_PASSES; ++i) {
-    const reached: IAutoMovieQuaternion = fitter.rotation(fitted.pose);
+    const reached: IAutoMovieQuaternion = frame?.rotation ?? fitter.rotation(fitted.pose);
     const aim: IAutoMovieVector3 = Vector3.subtract(anchor, Quaternion.rotateVector(reached, goal.contact));
     const miss: IAutoMovieVector3 = Vector3.subtract(aim, point);
     const missSize: number = Vector3.length(miss);
     if (missSize < nearestMiss) {
       nearest = fitted;
       nearestPoint = point;
+      chosen = frame;
       nearestMiss = missSize;
       if (leg) nearestRotation = reached;
     }
@@ -67,20 +73,25 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     // A re-aimed target lies millimetres from the last one, so its fit
     // continues the last pass's seed, refined to the cold sweep's own
     // resolution, instead of searching every swivel again.
+    frame = undefined;
     fitted = fit(point, fitted.seed === null ? undefined
-      : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
+      : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION }, capture);
   }
   if (!leg) {
     // A projected wrist can miss the requested centre even when its orientation
     // has converged. Close the residual in the actual socket frame.
     fitted = nearest;
     point = nearestPoint;
+    frame = chosen;
     nearestMiss = Infinity;
     for (let i: number = 0; i < REAIM_PASSES; ++i) {
-      const frame: IAutoMovieChainBone = fitter.effector(fitted.pose);
+      const achieved: IAutoMovieChainBone = frame === undefined ? fitter.effector(fitted.pose) : {
+        worldPosition: frame.position(),
+        worldRotation: frame.rotation,
+      };
       const contact: IAutoMovieVector3 = Vector3.add(
-        frame.worldPosition,
-        Quaternion.rotateVector(frame.worldRotation, goal.contact),
+        achieved.worldPosition,
+        Quaternion.rotateVector(achieved.worldRotation, goal.contact),
       );
       const residual: IAutoMovieVector3 = Vector3.subtract(anchor, contact);
       const error: number = Vector3.length(residual);
@@ -89,8 +100,9 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
       nearestMiss = error;
       if (error < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
       point = Vector3.add(point, residual);
+      frame = undefined;
       fitted = fit(point, fitted.seed === null ? undefined
-        : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
+        : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION }, capture);
     }
     return nearest;
   }
@@ -118,3 +130,22 @@ const REAIM_TOLERANCE: number = 2e-5;
 
 /** Maximum fits per correction phase. Prior measured near-limit heel-off needs up to eleven orientation fits. */
 const REAIM_PASSES: number = 16;
+
+/** Geometry supplied by the fit that made this candidate. */
+interface IContactPrefix {
+  position: () => IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+}
+
+/**
+ * The reading offered by a native ordinary fit during this operation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the optional same-fit reading used for a contact observation.
+ * @evidence contracts/development/design.md#principled-representation The callback is the engine fitter's own type, in the same frame as the goal.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The target-specific ordinary method alone forwards the reader.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing observations follow the existing full fit frame path.
+ */
+export namespace fitHumanLimbContact {
+  /** The solver may supply the final prefix for the exact requested fit. */
+  export type ICapture = NonNullable<Parameters<ReturnType<typeof prepareHumanLimbFit>["fit"]>[3]>;
+}

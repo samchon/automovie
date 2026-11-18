@@ -185,9 +185,12 @@ export namespace HumanArmSwing {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, resolution());
         read = { bones, placed: HumanColliders.placed(body, bones) };
       }
-      const room: (candidate: IAutoMovieMotionHumanArmClearance.IArm) => number =
-        prepareHumanArmRoom(body, pose, side, [], baseline, resolution(), read);
-      const lacking: (a: number) => number = (a: number): number => room(out(a));
+      const room: ReturnType<typeof prepareHumanArmRoom> =
+        prepareHumanArmRoom(body, pose, side, [], baseline, resolution(), read, TOLERANCE);
+      const lacking: (a: number) => number = (a: number): number => {
+        const candidate: IAutoMovieMotionHumanArmClearance.IArm = out(a);
+        return room(candidate, a === 0);
+      };
 
       // The least added abduction that clears the arm, by the engine's
       // bisection to the body's precision: the room is not smooth (a forearm
@@ -208,7 +211,7 @@ export namespace HumanArmSwing {
       // the pose's bones and segments are the ones read; otherwise the next
       // arm reads its own.
       if (index + 1 < sides.length) {
-        if (!kept(pose, side, clear)) read = undefined;
+        if (!prepareHumanArmRoom.matches(pose, side, clear)) read = undefined;
         pose = HumanArmClearance.posed(pose, side, clear);
       }
     }
@@ -385,26 +388,4 @@ function readArm(pose: IAutoMoviePose, side: "left" | "right"): IAutoMovieMotion
     lower: [lower?.flexion ?? 0, lower?.abduction ?? 0, lower?.twist ?? 0],
     hand: [hand?.flexion ?? 0, hand?.abduction ?? 0, hand?.twist ?? 0],
   };
-}
-
-/** Whether writing an arm back (`HumanArmClearance.posed`) leaves every record of its three joints with the values it holds. */
-function kept(
-  pose: IAutoMoviePose,
-  side: "left" | "right",
-  arm: IAutoMovieMotionHumanArmClearance.IArm,
-): boolean {
-  const written: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
-    [`${side}UpperArm`]: arm.upper,
-    [`${side}LowerArm`]: arm.lower,
-    [`${side}Hand`]: arm.hand,
-  };
-  return pose.joints.every((joint: IAutoMovieJointPose): boolean => {
-    const angles: readonly [number, number, number] | undefined = written[joint.bone];
-    return (
-      angles === undefined ||
-      (Object.is(joint.flexion, angles[0]) &&
-        Object.is(joint.abduction, angles[1]) &&
-        Object.is(joint.twist, angles[2]))
-    );
-  });
 }

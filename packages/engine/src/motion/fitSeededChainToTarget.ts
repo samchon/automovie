@@ -111,7 +111,7 @@ export namespace fitSeededChainToTarget {
      * The producer owns invariant sharing.
      * The signature acquires nothing.
      */
-    fit(target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit;
+    fit(target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit;
 
     /**
      * Evaluate an explicit continuous-curve candidate at the current target.
@@ -251,20 +251,20 @@ function preparedWorkspace(
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): fitSeededChainToTarget.IWorkspace {
   const finish: (props: IAutoMovieFitChainToTargetProps,
-    bend: IAutoMovieSeededChainFit) => IAutoMovieSeededChainFit = (
-    props: IAutoMovieFitChainToTargetProps, bend: IAutoMovieSeededChainFit,
+    bend: IAutoMovieSeededChainFit, capture?: orientChainEffector.IReading) => IAutoMovieSeededChainFit = (
+    props: IAutoMovieFitChainToTargetProps, bend: IAutoMovieSeededChainFit, capture?: orientChainEffector.IReading,
   ): IAutoMovieSeededChainFit => ({
     pose: orientChainEffector(
-      props, bend.pose, workspace.prepared ?? undefined, workspace.rig,
+      props, bend.pose, workspace.prepared ?? undefined, workspace.rig, capture,
     ),
     seed: bend.seed,
     ...(bend.value === undefined ? {} : { value: bend.value }),
   });
   return {
-      fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit => {
+      fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit => {
         const props: IAutoMovieFitChainToTargetProps = near === undefined
           ? { ...workspace.props, target, ...(incumbent === undefined ? {} : { incumbent }) } : { ...workspace.props, target, near };
-        return finish(props, fitChainBend(props, workspace));
+        return finish(props, fitChainBend(props, workspace), capture);
       },
       continued: (target: IAutoMovieVector3,
         near: IAutoMovieSwivelNear,

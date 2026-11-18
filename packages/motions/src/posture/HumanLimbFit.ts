@@ -360,8 +360,8 @@ export namespace HumanLimbFit {
           },
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
-      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit =>
-        read(fitter, point, near, continued, incumbent));
+      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit =>
+        read(fitter, point, near, continued, incumbent, capture));
   }
 
   /**
@@ -417,9 +417,9 @@ export namespace HumanLimbFit {
   /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
     _near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
-    incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
+    incumbent?: IAutoMovieSwivelSeed, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit {
     // A held seed only starts a swept fit's bounded search (HumanLimbIncumbent).
-    return continued === undefined && incumbent !== undefined ? workspace.fit(point, undefined, incumbent) : workspace.fit(point, continued);
+    return workspace.fit(point, continued, continued === undefined ? incumbent : undefined, capture);
   }
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */

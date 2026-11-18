@@ -8,12 +8,14 @@ import type {
   IAutoMoviePose,
   IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -40,6 +42,7 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @param fitted The fitted pose.
  * @param prepared Preparation for the same root, ancestors, intermediate pose and merged clinical mappings; only chain articulations may differ.
  * @param rig Optional lazy rig of the same source workspace; basis, clamps, local projection and fixed inverse remain valid only under unchanged rig/frame dependencies.
+ * @param capture Immediate reader of the final projected rotation and optional position, when the native rig admitted the lower prefix.
  * @returns The pose with the effector oriented inside its rig's limits.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States target/local frames, distal split, fixed intermediate transforms, analytic eligibility, fallback and the preparation/admission premises.
@@ -55,6 +58,7 @@ export function orientChainEffector(
   fitted: IAutoMoviePose,
   prepared?: IAutoMoviePreparedChainPlant,
   rig?: prepareChainFit.IRig,
+  capture?: orientChainEffector.IReading,
 ): IAutoMoviePose {
   if (props.effectorRotation === undefined) return fitted;
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
@@ -144,6 +148,17 @@ export function orientChainEffector(
     Object.is(previous.local.x, local.x) && Object.is(previous.local.y, local.y) &&
     Object.is(previous.local.z, local.z) && Object.is(previous.local.w, local.w)
       ? previous.joint : project(local);
+  if (capture !== undefined && prepared !== undefined && rig !== undefined) {
+    const articulation: IAutoMovieQuaternion = rig.composer(effector.bone, props.restFrames?.[effector.bone])(effector);
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.multiply(lower.worldRotation, prepared.effectorBaseRotation),
+      articulation,
+    );
+    capture(rotation, () => Vector3.add(
+      lower.worldPosition,
+      Quaternion.rotateVector(lower.worldRotation, prepared.effectorOffset),
+    ));
+  }
   return {
     ...pose,
     joints: [
@@ -154,4 +169,20 @@ export function orientChainEffector(
       effector,
     ],
   };
+}
+
+/**
+ * The synchronous observation of this operation's produced orientation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The captured orientation is model-relative. Reading the endpoint later in the same call computes its position from the same admitted lower frame.
+ * @evidence contracts/development/design.md#principled-representation The accepted effector articulation and lower prefix define one world rotation and one wrist or ankle centre.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the contact fitter demands this optional observation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The ordinary pose remains the source of truth without a native prepared rig.
+ */
+export namespace orientChainEffector {
+  /** An immediate contact reader of the admitted lower prefix and final projected orientation. */
+  export type IReading = (
+    rotation: IAutoMovieQuaternion,
+    position: () => IAutoMovieVector3,
+  ) => void;
 }
