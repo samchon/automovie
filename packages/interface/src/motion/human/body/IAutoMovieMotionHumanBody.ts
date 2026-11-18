@@ -12,6 +12,7 @@ import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieBodyMeasure } from "../../../skeleton/IAutoMovieBodyMeasure";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
+import type { IAutoMovieMotionHumanStandUpright } from "../actions/IAutoMovieMotionHumanStandUpright";
 import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotionHumanLimbReads";
 
 /**
@@ -67,6 +68,9 @@ export interface IAutoMovieMotionHumanBody {
 
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: IAutoMovieResolveCenterOfMass.IModel;
+
+  /** The body's quiet-stance alignment (`standUpright`): its plumb-line trunk, neck and level head and its forward lean, a property of the body solved on its first read, once, from the unchanged rig and profile. */
+  upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
   /** Rest joint positions, canonical metres. */
   rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;

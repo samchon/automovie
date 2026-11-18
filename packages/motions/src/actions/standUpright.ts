@@ -43,32 +43,41 @@ import { walkRoot } from "./walkRoot";
 export namespace standUpright {
 
   /**
-   * The alignment of a body, solved once and kept per body.
+   * The alignment of a body, the body's own quiet-stance property
+   * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
    *
    * @param body The body.
    * @returns Its alignment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the per-body alignment; the namespace documents its physical targets and search bounds.
    * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from the mass model's centre against the ankles, with FK requested only for each residual's measured bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A weak body cache in front of one synchronous search.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's own property.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once; the final reading demands precisely its mass-model bones and the two ankles. The neck found for each trunk candidate is kept for the search's length, so the chosen trunk's neck is not searched again; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One search shares the engine's dependency reader across candidates, and each trunk candidate's neck across the cost and the final reading; the body cache keeps only the final alignment.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, four bounded name readers and the per-candidate necks end with the search's return or throw; one alignment stays weakly owned per live body (module-level cache; the body's builder is the owner it belongs with).
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One property read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's record solves the alignment once (`align`) and every reader shares it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The alignment is owned by the body's record; this reader retains nothing.
    */
   export function of(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
-    const known: IAutoMovieMotionHumanStandUpright.IAlignment | undefined = CACHE.get(body);
-    if (known !== undefined) return known;
-    const solved: IAutoMovieMotionHumanStandUpright.IAlignment = solve(body);
-    CACHE.set(body, solved);
-    return solved;
+    return body.upright;
   }
 
-  /** Each body's alignment, solved once. */
-  const CACHE: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanStandUpright.IAlignment> = new WeakMap();
-
-  /** Solve a body's alignment: the plumb-line trunk and neck, the level head, then the lean. */
-  function solve(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
+  /**
+   * Solve a body's alignment: the plumb-line trunk and neck, the level head,
+   * then the lean. The body's record reads it once, on its first use
+   * (`IAutoMovieMotionHumanBody.upright`).
+   *
+   * @param body The body.
+   * @returns Its alignment.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from the mass model's centre against the ankles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous search whose single caller is the body's record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One search shares the engine's dependency reader across candidates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, four bounded name readers and the per-candidate necks end with the search's return or throw.
+   */
+  export function align(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const readers: Map<

@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanLimbReads } from "../posture/humanLimbReads";
@@ -29,7 +30,7 @@ import { humanSettledJoints } from "../posture/humanSettledJoints";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints, bone records by name and immutable canonical FK preparation. The bone-local mass model, collider placement, hull faces and each side's hanging arm are prepared by their actual first queries. Recreate it after editing the input rig or profile.
+ * @returns The body with its measure, surfaces, topology, rest joints, bone records by name and immutable canonical FK preparation. The bone-local mass model, the quiet-stance alignment, collider placement, hull faces and each side's hanging arm are prepared by their actual first queries. Recreate it after editing the input rig or profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
@@ -87,6 +88,7 @@ export function createHumanBody(
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
+  let upright: IAutoMovieMotionHumanBody["upright"] | undefined;
   let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
@@ -115,6 +117,12 @@ export function createHumanBody(
     get massModel(): IAutoMovieMotionHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;
+    },
+
+    // Quiet standing is a property of the body: aligned on its first read.
+    get upright(): IAutoMovieMotionHumanBody["upright"] {
+      upright ??= standUpright.align(body);
+      return upright;
     },
     rest,
     bones,
