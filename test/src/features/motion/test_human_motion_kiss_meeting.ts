@@ -119,7 +119,7 @@ export function test_human_motion_kiss_meeting(): void {
         `${region}: partner penetration ${worst.value * 1000} mm at ${worst.seconds} s (${worst.where})`,
         worst.value <= 0.01,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       const height: string =
         region === "forehead"
           ? `, at least ${(leastForeheadSeparation(scene) * 1000).toFixed(1)} mm vertically beyond the planted kisser's rigid links`
@@ -148,7 +148,7 @@ export function test_human_motion_kiss_meeting(): void {
         .act("kiss", { partner: "b", region: "forehead" })
         .with(HumanChain.subject("b").stand({ seconds: 6, sway: 0 })),
     );
-  } catch (error) {
+  } catch (error: unknown) {
     refused = error;
   }
   all.check(

@@ -2,6 +2,7 @@ import { createDrinkware } from "@automovie/archetypes";
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -175,12 +176,13 @@ export namespace motionHandToFaceDrink {
     const hand: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
     // The shoulder's flexion and abduction on the displayed bones, as the
     // source measures them, read from the one owner of that measure.
-    const { flexion, abduction } = AutoMovieMotionHumanDrinkingArm.measured(
-      bones,
-      "right",
-      s.yaw,
-    );
-    const frame = s.body.surfaces.regions.mouth;
+    const {
+      flexion,
+      abduction,
+    }: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.measured> =
+      AutoMovieMotionHumanDrinkingArm.measured(bones, "right", s.yaw);
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      s.body.surfaces.regions.mouth;
     const mouth: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
       frame,
       bones.get(frame.bone)!,

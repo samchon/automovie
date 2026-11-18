@@ -1,6 +1,8 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
@@ -99,8 +101,9 @@ export function test_human_motion_hand_sites(): void {
         performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +
-        (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-          NaN) *
+        (placed.plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === event,
+        )?.share ?? NaN) *
           placed.plan.duration;
       const held: number = (instant("strokeEnd") + instant("relax")) / 2;
       const mine: ReturnType<typeof performance.bones> = performance.bones(
@@ -111,7 +114,9 @@ export function test_human_motion_hand_sites(): void {
         "b",
         held,
       );
-      const palm = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
+      const palm: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+        side: AutoMovieHumanSide,
+      ): IAutoMovieVector3 =>
         AutoMovieMotionHumanTouchEffector.point(
           body,
           mine,
@@ -129,13 +134,11 @@ export function test_human_motion_hand_sites(): void {
           ).limbs.rightArm?.point;
           return asked === undefined
             ? 0
-            : gap(
-                mine.get("rightHand")!.worldPosition,
-                asked,
-              );
+            : gap(mine.get("rightHand")!.worldPosition, asked);
         },
         region: (name: Region): IAutoMovieVector3 => {
-          const frame = body.surfaces.regions[name];
+          const frame: IAutoMovieHumanoidSurfaces.IFrame =
+            body.surfaces.regions[name];
           return resolveAutoMovieHumanoidSurfaces.place(
             frame,
             theirs.get(frame.bone)!,

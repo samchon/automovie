@@ -45,7 +45,9 @@ export function motionPunchSignature(
     // The punching hand travels farther from launch to impact.
     const first: ReturnType<typeof M.bones> = M.bones(s, launch);
     const last: ReturnType<typeof M.bones> = M.bones(s, impact);
-    const travel = (side: AutoMovieHumanSide): number =>
+    const travel: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number =>
       Vector3.distance(
         first.get(`${side}Hand`)!.worldPosition,
         last.get(`${side}Hand`)!.worldPosition,
@@ -133,7 +135,7 @@ interface ISignature {
 
 interface IMarkers {
   hand: IAutoMovieVector3;
-  shoulder: IAutoMovieVector3 | undefined;
+  shoulder?: IAutoMovieVector3;
 }
 
 /** One sequence supplies both central differences and the early clearance. */
@@ -143,7 +145,7 @@ function readFlight(
   launch: number,
   impact: number,
   rear: boolean,
-  partner: IAutoMovieMotionHumanBody | undefined,
+  partner?: IAutoMovieMotionHumanBody,
 ): ISignature {
   // Keep the signature's 240 Hz stencil and its 60 Hz early-contact read.
   const contactRate: number = 60;
@@ -163,9 +165,9 @@ function readFlight(
     earlyTime: launch,
   };
   if (count === 0) return out;
-  const time = (k: number): number =>
+  const time: (index: number) => number = (k: number): number =>
     Math.min(duration, Math.max(0, start + k / speedRate));
-  const marks = (t: number): IMarkers => {
+  const marks: (seconds: number) => IMarkers = (t: number): IMarkers => {
     const bones: ReturnType<typeof M.bones> = M.bones(staged, t);
     return {
       hand: bones.get(`${side}Hand`)!.worldPosition,

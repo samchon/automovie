@@ -1,5 +1,7 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -106,10 +108,11 @@ export function test_human_motion_hand_seated_rows(): void {
         performance.segments("a")[0]!;
       const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
-      const instant = (event: string): number =>
+      const instant: (event: string) => number = (event: string): number =>
         placed.start +
-        (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-          NaN) *
+        (placed.plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === event,
+        )?.share ?? NaN) *
           placed.plan.duration;
       const held: number = (instant("strokeEnd") + instant("relax")) / 2;
       const bones: ReturnType<typeof performance.bones> = performance.bones(
@@ -127,7 +130,8 @@ export function test_human_motion_hand_seated_rows(): void {
           `${name}: ${label} after sitting: the pelvis is ${(moved * 1000).toFixed(0)} mm from where the base left it, within 10 mm expected`,
         );
       if (label === "handOnHeart") {
-        const chest = body.surfaces.regions.chestLeft;
+        const chest: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions.chestLeft;
         const off: number = gap(
           AutoMovieMotionHumanTouchEffector.point(
             body,
@@ -143,7 +147,8 @@ export function test_human_motion_hand_seated_rows(): void {
             `${name}: handOnHeart seated: the palm is ${(off * 1000).toFixed(0)} mm from the left chest, within 15 mm expected`,
           );
       } else if (label === "hush") {
-        const mouth = body.surfaces.regions.mouth;
+        const mouth: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions.mouth;
         const off: number = gap(
           bones.get("rightIndexIntermediate")!.worldPosition,
           resolveAutoMovieHumanoidSurfaces.place(mouth, bones.get(mouth.bone)!)

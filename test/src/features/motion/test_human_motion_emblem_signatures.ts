@@ -2,6 +2,8 @@ import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -23,12 +25,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
+/** A placed action's event second. */
+type Instant = (name: string) => number;
+
+/** The displayed anatomy and entry pose of an emblem. */
 interface IHold {
   label: string;
   body: IAutoMovieMotionHumanBody;
   bones: Bones;
   stood: () => Bones;
 }
+
+/** Stage a row, read the hold and report its displayed anatomy. */
+type ReadHold = (
+  row: string,
+  name: motionHumanBody.Name,
+  check: (hold: IHold) => void,
+) => void;
 
 /**
  * The emblems and habits of the lexicon show the form their names mean,
@@ -65,8 +78,9 @@ export function test_human_motion_emblem_signatures(): void {
     HumanHabit.checkWatch,
   ];
   const complaints: string[] = [];
-  const mm = (metres: number): string => (metres * 1000).toFixed(0);
-  const read = (
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(0);
+  const read: ReadHold = (
     row: string,
     name: motionHumanBody.Name,
     check: (hold: IHold) => void,
@@ -93,10 +107,11 @@ export function test_human_motion_emblem_signatures(): void {
         });
       const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
-      const instant = (name: string): number =>
+      const instant: Instant = (name: string): number =>
         placed.start +
-        (placed.plan.events.find((event): boolean => event.name === name)
-          ?.share ?? NaN) *
+        (placed.plan.events.find(
+          (event: IAutoMovieMotionEvent): boolean => event.name === name,
+        )?.share ?? NaN) *
           placed.plan.duration;
       check({
         body,
@@ -111,15 +126,22 @@ export function test_human_motion_emblem_signatures(): void {
       complaints.push(`${label}: expected to plan, got ${String(error)}`);
     }
   };
-  const joint = (
+  const joint: (
+    bones: Bones,
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieVector3 = (
     bones: Bones,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 => bones.get(bone)!.worldPosition;
-  const surface = (
+  const surface: (
+    held: IHold,
+    region: AutoMovieHumanoidRegion,
+  ) => IAutoMovieVector3 = (
     held: IHold,
     region: AutoMovieHumanoidRegion,
   ): IAutoMovieVector3 => {
-    const frame = held.body.surfaces.regions[region];
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      held.body.surfaces.regions[region];
     return resolveAutoMovieHumanoidSurfaces.place(
       frame,
       held.bones.get(frame.bone)!,
@@ -180,7 +202,9 @@ export function test_human_motion_emblem_signatures(): void {
   });
 
   read("checkWatch", "f-small", (held: IHold): void => {
-    const eyes = (bones: Bones): IAutoMovieVector3 =>
+    const eyes: (bones: Bones) => IAutoMovieVector3 = (
+      bones: Bones,
+    ): IAutoMovieVector3 =>
       Vector3.scale(
         Vector3.add(joint(bones, "leftEye"), joint(bones, "rightEye")),
         0.5,
@@ -195,7 +219,10 @@ export function test_human_motion_emblem_signatures(): void {
     if (!(wrist.z > joint(held.bones, "chest").z))
       complaints.push(`${held.label}: the watch wrist does not pass the chest`);
 
-    const pitch = (bones: Bones, at: IAutoMovieVector3): number => {
+    const pitch: (bones: Bones, at: IAutoMovieVector3) => number = (
+      bones: Bones,
+      at: IAutoMovieVector3,
+    ): number => {
       const axis: IAutoMovieVector3 = Vector3.subtract(
         at,
         joint(bones, "head"),

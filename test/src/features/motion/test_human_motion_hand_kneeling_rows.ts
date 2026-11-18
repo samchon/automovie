@@ -1,5 +1,7 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -65,10 +67,11 @@ export function test_human_motion_hand_kneeling_rows(): void {
     });
     const settled: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
-    const instant = (event: string): number =>
+    const instant: (event: string) => number = (event: string): number =>
       placed.start +
-      (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-        NaN) *
+      (placed.plan.events.find(
+        (e: IAutoMovieMotionEvent): boolean => e.name === event,
+      )?.share ?? NaN) *
         placed.plan.duration;
     const held: number = (instant("strokeEnd") + instant("relax")) / 2;
     const bones: ReturnType<typeof performance.bones> = performance.bones(
@@ -77,7 +80,8 @@ export function test_human_motion_hand_kneeling_rows(): void {
     );
 
     // 1. The palm on the heart.
-    const chest = body.surfaces.regions.chestLeft;
+    const chest: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions.chestLeft;
     const off: number = gap(
       AutoMovieMotionHumanTouchEffector.point(
         body,

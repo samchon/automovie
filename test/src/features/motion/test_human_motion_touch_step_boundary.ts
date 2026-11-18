@@ -51,7 +51,9 @@ export function test_human_motion_touch_step_boundary(): void {
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   /** A target in front of the standing shoulder, with the normal facing back. */
-  const at = (z: number): motionHumanLaw.IFilm =>
+  const at: (z: number) => motionHumanLaw.IFilm = (
+    z: number,
+  ): motionHumanLaw.IFilm =>
     motionHumanLaw.perform(
       "touch-step-boundary",
       [{ subject: "a", body }],
@@ -73,7 +75,10 @@ export function test_human_motion_touch_step_boundary(): void {
   all.check(
     "one full ground plant on each foot for a point already in reach",
     planted.length === 2 &&
-      planted.every((w): boolean => w.from === 0 && w.to === 1),
+      planted.every(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.from === 0 && w.to === 1,
+      ),
   );
   const nearSeconds: number = motionHumanLaw.event(near, "ready");
   const palm: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(
@@ -122,17 +127,23 @@ export function test_human_motion_touch_step_boundary(): void {
     const plants: readonly IAutoMovieMotionHumanContactWindow[] =
       groundPlants(span);
     const fixed: IAutoMovieMotionHumanContactWindow | undefined = plants.find(
-      (w): boolean => w.from === 0 && w.to === 1,
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
+        w.from === 0 && w.to === 1,
     );
     const steps: readonly IAutoMovieMotionHumanContactWindow[] = plants.filter(
-      (w): boolean => w.part !== fixed?.part,
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
+        w.part !== fixed?.part,
     );
     all.check(
       "one foot stays planted and the other has three plant windows",
       fixed !== undefined && steps.length === 3,
     );
     if (fixed !== undefined && steps.length === 3) {
-      const [first, middle, last] = steps;
+      const [
+        first,
+        middle,
+        last,
+      ]: readonly IAutoMovieMotionHumanContactWindow[] = steps;
       const spanSeconds: number = ready - span.start;
       // Healthy controls reaching with a step, medians in ms, Tomita et al.
       // 2024 Tables 2–3, DOI 10.1177/15459683241231528.
@@ -201,7 +212,7 @@ export function test_human_motion_touch_step_boundary(): void {
       `the index tip is ${gap * 1000} mm from its padded shoulder target`,
       gap <= 0.01,
     );
-  } catch (error) {
+  } catch (error: unknown) {
     all.check(
       `the original shoulder scene should admit the adjustment step: ${String(error)}`,
       false,
@@ -211,7 +222,7 @@ export function test_human_motion_touch_step_boundary(): void {
   let refused: unknown;
   try {
     at(2 * body.measure.stature);
-  } catch (error) {
+  } catch (error: unknown) {
     refused = error;
   }
   all.check(

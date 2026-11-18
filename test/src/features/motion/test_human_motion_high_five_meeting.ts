@@ -158,7 +158,7 @@ export function test_human_motion_high_five_meeting(): void {
         `${label}: partner penetration ${worst.value * 1000} mm at ${worst.seconds} s (${worst.where})`,
         worst.value <= 0.01,
       );
-    } catch (error) {
+    } catch (error: unknown) {
       all.check(`${label}: the meeting must play: ${String(error)}`, false);
     }
   }
@@ -170,7 +170,7 @@ export function test_human_motion_high_five_meeting(): void {
   let refused: unknown;
   try {
     motionHumanLaw.perform("mutual", far.people, far.composition, far.props);
-  } catch (error) {
+  } catch (error: unknown) {
     refused = error;
   }
   all.check(
@@ -195,7 +195,9 @@ function stage(row: IMeetingCase): motionHumanLawSweep.IScene {
       yaw: index === 0 ? 0 : 180,
     }),
   );
-  const lead = (
+  const lead: (
+    person: motionHumanLawSweep.IPerson,
+  ) => IAutoMovieMotionHumanChain = (
     person: motionHumanLawSweep.IPerson,
   ): IAutoMovieMotionHumanChain => {
     const chain: IAutoMovieMotionHumanChain = HumanChain.subject(

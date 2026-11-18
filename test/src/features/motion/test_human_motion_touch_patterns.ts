@@ -59,14 +59,16 @@ export function test_human_motion_touch_patterns(): void {
   const hand: number = body.measure.hand;
   const count: number = 2;
   /** A plane that moves one arm length along X in the stroke's duration. */
-  const carrier = (seconds: number): IAutoMovieVector3 => ({
+  const carrier: (seconds: number) => IAutoMovieVector3 = (
+    seconds: number,
+  ): IAutoMovieVector3 => ({
     x: shoulder.x + (arm * (seconds - start)) / span,
     y: shoulder.y,
     z: shoulder.z + arm / 2,
   });
   let reads: number = 0;
   /** Watch actual target demand and furnish its independently known frame. */
-  const region = (
+  const region: IAutoMovieMotionHumanTouch.ITouch["region"] = (
     _posture: IAutoMovieMotionHumanPosture,
     seconds: number,
   ): ReturnType<IAutoMovieMotionHumanTouch.ITouch["region"]> => {
@@ -90,7 +92,8 @@ export function test_human_motion_touch_patterns(): void {
   };
   const offset: IAutoMovieVector3 = body.surfaces.sockets.palmRight.point;
   /** Read the actual generated effector relative to the same world carrier. */
-  const relative = (
+  type Goal = IAutoMovieMotionHumanArmCarry.ICarry["goal"];
+  const relative: (read: Goal, share: number) => IAutoMovieVector3 = (
     read: IAutoMovieMotionHumanArmCarry.ICarry["goal"],
     share: number,
   ): IAutoMovieVector3 => {
@@ -112,7 +115,12 @@ export function test_human_motion_touch_patterns(): void {
   all.check("preparing the goal reads no surface", reads === 0);
   const contact: IAutoMovieVector3 = relative(hold, 0);
   /** Check a directional excursion, using the same anatomical contact origin. */
-  const at = (
+  const at: (
+    kind: IAutoMovieMotionHumanTouchForm.Kind,
+    read: Goal,
+    share: number,
+    expected: IAutoMovieVector3,
+  ) => void = (
     kind: IAutoMovieMotionHumanTouchForm.Kind,
     read: IAutoMovieMotionHumanArmCarry.ICarry["goal"],
     share: number,

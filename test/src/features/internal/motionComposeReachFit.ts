@@ -148,7 +148,10 @@ export function motionComposeReachFit(): void {
       const u: number = shoulder.y - hips.y;
       const v: number = shoulder.z - hips.z;
       const radius: number = Math.hypot(u, v);
-      const placed = (pitch: number, beyond: number = 0): IAutoMovieVector3 => {
+      const placed: (pitch: number, beyond?: number) => IAutoMovieVector3 = (
+        pitch: number,
+        beyond: number = 0,
+      ): IAutoMovieVector3 => {
         const angle: number = (pitch * Math.PI) / 180;
         const y: number = u * Math.cos(angle) - v * Math.sin(angle);
         const z: number = u * Math.sin(angle) + v * Math.cos(angle);

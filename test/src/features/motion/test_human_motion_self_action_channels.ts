@@ -38,7 +38,9 @@ export function test_human_motion_self_action_channels(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   /** One gesture on the same starting stance and neutral manner. */
-  const perform = (
+  const perform: (
+    params: IAutoMovieMotionHumanSelfAction.IParams,
+  ) => motionHumanLaw.IFilm = (
     params: IAutoMovieMotionHumanSelfAction.IParams,
   ): motionHumanLaw.IFilm =>
     motionHumanLaw.perform(

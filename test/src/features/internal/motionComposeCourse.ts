@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCourse,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -185,10 +186,15 @@ export function motionComposeCourse(): void {
   const low: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const tall: IAutoMovieMotionHumanBody = motionHumanBody("m-large");
   const metreTolerance: number = 0.001;
-  const response = (body: IAutoMovieMotionHumanBody): number => {
+  const response: (body: IAutoMovieMotionHumanBody) => number = (
+    body: IAutoMovieMotionHumanBody,
+  ): number => {
     const height: number = body.measure.hipHeight;
     const duration: number = Math.sqrt((1.34 * height) / 9.81);
-    const posture = (_t: number, z: number): IAutoMovieMotionHumanPosture =>
+    const posture: IAutoMovieMotionHumanCourse.IProps["posture"] = (
+      _t: number,
+      z: number,
+    ): IAutoMovieMotionHumanPosture =>
       stand.posture(body, { x: 0, y: 0, z }, 0);
     const rest: number = HumanBalance.support(body, posture(0, 0)).centre.z;
     const solved: (time: number) => number = AutoMovieMotionHumanCourse.solve({

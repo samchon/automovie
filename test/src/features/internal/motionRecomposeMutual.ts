@@ -1,6 +1,7 @@
 import { createBall, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -23,6 +24,11 @@ import { motionHumanBody } from "./motionHumanBody";
 
 type Base = "standing" | "seated";
 type Subject = "a" | "b";
+
+type Start = (who: Subject) => IAutoMovieMotionHumanChain;
+type PropPlacement = (who: Subject) => IWorldPlacement;
+type DistanceAt = (seconds: number) => number;
+type ReadPoint = (seconds: number) => IAutoMovieVector3;
 
 interface IComposition {
   node: IAutoMovieMotionHumanPerformance.IInput["composition"];
@@ -69,15 +75,16 @@ export function motionRecomposeMutual(
     segment === undefined
       ? NaN
       : segment.start +
-        (segment.plan.events.find((e): boolean => e.name === event)?.share ??
-          NaN) *
+        (segment.plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === event,
+        )?.share ?? NaN) *
           segment.plan.duration;
   const bodies: Record<Subject, IAutoMovieMotionHumanBody> = {
     a: motionHumanBody(first),
     b: motionHumanBody(second),
   };
   const label: string = `${first} with ${second}, ${base}`;
-  const start = (who: Subject): IAutoMovieMotionHumanChain => {
+  const start: Start = (who: Subject): IAutoMovieMotionHumanChain => {
     const body: IAutoMovieMotionHumanBody = bodies[who];
     if (base === "standing")
       return HumanChain.subject(who).stand({ seconds: 0.3 });
@@ -139,7 +146,7 @@ export function motionRecomposeMutual(
   const attempt = (act: string, run: () => void): void => {
     try {
       run();
-    } catch (error) {
+    } catch (error: unknown) {
       findings.push(
         `${label}: ${act} is refused: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -163,7 +170,7 @@ export function motionRecomposeMutual(
         findings.push(
           `${label}: the two clasps fall ${Math.abs(clasp - instant(sb, "clasp")).toFixed(4)} s apart`,
         );
-      const wrists = (t: number): number =>
+      const wrists: DistanceAt = (t: number): number =>
         gap(
           p.bones("a", t).get("rightHand")!.worldPosition,
           p.bones("b", t).get("rightHand")!.worldPosition,
@@ -247,7 +254,7 @@ export function motionRecomposeMutual(
         })
       : null;
   // A prop on a table before the performer, 0.6 of the arm ahead of the right shoulder: at the waist standing, at the elbow seated (a seated table's height).
-  const before = (who: Subject): IWorldPlacement => {
+  const before: PropPlacement = (who: Subject): IWorldPlacement => {
     const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
     const ahead: number = 0.6 * (m.upperArm + m.forearm);
     const toward: number = who === "a" ? 1 : -1;
@@ -347,7 +354,7 @@ export function motionRecomposeMutual(
             `${label}: the ${name} lifts at ${lifted} s, before the grip closes at ${closed} s`,
           );
         // The prop's place in the right hand's frame, which a held prop keeps.
-        const offset = (t: number): IAutoMovieVector3 => {
+        const offset: ReadPoint = (t: number): IAutoMovieVector3 => {
           const hand: IAutoMovieResolvedBone = p
             .bones("a", t)
             .get("rightHand")!;
