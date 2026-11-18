@@ -32,12 +32,19 @@ import { TestValidator } from "@nestia/e2e";
  *    not bear the foot: it overshoots as in 2.
  * 5. An ankle at the unloaded limit itself is clean, and one plantarflexed
  *    is never read.
+ * 6. An instant whose plants hold both feet resolves no pose. With the right
+ *    foot planted throughout and the left for the first half, the reading is
+ *    the one a full scan of all 25 instants gives (the test's own: each foot
+ *    outside a ground plant, its flexion less the limit), 10 degrees first
+ *    at 13/24 s over a share of 12/25, and it resolves 12 poses, one per
+ *    instant past the left plant; with both feet planted throughout it
+ *    resolves none.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public reading on hand-written poses and windows; a planted ankle flagged, or a swinging one passed, fails.
- * @evidence contracts/development/testing.md#independent-expectations Each overshoot is the angle the test wrote minus the engine's unloaded limit, and each share a count of the film's instants.
- * @evidence contracts/development/testing.md#distinguishing-cases Planted, free, planted for half, held by a prop, at the limit and plantarflexed.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public reading on hand-written poses and windows and counts the poses it resolves; a planted ankle flagged, a swinging one passed, a reading apart from the full scan or a pose resolved where both feet are planted fails.
+ * @evidence contracts/development/testing.md#independent-expectations Each overshoot is the angle the test wrote minus the engine's unloaded limit, each share a count of the film's instants, the full scan the test's own walk of every instant, and the pose count the instants past the left plant, counted by hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases Planted, free, planted for half, held by a prop, at the limit and plantarflexed, and both feet planted against one planted for half.
  * @evidence contracts/development/testing.md#execution-ownership In memory on hand-written poses and windows; no body is prepared.
- * @evidence contracts/development/common.md#meaningful-documentation States the two limits, the film and the 5 scenarios with their numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two limits, the film and the 6 scenarios with their numbers.
  */
 export function test_motion_audit_unloaded(): void {
   const foot = (
@@ -145,5 +152,94 @@ export function test_motion_audit_unloaded(): void {
       [foot("leftFoot", ANKLE_DORSIFLEXION.unloaded), foot("rightFoot", -45)],
       [],
     ).overshoot.value === 0,
+  );
+
+  // 6. No pose where both feet are planted, and the full scan's reading.
+  const counted = (
+    contacts: IAutoMovieMotionHumanContactWindow[],
+  ): { result: IAutoMovieMotionHumanAuditRange.IResult; poses: number } => {
+    let poses: number = 0;
+    const result: IAutoMovieMotionHumanAuditRange.IResult =
+      AutoMovieMotionHumanAuditRange.unloaded(
+        {
+          duration: 1,
+          bones: () => new Map(),
+          segments: () => [
+            {
+              name: "stand",
+              start: 0,
+              entryTime: 0,
+              end: 1,
+              plan: { duration: 1, contacts },
+            },
+          ],
+        },
+        {
+          duration: 1,
+          pose: (): IAutoMoviePose => {
+            poses++;
+            return {
+              skeleton: "humanoid",
+              root: null,
+              joints: [foot("leftFoot", 30), foot("rightFoot", 30)],
+            };
+          },
+        },
+        "a",
+      );
+    return { result, poses };
+  };
+  const scan = (
+    held: (part: "leftFoot" | "rightFoot", seconds: number) => boolean,
+  ): IAutoMovieMotionHumanAuditRange.IResult => {
+    const out: IAutoMovieMotionHumanAuditRange.IResult = {
+      overshoot: { value: 0, seconds: 0, where: "none" },
+      share: 0,
+    };
+    let past: number = 0;
+    for (let i: number = 0; i <= 24; i++) {
+      const t: number = i / 24;
+      let faulted: boolean = false;
+      for (const part of ["leftFoot", "rightFoot"] as const) {
+        if (held(part, t)) continue;
+        const value: number = 30 - ANKLE_DORSIFLEXION.unloaded;
+        faulted = true;
+        if (value > out.overshoot.value)
+          out.overshoot = {
+            value,
+            seconds: t,
+            where: `${part} flexion unloaded`,
+          };
+      }
+      if (faulted) past++;
+    }
+    out.share = past / 25;
+    return out;
+  };
+  const halfway = counted([
+    plant("leftFoot", 0, 0.5),
+    plant("rightFoot", 0, 1),
+  ]);
+  const full: IAutoMovieMotionHumanAuditRange.IResult = scan(
+    (part: "leftFoot" | "rightFoot", t: number): boolean =>
+      part === "rightFoot" || t <= 0.5,
+  );
+  TestValidator.predicate(
+    `planted throughout on the right and for half on the left, the reading is the full scan's (${halfway.result.overshoot.value} at ${halfway.result.overshoot.seconds} s over ${halfway.result.share}, against ${full.overshoot.value} at ${full.overshoot.seconds} s over ${full.share}) from ${halfway.poses} poses of 25`,
+    near(full.overshoot.value, 10) &&
+      full.overshoot.seconds === 13 / 24 &&
+      halfway.result.overshoot.value === full.overshoot.value &&
+      halfway.result.overshoot.seconds === full.overshoot.seconds &&
+      halfway.result.overshoot.where === full.overshoot.where &&
+      halfway.result.share === full.share &&
+      near(full.share, 12 / 25) &&
+      halfway.poses === 12,
+  );
+  const both = counted([plant("leftFoot", 0, 1), plant("rightFoot", 0, 1)]);
+  TestValidator.predicate(
+    `both feet planted throughout read clean from ${both.poses} poses`,
+    both.result.overshoot.value === 0 &&
+      both.result.share === 0 &&
+      both.poses === 0,
   );
 }
