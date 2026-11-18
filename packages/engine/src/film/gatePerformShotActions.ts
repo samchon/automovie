@@ -21,7 +21,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * - its actor: a non-blank id or a non-empty list of distinct ids, each a staged node or camera, and a camera only for a `frame` action;
  * - its timing: a start inside `[0, duration]`, a positive finite duration or `"auto"`, a span inside the shot, an `"auto"` span that is not empty because it starts at the shot's end, and a positive integer `repeat`.
  *
- * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves, with ordinary focus and focal length gated as lens intents. Timed focus pulls resolve after object motion is available. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
+ * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves. Only a follow move admits finite nonnegative aim lookahead seconds. Ordinary focus and focal length are gated as lens intents. Timed focus pulls resolve after object motion is available. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list, the revise pass's when present.
@@ -59,6 +59,22 @@ export function gatePerformShotActions(
       return;
     }
     validatePerformShotFraming(context.out, path, action.framing, action.move);
+    if (action.lookahead !== undefined) {
+      if (action.move !== "follow")
+        context.out.push(
+          "type",
+          `${path}.lookahead`,
+          'camera aim lookahead requires a "follow" move',
+          action.lookahead,
+        );
+      else if (!Number.isFinite(action.lookahead) || action.lookahead < 0)
+        context.out.push(
+          "range",
+          `${path}.lookahead`,
+          `camera aim lookahead must be finite and nonnegative seconds, but was ${describeInvalidValue(action.lookahead)}`,
+          action.lookahead,
+        );
+    }
     const subject: IAutoMovieVector3 | null = resolvePerformShotTarget(
       context,
       {

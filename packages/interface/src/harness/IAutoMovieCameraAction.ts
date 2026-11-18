@@ -13,7 +13,7 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * `on` target and any `focus` must resolve to a point (node, live bone, point, or group), with formation groups allowed for lens targets.
  * `compileCameraMove` owns the path each `move` takes.
  *
- * @evidence contracts/development/design.md#principled-representation performShot sorts frame starts and checks overlap, then compileCameraMove fits supplied subject height/radius by the pinhole vertical/horizontal bounds along staged bearing. Orbit/push/truck use eight eased segments, follow samples at 4 Hz and whip turns within 0.2 seconds; linear keys approximate these paths, and opening rest/proxy extents are not a measured visible-pixel enclosure.
+ * @evidence contracts/development/design.md#principled-representation performShot sorts frame starts and checks overlap, then compileCameraMove fits supplied subject height/radius by the pinhole vertical/horizontal bounds along staged bearing. Orbit/push/truck use eight eased segments, follow samples at 4 Hz with optional future aim while translation uses the current sample, and whip turns within 0.2 seconds; linear keys approximate these paths, and opening rest/proxy extents are not a measured visible-pixel enclosure.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Framing, move and subject are closed choices the solver understands; the lens intents are optional fields copied into `shot.cameraIntent` instead of a separate lens record the solve would also have to ignore.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and ordinary focus is resolved at the shot opening and a timed pull records its two marks without continuous lens tracking.
  * @evidence contracts/development/common.md#meaningful-documentation States the camera-as-actor model, every refusal about actor, live camera, overlap and target kind, what `"auto"` means here, and the owner of each move's path; members give the closed values, units, bounds and that the lens fields only reach `shot.cameraIntent`.
@@ -27,6 +27,17 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
 
   /** How the camera behaves over this span. */
   move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
+
+  /**
+   * Finite nonnegative seconds of aim lookahead for a `"follow"` move.
+   * At a camera key, translation follows the subject's current position and
+   * rotation aims at the subject this far ahead, capped at the shot end.
+   * Omission or zero aims at the current position. The frame action gate
+   * rejects this field on other moves.
+   *
+   * @see https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineRotationComposer.html
+   */
+  lookahead?: number;
 
   /** What it frames and tracks. */
   on: IAutoMovieActionTarget;
