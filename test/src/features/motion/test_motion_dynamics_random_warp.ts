@@ -22,11 +22,11 @@ import { throwsError } from "../internal/throwsError";
  * Scenarios:
  * 1. Compare the interior observation and boundary state with the prescribed continuous law.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Smooth seeded motion variation is bounded, continuous and replayable.
- * @evidence contracts/development/testing.md#independent-expectations Four sinusoidal terms each contribute at most one half; the contact window has zero height at each end.
- * @evidence contracts/development/testing.md#distinguishing-cases Boundary and interior inputs distinguish the two behaviors.
- * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ * @evidence contracts/development/testing.md#behavioral-verification Smooth seeded motion variation is bounded, continuous and replayable. Observes the signed variations of successive positive step durations.
+ * @evidence contracts/development/testing.md#independent-expectations Four sinusoidal terms each contribute at most one half; the contact window has zero height at each end. A replay repeats every variation. A different seed changes the relative durations, even after removing the mean.
+ * @evidence contracts/development/testing.md#distinguishing-cases Boundary and interior inputs distinguish the two behaviors. Changing a global tempo offset cannot change a sequence of centred deviations.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory. Calls the skill and its public indexed random stream directly.
+ * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation. Describes what is replayed.
  */
 export function test_motion_dynamics_random_warp(): void {
   tempoDispersion();
@@ -151,11 +151,6 @@ export function test_motion_dynamics_random_warp(): void {
  * Scenarios:
  * 1. Repeat and change a seed across four half-second steps.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Observes the signed variations of successive positive step durations.
- * @evidence contracts/development/testing.md#independent-expectations A replay repeats every variation. A different seed changes the relative durations, even after removing the mean.
- * @evidence contracts/development/testing.md#distinguishing-cases Changing a global tempo offset cannot change a sequence of centred deviations.
- * @evidence contracts/development/testing.md#execution-ownership Calls the skill and its public indexed random stream directly.
- * @evidence contracts/development/common.md#meaningful-documentation Describes what is replayed.
  */
 function tempoDispersion(): void {
   const steps = (seed: string): number[] => {

@@ -21,11 +21,11 @@ import { nclose } from "../internal/nclose";
  * Scenarios:
  * 1. Measure neutral and weary walking in the middle of one straight path for both original body sizes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The steady walk has human speed, stride length and vertical centre excursion.
- * @evidence contracts/development/testing.md#independent-expectations Bohannon’s steady walking speed band is 1.27–1.46 m/s; the walking centre rises and falls 4–5 cm. Montepare et al. predict shorter, slower weary steps. Inverted-pendulum exchange gives the higher, slower centre at midstance.
- * @evidence contracts/development/testing.md#distinguishing-cases Body size changes dynamic similarity; weary and normal trials share a seed and path.
- * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ * @evidence contracts/development/testing.md#behavioral-verification The steady walk has human speed, stride length and vertical centre excursion. Reads lengths in hip heights from the public walking gait.
+ * @evidence contracts/development/testing.md#independent-expectations Bohannon’s steady walking speed band is 1.27–1.46 m/s; the walking centre rises and falls 4–5 cm. Montepare et al. predict shorter, slower weary steps. Inverted-pendulum exchange gives the higher, slower centre at midstance. The fourth power of two is sixteen. The reach ceiling is the horizontal separation of two straight legs at the limiting hip angles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Body size changes dynamic similarity; weary and normal trials share a seed and path. Two low speeds distinguish the exponent and a high speed reaches the geometric limit.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory. Calls one gait directly.
+ * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation. Specifies the dimensionless growth and saturation.
  */
 export function test_motion_dynamics_gait_study_readouts(): void {
   walkingSimilarity();
@@ -111,11 +111,6 @@ export function test_motion_dynamics_gait_study_readouts(): void {
  * 1. Sixteen times the Froude number doubles a short step.
  * 2. Above the anatomical limit the step holds its maximum.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads lengths in hip heights from the public walking gait.
- * @evidence contracts/development/testing.md#independent-expectations The fourth power of two is sixteen. The reach ceiling is the horizontal separation of two straight legs at the limiting hip angles.
- * @evidence contracts/development/testing.md#distinguishing-cases Two low speeds distinguish the exponent and a high speed reaches the geometric limit.
- * @evidence contracts/development/testing.md#execution-ownership Calls one gait directly.
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the dimensionless growth and saturation.
  */
 function walkingSimilarity(): void {
   const slow: number = 1 / 256;
