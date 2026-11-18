@@ -26,17 +26,17 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * Everything one hand-to-face task owes on screen, read off the displayed
  * bones of a body standing at the origin heading +Z, as complaints. The
  * task's right-hand film on the body named is performed once and every
- * expectation that reads it reads that one film: the audit's seven parts
- * (`motionHumanLaw.auditParts`) read 1, the film's own checks 2 to 6 and 8,
- * the population check 7 its own body, and the mirror 9 its right-hand
- * side. The only other performances are the left-hand film of the mirror
+ * expectation reads that film: one whole-film audit covers 1, and the
+ * displayed pose checks cover 2 to 6 and 8. The population check 7 reads
+ * its own body and the mirror 9 reads its right-hand side. The other
+ * performances are the left-hand film of the mirror
  * and the population's other bodies.
  *
  * On the body named, over the whole film at 24 Hz:
  *
  * 1. The generic audit is clean: nothing passes into the body, nothing
  *    sinks, slips or leaves the floor, no joint jumps or spikes, the body
- *    stays balanced.
+ *    stays balanced where balance is judged.
  * 2. No elbow travels more than 80 mm in one frame (1.9 m/s): an arm
  *    raised to the face is carried in joint space toward one fitted branch,
  *    so its elbow follows the trend and never swaps sides of the arm's
@@ -77,15 +77,15 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound and where the bound comes from, and which films are performed.
  * @evidence contracts/development/implementation.md#principled-implementation Each expectation is a physical requirement, a cited range or a symmetry, read off displayed bones; none is the law's own goal but the cup's lean at the mouth, bounded by the lean the law asked plus one search step, since that lean is the drinking arm's answer (Murphy et al. 2011) and not a fixed angle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand film, then the audit's parts, the film's checks, the population and the mirror, each reading it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others, and no bound differs from the part-by-part reading it replaces.
- * @evidence contracts/development/implementation.md#efficient-algorithms One right-hand performance per task instead of one per expectation group; the audit's parts and the film's checks share its remembered frames; a complaint's events and numbers are formatted only when it fails.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand film feeds the whole-film audit, the task-specific checks, the population and the mirror.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported with its original bound.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The audit shares one film grid across its checks. The task-specific observations reuse those same displayed frames when their times coincide. Diagnostics run when a check fails.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The right-hand film is the same input every expectation read before (task, right side, this body, the seed `hand-face`), so one performance stands for all of them; `motionHumanLaw` owns the film, the event, the travel and the audit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films are local and released on return.
  */
 export function motionHumanLawHandToFace(
   task: IAutoMovieMotionHumanHandToFaceRows.Task,
-  name: "m-average" | "f-minus-one" | "f-small" | "m-large" = "m-average",
+  name: motionHumanBody.Name = "m-average",
 ): string[] {
   const row: IAutoMovieMotionHumanHandToFaceRows.IRow = handToFace.ROWS[task];
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -100,7 +100,7 @@ export function motionHumanLawHandToFace(
     );
   const film: motionHumanLaw.IFilm = perform(body, "right");
   return [
-    ...motionHumanLaw.auditParts(film, `${task} ${name}`, "a", body),
+    ...motionHumanLaw.audit(film, `${task} ${name}`, "a", body),
     ...expectations(task, row, body, film),
     ...population(task, row, name, body, film, perform),
     ...mirror(task, row, body, film, perform),

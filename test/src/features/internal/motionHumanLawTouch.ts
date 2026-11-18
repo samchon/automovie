@@ -35,8 +35,8 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
  * Everything one touch owes on screen, read off the displayed bones, as
  * complaints: the row of a touch on the performer's own body, or on a
  * partner standing ahead. The row's film is performed once and every
- * expectation that reads it reads that one film: the audit's seven parts
- * (`motionHumanLaw.auditParts`) read 1 and the film's own checks 2 to 7.
+ * expectation reads that film. One whole-film audit covers 1, and the
+ * contact and return observations cover 2 to 7.
  * The mirror 8 performs the right-hand row again only when a partner's sway
  * must be stilled for it; a self-directed row's film is its own right-hand
  * side.
@@ -134,10 +134,10 @@ export function motionHumanLawTouch(
   };
   const film: motionHumanLaw.IFilm = perform(params, false);
   return [
-    ...motionHumanLaw.auditParts(film, `${label} a`, "a", body),
+    ...motionHumanLaw.audit(film, `${label} a`, "a", body),
     ...(partner === undefined
       ? []
-      : motionHumanLaw.auditParts(film, `${label} b`, "b", body)),
+      : motionHumanLaw.audit(film, `${label} b`, "b", body)),
     ...expectations(label, params, body, film),
     ...motionHumanLawTouchMirror(
       label,

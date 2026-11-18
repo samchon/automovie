@@ -1,8 +1,9 @@
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieMotionHumanTouchSite,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,7 +11,6 @@ import {
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
-  HumanSignature,
   HumanSocial,
   touch,
 } from "@automovie/motions";
@@ -48,6 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 5 scenarios with their bounds.
  */
 export function test_human_motion_hand_sites(): void {
+  type Region = "sternum" | "shoulderLeft" | "shoulderRight";
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
@@ -60,10 +61,8 @@ export function test_human_motion_hand_sites(): void {
     left: IAutoMovieVector3;
     shoulder: IAutoMovieVector3;
     /** How far the right wrist stands from the wrist its arm goal asks, metres; 0 when the posture holds no goal. */
-    miss: number;
-    region: (
-      name: "sternum" | "shoulderLeft" | "shoulderRight",
-    ) => IAutoMovieVector3;
+    miss: () => number;
+    region: (name: Region) => IAutoMovieVector3;
   }
   const perform = (
     label: string,
@@ -104,30 +103,26 @@ export function test_human_motion_hand_sites(): void {
           NaN) *
           placed.plan.duration;
       const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-      const mine: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        performance,
+      const mine: ReturnType<typeof performance.bones> = performance.bones(
         "a",
-        body,
-        0,
+        held,
       );
-      const theirs: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        performance,
+      const theirs: ReturnType<typeof performance.bones> = performance.bones(
         "b",
-        body,
-        0,
+        held,
       );
-      const palm = (side: "left" | "right"): IAutoMovieVector3 =>
+      const palm = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
         AutoMovieMotionHumanTouchEffector.point(
           body,
-          performance.bones("a", held),
+          mine,
           side,
           touch.EFFECTORS.palm,
         );
       return {
         right: palm("right"),
         left: palm("left"),
-        shoulder: HumanSignature.joint(mine, held, "rightUpperArm"),
-        miss: ((): number => {
+        shoulder: mine.get("rightUpperArm")!.worldPosition,
+        miss: (): number => {
           const asked: IAutoMovieVector3 | undefined = performance.posture(
             "a",
             held,
@@ -135,13 +130,17 @@ export function test_human_motion_hand_sites(): void {
           return asked === undefined
             ? 0
             : gap(
-                performance.bones("a", held).get("rightHand")!.worldPosition,
+                mine.get("rightHand")!.worldPosition,
                 asked,
               );
-        })(),
-        region: (
-          name: "sternum" | "shoulderLeft" | "shoulderRight",
-        ): IAutoMovieVector3 => HumanSignature.region(theirs, name, held),
+        },
+        region: (name: Region): IAutoMovieVector3 => {
+          const frame = body.surfaces.regions[name];
+          return resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            theirs.get(frame.bone)!,
+          ).point;
+        },
       };
     } catch (error) {
       complaints.push(
@@ -196,7 +195,7 @@ export function test_human_motion_hand_sites(): void {
       const off: number = gap(read.right, read.region("sternum"));
       if (!(off <= 0.05 + 0.015))
         complaints.push(
-          `drawn site, seed ${seed}: the palm lies ${mm(off)} mm from the sternum's point, within 65 mm expected (${mm(gap(read.right, plain.right))} mm from the palm without a site, which lay ${mm(gap(plain.right, plain.region("sternum")))} mm from the point; the wrist ${mm(read.miss)} mm off its arm goal, ${mm(plain.miss)} mm without a site; site up ${mm(read.right.y - plain.right.y)} mm, toward the performer's right ${mm(plain.right.x - read.right.x)} mm)`,
+          `drawn site, seed ${seed}: the palm lies ${mm(off)} mm from the sternum's point, within 65 mm expected (${mm(gap(read.right, plain.right))} mm from the palm without a site, which lay ${mm(gap(plain.right, plain.region("sternum")))} mm from the point; the wrist ${mm(read.miss())} mm off its arm goal, ${mm(plain.miss())} mm without a site; site up ${mm(read.right.y - plain.right.y)} mm, toward the performer's right ${mm(plain.right.x - read.right.x)} mm)`,
         );
     }
     if (drawn.length === 2 && !(gap(drawn[0]!, drawn[1]!) >= 0.001))
@@ -215,7 +214,7 @@ export function test_human_motion_hand_sites(): void {
         gap(plain.right, plain.shoulder) - gap(ruled.right, ruled.shoulder);
       if (!(nearer >= 0.02))
         complaints.push(
-          `reach rule: the palm lies ${mm(nearer)} mm nearer the right shoulder joint than without a site, at least 20 mm expected`,
+          `reach rule: the palm lies ${(nearer * 1000).toFixed(2)} mm nearer the right shoulder joint than without a site, at least 20 mm expected`,
         );
     }
   }

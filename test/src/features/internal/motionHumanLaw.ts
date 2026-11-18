@@ -24,8 +24,8 @@ import { motionHumanFrame } from "./motionHumanFrame";
 /**
  * Shared readers for action-law tests: build a trained performance, remember
  * its displayed frames, locate an event, measure adjacent-frame travel and
- * return complaints from a whole audit, one audit part, every audit part of
- * one film or a stated condition, whose label may be built only on failure.
+ * return complaints from a whole audit or a stated condition. A condition can
+ * build its label only on failure.
  * Callers gather these complaints into their own assertions.
  *
  * Measures of one film share its actual FK frames, checked on first read for
@@ -33,12 +33,12 @@ import { motionHumanFrame } from "./motionHumanFrame";
  * rotations. The film owns this memory; it does not replace the performance
  * or decide whether an action met its intent.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the eight helpers, the frame checks and the caller's ownership of assertions.
+ * @evidence contracts/development/common.md#meaningful-documentation States the shared observations, frame checks and the caller's ownership of assertions.
  * @evidence contracts/development/design.md#principled-representation Public performances and audit readers carry world metres and film seconds; frame admission checks finite coordinates and unit rotations before metrics read them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Eight helpers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No action, body or scene gets a replacement pose or limit; the audit part is a closed choice and the frame record is the public FK map.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Readers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No action, body or scene gets a replacement pose or limit; the frame record is the public FK map.
  * Builds and reads the public performance, converts event shares to seconds, measures Euclidean travel and delegates generic checks to their audit owner.
- * Eight small helpers separate construction, frame admission, event lookup, travel, audit formatting, partitioning, the union of the parts and complaint selection.
+ * Separate construction, frame admission, event lookup, travel, audit formatting and complaint selection.
  * Invalid displayed frames and missing events throw; caller limits and measured values are neither repaired nor relaxed.
  * Local work scales with performer records, event counts, grid intervals and findings; delegated audits also include collider-pair work and continuity refinement, not just a frame scan.
  * Each film shares a successfully validated subject/second frame across its measures; planning and audit computations remain with the public owners.
@@ -281,148 +281,6 @@ export namespace motionHumanLaw {
           }`,
         ];
   }
-
-  /**
-   * A part of the generic audit: `tangle` reads the tangle over the whole
-   * film, and `motion-1` to `motion-6` the audit's other checks (the ground,
-   * the continuity and the balance) over one sixth of the film each.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the full-film tangle part and the six motion parts.
-   * @evidence contracts/development/design.md#principled-representation A closed string choice separates whole-film tangle from numbered motion windows; their seconds are derived from the film rather than stored in the type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The part selector of auditPart and auditParts, which the touch and hand-to-face readers use, without another audit configuration type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Excludes unsupported part names and indices at compile time; no body, law or precomputed result is encoded.
-   */
-  export type AuditPart = "tangle" | `motion-${1 | 2 | 3 | 4 | 5 | 6}`;
-
-  /**
-   * The six windows the split specifications use for non-tangle checks.
-   *
-   * States the shared partition count used by AuditPart and auditPart.
-   */
-  export const PARTS: number = 6;
-
-  /**
-   * One part of the generic audit of a subject, as complaints. The sixths
-   * meet at frames of the 24 Hz grid and overlap by two frames, so an
-   * interval, its two neighbours and an out-and-back across a meeting are
-   * read whole in one of them; each is audited as a view of the film
-   * shifted to its start.
-   *
-   * Finding seconds are relative to that view; the label states its film
-   * start. The tangle part keeps only the default tangle limit; a motion
-   * part keeps the other defaults and leaves tangle to its own part.
-   *
-   * @param film The film.
-   * @param label What the complaints are prefixed with; a sixth adds its start.
-   * @param subject The subject.
-   * @param body Their body.
-   * @param part The part.
-   * @returns Empty when clean, otherwise one summary of the selected part.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two part modes, grid-aligned meetings, two-frame overlaps and view-relative finding times.
-   * @evidence contracts/development/implementation.md#principled-implementation A translated time view preserves displayed bones and contact shares: bones read at from plus local seconds and segment clocks shift by minus from.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tangle branch audits the whole film; the motion branch computes one overlapping window, builds its view and delegates to audit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the selected checks' default limits unchanged, includes film endpoints through clamping and retains contact plan durations while shifting their placed spans.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Window arithmetic is constant work, each segment query copies S span records, and the selected audit's sampled geometry and continuity refinement dominate the remaining cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The view forwards to the source film's bones reader and the existing audit; it creates no second performance or replacement pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The view closure and shifted span arrays live through this audit call; the caller retains the original film and its frame memory, and this wrapper retains only its returned complaints.
-   */
-  export function auditPart(
-    film: IAutoMovieMotionHumanAuditMotionType,
-    label: string,
-    subject: string,
-    body: IAutoMovieMotionHumanBody,
-    part: AuditPart,
-  ): string[] {
-    if (part === "tangle")
-      return audit(film, label, subject, body, {
-        limits: {
-          tangle: AutoMovieMotionHumanAudit.LIMITS.tangle,
-          floor: null,
-          slip: null,
-          lift: null,
-          jump: null,
-          reversal: null,
-          speed: null,
-          balance: null,
-        },
-      });
-    const rate: number = 24;
-    const sixth: number = Number(part.slice("motion-".length)) - 1;
-    const meet: (k: number) => number = (k: number): number =>
-      k <= 0
-        ? 0
-        : k >= PARTS
-          ? film.duration
-          : Math.round(((film.duration * k) / PARTS) * rate) / rate;
-    const from: number = Math.max(0, meet(sixth) - (sixth > 0 ? 2 / rate : 0));
-    const to: number = Math.min(
-      film.duration,
-      meet(sixth + 1) + (sixth < PARTS - 1 ? 2 / rate : 0),
-    );
-    const view: IAutoMovieMotionHumanAuditMotionType = {
-      duration: to - from,
-      bones: (who: string, seconds: number): Bones =>
-        film.bones(who, from + seconds),
-      segments: (who: string): IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
-        film.segments(who).map(
-          (
-            span: IAutoMovieMotionHumanAuditMotionType.ISpan,
-          ): IAutoMovieMotionHumanAuditMotionType.ISpan => ({
-            ...span,
-            start: span.start - from,
-            entryTime: span.entryTime - from,
-            end: span.end - from,
-          }),
-        ),
-    };
-    return audit(view, `${label} ${from.toFixed(3)} s on`, subject, body, {
-      limits: { tangle: null },
-    });
-  }
-
-  /**
-   * Every part of the generic audit of a subject, as complaints: the
-   * `tangle` part and `motion-1` to `motion-6`, each read by
-   * {@link auditPart} on the one film the caller holds, so a case that owes
-   * the whole audit performs its film once and every part shares its
-   * remembered frames.
-   *
-   * @param film The film.
-   * @param label What the complaints are prefixed with; a sixth adds its start.
-   * @param subject The subject.
-   * @param body Their body.
-   * @returns Every part's complaints, in the order tangle, then the sixths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the seven parts read, their order and that they share the caller's film.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads exactly the parts AuditPart names, each through auditPart with its unchanged limits, windows and overlaps.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal of the closed part list delegating to auditPart.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part is read and none stops the others; no limit, window or finding is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seven audits over one film; frames read at the same subject and second by two parts are resolved once through the film's memory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The parts share the caller's film and its validated frame memory instead of each performing the case again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned complaint list survives; frame memory stays with the caller's film.
-   */
-  export function auditParts(
-    film: IAutoMovieMotionHumanAuditMotionType,
-    label: string,
-    subject: string,
-    body: IAutoMovieMotionHumanBody,
-  ): string[] {
-    return AUDIT_PARTS.flatMap((part: AuditPart): string[] =>
-      auditPart(film, label, subject, body, part),
-    );
-  }
-
-  /** Every audit part, the tangle first and then the sixths in film order. */
-  const AUDIT_PARTS: readonly AuditPart[] = [
-    "tangle",
-    "motion-1",
-    "motion-2",
-    "motion-3",
-    "motion-4",
-    "motion-5",
-    "motion-6",
-  ];
 
   /**
    * A complaint when a condition does not hold. The label may be given as a
