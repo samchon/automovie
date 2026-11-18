@@ -221,12 +221,6 @@ export namespace touch {
       p.site,
     );
 
-    const laid: touchHold.Lay = touchLayouts(
-      hands,
-      touchHold.lay(context, bones, requested, placed),
-    );
-    const leading: touchHold.ILaid = laid(first, p.target);
-
     // The rise and the lean for a region beyond the standing arm, measured to
     // the first hand's wrist. Only a body on its own two feet rises.
     const grounded: boolean =
@@ -239,7 +233,7 @@ export namespace touch {
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (effector: IAutoMovieMotionHumanTouchEffector.IEffector) => (
+    const laidOn = (effector: IAutoMovieMotionHumanTouchEffector.IEffector, leading: touchHold.ILaid) => (
         posture: IAutoMovieMotionHumanPosture,
       ): IAutoMovieHumanLimbGoal =>
         AutoMovieMotionHumanTouchLaid.rest(
@@ -254,9 +248,10 @@ export namespace touch {
           undefined,
           p.elbow,
         );
-    const fit = (hand: IAutoMovieMotionHumanTouchEffector.IEffector): touchStance.IChosen => {
-      const arm: ReturnType<typeof laidOn> = laidOn(hand);
-      return touchStance(
+    const fit = (hand: IAutoMovieMotionHumanTouchEffector.IEffector): AutoMovieTouchFit => {
+      const layout: touchHold.Lay = touchLayouts(hands, touchHold.lay(context, bones, hand, placed));
+      const arm: ReturnType<typeof laidOn> = laidOn(hand, layout(first, p.target));
+      return [layout, touchStance(
         {
           body,
           standing: entry,
@@ -271,9 +266,9 @@ export namespace touch {
             `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
         },
         grounded && p.target.kind !== "self",
-      );
+      )];
     };
-    const [effector, adjusted]: ReturnType<typeof touchFingerStance> = touchFingerStance(
+    const [effector, [laid, adjusted]]: ReturnType<typeof touchFingerStance<AutoMovieTouchFit>> = touchFingerStance(
       body, first, requested, p.with === "fingertips" && p.prop === undefined, fit,
     );
     const stance: IAutoMovieMotionHumanTouchStance.IStance = adjusted.stance;
@@ -350,7 +345,7 @@ export namespace touch {
         fix: "give the touch a planted foot base or omit the shift",
       });
     const primitives: IAutoMovieMotionHumanPrimitive[] = stance.primitives(
-      clock, touchBalance(body, window, first, laidOn(effector)),
+      clock, touchBalance(body, window, first, laidOn(effector, laid(first, p.target))),
     );
     if (shown !== null)
       primitives.push(
@@ -494,3 +489,6 @@ export namespace touch {
       : HumanHeld.kept(context, plan, first, p.prop);
   }
 }
+
+/** The exact hand layouts and support admitted for one fingertip inclination. */
+type AutoMovieTouchFit = readonly [touchHold.Lay, touchStance.IChosen];

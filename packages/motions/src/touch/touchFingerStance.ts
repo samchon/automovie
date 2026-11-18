@@ -10,15 +10,15 @@ import type {
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import type { touchStance } from "./touchStance";
+
 
 /** The hand frame and the base admitted for that frame. */
-type Chosen = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, touchStance.IChosen];
+type Chosen<T> = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, T];
 
 /**
  * Fit the requested hand and grounded stance. A bare fingertip may roll from
  * its distal face towards its palmar pad while retaining its actual tip site.
- * Prefer the authored contact frame, then the smallest admitted rotation in
+ * Prefer the authored contact frame, then refine an admitted rotation in
  * the bracket between it and the flat pad. Each admitted frame uses the same
  * support and reach tests as the original.
  *
@@ -30,13 +30,13 @@ type Chosen = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, touchStanc
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both anatomical frames are prepared once. The admitted stance is retained with the effector that produced it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the latest admitted stance is retained through the bounded search. No candidate history survives it.
  */
-export function touchFingerStance(
+export function touchFingerStance<T>(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
   requested: IAutoMovieMotionHumanTouchEffector.IEffector,
   mayRoll: boolean,
-  fit: (effector: IAutoMovieMotionHumanTouchEffector.IEffector) => touchStance.IChosen,
-): Chosen {
+  fit: (effector: IAutoMovieMotionHumanTouchEffector.IEffector) => T,
+): Chosen<T> {
   try {
     return [requested, fit(requested)];
   } catch (original) {
@@ -47,7 +47,7 @@ export function touchFingerStance(
     const pad: IAutoMovieMotionHumanTouchEffector.IEffector = {
       ...requested, facing: "palm", along: "fingers",
     };
-    let best: Chosen;
+    let best: Chosen<T>;
     try {
       best = [pad, fit(pad)];
     } catch (error) {
