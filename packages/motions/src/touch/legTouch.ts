@@ -33,7 +33,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * The body first moves over its standing foot: the root is shifted level
  * until the pelvis stands over that ankle, or, with balance asked
- * (`IAutoMovieMotionHumanPhysics`), until the centre of mass does
+ * (`IAutoMovieMotionHumanBalanceOption`), until the centre of mass does
  * (`HumanBalance.prepareCentre`), the standing leg keeping its planted goal. The moving leg is then a goal
  * of the posture resolver, as an arm is: for the toes and the heel the
  * ankle is placed so that part of the foot, read in the foot's rest frame
@@ -136,7 +136,7 @@ export namespace legTouch {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
 
-    // Without balance asked (`IAutoMovieMotionHumanPhysics`), the pelvis is
+    // Without balance asked (`IAutoMovieMotionHumanBalanceOption`), the pelvis is
     // carried level over the standing ankle, the weight shift a closed form
     // of the hips' rest place. With it, the shift is the fixed point of the
     // centre of mass under it: each pass moves the root by what the centre

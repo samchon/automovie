@@ -2,8 +2,8 @@ import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBalanceOption,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -33,8 +33,8 @@ import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
  * sinks. Until a second support bears, the feet
  * alone carry the body: the body first sits down onto its knees with the
  * trunk upright, the hips as far back as the knee's sitting flexion lets
- * (`kneelKeys.SIT`) and the knees still land, and with the physics option
- * (`IAutoMovieMotionHumanPhysics.balance`, off by default) no further back
+ * (`kneelKeys.SIT`) and the knees still land, and with the balance option
+ * (`IAutoMovieMotionHumanBalanceOption`, off by default) no further back
  * than keeps the centre of mass over the feet (`HumanBalance.shift`). With the knees down, the feet and the knees
  * bear, so the trunk leans until the palms reach their places, the shoulders
  * as far from the wrists as the crawl holds them, with the hips as far back
@@ -106,8 +106,8 @@ export namespace crawlDown {
     /** Whether the knees stop over the floor (a bear crawl), so until the hands land the feet alone bear the lean. */
     hover: boolean;
 
-    /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the hips sit and lean back as far as the knees still land, and no centre of mass is read. */
-    physics?: IAutoMovieMotionHumanPhysics;
+    /** The balancing shift asked (`IAutoMovieMotionHumanBalanceOption`): absent, the hips sit and lean back as far as the knees still land, and no centre of mass is read. */
+    balance?: IAutoMovieMotionHumanBalanceOption;
   }
 
   /**

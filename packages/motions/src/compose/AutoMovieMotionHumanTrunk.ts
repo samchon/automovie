@@ -4,9 +4,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBalanceOption,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTrunk,
@@ -301,7 +301,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns two foot frames, at most two bounded fixed-goal readers and one solved shift until its action ends. The search's trial readings do not survive preparation and no time-indexed history is kept.
    */
   export function prepareCrouch(
-    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs" | "physics">,
+    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs" | "balance">,
   ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
@@ -330,7 +330,7 @@ export namespace AutoMovieMotionHumanTrunk {
           back,
         ),
       );
-    // Without the physics option the hips sink where they stand: no centre
+    // Without the balance option the hips sink where they stand: no centre
     // of mass is read.
     const back: number = !HumanPhysics.balanced(props)
       ? 0
@@ -353,7 +353,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @param rise The instants the limb starts extending and is fullest at.
    * @param fall The instants the limb starts returning and is back at.
    * @param extended The action's posture at the limb's fullest extension.
-   * @param physics The physical terms asked (`IAutoMovieMotionHumanPhysics`); absent, the hips are not shifted and no centre of mass is read.
+   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalanceOption`); absent, the hips are not shifted and no centre of mass is read.
    * @returns The primitive, on the root.
    * @throws {HumanRefusal} `base` on `balance` when no place of the hips within `HumanBalance.REACH` brings the centre of mass inside the feet.
    *
@@ -371,11 +371,11 @@ export namespace AutoMovieMotionHumanTrunk {
     rise: readonly [string, string],
     fall: readonly [string, string],
     extended: IAutoMovieMotionHumanPosture,
-    physics?: IAutoMovieMotionHumanPhysics,
+    balance?: IAutoMovieMotionHumanBalanceOption,
   ): IAutoMovieMotionHumanPrimitive {
-    // Without the physics option the hips stay where the action puts them:
+    // Without the balance option the hips stay where the action puts them:
     // no centre of mass is read and nothing is shifted.
-    if (!HumanPhysics.balanced({ physics }))
+    if (!HumanPhysics.balanced({ balance }))
       return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
         point: { x: 0, y: 0, z: 0 },
         yaw: 0,

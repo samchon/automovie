@@ -375,7 +375,7 @@ export namespace gesture {
             from: 0,
             to: duration,
             weight,
-            physics: p.physics,
+            ...(p.balance === undefined ? {} : { balance: p.balance }),
           })
         : undefined;
     const prior: (t: number, geometry?: boolean,

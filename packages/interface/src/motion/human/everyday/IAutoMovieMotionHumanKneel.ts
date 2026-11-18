@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
+import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
 
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright,
@@ -47,11 +47,13 @@ export namespace IAutoMovieMotionHumanKneel {
    */
   export interface IParams {
     /**
-     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
-     * absent, none, so the posture is the law's own kinematic one with no
-     * balance shift or centre-of-mass reading.
+     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
      */
-    physics?: IAutoMovieMotionHumanPhysics;
+    balance?: IAutoMovieMotionHumanBalanceOption;
 
     /** The kneeling posture; `one` when absent. */
     kind?: IAutoMovieMotionHumanKneel.Kind;

@@ -56,7 +56,7 @@ import { gestureHands } from "./gestureHands";
  * force's line by `STAGGER` leg lengths and out until the feet stand a
  * shoulder width apart (a staggered, wider base); the pelvis drops until
  * the knees flex `KNEE` degrees over the middle of the new base and, with
- * the physics option (`IAutoMovieMotionHumanPhysics.balance`, off by
+ * the balance option (`IAutoMovieMotionHumanBalanceOption`, off by
  * default), is then moved so the engine's whole-body centre of mass stands
  * over the middle of the new base's hull, found on the solved posture; the trunk inclines 10 degrees toward the
  * force; and both palms come up ahead of the chest's front surface (its
@@ -248,7 +248,7 @@ export namespace brace {
     const bearing: number = Math.cos((forward * Math.PI) / 180);
 
     // The set root: lowered by the knee flexion over the middle of the new
-    // base, then, with the physics option, moved twice so the engine's centre
+    // base, then, with the balance option, moved twice so the engine's centre
     // of mass stands over the middle of the new base's hull.
     const goal: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
@@ -275,7 +275,7 @@ export namespace brace {
         y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
         z: settled.z - centre.z,
       };
-      // Without the physics option the root stays lowered over the middle of
+      // Without the balance option the root stays lowered over the middle of
       // the new base, and no centre of mass is read.
       if (HumanPhysics.balanced(p))
       for (let round: number = 0; round < 2; round++) {

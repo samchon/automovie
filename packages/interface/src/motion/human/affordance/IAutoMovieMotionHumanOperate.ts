@@ -1,7 +1,7 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
+import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
 import type { IAutoMovieMotionHumanOperateInsert } from "./IAutoMovieMotionHumanOperateInsert";
 
 /**
@@ -74,11 +74,13 @@ export namespace IAutoMovieMotionHumanOperate {
    */
   export interface IParams {
     /**
-     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
-     * absent, none, so the posture is the law's own kinematic one with no
-     * balance shift or centre-of-mass reading.
+     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
      */
-    physics?: IAutoMovieMotionHumanPhysics;
+    balance?: IAutoMovieMotionHumanBalanceOption;
 
     /** What is operated. */
     mechanism: IAutoMovieMotionHumanOperate.Mechanism;

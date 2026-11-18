@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
+import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 
@@ -31,8 +31,8 @@ export namespace IAutoMovieMotionHumanTrunk {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
-    physics?: IAutoMovieMotionHumanPhysics;
+    /** The physical terms asked (`IAutoMovieMotionHumanBalanceOption`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
+    balance?: IAutoMovieMotionHumanBalanceOption;
 
     /** A standing posture of the action, the one the balance is solved on. */
     standing: IAutoMovieMotionHumanPosture;

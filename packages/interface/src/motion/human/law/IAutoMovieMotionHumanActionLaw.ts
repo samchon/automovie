@@ -5,6 +5,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMotionHumanStrikingHeld";
 import type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
+import type { IAutoMovieMotionHumanBalanceOption } from "./IAutoMovieMotionHumanBalanceOption";
 import type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanInterruptRow";
 
 /**
@@ -101,11 +102,21 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * Whether the action's content is a staged physical outcome (a stagger, a
    * fall, a shove's or a force's response, a throw and a release, a flight):
    * it computes its physics on its own interval and bodies whatever its
-   * params' `physics` option says (`IAutoMovieMotionHumanPhysics`), and the
+   * params' `balance` says (`IAutoMovieMotionHumanBalanceOption`), and the
    * audit judges its balance. Absent, the action is kinematic unless its
    * params turn the option on.
    */
   physical?: boolean;
+
+  /**
+   * The law's recommended balancing shift (`IAutoMovieMotionHumanBalanceOption`),
+   * every field set: the fields an action's `balance` leaves absent take
+   * these, and none is computed unless the action gives a `balance`. A law
+   * sets it only where a cited study measures a shift its key poses cannot
+   * carry, and states the study where it sets it; absent, an action's
+   * `balance` must give every field.
+   */
+  balance?: IAutoMovieMotionHumanBalanceOption;
 
   /**
    * Plan one instance of the action.

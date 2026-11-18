@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * The lean of a standing body into a hand's work that lies beyond its
  * standing arm: the trunk tips about the hips by the least pitch that keeps
  * the wrist within a share of the arm's length, and straightens as the work
- * comes nearer. With balance asked (`IAutoMovieMotionHumanPhysics.balance`),
+ * comes nearer. With balance asked (`IAutoMovieMotionHumanBalanceOption`),
  * the hips move back by the balance shift of that pitch so the centre of
  * mass stays over the feet where it stood; otherwise they stay where they
  * stand and no centre of mass is computed.

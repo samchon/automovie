@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
+import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -36,8 +36,8 @@ export namespace IAutoMovieMotionHumanLean {
     /** The deepest forward pitch, degrees; positive. */
     peak: number;
 
-    /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the hips are not shifted back and no centre of mass is read. */
-    physics?: IAutoMovieMotionHumanPhysics;
+    /** The physical terms asked (`IAutoMovieMotionHumanBalanceOption`): absent, the hips are not shifted back and no centre of mass is read. */
+    balance?: IAutoMovieMotionHumanBalanceOption;
 
     /** Seconds since the action's start from which the trunk is written. */
     from: number;

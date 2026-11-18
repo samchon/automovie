@@ -234,8 +234,8 @@ export namespace AutoMovieMotionHumanLean {
   }
 
   /**
-   * A bow: the trunk pitched by a share of a peak, and with the physics option
-   * (`IAutoMovieMotionHumanPhysics.balance`, off by default) the hips moved back by the
+   * A bow: the trunk pitched by a share of a peak, and with the balance option
+   * (`IAutoMovieMotionHumanBalanceOption`, off by default) the hips moved back by the
    * balance shift solved once at the peak ({@link HumanBalance.shift}) and
    * scaled between by the pitch's sine, the lever of the trunk's weight ahead
    * of the hips.
@@ -256,7 +256,7 @@ export namespace AutoMovieMotionHumanLean {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
-    // Without the physics option the hips stay where they stand: no centre
+    // Without the balance option the hips stay where they stand: no centre
     // of mass is read.
     const lean: number = !HumanPhysics.balanced(props)
       ? 0

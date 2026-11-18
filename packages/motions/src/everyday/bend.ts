@@ -7,10 +7,10 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBalanceOption,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -148,7 +148,7 @@ export namespace bend {
       side,
       requested,
       undefined,
-      context.params.physics,
+      context.params.balance,
     );
 
     // The time of a movement that stops on a target, for the hand's travel
@@ -342,11 +342,11 @@ export namespace bend {
     side: AutoMovieHumanSide,
     strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
-    physics?: IAutoMovieMotionHumanPhysics,
+    balance?: IAutoMovieMotionHumanBalanceOption,
   ): IAutoMovieMotionHumanBendLower.ISolved {
     const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
     try {
-      return bendLower.solve(body, upright, target, side, chosen, reach, physics);
+      return bendLower.solve(body, upright, target, side, chosen, reach, balance);
     } catch (error) {
       if (
         !(error instanceof HumanRefusal) ||
@@ -354,7 +354,7 @@ export namespace bend {
         chosen !== "semiSquat"
       )
         throw error;
-      return bendLower.solve(body, upright, target, side, "squat", reach, physics);
+      return bendLower.solve(body, upright, target, side, "squat", reach, balance);
     }
   }
 

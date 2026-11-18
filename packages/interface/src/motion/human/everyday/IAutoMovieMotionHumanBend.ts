@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
+import type { IAutoMovieMotionHumanBalanceOption } from "../law/IAutoMovieMotionHumanBalanceOption";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -62,11 +62,13 @@ export namespace IAutoMovieMotionHumanBend {
    */
   export interface IParams {
     /**
-     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
-     * absent, none, so the posture is the law's own kinematic one with no
-     * balance shift or centre-of-mass reading.
+     * A balancing shift (`IAutoMovieMotionHumanBalanceOption`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
      */
-    physics?: IAutoMovieMotionHumanPhysics;
+    balance?: IAutoMovieMotionHumanBalanceOption;
 
     /** The point the hand goes to. */
     toward: IAutoMovieMotionTarget;

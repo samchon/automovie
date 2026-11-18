@@ -2,6 +2,7 @@ export type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHuma
 export type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
 export type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
 export type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
+export type { IAutoMovieMotionHumanBalanceOption } from "./IAutoMovieMotionHumanBalanceOption";
 export type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 export type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 export type { IAutoMovieMotionHumanEntryState } from "./IAutoMovieMotionHumanEntryState";
@@ -12,7 +13,6 @@ export type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanI
 export type { IAutoMovieMotionHumanLayer } from "./IAutoMovieMotionHumanLayer";
 export type { IAutoMovieMotionHumanMutual } from "./IAutoMovieMotionHumanMutual";
 export type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHumanPerformerReader";
-export type { IAutoMovieMotionHumanPhysics } from "./IAutoMovieMotionHumanPhysics";
 export type { IAutoMovieMotionHumanPlacedAction } from "./IAutoMovieMotionHumanPlacedAction";
 export type { IAutoMovieMotionHumanPropReader } from "./IAutoMovieMotionHumanPropReader";
 export type { IAutoMovieMotionHumanRefusal } from "./IAutoMovieMotionHumanRefusal";

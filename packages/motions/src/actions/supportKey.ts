@@ -42,12 +42,12 @@ export namespace supportKey {
    * @param label The key's name, for the refusal.
    * @param miss How far a contact may miss its target, millimetres.
    * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
-   * @param balance Whether the fit keeps the centre of mass over the bearing hull, the physics option (`IAutoMovieMotionHumanPhysics.balance`); absent or false, the key is the contacts' posture nearest the preference and no centre of mass is read.
+   * @param balance Whether the fit keeps the centre of mass over the bearing hull, the balance option (`IAutoMovieMotionHumanBalanceOption`); absent or false, the key is the contacts' posture nearest the preference and no centre of mass is read.
    * @returns The posture.
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms, over the bearing hull only with the physics option, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
+   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms, over the bearing hull only with the balance option, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing, and a swing whose top would cost a contact is dropped from the key rather than traded against it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key, a second fit only where a swing cost a contact; its foot-contact forms share one lazily measured fixed quiet-stance datum.
