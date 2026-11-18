@@ -15,8 +15,8 @@ import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
-import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
 /**
@@ -233,17 +233,7 @@ export namespace HumanArmTrajectory {
       if (out[out.length - 1] !== grid.length - 1) out.push(grid.length - 1);
       return out;
     };
-    // The first knots: the caller's, and the seconds at which a laid
-    // transport's time law turns from its ramp to its cruise and back
-    // (`IAdmitted.ramps`), so the knots' cubic can draw the cruise at the
-    // speed bound the law timed the transport by.
-    const snapped: number[] = snap(
-      course === undefined || course.ramps.length === 0
-        ? times
-        : [...times, ...course.ramps].sort(
-            (p: number, q: number): number => p - q,
-          ),
-    );
+    const snapped: number[] = snap(times);
     let knots: number[] = snapped;
     const seconds = (of: readonly number[]): number[] =>
       of.map((g: number): number => grid[g]!);
@@ -279,7 +269,11 @@ export namespace HumanArmTrajectory {
       course.refused === "speed"
     ) {
       const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
-      const factor: number = Pace.slower(fine, Pace.coursed(fine, course.trajectories));
+      const factor: number = Pace.slower(
+        fine,
+        course.read.x,
+        course.read.evaluation?.placed,
+      );
       if (factor > 1)
         throw new HumanRefusal({
           kind: "reach",
@@ -287,7 +281,7 @@ export namespace HumanArmTrajectory {
           value: span,
           feasible: {
             kind: "range",
-            minimum: span * factor,
+            minimum: Pace.duration(span * factor),
             maximum: null,
             unit: "s",
           },
@@ -312,10 +306,6 @@ export namespace HumanArmTrajectory {
       context = contextOf(problem, context);
       return carried;
     };
-    const intervals = (of: readonly number[]): number[] =>
-      of.flatMap((g: number, k: number): number[] =>
-        k + 1 < of.length && of[k + 1]! - g >= 2 ? [k] : [],
-      );
     type Solved = {
       x: number[][][];
       evaluation: M.IEvaluation;
@@ -359,34 +349,18 @@ export namespace HumanArmTrajectory {
         solved.evaluation.worst.value > M.TOLERANCE &&
         context.n < fine.n
       ) {
-        const g: number = solved.evaluation.worst.at;
-        const term: string = solved.evaluation.worst.term;
-        if (term !== "speed" && term !== "swept" && knots.includes(g)) {
-          // The knots' own miss: the grid's own instants as knots give the
-          // path the freedom the knots lack, continued from the knots at
-          // their penalty, the whole problem a frame-grid trajectory always
-          // was.
-          let carried: number[][][] = solved.x;
-          for (
-            let wide: number[] = intervals(knots);
-            wide.length > 0;
-            wide = intervals(knots)
-          )
-            carried = refine(carried, wide);
-          solved = HumanArmOptimiser.optimise(
-            context,
-            carried,
-            solved.penalty,
-            fine,
-          );
-          break;
-        }
-        let k: number = 0;
-        while (k + 2 < knots.length && knots[k + 1]! <= g) ++k;
-        const split: number[] = [k - 1, k, k + 1].filter(
-          (i: number): boolean =>
-            i >= 0 && i + 1 < knots.length && knots[i + 1]! - knots[i]! >= 2,
-        );
+        // A frame depends on its bracket and the adjacent Hermite slopes.
+        // Open every such interval for all failed frames in the same pass.
+        const affected: Set<number> = new Set();
+        let bracket: number = 0;
+        solved.evaluation.failing.forEach((failed: boolean, g: number): void => {
+          while (bracket + 2 < knots.length && knots[bracket + 1]! <= g) ++bracket;
+          if (!failed) return;
+          for (const i of [bracket - 1, bracket, bracket + 1])
+            if (i >= 0 && i + 1 < knots.length && knots[i + 1]! - knots[i]! >= 2)
+              affected.add(i);
+        });
+        const split: number[] = [...affected];
         if (split.length === 0) break;
 
         // The refinement replaces the context, so it runs before the solve
@@ -511,7 +485,6 @@ export namespace HumanArmTrajectory {
               trajectories: laid.trajectories,
               admitted: false,
               refused: laid.refused,
-              ramps: laid.ramps.filter(within),
               read: {
                 of: contextOf,
                 context: local,
@@ -640,12 +613,13 @@ export namespace HumanArmTrajectory {
           worst.axis === "duration"
             ? {
                 kind: "range",
-                minimum:
+                minimum: Pace.duration(
                   (at[n - 1]! - at[0]!) *
                   Math.max(
                     Pace.slower(context, last.x),
                     Pace.slower(fine, last.played.x),
                   ),
+                ),
                 maximum: null,
                 unit: "s",
               }

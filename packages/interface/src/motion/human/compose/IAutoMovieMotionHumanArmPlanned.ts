@@ -68,6 +68,9 @@ export namespace IAutoMovieMotionHumanArmPlanned {
 
     /** Whether the group's span is its law's own, which a replan at a slower tempo lengthens (`HumanPerformanceTempo`); unset for a span an end of which another performer or a cue fixes (a meeting). Only such a span is handed back for a longer one before an optimisation (`HumanArmTrajectory.solve`). */
     stretches?: boolean;
+
+    /** The elapsed-time multiplier applied by the action's explicit replan. */
+    tempo?: number;
   }
 
   /**

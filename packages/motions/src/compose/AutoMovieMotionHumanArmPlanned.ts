@@ -53,6 +53,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    *
    * @param handover The action's handover between its plans (`IHumanActionContext.handover`): the group reads the last plan's solutions from it and writes its own into it. Absent, the group hands nothing on.
    * @param stretches Whether the group's span is its law's own, lengthened by a slower tempo (`ITogether.stretches`).
+   * @param tempo The explicit replanning multiplier on elapsed time, 1 by default.
    * @returns The empty group.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
@@ -63,12 +64,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it; the handover maps are the performance's.
    */
-  export function together(handover?: IAutoMovieMotionHumanActionContext.IHandover, stretches?: boolean): IAutoMovieMotionHumanArmPlanned.ITogether {
+  export function together(handover?: IAutoMovieMotionHumanActionContext.IHandover, stretches?: boolean, tempo?: number): IAutoMovieMotionHumanArmPlanned.ITogether {
     return {
       carries: [],
       ...(handover?.warm === undefined ? {} : { warm: handover.warm }),
       ...(handover === undefined ? {} : { last: handover.last }),
       ...(stretches === true ? { stretches } : {}),
+      ...(tempo === undefined ? {} : { tempo }),
     };
   }
 
@@ -129,7 +131,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
     before: IAutoMovieMotionHumanActionPlan["posture"],
-    plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, "warm" | "last" | "stretches">,
+    plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, "warm" | "last" | "stretches" | "tempo">,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
@@ -146,6 +148,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
     // A posture with the planned arms left out.
     const without = (p: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      if (carries.every((carry: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
+        p.limbs[`${carry.side}Arm`] === undefined)) return p;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
       for (const c of carries) delete limbs[`${c.side}Arm`];
       return { ...p, limbs };
@@ -368,7 +372,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // optimiser's seed.
     const laid: ReturnType<typeof AutoMovieMotionHumanArmCourse.course> =
       AutoMovieMotionHumanArmCourse.course({
-        body, span, stretches: plan?.stretches === true, arms: carries, at, aimed, problem, resolution,
+        body, span, stretches: plan?.stretches === true, tempo: plan?.tempo, arms: carries, at, aimed, problem, resolution,
       });
     if (laid?.admitted !== true) {
       guesses = carries.map(

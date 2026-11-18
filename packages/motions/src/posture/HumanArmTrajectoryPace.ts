@@ -27,37 +27,58 @@ export namespace HumanArmTrajectoryPace {
   export const STEP: number = 1 / 30;
 
   /**
+   * Close a retimed span on the next admission-frame duration. The new
+   * phase grid can land nearer the path's true peak than the old grid did.
+   * Give it one frame of time to resample without changing the speed limit.
+   *
+   * @param required The span demanded by the falling step ratio, seconds.
+   * @returns The next strictly greater frame duration, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Establishes the rounding direction and its timing purpose.
+   * @evidence contracts/development/implementation.md#principled-implementation Film time is rounded upwards on the admission grid. The resulting motion still has to pass its unchanged speed bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame quantization.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No threshold changes and no verdict is accepted without resampling the retimed motion.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One scalar calculation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function duration(required: number): number {
+    return (Math.floor(required / STEP) + 1) * STEP;
+  }
+
+  /**
    * The factor a trajectory's span must grow by for every speed-bounded
    * probe to move within the law's own pace: the largest ratio, over each
    * interval and probe, of the probe's speed to the pace there.
    *
    * @param c The context the coordinates are read on.
    * @param x Each arm's coordinates at each waypoint.
+   * @param placed The matching previous frame-grid evaluation, when already available.
    * @returns The factor, at least 1.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the ratio, its floor and the inputs.
    * @evidence contracts/development/implementation.md#principled-implementation A probe's step over an interval divided by the bound times the interval is its speed's ratio to the bound; stretching the span by the greatest ratio brings every probe within it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over arms, intervals and speed probes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The probe's travel is read against its base (`HumanArmTrajectoryTravel`), so a carrier's own motion is not slowed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two placements per interval and arm and one step per speed probe.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most one placement per frame and one step per speed probe per interval.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A matching admission can supply its completed placements. Otherwise consecutive intervals share their boundary placement.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function slower(c: M.IContext, x: readonly (readonly number[])[][]): number {
+  export function slower(
+    c: M.IContext,
+    x: readonly (readonly number[])[][],
+    placed?: M.IEvaluation["placed"],
+  ): number {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
+      const place = (k: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+        placed?.[a]?.[k] ?? G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!, false);
+      if (c.n < 2) return;
+      let now: IAutoMovieMotionHumanArmGeometry.IPlaced = place(0);
       for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-          c.setups[a]!,
-          c.frames[a]![k]!,
-          arm[k]!,
-        );
-        const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-          c.setups[a]!,
-          c.frames[a]![k + 1]!,
-          arm[k + 1]!,
-        );
+        const next: IAutoMovieMotionHumanArmGeometry.IPlaced = place(k + 1);
         const dt: number = c.times[k + 1]! - c.times[k]!;
+        const limit: number = c.speed((c.times[k]! + c.times[k + 1]!) / 2) * dt;
 
         // The arm's own travel, against its base (`HumanArmTrajectoryTravel`):
         // slowing the action slows nothing a carrier does.
@@ -70,10 +91,10 @@ export namespace HumanArmTrajectoryPace {
           );
           most = Math.max(
             most,
-            Vector3.length(d) /
-              (c.speed((c.times[k]! + c.times[k + 1]!) / 2) * dt),
+            Vector3.length(d) / limit,
           );
         }
+        now = next;
       }
     });
     return most;

@@ -42,11 +42,18 @@ export function HumanArmTrajectoryEvaluate(
   const reads = (k: number): boolean =>
     contact === undefined || contact[k] === true;
   // Whether a waypoint's reading is the earlier one's.
-  const same = (k: number): boolean => kept !== undefined && kept.laid[k] !== true;
+  const same = (k: number): boolean =>
+    kept !== undefined && kept.laid[k] !== true;
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
-    (arm: readonly (readonly number[])[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
+    (
+      arm: readonly (readonly number[])[],
+      a: number,
+    ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
       arm.map(
-        (v: readonly number[], k: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+        (
+          v: readonly number[],
+          k: number,
+        ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
           same(k)
             ? kept!.reading.placed[a]![k]!
             : G.placed(c.setups[a]!, c.frames[a]![k]!, v),
@@ -79,7 +86,15 @@ export function HumanArmTrajectoryEvaluate(
   // target, every other term the region.
   const note = (
     v: number,
-    term: "speed" | "swept" | "site" | "lift" | "limit" | "probe" | "embedded" | "crossing",
+    term:
+      | "speed"
+      | "swept"
+      | "site"
+      | "lift"
+      | "limit"
+      | "probe"
+      | "embedded"
+      | "crossing",
     what: () => string,
     slack: number = 0,
   ): void => {
@@ -89,8 +104,19 @@ export function HumanArmTrajectoryEvaluate(
       failing[here] = true;
       if (interval) failing[here + 1] = true;
     }
-    if (v - slack > worst.value) worst = { value: v - slack, what: what(), at: here, term,
-      axis: term === "speed" ? "duration" : term === "limit" ? "target" : "region" };
+    if (v - slack > worst.value)
+      worst = {
+        value: v - slack,
+        what: what(),
+        at: here,
+        term,
+        axis:
+          term === "speed"
+            ? "duration"
+            : term === "limit"
+              ? "target"
+              : "region",
+      };
   };
   const n: number = c.n;
   const times: readonly number[] = c.times;
@@ -134,15 +160,15 @@ export function HumanArmTrajectoryEvaluate(
             placed[a]![k + 1]!.probes[p]![0],
           ),
         );
-      for (const p of c.still ? [] : T.PATH) {
-        const s: number = travel(p);
-        objective += T.LENGTH * s * s;
-      }
       const dt: number = times[k + 1]! - times[k]!;
+      const limit: number = M.stepLimit(c, k);
       for (const p of c.still ? [] : T.SPEED) {
         const step: number = travel(p);
+        // The path objective uses the elbow and wrist, whose travel also
+        // bounds speed. Read every contributing probe just once.
+        if (T.PATH.includes(p)) objective += T.LENGTH * step * step;
         note(
-          step - M.stepLimit(c, k),
+          step - limit,
           "speed",
           () =>
             `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,
@@ -152,7 +178,13 @@ export function HumanArmTrajectoryEvaluate(
         ? []
         : same(k) && same(k + 1)
           ? kept!.reading.swept[a]![k]!
-          : HumanArmTrajectorySweep.of(c, a, k, placed[a]![k]!, placed[a]![k + 1]!);
+          : HumanArmTrajectorySweep.of(
+              c,
+              a,
+              k,
+              placed[a]![k]!,
+              placed[a]![k + 1]!,
+            );
       swept[a]![k] = sweeps;
       for (const sweep of sweeps) {
         const short: number = 1000 * (sweep.lower - sweep.clear);
@@ -171,10 +203,7 @@ export function HumanArmTrajectoryEvaluate(
       const site: M.ISite | undefined = c.sites[a]![k];
       if (site !== undefined) {
         const at: P.ILocated = P.located(c, placed, a, k, site);
-        const contact: IAutoMovieVector3 = P.pad(
-          placed[a]![k]!,
-          site.contact,
-        );
+        const contact: IAutoMovieVector3 = P.pad(placed[a]![k]!, site.contact);
         const off: IAutoMovieVector3 = Vector3.scale(
           Vector3.subtract(contact, at.point),
           1000,
@@ -225,8 +254,9 @@ export function HumanArmTrajectoryEvaluate(
       }
       // Only the pairs the merit and the convex model can use are read
       // exactly (`HumanArmTrajectoryPairs.CUT`).
-      const known: M.IEvaluation["pairs"][number][number] | undefined =
-        same(k) ? kept!.reading.pairs[a]![k] : undefined;
+      const known: M.IEvaluation["pairs"][number][number] | undefined = same(k)
+        ? kept!.reading.pairs[a]![k]
+        : undefined;
       const deepest: Map<number, P.IPair> =
         known?.deepest ??
         (reads(k) ? P.deepest(c, a, k, placed[a]![k]!, P.CUT) : new Map());

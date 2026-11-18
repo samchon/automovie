@@ -63,6 +63,9 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** Whether the span is the law's own, which a slower replan lengthens (`IAutoMovieMotionHumanArmPlanned.ITogether.stretches`); a fixed one otherwise. */
     stretches?: boolean;
 
+    /** The current duration divided by the law's original duration, for an explicit replan. */
+    tempo?: number;
+
     /** Each arm's side, rest, return and the bone of another arm its grip rides, in the group's order. */
     arms: readonly {
       side: "left" | "right";
@@ -166,40 +169,31 @@ export namespace AutoMovieMotionHumanArmCourse {
     // changes its side between two frames; the reach and the return are the
     // reader's to lay between the rest and these.
     //
-    // A still hold is fitted once: where every hold instant has the very
-    // base pose and the very sites of the first, read on the problem's own
-    // records value by value, the arms that meet them at the first instant
-    // meet them at each, and are held. The admission below still reads
-    // every instant, so the comparison decides only what is fitted.
+    // Consecutive identical poses and complete goals hold their last fit.
+    // The full frame-grid admission still checks every displayed instant.
     const problem: HumanArmTrajectory.IProblem = props.problem(times);
     const held: number[] = [];
     times.forEach((t: number, k: number): void => {
       if (holding(t)) held.push(k);
     });
-    const still: boolean = held.every(
-      (k: number): boolean =>
-        same(problem.bases[k]!.pose, problem.bases[held[0]!]!.pose) &&
-        problem.arms.every((arm: HumanArmTrajectory.IArm): boolean =>
-          same(arm.sites[k], arm.sites[held[0]!]),
-        ),
-    );
+    let previousPose: IAutoMoviePose | undefined;
+    let previousGoals: readonly IAutoMovieHumanLimbGoal[] | undefined;
     let near: IAutoMovieMotionHumanResolveHumanPosture.INear = {};
     let before: IAutoMovieMotionHumanArmClearance.IArm[] | undefined;
     for (const k of held) {
       const t: number = times[k]!;
-      if (still && before !== undefined) {
+      const pose: IAutoMoviePose = problem.bases[k]!.pose;
+      const goals: IAutoMovieHumanLimbGoal[] = arms.map(
+        (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
+          props.aimed(a, t),
+      );
+      if (before !== undefined && same(pose, previousPose) && same(goals, previousGoals)) {
         course.set(t, before);
         continue;
       }
-      const solved: ReturnType<typeof fit> = fit(
-        t,
-        arms.map(
-          (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
-            props.aimed(a, t),
-        ),
-        near,
-        before,
-      );
+      const solved: ReturnType<typeof fit> = fit(t, goals, near, before);
+      previousPose = pose;
+      previousGoals = goals;
       course.set(t, solved.arms);
       near = solved.near;
       before = solved.arms;
@@ -218,6 +212,7 @@ export namespace AutoMovieMotionHumanArmCourse {
             ),
         ),
         props.stretches === true,
+        props.tempo,
       );
     return read;
   }
