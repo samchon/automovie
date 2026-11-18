@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * @evidence contracts/development/common.md#meaningful-documentation Documents reach arcs, target displacement and goal-to-site frame conversion at action-local seconds.
  * @evidence contracts/development/design.md#principled-representation Each reading uses canonical body poses and world-metre goal frames; speed and contact geometry keep their existing physical owners.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The planner and feedback reader share the same site/perception conversion; duration reads the same solved arm probes without owning trajectory optimization.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The original arc sampling count, speed bound, goal ownership and contact offsets are preserved; no action or body receives a special path.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The arc's chord count derived from the arm and the model's tolerance, the speed bound, goal ownership and contact offsets are preserved; no action or body receives a special path.
  */
 export namespace AutoMovieMotionHumanArmObservation {
   /**
@@ -55,7 +55,7 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk profile's peak-to-mean speed ratio over the longest arc of the blend.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one division.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is measured on the blend the arm takes, not on the straight line between the ends.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original base solve and ARC+1 actual blended poses retain their original arc integration. Each FK read admits every authored joint but resolves only the three probes and their ancestors; one operation reader shares unchanged scalar FK prerequisites. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original base solve and N+1 actual blended poses, N the chords that hold an arm-length half-turn's shortfall within a millimetre, retain their original arc integration. Each FK read admits every authored joint but resolves only the three probes and their ancestors; one operation reader shares unchanged scalar FK prerequisites. Runtime improvement is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses blendHumanJoint, HumanArmClearance.posed and poseBones. The actual removed-arm raw posture receives ordinary native admission/fitting; one local FK reader shares only fixed joint/rest/ancestor prerequisites across actual blend samples.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base pose, three probe names and local exact FK reader live only through this synchronous measurement. Only the prior probe points and three accumulated arc lengths survive between samples; no blend-pose history, reader or callback enters the returned scalar.
    */
@@ -92,10 +92,10 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @returns The same speed-bound duration in seconds for this base's actual probe arcs.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the supplied actual base, replaced arm joints, preserved finger/ancestor dependencies and second-valued duration.
-   * @evidence contracts/development/implementation.md#principled-implementation The three arm joints are replaced at every sample; all remaining FK dependencies come from the supplied solved base. The original ARC samples and minimum-jerk peak/mean speed factor measure its actual elbow, wrist and fingertip arcs.
+   * @evidence contracts/development/implementation.md#principled-implementation The three arm joints are replaced at every sample; all remaining FK dependencies come from the supplied solved base. N+1 samples (rcSamples) and the minimum-jerk peak/mean speed factor measure its actual elbow, wrist and fingertip arcs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure reaching owns raw-posture admission/resolution, this companion owns identical probe integration, and the existing single-arm planner supplies its already completed exact removed-arm base.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample, blend, arc increment, speed bound or tolerance changes. Multiarm planner bases still use the original raw resolver because removing both arms differs from removing only the measured arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps ARC+1 actual probe blends/FK admissions and original integration; a valid existing canonical base avoids one duplicate solve. Three fixed-pair blenders prepare endpoint rotation/chart data once at first interior use, while every original share and clinical readback remain actual. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps N+1 actual probe blends/FK admissions and original integration; a valid existing canonical base avoids one duplicate solve. Three fixed-pair blenders prepare endpoint rotation/chart data once at first interior use, while every original share and clinical readback remain actual. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-arm planner's at(t).pose resolved exactly the same body/posture after removing that sole arm goal; its body and raw posture stay unchanged during this synchronous planning query. An explicit same-body operation may lend exact FK metadata from native base/endpoint solves to every original probe. Cold reaching still resolves its actual raw base normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base and optional exact FK source only until the scalar returns, with a local getter, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained, and no source enters the scalar result.
    */
@@ -130,9 +130,10 @@ export namespace AutoMovieMotionHumanArmObservation {
       );
     };
     const length: number[] = [0, 0, 0];
+    const samples: number = arcSamples(body, side, probes);
     let last: IAutoMovieVector3[] = points(0);
-    for (let i: number = 1; i <= ARC; ++i) {
-      const next: IAutoMovieVector3[] = points(i / ARC);
+    for (let i: number = 1; i <= samples; ++i) {
+      const next: IAutoMovieVector3[] = points(i / samples);
       next.forEach((p: IAutoMovieVector3, j: number): void => {
         length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
       });
@@ -316,6 +317,26 @@ export namespace AutoMovieMotionHumanArmObservation {
   }
 }
 
-/** Samples along the same original joint-space blend for arc measurement. */
-const ARC: number = 32;
+/**
+ * The chords an arc of the blend is measured on: a probe at most `R` from
+ * the shoulder, the farthest probe's distance from it on the straight rest
+ * arm, turning at most half a turn traces at most `πR`, and `N` equal chords
+ * of it fall short by at most `π³R / (24 N²)`; that shortfall is held within
+ * the trajectory model's tolerance (a millimetre), so
+ * `N = ⌈π √(πR / (24 · tol))⌉`.
+ */
+function arcSamples(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  probes: readonly AutoMovieHumanoidBone[],
+): number {
+  const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
+  const reach: number = Math.max(
+    ...probes.map((bone: AutoMovieHumanoidBone): number =>
+      Vector3.length(Vector3.subtract(body.rest.get(bone)!, shoulder)),
+    ),
+  );
+  const tolerance: number = HumanArmTrajectoryModel.TOLERANCE / 1000;
+  return Math.ceil(Math.PI * Math.sqrt((Math.PI * reach) / (24 * tolerance)));
+}
 
