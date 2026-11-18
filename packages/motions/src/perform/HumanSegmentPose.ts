@@ -243,7 +243,7 @@ export namespace HumanSegmentPose {
         ...posture,
         limbs: {
           ...posture.limbs,
-          ...Object.fromEntries(HumanSegmentCarry.carries(person, pose, kept, prepared.resolution, prepared)),
+          ...Object.fromEntries(HumanSegmentCarry.carries(person, kept, prepared.resolution, prepared)),
         },
       };
 

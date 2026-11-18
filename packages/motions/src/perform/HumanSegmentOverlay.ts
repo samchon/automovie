@@ -183,7 +183,6 @@ export namespace HumanSegmentOverlay {
         let leaf: IAutoMoviePose = fitted.pose;
         for (const [limb, goal] of HumanSegmentCarry.carries(
           person,
-          leaf,
           carried.filter(
             (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               !used.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
