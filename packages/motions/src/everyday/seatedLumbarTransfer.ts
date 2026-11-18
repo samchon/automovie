@@ -1,5 +1,5 @@
-import { bracketedBisection, getConstraint } from "@automovie/engine";
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import { bracketedBisection, getConstraint, ROM_TOLERANCE } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 import { poseBones } from "../posture/poseBones";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -29,16 +29,23 @@ export function seatedLumbarTransfer(body: IAutoMovieMotionHumanBody, peak: IAut
   if (limit <= 0) return 0;
   const left: ReturnType<typeof seatedPairDepth> = seatedPairDepth(body, "spine", "leftUpperLeg");
   const right: ReturnType<typeof seatedPairDepth> = seatedPairDepth(body, "spine", "rightUpperLeg");
-  const touching = (angle: number): boolean => {
+  const placed: ReturnType<typeof HumanColliders.placed> = HumanColliders.placed(body, poseBones(body, resolveHumanPosture(body, pose)));
+  if (Math.max(left(placed), right(placed)) === 0) return 0;
+  const spineIndex: number = placed.findIndex((part): boolean => part.bone === "spine");
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(["spine"]);
+  const readSpine: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+  const placeSpine: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, requested);
+  const touching: (angle: number) => boolean = (angle: number): boolean => {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...pose.joints,
       spine: [spine[0] - angle, spine[1], spine[2]],
       chest: [chest[0] + angle, chest[1], chest[2]],
     };
-    const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, { ...pose, joints }));
-    const placed: ReturnType<typeof HumanColliders.placed> = HumanColliders.placed(body, bones);
+    const native: ReturnType<typeof resolveHumanPosture.seeded> =
+      resolveHumanPosture.seeded(body, { ...pose, joints }, undefined, {}, undefined, requested);
+    placed[spineIndex] = placeSpine(readSpine(native.pose))[0]!;
     return Math.max(left(placed), right(placed)) > 0;
   };
-  if (!touching(0) || touching(limit)) return 0;
-  return bracketedBisection(touching, 0, limit, 0.01);
+  if (touching(limit)) return 0;
+  return bracketedBisection(touching, 0, limit, ROM_TOLERANCE);
 }
