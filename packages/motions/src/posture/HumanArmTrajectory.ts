@@ -1,10 +1,8 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -17,10 +15,9 @@ import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
+import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
-import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
-import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
  * A performer's arms over one action as one trajectory optimisation, in
@@ -183,7 +180,7 @@ export namespace HumanArmTrajectory {
    * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them (Schulman et al. 2013, sections V and VI), the reading here the model's own evaluation of the played interpolant on the frame grid, so nothing the film samples rests on the knots alone; a second initialisation only when the first ends unadmitted (their multiple initialisations).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; a module-private factory creates each returned reader outside the builder's lexical environment.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading, the optimiser's own last evaluation of the knots' interpolant, is within the model's tolerance; no bound is scaled to stand in for the reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables are the knots', a few per transport, instead of the frame grid's, while every evaluation and linearisation is the grid's (`HumanArmTrajectoryKnots`); a solve is one optimisation, with no refinement after it. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables are the knots', a few per transport, instead of the frame grid's, while every evaluation and linearisation is the grid's (`HumanArmTrajectoryKnots`); a solve optimises on its knots, refines the intervals the frame grid's reading fails in, and optimises again where it still fails. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A course's reading lends its context builder and its grid context, the same body, arms, bases and sites by identity, so the grid's frames and waypoint records are built once for the course and the solve; continued contexts keep the waypoint records of the knots they share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setup list, final times, coordinate arrays and their arm index; the problem/read callbacks, contexts and readings are released on return or throw.
    */
@@ -200,7 +197,7 @@ export namespace HumanArmTrajectory {
     // refined to the end is bounded at exactly the instants it is read at.
     const grid: readonly number[] =
       course?.read.context.times ??
-      uniform(times[0]!, times[times.length - 1]!);
+      Pace.uniform(times[0]!, times[times.length - 1]!);
     const snap = (of: readonly number[]): number[] => {
       const out: number[] = [0];
       let near: number = 0;
@@ -260,7 +257,7 @@ export namespace HumanArmTrajectory {
       course.refused === "speed"
     ) {
       const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
-      const factor: number = slower(fine, coursed(fine, course.trajectories));
+      const factor: number = Pace.slower(fine, Pace.coursed(fine, course.trajectories));
       if (factor > 1)
         throw new HumanRefusal({
           kind: "reach",
@@ -402,7 +399,7 @@ export namespace HumanArmTrajectory {
       const laid: number[][][] | undefined =
         course === undefined
           ? undefined
-          : coursed(context, course.trajectories);
+          : Pace.coursed(context, course.trajectories);
 
       // A hold no configuration meets has no trajectory: it is refused by
       // its own still problem before the whole trajectory's penalties are
@@ -444,8 +441,8 @@ export namespace HumanArmTrajectory {
                 minimum:
                   (at[n - 1]! - at[0]!) *
                   Math.max(
-                    slower(context, last.x),
-                    slower(fine, last.played.x),
+                    Pace.slower(context, last.x),
+                    Pace.slower(fine, last.played.x),
                   ),
                 maximum: null,
                 unit: "s",
@@ -467,73 +464,4 @@ export namespace HumanArmTrajectory {
       state: { times: [...at], x: last.x, penalty: last.penalty },
     };
   }
-
-  /**
-   * The factor a trajectory's span must grow by for every speed-bounded
-   * probe to move within the audit's bound: the largest ratio, over each
-   * interval and probe, of the probe's speed to the bound.
-   */
-  function slower(c: M.IContext, x: readonly (readonly number[])[][]): number {
-    let most: number = 1;
-    x.forEach((arm: readonly (readonly number[])[], a: number): void => {
-      for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-          c.setups[a]!,
-          c.frames[a]![k]!,
-          arm[k]!,
-        );
-        const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-          c.setups[a]!,
-          c.frames[a]![k + 1]!,
-          arm[k + 1]!,
-        );
-        const dt: number = c.times[k + 1]! - c.times[k]!;
-
-        // The arm's own travel, against its base (`HumanArmTrajectoryTravel`):
-        // slowing the action slows nothing a carrier does.
-        for (const p of T.SPEED) {
-          const d: IAutoMovieVector3 = V.step(
-            c.frames[a]![k]!,
-            c.frames[a]![k + 1]!,
-            now.probes[p]![0],
-            next.probes[p]![0],
-          );
-          most = Math.max(most, Vector3.length(d) / (M.SPEED_LIMIT * dt));
-        }
-      }
-    });
-    return most;
-  }
 }
-
-/** A course's arms at a context's waypoints as coordinates, its first and returned last waypoint the context's rest and back. */
-function coursed(
-  c: M.IContext,
-  course: readonly IAutoMovieMotionHumanArmTrajectory.Trajectory[],
-): number[][][] {
-  return course.map(
-    (
-      reader: IAutoMovieMotionHumanArmTrajectory.Trajectory,
-      a: number,
-    ): number[][] =>
-      c.times.map((t: number, k: number): number[] =>
-        k === 0
-          ? [...c.rest[a]!]
-          : k === c.n - 1 && !c.open
-            ? [...c.back[a]!]
-            : M.ranged(c, a, G.encode(c.setups[a]!, reader(t))),
-      ),
-  );
-}
-
-/** A span's instants a frame apart, its two ends among them: the frame grid where no course gives its own. */
-function uniform(start: number, end: number): number[] {
-  const grid: number[] = [start];
-  for (let j: number = 1; start + j * STEP < end - 1e-9; ++j)
-    grid.push(start + j * STEP);
-  grid.push(end);
-  return grid;
-}
-
-/** The frame grid's step, seconds, where no course gives its own grid. */
-const STEP: number = 1 / 30;

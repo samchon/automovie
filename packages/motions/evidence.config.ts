@@ -140,6 +140,7 @@ const files: string[] = [
   "src/posture/HumanArmSwing.ts",
   "src/posture/HumanArmTrajectoryContext.ts",
   "src/posture/HumanArmTrajectory.ts",
+  "src/posture/HumanArmTrajectoryPace.ts",
   "src/posture/HumanArmTrajectoryJacobians.ts",
   "src/posture/HumanArmTrajectoryPairs.ts",
   "src/posture/HumanBodyFit.ts",
