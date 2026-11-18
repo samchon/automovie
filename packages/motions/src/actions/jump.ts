@@ -32,6 +32,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpEndpoints } from "./jumpEndpoints";
 import { jumpFlight } from "./jumpFlight";
+import { jumpGroundPosture } from "./jumpGroundPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpLanding } from "./jumpLanding";
 import { jumpPath } from "./jumpPath";
@@ -366,8 +367,10 @@ export namespace jump {
       joints: jumpJoints.prepare(body, upright.joints),
       lower: lowerHumanPosture.prepare(body),
     };
-    const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture =>
-      jumpPushPosture(pushProps, push, seconds, resolution, writers);
+    const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      return jumpGroundPosture(body, jumpPushPosture(pushProps, push, seconds, read, writers), reaching, read);
+    };
     const shape: jumpAirborne.IShape = { body, takeoff, heading, start: startState, end: endState };
     const landedAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (
       t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -384,7 +387,9 @@ export namespace jump {
           planted: true,
           contact: { ...landingContact[side] },
         };
-      return writers.lower({ root, yaw: heading, pitch: 0, roll: 0, joints, limbs }, resolution);
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      return jumpGroundPosture(body,
+        writers.lower({ root, yaw: heading, pitch: 0, roll: 0, joints, limbs }, read), "landing", read);
     };
     const prepared: prepareJumpPosture.IConstruction = prepareJumpPosture(
       body, model, shape,

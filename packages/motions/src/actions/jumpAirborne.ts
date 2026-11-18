@@ -1,4 +1,4 @@
-import { Quaternion, inertializeOffset, integrateMotionTrajectory, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, inertializeOffset, integrateMotionTrajectory, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanPostureRotation,
@@ -11,10 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
+import { hipJoints } from "../posture/hipJoints";
 import type { jumpState } from "./jumpState";
+import { walkLeg } from "./walkLeg";
 
 /** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
 const ARCH: number = 0.1;
@@ -100,7 +103,7 @@ export namespace jumpAirborne {
 
   /**
    * The airborne posture at a root and a share of the flight: the arms
-   * lowering from the push's height, the take-off toes uncurling, and each
+   * lowering from the push's height, both forefeet uncurling, and each
    * foot carried on a minimum-jerk path between achieved endpoint states,
    * lifted by a tenth of hip height at mid-flight along the existing sine
    * arch. Endpoint values are shared; world COM and angular C1 are not
@@ -110,7 +113,7 @@ export namespace jumpAirborne {
    * @returns A posture reader of a world-metre root and flight share in [0,1].
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each part of the shape does over the flight.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or motion law is added.
+   * @evidence contracts/development/implementation.md#principled-implementation Both toe joints interpolate between their achieved clinical endpoints. The ankles follow the minimum-jerk path and sinusoidal arch; each interpolated world foot orientation gives at the unloaded ankle's range as its shank bends.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, four scalar point/bend interpolation readers, the 0.1-hip-height arch coefficient and two quaternion endpoint arcs prepare once. Each query shares one minimum-jerk share/current sine arch and evaluates original local-then-world expressions directly into four world vectors, avoiding four discarded local vectors. Original quaternion work remains and speedup is unmeasured.
@@ -120,7 +123,7 @@ export namespace jumpAirborne {
   export function prepare(
     shape: IShape,
   ): IPrepared {
-    const { body, takeoff, heading }: IShape = shape;
+    const { body, heading }: IShape = shape;
     const fixed: { start: Pick<jumpState.IState, "root" | "joints" | "legs">; end: Pick<jumpState.IState, "joints" | "legs"> } = structuredClone({
       start: { root: shape.start.root, joints: shape.start.joints, legs: shape.start.legs },
       end: { joints: shape.end.joints, legs: shape.end.legs },
@@ -129,16 +132,18 @@ export namespace jumpAirborne {
     const tracks: IJointTrack[] = [];
     for (const bone of [
       "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
-      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot",
+      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot", "leftToes", "rightToes",
     ] as const) {
       const from: readonly [number, number, number] = fixed.start.joints[bone] ?? [0, 0, 0];
       const into: readonly [number, number, number] = fixed.end.joints[bone] ?? [0, 0, 0];
       tracks.push({ bone, from, delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]] });
     }
-    const toe: AutoMovieHumanoidBone = `${takeoff}Toes`;
-    const fromToe: number = fixed.start.joints[toe]?.[0] ?? 0;
-    const toeDelta: number = (fixed.end.joints[toe]?.[0] ?? 0) - fromToe;
     const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
+    // The pelvis keeps its takeoff articulation and heading throughout the
+    // free shape. Translating its two hip origins preserves the current shanks.
+    const hipOffsets: ReturnType<typeof hipJoints> =
+      hipJoints(body, { x: 0, y: 0, z: 0 }, turn, fixed.start.joints.hips);
+    const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> = walkLeg.prepareAnkleRange(body, heading);
     const frame: IAutoMovieMotionHumanFrame = { origin: fixed.start.root, yaw: heading };
     const points: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
       left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.point, fixed.end.legs.left.point),
@@ -161,15 +166,16 @@ export namespace jumpAirborne {
           track.from[1] + track.delta[1] * s,
           track.from[2] + track.delta[2] * s,
         ];
-      joints[toe] = [fromToe + toeDelta * s, 0, 0];
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const arch: number = archHeight * Math.sin(Math.PI * u);
       for (const side of ["left", "right"] as const) {
         const point: IAutoMovieVector3 = points[side](s, root, arch);
-        const rotation: ReturnType<typeof Quaternion.slerp> = rotations[side](s);
+        const asked: IAutoMovieQuaternion = Quaternion.multiply(turn, rotations[side](s));
+        const ranged: IAutoMovieQuaternion = ankleRange(Vector3.add(root, hipOffsets[side]), point, asked);
         limbs[`${side}Leg`] = {
           point,
-          rotation: Quaternion.multiply(turn, rotation),
+          rotation: ranged === asked ? asked : HumanFoot.rotation(
+            HumanFoot.heading(asked), HumanFoot.pitch(ranged), HumanFoot.roll(asked)),
           bend: bends[side](s, root),
         };
       }
