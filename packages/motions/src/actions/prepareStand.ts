@@ -58,7 +58,7 @@ export function prepareStand(
   };
   const from: IAutoMovieVector3 = context.entry.posture.root;
   const sway: number =
-    context.params.sway ?? 0.003 * HumanSkill.sway(context.skill);
+    context.params.sway ?? stand.SWAY * HumanSkill.sway(context.skill);
   HumanBound.least("sway", sway, 0, "m");
 
   const left: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
@@ -93,13 +93,13 @@ export function prepareStand(
 
   return (duration: number): IAutoMovieMotionHumanActionPlan => {
     HumanBound.above("seconds", duration, 0, "s");
-    const settle: number = Math.min(0.5, duration);
+    const settle: number = Math.min(stand.SETTLE, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
     const sz: IAutoMovieRandom = context.random("swayZ");
     const noiseX: ReturnType<typeof seededSmoothNoise.prepare> =
-      seededSmoothNoise.prepare(sx, duration, 0.8);
+      seededSmoothNoise.prepare(sx, duration, stand.SWAY_FREQUENCY);
     const noiseZ: ReturnType<typeof seededSmoothNoise.prepare> =
-      seededSmoothNoise.prepare(sz, duration, 0.8);
+      seededSmoothNoise.prepare(sz, duration, stand.SWAY_FREQUENCY);
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...aligned };
     return {
       duration,
@@ -118,7 +118,7 @@ export function prepareStand(
           to: 1,
           support:
             on === undefined
-              ? HumanSupportFrame.contact(context, part)
+              ? { ...(part === "leftFoot" ? left : right) }
               : { kind: "prop", subject: on.prop },
         }),
       ),

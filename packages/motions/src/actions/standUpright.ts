@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanStandUpright,
   IAutoMoviePose,
@@ -29,8 +30,8 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * (Winter 1995, "Human balance and posture control during standing and
  * walking", Gait & Posture 3). A rig's rest column need not stand so: the
  * polygon man's shoulders rest behind its hips. The alignment therefore fits
- * the plumb line: equal spine and chest flexion (golden-section search within
- * ±15°) and neck flexion (bisection within a comfortable ±20°) that minimise
+ * the plumb line: equal spine and chest flexion (Brent's minimisation within
+ * ±15°) and neck flexion (a bracketed root within a comfortable ±20°) that minimise
  * the squared horizontal distances of the shoulder joints' midpoint and the
  * head joint, the ear's proxy, from the hip joints' vertical, since a
  * simplified neck need not let all three stack exactly; head flexion that
@@ -47,12 +48,12 @@ export namespace standUpright {
    * @returns Its alignment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the per-body alignment; the namespace documents its physical targets and search bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing plumb-line, level-head and centre-of-mass searches keep every candidate and stopping rule, with FK requested only for each residual's measured bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak body cache delegates cold alignment to a synchronous search.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, body scale, candidate ordering or tolerance is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once; the final reading demands precisely its mass-model bones and the two ankles. Golden search keeps its original candidate arithmetic and reuses only an exactly repeated preceding candidate's scalar cost; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates. Its pure golden cost has unchanged body inputs, so identical candidate numbers can share their completed cost; the body cache retains only the final alignment.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader, four bounded name readers and golden search's four scalar slots end with cold search return or throw; one alignment remains weakly owned per live body.
+   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from the mass model's centre against the ankles, with FK requested only for each residual's measured bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A weak body cache in front of one synchronous search.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once; the final reading demands precisely its mass-model bones and the two ankles. The neck found for each trunk candidate is kept for the search's length, so the chosen trunk's neck is not searched again; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One search shares the engine's dependency reader across candidates, and each trunk candidate's neck across the cost and the final reading; the body cache keeps only the final alignment.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, four bounded name readers and the per-candidate necks end with the search's return or throw; one alignment stays weakly owned per live body (module-level cache; the body's builder is the owner it belongs with).
    */
   export function of(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
     const known: IAutoMovieMotionHumanStandUpright.IAlignment | undefined = CACHE.get(body);
@@ -62,8 +63,10 @@ export namespace standUpright {
     return solved;
   }
 
+  /** Each body's alignment, solved once. */
   const CACHE: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanStandUpright.IAlignment> = new WeakMap();
 
+  /** Solve a body's alignment: the plumb-line trunk and neck, the level head, then the lean. */
   function solve(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
@@ -71,21 +74,25 @@ export namespace standUpright {
       ReadonlySet<AutoMovieHumanoidBone>,
       ReturnType<typeof poseBones.prepare>
     > = new Map();
-    const bones = (
+    const bones: (
       joints: Partial<Record<AutoMovieHumanoidBone, number>>,
-      requested?: ReadonlySet<AutoMovieHumanoidBone>,
+      requested: ReadonlySet<AutoMovieHumanoidBone>,
+    ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+      joints: Partial<Record<AutoMovieHumanoidBone, number>>,
+      requested: ReadonlySet<AutoMovieHumanoidBone>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const pose: IAutoMoviePose = {
         skeleton: body.skeleton.id,
         root: null,
-        joints: Object.entries(joints).map(([bone, flexion]) => ({
-          bone: bone as AutoMovieHumanoidBone,
-          flexion: flexion!,
-          abduction: 0,
-          twist: 0,
-        })),
+        joints: Object.entries(joints).map(
+          ([bone, flexion]: [string, number | undefined]): IAutoMovieJointPose => ({
+            bone: bone as AutoMovieHumanoidBone,
+            flexion: flexion!,
+            abduction: 0,
+            twist: 0,
+          }),
+        ),
       };
-      if (requested === undefined) return poseBones(body, pose, prepared());
       let read: ReturnType<typeof poseBones.prepare> | undefined =
         readers.get(requested);
       if (read === undefined) {
@@ -94,7 +101,11 @@ export namespace standUpright {
       }
       return read(pose, prepared());
     };
-    const mid = (
+    const mid: (
+      map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      a: AutoMovieHumanoidBone,
+      b: AutoMovieHumanoidBone,
+    ) => IAutoMovieVector3 = (
       map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       a: AutoMovieHumanoidBone,
       b: AutoMovieHumanoidBone,
@@ -111,20 +122,23 @@ export namespace standUpright {
     // For a trunk flexion, the neck flexion within the comfortable cervical
     // range that brings the ear closest over the hips, and the squared
     // distances of the shoulders and the ear from the hips' vertical.
-    const fit = (f: number): { neck: number; cost: number } => {
-      const off = (n: number): number =>
+    const necks: Map<number, number> = new Map();
+    const fit: (f: number) => number = (f: number): number => {
+      const off: (n: number) => number = (n: number): number =>
         ear(bones({ spine: f, chest: f, neck: n }, HEAD)) - hips;
       const n: number = bisect(off, NECK);
+      necks.set(f, n);
       const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
         { spine: f, chest: f, neck: n },
         COLUMN,
       );
       const s: number = mid(map, "leftUpperArm", "rightUpperArm").z - hips;
       const e: number = ear(map) - hips;
-      return { neck: n, cost: s * s + e * e };
+      return s * s + e * e;
     };
-    const trunk: number = golden((f: number): number => fit(f).cost, -15, 15);
-    const neck: number = fit(trunk).neck;
+    const trunk: number = minimum(fit, -TRUNK, TRUNK);
+    if (!necks.has(trunk)) fit(trunk);
+    const neck: number = necks.get(trunk)!;
     const head: number = bisect(
       (h: number): number =>
         Quaternion.rotateVector(
@@ -133,7 +147,7 @@ export namespace standUpright {
           )!.worldRotation,
           { x: 0, y: 0, z: 1 },
         ).y,
-      40,
+      HEAD_RANGE,
     );
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -175,6 +189,12 @@ export namespace standUpright {
   /** The comfortable cervical flexion range, degrees, either way (provisional, inside DEFAULT_HUMANOID_ROM). */
   const NECK: number = 20;
 
+  /** The trunk flexion bracket of the plumb-line search, degrees either way (provisional: wide enough to hold any rest column's alignment). */
+  const TRUNK: number = 15;
+
+  /** The head flexion bracket of the level-gaze search, degrees either way (provisional). */
+  const HEAD_RANGE: number = 40;
+
   /** Only the named output bones are needed by each alignment residual. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperLeg",
@@ -193,12 +213,11 @@ export namespace standUpright {
 
   /**
    * The angle of the pure fixed-body cost's low on [lo, hi] degrees, by
-   * Brent's method (`bracketedMinimum`): a golden-section search closed its
-   * bracket to 0.01 degree and took the middle, within 0.005 degree of the
-   * low, and Brent's stopping rule places its point within about three
-   * tolerances of it, so the tolerance is a third of that.
+   * Brent's method (`bracketedMinimum`), to within `LOW` of it: Brent's
+   * stopping rule places its point within about three tolerances of the
+   * low, so the tolerance is a third of that.
    */
-  function golden(
+  function minimum(
     cost: (angle: number) => number,
     lo: number,
     hi: number,
@@ -206,7 +225,7 @@ export namespace standUpright {
     return bracketedMinimum(cost, lo, hi, LOW / 3).at;
   }
 
-  /** How near its low a golden-section bracket of 0.01 degree left the cost's angle, degrees. */
+  /** How near its low the trunk's angle is found, degrees: half of a 0.01-degree bracket. */
   const LOW: number = 0.005;
 
   /**
@@ -217,7 +236,7 @@ export namespace standUpright {
    */
   function bisect(
     residual: (angle: number) => number,
-    range: number = 25,
+    range: number,
   ): number {
     const a: number = residual(-range);
     const b: number = residual(range);

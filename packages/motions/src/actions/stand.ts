@@ -2,11 +2,13 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStand,
@@ -48,6 +50,11 @@ import { standingLegs } from "./standingLegs";
  * passes that side (`plan`'s `side`): the side-to-side draw is signed in
  * that side's frame, so a left action's sway is the mirror of a right one's
  * for every seed, its statistics unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the stance, the root's settle, the feet's turn-out, the hanging arms and the sway with their sources and provisional values.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core plus the standing geometry every law that ends on its feet reads: root, feet, legs, relaxed arms.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, cancel table, yields, constants, planner and the standing geometry readers its consumers call.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place follows from the body's rest feet, its upright alignment and its measured ankle height; `RELAXED` is the one bodiless table, kept for the exercise keys that take no body.
  */
 export namespace stand {
   /** The action's name. */
@@ -74,12 +81,21 @@ export namespace stand {
    * @param context The action's context.
    * @param side The side of the law that stands on this body, whose frame the side-to-side sway is signed in: a left side's sway mirrors a right side's. The right when absent, as for a stand acting with no side.
    * @returns The plan.
+   * @throws {HumanRefusal} When the seconds are not positive or the sway is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the side's role, its default and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the quiet-standing law to prepareStand at the requested or default duration.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound check and one delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The duration is the author's or the named provisional default; nothing is clamped.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work; the plan's cost is prepareStand's.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One plan per call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns what prepareStand prepares.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanActionPlan {
-    const duration: number = context.params.seconds ?? 1.5;
+    const duration: number = context.params.seconds ?? SECONDS;
     HumanBound.above("seconds", duration, 0, "s");
     return prepare(context, side)(duration);
   }
@@ -102,6 +118,21 @@ export namespace stand {
   ): ReturnType<typeof prepareStand> {
     return prepareStand(context, side);
   }
+
+  /** A stand's seconds when the author gives none (provisional). */
+  export const SECONDS: number = 1.5;
+
+  /** Seconds the root takes to settle from its entry over the feet (provisional). */
+  export const SETTLE: number = 0.5;
+
+  /** An elite's quiet-stance sway, RMS metres: a few millimetres of centre-of-pressure sway in healthy adults (Prieto et al. 1996), scaled up for lesser skill by `HumanSkill.sway`. */
+  export const SWAY: number = 0.003;
+
+  /** The highest frequency of the sway's smooth signals, hertz: quiet-stance sway lies below 1 Hz (Prieto et al. 1996). */
+  export const SWAY_FREQUENCY: number = 0.8;
+
+  /** The relaxed hanging elbow's flexion, degrees (provisional). */
+  export const ELBOW: number = 12;
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
   export const TOE_OUT: number = 7;
@@ -154,6 +185,9 @@ export namespace stand {
     return relaxed(body).leftUpperArm![1];
   }
 
+  /** The bodiless relaxed table's shoulder abduction, degrees (provisional; `relaxed` measures each body's). */
+  const RELAXED_ABDUCTION: number = 5;
+
   /**
    * Relaxed hanging arms with no body, clinical degrees: 5 degrees of
    * shoulder abduction, 12 of elbow flexion and the hands at rest. Kept only
@@ -169,8 +203,8 @@ export namespace stand {
     > = {};
     for (const side of ["left", "right"] as const) {
       Object.assign(out, HumanHand.shape(side, "relaxed"));
-      out[`${side}UpperArm`] = [0, 5, 0];
-      out[`${side}LowerArm`] = [12, 0, 0];
+      out[`${side}UpperArm`] = [0, RELAXED_ABDUCTION, 0];
+      out[`${side}LowerArm`] = [ELBOW, 0, 0];
     }
     return out;
   })();
@@ -184,6 +218,14 @@ export namespace stand {
    * @param entry The entry state.
    * @param yaw The heading, degrees.
    * @returns Ankle points, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both feet's rule, the frame and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the flat targets of standFeet's contact-preserving course.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The planted contacts stay where the entry put them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK of the planted sockets, standFeet's cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One read per call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
    */
   export function feet(
     body: IAutoMovieMotionHumanBody,
@@ -205,6 +247,14 @@ export namespace stand {
    * @param feet Ankle points, world metres.
    * @param yaw The heading, degrees.
    * @returns The root, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the placement rule, its owner role and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest stance's root-to-feet offset turned to the heading, plus the upright alignment's lean, at the ankles' mean height less the ankle height and `DROP`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-centre offset, one lean, one sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height follows from the ankles given, never from a floor assumed at zero.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after standUpright's per-body alignment.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads standUpright's alignment for the lean.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains nothing.
    */
   export function root(
     body: IAutoMovieMotionHumanBody,
@@ -234,6 +284,14 @@ export namespace stand {
    * @param yaw The heading, degrees.
    * @param feet Ankle points, world metres.
    * @returns The leg goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the goals, their frame and the knees' bend.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to standingLegs with this law's `TOE_OUT`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The feet stay on the points given.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares standingLegs with prepareLegs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh goals and retains nothing.
    */
   export function legs(
     body: IAutoMovieMotionHumanBody,
@@ -271,6 +329,14 @@ export namespace stand {
    * @param at The floor point under the body, world metres.
    * @param yaw The heading, degrees.
    * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the posture, its place and its use as every performer's start.
+   * @evidence contracts/development/implementation.md#principled-implementation The stance with the body's relaxed hanging arms.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `stance`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arms are the body's measured relaxed ones.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after the per-body relaxed arms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `stance` and `relaxed`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh posture and retains nothing.
    */
   export function posture(
     body: IAutoMovieMotionHumanBody,
@@ -288,6 +354,14 @@ export namespace stand {
    * @param yaw The heading, degrees.
    * @param arms The arms' and hands' angles, clinical degrees.
    * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their units and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest feet turned to the heading at the floor point and ankle height, the root `root` places over them, the upright alignment's trunk and the legs planted on the feet.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two feet, one root, one posture.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place follows from the body's rest feet and measures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `root`, `legs` and standUpright's alignment.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh posture and retains nothing.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
@@ -298,15 +372,20 @@ export namespace stand {
     >,
   ): IAutoMovieMotionHumanPosture {
     const frame: IAutoMovieMotionHumanFrame = { origin: at, yaw };
-    const feet = {} as Record<"left" | "right", IAutoMovieVector3>;
-    for (const side of ["left", "right"] as const) {
+    const foot: (side: "left" | "right") => IAutoMovieVector3 = (
+      side: "left" | "right",
+    ): IAutoMovieVector3 => {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-      feet[side] = HumanFrame.point(frame, {
+      return HumanFrame.point(frame, {
         x: rest.x,
         y: body.measure.ankleHeight,
         z: rest.z,
       });
-    }
+    };
+    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+      left: foot("left"),
+      right: foot("right"),
+    };
     const placed: IAutoMovieVector3 = root(body, feet, yaw);
     return {
       root: placed,
@@ -316,6 +395,78 @@ export namespace stand {
       joints: { ...arms, ...standUpright.of(body).joints },
       limbs: legs(body, placed, yaw, feet),
     };
+  }
+
+  /**
+   * The stand a climb starts from, read at both ends: its first instant is
+   * the entry the climb continues, its last the settled quiet stance, so a
+   * foot entered on its rocker leaves the floor from where it is while the
+   * treads or rungs repeat the settled flat feet.
+   *
+   * @template Params The climb's parameter type, which the stand replaces.
+   * @param context The climb's context; its parameters are not read.
+   * @returns The entry posture and both ends' foot placements.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two instants read and what each serves.
+   * @evidence contracts/development/implementation.md#principled-implementation One quiet-stand plan of one second, read at 0 and at its duration, when the settle and the sway's window have both ended; each foot's placement is its planted leg goal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One plan, two readings, four placements.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placements are this law's own goals; no foot is typed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One stand plan and two posture readings per climb plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stair and ladder climbs share this one reading of the stand.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; the stand plan ends with the call.
+   */
+  export function footprints<Params>(
+    context: IAutoMovieMotionHumanActionContext<Params>,
+  ): IFootprints {
+    const stood: IAutoMovieMotionHumanActionPlan = plan({
+      ...context,
+      params: { seconds: 1 },
+    });
+    const standing: IAutoMovieMotionHumanPosture = stood.posture(0);
+    const settled: IAutoMovieMotionHumanPosture = stood.posture(stood.duration);
+    const placement: (
+      posture: IAutoMovieMotionHumanPosture,
+      side: "left" | "right",
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
+      posture: IAutoMovieMotionHumanPosture,
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
+      return {
+        ankle: goal.point,
+        rotation: goal.rotation ?? HumanFrame.turn(posture.yaw),
+      };
+    };
+    return {
+      standing,
+      entered: {
+        left: placement(standing, "left"),
+        right: placement(standing, "right"),
+      },
+      settled: {
+        left: placement(settled, "left"),
+        right: placement(settled, "right"),
+      },
+    };
+  }
+
+  /**
+   * The stand's two ends as a climb reads them (`footprints`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its instant and frame.
+   * @evidence contracts/development/design.md#principled-representation The entry posture plus the feet at the entry and settled, world metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by the stair and ladder climbs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared posture and foot placement types.
+   */
+  export interface IFootprints {
+    /** The stand's first instant: the entry the climb continues. */
+    standing: IAutoMovieMotionHumanPosture;
+
+    /** Each foot where the entry put it, world metres. */
+    entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+
+    /** Each foot flat in the settled quiet stance, world metres. */
+    settled: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
   }
 }
 

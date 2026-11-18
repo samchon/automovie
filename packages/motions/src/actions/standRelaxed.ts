@@ -24,7 +24,7 @@ import { stand } from "./stand";
 /**
  * The relaxed arm's least shoulder abduction that leaves its digits clear
  * of the body in a quiet stance. The elbow stays at the standing law's
- * 12 degrees and the digits in the relaxed shape; wider bodies need wider
+ * `stand.ELBOW` and the digits in the relaxed shape; wider bodies need wider
  * hanging arms. The depth is measured before any digit clearing changes
  * that shape. Bisection ends at the engine's joint-angle resolution.
  *
@@ -71,7 +71,7 @@ export function standRelaxed(
     for (const side of ["left", "right"] as const) {
       Object.assign(out, fingers[side]);
       out[`${side}UpperArm`] = [0, abduction, 0];
-      out[`${side}LowerArm`] = [12, 0, 0];
+      out[`${side}LowerArm`] = [stand.ELBOW, 0, 0];
     }
     return out;
   };
