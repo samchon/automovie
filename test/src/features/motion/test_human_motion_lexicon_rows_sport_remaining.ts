@@ -122,17 +122,24 @@ export function test_human_motion_lexicon_rows_sport_remaining(): void {
             bones.get("leftUpperLeg")!.worldPosition,
             knee,
           );
-          const brace: IAutoMovieVector3 = HumanHand.frame(
+          const brace: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
             body,
             bones,
             "left",
             "palm",
             "flat",
-          ).point;
-          const along: number = Vector3.dot(
-            Vector3.subtract(brace, knee),
-            Vector3.normalize(femur),
           );
+          const axis: IAutoMovieVector3 = Vector3.normalize(femur);
+          const offset: IAutoMovieVector3 = Vector3.subtract(brace.point, knee);
+          const along: number = Vector3.dot(offset, axis);
+          const radial: IAutoMovieVector3 = Vector3.subtract(
+            offset,
+            Vector3.scale(axis, along),
+          );
+          if (!(Vector3.dot(brace.normal, radial) < 0))
+            complaints.push(
+              name + " toe touch support palm faces away from its thigh",
+            );
           if (
             !(
               along >= body.measure.hand / 2 - 0.01 &&

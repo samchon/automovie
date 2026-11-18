@@ -2,8 +2,10 @@ import {
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
@@ -13,6 +15,7 @@ import type {
   IAutoMovieMotionMeeting,
   IAutoMovieMotionMeetingKind,
   IAutoMovieMotionMeetingRole,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -166,35 +169,50 @@ export function test_human_motion_coupled_meeting(): void {
           `${cell}: the borne ${w.part} window bears on ${JSON.stringify(w.support)}, the bearer a expected`,
           w.support.kind === "person" && w.support.subject === "a",
         );
-      for (const contact of bearing) {
-        let worst: number = 0;
-        let slip: number = 0;
-        let first: IAutoMovieVector3 | null = null;
-        for (const t of times) {
-          const mine: IAutoMovieVector3 = HumanSignature.region(
-            borne,
-            contact.region,
-            t,
-          );
-          const theirs: IAutoMovieVector3 = HumanSignature.region(
-            bearer,
-            contact.on.region,
-            t,
-          );
-          worst = Math.max(
-            worst,
+      // Every attached site at a film second observes the same two displayed skeletons.
+      const observations: ContactDrift[] = bearing.map(
+        (contact: IAutoMovieMotionCoupling.IContact): ContactDrift => ({
+          contact,
+          first: null,
+          worst: 0,
+          slip: 0,
+        }),
+      );
+      for (const t of times) {
+        const carriedBones: ReturnType<typeof HumanSignature.bones> =
+          HumanSignature.bones(borne, t);
+        const carrierBones: ReturnType<typeof HumanSignature.bones> =
+          HumanSignature.bones(bearer, t);
+        for (const observation of observations) {
+          const { contact }: ContactDrift = observation;
+          const site: IAutoMovieHumanoidSurfaces.IFrame =
+            walked.bodies.b.surfaces.regions[contact.region];
+          const on: IAutoMovieHumanoidSurfaces.IFrame =
+            walked.bodies.a.surfaces.regions[contact.on.region];
+          const bone: IAutoMovieResolvedBone = carrierBones.get(on.bone)!;
+          const mine: IAutoMovieVector3 =
+            resolveAutoMovieHumanoidSurfaces.place(
+              site,
+              carriedBones.get(site.bone)!,
+            ).point;
+          const theirs: IAutoMovieVector3 =
+            resolveAutoMovieHumanoidSurfaces.place(on, bone).point;
+          observation.worst = Math.max(
+            observation.worst,
             Vector3.length(Vector3.subtract(mine, theirs)),
           );
-          const bone = HumanSignature.bones(bearer, t).get(
-            walked.bodies.a.surfaces.regions[contact.on.region].bone,
-          )!;
           const local: IAutoMovieVector3 = Quaternion.rotateVector(
             Quaternion.inverse(bone.worldRotation),
             Vector3.subtract(mine, bone.worldPosition),
           );
-          first ??= local;
-          slip = Math.max(slip, Vector3.length(Vector3.subtract(local, first)));
+          observation.first ??= local;
+          observation.slip = Math.max(
+            observation.slip,
+            Vector3.length(Vector3.subtract(local, observation.first)),
+          );
         }
+      }
+      for (const { contact, worst, slip } of observations) {
         all.check(
           `${cell}, walking: the borne ${contact.region} is up to ${(worst * 1000).toFixed(1)} mm from the bearer's ${contact.on.region}, ${CONTACT * 1000} mm at most expected`,
           worst <= CONTACT,
@@ -490,4 +508,16 @@ export function test_human_motion_coupled_meeting(): void {
         ),
   );
   all.assert("a coupled carry bears the borne body on the bearer");
+}
+
+/** Maximum separation and slip measured for one bearing contact over its sampled hold. */
+interface ContactDrift {
+  /** Two anatomical sites scheduled to meet. */
+  contact: IAutoMovieMotionCoupling.IContact;
+  /** The carried site in the carrier bone's coordinates at the first sample. */
+  first: IAutoMovieVector3 | null;
+  /** Greatest world-space separation in metres. */
+  worst: number;
+  /** Greatest displacement from the first bone-local site in metres. */
+  slip: number;
 }
