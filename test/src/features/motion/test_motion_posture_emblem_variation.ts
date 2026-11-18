@@ -1,10 +1,18 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanEmblem, HumanPerformance, HumanSkill } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanEmblem,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSkill,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,26 +47,106 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_motion_posture_emblem_variation(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
+  for (const [row, sign] of [
+    ["thumbsUp", 1],
+    ["thumbsDown", -1],
+  ] as const) {
+    try {
+      const show = new HumanPerformance({
+        seed: "thumb direction",
+        laws: [HumanEmblem[row]],
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("a").registered(row, {}).node,
+      });
+      const seg = show.segments("a")[0]!;
+      const at = (event: string): number =>
+        seg.start +
+        seg.plan.duration *
+          (seg.plan.events.find((e) => e.name === event)?.share ?? NaN);
+      const bones = show.bones("a", (at("strokeStart") + at("strokeEnd")) / 2);
+      const dir: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(
+          bones.get("rightThumbDistal")!.worldPosition,
+          bones.get("rightThumbProximal")!.worldPosition,
+        ),
+      );
+      if (sign * dir.y < Math.cos(Math.PI / 6))
+        complaints.push(row + " thumb vertical fraction " + dir.y);
+      const folded: number = Vector3.distance(
+        bones.get("rightIndexDistal")!.worldPosition,
+        bones.get("rightHand")!.worldPosition,
+      );
+      if (folded >= 0.7 * body.measure.hand)
+        complaints.push(row + " leaves the forefinger extended " + folded);
+    } catch (error) {
+      complaints.push(row + ": " + String(error));
+    }
+  }
+  try {
+    new HumanPerformance({
+      seed: "undefined digit",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").act("gesture", {
+        kind: "stopPalm",
+        aim: { digit: "thumb", toward: "up" },
+      }).node,
+    });
+    complaints.push("a digit direction without a hand shape was accepted");
+  } catch (error) {
+    if (!(error instanceof HumanRefusal && error.axis === "aim"))
+      complaints.push(String(error));
+  }
 
   // Resolve the one standing entry once. Each seed still receives its own
   // public skill and independent named random streams, as at action entry.
   const initial: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-    seed:"plain", laws:[HumanEmblem.halt],
-    performers:[{subject:"a",body,at:{x:0,y:0,z:0},yaw:0,proficiency:{level:"trained"}}],
-    composition: HumanChain.subject("a").registered("halt",{}).node,
+    seed: "plain",
+    laws: [HumanEmblem.halt],
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").registered("halt", {}).node,
   });
   const entry: IAutoMovieMotionHumanSegment = initial.segments("a")[0]!;
   const read = (seed: string, variation: number): [number, number] => {
-    const skill = HumanSkill.resolve({level:"trained"},seed);
+    const skill = HumanSkill.resolve({ level: "trained" }, seed);
     const plan: IAutoMovieMotionHumanActionPlan = HumanEmblem.halt.plan({
       ...entry.context,
-      params: HumanEmblem.halt.resolve!(variation===0 ? {} : {manner:{variation}}),
+      params: HumanEmblem.halt.resolve!(
+        variation === 0 ? {} : { manner: { variation } },
+      ),
       skill,
-      random: channel => HumanSkill.stream(skill,"a","halt",1,channel),
-      series: channel => ({random:HumanSkill.series(skill,"a","halt",channel),index:1}),
+      random: (channel) => HumanSkill.stream(skill, "a", "halt", 1, channel),
+      series: (channel) => ({
+        random: HumanSkill.series(skill, "a", "halt", channel),
+        index: 1,
+      }),
     });
-    const at = (event:string): number => (plan.events.find(e=>e.name===event)?.share ?? NaN)*plan.duration;
-    return [at("strokeStart"),at("strokeEnd")-at("strokeStart")];
+    const at = (event: string): number =>
+      (plan.events.find((e) => e.name === event)?.share ?? NaN) * plan.duration;
+    return [at("strokeStart"), at("strokeEnd") - at("strokeStart")];
   };
   const [named, stroke] = read("plain", 0);
   const prepared: number[] = [];
@@ -96,9 +184,5 @@ export function test_motion_posture_emblem_variation(): void {
     complaints.push(
       `${distinct} of ${prepared.length} preparations are distinct, at least 190 expected`,
     );
-  TestValidator.equals(
-    "stroke duration and seed dispersion",
-    complaints,
-    [],
-  );
+  TestValidator.equals("stroke duration and seed dispersion", complaints, []);
 }
