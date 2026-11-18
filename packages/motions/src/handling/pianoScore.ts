@@ -315,7 +315,8 @@ function plan(
     }
   }
   return {
-    ...base,
+    duration,
+    contacts: base.contacts,
     events: notes
       .flatMap(
         (

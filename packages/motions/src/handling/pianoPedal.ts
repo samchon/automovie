@@ -288,7 +288,7 @@ function plan(
   }
 
   return {
-    ...base,
+    duration,
     base: entry.base,
     channels: ["rightLeg"],
     contacts: [
@@ -378,12 +378,13 @@ function travel(presses: readonly Press[], seconds: number): number {
   }
   const press: Press | undefined = presses[lo];
   if (press === undefined || seconds <= press.from) return 0;
-  if (seconds < press.at)
-    return minimumJerk((seconds - press.from) / (press.at - press.from)).s;
-  if (seconds <= press.release) return 1;
-  return (
-    1 - minimumJerk((seconds - press.release) / (press.to - press.release)).s
-  );
+  if (seconds >= press.at && seconds <= press.release) return 1;
+  // Read the release from its remaining fraction to keep travel nonnegative.
+  const share: number =
+    seconds < press.at
+      ? (seconds - press.from) / (press.at - press.from)
+      : (press.to - seconds) / (press.to - press.release);
+  return Math.min(1, minimumJerk.share(share));
 }
 
 /** Report a placement or clock the author can correct. */

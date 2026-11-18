@@ -46,7 +46,7 @@ export function test_human_motion_piano_pedal(): void {
   const pivot: IAutoMovieVector3 = hinge.frame.translation;
   const radius: number = pedal.frame.translation.z - pivot.z;
   const front: number = archetypeExtent(piano, "z", ["case"]).high;
-  const stance: number = front + body.measure.footLength + 0.025;
+  const stance: number = front + body.measure.footLength + 0.095;
   const bench: ReturnType<typeof createSeat> = createSeat(
     { kind: "bench", places: 1 },
     2,
@@ -56,7 +56,7 @@ export function test_human_motion_piano_pedal(): void {
     { at: { x: 0, y: 0, z: 0 }, yaw: 180 },
   );
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bench, {
-    at: { x: 0, y: 0, z: stance + 0.15 - benchFrame.at.z },
+    at: { x: 0, y: 0, z: stance - benchFrame.at.z },
     yaw: 180,
   });
   const params: IAutoMovieMotionHumanPianoPedal = {

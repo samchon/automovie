@@ -82,7 +82,7 @@ export function test_human_motion_piano_performance(): void {
   };
   const floor: number = 0;
   const caseFront: number = archetypeExtent(piano, "z", ["case"]).high;
-  const stanceZ: number = caseFront + body.measure.footLength + 0.025;
+  const stanceZ: number = caseFront + body.measure.footLength + 0.095;
   const bench: ReturnType<typeof createSeat> = createSeat(
     { kind: "bench", places: 1 },
     2,
@@ -95,7 +95,7 @@ export function test_human_motion_piano_performance(): void {
     },
   );
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bench, {
-    at: { x: 0, y: floor, z: stanceZ + 0.15 - benchFrame.at.z },
+    at: { x: 0, y: floor, z: stanceZ - benchFrame.at.z },
     yaw: 180,
   });
   /** Place either phrase at the same bench on the same floor. */

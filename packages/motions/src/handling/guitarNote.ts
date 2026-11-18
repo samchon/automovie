@@ -169,7 +169,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 
   return {
-    ...base,
+    duration,
+    contacts: base.contacts,
+    hands: ["left", "right"],
     contact: pluckAt,
     events: [
       { name: "stop", share: stopAt / duration },
