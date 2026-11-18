@@ -15,6 +15,7 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanSegmentStill } from "./HumanSegmentStill";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a
@@ -47,6 +48,7 @@ export namespace HumanPropSweep {
    * @param horizon Seconds after its zero the film still runs.
    * @param leave A collider's id to leave out: the body a pass goes through.
    * @param departing A separately resolved bounce collider; only the engine's supported physical departure certificate can defer its initial contact, never its later entry.
+   * @param prepared Whether the placed native providers were admitted by preparation.
    * @returns The first meeting, or null when it meets nothing before the horizon.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, separate resolved-bounce opt-in, physical certificate scope, first meeting and finite-horizon sweep.
@@ -54,7 +56,7 @@ export namespace HumanPropSweep {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns performance-to-collider projection and target identity; closest geometry, departure proof, scan and TOI bisections remain with their owning engine modules.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no bounce blacklist, time epsilon or fabricated gap. The existing policy omits every prop with any published launch and ignores finger thickness; the stature rejection assumes the body fits that bound, and the scan's stated thin-contact blind spot remains.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses shared performance posture/bone readers, physicalShapeNearest and the engine flight/contact owners, while rebuilding local collider closures for the current sweep instead of caching mutable poses.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each moving person keeps fixed FK prerequisites only. A native sweep can reuse a person's fixed geometry when the display certifies the whole interval, or a prop's unchanged frame when it has no launches, holds or motion provider. The sweep constructs full contact witnesses only for the chosen impact.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history, host or new cache.
    */
   export function sweep(
@@ -66,6 +68,7 @@ export namespace HumanPropSweep {
     horizon: number,
     leave: string | undefined,
     departing?: string,
+    prepared: boolean = false,
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
@@ -77,37 +80,63 @@ export namespace HumanPropSweep {
     for (const person of self.people.values()) {
       const subject: string = person.performer.subject;
       if (subject === launcher || `person:${subject}` === leave) continue;
-      const reach: number = person.performer.body.measure.stature;
+      const body: typeof person.performer.body = person.performer.body;
+      const reach: number = body.measure.stature;
+      const bones: ReturnType<typeof HumanPerformanceRead.prepareBones> =
+        HumanPerformanceRead.prepareBones(self, subject);
+      const still: boolean =
+        prepared &&
+        HumanSegmentStill.within(person, seconds, seconds + horizon);
+      let fixedRoot: IAutoMovieVector3 | undefined;
+      let fixedGeometry: ReturnType<typeof HumanColliders.reading> | undefined;
+      /** The original root-based rejection, with its centre for a full witness. */
+      const frame = (t: number): IAutoMovieVector3 =>
+        still
+          ? (fixedRoot ??= HumanPerformanceRead.posture(
+              self,
+              subject,
+              seconds + t,
+            ).root)
+          : HumanPerformanceRead.posture(self, subject, seconds + t).root;
+      /** The original signed lower bound before querying the collider union. */
+      const distanceFromRoot = (
+        a: IAutoMovieVector3,
+        b: IAutoMovieVector3,
+        root: IAutoMovieVector3,
+      ): number =>
+        Math.min(
+          Vector3.length(Vector3.subtract(a, root)),
+          Vector3.length(Vector3.subtract(b, root)),
+        ) - reach;
       colliders.push({
         id: `person:${subject}`,
+        distance: (a, b, t): number => {
+          const bound: number = distanceFromRoot(a, b, frame(t));
+          if (bound > 0) return bound;
+          if (!still)
+            return HumanColliders.distanceToSegment(
+              body,
+              bones(seconds + t),
+              a,
+              b,
+            ).distance;
+          fixedGeometry ??= HumanColliders.reading(body, bones(seconds + t));
+          return fixedGeometry.segment(a, b).distance;
+        },
         nearest: (
           a: IAutoMovieVector3,
           b: IAutoMovieVector3,
           t: number,
         ): IAutoMovieProjectileFirstContact.INearest => {
-          const at: number = seconds + t;
-          const root: IAutoMovieVector3 = HumanPerformanceRead.posture(
-            self,
-            subject,
-            at,
-          ).root;
-          const bound: number =
-            Math.min(
-              Vector3.length(Vector3.subtract(a, root)),
-              Vector3.length(Vector3.subtract(b, root)),
-            ) - reach;
+          const root: IAutoMovieVector3 = frame(t);
+          const bound: number = distanceFromRoot(a, b, root);
           if (bound > 0)
             return {
               distance: bound,
               point: root,
               normal: { x: 0, y: 1, z: 0 },
             };
-          const near = HumanColliders.nearest(
-            person.performer.body,
-            HumanPerformanceRead.bones(self, subject, at),
-            a,
-            b,
-          );
+          const near = HumanColliders.nearest(body, bones(seconds + t), a, b);
           return {
             distance: near.distance,
             point: near.point,
@@ -127,20 +156,30 @@ export namespace HumanPropSweep {
       // on the gun's own shape, and read as a collider the gun held the
       // sweep's step at the muzzle's zero gap, each step a fresh read of
       // the shooter's displayed pose (firearm_shot_launch ran 7 minutes).
-      if (carried(self, other.subject, launcher, seconds)) continue;
-      other.shapes.forEach((shape: IAutoMoviePhysicalShape, k: number): void => {
-        const id: string = `prop:${other.subject}:${k}`;
-        if (id === leave) return;
-        solid.push(shape);
-        colliders.push(
-          projectileFirstContact.shape(
-            id,
-            shape,
-            (t: number): IAutoMovieRigidTransform =>
-              HumanPerformanceRead.prop(self, other.subject, seconds + t),
-          ),
-        );
-      });
+      const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] =
+        HumanPerformanceRead.grips(self, other.subject);
+      if (
+        grips.some(
+          (g): boolean =>
+            g.subject === launcher &&
+            g.from <= seconds &&
+            g.to >= seconds - 1e-6,
+        )
+      )
+        continue;
+      const pose: Parameters<typeof projectileFirstContact.shape>[2] =
+        prepared && grips.length === 0 && other.motion === undefined
+          ? other.frame
+          : (t: number): IAutoMovieRigidTransform =>
+              HumanPerformanceRead.prop(self, other.subject, seconds + t);
+      other.shapes.forEach(
+        (shape: IAutoMoviePhysicalShape, k: number): void => {
+          const id: string = `prop:${other.subject}:${k}`;
+          if (id === leave) return;
+          solid.push(shape);
+          colliders.push(projectileFirstContact.shape(id, shape, pose));
+        },
+      );
     }
     const tip: IAutoMovieVector3 | undefined = prop.points["tip"]?.point;
     const hit: IAutoMovieHit | null = projectileFirstContact(
@@ -157,7 +196,9 @@ export namespace HumanPropSweep {
     if (hit === null) return null;
     const id: string = hit.collider!;
     const at: number = seconds + hit.time;
-    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith("person:")
+    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith(
+      "person:",
+    )
       ? {
           kind: "person",
           subject: id.slice("person:".length),
@@ -178,21 +219,11 @@ export namespace HumanPropSweep {
     return { hit, struck, collider: id };
   }
 
-  /** Whether a person holds or wears a prop at a film second. */
-  function carried(
+  /** Whether any action launches a prop. */
+  function launched(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-    person: string,
-    seconds: number,
   ): boolean {
-    return HumanPerformanceRead.grips(self, subject).some(
-      (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-        g.subject === person && g.from <= seconds && g.to >= seconds - 1e-6,
-    );
-  }
-
-  /** Whether any action launches a prop. */
-  function launched(self: IAutoMovieMotionHumanPerformanceState, subject: string): boolean {
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
         if (

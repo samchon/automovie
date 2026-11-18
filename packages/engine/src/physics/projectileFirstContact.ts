@@ -14,6 +14,7 @@ import { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieCo
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeNearest } from "./physicalShapeNearest";
+import { physicalShapeSegmentDistance } from "./physicalShapeSegmentDistance";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
 import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
@@ -38,7 +39,9 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * plus a spinning tail's turning speed. A collider thinner than `thickness`
  * can be crossed within one step: the stated blind spot, as the resolver
  * states its own. The point and the normal are the struck collider's
- * nearest-point reading against the projectile at the contact second.
+ * nearest-point reading against the projectile at the contact second. The
+ * scan reads only signed separation and can defer the surface witness when
+ * the collider supplies an equivalent scalar reader.
  *
  * Initial touch or penetration is reported by default. After resolving that
  * episode, `departing` names its collider. A fixed plane can then classify
@@ -59,8 +62,8 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * @evidence contracts/development/implementation.md#principled-implementation Continuous collision detection by the resolver's conservative scan and bisection, with the step bounded by the largest point speed so no collider of the stated thickness is stepped over.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, bound the speed, sweep with the one resolver, read the contact's point and normal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode.
- * @evidence contracts/development/implementation.md#efficient-algorithms One nearest-point reading per eligible collider per scan step and bisection. An initially contacting collider may additionally classify departure once; the fixed plane probes actual normal clearance until a witness or representable-time exhaustion. This adds model work without changing the scan's thickness bound or blind spot.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver's sweep, `physicalShapeNearest` for shapes and `projectileAt`'s memoised flight.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One signed separation per eligible pair and scan question. A scalar collider needs no point/normal until the chosen hit. Initial departure retains its existing clearance verification.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One sampled state supplies both weapon endpoints; plane and shape scalar and full queries use the same distance equations, with the unchanged fixed shape frame prepared within a collider's lifetime.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the flight's own memo.
  */
 export function projectileFirstContact(
@@ -151,6 +154,15 @@ export function projectileFirstContact(
           radius: options.radius,
           position: (seconds: number): IAutoMovieVector3 =>
             projectileAt(projectile, seconds).position,
+          sample: (
+            seconds: number,
+          ): IAutoMovieResolveContactEvents.IWeaponFrame => {
+            const state: IAutoMovieProjectileState = projectileAt(
+              projectile,
+              seconds,
+            );
+            return { position: state.position, tail: tail(state) };
+          },
           ...(options.tail === undefined
             ? {}
             : {
@@ -165,15 +177,23 @@ export function projectileFirstContact(
         ): IAutoMovieResolveContactEvents.IBody => {
           const departure: IAutoMovieProjectileFirstContact.ICollider["departure"] =
             c.departure;
+          const scalar: IAutoMovieProjectileFirstContact.ICollider["distance"] =
+            c.distance;
+          const distance: NonNullable<
+            IAutoMovieProjectileFirstContact.ICollider["distance"]
+          > =
+            scalar === undefined
+              ? (a, b, seconds): number => c.nearest(a, b, seconds).distance
+              : scalar.bind(c);
           return {
             id: c.id,
             distance: (point: IAutoMovieVector3, seconds: number): number =>
-              c.nearest(point, point, seconds).distance,
+              distance(point, point, seconds),
             axis: (
               a: IAutoMovieVector3,
               b: IAutoMovieVector3,
               seconds: number,
-            ): number => c.nearest(a, b, seconds).distance,
+            ): number => distance(a, b, seconds),
             ...(departure === undefined
               ? {}
               : {
@@ -232,8 +252,12 @@ export namespace projectileFirstContact {
     normal: IAutoMovieVector3,
   ): IAutoMovieProjectileFirstContact.ICollider {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
+    /** The signed plane height of one endpoint. */
+    const height = (endpoint: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.subtract(endpoint, point), n);
     return {
       id,
+      distance: (a, b): number => Math.min(height(a), height(b)),
       departure: (
         projectile: IAutoMovieProjectile,
         options: IAutoMovieProjectileFirstContact.IOptions,
@@ -244,8 +268,8 @@ export namespace projectileFirstContact {
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
       ): IAutoMovieProjectileFirstContact.INearest => {
-        const da: number = Vector3.dot(Vector3.subtract(a, point), n);
-        const db: number = Vector3.dot(Vector3.subtract(b, point), n);
+        const da: number = height(a);
+        const db: number = height(b);
         const low: IAutoMovieVector3 = da <= db ? a : b;
         const d: number = Math.min(da, db);
         return {
@@ -263,23 +287,35 @@ export namespace projectileFirstContact {
    *
    * @param id The collider's id.
    * @param shape The shape, in its parent's frame.
-   * @param pose The parent's world pose at a second since the launch.
+   * @param pose An unchanged world pose, or the parent's world pose reader in launch seconds.
    * @returns The collider.
    */
   export function shape(
     id: string,
     shape: IAutoMoviePhysicalShape,
-    pose: (seconds: number) => IAutoMovieRigidTransform,
+    pose:
+      | IAutoMovieRigidTransform
+      | ((seconds: number) => IAutoMovieRigidTransform),
   ): IAutoMovieProjectileFirstContact.ICollider {
+    const read =
+      typeof pose === "function" ? pose : (): IAutoMovieRigidTransform => pose;
+    const fixed =
+      typeof pose === "function"
+        ? undefined
+        : physicalShapeSegmentDistance.prepare(pose, shape);
     return {
       id,
+      distance: (a, b, seconds): number =>
+        fixed === undefined
+          ? physicalShapeSegmentDistance(read(seconds), shape, a, b)
+          : fixed(a, b),
       nearest: (
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
         seconds: number,
       ): IAutoMovieProjectileFirstContact.INearest => {
         const near: IAutoMoviePhysicalShapeNearest.IResult =
-          physicalShapeNearest(pose(seconds), shape, a, b);
+          physicalShapeNearest(read(seconds), shape, a, b);
         return {
           distance: near.distance,
           point: near.point,

@@ -3,6 +3,8 @@ import { AutoMovieGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -13,13 +15,13 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
 
 /**
  * Letting go (#3479's `release`): a held prop leaves the opening hand with
  * the hand's velocity, falls and rests on the floor.
  *
- * Scenarios, the average man and the small woman, each picking up a mug
- * from a table, then releasing it standing:
+ * The average man picks up a mug from a table, then releases it standing.
  * 1. The release publishes one launch of the mug at its `open` instant, the
  *    decisive instant.
  * 2. The mug falls from where it was at the opening: its fall time to the
@@ -32,19 +34,47 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. Release the mug and compare its free-flight trajectory and landing with independently measured initial conditions.
+ * 2. An externally moving collider stays demand-driven. Reading the flight observes the provider and the same ground contact.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Releases a real mug through the public chain and reads its flight and displayed frame; a prop left in the air, one that falls too fast or too slow, or an empty hand released silently fails.
  * @evidence contracts/development/testing.md#independent-expectations The fall time is free fall's, written here with the engine's standard gravity; the 2 ms and 1 mm are #3479's bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; a held prop and an empty hand.
- * @evidence contracts/development/testing.md#execution-ownership Builds three performances in memory.
+ * @evidence contracts/development/testing.md#distinguishing-cases A held prop with and without a distant opaque collider, and an empty hand.
+ * @evidence contracts/development/testing.md#execution-ownership Builds three performances in memory. The opaque collider counts its own frame calls.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_motion_contact_prop_trajectory(): void {
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "mug",
   });
-  for (const name of ["m-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  let native: IAutoMovieMotionHumanPropFlight.IFlight | undefined;
+  for (const opaque of [false, true]) {
+    const name: string = opaque ? "opaque target path" : "native target path";
+    let observed: number = 0;
+    const distant: IAutoMovieMotionHumanProp = {
+      subject: "distant",
+      frame: {
+        position: { x: 6, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+      },
+      points: {},
+      shapes: [
+        {
+          id: "sphere",
+          material: "solid",
+          kind: "sphere",
+          transform: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+          },
+          radius: 0.2,
+        },
+      ],
+      motion: (t) => {
+        observed++;
+        return { ...distant.frame, position: { x: 6 + t, y: 0, z: 0 } };
+      },
+    };
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
@@ -54,6 +84,7 @@ export function test_motion_contact_prop_trajectory(): void {
             at: { x: -0.25, y: 0.9, z: 0.35 },
             yaw: 0,
           }),
+          ...(opaque ? [distant] : []),
         ],
         performers: [
           {
@@ -76,6 +107,12 @@ export function test_motion_contact_prop_trajectory(): void {
       );
       continue;
     }
+    if (opaque)
+      TestValidator.equals(
+        "an opaque collider is unread during placement",
+        observed,
+        0,
+      );
     const opening = performance.overlays("a")[0];
     const launches = opening?.plan.launches ?? [];
     TestValidator.predicate(
@@ -86,10 +123,25 @@ export function test_motion_contact_prop_trajectory(): void {
         Math.abs(launches[0]!.seconds - (opening.plan.contact ?? NaN)) <= 1e-12,
     );
     const flight = performance.flights("mug")[0];
+    if (opaque)
+      TestValidator.predicate(
+        "the contact sweep observes the opaque collider",
+        observed > 0,
+      );
     if (flight === undefined) {
       TestValidator.predicate(`${name}: the mug flies`, false);
       continue;
     }
+    if (opaque)
+      TestValidator.predicate(
+        "a distant provider preserves the released mug's ground contact",
+        native !== undefined &&
+          native.contact?.struck.kind === "ground" &&
+          flight.contact?.struck.kind === "ground" &&
+          nclose(flight.launch, native.launch, 1e-12) &&
+          nclose(flight.end, native.end, 1e-6),
+      );
+    else native = flight;
     const h: number = flight.projectile.origin.y;
     const fall: number = flight.end - flight.launch;
     TestValidator.predicate(

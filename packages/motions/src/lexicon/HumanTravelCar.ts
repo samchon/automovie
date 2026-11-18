@@ -9,12 +9,14 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanTravelCar,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -145,10 +147,15 @@ export namespace HumanTravelCar {
       const end: IAutoMovieMotionHumanPosture = down.posture(sat);
       const turn: number = ((((seat.yaw - outward) % 360) + 540) % 360) - 180;
       const pivot: IAutoMovieVector3 = { ...centre, y: seat.at.y };
+      const seatedFrame: IAutoMovieRigidTransform = {
+        position: pivot,
+        rotation: HumanFrame.turn(0),
+      };
+      /** Move the actual seated endpoint around the fixed seat pivot. */
       const swung = (u: number): IAutoMovieMotionHumanPosture =>
         carryHumanPosture(
           end,
-          { position: pivot, rotation: HumanFrame.turn(0) },
+          seatedFrame,
           {
             position: pivot,
             rotation: HumanFrame.turn(turn * minimumJerk.share(Math.min(1, u))),
@@ -286,7 +293,7 @@ export namespace HumanTravelCar {
             ? { ...c, from: share(c.from), to: 1 }
             : { ...c, from: share(c.from), to: share(c.to) },
       );
-      return {
+      const plan: IAutoMovieMotionHumanActionPlan = {
         duration,
         events,
         contacts,
@@ -305,6 +312,20 @@ export namespace HumanTravelCar {
           );
         },
       };
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [
+          {
+            from: sat,
+            to: duration,
+            sample: (t: number): HumanPreparedPlayback.ISample | undefined =>
+              t > sat
+                ? { posture: ducked(swung((t - sat) / SWING), duck(t)) }
+                : undefined,
+          },
+        ],
+      });
+      return plan;
     },
   };
 }

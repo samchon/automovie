@@ -46,6 +46,17 @@ export namespace IAutoMovieProjectileFirstContact {
     /** Unique id among the colliders. */
     id: string;
 
+    /**
+     * Signed separation for the same segment and instant as nearest, in metres.
+     * When supplied, this must return exactly nearest's distance. The sweep
+     * can then defer constructing the surface point and normal until impact.
+     */
+    distance?(
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      seconds: number,
+    ): number;
+
     /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.

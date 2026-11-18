@@ -18,6 +18,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -394,34 +395,97 @@ export namespace HumanTravelLeaf {
           support: { kind: "prop", subject: context.params.door },
         },
       ];
-      return {
+      // The grip's digits reach their material closure at TAKE. The arm
+        // still follows the actual handle on every observation after it.
+      const clasped: IAutoMovieMotionHumanPosture["joints"] =
+        HumanMountRider.hold(
+          body,
+          side,
+          start,
+          { ...taken, across },
+          1,
+          closed,
+        ).fingers;
+      const bare: IAutoMovieMotionHumanPosture["joints"] = {};
+      /** Read the body and handle on the action clock, with optional closed digits. */
+      const write = (
+        at: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<
+          IAutoMovieMotionHumanActionPlan["posture"]
+        >[2],
+        projection?: Parameters<
+          IAutoMovieMotionHumanActionPlan["posture"]
+        >[3],
+        fingers?: IAutoMovieMotionHumanPosture["joints"],
+      ): IAutoMovieMotionHumanPosture => {
+        const heldDemand: boolean =
+          channels === undefined ||
+          channels.includes(`${side}Arm`) ||
+          channels.includes(`${side}Hand`);
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        const posture: IAutoMovieMotionHumanPosture = shown(
+          at,
+          heldDemand ? undefined : channels,
+          read,
+          projection,
+        );
+        if (!heldDemand) return posture;
+        const held: ReturnType<typeof HumanMountRider.hold> =
+          HumanMountRider.hold(
+            body,
+            side,
+            posture,
+            grip(context.start + at),
+            fingers === undefined
+              ? minimumJerk.share(Math.min(1, at / TAKE))
+              : 1,
+            fingers === undefined ? closed : bare,
+            read,
+            projection,
+          );
+        return {
+          ...posture,
+          joints: { ...posture.joints, ...(fingers ?? held.fingers) },
+          limbs: { ...posture.limbs, [`${side}Arm`]: held.arm },
+        };
+      };
+      const plan: IAutoMovieMotionHumanActionPlan = {
         ...standing,
         events: [{ name: "taken", share: TAKE / seconds }],
         contacts,
-        posture: (t: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-          const at: number = Math.min(seconds, Math.max(0, t));
-          const heldDemand: boolean = channels === undefined || channels.includes(`${side}Arm`) || channels.includes(`${side}Hand`);
-          const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-          const posture: IAutoMovieMotionHumanPosture = shown(at, heldDemand ? undefined : channels, read, projection);
-          if (!heldDemand) return posture;
-          const held: ReturnType<typeof HumanMountRider.hold> =
-            HumanMountRider.hold(
-              body,
-              side,
-              posture,
-              grip(context.start + at),
-              minimumJerk.share(Math.min(1, at / TAKE)),
-              closed,
-              read,
-              projection,
-            );
-          return {
-            ...posture,
-            joints: { ...posture.joints, ...held.fingers },
-            limbs: { ...posture.limbs, [`${side}Arm`]: held.arm },
-          };
-        },
+        posture: (
+          t,
+          channels,
+          resolution,
+          projection,
+        ): IAutoMovieMotionHumanPosture =>
+          write(
+            Math.min(seconds, Math.max(0, t)),
+            channels,
+            resolution,
+            projection,
+          ),
       };
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [
+          {
+            from: TAKE,
+            to: seconds,
+            sample: (
+              t,
+              channels,
+              resolution,
+              projection,
+            ): HumanPreparedPlayback.ISample => ({
+              posture: write(t, channels, resolution, projection, clasped),
+            }),
+          },
+        ],
+      });
+      return plan;
     },
   };
 }

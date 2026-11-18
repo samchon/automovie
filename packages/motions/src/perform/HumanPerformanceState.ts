@@ -46,6 +46,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
+import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -399,6 +400,7 @@ export class HumanPerformanceState {
     // Every action ends where it is placed, so the props' drives are known.
     HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
+    HumanPropFlight.prepare(this);
     for (const person of this.people.values()) {
       for (const segment of person.segments)
         HumanPreparedPlayback.prepare(segment.plan);
