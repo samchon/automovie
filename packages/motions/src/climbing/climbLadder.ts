@@ -38,11 +38,6 @@ import { climbLadderHands } from "./climbLadderHands";
 /** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
 const GRIP_DROP: number = 0.5;
 
-/** How far a swinging foot moves back off the rungs at mid-swing, in `CLEARANCE`s (provisional). */
-const BACK_OFF: number = 2;
-
-/** How far a moving hand draws back off the rungs at mid-move, metres (provisional). */
-const HAND_BACK: number = 0.08;
 
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the
@@ -230,6 +225,24 @@ export namespace climbLadder {
     const directional: HumanFrame.IPrepared = HumanFrame.prepare(direction);
     const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
     const handGoal: ReturnType<typeof climbLadderHands> = climbLadderHands(body, normal);
+
+    // How far a moving limb backs off the rungs at mid-move, read from the
+    // body and the ladder. A foot standing on its ball has its toe ahead of
+    // the rung by the toe's reach past the ball; backed off by that reach,
+    // the rung's radius and `CLEARANCE`, its toe passes the rung above
+    // `CLEARANCE` clear. A gripping hand's fingers wrap the rung to its far
+    // side; backed off by the rung's diameter and `CLEARANCE`, they open
+    // past it.
+    const toeReach: (side: "left" | "right") => number = (
+      side: "left" | "right",
+    ): number =>
+      HumanFoot.offset(body, side, "toe").z -
+      HumanFoot.offset(body, side, "ball").z;
+    const footBack: Record<"left" | "right", number> = {
+      left: toeReach("left") + ladder.radius + CLEARANCE,
+      right: toeReach("right") + ladder.radius + CLEARANCE,
+    };
+    const handBack: number = 2 * ladder.radius + CLEARANCE;
     const rootAlong: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: 0, y: 0, z: ladder.ahead - BACK * (m.thigh + m.shank),
     });
@@ -332,7 +345,7 @@ export namespace climbLadder {
                       {
                         x: 0,
                         y: 0,
-                        z: -BACK_OFF * CLEARANCE * Math.sin(Math.PI * at.u),
+                        z: -footBack[side] * Math.sin(Math.PI * at.u),
                       },
                     ),
                   ),
@@ -370,7 +383,7 @@ export namespace climbLadder {
             ? Vector3.add(
                 grip,
                 directional.point(
-                  { x: 0, y: 0, z: -HAND_BACK * Math.sin(Math.PI * at.u) },
+                  { x: 0, y: 0, z: -handBack * Math.sin(Math.PI * at.u) },
                 ),
               )
             : grip;

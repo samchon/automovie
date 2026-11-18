@@ -17,6 +17,7 @@ import type {
 
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { walkRoot } from "./walkRoot";
 
 /**
  * The upright alignment of a body's quiet stance, solved from the body's own
@@ -176,7 +177,7 @@ export namespace standUpright {
     const ahead: number =
       resolveAutoMovieCenterOfMass.place(model, aligned).z -
       mid(aligned, "leftFoot", "rightFoot").z;
-    return { joints, lean: 0.04 * (body.measure.hipHeight / 0.93) - ahead };
+    return { joints, lean: 0.04 * (body.measure.hipHeight / walkRoot.REFERENCE_HIP) - ahead };
   }
 
   /** The head joint, at the atlanto-occipital joint near the ear's height, standing for the ear. */
