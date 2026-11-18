@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -74,7 +74,7 @@ export namespace seatedHands {
    * caller-eased share, clamped by the endpoint branches at zero and one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two endpoints and the caller's eased progress convention.
-   * @evidence contracts/development/implementation.md#principled-implementation Interpolates world wrist points linearly and hand rotations spherically between the same posed origin and thigh target.
+   * @evidence contracts/development/implementation.md#principled-implementation The free wrist travels from hanging to bearing with spherical wrist rotation. Where the straight route would cross the thigh, the two current solid support extents determine its radial displacement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the two active hands to the shared partial-placement operation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original hanging and fully resting branches and elbow hints remain unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice.
@@ -293,17 +293,48 @@ export namespace seatedHands {
     const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(body, posture, bones, sides);
     if (share >= 1)
       return flattened({ ...posture, limbs: { ...posture.limbs, ...goals } }, sides, 1);
+    const shaped: IAutoMovieMotionHumanPosture = flattened(posture, sides, share);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of sides) {
       const goal: IAutoMovieHumanLimbGoal = goals[`${side}Arm`]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const point: IAutoMovieVector3 = Vector3.lerp(hand.worldPosition, goal.point, share);
+      const rotation: IAutoMovieQuaternion = Quaternion.slerp(hand.worldRotation, goal.rotation!, share);
       limbs[`${side}Arm`] = {
-        point: Vector3.lerp(hand.worldPosition, goal.point, share),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, share),
+        point: clearThigh(body, shaped, side, bones, point, rotation),
+        rotation,
         bend: goal.bend,
       };
     }
-    return flattened({ ...posture, limbs }, sides, share);
+    return { ...shaped, limbs };
+  }
+
+  /** Separate the moving hand from the current thigh along the wrist's radial direction. The two convex support extents give the least outward translation on that ray, in metres. */
+  function clearThigh(
+    body: IAutoMovieMotionHumanBody,
+    shaped: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieVector3 {
+    const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
+    const thigh: IAutoMovieResolvedBone = bones.get(bone)!;
+    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(
+      bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition,
+    ));
+    const arm: IAutoMovieVector3 = Vector3.subtract(point, thigh.worldPosition);
+    const radial: IAutoMovieVector3 = Vector3.addScaled(arm, axis, -Vector3.dot(arm, axis));
+    if (Vector3.length(radial) === 0) return point;
+    const normal: IAutoMovieVector3 = Vector3.normalize(radial);
+    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([[bone, thigh]]);
+    let surface: number = -Infinity;
+    for (const placed of HumanColliders.placed(body, only))
+      for (const shape of placed.shapes)
+        surface = Math.max(surface, physicalShapeSpan(placed.pose, shape, normal)[1]);
+    if (surface === -Infinity) return point;
+    const depth: number = handReach(body, { ...shaped, limbs: {} }, side, rotation, "wrist")(Vector3.scale(normal, -1));
+    return Vector3.addScaled(point, normal, Math.max(0, surface + depth - Vector3.dot(point, normal)));
   }
 
   /** Actuate the fingers of each placed hand along with its wrist. */

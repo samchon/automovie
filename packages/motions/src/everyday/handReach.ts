@@ -30,7 +30,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @param side The hand.
  * @param rotation The world rotation the hand is laid at.
  * @param surface The hand surface laid on the place.
- * @param shape The hand's shape.
+ * @param shape The imposed hand shape. Omit it to observe the current finger articulation.
  * @returns The reach along a world direction, metres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which frame, against which surface and why the arm does not matter.
@@ -47,7 +47,7 @@ export function handReach(
   side: AutoMovieHumanSide,
   rotation: IAutoMovieQuaternion,
   surface: IAutoMovieMotionHumanHand.Surface,
-  shape: IAutoMovieMotionHumanHand.Shape,
+  shape?: IAutoMovieMotionHumanHand.Shape,
 ): (direction: IAutoMovieVector3) => number {
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
     [...HumanColliders.bones(body)].filter(
@@ -59,7 +59,7 @@ export function handReach(
   );
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
-    resolveHumanPosture(body, {
+    resolveHumanPosture(body, shape === undefined ? posture : {
       ...posture,
       joints: { ...posture.joints, ...HumanHand.shape(side, shape) },
     }),
