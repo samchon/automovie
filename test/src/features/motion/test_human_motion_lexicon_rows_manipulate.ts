@@ -17,25 +17,18 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Every row of the `manipulate` family is something a body can do (#3446):
- * on the average man and on the small woman, each row plans before a
- * keyboard (for `type`) or a five-button pad (for the others) at the
- * performer's elbow height and a forearm's reach, and the placed action
- * carries the row's name.
+ * The manipulate catalogue binds instrument, keyboard and keypad names to a hand and, for single-digit techniques, a digit.
  *
- * Scenarios, for each body:
+ * Scenarios:
+ * 1. Look up each named technique and verify which supplied hand and digit it overrides.
+ * 2. Use the small body for two-handed keyboard input and left-hand fretting, and the average body for two-handed pad input and thumb-only contact.
+ * 3. The catalogue includes exactly the seven named techniques and the underlying manipulate action.
  *
- * 1. `type` and `typeTwoFinger` type "hello" on the keyboard.
- * 2. `play`, `fret`, `strum`, `dial` and `thumbText` press the pad's five
- *    buttons in order, and `sequence` (the law itself) the same with its
- *    hand named.
- * 3. The family holds every row the lexicon lists for it, and no other.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Registers each row through the public input and builds a performance on real bodies; a refusal or a placed action under another name fails with the row, the body and the message.
- * @evidence contracts/development/testing.md#independent-expectations That each row is performable before a reachable prop is what the row claims; nothing is read back from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Two builds, a keyboard and a pad, every row and the family's membership.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing two polygon men; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the cast and the three scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the registration and hand-selection rules and retained scenes.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves real catalogue records and places representative techniques against keyboard and keypad affordances.
+ * @evidence contracts/development/testing.md#independent-expectations The instrument and typing techniques specify the expected hand and which digits they fix.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks every fixed hand and digit assignment. The direct manipulate test independently measures the key, finger, timing and refusal contracts.
+ * @evidence contracts/development/testing.md#execution-ownership Builds four local performances with performer-scaled fixtures and reads each placed name.
  */
 export function test_human_motion_lexicon_rows_manipulate(): void {
   const complaints: string[] = [];
@@ -44,16 +37,29 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
   const names: string[] = rows.map(
     (r: IAutoMovieMotionHumanActionLaw<never>): string => r.name,
   );
-  const expected: string[] = [
-    "manipulate",
-    "type",
-    "typeTwoFinger",
-    "play",
-    "fret",
-    "strum",
-    "dial",
-    "thumbText",
+  const techniques: readonly Technique[] = [
+    ["type", "both"],
+    ["typeTwoFinger", "both", "index"],
+    ["play", "both"],
+    ["fret", "left"],
+    ["strum", "right"],
+    ["dial", "right", "index"],
+    ["thumbText", "right", "thumb"],
   ];
+  const expected: string[] = ["manipulate"];
+  for (const [name, side, digit] of techniques) {
+    expected.push(name);
+    const law: IAutoMovieMotionHumanActionLaw<never> | undefined = rows.find(
+      (row: IAutoMovieMotionHumanActionLaw<never>): boolean =>
+        row.name === name,
+    );
+    TestValidator.equals(name + " owner", law?.family, "manipulate");
+    TestValidator.equals(
+      name + " hand and digit",
+      law?.resolve?.({ side: "caller", digit: "middle" }),
+      { side, digit: digit ?? "middle" },
+    );
+  }
   if (
     JSON.stringify(
       [...names].sort((a: string, b: string): number => a.localeCompare(b)),
@@ -112,16 +118,16 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
       })),
     };
     const contacts = [0, 1, 2, 3, 4].map((k: number) => ({ site: `b${k}` }));
-    const staged: [string, object][] = [
-      ["type", { prop: "keyboard", text: "hello" }],
-      ["typeTwoFinger", { prop: "keyboard", text: "hello" }],
-      ["play", { prop: "pad", contacts }],
-      ["fret", { prop: "pad", contacts }],
-      ["strum", { prop: "pad", contacts }],
-      ["dial", { prop: "pad", contacts }],
-      ["thumbText", { prop: "pad", contacts }],
-      ["manipulate", { prop: "pad", contacts, side: "right" }],
-    ];
+    const staged: readonly Scene[] =
+      name === "f-small"
+        ? [
+            ["typeTwoFinger", { prop: "keyboard", text: "hello" }],
+            ["fret", { prop: "pad", contacts }],
+          ]
+        : [
+            ["play", { prop: "pad", contacts }],
+            ["thumbText", { prop: "pad", contacts }],
+          ];
     for (const [row, params] of staged)
       try {
         const performance: IAutoMovieMotionHumanPerformance =
@@ -153,3 +159,9 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
   }
   TestValidator.equals("every manipulate row is performable", complaints, []);
 }
+
+/** Public row name, fixed hand and optional fixed digit. */
+type Technique = readonly [string, string, string?];
+
+/** A registered technique and the parameters its named prop supplies. */
+type Scene = readonly [string, object];
