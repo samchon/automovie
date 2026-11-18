@@ -41,6 +41,9 @@ export namespace runStance {
   /** The knee's flexion at mid-stance, degrees (provisional, Novacheck 1998: about 40 to 45). */
   export const MIDDLE: number = 45;
 
+  /** The knee flexion at the mid-stance search's deep end, degrees: well past `MIDDLE` and inside the knee's range. */
+  const BRACKET: number = 120;
+
   /** A cruising stance's oscillation and push. */
   export interface IStance {
     /** The pelvis's oscillation about standing, hip heights: its mean and its amplitude, lowest at mid-stance. */
@@ -152,7 +155,9 @@ export namespace runStance {
         Math.PI
       );
     };
-    let deep: number = above + leg(120);
+    // The bracket's low end bends the knee far past any running stance's
+    // (`MIDDLE`), so the height sought lies inside it.
+    let deep: number = above + leg(BRACKET);
     let tall: number = above + thigh + shank;
     for (let i: number = 0; i < 40; i++) {
       const mid: number = (deep + tall) / 2;

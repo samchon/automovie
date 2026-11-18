@@ -9,6 +9,24 @@ import type {
 
 import { walk } from "./walk";
 
+/** Offset decay time of a cut out of a run into another locomotion or a stand, seconds (provisional: no study of the transition was located). */
+const BLEND: number = 0.3;
+
+/** Offset decay time of a cut from a run into a jump, seconds (provisional). */
+const TAKEOFF_BLEND: number = 0.15;
+
+/** The elbows' mean flexion while running, degrees: 1.61 ± 0.10 rad in natural running (Yegian et al. 2019, J Exp Biol 222:jeb197228). */
+const ELBOW: number = (1.61 * 180) / Math.PI;
+
+/** The elbows' flexion swing amplitude about that mean, degrees: half the 38.8 ± 12.6 degree range distance runners show (Tartaruga et al. 2012, Res Q Exerc Sport 83:367). */
+const ELBOW_SWING: number = 38.8 / 2;
+
+/** The step frequency in pendulum units at a Froude number of zero (provisional fit: 170 steps a minute at 2.9 m/s on a 0.93 m hip, Heiderscheit et al. 2011). */
+const CADENCE_BASE: number = 0.8;
+
+/** The step frequency's rise in pendulum units per unit Froude number (provisional fit, rising toward a sprint, Cavagna et al. 1988). */
+const CADENCE_PER_FROUDE: number = 0.08;
+
 /**
  * Running to a floor point, at a jog, a run or a sprint: the walk's
  * footprint plan in a running gait, with a flight phase between stances.
@@ -35,10 +53,16 @@ import { walk } from "./walk";
  * spring-mass stance (`runStance`): highest at contact and toe-off, lowest
  * at mid-stance where the stance knee is most flexed (Blickhan 1989), and a
  * foot in the air asks nothing of it. The swing foot rises 0.15 to 0.35 hip heights
- * as the knee folds in recovery, the elbows hold near 90° and swing with the
- * shoulders, and the trunk inclines forward of a walk's and more as the
+ * as the knee folds in recovery, the elbows hold near 92° (Yegian et al.
+ * 2019) and swing 19° either way with the shoulders (half the range
+ * Tartaruga et al. 2012 measured), and the trunk inclines forward of a walk's and more as the
  * pace rises (Thorstensson et al. 1984): 5, 8 and 12 degrees for a jog, a
  * run and a sprint (provisional).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the gait's duty factors, speeds, cadence, foot strike, pelvis, swing, arms and lean with their sources and provisional values.
+ * @evidence contracts/development/design.md#principled-representation A law record whose gaits are data the walk's planner reads.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, cancel table, yields, the forefoot angle, the gait table and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The running gaits are rows of the walk's own gait type; no second planner exists.
  */
 export namespace run {
   /** The action's name. */
@@ -51,12 +75,12 @@ export namespace run {
         window: ["lastFootfall", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: BLEND,
       },
     ],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
+    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
+    jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: TAKEOFF_BLEND }],
   };
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
@@ -71,7 +95,11 @@ export namespace run {
   /** The heel's height over the ball at contact and through stance, degrees about the toes' joint (provisional). */
   export const FOREFOOT: number = 20;
 
-  /** Each pace's running gait. */
+  /**
+   * Each pace's running gait: Froude number and duty factor from the sources
+   * above; swing lift (hip heights), shoulder swing (degrees) and trunk lean
+   * (degrees) provisional.
+   */
   export const GAITS: Readonly<
     Record<
       NonNullable<IAutoMovieMotionHumanRun.IParams["pace"]>,
@@ -88,6 +116,14 @@ export namespace run {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace gives the gait's sources.
+   * @evidence contracts/development/implementation.md#principled-implementation The walk's footprint planner in the pace's running gait, whose flight follows from its duty factor below one half.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The run adds no planner of its own; every footprint is the walk's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The plan's cost is walk.locomote's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses walk.locomote.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns what walk.locomote prepares.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRun.IParams>,
@@ -105,11 +141,12 @@ export namespace run {
   ): IAutoMovieMotionHumanWalkGait {
     return {
       froude,
-      step: (fr: number): number => Math.sqrt(fr) / (0.8 + 0.08 * fr),
+      step: (fr: number): number =>
+        Math.sqrt(fr) / (CADENCE_BASE + CADENCE_PER_FROUDE * fr),
       swing: 2 * (1 - duty),
       heels: FOREFOOT,
       lift,
-      arms: { shoulder, elbow: 85, swing: 15 },
+      arms: { shoulder, elbow: ELBOW, swing: ELBOW_SWING },
       lean,
     };
   }
