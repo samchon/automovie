@@ -34,6 +34,7 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @param into The rotation from the root's axes into the take-off frame.
  * @param angularTolerance The resolved shooting angular budget, radians; omitted callers retain the fixed-grid seed. Adaptive physical integration uses its own unchanged relative/absolute budgets.
  * @returns The matrix in seconds per kg m² and the relative-motion angle in radians.
+ * @throws {Error} In fixed mode, when the step is not positive and finite or its count over the flight is not a safe integer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the linear relation, both integrals, frames and units.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves fixed-grid Simpson and uses the shared adaptive Simpson/Richardson estimator for an adaptive request. Matrix error times a projected seed-norm bound over request shares zero through one plus lag error has angular units and is compared with the public shooting budget. The affine seed's endpoint norms bound its interior by convexity, retained by radial projection for nonnegative ceilings; the quadrature estimate still assumes smoothness and is not a continuous certificate or Newton-convergence guarantee.
@@ -164,6 +165,14 @@ export function AirborneTakeoffLinear(
 
   const step: number = props.h ?? integrateMotionTrajectory.STEP;
   const steps: number = Math.ceil((props.t1 - props.t0) / step);
+
+  // The integration's own grid rule: a step that is not positive and finite,
+  // or one so fine that the count passes 2^53 (an index no longer counted
+  // exactly, `Infinity` for a zero or subnormal step), makes no grid.
+  if (!(Number.isFinite(step) && step > 0 && Number.isSafeInteger(steps)))
+    throw new Error(
+      `The take-off seed needs a positive finite step with a safe-integer count over the flight, got ${step}`,
+    );
   const turning: number[][] = [0, 1, 2].map((): number[] => [0, 0, 0]);
   const lagging: number[] = [0, 0, 0];
   let endpointTime: number | undefined;

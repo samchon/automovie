@@ -51,7 +51,7 @@ import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
  *
  * @param props The shape's history, the flight, the take-off frame, the request and its bounds.
  * @returns The momentum, its residual and whether the request is met.
- * @throws {Error} When the flight is not positive or a supplied failure scope is not a symbol.
+ * @throws {Error} When the flight is not positive and finite, the tolerance is not positive and finite, the somersault or twist request is not finite, or a supplied failure scope is not a symbol.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the angle convention with its source, the unwrapping, the residual, the start, the iteration with its globalization, determinism and the miss.
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method with integrated sensitivity and analytic Euler-angle derivatives, actual-residual step-halving and continuation. The three momentum directions are an orthogonal unit basis with one physical unit. Sensitivity has a local matrix-error estimate, not a global Jacobian certificate; chart singularity, inaccurate derivatives or the finite iteration budget can still miss a feasible request.
@@ -65,15 +65,23 @@ export function solveAirborneTakeoff(
   props: IAutoMovieSolveAirborneTakeoff.IProps,
 ): IAutoMovieSolveAirborneTakeoff.ISolution {
   const flight: number = props.t1 - props.t0;
-  if (!(flight > 0))
-    throw new Error(`The take-off needs a positive flight, got ${flight}`);
+  if (!(Number.isFinite(flight) && flight > 0))
+    throw new Error(`The take-off needs a positive finite flight, got ${flight}`);
   if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
     throw new Error("The take-off error scope must be a symbol");
+  const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
+
+  // The continuation halves a missed stage down to the share the tolerance
+  // resolves, tolerance / |request|; a tolerance or request that is not a
+  // positive finite number leaves no such share to stop at.
+  if (!(Number.isFinite(tolerance) && tolerance > 0))
+    throw new Error(`The take-off needs a positive finite tolerance, got ${tolerance}`);
+  if (!(Number.isFinite(props.somersault) && Number.isFinite(props.twist)))
+    throw new Error("The take-off needs a finite somersault and twist request");
   const axes: IAutoMovieQuaternion = props.frame ?? Quaternion.identity();
   const frame: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(props.q0, axes),
   );
-  const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
 
   /** The actual physical point, optionally promoted to integrated sensitivities. */
   type IPoint = AirborneTakeoffTrial.IPoint;
@@ -188,7 +196,14 @@ export function solveAirborneTakeoff(
         stage = Math.sign(left) * Math.min(Math.abs(left), 2 * Math.abs(stage));
       } else {
         stage /= 2;
-        if (Math.abs(stage) < smallest) {
+
+        // Below the share the tolerance resolves, or below the resolution of
+        // the share already reached (reached + stage === reached), a stage
+        // moves no request. The second test bounds the halvings by binary64's
+        // precision and exponent range (at most 1075 from a whole stage, when
+        // it underflows to zero) where a tiny tolerance underflows `smallest`
+        // itself to zero.
+        if (Math.abs(stage) < smallest || reached + stage === reached) {
           solved = accepted ?? solved;
           break;
         }
