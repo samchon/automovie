@@ -9,6 +9,7 @@ export * from "./createRailCarriage";
 export * from "./createRailPlatform";
 export * from "./createScenicShip";
 export * from "./createSpacecraft";
+export * from "./createTransitBus";
 export * from "./createWheelchair";
 export * from "./driveCar";
 export * from "./rideBicycle";
