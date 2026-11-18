@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
+import { repositoryRoot } from "../internal/repositoryRoot";
 
 /**
  * The package's one-object factory keeps coding ordinary and narrative explicit.
@@ -33,10 +34,8 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export async function test_evidence_package(): Promise<void> {
-  const cache: string = path.resolve(
-    __dirname,
-    "../../../../packages/template/.cache",
-  );
+  const repository: string = repositoryRoot();
+  const cache: string = path.join(repository, "packages/template/.cache");
   fs.mkdirSync(cache, { recursive: true });
   const root: string = fs.realpathSync.native(
     fs.mkdtempSync(path.join(cache, "evidence-package-")),
@@ -49,18 +48,15 @@ export async function test_evidence_package(): Promise<void> {
     for (const location of [coding, narrative, long, production]) {
       fs.mkdirSync(location);
       for (const [file, owner] of [
-        ["development/common.md", "../../../../.agents/skills/contracts"],
-        ["development/design.md", "../../../../.agents/skills/contracts"],
-        ["development/testing.md", "../../../../.agents/skills/contracts"],
-        [
-          "development/implementation.md",
-          "../../../../.agents/skills/contracts",
-        ],
+        ["development/common.md", ".agents/skills/contracts"],
+        ["development/design.md", ".agents/skills/contracts"],
+        ["development/testing.md", ".agents/skills/contracts"],
+        ["development/implementation.md", ".agents/skills/contracts"],
       ] as const)
         ProductionWorkflowFixture.write(
           location,
           `.agents/skills/contracts/${file}`,
-          fs.readFileSync(path.resolve(__dirname, owner, file), "utf8"),
+          fs.readFileSync(path.join(repository, owner, file), "utf8"),
         );
     }
     ProductionWorkflowFixture.write(
@@ -339,9 +335,9 @@ export async function test_evidence_package(): Promise<void> {
         production,
         `.agents/skills/contracts/${file}`,
         fs.readFileSync(
-          path.resolve(
-            __dirname,
-            "../../../../packages/template/scaffold/instructions/.agents/skills/contracts",
+          path.join(
+            repository,
+            "packages/template/scaffold/instructions/.agents/skills/contracts",
             file,
           ),
           "utf8",

@@ -13,11 +13,10 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 
+import { repositoryRoot } from "../internal/repositoryRoot";
+
 /** The render package's README, whose "Request keys" table maps every key to the requirement it serves. */
-const README: string = path.resolve(
-  __dirname,
-  "../../../../packages/render/README.md",
-);
+const README: string = path.join(repositoryRoot(), "packages/render/README.md");
 
 /** One row of the table: its key names, what they ask for and the requirement they serve. */
 interface IRow {

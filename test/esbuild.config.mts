@@ -1,5 +1,7 @@
 import {
   type BuildResult,
+  type OnLoadArgs,
+  type OnLoadResult,
   type OnResolveArgs,
   type OnResolveResult,
   type Plugin,
@@ -23,11 +25,13 @@ import { selectScenarioNames } from "./src/selectScenarioNames.ts";
  * arguments select as entry points of one esbuild bundle, then the built
  * program in this process, so `node esbuild.config.mts <arguments>` runs the
  * same tests as `ttsx src/index.ts <arguments>`, with two differences of the
- * bundle: `__dirname` is the built file's directory under `bin/<process id>`,
- * not its source's, and a dynamic `require` is esbuild's shim, which refuses
- * what it cannot resolve at build time. A test that finds the repository
- * from its own `__dirname`, or a source that requires a computed path, runs
- * only under `pnpm test`, which CI runs.
+ * bundle: a test's `__dirname` is the built file's directory under
+ * `bin/<process id>`, not its source's (a workspace package keeps its own,
+ * `packageLocation`), and a dynamic `require` is esbuild's shim, which
+ * refuses what it cannot resolve at build time. A test finds the repository
+ * by `repositoryRoot` and a module's coverage by `moduleFunctionCoverage`,
+ * which read the same under both; a source that requires a computed path
+ * runs only under `pnpm test`.
  *
  * Only the selected test files are built, by the program's own selection
  * rules, because building every test file costs more than running a few.
@@ -95,6 +99,40 @@ const installed: Plugin = {
         return resolved.path.split(/[\\/]/).includes("node_modules")
           ? { path: pathToFileURL(resolved.path).href, external: true }
           : { path: resolved.path };
+      },
+    );
+  },
+};
+
+/**
+ * Keeps a workspace package's own location: a package that reads its files
+ * relative to its source (`__dirname`, `__filename`), as `template` reads its
+ * scaffold, reads them where they lie, not beside the bundle in `bin/`.
+ *
+ * Each such source under `packages/` reads both names from constants of its
+ * own path, declared under names of its own so the bundle's banner, which
+ * gives the tests and the runner their built location, keeps its two.
+ */
+const packageLocation: Plugin = {
+  name: "package-location",
+  setup(setup: PluginBuild): void {
+    setup.onLoad(
+      { filter: /[\\/]packages[\\/].*\.tsx?$/ },
+      async (args: OnLoadArgs): Promise<OnLoadResult | undefined> => {
+        if (args.path.split(/[\\/]/).includes("node_modules")) return undefined;
+        const source: string = await fs.promises.readFile(args.path, "utf8");
+        if (!/\b__(?:dirname|filename)\b/.test(source)) return undefined;
+        return {
+          contents: [
+            `const __sourceFilename = ${JSON.stringify(args.path)};`,
+            `const __sourceDirname = ${JSON.stringify(path.dirname(args.path))};`,
+            source
+              .replace(/\b__dirname\b/g, "__sourceDirname")
+              .replace(/\b__filename\b/g, "__sourceFilename"),
+          ].join("\n"),
+          loader: args.path.endsWith(".tsx") ? "tsx" : "ts",
+          resolveDir: path.dirname(args.path),
+        };
       },
     );
   },
@@ -293,7 +331,7 @@ const selected: Set<string> = selectScenarioNames(
     splitting: true,
     format: "esm",
     platform: "node",
-    plugins: [installed],
+    plugins: [installed, packageLocation],
 
     // The sources are CommonJS and read these two names; an ES module has
     // neither, so each output file defines them from its own location.
