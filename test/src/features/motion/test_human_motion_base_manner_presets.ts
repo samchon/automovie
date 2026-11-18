@@ -21,8 +21,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the person to stay seated: a weary person sits and rises more slowly than
  * a neutral one, a brisk person faster.
  *
- * Scenarios, on the average man and the small woman, each on a chair as
- * high as their own popliteal height, sitting, staying one second, rising:
+ * Scenarios, on the small woman on a chair as high as her own popliteal
+ * height, sitting, staying one second, rising. One body bounds the claim:
+ * `sit` times its descent and `rise` its rising as `2 (1 + 0.6 (1 - r))`
+ * seconds times the manner's tempo, and a chair at the body's own popliteal
+ * height sets the seat ratio `r` to 1 for every body, so the manner's tempo
+ * is the only factor that differs between the three performances. The rise
+ * adds the time its feet take to draw back before it, which the manner does
+ * not scale, so it shifts all three rises alike and cannot reverse their
+ * order. A second body would repeat the same partition; the small woman is
+ * kept as the end of the body range where a floor on a movement's length
+ * would bind first:
  * 1. The time from the start of `sit` to its `seated` event is longer under
  *    the `weary` preset than with no manner, and shorter under `brisk`.
  * 2. The length of `rise` orders the same way.
@@ -32,13 +41,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the same chain under three manners through the public input and reads the placed actions' instants; a manner that sit or rise ignores, or one that stretches the stay, fails.
  * @evidence contracts/development/testing.md#independent-expectations The directions are what weary and brisk mean, and the stay is the composition's own number; no factor is read from the preset table. Limitation: only the order of the durations is asserted, since the presets' magnitudes are provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases A slowing preset and a quickening one each side of the neutral manner, on two acts and two bodies; the moods on a walk are `test_human_motion_travel_styles`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds three short performances each in memory, reading no pose: the claim is about instants.
+ * @evidence contracts/development/testing.md#distinguishing-cases A slowing preset and a quickening one each side of the neutral manner, on two acts; one body, since the seat at popliteal height leaves the manner's tempo the only timing factor that differs (the partition argument above); the moods on a walk are `test_human_motion_travel_styles`'s.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds three short performances in memory, reading no pose: the claim is about instants.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios.
  */
 export function test_human_motion_base_manner_presets(): void {
   const complaints: string[] = [];
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: seated.popliteal(body), z: -0.1 },
