@@ -435,7 +435,6 @@ export namespace bend {
       ...HumanPhysics.declared(context.params, window),
       duration,
       events: clock.events(),
-      still: [down, down + hold],
       posture,
     };
   }
