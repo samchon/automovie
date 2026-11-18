@@ -127,7 +127,7 @@ automovie review --url <inspector address> --seconds <s> [--out <dir>]
 
 ### add
 
-`add` runs at a workspace root, the directory holding `pnpm-workspace.yaml`. `add shorts/<name>` writes a production into `movies/shorts/<name>` and `add series/<name>` into `movies/series/<name>`; `pnpm install` again links it. The production takes its dependencies from the root's catalogs and its skills from the root's `.agents/skills`.
+`add` runs at the workspace root and writes a production into `movies/shorts/<name>` or `movies/series/<name>`. It fills missing dependency entries in `pnpm-workspace.yaml` and preserves existing pins and overrides. Run `pnpm install` again to link the production. Its skills come from the root's `.agents/skills`.
 
 `create` and `add` refuse a non-empty target unless `--force` is given, which replaces files at the same paths.
 

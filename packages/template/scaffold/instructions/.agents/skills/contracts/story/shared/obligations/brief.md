@@ -6,4 +6,4 @@ Statements: [statements/obligations/brief.md](../statements/obligations/brief.md
 
 ## Coherent brief
 
-Does each shared person, place and recurring prop have one findable, current decision the planned films can apply consistently within scope and representation?
+Does every subject required by the [brief's scope](../../../../story/layers/brief.md#what-it-holds) have one findable, consistent record?

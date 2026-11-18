@@ -43,7 +43,7 @@ A part can be an act, a release block or another division suited to the format, 
 
 Give each settings or brief subject one file in its domain. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact's path and preserve its [anchor](layers/notation.md#identities).
 
-Preserve user-fixed interpretations and report conflicting instructions or sources. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Resolve inconsistencies at the record or image that introduces them.
+For commissioned appearances on a route with no settings or brief, use `docs/instructions/appearance-<subject>.md` as the subject record. Preserve user-fixed interpretations. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Report conflicting sources or instructions and resolve inconsistencies at their owner.
 
 ## Intake of existing work
 

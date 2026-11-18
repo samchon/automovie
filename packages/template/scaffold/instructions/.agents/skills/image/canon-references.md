@@ -4,7 +4,9 @@ Canon references are a subject's frozen images, the source of its look for every
 
 ## Views
 
-For a generated film, choose the [video model](../video/SKILL.md) first; its guide determines reference views and limits. Budget the request's inputs across its subjects, making only the views the shots need.
+Model-neutral casting photographs can precede video model selection. Embed each candidate view in its [subject record](../story/document-layout.md#canon-records) and mark it pending until the user accepts it.
+
+When preparing references for a specific video model, follow the [chosen model's](../video/SKILL.md) input limits and required views. Budget its inputs across the subjects each shot needs.
 
 Where the guide sets none, give each character these views, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
 

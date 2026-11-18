@@ -6,7 +6,13 @@ The motion hint can guide video diffusion or be rendered with commissioned [deta
 
 ## Starting work
 
-Read the production's `PROJECT.md` for its [scope and choices](.agents/skills/production/project-context.md).
+The main agent is the [director](.agents/skills/production/director.md) for every commission. A worker follows its assigned role and reports to the director.
+
+At [project intake](.agents/skills/production/project-context.md#intake), confirm the deliverables and which decisions the user wants to make or delegate. For a screenplay, ask which [writing route](.agents/skills/story/workflow/routes.md#who-writes-the-screenplay) they want unless they have already chosen one. Record their answer in `PROJECT.md` before assigning the writer.
+
+Assign narrative drafting and revision to a writer subagent, including direct writing. When the route calls for Evidence and independent review, assign each to a separate subagent at its stage.
+
+Inspect each handoff against the commission and the stage's skill. If it falls short, show the responsible worker what needs repair and check the revision before advancing.
 
 Resolve project paths from the directory containing `PROJECT.md`. Run commands from the directory whose README documents them.
 

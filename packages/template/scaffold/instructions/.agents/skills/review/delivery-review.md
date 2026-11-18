@@ -49,6 +49,8 @@ Keep accepted sheets and measures under [media records](../production/media-reco
 
 ### Assets
 
+For commissioned [appearance references](../image/canon-references.md), open every promised view from its subject record. Check it against the description and record which views the user accepted.
+
 For a visual asset, test promised views and controls in its consumer. Check shape, contact, deformation and movement where they apply under [form inspection](../3d-modeling/inspection.md) and [commissioned uses](../development/entities.md#inspection-and-handoff).
 
 For audio, follow [listening](../audio/listening.md). Record the applicable checks with the [asset handoff](#acceptance-record).

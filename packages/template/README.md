@@ -1,6 +1,6 @@
 # @automovie/template
 
-The scaffold every AutoMovie production starts from, with the one function that turns it into a project's files. Most people reach it through the [`automovie` CLI](../../README.md#commands). Use this package directly when your own tool has to create a production.
+The scaffold every AutoMovie production starts from. Most people reach it through the [`automovie` CLI](../../README.md#commands). Use this package directly when your own tool has to create a production.
 
 ## Use
 
@@ -27,7 +27,7 @@ const files: Record<string, string> = createAutoMovieScaffold({
 
 Every dependency is a `catalog:` reference resolved by the generated `pnpm-workspace.yaml`: the AutoMovie packages at this package's own version, and the rest at the ranges this repository builds with.
 
-Package upgrades never rewrite an installed project.
+When adding a production to an existing workspace, pass its directory and current YAML to `renderAutoMovieWorkspace({ directory, source })`. It returns the completed `pnpm-workspace.yaml`, preserving existing pins and overrides. A missing SDK package can resolve beside a linked package in a local SDK checkout.
 
 ## What the scaffold contains
 
