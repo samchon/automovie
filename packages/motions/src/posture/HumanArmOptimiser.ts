@@ -247,10 +247,11 @@ const ROUNDS: number = 40;
  * trust_expand_ratio, on every step taken as TrajOpt does; the solve has
  * settled where the model predicts a decrease below a ten-thousandth of
  * the merit, the benchmark setting of Schulman et al. 2013, section VI
- * ("minimum merit function improvement ratio of 10^-4"). This planner's
- * values, unsourced: the first region (8 coordinate units), the widest
- * (four times it), six tries a convexification, and the least step or
- * region, a thousandth of a unit.
+ * ("minimum merit function improvement ratio of 10^-4"), read before a
+ * step is tried as TrajOpt's sco reads it; the least step or region, the
+ * last guard, TrajOpt's min_trust_box_size (1e-4, sco's default). This
+ * planner's values, unsourced: the first region (8 coordinate units), the
+ * widest (four times it) and six tries a convexification.
  */
 const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
   eta: 0.1,
@@ -261,7 +262,7 @@ const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
   boundary: false,
   widest: 8 * 4,
   trust: 8,
-  least: 1e-3,
+  least: 1e-4,
   tries: 6,
   improved: (merit: number): number => 1e-4 * Math.max(1, merit),
 };
