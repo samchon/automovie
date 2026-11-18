@@ -205,7 +205,7 @@ export function test_motion_posture_gait_overlay(): void {
       const hand = shown.get("rightHand")!.worldPosition,
         chest = shown.get("chest")!.worldPosition;
       TestValidator.predicate(
-        "held reading hand rises ahead of chest",
+        `at ${time} s the reading hand is ${(hand.y - atRest.y) * 1000} mm above the resting elbow and ${(hand.z - chest.z) * 1000} mm ahead of the chest, both positive expected`,
         hand.y > atRest.y && hand.z > chest.z,
       );
       TestValidator.predicate(
