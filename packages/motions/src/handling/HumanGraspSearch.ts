@@ -34,7 +34,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#principled-implementation Every candidate's grasp is fitted and the candidates taken least grasp error first; the grasp error bounds a candidate's cost from below, since stroke keys only add to it, so the search stops at the first candidate no cheaper than the best that holds the required measure. A fit's rotation error is the solver's own optimum over legal swivels where it reports one, continuous in the key (Berge's maximum theorem).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One fit adapter, one candidate list, one ordered loop over each candidate's lazily built stroke keys.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate the caller admits is fitted at its grasp; pruning uses only the proven lower bound; with none admitted, every candidate is tried.
- * @evidence contracts/development/implementation.md#efficient-algorithms For C candidates, C grasp fits plus the stroke-key fits of the candidates the lower bound does not prune; each goal is built once. All fits of all queries share one FK workspace.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For C candidates, C grasp fits plus the stroke-key fits of the candidates the lower bound does not prune; an admitted goal is built once for its admission and once right before its fit, the schedule goal callbacks observe. All fits of all queries share one FK workspace.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The FK workspace shares only rig dependency data; each fit resolves its own posture.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate fits are local to a query; only the chosen pose, wrists, reference and scalar reports escape.
  */
@@ -133,18 +133,22 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
       floor: number;
     }[] = [];
 
-    // The candidates the caller can take, or every one when it can take none;
-    // each goal is built once, for the admission and the fit alike.
-    const pairs: { turn: number; tilt: number; wrist: IAutoMovieMotionHumanHand.IWrist }[] = turns.flatMap(
-      (turn: number): { turn: number; tilt: number; wrist: IAutoMovieMotionHumanHand.IWrist }[] =>
-        tilts.map((tilt: number): { turn: number; tilt: number; wrist: IAutoMovieMotionHumanHand.IWrist } =>
-          ({ turn, tilt, wrist: goal(turn, tilt) })),
+    // The candidates the caller can take, or every one when it can take none.
+    // Each fitted candidate's goal is built immediately before its fit, so a
+    // goal callback that changes the posture it is fitted on is seen by that
+    // fit; admission therefore asks the goal separately.
+    const pairs: [number, number][] = turns.flatMap(
+      (turn: number): [number, number][] =>
+        tilts.map((tilt: number): [number, number] => [turn, tilt]),
     );
-    const taken: typeof pairs =
+    const taken: [number, number][] =
       admits === undefined
         ? pairs
-        : pairs.filter((pair: (typeof pairs)[number]): boolean => admits(pair.wrist));
-    for (const { turn, tilt, wrist } of taken.length === 0 ? pairs : taken) {
+        : pairs.filter(([turn, tilt]: [number, number]): boolean =>
+            admits(goal(turn, tilt)),
+          );
+    for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
+      const wrist: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
       const grasp: IFitted = fit({ posture, wrist, bend }, undefined);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({
