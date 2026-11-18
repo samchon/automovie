@@ -70,7 +70,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 8. Forward salto: a quarter into the flight the head is ahead of the
  *    hips, at its middle below them, three quarters in behind them, and at
  *    `settled` above them.
- * 9. The original 0.15 m apex and three-turn requests are judged by the
+ * 9. Under the physical flight policy (`flight: "physical"`; the staged
+ *    default turns authored counts kinematically and claims no momentum),
+ *    the original 0.15 m apex and three-turn requests are judged by the
  *    body's conserved-momentum flight, which replaced the provisional
  *    constant-rate bound. Each is either refused on `turns` without an
  *    invented scalar feasible range, or its displayed root completes the
@@ -395,6 +397,7 @@ export function test_human_motion_sport_workout(): void {
       try {
         return new HumanPerformance({
           seed: "salto",
+          flight: "physical",
           laws: Object.values(HUMAN_LEXICON).flat(),
           performers: [
             {
