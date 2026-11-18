@@ -1,0 +1,68 @@
+import { Vector3, convexHull2D } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { walkLeg } from "../actions/walkLeg";
+import { HumanFoot } from "../posture/HumanFoot";
+import { staggerNearest } from "./staggerNearest";
+
+/**
+ * Each planted foot's ankle dorsal limit in a stagger by the share of the
+ * body's weight it bears (`walkLeg.dorsal`), the share read from where the
+ * recovery's centre of pressure stands.
+ *
+ * A centre of pressure on a foot's outline is borne by that foot alone; one
+ * between the two outlines is borne by both as by two supports of a beam,
+ * each foot's share the centre of pressure's distance from the other
+ * foot's outline over the sum of its distances from both (the lever rule of
+ * statics, the supports taken at their outlines' nearest points). A foot
+ * planted alone bears it all. The recovery's centre of pressure moves
+ * continuously (`StaggerPendulum`) and reaches the stance foot's outline by
+ * a step's lift-off, so each share, and the dorsal room it gives, runs
+ * continuously from a foot's touch-down to its lift-off.
+ *
+ * @param body The body.
+ * @param pressure The centre of pressure on the floor, world metres.
+ * @param feet The feet as scheduled; a foot with a swing bears nothing and gets no limit.
+ * @returns The dorsal limit of each planted foot, degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the share's rule, its premise, its continuity and each argument.
+ * @evidence contracts/development/implementation.md#principled-implementation The lever rule of two supports on the centre of pressure, the supports the outlines' nearest points, and the weight-bearing blend of the measured dorsal limits.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The planted feet, their outlines, two distances, one ratio.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pressure inside an outline gives that foot the whole weight; the limits are `walkLeg.dorsal`'s.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two sole outlines and two projections onto them.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The displayed feet (`StaggerFeet`) and the legs' admission (`staggerAdmission`) read the same rule.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
+ */
+export function staggerDorsal(
+  body: IAutoMovieMotionHumanBody,
+  pressure: IAutoMovieVector3,
+  feet: Readonly<
+    Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+  >,
+): Partial<Record<"left" | "right", number>> {
+  const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
+    (side: "left" | "right"): boolean => feet[side].swing === undefined,
+  );
+  if (planted.length === 1) return { [planted[0]!]: walkLeg.dorsal(1) };
+  if (planted.length === 0) return {};
+  const p: IAutoMovieVector3 = { x: pressure.x, y: 0, z: pressure.z };
+  const away: (side: "left" | "right") => number = (
+    side: "left" | "right",
+  ): number => {
+    const outline: IAutoMovieVector3[] = convexHull2D(
+      HumanFoot.sole(body, side, feet[side].placement).map(
+        (q: IAutoMovieVector3): IAutoMovieVector3 => ({ x: q.x, y: 0, z: q.z }),
+      ),
+    );
+    return Vector3.distance(staggerNearest.of(outline, p), p);
+  };
+  const left: number = away("left");
+  const right: number = away("right");
+  const both: number = left + right;
+  const share: number = both > 0 ? left / both : 0.5;
+  return { left: walkLeg.dorsal(1 - share), right: walkLeg.dorsal(share) };
+}

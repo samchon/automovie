@@ -36,6 +36,7 @@ export namespace walkReachShort {
    * @param body The body.
    * @param hip The hip joint, world metres.
    * @param ankle The ankle, world metres.
+   * @param step The hip's largest vertical step a frame, metres, for the soft reach (`resolveHumanPosture.short`); a hard reach when absent.
    * @returns Metres, negative by the leg's slack and no less than the leg's length under none (`slack`), which claims as little as any slack does.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and both floors.
@@ -50,14 +51,16 @@ export namespace walkReachShort {
     body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
+    step?: number,
   ): number {
-    return Math.max(-slack(body), resolveHumanPosture.short(body, hip, ankle, KNEE));
+    return Math.max(-slack(body), resolveHumanPosture.short(body, hip, ankle, KNEE, step));
   }
 
   /**
    * Prepare the fixed body's knee-flexed reach for repeated lowering claims.
    *
    * @param body The body whose measured thigh/shank determine reach, fixed while the reader is used.
+   * @param step The hip's largest vertical step a frame, metres, for the soft reach (`resolveHumanPosture.prepareShort`); a hard reach when absent.
    * @returns The metre claim for world-metre hip/ankle pairs, bounded below by the leg's length of slack (`short`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed measured-body premise, world-metre varying points, signed claim and slack floor.
@@ -70,8 +73,9 @@ export namespace walkReachShort {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
+    step?: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
-    const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE);
+    const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE, step);
     const least: number = -slack(body);
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(least, read(hip, ankle));
   }

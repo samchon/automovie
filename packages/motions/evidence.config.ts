@@ -233,6 +233,7 @@ const files: string[] = [
   "src/reaction/KnockdownFloor.ts",
   "src/reaction/stagger.ts",
   "src/reaction/staggerClose.ts",
+  "src/reaction/staggerDorsal.ts",
   "src/reaction/StaggerFeet.ts",
   "src/reaction/staggerKnots.ts",
   "src/reaction/staggerLimit.ts",

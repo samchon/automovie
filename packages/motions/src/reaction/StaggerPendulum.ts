@@ -319,6 +319,27 @@ export class StaggerPendulum {
   }
 
   /**
+   * The centre of pressure where the last span left it, from the entry's
+   * centre of mass: a weight shift's end, or a held span's point; before any
+   * span, the point of both feet's outline nearest the extrapolated centre
+   * of mass, where the push's first span holds it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the three cases.
+   * @evidence contracts/development/implementation.md#principled-implementation A span's pressure at its end is its shift's target or its held point; the first span's rule gives it before any span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of the last span and one fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the recorded span; nothing is re-aimed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work, or one hull and projection before any span.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The weight shift and the held spans start from this one reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a recorded or fresh vector and retains nothing.
+   */
+  public pressure(): IAutoMovieVector3 {
+    const last: staggerRecover.IPhase | undefined = this.phases.at(-1);
+    return last === undefined
+      ? staggerNearest.of(this.bearing(["left", "right"]), this.xi())
+      : (last.to ?? last.p);
+  }
+
+  /**
    * The weight's transfer onto the stance foot before a step: a foot cannot
    * leave the floor bearing weight, nor bear it as it touches down, so the
    * centre of pressure travels from where it stands onto the stance foot's
@@ -328,22 +349,55 @@ export class StaggerPendulum {
    * no source gives the trace of a reactive step's), the pendulum integrated
    * under it exactly in one span (`staggerTransfer`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States measured transfer timing, the minimum-jerk pressure path and its exact integration.
-   * @evidence contracts/development/implementation.md#principled-implementation The last pressure and the nearest stance-foot point are the course's ends; the pendulum under a quintic pressure course has an exact closed form.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two ends, one span, the state at its end.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time step: the span's course is the exact solution of the pendulum under the stated pressure course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One phase and constant work per shift, replacing `TRANSFER / STEP` held spans.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course readers evaluate the same span through the same closed form.
+   * The course ends where the swing that follows holds the centre of
+   * pressure, the stance foot's point nearest the extrapolated centre of
+   * mass at lift-off (`hold`), so the pressure runs on without a jump from
+   * the weight shift into the swing, as it does from the touch-down into
+   * the next shift: it moves continuously under the feet, rolling onto the
+   * stance foot and shifting between the feet over double support, as the
+   * extrapolated centre of mass's stepping models have it (Hof 2008, Hum Mov
+   * Sci 27:112). The end is the fixed point of that rule: the extrapolated
+   * centre of mass at lift-off is affine in the end, `a + c q` with one
+   * scalar `c` of magnitude under one (the end acts through the span's
+   * course, `|c| = omega * integral of e^(omega (T - t)) s(t / T) dt` over
+   * the span, under 0.3 at the measured 138 ms), and the projection onto the convex outline does not
+   * expand distances, so the rule contracts and is iterated to `FIXED`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States measured transfer timing, the minimum-jerk pressure path, its end's fixed point with its contraction, the continuity it gives and its exact integration.
+   * @evidence contracts/development/implementation.md#principled-implementation The pressure where the last span left it and the stance-foot point nearest the extrapolated centre of mass at the shift's end are the course's ends; the pendulum under a quintic pressure course has an exact closed form, linear in the end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The start, the end's fixed point, one span, the state at its end.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time step: the span's course is the exact solution of the pendulum under the stated pressure course; the fixed point is iterated until it moves less than `FIXED`, bounded by `PASSES` passes of a contraction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One phase per shift; the fixed point costs one closed-form read and one projection per pass, at a contraction under 0.3 a few tens of passes at most.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course readers evaluate the same span through the same closed form; the stance foot's outline is read once for every pass.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends one phase record to the search-owned phase array.
    */
   public transfer(stance: "left" | "right", seconds: number): void {
     // It leaves from where the centre of pressure stands, so the weight
     // reaches a foot that has just landed over this transfer, its loading,
     // and never at its touch-down.
-    const p0: IAutoMovieVector3 =
-      this.phases.at(-1)?.p ??
-      staggerNearest.of(this.bearing(["left", "right"]), this.xi());
-    const p1: IAutoMovieVector3 = staggerNearest.of(this.bearing([stance]), p0);
+    const p0: IAutoMovieVector3 = this.pressure();
+
+    // It ends where the swing holds it: the stance foot's point nearest the
+    // extrapolated centre of mass at the shift's end, the fixed point of a
+    // contraction.
+    const outline: IAutoMovieVector3[] = this.bearing([stance]);
+    const lifted: (q: IAutoMovieVector3) => IAutoMovieVector3 = (q: IAutoMovieVector3): IAutoMovieVector3 => {
+      const end: ReturnType<typeof staggerTransfer> = staggerTransfer(
+        { p: p0, s: this.s, v: this.v },
+        q,
+        seconds,
+        this.w,
+        seconds,
+      );
+      return Vector3.add(end.s, Vector3.scale(end.v, 1 / this.w));
+    };
+    let p1: IAutoMovieVector3 = staggerNearest.of(outline, this.xi());
+    for (let k: number = 0; k < StaggerPendulum.PASSES; k++) {
+      const next: IAutoMovieVector3 = staggerNearest.of(outline, lifted(p1));
+      const moved: number = Vector3.distance(next, p1);
+      p1 = next;
+      if (moved <= StaggerPendulum.FIXED) break;
+    }
 
     // One span in closed form over the whole shift (`staggerTransfer`).
     this.phases.push({ from: this.t, p: p0, s: this.s, v: this.v, to: p1, span: seconds });
@@ -357,6 +411,64 @@ export class StaggerPendulum {
     this.s = end.s;
     this.v = end.v;
     this.t += seconds;
+  }
+
+  /**
+   * Where a landing foot must take the centre of pressure for the body to be
+   * held there once it has taken the weight: the point the extrapolated
+   * centre of mass reaches at the end of a weight shift onto it, the shift
+   * running from where the pressure stands (`pressure`) over `seconds`. A
+   * foot takes no weight as it touches down, so the extrapolated centre of
+   * mass runs on over its loading, and a capture step aims where it will be
+   * then, the divergent component's continuous double support (Englsberger,
+   * Ott and Albu-Schaffer 2015, IEEE Trans Robot 31:355). The extrapolated
+   * centre of mass at the shift's end is affine in its target, `a + c q`
+   * with one scalar `c` (`transfer`), so the point is `a / (1 - c)` in closed
+   * form.
+   *
+   * @param seconds The weight shift's span.
+   * @returns The point, from the entry's centre of mass, on the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the point, its premise, its source and its closed form.
+   * @evidence contracts/development/implementation.md#principled-implementation The fixed point of the affine map from a weight shift's target to the extrapolated centre of mass at its end, under the exact minimum-jerk shift (`staggerTransfer`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two closed-form reads give the map, one division its fixed point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact for the pendulum and shift stated; nothing is iterated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two closed-form span reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same shift owner as `transfer`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains nothing.
+   */
+  public loaded(seconds: number): IAutoMovieVector3 {
+    const p0: IAutoMovieVector3 = this.pressure();
+    const xiAt: (q: IAutoMovieVector3) => IAutoMovieVector3 = (q: IAutoMovieVector3): IAutoMovieVector3 => {
+      const end: ReturnType<typeof staggerTransfer> = staggerTransfer(
+        { p: p0, s: this.s, v: this.v },
+        q,
+        seconds,
+        this.w,
+        seconds,
+      );
+      return StaggerPendulum.flat(Vector3.add(end.s, Vector3.scale(end.v, 1 / this.w)));
+    };
+    const a: IAutoMovieVector3 = xiAt({ x: 0, y: 0, z: 0 });
+    const c: number = xiAt({ x: 1, y: 0, z: 0 }).x - a.x;
+    return Vector3.scale(a, 1 / (1 - c));
+  }
+
+  /**
+   * The pendulum over a span with its centre of pressure held where the last
+   * span left it (`pressure`): a swing's, on the stance foot where the weight
+   * shift put it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the held point and the span.
+   * @evidence contracts/development/implementation.md#principled-implementation The held-pressure propagator (`advance`) at the pressure the last span ended on, so the pressure does not jump between spans.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading and one advance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The span is integrated exactly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `pressure` and `advance`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds one phase record to the search-owned phase array.
+   */
+  public hold(seconds: number): void {
+    this.advance(this.pressure(), seconds);
   }
 
   /** The pendulum over a span with its centre of pressure held.
@@ -455,6 +567,12 @@ export class StaggerPendulum {
     this.footprints[side] = made;
     return made;
   }
+
+  /** How near, metres, a weight shift's end comes to its fixed point (`transfer`): a nanometre, far under any displayed length. */
+  private static readonly FIXED: number = 1e-9;
+
+  /** The most passes of a weight shift's fixed point (`transfer`): at a contraction under 0.3 a pass, 64 passes leave 3e-34 of the first error, so the bound only guards a degenerate span. */
+  private static readonly PASSES: number = 64;
 
   /** Each entry sole's ankle-relative extent along an axis, the larger of the two. */
   private static extent(

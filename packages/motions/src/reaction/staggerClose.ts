@@ -43,6 +43,9 @@ export namespace staggerClose {
    * pendulum then bears the stepping foot for the latter's time, and the
    * close is kept only where the extrapolated centre of mass then lies
    * inside the two feet's base and comes to rest inside the settling's span.
+   * The closing foot is loaded as every landed foot is, over the measured
+   * weight shift, so the centre of pressure runs on from the swing's into
+   * the settling's without a jump.
    *
    * @param pendulum The pendulum the catching steps left, advanced through the close.
    * @param stepped The foot that stepped last.
@@ -50,7 +53,7 @@ export namespace staggerClose {
    * @returns The recovery, or null when the closing landing leaves the extrapolated centre of mass outside the base or the settling does not bring it to rest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the closing placement, its prediction and the null.
-   * @evidence contracts/development/implementation.md#principled-implementation Hof's held-pressure pendulum predicts the extrapolated centre of mass at the closing landing in closed form (xi - p grows as e^(omega t)); then p = xi - xi_ref' / omega + `TRACKING` (xi - xi_ref) inside the base, xi' = omega (xi - p), x' = omega (xi - x), integrated exactly per held step until both rest within `SETTLED`.
+   * @evidence contracts/development/implementation.md#principled-implementation Hof's held-pressure pendulum predicts the extrapolated centre of mass at the closing landing in closed form (xi - p grows as e^(omega t)); then p = xi - xi_ref' / omega + `TRACKING` (xi - xi_ref) inside the base, reached from the swing's held pressure on a minimum-jerk share over the measured weight shift so the pressure never jumps, xi' = omega (xi - p), x' = omega (xi - x), integrated exactly per held step until both rest within `SETTLED`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The closing step from its prediction, its capture test, the settling loop, the courses.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A close that leaves the extrapolated centre of mass outside the base, or never settles, is null rather than a course that ends off balance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the closing step and one millisecond loop of at most `(righting + 20 / omega) / STEP` held spans for the settling.
@@ -111,15 +114,16 @@ export namespace staggerClose {
       );
 
     // Over the swing the stepping foot alone bears, its centre of pressure
-    // held where `bear` holds it, so xi - p grows as e^(omega t).
+    // held where the weight shift left it (`StaggerPendulum.hold`), so xi -
+    // p grows as e^(omega t).
     const xi0: IAutoMovieVector3 = pendulum.xi();
-    const held: IAutoMovieVector3 = staggerNearest.of(pendulum.bearing([anchor]), xi0);
+    const held: IAutoMovieVector3 = pendulum.pressure();
     const predicted: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
       Vector3.add(held, Vector3.scale(Vector3.subtract(xi0, held), Math.exp(w * seconds)));
     const closing: IAutoMovieMotionHumanFoot.IPlacement = closingFor(
       predicted(swingFor(closingFor(xi0))),
     );
-    pendulum.bear([anchor], swingFor(closing));
+    pendulum.hold(swingFor(closing));
     steps.push({
       side: closer,
       from: feet[closer],
@@ -142,10 +146,17 @@ export namespace staggerClose {
     // IEEE Trans Robot 31:355), as near that as the base holds it; xi' =
     // omega (xi - p), and the centre of mass follows, x' = omega (xi - x),
     // until both rest there.
+    //
+    // The closing foot takes no weight as it touches down: over the measured
+    // weight shift (`TRANSFER`, the loading every landed foot gets) the
+    // centre of pressure runs on a minimum-jerk share from where the swing
+    // held it to where the tracking law puts it, so it never jumps.
     const rest: IAutoMovieVector3 = Vector3.subtract(
       middle(feet),
       middle(entered),
     );
+    const landed: IAutoMovieVector3 = pendulum.pressure();
+    const loading: number = AutoMovieMotionHumanTiming.seconds(TRANSFER);
     const begin: IAutoMovieVector3 = pendulum.xi();
     const last: number = pendulum.t;
     const base: IAutoMovieVector3[] = pendulum.bearing(["left", "right"]);
@@ -156,6 +167,7 @@ export namespace staggerClose {
     let x: IAutoMovieVector3 = pendulum.s;
     let e: IAutoMovieVector3 = begin;
     let rested: boolean = false;
+    let jump: IAutoMovieVector3 | undefined;
     const longest: number = righting + 20 / w;
     const grow: number = Math.exp(w * STEP);
     const halfGrowth: number = grow / 2;
@@ -167,10 +179,17 @@ export namespace staggerClose {
         ((i - 1) * STEP) / righting,
       );
       const towards: IAutoMovieVector3 = Vector3.lerp(begin, rest, reference.s);
-      const p: IAutoMovieVector3 = nearest(
+      const aimed: IAutoMovieVector3 = nearest(
         Vector3.add(
           Vector3.subtract(e, Vector3.scale(travel, reference.ds / rate)),
           Vector3.scale(Vector3.subtract(e, towards), TRACKING),
+        ),
+      );
+      jump ??= Vector3.subtract(landed, aimed);
+      const p: IAutoMovieVector3 = nearest(
+        Vector3.add(
+          aimed,
+          Vector3.scale(jump, 1 - minimumJerk.share(Math.min(1, ((i - 1) * STEP) / loading))),
         ),
       );
       pressing.push(p);

@@ -63,6 +63,7 @@ export namespace walkReachStance {
    * @param yaw The fixed pelvis heading, degrees.
    * @param pivoted The fixed toe-pad turn, degrees.
    * @param rocker The fixed rocker onset room, degrees.
+   * @param dorsal The ankle's dorsal limit, degrees, by the weight the foot bears (`walkLeg.dorsal`); an unloaded foot's when absent.
    * @returns The stance rule evaluated at a hip in world metres: the stance as reached and its contact point in the foot's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which stance inputs stay fixed, angular units and the varying world-space hip.
@@ -70,7 +71,7 @@ export namespace walkReachStance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader running the rocker, the trail, the pivot, then the edge.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Raising the heel only brings the thigh forward, so the trail's room has no fold to search; no trial hip or fit result is memoized.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance; per hip at most `TOES_DOWN` heel-rocker passes, one rounded rise and one pass over the sole's points. A toe-pad turn lazily prepares its yaw/roll and socket geometry, then computes its toe-angle offset once for both rigid transforms.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn and rocker width determine the shared geometry. A toe-pad turn's articulated offset is the same under its old and new rotation, so one local value serves both transforms; every trial computes its own toe angle and placed contact.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and dorsal limit determine the shared geometry. A toe-pad turn's articulated offset is the same under its old and new rotation, so one local value serves both transforms; every trial computes its own toe angle and placed contact.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
    */
   export function prepare(
@@ -80,6 +81,7 @@ export namespace walkReachStance {
     yaw: number,
     pivoted: number,
     rocker: number,
+    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
   ): (hip: IAutoMovieVector3) => { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
     const initial: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(initial.rotation);
@@ -127,7 +129,7 @@ export namespace walkReachStance {
           for (let k: number = 0; k < TOES_DOWN; k++) {
             const top: number =
               -lean!(h, placement.ankle) +
-              ANKLE_DORSIFLEXION.unloaded -
+              dorsal -
               walkLeg.ANKLE;
             if (pitch <= top + SETTLED) break;
             pitch = Math.max(0, top);
@@ -140,6 +142,7 @@ export namespace walkReachStance {
             pivot,
             heading,
             rocker,
+            dorsal,
           ))(h, pitch);
           if (risen !== pitch) {
             pitch = risen;
@@ -204,11 +207,19 @@ export namespace walkReachStance {
       const down: number = h.y - placement.ankle.y;
       const excess: number =
         (Math.atan2(Math.abs(aside), down) * 180) / Math.PI - SIDE;
+      let bearing: IAutoMovieVector3 = contact;
       if (down > 0 && excess > 0) {
+        // The border it rolls about is the outermost of the sole points that
+        // bear, within the sole's bearing height of its lowest
+        // (`HumanFoot.BEARING`): a heel the rocker has raised is not on the
+        // floor, and a roll about it would lift the whole foot.
         const sign: number = Math.sign(aside);
+        const points: IAutoMovieVector3[] = (sole ??= HumanFoot.prepareSole(body, side))(placement);
+        const floor: number = Math.min(...points.map((q: IAutoMovieVector3): number => q.y));
         let edge: IAutoMovieVector3 = placement.ankle;
         let most: number = -Infinity;
-        for (const q of (sole ??= HumanFoot.prepareSole(body, side))(placement)) {
+        for (const q of points) {
+          if (q.y > floor + HumanFoot.BEARING) continue;
           const out: number =
             sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
           if (out > most) {
@@ -232,10 +243,18 @@ export namespace walkReachStance {
             Quaternion.multiply(roll, placement.rotation),
           ),
         };
+
+        // A rolled foot bears on the border it rolled about, which stays on
+        // the floor: that border, in the foot's frame, is its contact, so a
+        // leg fit that holds the contact holds the foot where it bears.
+        bearing = Quaternion.rotateVector(
+          Quaternion.inverse(placement.rotation),
+          Vector3.subtract(edge, placement.ankle),
+        );
       }
       return {
         end: { ankle: placement.ankle, rotation: placement.rotation, toes },
-        contact,
+        contact: bearing,
       };
     };
   }

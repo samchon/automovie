@@ -20,6 +20,7 @@ import { HumanLegChain } from "../posture/HumanLegChain";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
+import { staggerDorsal } from "./staggerDorsal";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
@@ -191,6 +192,11 @@ export function staggerAdmission(
       entry.posture.yaw,
       entry.posture.joints.hips ?? [0, 0, 0],
       feet,
+      {},
+      undefined,
+      undefined,
+      undefined,
+      staggerDorsal(body, walk.pressure(t), feet),
     );
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => feet[side].swing === undefined,

@@ -47,7 +47,10 @@ import { staggerShift } from "./staggerShift";
  * as near the extrapolated centre of mass `x + v / omega0`, `omega0 = sqrt(g
  * / l)`, as the bearing feet reach: on it, which holds it, or at the nearest
  * point of their outline, from which it runs on (Hof 2008, Hum Mov Sci
- * 27:112). Each recovery step chooses its time and its place within measured
+ * 27:112). After the push it moves without a jump: a weight shift carries
+ * it onto the stance foot before each step, ending where the swing holds
+ * it, and onto a landed foot only by the next shift, never at a
+ * touch-down. Each recovery step chooses its time and its place within measured
  * bounds, as capture-point stepping does (Koolen et al. 2012, Int J Robot Res
  * 31:1094; Griffin et al. 2017): the weight shifts onto the stance foot over
  * both feet, the foot swings in its direction's step time and lands the sole

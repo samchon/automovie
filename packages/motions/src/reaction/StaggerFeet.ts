@@ -13,6 +13,7 @@ import { walkReachHeld } from "../actions/walkReachHeld";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
+import { staggerDorsal } from "./staggerDorsal";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
@@ -189,6 +190,9 @@ export class StaggerFeet {
         yaw: number,
         joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
       ): ReturnType<typeof walkReachHeld.tilt> => walkReachHeld.tilt(body, root, yaw, joints, at.trunk),
+      // Each planted ankle bends as far as the weight it bears lets it
+      // (`staggerDorsal`).
+      staggerDorsal(body, this.recovery.pressure(seconds), feet),
     );
 
     // The lowering comes in with the reaction from the entry's own height,

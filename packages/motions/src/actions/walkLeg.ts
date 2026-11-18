@@ -188,6 +188,9 @@ export namespace walkLeg {
    * @param pitch The asked pitch, degrees, negative toes-down.
    * @param width The room, degrees, under which the heel begins to rise; zero
    *   keeps the asked pitch until the limit itself.
+   * @param dorsal The ankle's dorsal limit, degrees: an unloaded foot's
+   *   (`ANKLE_DORSIFLEXION.unloaded`) when absent, more as the foot takes
+   *   weight (`dorsal`).
    * @returns The pitch, no higher than the asked one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States rocker contact, world frame, angular inputs and returned pitch bound.
@@ -206,8 +209,35 @@ export namespace walkLeg {
     heading: number,
     pitch: number,
     width: number,
+    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
   ): number {
-    return prepareHeelRise(body, side, pivot, heading, width)(hip, pitch);
+    return prepareHeelRise(body, side, pivot, heading, width, dorsal)(hip, pitch);
+  }
+
+  /**
+   * The ankle's dorsal limit of a planted foot bearing a share of the body's
+   * weight, degrees: the unloaded foot's passive limit, rising linearly with
+   * the share to the weight-bearing one when it bears it all
+   * (`ANKLE_DORSIFLEXION`; Konor et al. 2012's weight-bearing lunge). The
+   * weight's moment about the ankle is what stretches the calf past its
+   * passive range, and it grows with the share the foot bears, so a foot
+   * taking the weight over a weight shift reaches its dorsal room
+   * continuously instead of at a touch-down.
+   *
+   * @param share The share of the body's weight the foot bears, 0 to 1.
+   * @returns Degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, their source, the premise of the blend and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The two measured limits joined by the share of the weight whose moment stretches the joint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp and one linear blend.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ends are the engine's measured limits; the share is clamped to its range.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one number.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function dorsal(share: number): number {
+    const s: number = Math.min(1, Math.max(0, share));
+    return ANKLE_DORSIFLEXION.unloaded + s * (ANKLE_DORSIFLEXION.loaded - ANKLE_DORSIFLEXION.unloaded);
   }
 
   /**
@@ -218,6 +248,7 @@ export namespace walkLeg {
    * @param pivot The fixed toe-joint contact, world metres.
    * @param heading The fixed foot heading, degrees.
    * @param width The fixed dorsal-room onset, degrees.
+   * @param dorsal The ankle's fixed dorsal limit, degrees; the unloaded foot's when absent (`dorsal`).
    * @returns The heel-rise rule for a world-space hip and asked pitch.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each fixed input, its unit and the varying hip/pitch reader.
@@ -234,6 +265,7 @@ export namespace walkLeg {
     pivot: IAutoMovieVector3,
     heading: number,
     width: number,
+    dorsal: number = ANKLE_DORSIFLEXION.unloaded,
   ): (hip: IAutoMovieVector3, pitch: number) => number {
     const at: (degrees: number) => IAutoMovieVector3 =
       HumanFoot.prepareAnkle(body, side, "mtp", pivot, heading);
@@ -242,16 +274,16 @@ export namespace walkLeg {
       (degrees: number): number => {
         // The ankle record is the reader's own, read here before its next pitch.
         const shank: number | undefined = lean(hip, at(degrees));
-        return shank === undefined ? -Infinity : roomValue(shank, degrees);
+        return shank === undefined ? -Infinity : roomValue(shank, degrees, dorsal);
       },
       pitch,
       width,
     );
   }
 
-  /** The room a planted foot's ankle keeps before its unloaded dorsal limit (`ANKLE_DORSIFLEXION.unloaded`, less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise` keeps. */
-  function roomValue(lean: number, pitch: number): number {
-    return -lean + ANKLE_DORSIFLEXION.unloaded - ANKLE - pitch;
+  /** The room a planted foot's ankle keeps before its dorsal limit (`dorsal`, less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise` keeps. */
+  function roomValue(lean: number, pitch: number, dorsal: number): number {
+    return -lean + dorsal - ANKLE - pitch;
   }
 
   /**

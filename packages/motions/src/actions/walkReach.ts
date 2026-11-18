@@ -232,6 +232,8 @@ export namespace walkReach {
    *   its ankle can bend no further.
    * @param resolution Optional exact FK loan from this synchronous person observation; only the actual hip read borrows it.
    * @param tilt The pelvis's tilt from upright under its settled heading, given the unlowered root, that heading and the upright hip joints (`walkReachHeld.tilt`): its world rotation and the hip joints it carries. A caller that shows the pelvis tilted (a trunk tipped about the hips) gives it, so the lowering is settled on the hip joints as shown; upright when absent.
+   * @param dorsal Each planted foot's dorsal limit, degrees, by the weight it bears (`walkLeg.dorsal`); an unloaded foot's for a side absent.
+   * @param step The hip's largest vertical step a frame of the caller's planned course, metres, which eases each leg's reach over a soft band (`walkReachShort.prepare`); a hard reach when absent.
    * @returns The pelvis and each stance as reached.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset, the tilted pelvis and both returned stances.
@@ -256,6 +258,8 @@ export namespace walkReach {
       yaw: number,
       joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
     ) => { rotation: IAutoMovieQuaternion; hips: Record<"left" | "right", IAutoMovieVector3> },
+    dorsal: Readonly<Partial<Record<"left" | "right", number>>> = {},
+    step?: number,
   ): IGround {
     const {
       yaw,
@@ -298,7 +302,7 @@ export namespace walkReach {
         // A bearing stance's reading is its hip's alone, so a lowering asked again (drop 0 under each fading mask) takes it.
         const known: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } | undefined = inactive ? undefined : read[side].get(drop);
         const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } = known ??
-          (readers[side] ??= walkReachStance.prepare(body, side, feet[side], yaw, pivots[side], rocker))(hip(side, drop));
+          (readers[side] ??= walkReachStance.prepare(body, side, feet[side], yaw, pivots[side], rocker, dorsal[side]))(hip(side, drop));
         if (!inactive && known === undefined) read[side].set(drop, out);
         placed[side] = out.end;
         contacts[side] = out.contact;
@@ -310,7 +314,7 @@ export namespace walkReach {
       const named: number | undefined = claims[side];
       if (named !== undefined) return named;
       if (!(share[side] > 0)) return -CLAIM;
-      if (short === undefined) short = prepareShort(body);
+      if (short === undefined) short = prepareShort(body, step);
       return short(joints[side], placed[side].ankle);
     };
     const lowering: () => number = (): number =>

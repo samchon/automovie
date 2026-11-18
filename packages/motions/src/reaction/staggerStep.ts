@@ -68,7 +68,7 @@ export namespace staggerStep {
    * @evidence contracts/development/implementation.md#principled-implementation Capture-point stepping (Koolen et al. 2012; Hof 2008): the foot lands its landing point on the extrapolated centre of mass at touch-down, held inside the measured region and, crossing, a sole's length clear of the stance foot; caught once the extrapolated centre of mass is inside the two feet's base.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, the crossing, the landing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region and the times are the measured bounds; a landing is never moved by the legs' admission, which refuses it instead.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: one weight-shift span (`staggerTransfer`), one swing span, a zero-length touch-down span on both feet, two region clamps and two support hulls; admitted, at most 3 + log2(1 / `ADAPTED`) landing admissions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: one weight-shift span (`staggerTransfer`, its end a fixed point of a few passes), one held swing span, two region clamps and two support hulls; admitted, at most 3 + log2(1 / `ADAPTED`) landing admissions.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Ball, heel and sole positions are read once from the departing placement and shared by its toe direction, aim and landing point.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends the step and its spans to the pendulum the search owns.
    */
@@ -111,11 +111,19 @@ export namespace staggerStep {
           STEP_TIME,
         );
     const start: number = pendulum.t;
-    pendulum.bear([stance], swing);
 
-    // The aim: the landing point on the extrapolated centre of mass at
-    // touch-down.
-    const goal: IAutoMovieVector3 = Vector3.add(centre, pendulum.xi());
+    // Over the swing the stance foot alone bears, its centre of pressure
+    // held where the weight shift ended, the stance foot's point nearest the
+    // extrapolated centre of mass at lift-off.
+    pendulum.hold(swing);
+
+    // The aim: the landing point where the extrapolated centre of mass will
+    // be once the landed foot has taken the weight, over the measured weight
+    // shift (`StaggerPendulum.loaded`).
+    const goal: IAutoMovieVector3 = Vector3.add(
+      centre,
+      pendulum.loaded(AutoMovieMotionHumanTiming.seconds(TRANSFER)),
+    );
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", from);
     const heel: IAutoMovieVector3 = HumanFoot.point(body, side, "heel", from);
     const toes: IAutoMovieVector3 = flat(Vector3.subtract(ball, heel));
@@ -220,10 +228,10 @@ export namespace staggerStep {
     pendulum.steps.push({ side, from, to, start, land: pendulum.t });
     pendulum.feet[side] = to;
 
-    // From the touch-down both feet bear: the centre of pressure stands as
-    // near the extrapolated centre of mass as their outline reaches, the
-    // pendulum's own rule, and the next weight shift leaves from there.
-    pendulum.bear(["left", "right"], 0);
+    // From the touch-down both feet may bear, but a foot takes no weight as
+    // it touches down: the centre of pressure stays where the swing held it
+    // until the next weight shift, or the close's, carries it onto the
+    // landed foot (`StaggerPendulum.transfer`), so it never jumps.
 
     // Caught once the extrapolated centre of mass lies inside the base the
     // two feet now make, the zero-step capture region (Koolen et al. 2012).

@@ -310,10 +310,11 @@ export namespace staggerRecover {
           taken.set(key, known);
         } else pendulum.restore(known.state);
         if (known.done === null) break;
-        if (known.done) {
-          caught = k === order.length - 1;
-          break;
-        }
+
+        // A step that catches the body may end the order, or another may
+        // follow it: the weight still has to reach the landed foot, and a
+        // catch the close cannot hold is held by a further step.
+        if (known.done && k === order.length - 1) caught = true;
       }
       if (!caught) continue;
       const recovery: IRecovery | null = staggerClose.of(
@@ -333,7 +334,7 @@ export namespace staggerRecover {
           entry,
           recovery,
           fixed.bend,
-          [(close.start + close.land) / 2, close.land, recovery.settled],
+          [close.start, (close.start + close.land) / 2, close.land, recovery.settled],
           false,
         )
       )
