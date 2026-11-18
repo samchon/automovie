@@ -1,6 +1,7 @@
 import type {
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionHumanBalance,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanPhysics, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -26,11 +27,14 @@ import { nclose } from "../internal/nclose";
  * 5. An instantaneous square window applies at its one instant. With an
  *    eased edge it applies nowhere and admits no judging window.
  * 6. Missing part and either bound are refused by their balance fields.
+ * 7. The correction on a rectangular support is zero inside. Outside,
+ *    the closest reachable boundary gives the signed shift, and a line
+ *    running parallel to its missed face refuses a projection.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the author defaults, action clock, transient and refusal contracts.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises public shift preparation, weight and judgment with a recorded cue resolver. Wrong part precedence, skipped or repeated lookups, nonlocal time, unnecessary audits and ill-named refusals fail.
- * @evidence contracts/development/testing.md#independent-expectations Derives local seconds from the fixture's clock and cue, then checks its scalar shares against the rest-to-rest minimum-jerk polynomial 10u³−15u⁴+6u⁵ from Flash and Hogan 1985. Edge overlap scales both ramp durations by the window over their sum.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers omission and zero, local and foreign events with index/offset, opening and closing sides, override and default, overlap and each missing required term.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public shift preparation, weight, judgment and support projection. Wrong part precedence, extra lookups, unnecessary audits, ill-named refusals and nonminimal corrections fail.
+ * @evidence contracts/development/testing.md#independent-expectations Derives the cue times and compares with the rest-to-rest minimum-jerk polynomial 10u³−15u⁴+6u⁵ from Flash and Hogan 1985. On the rectangular support the nearest boundary or parallel miss follows from its authored axis limits.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omission, indexed and foreign events, overrides, non-overlapping and overlapping ramps, missing terms, and reachable, unnecessary and unreachable support corrections.
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory unit spec supplies its own action events and cue callback, without solving any body or starting a host.
  */
 export function test_human_motion_balance_window(): void {
@@ -177,6 +181,37 @@ export function test_human_motion_balance_window(): void {
     }
     TestValidator.equals(`the missing ${field} names its axis`, axis, `balance.${field}`);
   }
+  supportOffset();
+}
+
+/** The closest point on an authored axis-aligned support is known exactly. */
+function supportOffset(): void {
+  const lo: number = -1;
+  const hi: number = 2;
+  const z: number = 1 / 2;
+  const points: IAutoMovieVector3[] = [
+    { x: hi, y: 0, z },
+    { x: lo, y: 0, z: -z },
+    { x: hi, y: 0, z: -z },
+    { x: lo, y: 0, z },
+  ];
+  const towardX: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+  const towardZ: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const inside: IAutoMovieMotionHumanBalance.ISupport = {
+    centre: { x: hi - 1 / 4, y: 1, z: z / 2 },
+    points,
+  };
+  const outside: IAutoMovieMotionHumanBalance.ISupport = {
+    centre: { ...inside.centre, x: hi + 3 / 2 },
+    points,
+  };
+  TestValidator.predicate(
+    "support projection moves only to the closest reachable boundary",
+    HumanPhysics.supportOffset(inside, towardX) === 0 &&
+      HumanPhysics.supportOffset(outside, towardX) === -3 / 2 &&
+      HumanPhysics.supportOffset(outside, { x: -1, y: 0, z: 0 }) === 3 / 2 &&
+      HumanPhysics.supportOffset(outside, towardZ) === null,
+  );
 }
 
 /** The closed form in Flash and Hogan 1985, with normalized time u. */
