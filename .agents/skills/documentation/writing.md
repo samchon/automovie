@@ -64,11 +64,11 @@ Where the text must mention what lies above or what uses it, it names it in plai
 
 ### Paragraphs
 
-A paragraph is one topic, written on one source line. Open it with its point and follow with the detail, because a reader who skims reads only the first sentence.
+A paragraph is one topic, the answer to one question a reader brings, written on one source line. Open it with its point and follow with the detail, because a reader who skims reads only the first sentence.
 
-A paragraph of more than about five sentences usually holds a second topic. Gluing several topics into one long paragraph to keep the count low is a failure, not concision, because the reader cannot find the second topic.
+Start a new paragraph where the question changes, and keep together the sentences that answer the same one. A break costs no words, so shortening a text never merges its paragraphs.
 
-Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
+A paragraph of more than about five sentences usually holds a second topic, and gluing topics together hides the second from the reader. Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
 
 ### Lists
 
