@@ -62,6 +62,11 @@ export function lexiconSchemas(target?: string): void {
         )
           continue;
         const name: string = (member as { name: string }).name;
+        const schema: ISchema | undefined = exports[key];
+        if (schema === undefined)
+          throw new Error(
+            `${family}.${key} (${name}): no canonical parameter schema`,
+          );
         if (seen.has(key) && seen.get(key) !== name)
           throw new Error(
             `${family}: two laws are exported as ${key} (${seen.get(key)} and ${name}); give one another export name`,
@@ -69,12 +74,12 @@ export function lexiconSchemas(target?: string): void {
         seen.set(key, name);
         if (
           rows.has(name) &&
-          JSON.stringify(rows.get(name)) !== JSON.stringify(exports[key])
+          JSON.stringify(rows.get(name)) !== JSON.stringify(schema)
         )
           throw new Error(
             `two rows are named ${name} with different parameters`,
           );
-        if (exports[key] !== undefined) rows.set(name, exports[key]!);
+        rows.set(name, schema);
       }
   }
   const sorted = (entries: Map<string, ISchema>): Record<string, ISchema> =>
