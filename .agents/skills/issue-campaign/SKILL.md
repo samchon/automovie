@@ -58,7 +58,7 @@ On the integrated head, run [overall self-review](../review/SKILL.md#overall-sel
 
 ### 6. Merge
 
-[Format](../development/validation.md#formatting), then [merge](../pull-request/SKILL.md#push-and-merge) with authority once one head is green and review-clean. First read `git log origin/master..HEAD` to confirm each closed issue keeps its fix, and reopen any that does not.
+[Format](../development/validation.md#formatting), then [merge](../pull-request/SKILL.md#merging) with authority once one head is green and review-clean. First read `git log origin/master..HEAD` to confirm each closed issue keeps its fix, and reopen any that does not.
 
 ### 7. Next cycle
 
