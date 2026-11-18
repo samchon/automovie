@@ -112,7 +112,7 @@ export namespace HumanBodyFit {
    * The fit and what it misses by.
    *
    * @param props The fit.
-   * @returns The fitted posture, each target's residual, the balance's, whether it converged and why the loop stopped.
+   * @returns The fitted posture, its constraint residuals and feasibility, whether the loop converged and why it stopped.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model and the merit agree at the iterate they are taken about.
@@ -442,6 +442,7 @@ export namespace HumanBodyFit {
         },
       );
     const r: IReading = solved.evaluation.r;
+    const feasible: boolean = merit.holds(solved.evaluation.misses);
     return {
       posture: r.written,
       residuals: targets.map(
@@ -471,14 +472,14 @@ export namespace HumanBodyFit {
           0,
           ...(r.balance?.inside ?? []).map((d: number): number => -d),
         ) * MM,
-      converged: solved.settled && merit.holds(solved.evaluation.misses),
+      feasible,
+      converged: solved.settled && feasible,
       reason: solved.reason,
     };
   }
 
   /** A posture's reading for the fit. */
   type IReading = HumanBodyFitRows.IReading;
-
   /** A row of a step and the reading it linearises. */
   type IRead = HumanBodyFitRows.IRead;
 

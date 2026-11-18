@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -23,6 +24,7 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { sprintStartSet } from "./sprintStartSet";
 
@@ -272,7 +274,23 @@ export namespace athletics {
             return at <= 0 || at >= 1;
           },
         });
-      primitives.push({ ...leg, reads: ["root", `${side}Leg`] });
+      const toes: AutoMovieHumanoidBone = `${side}Toes`;
+      const articulated: ReturnType<typeof blendHumanJoint.between> = blendHumanJoint.between(
+        body, toes, entry.joints[toes] ?? [0, 0, 0], target.joints[toes] ?? [0, 0, 0],
+      );
+      primitives.push({
+        ...leg,
+        reads: ["root", `${side}Leg`],
+        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+          // The block fit placed both the rigid foot and the toe hinge.
+          // Preserve that hinge as the foot lands and through its hold.
+          const moved: IAutoMovieMotionHumanPosture = leg.write(posture, seconds);
+          return {
+            ...moved,
+            joints: { ...moved.joints, [toes]: articulated(into(seconds)) },
+          };
+        },
+      });
     }
     for (const side of ["left", "right"] as const)
       primitives.push(

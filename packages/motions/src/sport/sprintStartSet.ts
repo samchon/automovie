@@ -411,7 +411,11 @@ export namespace sprintStartSet {
         /^rightIndexDistal$/,
       ],
     });
-    if (!solved.converged)
+    // The set needs a posture satisfying all the contact and measurement
+    // rows. Further improvement of the preference within that feasible set
+    // is a separate optimisation question (Wright and Tenny 2004, SIAM J.
+    // Optim. 14(4), sec. 1, https://pages.cs.wisc.edu/~swright/papers/WriT04a.pdf).
+    if (!solved.feasible)
       throw new HumanRefusal({
         kind: "reach",
         axis: "set",
@@ -445,11 +449,11 @@ export namespace sprintStartSet {
       pitch: solved.posture.pitch,
       joints: solved.posture.joints,
       palms,
-      // Each foot where the fit set it on its block: the block's turn, its
-      // height the sole's contact.
+      // Keep each foot's achieved block frame. Substituting the requested
+      // rotation discards the fitted shape at the toe's contact.
       feet: {
-        left: { ankle: bones.get("leftFoot")!.worldPosition, rotation: feet.left.rotation },
-        right: { ankle: bones.get("rightFoot")!.worldPosition, rotation: feet.right.rotation },
+        left: { ankle: bones.get("leftFoot")!.worldPosition, rotation: bones.get("leftFoot")!.worldRotation },
+        right: { ankle: bones.get("rightFoot")!.worldPosition, rotation: bones.get("rightFoot")!.worldRotation },
       },
     };
   }
