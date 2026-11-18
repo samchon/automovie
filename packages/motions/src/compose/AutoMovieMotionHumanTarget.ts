@@ -43,6 +43,26 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  */
 export namespace AutoMovieMotionHumanTarget {
   /**
+   * The bones a posture places without solving a limb (`HumanTrunk.resolve`):
+   * a region of the performer's own body is read on the posture only on
+   * these; one on any other bone rides a limb not solved yet.
+   */
+  export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([
+      "hips",
+      "spine",
+      "chest",
+      "upperChest",
+      "neck",
+      "head",
+      "leftEye",
+      "rightEye",
+      "jaw",
+      "leftShoulder",
+      "rightShoulder",
+    ]);
+
+  /**
    * Default places (provisional shares):
    *
    * - `ahead`: at chest height most of an arm away, facing the performer; an
@@ -279,19 +299,3 @@ export namespace AutoMovieMotionHumanTarget {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }
 }
-
-/** The bones a posture places without solving a limb (`HumanTrunk.resolve`). */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-    "leftEye",
-    "rightEye",
-    "jaw",
-    "leftShoulder",
-    "rightShoulder",
-  ]);

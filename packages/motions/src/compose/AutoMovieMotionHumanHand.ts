@@ -112,12 +112,15 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#principled-implementation Each finger joint goes by the weight from the flexion the posture holds for it (the relaxed cascade where it holds none) to the shape's, so the hand leaves and returns to the hand it was given.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the posture/joints, read this second's weight and configuration, then use one fixed-shape reader for the joint update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1], so an overshooting time course cannot bend a finger past its shape.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed shape scalars are compiled only on first use or changed side/shape; each written second reads the actual weight and writes fifteen fresh triples directly into its owned joint copy, without temporary named-shape or interpolated-joint maps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingerWriter shares prepareFingers/fingers' same scalar interpolation. Exact current side/shape keys guard one last preparation, preserving live props and recomputing changed configurations without a growing cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The primitive's fixed shape scalars are compiled once, at the first write; each written second reads the weight and writes fifteen fresh triples directly into its owned joint copy, without temporary named-shape or interpolated-joint maps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingerWriter shares prepareFingers/fingers' scalar interpolation; the primitive's side and shape are its own constants, so one writer serves every second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fixed fifteen-entry reader until release, retaining no per-second posture, weight, curl, result or time history.
    */
   export function shape(props: IAutoMovieMotionHumanHand.IShape): IAutoMovieMotionHumanPrimitive {
-    let fixed: { side: AutoMovieHumanSide; shape: IAutoMovieMotionHumanHand.Shape; write: ReturnType<typeof prepareFingerWriter> } | undefined;
+    const curl: number = props.curl ?? 0;
+
+    // Compiled at the first write, so a shape the hand owner refuses is refused there.
+    let write: ReturnType<typeof prepareFingerWriter> | undefined;
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
@@ -125,13 +128,9 @@ export namespace AutoMovieMotionHumanHand {
       to: props.to,
       write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const out: IAutoMovieMotionHumanPosture = { ...posture, joints: { ...posture.joints } };
-        const side: AutoMovieHumanSide = props.side;
-        const asked: IAutoMovieMotionHumanHand.Shape = props.shape;
-        const curl: number = props.curl ?? 0;
         const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        if (fixed === undefined || fixed.side !== side || fixed.shape !== asked)
-          fixed = { side, shape: asked, write: prepareFingerWriter(side, asked) };
-        fixed.write(out.joints, curl, weight);
+        write ??= prepareFingerWriter(props.side, props.shape);
+        write(out.joints, curl, weight);
         return out;
       },
     };

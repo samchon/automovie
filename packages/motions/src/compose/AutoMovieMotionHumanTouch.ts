@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmCarry,
@@ -96,11 +97,11 @@ export namespace AutoMovieMotionHumanTouch {
     resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     if (target.kind === "self") {
-      const frame = context.body.surfaces.regions[target.region];
-      if (!TRUNK.has(frame.bone)) {
+      const frame: IAutoMovieHumanoidSurfaces.IFrame = context.body.surfaces.regions[target.region];
+      if (!AutoMovieMotionHumanTarget.TRUNK.has(frame.bone)) {
         // The bones are read only here: a caller whose bones cost a pose
         // lends a supplier, which a region on the trunk never calls.
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
+        const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
           frame,
           (typeof entry === "function" ? entry() : entry).get(frame.bone)!,
         );
@@ -261,7 +262,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The constants once, then one region read, the offsets and one effector goal per second.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift, the travel and the stand-off are shares of the hand; a count that is not whole throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms One region read per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector, laid direction and tangent owners. A last exact repetition count shares only admitted wave constants while the actual current clock callback remains per sample. Current FK/genuine ROM metadata is forwarded to region/collider callbacks for that invocation only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector, laid direction and tangent owners. One wave of the touch's count, prepared at its first stroke sample, serves every later one. Current FK/genuine ROM metadata is forwarded to region/collider callbacks for that invocation only.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function retains props, fixed entry-frame hints and at most one count-bound wave reader until release. Query metadata remains callback arguments and never enters the retained reader or returned goal; no time/result history is stored.
    */
   export function goal(
@@ -282,13 +283,9 @@ export namespace AutoMovieMotionHumanTouch {
     const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
     const from: IAutoMovieVector3 | undefined =
       props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-    let wave: { count: number; read: (seconds: number) => number } | undefined;
-    const oscillation = (seconds: number): number => {
-      if (wave === undefined || wave.count !== props.count)
-        wave = { count: props.count,
-          read: AutoMovieMotionClock.prepareWave(clock, ["strokeStart", "strokeEnd"], props.count) };
-      return wave.read(seconds);
-    };
+    let wave: ((seconds: number) => number) | undefined;
+    const oscillation: (seconds: number) => number = (seconds: number): number =>
+      (wave ??= AutoMovieMotionClock.prepareWave(clock, ["strokeStart", "strokeEnd"], props.count))(seconds);
     return (posture: IAutoMovieMotionHumanPosture, seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[3]): IAutoMovieHumanLimbGoal => {
@@ -379,19 +376,3 @@ export namespace AutoMovieMotionHumanTouch {
     };
   }
 }
-
-/** The bones a posture places without solving a limb. */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-    "leftEye",
-    "rightEye",
-    "jaw",
-    "leftShoulder",
-    "rightShoulder",
-  ]);

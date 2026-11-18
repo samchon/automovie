@@ -22,7 +22,7 @@ import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
  * `strokeEnd`, `retract`. A family adds its own (`chamber`, `takeoff`,
  * `landing`). `start` and `end` always exist, at 0 and at the duration.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and fixed start/end names; prepare preserves custom clock callbacks while privately issued native methods share fixed numeric intervals, and wave/prepareWave delegate count admission and waveform ownership to AutoMovieMotionWave.
+ * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and fixed start/end names; prepare and prepareEnvelope resolve a fixed window's instants once, and wave/prepareWave delegate count admission and waveform ownership to AutoMovieMotionWave.
  * @evidence contracts/development/design.md#principled-representation An action's timing is a duration and named instants in seconds, the phase boundaries of gesture research; every window is a pair of names, so a row never repeats a number.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Clock constructors, timing transformations and fixed-window/wave readers serve current action primitives without naming any body part; the clock record, interval arithmetic and waveform each retain one owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Instants are plain records and names are checked when the clock is built; an unknown name throws instead of reading as zero.
@@ -35,30 +35,30 @@ export namespace AutoMovieMotionClock {
   export const END: string = AutoMovieMotionClockNative.END;
 
   /**
-   * Prepare native fixed intervals while preserving arbitrary custom clock callbacks.
+   * A fixed window's uniform and minimum-jerk readers, its two instants resolved once.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each sample reads only its requested public method once. An original native method resolves names through its saved private at on the first native sample; foreign/replaced methods keep current getters, clock receiver and callback admission.
-   * @evidence contracts/development/implementation.md#principled-implementation The constructor's original linear/progress closures depend on its private at, independently of later public property replacements. Only exact requested-callee identity justifies the same fixed numeric interval; all other callees are invoked normally.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the constructor/provenance owner ClockNative; its one lookup and lazy private-at interval serve both captured-callee readers while Interval retains numeric step/easing rules.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unrelated public getter is probed and no current callee is read twice. Reflect.apply preserves the captured foreign callee's original clock receiver without reading a replaceable function.call property; each actual second retains its original numerical rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native samples use one requested-method lookup and identity check plus scalar arithmetic; their two private name lookups occur once. Foreign samples retain one method lookup/callback and a three-value argument array; setup/retention are constant, with unmeasured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only constructor-owned private named times share interval preparation when the requested method is still original. Public at or the other query method is irrelevant to that closure; custom results and different seconds are never cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the clock, names, original method references and optional fixed numeric interval until release; native construction records are weakly keyed by their live clock and retain no sample history or handles.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed window; ClockNative.prepare states when its names are resolved.
+   * @evidence contracts/development/implementation.md#principled-implementation The clock's named times are fixed for its life, so the window's two seconds read once serve every sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to ClockNative, the clock's constructor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every sample runs the interval arithmetic and the profile; no sample value is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once, then constant arithmetic per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the window's two seconds, constants of the clock, are shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, two names and at most one interval until release.
    */
   export function prepare(clock: IAutoMovieMotionClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
     return AutoMovieMotionClockNative.prepare(clock, from, to);
   }
 
   /**
-   * Prepare fixed rise/fall windows with the clock's actual envelope semantics.
+   * A fixed rise and fall's envelope, each window's instants resolved once.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Copies four fixed names, defers native endpoint admission until first actual use, and keeps current envelope lookup, original receiver and fresh foreign argument tuples.
-   * @evidence contracts/development/implementation.md#principled-implementation Only the constructor's original envelope closes its private progress; that exact requested-callee identity justifies fixed numeric intervals without observing public at/linear/progress.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure ClockNative owns construction and the private identity registry; this facade delegates envelope preparation to that same owner and Interval retains interpolation/easing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains rise-before-fall admission/evaluation, original Math.max(0,rise minus fall), current callback behavior and query seconds; no unrelated getter, eager name admission or result memo is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four native name lookups occur once and native samples allocate no window tuples. Foreign/replaced callbacks receive fresh tuples plus their actual invocation; all numeric progress remains and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed window names and constructor-private interval metadata alone share; each sample captures the current requested envelope once, and nonoriginal callees retain their independent callback behavior.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains clock, copied names and at most two numeric intervals until release; no caller array, pose, query result, time history or handle is retained.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed windows; ClockNative.prepareEnvelope states the resolution order and the clamp.
+   * @evidence contracts/development/implementation.md#principled-implementation The clock's named times are fixed for its life, so each window's two seconds read once serve every sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to ClockNative, the clock's constructor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every sample evaluates both progresses and the clamp; no sample value is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four name lookups once, then constant work per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the windows' seconds, constants of the clock, are shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, four names and at most two intervals until release.
    */
   export function prepareEnvelope(clock: IAutoMovieMotionClock, rise: readonly [string, string],
     fall: readonly [string, string]): (seconds: number) => number {
@@ -74,11 +74,11 @@ export namespace AutoMovieMotionClock {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and each refused input.
    * @evidence contracts/development/implementation.md#principled-implementation Uniform progress is the clamped linear map of the window, minimum-jerk progress is `minimumJerk` of it (Flash and Hogan 1985), and the envelope is the rise's progress less the fall's, clamped at zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates construction to ClockNative, which owns the original validated map and private at/linear/progress/envelope closures used by all guarded prepared readers.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates construction to ClockNative, which owns the validated map and the at, linear, progress and envelope closures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated or reserved name, an instant outside the duration and an unknown name throw; the only tolerance is 1e-9 s on the duration's end, for an instant computed as a sum of phase lengths.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query is two map lookups and a polynomial, constant time, which matters because every primitive asks at every evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The constructed clock retains one map/sorted array and its original closures; ClockNative weakly owns the method proof without retaining the clock key, query history or external resources.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The constructed clock retains one map, one sorted array and its closures, with no query history or external resource.
    */
   export function of(duration: number, instants: readonly IAutoMovieMotionClockInstant[]): IAutoMovieMotionClock {
     return AutoMovieMotionClockNative.of(duration, instants);
