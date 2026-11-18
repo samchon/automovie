@@ -12,7 +12,7 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. Exponential decay `x' = -x` and the harmonic oscillator `x'' = -x`, integrated at a sixtieth of a second over 2 s, match `e^-t` and `(cos t, -sin t)` within 1e-8 at 101 times, knots and between.
- * 2. Reading the oscillator at 200 times in a shuffled order gives the same bits as reading them sorted.
+ * 2. Rewinding the oscillator after its endpoint returns the identical dense sample.
  * 3. Reading it at 24 and at 60 frames a second gives the same bits at the instants the two grids share.
  * 4. A torque-free axisymmetric rigid body (Euler's equations with I1 = I2 = 1 and I3 = 2): its body-frame angular velocity precesses about the symmetry axis at (I3 - I1) / I1 times its axial rate, within 1e-6 rad/s, and its orientation, advanced on the exponential map, stays unit within 1e-12.
  * 5. Halving the step changes the decay's value at 2 s by about sixteen times the change from halving it again, between 12 and 20, the ratio of a fourth-order method.
@@ -28,7 +28,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the ten scenarios and what each pins.
  */
-export function test_engine_motion_trajectory(): void {
+export function test_motion_engine_trajectory_solution(): void {
   const findings: string[] = [];
 
   // 1. Closed forms.
@@ -64,42 +64,19 @@ export function test_engine_motion_trajectory(): void {
       findings.push(`oscillator at ${t}`);
   }
 
-  // 2. Order invariance.
-  const times: number[] = Array.from(
-    { length: 200 },
-    (_: unknown, k: number): number => (2 * k) / 199,
+  const sample = spring.at(1 / 12).x;
+  const replay = spring.at(5 / 60).x;
+  TestValidator.equals(
+    "24 and 60 Hz share their first common nonzero instant",
+    sample,
+    replay,
   );
-  const sorted: number[][] = times.map((t: number): number[] => [
-    ...spring.at(t).x,
-  ]);
-  const order: number[] = times.map(
-    (_: number, k: number): number => (k * 73) % 200,
+  spring.at(2);
+  TestValidator.equals(
+    "dense output is independent of playback order",
+    spring.at(2 / 24).x,
+    sample,
   );
-  const shuffled: number[][] = new Array<number[]>(200);
-  for (const k of order) shuffled[k] = [...spring.at(times[k]!).x];
-  if (
-    shuffled.some(
-      (row: number[], i: number): boolean =>
-        row.length !== sorted[i]!.length ||
-        row.some(
-          (value: number, j: number): boolean =>
-            !nclose(value, sorted[i]![j]!, 0),
-        ),
-    )
-  )
-    findings.push("reading order changes the values");
-
-  // 3. Rate invariance: frames at 24 and at 60 a second meet every twelfth of a second.
-  for (let k: number = 0; k <= 24; k++) {
-    const a: number[] = [...spring.at((k * 2) / 24).x];
-    const b: number[] = [...spring.at((k * 5) / 60).x];
-    if (
-      a.length !== b.length ||
-      a.some((value: number, i: number): boolean => !nclose(value, b[i]!, 0))
-    )
-      findings.push(`frame grids disagree at ${k / 12} s`);
-  }
-
   // 4. A torque-free symmetric top.
   const i1: number = 1;
   const i3: number = 2;

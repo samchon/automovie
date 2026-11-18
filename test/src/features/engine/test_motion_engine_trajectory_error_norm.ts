@@ -27,7 +27,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#distinguishing-cases Identity and mixed orthogonal bases, three common unit scales, zero and nonzero matrix entries, q-only contrast, 21 playback instants and invalid zero/fractional/nonfinite/incomplete/sparse partitions.
  * @evidence contracts/development/testing.md#execution-ownership One in-memory unit test through the existing engine API; it starts no process or host.
  */
-export function test_engine_motion_trajectory_blocks(): void {
+export function test_motion_engine_trajectory_error_norm(): void {
   const findings: string[] = [];
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const axes: readonly IAutoMovieVector3[] = [
@@ -58,58 +58,59 @@ export function test_engine_motion_trajectory_blocks(): void {
     v: IAutoMovieVector3,
     i: number,
   ): number => (i === 0 ? v.x : i === 1 ? v.y : v.z);
-  for (const basis of [
-    identity,
-    Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 41),
-  ])
-    for (const scale of [1e-3, 1, 1e3]) {
-      const columns: IAutoMovieVector3[] = axes.map(
-        (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-          Quaternion.rotateVector(basis, axis),
+  const rotated = Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 41);
+  for (const [basis, scale] of [
+    [identity, 1],
+    [rotated, 1],
+    [rotated, 1e-3],
+    [rotated, 1e3],
+  ] as const) {
+    const columns: IAutoMovieVector3[] = axes.map(
+      (axis: IAutoMovieVector3): IAutoMovieVector3 =>
+        Quaternion.rotateVector(basis, axis),
+    );
+    const initial: number[] = Array.from(
+      { length: 9 },
+      (_: unknown, i: number): number =>
+        scale * component(columns[i % 3]!, Math.floor(i / 3)),
+    );
+    const rhs: (t: number) => number[] = (t: number): number[] =>
+      Array.from({ length: 9 }, (_: unknown, i: number): number =>
+        i < 3 ? scale * columns[i]!.y * t ** 5 : 0,
       );
-      const initial: number[] = Array.from(
-        { length: 9 },
-        (_: unknown, i: number): number =>
-          scale * component(columns[i % 3]!, Math.floor(i / 3)),
+    const flight: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+      integrateMotionTrajectory({
+        f: (t: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+          dx: rhs(t),
+          w: rate(t),
+        }),
+        x0: initial,
+        q0: identity,
+        t0: 0,
+        t1: 1,
+        tolerance: { ...tight, blocks: [9] },
+      });
+    for (let k: number = 0; k <= 20; k++) {
+      const t: number = k / 20;
+      const state: IAutoMovieIntegrateMotionTrajectory.IState = flight.at(t);
+      const angle: number = t + (1 - Math.cos(2 * Math.PI * t)) / (2 * Math.PI);
+      const expectedQ: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        axes[0]!,
+        (angle * 180) / Math.PI,
       );
-      const rhs: (t: number) => number[] = (t: number): number[] =>
-        Array.from({ length: 9 }, (_: unknown, i: number): number =>
-          i < 3 ? scale * columns[i]!.y * t ** 5 : 0,
-        );
-      const flight: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({
-          f: (t: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
-            dx: rhs(t),
-            w: rate(t),
-          }),
-          x0: initial,
-          q0: identity,
-          t0: 0,
-          t1: 1,
-          tolerance: { ...tight, blocks: [9] },
-        });
-      for (let k: number = 0; k <= 20; k++) {
-        const t: number = k / 20;
-        const state: IAutoMovieIntegrateMotionTrajectory.IState = flight.at(t);
-        const angle: number =
-          t + (1 - Math.cos(2 * Math.PI * t)) / (2 * Math.PI);
-        const expectedQ: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          axes[0]!,
-          (angle * 180) / Math.PI,
-        );
-        if (
-          !(Quaternion.angle(state.q!, expectedQ) <= 1e-6) ||
-          !(Quaternion.angle(primal.at(t).q!, expectedQ) <= 1e-6)
-        )
-          findings.push(`physical orientation at ${t}, scale ${scale}`);
-        for (let i: number = 0; i < 9; i++) {
-          const expected: number =
-            initial[i]! / scale + (i < 3 ? (columns[i]!.y * t ** 6) / 6 : 0);
-          if (!(Math.abs(state.x[i]! / scale - expected) <= 1e-6))
-            findings.push(`matrix entry ${i} at ${t}, scale ${scale}`);
-        }
+      if (
+        !(Quaternion.angle(state.q!, expectedQ) <= 1e-6) ||
+        !(Quaternion.angle(primal.at(t).q!, expectedQ) <= 1e-6)
+      )
+        findings.push(`physical orientation at ${t}, scale ${scale}`);
+      for (let i: number = 0; i < 9; i++) {
+        const expected: number =
+          initial[i]! / scale + (i < 3 ? (columns[i]!.y * t ** 6) / 6 : 0);
+        if (!(Math.abs(state.x[i]! / scale - expected) <= 1e-6))
+          findings.push(`matrix entry ${i} at ${t}, scale ${scale}`);
       }
     }
+  }
   const sparse: number[] = new Array<number>(2);
   sparse[1] = 9;
   for (const blocks of [

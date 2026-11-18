@@ -47,7 +47,63 @@ import { qunit } from "../internal/qunit";
  * @evidence contracts/development/testing.md#distinguishing-cases Changing noncommuting rates distinguish a dense endpoint differential from a commuting constant-axis control; both integration modes, both knot sides, positive interior coverage, explicit observability checks and an orientation-only output distinguish continuity and ownership failures.
  * @evidence contracts/development/testing.md#execution-ownership One deferred CPU unit owns a pure prescribed ODE, callback observations and returned-vector mutation. It starts no runner, compiler, renderer or host and replaces no foreign method.
  */
-export function test_engine_motion_trajectory_rotation_knots(): void {
+export function test_motion_engine_trajectory_sampling(): void {
+  for (const adaptive of [false, true]) {
+    const x0 = [2, -3];
+    const issued: IRateWitness[] = [];
+    const q0 = { x: 0, y: 0, z: 0, w: 1 };
+    const initial: IAutoMovieIntegrateMotionTrajectory.IProps = {
+      x0,
+      q0,
+      t0: 0,
+      t1: 1,
+      h: 0.2,
+      tolerance: adaptive ? { absolute: 1e-10, relative: 1e-10 } : undefined,
+      f: (t, x) => {
+        const rate: IAutoMovieIntegrateMotionTrajectory.IRate = {
+          dx: [x[1]!, 6 * t],
+          w: { x: 0, y: 0, z: 0.4 },
+        };
+        issued.push({ rate, dx: x[1]!, dy: 6 * t });
+        return rate;
+      },
+    };
+    const trajectory = integrateMotionTrajectory(initial);
+    const independent = integrateMotionTrajectory({ ...initial, x0: [5, 7] });
+    const planned = issued.length;
+    x0[0] = 100;
+    q0.w = 0;
+    for (const t of [1.2, 0.375, -1, 0.375]) {
+      const u = Math.max(0, Math.min(1, t));
+      const held = trajectory.at(t);
+      const broken = trajectory.at(t);
+      broken.x[0] = Infinity;
+      if (broken.q !== null) broken.q.w = Infinity;
+      const after = trajectory.at(t);
+      const other = independent.at(t);
+      TestValidator.predicate(
+        "owned position, derivative and body rotation across dense and held reads",
+        [after, held].every(
+          (s) =>
+            Math.abs(s.x[0]! - (2 - 3 * u + u ** 3)) <= 1e-8 &&
+            Math.abs(s.x[1]! - (-3 + 3 * u * u)) <= 1e-8 &&
+            s.q !== null &&
+            Math.abs(s.q.z - Math.sin(0.2 * u)) <= 1e-12 &&
+            Math.abs(s.q.w - Math.cos(0.2 * u)) <= 1e-12,
+        ) && Math.abs(other.x[0]! - (5 + 7 * u + u ** 3)) <= 1e-8,
+      );
+    }
+    TestValidator.predicate(
+      "playback consumes no rates and preserves callback-owned rate records",
+      issued.length === planned &&
+        issued.every(
+          (v) =>
+            v.rate.dx[0] === v.dx &&
+            v.rate.dx[1] === v.dy &&
+            v.rate.w?.z === 0.4,
+        ),
+    );
+  }
   const findings: string[] = [];
   const epsilon: number = 1e-5;
   const limit: number = 1e-6;
@@ -110,7 +166,8 @@ export function test_engine_motion_trajectory_rotation_knots(): void {
 
     /** Admit each observed public state before logarithms can hide NaN. */
     function read(seconds: number): IAutoMovieQuaternion | null {
-      const state: IAutoMovieIntegrateMotionTrajectory.IState = path.at(seconds);
+      const state: IAutoMovieIntegrateMotionTrajectory.IState =
+        path.at(seconds);
       if (state.x.length !== 0 || state.q === null || !qunit(state.q, 1e-12)) {
         findings.push(`${mode}: invalid orientation-only state at ${seconds}`);
         return null;
@@ -198,4 +255,10 @@ export function test_engine_motion_trajectory_rotation_knots(): void {
     findings,
     [],
   );
+}
+
+interface IRateWitness {
+  rate: IAutoMovieIntegrateMotionTrajectory.IRate;
+  dx: number;
+  dy: number;
 }
