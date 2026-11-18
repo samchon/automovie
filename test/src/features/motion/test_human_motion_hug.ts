@@ -9,6 +9,7 @@ import {
   HumanColliders,
   HumanHand,
   HumanPerformance,
+  HumanRefusal,
   hug,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -27,44 +28,51 @@ import { nclose } from "../internal/nclose";
  * 2. All four palms touch their partners' backs to within 10 mm at three
  *    instants in the shared dwell, with the forearm axes outside the partners.
  * 3. Each hand is clear of its contact point before and after the embrace.
+ * 4. The nearer, opposite-flank entry refuses an obstructed reach.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the staging, hold, four contacts, clearance and source of the arm placement.
+ * @evidence contracts/development/common.md#meaningful-documentation States the staging, hold, four contacts, clearance, refusal and source of the arm placement.
  * @evidence contracts/development/testing.md#behavioral-verification Reads posed palms, back surfaces and body colliders. Fingertip-only contact cannot satisfy the palm check.
  * @evidence contracts/development/testing.md#independent-expectations Dueren et al. (https://doi.org/10.1016/j.actpsy.2021.103441) supply the bilateral arm layout and one-second hold. The touch verification contract supplies the 10 mm tolerance. A forearm axis inside the partner means more than skin contact. The samples bound the selected instants.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks both hands and both directions within contact and immediately outside the action. Touch-law tests own the refusal and body-fit sweeps.
- * @evidence contracts/development/testing.md#execution-ownership The feature runner discovers this in-memory integration test. It builds one performance from an average polygon body without a renderer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks both hands within and outside contact. The nearer stage puts the back targets behind an obstructing chest; the mirrored and deeper stage admits the same bilateral touch.
+ * @evidence contracts/development/testing.md#execution-ownership The feature runner discovers this in-memory integration test. It builds an accepted performance and checks an obstructed placement on the same average polygon body.
  */
 export function test_human_motion_hug(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const hold: number = 1;
   const entry: number = 0.3;
-  const performance: HumanPerformance = new HumanPerformance({
-    seed: "hug",
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-      {
-        subject: "b",
-        body,
-        at: { x: 0.1, y: 0, z: 0.24 },
-        yaw: 180,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: HumanChain.mutual(
-      hug,
-      {
-        one: HumanChain.subject("a").stand({ seconds: entry }),
-        other: HumanChain.subject("b").stand({ seconds: entry }),
-      },
-      { hold },
-    ).node,
-  });
+  /** Stage the same two-performer action at the requested partner position. */
+  const perform = (at: IAutoMovieVector3): HumanPerformance =>
+    new HumanPerformance({
+      seed: "hug",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body,
+          at,
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.mutual(
+        hug,
+        {
+          one: HumanChain.subject("a").stand({ seconds: entry }),
+          other: HumanChain.subject("b").stand({ seconds: entry }),
+        },
+        { hold },
+      ).node,
+    });
+
+  // Stagger the partners toward their higher arms and leave room to
+  // reach the back around the partner's chest.
+  const performance: HumanPerformance = perform({ x: -0.1, y: 0, z: 0.32 });
   const a: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
   const b: IAutoMovieMotionHumanSegment = performance.segments("b")[1]!;
 
@@ -161,4 +169,17 @@ export function test_human_motion_hug(): void {
       }
     }
   }
+
+  let obstructed: unknown;
+  try {
+    perform({ x: 0.1, y: 0, z: 0.24 });
+  } catch (error) {
+    obstructed = error;
+  }
+  TestValidator.predicate(
+    "the nearer stage refuses the obstructed two-arm reach",
+    obstructed instanceof HumanRefusal &&
+      obstructed.kind === "reach" &&
+      obstructed.axis === "region",
+  );
 }
