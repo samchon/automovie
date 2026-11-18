@@ -19,7 +19,9 @@ import { TestValidator } from "@nestia/e2e";
  *    stops on the rounds, not settled.
  * 2. The same problem with `improved` at 4.5 and no stated accuracy: the
  *    second step's predicted decrease, 4, is under it, and the solve stops
- *    on the model, settled; allowed one convexification, it stops at 1 on
+ *    on the model at 1, settled, without trying that step, as TrajOpt's sco
+ *    tests its predicted improvement before it tries a step (Schulman et
+ *    al. 2014, Algorithm 1); allowed one convexification, it stops at 1 on
  *    the rounds. With `least` at 1.5 the first step, of length 1, stops it
  *    at 1 on the step, settled.
  * 3. A model that predicts a decrease of 1 for a step that raises `x^2`:
@@ -138,7 +140,7 @@ export function test_human_motion_core_sequential_convex(): void {
   };
   TestValidator.predicate(
     "a decrease under improved settles the solve",
-    ended(solve(quadratic(undefined, 0), flat, 2), 3, "model"),
+    ended(solve(quadratic(undefined, 0), flat, 2), 1, "model"),
   );
   TestValidator.predicate(
     "one round stops it short, not settled",

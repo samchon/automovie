@@ -64,6 +64,9 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
 
     /** The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. */
     accuracy?: number;
+
+    /** Whether the subproblem's solver could not solve the model, after its own recovery: no step is proposed, and the solve stops failed (`Reason`), as TrajOpt's does where its convex solver fails (sco's OPT_FAILED); a step otherwise. */
+    failed?: boolean;
   }
 
   /**
@@ -257,12 +260,12 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    * region, reduces the violation by no more than `IOptions.stationary`
    * while it still violates by more: a stationary point of the violation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken; `infeasible`, a steered iterate whose step of the violation alone, inside its region, reduces the violation by no more than `IOptions.stationary` while it violates by more.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds", "infeasible" distinguish the admitted cases.
+   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken; `infeasible`, a steered iterate whose step of the violation alone, inside its region, reduces the violation by no more than `IOptions.stationary` while it violates by more; `failed`, a subproblem its solver could not solve (`IStep.failed`).
+   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds", "infeasible", "failed" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSequentialConvex.minimise.
    */
-  export type Reason = "model" | "step" | "collapsed" | "rounds" | "infeasible";
+  export type Reason = "model" | "step" | "collapsed" | "rounds" | "infeasible" | "failed";
 
   /**
    * How the region moves: a step is taken where the ratio of the actual to

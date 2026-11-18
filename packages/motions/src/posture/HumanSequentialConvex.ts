@@ -59,6 +59,7 @@ export namespace HumanSequentialConvex {
     let radius: number = options.radius ?? s.trust;
     let penalty: number = options.penalties[0]!;
     let collapsed: boolean = false;
+    let failed: boolean = false;
     let reason: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
 
     // A steered solve starts at the continued penalty when there is one, the first otherwise.
@@ -127,9 +128,28 @@ export namespace HumanSequentialConvex {
           const step: IAutoMovieMotionHumanSequentialConvex.IStep<X> = pending ?? model.solve(radius);
           pending = undefined;
 
+          // A subproblem its solver could not solve ends the solve failed,
+          // as TrajOpt's ends where its convex solver fails (OPT_FAILED).
+          if (step.failed === true) {
+            failed = true;
+            break;
+          }
+
           // A predicted decrease within the model's own accuracy is no
           // decrease the model can tell.
           if (step.accuracy !== undefined && step.predicted <= step.accuracy) {
+            told = true;
+            settled = true;
+            ended = "model";
+            break;
+          }
+
+          // A predicted improvement under the schedule's least has
+          // converged, read before the step is tried, as TrajOpt's sco reads
+          // its min_approx_improve and min_approx_improve_frac (the
+          // convergence on the model's improvement of Schulman et al. 2014,
+          // Algorithm 1).
+          if (step.predicted < s.improved(merit)) {
             told = true;
             settled = true;
             ended = "model";
@@ -193,9 +213,15 @@ export namespace HumanSequentialConvex {
             break;
           }
         }
+        if (failed) break;
         collapsed = !taken && !told;
         reason = collapsed ? "collapsed" : ended;
         if (!taken || settled) break;
+      }
+      if (failed) {
+        collapsed = false;
+        reason = "failed";
+        break;
       }
       if (problem.feasible(current)) break;
       radius = s.trust;
@@ -229,6 +255,10 @@ export namespace HumanSequentialConvex {
     let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> = first;
     let step: IAutoMovieMotionHumanSequentialConvex.IStep<X> = model.solve(radius);
     let alone: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
+    // A subproblem its solver could not solve is handed back as it is: the
+    // loop ends the solve failed (`IStep.failed`).
+    const failing = (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>): boolean => d.failed === true;
+    if (failing(step)) return { mu, model, step };
     const reduced: (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>) => number = (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>): number => {
       if (d.violation === undefined)
         throw new Error(
@@ -254,6 +284,7 @@ export namespace HumanSequentialConvex {
         model.feasibility?.() ??
         problem.convexify(x, current, mu, radius, false)
       ).solve(radius);
+      if (failing(best)) return { mu, model, step: best };
       alone = best;
       const enough: (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>) => boolean = (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>): boolean =>
         best.met === true
@@ -263,8 +294,10 @@ export namespace HumanSequentialConvex {
         let k: number = 0;
         k < STEERING.increases && room() && !enough(step);
         ++k
-      )
+      ) {
         grow();
+        if (failing(step)) return { mu, model, step };
+      }
     }
 
     // Their (5.14) (p. 10) asks the model's decrease to be a share of the
@@ -277,8 +310,10 @@ export namespace HumanSequentialConvex {
       reduced(step) > 0 &&
       step.predicted < STEERING.merit * mu * reduced(step);
       ++k
-    )
+    ) {
       grow();
+      if (failing(step)) return { mu, model, step };
+    }
     return { mu, model, step, ...(alone === undefined ? {} : { best: alone }) };
   }
 }
