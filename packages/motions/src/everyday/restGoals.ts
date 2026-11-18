@@ -30,7 +30,7 @@ import { restElbowSupport } from "./restElbowSupport";
  * Both hands' rest goals on a posture.
  *
  * Each place states where the elbow points, as a bend preset of
- * `AutoMovieMotionHumanBend` (`BENDS`): akimbo and behind-the-head elbows go
+ * `AutoMovieMotionHumanBend`: akimbo and behind-the-head elbows go
  * out wide, chin-rest elbows forward and down, the others down beside the
  * body; crossed arms set their elbows exactly (`restCrossedArms`). A place
  * that holds one hand lays a hand surface on a named region with the palm
@@ -47,7 +47,7 @@ import { restElbowSupport } from "./restElbowSupport";
  * @param posture The standing posture.
  * @param places Each hand's place.
  * @returns The goals of the hands that move.
- * @throws {Error} When the trunk has no surface where a clasp is laid.
+ * @throws {Error} When the trunk has no surface where a clasp is laid (`restClasped`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind of place lays where and which function owns the paired ones.
  * @evidence contracts/development/implementation.md#principled-implementation Every place is an effector goal on the body's own surface, with the elbow's side stated by a named preset.
@@ -83,9 +83,9 @@ export function restGoals(
   );
   let trunk: HumanTrunk.IReading | undefined;
   let neck: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
-  const region = (
+  const region: (side: AutoMovieHumanSide) => HumanTrunk.ISurface = (
     side: AutoMovieHumanSide,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
+  ): HumanTrunk.ISurface =>
     (trunk ??= HumanTrunk.prepare(body, posture, requested)).region(targets[side]!);
   const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
   let direction: HumanFrame.IPrepared | undefined;
@@ -95,19 +95,27 @@ export function restGoals(
         .direction({ x, y, z });
   // The hint rides the root and the heading only, as the rest places were
   // captured: a standing rest does not pitch or roll the trunk.
-  const elbow = (
+  const elbow: (side: AutoMovieHumanSide, place: keyof typeof BENDS) => IAutoMovieVector3 = (
     side: AutoMovieHumanSide,
-    place: keyof typeof restGoals.BENDS,
+    place: keyof typeof BENDS,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanBend.arm(
       body,
       { root: posture.root, yaw: posture.yaw },
       side,
-      restGoals.BENDS[place],
+      BENDS[place],
     );
-  const lay = (
+  const lay: (
     side: AutoMovieHumanSide,
-    place: keyof typeof restGoals.BENDS,
+    place: keyof typeof BENDS,
+    surface: IAutoMovieMotionHumanHand.Surface,
+    shape: IAutoMovieMotionHumanHand.Shape,
+    point: IAutoMovieVector3,
+    fingers: IAutoMovieVector3,
+    palm: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanRest.IGoal = (
+    side: AutoMovieHumanSide,
+    place: keyof typeof BENDS,
     surface: IAutoMovieMotionHumanHand.Surface,
     shape: IAutoMovieMotionHumanHand.Shape,
     point: IAutoMovieVector3,
@@ -139,7 +147,7 @@ export function restGoals(
           "palm",
           "flat",
           pocket.point,
-          dir(0, -1, 0.35),
+          dir(POCKET.x, POCKET.y, POCKET.z),
           Vector3.scale(pocket.normal, -1),
         );
         break;
@@ -153,7 +161,7 @@ export function restGoals(
           "palm",
           "flat",
           Vector3.add(hip.point, { x: 0, y: up, z: 0 }),
-          dir(0, -0.6, 0.8),
+          dir(AKIMBO.x, AKIMBO.y, AKIMBO.z),
           Vector3.scale(hip.normal, -1),
         );
         break;
@@ -176,7 +184,7 @@ export function restGoals(
       case "behindHead": {
         const head: HumanTrunk.ISurface = region(side);
         const beside: IAutoMovieVector3 = Vector3.addScaled(
-          head.point, dir(1, 0, 0), sign * 0.25 * m.headRadius,
+          head.point, dir(1, 0, 0), sign * BESIDE * m.headRadius,
         );
         out[side] = lay(
           side,
@@ -184,7 +192,7 @@ export function restGoals(
           "palm",
           "flat",
           beside,
-          dir(-sign, 0.6, 0),
+          dir(-sign, NAPE, 0),
           Vector3.scale(head.normal, -1),
         );
         break;
@@ -202,7 +210,8 @@ export function restGoals(
         const palm: IAutoMovieVector3 = dir(-sign, 0, 0);
         const back: IAutoMovieVector3 = dir(0, 0, -1);
         const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, { fingers, palm });
-        const rear: number = fistReach(body, posture, side, rotation, back);
+        const reach: (direction: IAutoMovieVector3) => number = fistReach(body, posture, side, rotation);
+        const rear: number = reach(back);
         const throat: IAutoMovieMotionHumanColliders.IHit | undefined = rear > 0
           ? HumanColliders.cast(body, (neck ??= necked(body, posture)), chin.point, back, rear)
           : undefined;
@@ -215,7 +224,7 @@ export function restGoals(
           "fist",
           "fist",
           places.left === "chinRest" && places.right === "chinRest"
-            ? Vector3.addScaled(under, palm, -fistReach(body, posture, side, rotation, palm))
+            ? Vector3.addScaled(under, palm, -reach(palm))
             : under,
           fingers,
           palm,
@@ -258,16 +267,15 @@ function necked(
  * How far a fist laid at a world rotation reaches past its own fist surface
  * along a world direction: the highest point of the hand's and the fingers'
  * colliders along it, the hand closed in the fist, less the fist surface's
- * own. The fist is closed on the posture's own hand and the direction read
- * in that hand's frame, which the laid hand turns to the rotation.
+ * own. The fist is closed on the posture's own hand once, and each direction
+ * is read in that hand's frame, which the laid hand turns to the rotation.
  */
 function fistReach(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,
   rotation: IAutoMovieQuaternion,
-  direction: IAutoMovieVector3,
-): number {
+): (direction: IAutoMovieVector3) => number {
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
     [...HumanColliders.bones(body)].filter(
       (bone: AutoMovieHumanoidBone): boolean =>
@@ -284,40 +292,46 @@ function fistReach(
     undefined,
     new Set([...requested, ...HumanHand.frameBones(body, side, "fist")]),
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    bones.get(`${side}Hand`)!.worldRotation,
-    Quaternion.rotateVector(Quaternion.inverse(rotation), direction),
-  );
-  let high: number = -Infinity;
-  for (const segment of HumanColliders.placed(body, bones))
-    if (requested.has(segment.bone))
-      for (const shape of segment.shapes)
-        high = Math.max(high, physicalShapeSpan(segment.pose, shape, axis)[1]);
-  return high - Vector3.dot(HumanHand.frame(body, bones, side, "fist", "fist").point, axis);
-}
-
-/**
- * Companion values of {@link restGoals}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table maps.
- * @evidence contracts/development/design.md#principled-representation One bend preset per place that has an elbow hint, keyed exhaustively.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one table the goals read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Names presets of the shared bend table; it holds no values of its own.
- */
-export namespace restGoals {
-  /** The elbow's bend preset by place. */
-  export const BENDS: Readonly<
-    Record<
-      Exclude<IAutoMovieMotionHumanRest.Place, "side" | "crossed">,
-      IAutoMovieMotionHumanBend.Arm
-    >
-  > = {
-    pocket: "tucked",
-    hip: "akimbo",
-    claspedFront: "front",
-    claspedBehind: "behind",
-    behindHead: "raised",
-    chinRest: "forward",
-    elbowSupport: "folded",
+  const placed: ReturnType<typeof HumanColliders.placed> = HumanColliders.placed(body, bones);
+  const surface: IAutoMovieVector3 = HumanHand.frame(body, bones, side, "fist", "fist").point;
+  return (direction: IAutoMovieVector3): number => {
+    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      bones.get(`${side}Hand`)!.worldRotation,
+      Quaternion.rotateVector(Quaternion.inverse(rotation), direction),
+    );
+    let high: number = -Infinity;
+    for (const segment of placed)
+      if (requested.has(segment.bone))
+        for (const shape of segment.shapes)
+          high = Math.max(high, physicalShapeSpan(segment.pose, shape, axis)[1]);
+    return high - Vector3.dot(surface, axis);
   };
 }
+
+/** A pocketed hand's fingers in the performer's frame: down along the thigh, tipped forward with it (provisional). */
+const POCKET: IAutoMovieVector3 = { x: 0, y: -1, z: 0.35 };
+
+/** An akimbo hand's fingers in the performer's frame: forward and down over the hip (provisional). */
+const AKIMBO: IAutoMovieVector3 = { x: 0, y: -0.6, z: 0.8 };
+
+/** How far beside the midline each palm lies on the back of the head, as a share of the head's radius (provisional). */
+const BESIDE: number = 0.25;
+
+/** How far up a palm behind the head points its fingers, against one unit across toward the midline (provisional). */
+const NAPE: number = 0.6;
+
+/** The elbow's bend preset of `AutoMovieMotionHumanBend` by place, one per place that has an elbow hint. */
+const BENDS: Readonly<
+  Record<
+    Exclude<IAutoMovieMotionHumanRest.Place, "side" | "crossed">,
+    IAutoMovieMotionHumanBend.Arm
+  >
+> = {
+  pocket: "tucked",
+  hip: "akimbo",
+  claspedFront: "front",
+  claspedBehind: "behind",
+  behindHead: "raised",
+  chinRest: "forward",
+  elbowSupport: "folded",
+};

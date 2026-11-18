@@ -132,7 +132,7 @@ export namespace rest {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture and the farther hand's transport time; the places are solved by the posture resolver itself, and an arrived arm holds that solution rather than an approximation of it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Prepared entries avoid rebuilding named finger maps; the places' posture solve runs once per plan, and a query fits nothing for an arrived arm (measured: the both-fists chin rest's coupled solve took 100-640 ms at each displayed second).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The solved places are a constant of the plan, the places riding the body the arms hang from; a carry borrows one synchronous exact FK/genuine ROM operation context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata and at most one yaw/scalar-frame/quaternion record until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,
@@ -233,23 +233,20 @@ export namespace rest {
     }
     const arrive: number = Math.max(
       0,
-      ...Object.values(begin).map((b) => b!.travel),
+      ...sides.map((side: AutoMovieHumanSide): number => begin[side]!.travel),
     );
     const shapes: Partial<Record<AutoMovieHumanSide, readonly [AutoMovieHumanoidBone, readonly [number, number, number]][]>> = {};
     for (const side of sides)
       shapes[side] = Object.entries(HumanHand.shape(side, local[side]!.shape)) as
         [AutoMovieHumanoidBone, readonly [number, number, number]][];
-    let floor: { yaw: number; frame: HumanFrame.IPrepared; turn: IAutoMovieQuaternion } | undefined;
 
     // Each moving hand's goal on a posture: its place in the performer's
     // frame, carried by the posture's root and heading.
-    const requests = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanArmTarget.ISided[] => {
-      const yaw: number = posture.yaw;
-      if (floor === undefined || !Object.is(floor.yaw, yaw)) {
-        const turn: IAutoMovieQuaternion = HumanFrame.turn(yaw);
-        floor = { yaw, turn, frame: HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw }) };
-      }
-      const { frame, turn } = floor;
+    const requests: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanArmTarget.ISided[] = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanArmTarget.ISided[] => {
+      const turn: IAutoMovieQuaternion = HumanFrame.turn(posture.yaw);
+      const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw });
       return sides.map((side: AutoMovieHumanSide): IAutoMovieMotionHumanArmTarget.ISided => {
         const goal: IAutoMovieMotionHumanRest.IGoal = local[side]!;
         return {
@@ -277,7 +274,9 @@ export namespace rest {
       from[side] = begin[side]!.angles;
     }
     // A posture with the arms on their solved places and their goals gone.
-    const holding = (posture: IAutoMovieMotionHumanPosture): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> => {
+    const holding: (posture: IAutoMovieMotionHumanPosture) => Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> => {
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of sides) {
@@ -363,7 +362,15 @@ export namespace rest {
    * @param posture The standing posture.
    * @param places Each hand's place.
    * @returns The goals of the hands that move.
-   * @throws {HumanRefusal} When the trunk has no surface where a clasp is laid.
+   * @throws {Error} When the trunk has no surface where a clasp is laid.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input posture, the places and which hands get goals.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `restGoals`, the owner of every place's effector goal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call; the law and the executable cases read the goals through it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: `restGoals` states its rules.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What `restGoals` costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function goals(
     body: IAutoMovieMotionHumanBody,

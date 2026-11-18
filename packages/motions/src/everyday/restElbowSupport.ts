@@ -59,13 +59,13 @@ export function restElbowSupport(
       },
     ],
   );
-  const frame =
+  const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["elbowLeft"] =
     body.surfaces.regions[other === "left" ? "elbowLeft" : "elbowRight"];
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   const bones: ReturnType<typeof poseBones> = poseBones(
     body, resolveHumanPosture.seeded(body, solved, undefined, {}, resolution).pose, resolution(), new Set([frame.bone]),
   );
-  const placed = resolveAutoMovieHumanoidSurfaces.place(
+  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
     frame,
     bones.get(frame.bone)!,
   );

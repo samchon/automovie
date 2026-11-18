@@ -48,7 +48,7 @@ export function restCrossedArms(
   posture: IAutoMovieMotionHumanPosture,
 ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
   const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: posture.root, yaw: posture.yaw });
-  const turn = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+  const turn: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
     frame.direction(local);
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     "leftUpperArm", "rightUpperArm",
@@ -66,7 +66,11 @@ export function restCrossedArms(
     body, posture, undefined, {}, resolution, parents,
   ).pose;
   const bones: ReturnType<typeof poseBones> = poseBones(body, pose, resolution(), requested);
-  const length = (
+  const length: (
+    side: AutoMovieHumanSide,
+    from: "UpperArm" | "LowerArm",
+    to: "LowerArm" | "Hand",
+  ) => number = (
     side: AutoMovieHumanSide,
     from: "UpperArm" | "LowerArm",
     to: "LowerArm" | "Hand",
@@ -82,7 +86,10 @@ export function restCrossedArms(
   };
   const ahead: IAutoMovieVector3 = turn({ x: 0, y: 0, z: 1 });
   const palms: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
-  const elbowAt = (side: AutoMovieHumanSide, inward: number): IAutoMovieVector3 => {
+  const elbowAt: (side: AutoMovieHumanSide, inward: number) => IAutoMovieVector3 = (
+    side: AutoMovieHumanSide,
+    inward: number,
+  ): IAutoMovieVector3 => {
     const arm: IArm = geometry[side];
     const s: IAutoMovieVector3 = arm.shoulder;
     const across: number = Math.min(inward, arm.across);
@@ -95,7 +102,10 @@ export function restCrossedArms(
       z: s.z + arm.forward,
     });
   };
-  const goal = (
+  const goal: (
+    side: AutoMovieHumanSide,
+    elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+  ) => { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } = (
     side: AutoMovieHumanSide,
     elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } => {
@@ -108,7 +118,7 @@ export function restCrossedArms(
       Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
     );
     const point: IAutoMovieVector3 = Vector3.addScaled(
-      Vector3.addScaled(from, axis, 0.75 * geometry[other].upper),
+      Vector3.addScaled(from, axis, ALONG * geometry[other].upper),
       front, body.measure.upperArmRadius,
     );
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
@@ -129,7 +139,7 @@ export function restCrossedArms(
     (inward: number): Record<AutoMovieHumanSide, IAutoMovieVector3> => ({
       left: elbowAt("left", inward), right: elbowAt("right", inward),
     });
-  const excess = (inward: number): number => {
+  const excess: (inward: number) => number = (inward: number): number => {
     const elbows: Record<AutoMovieHumanSide, IAutoMovieVector3> = elbowsAt(inward);
     return (goal("left", elbows).excess + goal("right", elbows).excess) / 2;
   };
@@ -137,6 +147,9 @@ export function restCrossedArms(
   let hi: number = Math.abs(geometry.left.shoulder.x - geometry.right.shoulder.x) / 2;
   if (excess(lo) <= 0) hi = lo;
   else if (excess(hi) > 0) lo = hi;
+  // Halve until the width is known to 10 um, far finer than the arms'
+  // surfaces; a half-breadth under 0.25 m reaches that in 15 halvings, so the
+  // cap of thirty only guards the loop.
   for (let i: number = 0; i < 30 && hi - lo > 1e-5; i++) {
     const mid: number = (lo + hi) / 2;
     if (excess(mid) > 0) lo = mid;
@@ -151,8 +164,8 @@ export function restCrossedArms(
       bones.get(`${side}UpperArm`)!.worldPosition,
     );
     const upper: number = length(side, "UpperArm", "LowerArm");
-    const forward: number = Math.min(0.9 * upper, Math.max(
-      upper * Math.sin((restCrossedArms.FLEXION * Math.PI) / 180),
+    const forward: number = Math.min(AHEAD * upper, Math.max(
+      upper * Math.sin((FLEXION * Math.PI) / 180),
       sternum.z + body.measure.forearmRadius - shoulder.z,
     ));
     const downSquared: number = upper * upper - forward * forward;
@@ -196,15 +209,11 @@ interface IArm {
   across: number;
 }
 
-/**
- * Companion values of {@link restCrossedArms}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the constant's unit and that it is provisional.
- * @evidence contracts/development/design.md#principled-representation One named angle in clinical degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one value the function reads and a caller may cite.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A named constant, not a literal inside the solve.
- */
-export namespace restCrossedArms {
-  /** The least forward hang of each upper arm when the arms are crossed, degrees (provisional). */
-  export const FLEXION: number = 20;
-}
+/** The least forward hang of each upper arm when the arms are crossed, degrees (provisional). */
+const FLEXION: number = 20;
+
+/** The farthest an elbow hangs ahead of its shoulder, as a share of the upper arm: short of a level arm, so it still hangs (provisional). */
+const AHEAD: number = 0.9;
+
+/** Where on the other upper arm a palm lies, as a share of the way from the shoulder to the elbow (the namespace's three quarters). */
+const ALONG: number = 0.75;

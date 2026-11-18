@@ -74,6 +74,14 @@ export namespace restClasped {
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no front surface at the height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States where each palm lies, how the height is found and its bounds.
+   * @evidence contracts/development/implementation.md#principled-implementation A bisection of the height between the groin and abdomen regions on the farther wrist's excess over its arm's reach at `FLEXION`, the excess falling as the place rises toward the shoulders.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray per trial height, one laid hand and one stacked on it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height stays inside the regions the trunk names; a ray that misses the trunk throws.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve bisection trials, each one ray and two closed-form hand placements.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves every ray, region and shoulder; each side's hand preparation serves every trial.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function front(
     body: IAutoMovieMotionHumanBody,
@@ -91,7 +99,7 @@ export namespace restClasped {
     const inward: IAutoMovieVector3 = Vector3.scale(ahead, -1);
     const layLeft: Lay = prepareLaid(body, "left", "palm", shoulders.left, elbows.left, "relaxed");
     const layRight: Lay = prepareLaid(body, "right", "palm", shoulders.right, elbows.right, "relaxed");
-    const at = (
+    const at: (y: number) => { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = (
       y: number,
     ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
       trunk.surface(
@@ -101,8 +109,10 @@ export namespace restClasped {
         },
         inward,
       );
-    const goals = (y: number): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> => {
-      const place = at(y);
+    const goals: (y: number) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = (
+      y: number,
+    ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> => {
+      const place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = at(y);
       const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
         place.point,
         place.normal,
@@ -128,7 +138,7 @@ export namespace restClasped {
     const reaches: Record<AutoMovieHumanSide, number> = {
       left: comfortable("left"), right: comfortable("right"),
     };
-    const excess = (y: number): number => {
+    const excess: (y: number) => number = (y: number): number => {
       const both: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = goals(y);
       let far: number = -Infinity;
       for (const side of ["left", "right"] as const) {
@@ -169,6 +179,14 @@ export namespace restClasped {
    * @param elbows Each elbow's bend hint, world metres.
    * @returns Both goals.
    * @throws {Error} When the trunk has no back surface at the height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States where each hand lies, the drill-manual source and the height below the lower back.
+   * @evidence contracts/development/implementation.md#principled-implementation One ray onto the back midline below the lower-back region, the left hand laid there and the right stacked in its palm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface ray, one laid hand and one stacked on it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ray that misses the trunk throws.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work: one ray and two hand placements.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One trunk reading serves the region, the shoulders and the ray.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function behind(
     body: IAutoMovieMotionHumanBody,
