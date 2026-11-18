@@ -25,7 +25,7 @@ const TIME_EPSILON: number = 1e-9;
  * @param shots Every shot the cut references.
  * @returns Every emitted play of every event, in output order.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Maps each event through the entry's affine clock map and decides membership with half-open trim ranges, the interval convention under which contiguous ranges partition time without double counting; seam ownership requires both a shot-local and a global coincidence because only a contiguous entry shows the same frame, and compares clock boundaries with a tolerance of at most `1e-9` seconds. Retimed source comparisons further limit tolerance by the source span and by how far the difference would project on the output clock.
+ * @evidence contracts/development/implementation.md#principled-implementation Maps each event through the entry's affine clock map and decides membership with half-open trim ranges, the interval convention under which contiguous ranges partition time without double counting. Seam ownership requires a shot-local and a global coincidence. Symbolic trims use exact membership and seams. Numeric comparisons use at most `1e-9` seconds, further limited for retimed source comparisons by the source span and the projected output difference.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads layout and the admitted shot index from preparePlaybackTimeline, the preparation sequenceTimeline also uses, so events and frames share one clock; the only additional index is the per-shot entry list the seam rule needs.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No event kind, shot or entry is special-cased; the shot-end and seam rules apply to every entry by the same tests, and ties sort by code units rather than locale.
  * @evidence contracts/development/common.md#meaningful-documentation States the range rule and both closing cases with their reasons, the per-play semantics, the order and its tie-breaks, the added fields, and the inherited throws.
@@ -53,8 +53,10 @@ export function sequenceEventTimeline(
     const source: IAutoMovieSequenceEntry = sequence.shots[entry.entry]!;
     const duration: number = source.trim?.duration ?? shot.duration;
     const to: number = source.exactSourceEnd ?? from + duration;
-    const sourceEpsilon: number =
-      entry.playbackRate === undefined
+    const exact: boolean = source.exactSourceEnd !== undefined;
+    const sourceEpsilon: number = exact
+      ? 0
+      : entry.playbackRate === undefined
         ? TIME_EPSILON
         : Math.min(
             TIME_EPSILON,
@@ -69,12 +71,15 @@ export function sequenceEventTimeline(
     function ownedElsewhere(time: number): boolean {
       return entriesByShot
         .get(entry.shot)!
-        .some(
-          (other: IAutoMoviePlaybackEntry): boolean =>
-            other.entry !== entry.entry &&
-            Math.abs(other.offset - time) <= sourceEpsilon &&
-            Math.abs(other.start - globalEnd) <= TIME_EPSILON,
-        );
+        .some((other: IAutoMoviePlaybackEntry): boolean => {
+          if (other.entry === entry.entry) return false;
+          const exactSeam: boolean =
+            exact || sequence.shots[other.entry]!.exactSourceEnd !== undefined;
+          return exactSeam
+            ? other.offset === time && other.start === globalEnd
+            : Math.abs(other.offset - time) <= sourceEpsilon &&
+                Math.abs(other.start - globalEnd) <= TIME_EPSILON;
+        });
     }
     for (const event of shot.events ?? []) {
       if (event.time < from - sourceEpsilon) continue;
@@ -87,12 +92,16 @@ export function sequenceEventTimeline(
       )
         continue;
       const globalTime: number =
-        (entry.playbackRate !== undefined ||
-          source.exactSourceEnd !== undefined) &&
-        event.time === to
+        (entry.playbackRate !== undefined || exact) && event.time === to
           ? globalEnd
           : entry.start + (event.time - from) / (entry.playbackRate ?? 1);
-      events.push(placed(event, entry, globalTime));
+      events.push(
+        placed(
+          event,
+          entry,
+          exact ? Math.min(globalTime, globalEnd) : globalTime,
+        ),
+      );
     }
   }
   return events.sort(

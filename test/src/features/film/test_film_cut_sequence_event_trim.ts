@@ -24,6 +24,8 @@ import { nclose } from "../internal/predicates";
  * 5. Raw null and array bounds, invalid bound fields, and two trim forms are refused.
  * 6. A full-shot end that rounds outward retains its exact event after inward
  *    lowering, even for a rate that makes the source tolerance smaller than one ULP.
+ * 7. Distinct events just outside the selected anchors at 1 and 2 seconds
+ *    are absent from the exact one-second output and cannot satisfy requirements.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public edit gate and event projection and checks normalized trims, runtime, seam ownership and refusal paths.
  * @evidence contracts/development/testing.md#independent-expectations Start, seam and end are at 0.5, 1.5 and 3.5 source seconds. Each played duration is divided by two, so the film spans 1.5 seconds and the seam belongs to the second play at 0.5 output seconds.
@@ -266,5 +268,68 @@ export function test_film_cut_sequence_event_trim(): void {
         (item: IAutoMovieConstraintViolation): string => item.path,
       ),
       ["$input.entries[0].trim"],
+    );
+
+  const before: IAutoMovieInteractionEvent = {
+    ...start,
+    id: "before-start",
+    time: 0.9999999995,
+  };
+  const after: IAutoMovieInteractionEvent = {
+    ...end,
+    id: "after-end",
+    time: 2.0000000005,
+  };
+  const exactShot: IAutoMovieShot = {
+    ...shot,
+    events: [before, { ...start, time: 1 }, seam, { ...end, time: 2 }, after],
+  };
+  const exactPlan: IAutoMovieEditPlan = {
+    ...plan,
+    entries: [
+      {
+        shot: exactShot.id,
+        trim: null,
+        trimByEvents: { startEvent: start.id, endEvent: end.id },
+        transition: null,
+      },
+    ],
+    requiredEvents: [],
+  };
+  const exactCut: IAutoMovieCut = cutSequence(exactPlan, [exactShot]);
+  TestValidator.equals("exact source cut succeeds", exactCut.success, true);
+  if (exactCut.success)
+    TestValidator.equals(
+      "only events inside the selected bounds are placed",
+      sequenceEventTimeline(exactCut.sequence, [exactShot]).map((event) => ({
+        id: event.id,
+        time: event.globalTime,
+      })),
+      [
+        { id: start.id, time: 0 },
+        { id: seam.id, time: 0.5 },
+        { id: end.id, time: 1 },
+      ],
+    );
+  const excluded: IAutoMovieCut = cutSequence(
+    {
+      ...exactPlan,
+      requiredEvents: [before, after].map(({ id }) => ({
+        entry: 0,
+        event: id,
+      })),
+    },
+    [exactShot],
+  );
+  TestValidator.equals(
+    "both excluded requirements fail",
+    excluded.success,
+    false,
+  );
+  if (excluded.success === false)
+    TestValidator.equals(
+      "each excluded event reports its requirement path",
+      excluded.violations.map((item) => item.path),
+      ["$input.requiredEvents[0].event", "$input.requiredEvents[1].event"],
     );
 }
