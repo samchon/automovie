@@ -75,11 +75,17 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  *
  * The solve ends where the three residuals (stationarity, the rows'
  * equations and the mean product) are within `ACCURACY` of their scales,
- * read on the equilibrated data. Where `ITERATIONS` are spent or a step
- * length collapses, the last iterate is still returned if it is within
- * `ACCEPTED`; otherwise, and where a number is not finite or a hard row
- * holds no variable and excludes zero, the solve returns nothing and the
- * caller solves by OSQP, so a failure here costs time and never an answer.
+ * read on the equilibrated data, and have held through one further Newton
+ * step. Near the solution the reduced matrix grows rows rounding makes
+ * dependent; each such pivot is skipped (`HumanQuadraticCholesky`'s
+ * `dependent`, Wright 1999), and where a confirming step is still spoilt by
+ * them, or the solve ends short in any other way after an iterate met
+ * `ACCURACY`, the last such iterate is the answer, converged. Where none
+ * did and `ITERATIONS` are spent or a step length collapses, the last
+ * iterate within `ACCEPTED` is returned unconverged; otherwise, and where a
+ * number is not finite or a hard row holds no variable and excludes zero,
+ * the solve returns nothing and the caller solves by OSQP, so a failure
+ * here costs time and never an answer.
  *
  * With a session (`HumanQuadraticInteriorSession.ISession`, one caller's
  * solves of one optimisation's subproblems), the session's first solve's
@@ -295,6 +301,18 @@ export function HumanQuadraticInterior(
   const run = (): { state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined; converged: boolean } => {
     let fair: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
 
+    // The last iterate that met `ACCURACY`, with its point: the further
+    // Newton steps below only confirm it, so where one of them is spoilt (a
+    // reduced system near the solution grows rows rounding makes dependent,
+    // and a step through them can raise the residuals again) or the solve
+    // ends otherwise short, this iterate is the solve's answer, converged.
+    let kept: { state: IAutoMovieMotionHumanQuadraticProgram.IState; point: Session.IPoint } | undefined;
+    const ended = (): { state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined; converged: boolean } => {
+      if (kept === undefined) return { state: fair, converged: false };
+      if (session !== undefined) session.point = kept.point;
+      return { state: kept.state, converged: true };
+    };
+
     // The last step's size against the iterate's, largest components. The
     // residuals alone do not bound the iterate's error where the curvature is
     // badly conditioned (a second-difference chain's least curvature is its
@@ -367,21 +385,19 @@ export function HumanQuadraticInterior(
         !Number.isFinite(missed) ||
         !Number.isFinite(mu)
       )
-        return { state: undefined, converged: false };
+        return kept === undefined ? { state: undefined, converged: false } : ended();
       const within: (accuracy: number) => boolean = (accuracy: number): boolean =>
         stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
         missed <= accuracy * Math.max(1, reached) &&
         mu <= accuracy;
       if (within(ACCURACY)) {
-        if (moved <= ACCURACY || ++held >= 2) {
-          if (session !== undefined) session.point = Session.save(s, x, t, lambda, e, nu);
-          return { state: Session.unscaled(s, x, value, lambda), converged: true };
-        }
+        kept = { state: Session.unscaled(s, x, value, lambda), point: Session.save(s, x, t, lambda, e, nu) };
+        if (moved <= ACCURACY || ++held >= 2) return ended();
       } else held = 0;
 
-      // An iterate within the accepted accuracy is kept, should the solve
-      // end short of the accuracy it aims at.
-      fair = within(ACCEPTED) ? Session.unscaled(s, x, value, lambda) : undefined;
+      // The last iterate within the accepted accuracy is kept, should the
+      // solve end short of the accuracy it aims at.
+      if (kept === undefined && within(ACCEPTED)) fair = Session.unscaled(s, x, value, lambda);
       if (it === ITERATIONS) break;
 
       // The reduced matrix, factored once for the predictor and the corrector.
@@ -390,7 +406,10 @@ export function HumanQuadraticInterior(
         const both: number = stiff[2 * r]! + stiff[2 * r + 1]!;
         if (both > 0) HumanQuadraticRow(s, matrices.system, r, both);
       }
-      const factor: Workspace.IFactor = HumanQuadraticCholesky(matrices);
+      // A row whose radicand falls under the rounding of its own inner
+      // product (Higham 2002, section 3.1: w terms carry w machine epsilons)
+      // is dependent, and its pivot is skipped (Wright 1999).
+      const factor: Workspace.IFactor = HumanQuadraticCholesky(matrices, (s.band + 1) * Number.EPSILON);
 
       // The predictor, and the centring its longest step asks for.
       direction(factor, 0, false);
@@ -413,7 +432,7 @@ export function HumanQuadraticInterior(
 
       // One step for every variable, short of the boundary.
       const step: number = Math.min(1, BOUNDARY * longest());
-      if (!(step > LEAST)) return { state: fair, converged: false };
+      if (!(step > LEAST)) return ended();
       let far: number = 0;
       let size: number = 1;
       for (let i: number = 0; i < n; ++i) {
@@ -432,7 +451,7 @@ export function HumanQuadraticInterior(
         nu[j] = nu[j]! + step * dNu[j]!;
       }
     }
-    return { state: fair, converged: false };
+    return ended();
   };
 
   // A session's program of the same rows as its last converged one starts

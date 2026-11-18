@@ -46,9 +46,9 @@ export namespace HumanArmOptimiser {
    * @returns The last iterate at the waypoints, its evaluation (the grid's where a grid was read) and the penalty it was reached at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method alone.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method, by the operator splitting where that leaves it unsolved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and an interior solve that misses its accuracy proposes no step rather than an inaccurate one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
    * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. No measured speedup is claimed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
@@ -122,6 +122,10 @@ export namespace HumanArmOptimiser {
     const shell = (model: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: number[][][]): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
       let zero: number | undefined;
 
+      // The splitting's fixed model of this shell's rows, made only for a
+      // region the interior method leaves unsolved.
+      let fallback: ReturnType<typeof QP.prepare> | undefined;
+
       // The region's rows, one per variable, built once for the model: a
       // retry in a smaller region changes only their two ends.
       const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = Array.from(
@@ -147,11 +151,15 @@ export namespace HumanArmOptimiser {
 
           // The interior-point solve. Every row but the trust region's is
           // elastic (`HumanArmTrajectoryConvex`), so the subproblem has a
-          // solution, the zero step among its feasible points; a solve that
-          // ends short of its accuracy proposes no step, which the loop
-          // reads as no decrease and answers by shrinking the region.
+          // solution, the zero step among its feasible points; where the
+          // interior method leaves it unsolved, the operator splitting
+          // solves it (`HumanQuadraticProgram.prepare`), its iterate judged
+          // by the merit like any other: a failed solve is never read as a
+          // zero step, which the loop would answer by shrinking the region
+          // round an iterate the model can still improve.
           const solved: Float64Array =
-            QP.interior(trusted, session)?.x ?? new Float64Array(trusted.n);
+            QP.interior(trusted, session)?.x ??
+            (fallback ??= QP.prepare(trusted)).solve(trusted.rows).x;
           let length: number = 0;
           for (let i: number = 0; i < solved.length; ++i)
             length = Math.max(length, Math.abs(solved[i]!));
