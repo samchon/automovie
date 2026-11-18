@@ -35,9 +35,9 @@ export namespace HumanArmTrajectoryKnots {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, units and the result's shape.
    * @evidence contracts/development/implementation.md#principled-implementation The interpolant is linear in its knots, so its value on a knot's unit sequence is that knot's weight; read from `HumanArmRefine.hermite` itself, the weights cannot drift from the played interpolant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation a knot and grid instant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the unit sequences of the bracket and its two tangent neighbours.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No weight is assumed: end knots' zero tangents and uneven knot spacing come out of the interpolant's own reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms G grid instants times K knots interpolations, once a solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most four scalar Hermite evaluations per grid instant, with one dense output row per instant for the reduced model.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading computed once by its caller.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh table and retains nothing.
    */
@@ -45,14 +45,16 @@ export namespace HumanArmTrajectoryKnots {
     knots: readonly number[],
     grid: readonly number[],
   ): number[][] {
-    const units: number[][][] = knots.map((_: number, j: number): number[][] =>
-      knots.map((__: number, i: number): number[] => [i === j ? 1 : 0]),
-    );
-    return grid.map((t: number): number[] =>
-      units.map(
-        (unit: number[][]): number => HumanArmRefine.hermite(knots, unit, t)[0]!,
-      ),
-    );
+    return windows(knots, grid).map((window: IWindow): number[] => {
+      const row: number[] = new Array<number>(knots.length).fill(0);
+      for (let j: number = 0; j < window.times.length; ++j) {
+        const unit: number[][] = window.times.map(
+          (_: number, i: number): number[] => [i === j ? 1 : 0],
+        );
+        row[window.first + j] = HumanArmRefine.hermite(window.times, unit, window.at)[0]!;
+      }
+      return row;
+    });
   }
 
   /**
@@ -76,8 +78,11 @@ export namespace HumanArmTrajectoryKnots {
     grid: readonly number[],
     x: readonly (readonly (readonly number[])[])[],
   ): number[][][] {
+    const spans: IWindow[] = windows(knots, grid);
     return x.map((arm: readonly (readonly number[])[]): number[][] =>
-      grid.map((t: number): number[] => HumanArmRefine.hermite(knots, arm, t)),
+      spans.map((span: IWindow): number[] =>
+        HumanArmRefine.hermite(span.times, arm.slice(span.first, span.first + span.times.length), span.at),
+      ),
     );
   }
 
@@ -211,4 +216,24 @@ export namespace HumanArmTrajectoryKnots {
     );
     return { n: vars, band, p, q, rows };
   }
+}
+
+/** Four consecutive knots suffice for the two endpoint values and both centred tangents. */
+interface IWindow {
+  /** Offset into the full knot coordinate array. */
+  first: number;
+  /** The source times of this interval and its tangent neighbours. */
+  times: readonly number[];
+  /** The requested grid second. */
+  at: number;
+}
+
+/** Locate the Hermite support in one forward traversal of the two sorted clocks. */
+function windows(knots: readonly number[], grid: readonly number[]): IWindow[] {
+  let bracket: number = 0;
+  return grid.map((at: number): IWindow => {
+    while (bracket + 2 < knots.length && knots[bracket + 1]! <= at) ++bracket;
+    const first: number = Math.max(0, bracket - 1);
+    return { first, times: knots.slice(first, bracket + 3), at };
+  });
 }
