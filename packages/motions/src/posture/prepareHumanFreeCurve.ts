@@ -79,7 +79,7 @@ export function prepareHumanFreeCurve(
 
   /** Observe native output independently; no seed or fitted endpoint is a target substitute. */
   function observe(prepared: HumanPosturePreparation.IPrepared, raw: IAutoMovieMotionHumanPosture,
-    knownSeeds?: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]): IAnchor | undefined {
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], knownSeeds?: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]): IAnchor | undefined {
     if (raw.rotation !== undefined || !HumanPostureRaw.eligible(raw)) return undefined;
     const limbs: [AutoMovieHumanLimb, IAutoMovieHumanLimbGoal][] = Object.entries(raw.limbs) as [AutoMovieHumanLimb, IAutoMovieHumanLimbGoal][];
     if (limbs.length === 0) return undefined;
@@ -99,7 +99,7 @@ export function prepareHumanFreeCurve(
       observations.set(code, observed);
     }
     const names: ReadonlySet<AutoMovieHumanoidBone> = observed.names;
-    const source: HumanPosturePreparation.IObservation | undefined = HumanPosturePreparation.source(prepared, names);
+    const source: HumanPosturePreparation.IObservation | undefined = HumanPosturePreparation.source(prepared, names, resolution);
     let bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     if (source === undefined) {
       const pose: HumanPosturePreparation.IPrepared["pose"] = prepared.pose;
@@ -168,7 +168,7 @@ export function prepareHumanFreeCurve(
     if (!interior) {
       return { kind: "refine" };
     }
-    const value: IAnchor | undefined = observe(prepared, raw, seeds);
+    const value: IAnchor | undefined = observe(prepared, raw, resolution, seeds);
     if (value === undefined) return { kind: "unusable" };
     const continuous: boolean = value.rotations.length === prior.rotations.length && value.rotations.every(
       (rotation: IAutoMovieQuaternion, i: number): boolean => Quaternion.angleAfterNormalize(rotation, prior.rotations[i]!) * 180 / Math.PI <= hingedArmSwivel.STEP,
@@ -260,7 +260,7 @@ export function prepareHumanFreeCurve(
     if (kept?.share === share) return kept.value;
     const raw: IAutoMovieMotionHumanPosture = at(share);
     const prepared: HumanPosturePreparation.IPrepared = cold(share, resolution, projection, raw);
-    const value: IAnchor | undefined = observe(prepared, raw);
+    const value: IAnchor | undefined = observe(prepared, raw, resolution);
     if (value !== undefined) anchors.set(level, { share, value });
     return value;
   }
@@ -306,11 +306,11 @@ export function prepareHumanFreeCurve(
         supported = false; return cold(share, resolution, projection);
       }
       const prepared: HumanPosturePreparation.IPrepared = cold(0, resolution, projection, initial);
-      origin = observe(prepared, initial);
+      origin = observe(prepared, initial, resolution);
       if (origin === undefined) {
         const raw: IAutoMovieMotionHumanPosture = at(0.5);
         const middle: HumanPosturePreparation.IPrepared = cold(0.5, resolution, projection, raw);
-        const interior: IAnchor | undefined = observe(middle, raw);
+        const interior: IAnchor | undefined = observe(middle, raw, resolution);
         if (interior !== undefined) { pivot = 0.5; origin = interior; }
       }
     }

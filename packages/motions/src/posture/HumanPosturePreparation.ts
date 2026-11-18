@@ -151,7 +151,7 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the actual preparation's private solved pose/original rig are shared; exact named scalar values are copied on every observation, and the caller's current source/epoch proof remains separate.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two flat primitive arrays and the fresh K-bone map transfer to this observation's caller and end with its query. No source pose, private joint, reader, output history or handle is retained by this method.
    */
-  export function source(prepared: IPrepared, requested: ReadonlySet<AutoMovieHumanoidBone>): IObservation | undefined {
+  export function source(prepared: IPrepared, requested: ReadonlySet<AutoMovieHumanoidBone>, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IObservation | undefined {
     const fixed: ISource | undefined = SOURCES.get(prepared);
     if (fixed?.rigUnchanged === undefined) return undefined;
     const names: AutoMovieHumanoidBone[] = new Array<AutoMovieHumanoidBone>(fixed.solved.pose.joints.length);
@@ -163,7 +163,7 @@ export namespace HumanPosturePreparation {
       values[3 * i + 1] = joint.abduction;
       values[3 * i + 2] = joint.twist;
     }
-    return { names, values, bones: fixed.rig.resolveMap(fixed.solved.pose, undefined, requested) };
+    return { names, values, bones: fixed.rig.resolveMap(fixed.solved.pose, resolution !== undefined && prepareHumanPoseResolution.isNativeSource(resolution) ? prepareHumanPoseResolution.read(resolution) : undefined, requested) };
   }
 
   /**
@@ -220,8 +220,8 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary bone map and COM end on return; the output owns its translated raw graph and bounded weak source evidence without any reader loan or new history.
    */
   export function placed(prepared: IPrepared, model: IAutoMovieResolveCenterOfMass.IModel,
-    requested: ReadonlySet<AutoMovieHumanoidBone>, centre: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
-    return placeCurrent(prepared, model, bones(prepared, requested), centre);
+    requested: ReadonlySet<AutoMovieHumanoidBone>, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture {
+    return placeCurrent(prepared, model, bones(prepared, requested, prepareHumanPoseResolution.isNativeSource(resolution) ? resolution : undefined), centre);
   }
 
   /** Apply exactly the original COM subtract/add grouping to actual source geometry. */

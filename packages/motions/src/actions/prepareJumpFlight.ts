@@ -49,6 +49,6 @@ export function prepareJumpFlight(
   return (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const prepared: HumanPosturePreparation.IPrepared = curve(share, read, projection);
-    return HumanPosturePreparation.placed(prepared, model, requested, centre);
+    return HumanPosturePreparation.placed(prepared, model, requested, centre, read);
   };
 }
