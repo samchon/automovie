@@ -64,8 +64,9 @@ type Release = ReturnType<typeof floorEntry.between> | undefined;
  * Entered standing, the feet keep their place while the body goes down to
  * the route's first posture. The mean of their bearing soles gives the
  * root path and each foot is fitted to its own stationary socket. The pelvis then
- * stays where that first phase set it down, so the body pivots about it;
- * entered on the floor, the pelvis stays over its place throughout.
+ * stays over the first landing, or its entry place when already on the
+ * floor. Rolling from supine turns about the longitudinal axis with the
+ * dependent heel fixed horizontally.
  * Each phase takes `PHASE` seconds (provisional), scaled by the manner's
  * tempo; the position is then held `hold` seconds. Events: `getDown` at
  * the start, the arrival at each posture on the route (`seatContact`,
@@ -94,8 +95,8 @@ export namespace lieDown {
   /** Seconds of each phase (provisional). */
   export const PHASE: number = 1.2;
 
-  /** The upper leg's adduction onto the lower one when lying on a side, degrees (provisional). */
-  export const STACKED: number = 9;
+  /** Relative hip adduction of parallel legs in side lying, degrees. */
+  export const STACKED: number = 0;
 
   /** The floor postures (provisional angles). */
   export const POSES: Readonly<
@@ -309,11 +310,21 @@ export namespace lieDown {
     let bearing: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> | undefined;
     let plants: Pins;
     let release: Release;
+    const rollSide: "left" | "right" | undefined =
+      position === "lateralLeft" ? "left" : position === "lateralRight" ? "right" : undefined;
     const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => ({
       root: { x: 0, y: 0, z: 0 },
       yaw: standing.yaw,
       pitch: keys[index]!.pitch + (keys[index + 1]!.pitch - keys[index]!.pitch) * u,
       roll: keys[index]!.roll + (keys[index + 1]!.roll - keys[index]!.roll) * u,
+      // From supine, turn around the body's longitudinal axis. In the
+      // Ry Rx Rz chart this is Rx(-90) Ry(turn), with the horizontal
+      // projection of the chest normal pointing left or right throughout.
+      ...(rollSide !== undefined && index === route.length - 1 && u > 0 ? {
+        yaw: standing.yaw + (rollSide === "left" ? 90 : -90),
+        pitch: -90 + Math.abs(keys[index + 1]!.roll) * u,
+        roll: rollSide === "left" ? -90 : 90,
+      } : {}),
       joints: blend[index]!(u),
       limbs: {},
     });
@@ -363,6 +374,7 @@ export namespace lieDown {
     };
     let stood: IAutoMovieVector3 | undefined;
     let landed: IAutoMovieVector3 | undefined;
+    let rollHeel: IAutoMovieVector3 | undefined;
     const shift: (
       index: number,
       posed: IAutoMovieMotionHumanPosture,
@@ -404,11 +416,30 @@ export namespace lieDown {
         ...posed,
         root: { x: hips.x - offset.x + moved.x, y: floor(posed, read, project), z: hips.z - offset.z + moved.z },
       };
+      if (index === route.length - 1 && rollSide !== undefined) {
+        // During the roll the lower heel bears along with the trunk. Turning
+        // about the pelvis alone would drag that heel across the ground.
+        const feet: ReturnType<typeof StrikingBody.prepareTrunk> =
+          readFeet ??= StrikingBody.prepareTrunk(body, feetBones);
+        const heel = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+          HumanFoot.sockets(body, feet(posture, read, project), rollSide)[0]!.point;
+        rollHeel ??= heel(placed(index - 1, 1, read, project));
+        const now: IAutoMovieVector3 = heel(rooted);
+        return {
+          ...rooted,
+          root: { x: rooted.root.x + rollHeel.x - now.x, y: rooted.root.y, z: rooted.root.z + rollHeel.z - now.z },
+        };
+      }
       if (current === undefined) return rooted;
       plants ??= prepareLieDownFootPins(
         body, readFeet!(stoodPose, read, project), readFeet!(posedAt(0, 1), read, project),
       );
-      return resolveHumanPosture.lower(body, plants(rooted, current), undefined, read);
+      const planted: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, plants(rooted, current), undefined, read);
+      // The fitted knees and toes can become the lowest skin after the
+      // descent's leg solve. Ground the actual articulation for the release.
+      const shown: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, planted, read, project);
+      const height: number = floor(shown, read, project);
+      return height > shown.root.y ? { ...shown, root: { ...shown.root, y: height } } : planted;
     }
     const at: (
       seconds: number,
@@ -543,8 +574,7 @@ export namespace lieDown {
   /**
    * A floor posture from its whole-body tilt and symmetric limb angles. Lying
    * on a side, no limb spreads away from the trunk into the floor: the arms
-   * and the leg underneath keep to the trunk's side, and the leg on top comes
-   * down onto the one underneath by `STACKED`.
+   * and both flexed legs remain parallel at the separation of the hips.
    */
   function pose(
     pitch: number,
