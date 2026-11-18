@@ -9,12 +9,14 @@ import type {
 import {
   HumanChain,
   HumanEmblem,
+  HumanHabit,
   HumanPerformance,
   HumanRefusal,
   HumanSkill,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -47,6 +49,95 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_motion_posture_emblem_variation(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
+  // A directed forefinger is judged from its own held bones and the
+  // independently resolved temple, not the row's intended goal.
+  const templeShow = new HumanPerformance({
+    seed: "directed fingertip",
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").touch({
+      target: { kind: "self", region: "templeRight" },
+      with: "forefinger",
+      kind: "hold",
+      side: "right",
+      elbow: "level",
+    }).node,
+  });
+  const heldAt = (
+    seg: IAutoMovieMotionHumanSegment,
+    begin: string,
+    end: string,
+  ): number => {
+    const instant = (name: string): number =>
+      seg.start +
+      seg.plan.duration *
+        (seg.plan.events.find((e) => e.name === name)?.share ?? NaN);
+    return (instant(begin) + instant(end)) / 2;
+  };
+  const showing = templeShow.bones(
+    "a",
+    heldAt(templeShow.segments("a")[0]!, "ready", "relax"),
+  );
+  const wrist = showing.get("rightHand")!.worldPosition;
+  const elbow = showing.get("rightLowerArm")!.worldPosition;
+  const shoulder = showing.get("rightUpperArm")!.worldPosition;
+  const tip = showing.get("rightIndexDistal")!.worldPosition;
+  if (
+    Vector3.distance(tip, fixture.site(body, showing, "templeRight")) > 0.03 ||
+    Vector3.dot(
+      Vector3.normalize(Vector3.subtract(tip, wrist)),
+      Vector3.normalize(Vector3.subtract(wrist, elbow)),
+    ) < Math.cos(Math.PI / 12) ||
+    elbow.z <= shoulder.z
+  )
+    complaints.push(
+      "the directed forefinger missed the temple, bent the wrist, or drew its elbow behind its shoulder",
+    );
+  // An object inspected by eye must remain in front of the chest and within
+  // its declared viewing range. The eye baseline is measured on the live head.
+  const watchShow = new HumanPerformance({
+    seed: "viewing distance",
+    laws: [HumanHabit.checkWatch],
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").registered("checkWatch", {}).node,
+  });
+  const watchSeg = watchShow.segments("a")[0]!;
+  const watch = watchShow.bones(
+    "a",
+    heldAt(watchSeg, "strokeStart", "strokeEnd"),
+  );
+  const eyes = Vector3.scale(
+    Vector3.add(
+      watch.get("leftEye")!.worldPosition,
+      watch.get("rightEye")!.worldPosition,
+    ),
+    0.5,
+  );
+  const viewed = watch.get("leftHand")!.worldPosition;
+  const range = Vector3.distance(eyes, viewed);
+  if (
+    !(
+      range >= 0.3 &&
+      range <= 0.4 &&
+      viewed.z > watch.get("chest")!.worldPosition.z
+    )
+  )
+    complaints.push("watch viewing distance " + range);
   for (const [row, sign] of [
     ["thumbsUp", 1],
     ["thumbsDown", -1],
