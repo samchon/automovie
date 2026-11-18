@@ -1,32 +1,28 @@
-import { hingedArmSwivel } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   IAutoMovieMotionHumanResolveHumanPosture,
-  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-
 /**
  * A striking limb's free course tabulated on the contact scan's own knots:
- * the capsule ends at `from + k * STEP`, each knot's limb fits continued
- * from the knot before it.
+ * the capsule ends at `from + k * STEP`, each knot fitted as the figure is
+ * fitted at that second, and kept for any later read of the same knot.
  *
- * A contact scan walks a weapon's course a hundred and twenty times a
- * second and every sample used to solve the striking limb cold, searching
- * its whole swivel circle again (measured in test_human_motion_hit_punch:
- * 112 poses at 12.8 ms, the bounded sweep of the arm's fit 0.72 s of the
- * spec's 2.33 s). Along one course the limb's fit a hundred and twentieth
- * of a second on lies beside the last one's, so the first knot is solved
- * cold and each later knot continues its predecessor's fit
- * (`IAutoMovieSwivelNear`), a refinement in place of a search. The table is
- * built in knot order from the first, so a knot's ends are a function of the
- * course alone, whoever reads them and in what order; a second between two
- * knots continues the knot before it, and a second before the first knot is
- * solved cold.
+ * The contact resolution must meet the limb the figure shows, so every knot
+ * is the course's own fit, solved as the displayed posture solves it. Knots
+ * continued from their predecessor's swivel (`IAutoMovieSwivelNear`, a
+ * refinement in place of a search) were tried for speed and left the
+ * displayed fit: on the large man's rear round kick at the average man's
+ * flank the continued knee drifted 6 cm above the shown one, and the
+ * continued shin met the partner's guard elbow 33 ms before contact where
+ * the shown shin passed it 4 cm clear (`signature_kick_m_large`); solving
+ * each knot as the figure does was no slower there (4.7 s against 5.4 s for
+ * the scene). The table therefore holds no seed, so a knot's ends are a
+ * function of the course alone, whoever reads them and in what order; a
+ * second off the knots or before the first is fitted itself.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the knots, the continuation, its measured reason, why the result does not depend on read order and what a second off the knots or before them reads.
- * @evidence contracts/development/design.md#principled-representation One row a knot: the ends the scan reads and the fits' seeds the next knot continues.
+ * @evidence contracts/development/common.md#meaningful-documentation States the knots, why each is fitted as the figure is with the measured divergence of the continuation, why the result does not depend on read order and what a second off the knots or before them reads.
+ * @evidence contracts/development/design.md#principled-representation One row a knot: the ends the scan reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The reader type, the knots' step and the table's constructor, used by `StrikingWeapon.capsules`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose is replayed or interpolated: every second read is the course's own goals fitted at that second.
  */
@@ -70,7 +66,9 @@ export namespace StrikingWeaponTable {
     solve: (
       seconds: number,
       near: IAutoMovieMotionHumanResolveHumanPosture.INear | undefined,
-      kept: (seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]) => void,
+      kept: (
+        seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
+      ) => void,
     ) => readonly IAutoMovieVector3[],
   ): IRead {
     return (
@@ -81,7 +79,9 @@ export namespace StrikingWeaponTable {
       const ends: readonly IAutoMovieVector3[] = solve(
         seconds,
         near,
-        (found: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"]): void => {
+        (
+          found: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
+        ): void => {
           seeds = found;
         },
       );
@@ -97,52 +97,23 @@ export namespace StrikingWeaponTable {
    * @returns The capsule ends at a second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reader, the first knot and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Numerical continuation along a path: each knot's fit starts from its predecessor's seed at the swivel search's own resolution (`hingedArmSwivel.RESOLUTION`), as a contact re-aim's later passes already continue their first. A fit the continuation cannot refine falls back inside the engine's own fit, not here.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rows appended in knot order up to the knot asked; a read is a row, or one fit continued from a row.
+   * @evidence contracts/development/implementation.md#principled-implementation Each knot is the course's own fit at that second, solved as the displayed posture is, so the contact scan meets the limb the figure shows; no seed is carried between knots, because a continued swivel was measured to leave the shown fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A read is a knot's row, filled on its first read, or one fit of a second off the knots.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knot is recognised only when the scan's own expression `from + k * STEP` gives the second bit for bit; any other second is fitted itself.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One cold fit a table and one continued fit a knot up to the last second read; a knot read again is a lookup.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fit a knot actually read, the fit the figure itself pays at that second, and a lookup for a knot read again; no cheaper exact method exists, since a fit continued from the previous knot is a different, inexact solution branch.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A knot's row is the course's value at that knot on one built geometry; the owner drops the table with the geometry (`StrikingWeapon.capsules`).
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rows grow to the course's knots, a hundred and twenty a second of weapon window, and are released with the table by its owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rows grow to the knots read, at most a hundred and twenty a second of weapon window, and are released with the table by its owner.
    */
   export function of(
     read: IRead,
     from: number,
   ): (seconds: number) => readonly IAutoMovieVector3[] {
-    const rows: {
-      ends: readonly IAutoMovieVector3[];
-      near: IAutoMovieMotionHumanResolveHumanPosture.INear;
-    }[] = [];
-    const row = (k: number): (typeof rows)[number] => {
-      while (rows.length <= k) {
-        const index: number = rows.length;
-        const solved: ReturnType<IRead> = read(
-          from + index * STEP,
-          index === 0 ? undefined : rows[index - 1]!.near,
-        );
-        rows.push({ ends: solved.ends, near: continued(solved.seeds) });
-      }
-      return rows[k]!;
-    };
+    const rows: (readonly IAutoMovieVector3[])[] = [];
     return (seconds: number): readonly IAutoMovieVector3[] => {
       if (!(seconds >= from)) return read(seconds).ends;
       const k: number = Math.round((seconds - from) / STEP);
-      if (from + k * STEP === seconds) return row(k).ends;
-      const before: number = Math.floor((seconds - from) / STEP);
-      return read(seconds, row(before).near).ends;
+      if (from + k * STEP !== seconds) return read(seconds).ends;
+      return (rows[k] ??= read(seconds).ends);
     };
   }
-}
-
-/** The fits a knot's successor continues: each solved limb's seed at the swivel search's own resolution. */
-function continued(
-  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
-): IAutoMovieMotionHumanResolveHumanPosture.INear {
-  const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
-  for (const [limb, seed] of Object.entries(seeds))
-    if (seed !== null && seed !== undefined)
-      near[limb as AutoMovieHumanLimb] = {
-        ...seed,
-        tolerance: hingedArmSwivel.RESOLUTION,
-      };
-  return near;
 }
