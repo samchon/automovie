@@ -1,11 +1,11 @@
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -15,7 +15,6 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +42,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    instant between two readings can hide a slide that returns).
  * 3. The glass is drunk from: at the end of the pick-up it is below the
  *    neck joint, and at some instant of the walk it is above it, where a
- *    mouth is.
+ *    mouth is; read at the same sixths of a second as scenario 2, off the
+ *    same displayed pose and prop frame, so each instant is resolved once.
  * 4. Continuity: from the film's start through the
  *    reach, the takeover and the 0.6 s after it, no joint centre jumps by
  *    more than the audit's 5 mm; and for 0.3 s either side of the drink's
@@ -56,7 +56,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the chain through the public input and reads the displayed hand, the prop's displayed frame and the thrown refusal; a glass that slides in the hand, stays at the hip, a hand that steps at the takeover, or a free hand refused fails.
  * @evidence contracts/development/testing.md#independent-expectations The 1 mm drift and the 5 mm step are the campaign's bounds; that a drink brings a glass above the neck is what drinking is; none is read from the overlay or the hold.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the hold before, under and after the overlay; the holding hand used for its prop and the free hand used beside it; the holding hand used for something else is `test_human_motion_core_overlay_hold_refusal_wave`'s. An overlay with empty hands is `test_human_motion_overlay_channels`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases One body, since the rule is the grammar's; the hold before, under and after the overlay; the holding hand used for its prop and the free hand used beside it; the holding hand used for something else is `test_human_motion_core_overlay_hold_refusal_wave`'s. An overlay with empty hands is `test_human_motion_overlay_channels`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the act, how the glass is taken and why, and the 5 scenarios with their bounds.
  */
@@ -122,52 +122,50 @@ export function test_human_motion_core_overlay_hold(): void {
       continue;
     }
 
-    // 2. The glass in the hand's frame.
-    const inHand = (seconds: number): IAutoMovieVector3 => {
-      const hand: IAutoMovieResolvedBone = film
-        .bones("a", seconds)
-        .get("rightHand")!;
+    // 2 and 3. At each reading, one displayed pose and one prop frame give
+    // the glass in the hand's frame and its height over the neck joint.
+    const read = (
+      seconds: number,
+    ): { inHand: IAutoMovieVector3; overNeck: number } => {
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        film.bones("a", seconds);
+      const hand: IAutoMovieResolvedBone = bones.get("rightHand")!;
       const glass: IAutoMovieRigidTransform = film.prop("glass", seconds);
-      return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), {
-        x: glass.position.x - hand.worldPosition.x,
-        y: glass.position.y - hand.worldPosition.y,
-        z: glass.position.z - hand.worldPosition.z,
-      });
+      return {
+        inHand: Quaternion.rotateVector(
+          Quaternion.inverse(hand.worldRotation),
+          {
+            x: glass.position.x - hand.worldPosition.x,
+            y: glass.position.y - hand.worldPosition.y,
+            z: glass.position.z - hand.worldPosition.z,
+          },
+        ),
+        overNeck: glass.position.y - bones.get("neck")!.worldPosition.y,
+      };
     };
     const taken: number = film.segments("a")[0]!.end;
-    const seated: IAutoMovieVector3 = inHand(taken);
+    const seated: { inHand: IAutoMovieVector3; overNeck: number } = read(taken);
     let drift: { value: number; seconds: number } = { value: 0, seconds: 0 };
+    let raised: number = -Infinity;
     for (let t: number = taken; t <= film.duration + 1e-9; t += 1 / 6) {
-      const now: IAutoMovieVector3 = inHand(t);
+      const now: { inHand: IAutoMovieVector3; overNeck: number } = read(t);
       const value: number = Math.hypot(
-        now.x - seated.x,
-        now.y - seated.y,
-        now.z - seated.z,
+        now.inHand.x - seated.inHand.x,
+        now.inHand.y - seated.inHand.y,
+        now.inHand.z - seated.inHand.z,
       );
       if (value > drift.value) drift = { value, seconds: t };
+      raised = Math.max(raised, now.overNeck);
     }
+
+    // 2. The glass in the hand's frame.
     if (drift.value > 0.001)
       complaints.push(
         `${name}: the glass drifts ${mm(drift.value)} mm in the right hand's frame (at ${drift.seconds.toFixed(2)} s), within 1 mm expected`,
       );
 
     // 3. The glass reaches where a mouth is.
-    const shown: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      film,
-      "a",
-      body,
-      0,
-    );
-    const start: number =
-      film.prop("glass", taken).position.y -
-      HumanSignature.joint(shown, taken, "neck").y;
-    let raised: number = -Infinity;
-    for (let t: number = taken; t <= film.duration + 1e-9; t += 1 / 6)
-      raised = Math.max(
-        raised,
-        film.prop("glass", t).position.y -
-          HumanSignature.joint(shown, t, "neck").y,
-      );
+    const start: number = seated.overNeck;
     if (!(start < 0 && raised > 0))
       complaints.push(
         `${name}: the glass ends the pick-up ${mm(start)} mm above the neck joint and rises to ${mm(raised)} mm above it during the walk; below the neck, then above it expected`,

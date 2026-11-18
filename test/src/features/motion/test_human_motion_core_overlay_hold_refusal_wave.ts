@@ -22,21 +22,25 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * it waves (`everyday/gesture.ts`), so the wave was not seen to use the
  * hand. The test fails until `gesture` declares `hands`.
  *
- * Scenarios, on the average man and the small woman; a glass is picked up
- * with the right hand, then the person walks 2 m:
+ * Scenarios, on the average man; a glass is picked up with the right hand,
+ * then the person walks 2 m. One body is enough, as for the drink over the
+ * walk (`test_human_motion_core_overlay_hold`): the refusal is the
+ * grammar's (which hand the plan drives while the other holds), read off
+ * the hands and the contact windows, never a body's measure, so the small
+ * woman this spec also performed takes the same branch:
  * 1. A wave of the right hand over the walk is an `affordance` refusal on
  *    `hand` whose message names the glass and whose alternatives offer
  *    `left`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the composition through the public input and reads the thrown refusal; a holding hand waved without a refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations One hand does one thing, the motion skill's held-object rule; the free hand is the one that holds nothing.
- * @evidence contracts/development/testing.md#distinguishing-cases The holding hand used for something else; the free hand is `test_human_motion_core_overlay_hold`'s, and the holding hand used for its own prop by a grip it cannot drink with is `test_human_motion_core_overlay_hold_refusal_drink`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds two performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the measured row of its known failure and the scenario.
+ * @evidence contracts/development/testing.md#distinguishing-cases The holding hand used for something else, on one body since the rule reads hands, not measures; the free hand is `test_human_motion_core_overlay_hold`'s, and the holding hand used for its own prop by a grip it cannot drink with is `test_human_motion_core_overlay_hold_refusal_drink`'s.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares a polygon man and one archetype and builds one performance in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the measured row of its known failure, why one body is enough and the scenario.
  */
 export function test_human_motion_core_overlay_hold_refusal_wave(): void {
   const complaints: string[] = [];
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     let thrown: unknown = null;
     try {
