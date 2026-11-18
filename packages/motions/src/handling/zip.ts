@@ -33,6 +33,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
+import { prepareZipperPinch } from "./prepareZipperPinch";
 
 /** A sampled fingertip contact within one planned hand shape. */
 interface IDigitGoal {
@@ -192,19 +193,28 @@ function plan(
     point: Vector3.subtract(working(seconds).point, gap),
     normal: bottom.normal,
   });
-  const hand: IAutoMovieQuaternion = pinchRotation(
-    context,
+  const pinch: ReturnType<typeof prepareZipperPinch> = prepareZipperPinch(
+    context.body,
     side,
-    gap,
-    first.point,
+    gapLength,
   );
+  const shoulder: IAutoMovieVector3 = bones.get(
+    `${side}UpperArm`,
+  )!.worldPosition;
+  const hand = (seconds: number): IAutoMovieQuaternion =>
+    pinchRotation(
+      side,
+      pinch.normal,
+      gap,
+      Vector3.subtract(working(seconds).point, shoulder),
+    );
   const braceTurn: IAutoMovieQuaternion = manipulateFacing(
     posture,
     [{ side: other, site: support.point, normal: support.normal }],
     other,
   );
   const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-    AutoMovieMotionHumanArm.together();
+    AutoMovieMotionHumanArm.together(context.handover, true, tempo);
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
@@ -219,14 +229,15 @@ function plan(
             { digit: "thumb", at: working },
             { digit: "index", at: opposing },
           ],
-          bones.get(`${side}UpperArm`)!.worldPosition,
+          shoulder,
           arms,
+          pinch,
         ),
         ...fingers(
           context,
           clock,
           other,
-          braceTurn,
+          () => braceTurn,
           [{ digit: "index", at: () => support }],
           bones.get(`${other}UpperArm`)!.worldPosition,
           arms,
@@ -253,31 +264,13 @@ function plan(
   };
 }
 
-/** Align the working hand's curled thumb-to-index separation with the physical tab. */
+/** Align the fitted opposition axis with the tab, aiming along the current shoulder reach. */
 function pinchRotation(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
   side: AutoMovieHumanSide,
+  normal: IAutoMovieVector3,
   gap: IAutoMovieVector3,
-  target: IAutoMovieVector3,
+  reach: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-  const thumb: IAutoMovieMotionHumanOperateDrive.IPlace = HumanHand.offset(
-    body,
-    side,
-    "thumbTip",
-    "fist",
-  );
-  const index: IAutoMovieMotionHumanOperateDrive.IPlace = HumanHand.offset(
-    body,
-    side,
-    "indexTip",
-    "fist",
-  );
-  const normal: IAutoMovieVector3 = Vector3.subtract(thumb.point, index.point);
-  const reach: IAutoMovieVector3 = Vector3.subtract(
-    target,
-    context.entry.posture.root,
-  );
   const forward: IAutoMovieVector3 =
     Vector3.length(Vector3.cross(gap, reach)) > 1e-8
       ? reach
@@ -298,20 +291,15 @@ function fingers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
   clock: IAutoMovieMotionClock,
   side: AutoMovieHumanSide,
-  rotation: IAutoMovieQuaternion,
+  rotationAt: (seconds: number) => IAutoMovieQuaternion,
   goals: readonly IDigitGoal[],
   shoulder: IAutoMovieVector3,
   arms: IAutoMovieMotionHumanArmPlanned.ITogether,
+  pinch?: ReturnType<typeof prepareZipperPinch>,
 ): readonly IAutoMovieMotionHumanPrimitive[] {
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-  const pinch: boolean = goals.length === 2;
-  const offset = (goal: IDigitGoal): IAutoMovieVector3 =>
-    HumanHand.offset(body, side, `${goal.digit}Tip`, pinch ? "fist" : "flat")
-      .point;
-  const contact: IAutoMovieVector3 = pinch
-    ? Vector3.lerp(offset(goals[0]!), offset(goals[1]!), 0.5)
-    : offset(goals[0]!);
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  const contact: IAutoMovieVector3 =
+    pinch?.contact ?? HumanHand.offset(body, side, "indexTip", "relaxed").point;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     body,
     context.entry.posture,
@@ -320,18 +308,27 @@ function fingers(
   );
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
-  const point = (seconds: number): IAutoMovieVector3 => {
+  const handAt = (seconds: number): IAutoMovieHumanLimbGoal => {
     const first: IAutoMovieVector3 = goals[0]!.at(seconds).point;
-    const middle: IAutoMovieVector3 = pinch
-      ? Vector3.lerp(first, goals[1]!.at(seconds).point, 0.5)
-      : first;
-    return Vector3.subtract(middle, lever);
+    const middle: IAutoMovieVector3 =
+      pinch !== undefined
+        ? Vector3.lerp(first, goals[1]!.at(seconds).point, 0.5)
+        : first;
+    const rotation: IAutoMovieQuaternion = rotationAt(seconds);
+    return {
+      point: Vector3.subtract(
+        middle,
+        Quaternion.rotateVector(rotation, contact),
+      ),
+      rotation,
+      contact,
+      bend,
+    };
   };
-  // Over a straight stroke the shoulder-to-wrist distance is bounded by
-  // its endpoint distances for this fixed standing contact.
+  // Check the endpoint reaches before the shared arm planner checks the path.
   for (const seconds of [ready, done])
     if (
-      Vector3.length(Vector3.subtract(point(seconds), shoulder)) >
+      Vector3.length(Vector3.subtract(handAt(seconds).point, shoulder)) >
       body.measure.upperArm + body.measure.forearm
     )
       throw refusal(
@@ -340,9 +337,21 @@ function fingers(
       );
   const weight = (seconds: number): number =>
     clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-  const shape: ReturnType<typeof HumanHand.shape> = pinch
-    ? HumanHand.shape(side, "fist")
-    : manipulateShape(side, "index");
+  const first: IAutoMovieMotionHumanOperateDrive.IPlace = goals[0]!.at(ready);
+  const brace: ReturnType<typeof manipulateShape> | undefined =
+    pinch !== undefined
+      ? undefined
+      : manipulateShape(
+          body,
+          side,
+          "index",
+          handAt(ready).point,
+          rotationAt(ready),
+          first.point,
+          first.normal,
+        );
+  const shape: IAutoMovieMotionHumanPosture["joints"] =
+    pinch?.joints ?? brace!.joints;
   return [
     AutoMovieMotionHumanArm.carried({
       body,
@@ -352,17 +361,12 @@ function fingers(
       to: clock.duration,
       span: { start: 0, ready, relax: done, end: clock.duration },
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      disc: 0,
+      disc: 0.004,
       weight,
       goal: (
         _posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-      ): IAutoMovieHumanLimbGoal => ({
-        point: point(seconds),
-        rotation,
-        contact,
-        bend,
-      }),
+      ): IAutoMovieHumanLimbGoal => handAt(seconds),
     }),
     {
       from: 0,
@@ -388,6 +392,7 @@ function fingers(
 
         const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {
           ...posture.digits,
+          ...brace?.avoid,
         };
         for (const goal of goals) {
           const key: AutoMovieHumanDigit = `${side}${goal.digit === "thumb" ? "Thumb" : "Index"}`;
@@ -395,8 +400,12 @@ function fingers(
             goal.at(seconds);
           digits[key] = {
             point: sample.point,
-            normal: sample.normal,
+            // The opposed points already set the orientation of the pinch.
+            // Its fingertip fit corrects positions without forcing each tip's
+            // anatomical axis perpendicular to the tab.
+            ...(pinch === undefined ? { normal: sample.normal } : {}),
             surface: "tip",
+            contact: true,
           };
         }
         return { ...posture, joints, digits };
