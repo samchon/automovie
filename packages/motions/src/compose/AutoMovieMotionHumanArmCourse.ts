@@ -12,7 +12,6 @@ import type {
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { HumanLimbFitFrame } from "../posture/HumanLimbFitFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
@@ -123,7 +122,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    * @evidence contracts/development/implementation.md#principled-implementation The hold is the rig's analytic two-bone fit per instant, continued from the instant before; the transports are the trajectory reader's blend, and the whole is admitted by the trajectory model's own feasibility reading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The instants, the hold's chain of fits, the admission.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is admitted that the model refuses; a refused course only seeds the optimiser, every requirement intact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One two-bone limb fit per arm per hold instant on the planner's solved base (a golden refinement about the last instant's swivel after the first, no posture solve), no fit on a transport instant, then one model evaluation and the admission counters, in place of the optimiser's penalty rounds of convexified programmes and its sampling planner. Unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One two-bone limb fit per arm per hold instant on the planner's solved base (a golden refinement about the last instant's swivel after the first, no posture solve), no fit on a transport instant, then one model evaluation, in place of the optimiser's penalty rounds of convexified programmes and its sampling planner. Unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's cached postures, bases and goals, and the trajectory's playback.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-instant arms live until the admission; the readers returned keep only the trajectory's playback data.
    */
@@ -216,15 +215,6 @@ export namespace AutoMovieMotionHumanArmCourse {
             ),
         ),
       );
-    // How often a course is admitted, and which term refuses the others.
-    HumanLimbFitFrame.work(
-      props.body,
-      read.admitted ? "courseAdmitted" : "courseFallbacks",
-    );
-    const term: Parameters<typeof HumanLimbFitFrame.work>[1] | undefined =
-      REFUSED[read.refused];
-    if (!read.admitted && term !== undefined)
-      HumanLimbFitFrame.work(props.body, term);
     return read;
   }
 
@@ -273,20 +263,6 @@ function same(a: unknown, b: unknown): boolean {
     )
   );
 }
-
-/** The counter of each model term that refuses a laid course (`HumanArmTrajectory.admitted`'s `refused`). */
-const REFUSED: Readonly<
-  Record<string, Parameters<typeof HumanLimbFitFrame.work>[1]>
-> = {
-  speed: "courseRefusedSpeed",
-  swept: "courseRefusedSwept",
-  site: "courseRefusedSite",
-  lift: "courseRefusedLift",
-  limit: "courseRefusedLimit",
-  probe: "courseRefusedProbe",
-  embedded: "courseRefusedEmbedded",
-  crossing: "courseRefusedCrossing",
-};
 
 /** The posture solve of every arm's goal at an instant, continued from the seeds the last instant chose. */
 function solver(
