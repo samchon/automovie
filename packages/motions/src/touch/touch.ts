@@ -333,8 +333,8 @@ export namespace touch {
       modifiers,
     );
 
-    const window: HumanPhysics.Window = HumanPhysics.prepare(
-      p, {}, context.start, { duration: clock.duration, events: clock.events() }, context.instant,
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(
+      p, {}, context.start, clock, context.instant,
     );
     if (window !== null && !grounded)
       throw new HumanRefusal({
