@@ -310,6 +310,7 @@ export namespace dive {
         { name: "landed", share: share(crouch + travel) },
       ],
       contacts,
+      physicalWindow: { from: crouch, to: crouch + travel },
       posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t <= crouch) return crouched(minimumJerk.share(t / crouch), resolution, projection);

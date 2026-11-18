@@ -352,36 +352,30 @@ export namespace bendLower {
   /** The deepest trunk inclination `pitch` searches, degrees: all the pelvis can tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40 degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine 21:71), the most a standing trunk inclines. */
   export const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;
 
-  /** The inclination the first balance shift is solved at, degrees, before the needed one is known. A numerical starting point, not a body fact: the shift per sine it gives is used only to find the needed inclination, at which the shift is solved again unless that inclination is under `SHALLOW`. */
-  export const NOMINAL: number = 60;
-
-  /** The inclination under which the first balance shift is kept instead of solved again, degrees: one `SCAN` step, a numerical policy, under which the shift, which scales with the inclination's sine, is under a tenth of its value at `NOMINAL`. */
-  export const SHALLOW: number = SCAN;
+  /** An actual instant and its action event clock for a static lower-key query. */
+  export interface IInstant {
+    /** Absolute film second at the start of the observed action. */
+    start: number;
+    /** Local action second at which the lowering is read. */
+    seconds: number;
+    /** The actual action duration and its named event shares. */
+    timing: Parameters<typeof HumanPhysics.prepare>[3];
+    /** Resolver of any bound declared on another action or cue. */
+    instant?: HumanPhysics.Instant;
+  }
 
   /**
-   * The lowering that brings a hand within reach of a target under a
-   * strategy: the hips' balance shift found on the lowered posture at
-   * `NOMINAL` degrees, the least inclination that reaches (`pitch`), and,
-   * past `SHALLOW` degrees, the shift again at that inclination and the
-   * inclination again with it.
+   * Find the least inclination whose moving shoulder reaches the wrist.
+   * A low-level query describes one key; a caller observing it as part of a
+   * longer action supplies the action's clock and local second. A free key
+   * follows the measured stoop retreat or the squat's anchored leg geometry.
    *
-   * @param body The body.
-   * @param upright The standing posture lowered.
-   * @param target The target.
-   * @param side The hand.
-   * @param strategy The strategy.
-   * @param reach How near the shoulder must come to the target, metres; `pitch`'s palm reach when absent.
-   * @param balance The caller's balancing shift. Absent, the stoop takes its measured hip key and the other strategies use their leg geometry.
-   * @returns The solved lowering.
-   * @throws {HumanRefusal} As `pitch`, when the strategy cannot reach the target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two passes, the inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The inclination is the least that reaches with the hips where the strategy's keys place them (Kim and Yoo 2018 for the stoop). When balance is requested, `HumanBalance.shift` derives the additional hips-back course from the centre of mass.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two balance solves and two pitch solves, in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `NOMINAL` and `SHALLOW` are named provisional constants; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pitch solve without the balance option; with it two balance scans and two pitch solves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the bend law and by the pick-up's own lowering, so both lower a body alike.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @param balance Optional sagittal hip shift. Its weight scales only the
+   * missing support displacement at the selected posture.
+   * @param instant Action clock for the queried key. The standalone key's
+   * start and end coincide at zero when absent.
+   * @evidence contracts/development/implementation.md#principled-implementation Project the centre onto the actual support hull along the author's heading. Convert that hip translation into the sine-scaled retreat of the lowered key and solve its inclination again only if necessary.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A free or supported key needs one reach solve. Only an active, unsupported key asks for another at its corrected retreat.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -393,23 +387,28 @@ export namespace bendLower {
     balance?: IAutoMovieMotionHumanBalance,
     wristAt?: WristAt,
     lateral: number = 0,
+    instant?: IInstant,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    // The measured stoop key supplies the horizontal motion of the hips.
-    // The other strategies lower their hips by the geometry of the legs.
-    if (!HumanPhysics.balanced({ balance })) {
-      const lean: number = strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
-      return { strategy, lean, pitch: pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral) };
-    }
-    const shift: (deg: number) => number = (deg: number): number =>
-      HumanBalance.shift(
-        body,
-        (back: number): IAutoMovieMotionHumanPosture =>
-          lower(body, upright, strategy, deg, 1, back, undefined, lateral),
-      ) / Math.sin((deg * Math.PI) / 180);
-    let lean: number = shift(NOMINAL);
+    let lean: number = strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
     let deg: number = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
-    if (deg > SHALLOW) {
-      lean = shift(deg);
+    if (balance === undefined) return { strategy, lean, pitch: deg };
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      { balance }, {}, instant?.start ?? 0, instant?.timing ?? { duration: 0, events: [] }, instant?.instant,
+    );
+    const weight: number = HumanPhysics.weightAt(window, instant?.seconds ?? 0);
+    if (window === null || weight === 0) return { strategy, lean, pitch: deg };
+    if (window.by !== "hips")
+      throw new HumanRefusal({
+        kind: "parameter", axis: "balance.by", value: window.by,
+        reason: "a lowering key represents the hips' retreat along the standing heading",
+        fix: "give hips for balance.by",
+      });
+    const sine: number = Math.sin(deg * Math.PI / 180);
+    const key: IAutoMovieMotionHumanPosture = lower(body, upright, strategy, deg, 1, lean * sine, undefined, lateral);
+    const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(body, key);
+    const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(support, HumanFrame.forward(key.yaw));
+    if (sine !== 0 && shift !== null && shift !== 0) {
+      lean -= weight * shift / sine;
       deg = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
     }
     return { strategy, lean, pitch: deg };

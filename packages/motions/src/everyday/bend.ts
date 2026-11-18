@@ -421,6 +421,7 @@ export namespace bend {
    * @param side The hand.
    * @param strategy The requested strategy.
    * @param reach How near the shoulder must come to the target, metres; the bend's palm reach when absent.
+   * @param instant Action-local time and the event clock when observing an optional balance window on this key.
    * @returns The solved lowering.
    * @throws {HumanRefusal} When the strategy, and for `auto` the squat after it, cannot reach the target.
    *
@@ -442,11 +443,12 @@ export namespace bend {
     balance?: IAutoMovieMotionHumanBalance,
     wristAt?: AutoMovieBendWrist,
     lateralTilt: number = 0,
+    instant?: bendLower.IInstant,
   ): IAutoMovieMotionHumanBendLower.ISolved {
     const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
     const solve: (candidate: typeof chosen) => IAutoMovieMotionHumanBendLower.ISolved =
       (candidate: typeof chosen): IAutoMovieMotionHumanBendLower.ISolved => {
-        return bendLower.solve(body, upright, target, side, candidate, reach, balance, wristAt, lateralTilt);
+        return bendLower.solve(body, upright, target, side, candidate, reach, balance, wristAt, lateralTilt, instant);
       };
     try {
       return solve(chosen);
