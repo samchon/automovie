@@ -108,7 +108,6 @@ export namespace HumanArmTrajectoryConvex {
       inner(k) ? jac[a]![k]!.move * radius : 0;
     x.forEach((arm, a: number): void => {
       for (let k: number = 0; k + 1 < n; ++k) {
-        const dt: number = c.times[k + 1]! - c.times[k]!;
         // Cartesian steps and speed, read against the arm's own base
         // (`HumanArmTrajectoryTravel`): the later point's share of a step's
         // gradient is its world Jacobian, the earlier point's that Jacobian
@@ -153,7 +152,7 @@ export namespace HumanArmTrajectoryConvex {
           if (
             T.SPEED.includes(probe) &&
             length > 1e-6 &&
-            length + reach(a, k) + reach(a, k + 1) > M.stepLimit(dt)
+            length + reach(a, k) + reach(a, k + 1) > M.stepLimit(c, k)
           ) {
             const s: ILinear = step(Vector3.scale(d, 1 / length));
             if (s.idx.length > 0)
@@ -162,7 +161,7 @@ export namespace HumanArmTrajectoryConvex {
                 index: s.idx,
                 coef: s.coef,
                 l: -Infinity,
-                u: M.stepLimit(dt) - length,
+                u: M.stepLimit(c, k) - length,
                 weight: mu,
               });
           }

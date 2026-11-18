@@ -269,7 +269,7 @@ export namespace HumanArmTrajectory {
             maximum: null,
             unit: "s",
           },
-          reason: `the laid course of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action moves faster than the audit's ${M.SPEED_LIMIT} m/s`,
+          reason: `the laid course of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action moves faster than the law's own pace`,
           fix: "give the action more time",
         });
     }
@@ -448,7 +448,7 @@ export namespace HumanArmTrajectory {
                 unit: "s",
               }
             : null,
-        reason: `no path of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the audit's ${M.SPEED_LIMIT} m/s: ${worst.what}`,
+        reason: `no path of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the law's own pace: ${worst.what}`,
         fix:
           worst.axis === "duration"
             ? "give the action more time"

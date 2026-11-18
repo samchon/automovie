@@ -69,7 +69,10 @@ export namespace HumanArmTrajectoryLaid {
    * hold's first waypoint, and from the hold's last to its return. The
    * share is timed along the arc of the fastest bounded probe
    * (`T.SPEED`: elbow, wrist, fingertips) of any arm, by a trapezoid of
-   * speed whose plateau is `PACE` of the audit's bound and whose two ramps
+   * speed whose plateau is `PACE` of the law's own pace (the peak its timing
+   * gives the straight arc, `M.UNIT` times the arc over the transport's
+   * seconds, Flash and Hogan 1985; `M.IContext.speed`, which this course
+   * sets for every reading of it) and whose two ramps
    * take the share of the span the arc leaves, `1 - L / (v T)`, no more than
    * half (the triangle): the smoothest profile of that family the span
    * allows under the bound (the time-scaling of a fixed path, Hollerbach
@@ -93,6 +96,7 @@ export namespace HumanArmTrajectoryLaid {
    *
    * @param problem The problem on the course's waypoints.
    * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
+   * @param stretches Whether the span is the law's own, which a slower replan lengthens; a span fixed from outside paces a detour no slower than `M.ENVELOPE`.
    * @returns The course's readers, its admission with the refusing term, and its reading; a course not admitted is `solve`'s seed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, how the transports are laid and timed, what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
@@ -106,6 +110,7 @@ export namespace HumanArmTrajectoryLaid {
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
     held: readonly (readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[])[],
+    stretches: boolean = false,
   ): IAdmitted {
     // Read in the mirror image when the first arm is the left, as `solve`
     // reads it, so a course and its mirror are admitted alike to the bit;
@@ -150,12 +155,16 @@ export namespace HumanArmTrajectoryLaid {
     // are read on the base of its first waypoint, the arms' own travel.
     // Returns the share of the path each of its waypoints stands at and the
     // seconds its time law's ramps end and start at.
-    type ILaid = { shares: number[]; ramps: number[] };
-    const lay = (from: number, to: number, detours: readonly Clear.IDetour[]): ILaid => {
+    // The pace is the law's own on the transport: `UNIT` times its straight
+    // arc (no detour) over its seconds, read where it is first laid.
+    type ILaid = { shares: number[]; ramps: number[]; pace: number };
+    // A transport laid again round its detours is timed at its bound (`cap`,
+    // the context's pace there), its straight lay at the law's own pace.
+    const lay = (from: number, to: number, detours: readonly Clear.IDetour[], known?: number, cap?: number): ILaid => {
       const shares: number[] = [];
       shares[from] = 0;
       shares[to] = 1;
-      if (to - from < 2) return { shares, ramps: [] };
+      if (to - from < 2) return { shares, ramps: [], pace: known ?? 0 };
       const ends: [readonly number[], readonly number[]][] = x.map(
         (arm: number[][]): [readonly number[], readonly number[]] => [arm[from]!, arm[to]!],
       );
@@ -188,6 +197,7 @@ export namespace HumanArmTrajectoryLaid {
       }
       const arc: number = along[ARC]!;
       const seconds: number = times[to]! - times[from]!;
+      const pace: number = known ?? (M.UNIT * arc) / seconds;
 
       // The waypoints on a trapezoid of the arc whose plateau runs at a
       // speed, its ramps the share of the span the arc leaves.
@@ -240,15 +250,16 @@ export namespace HumanArmTrajectoryLaid {
         });
         return most;
       };
-      let plateau: number = PACE * M.SPEED_LIMIT;
+      const bound: number = Number.isFinite(cap ?? NaN) ? Math.max(pace, cap!) : pace;
+      let plateau: number = PACE * bound;
       let ramp: number = timed(plateau);
       for (let pass: number = 0; pass < RETIMES; ++pass) {
         const planned: number = arc / ((1 - ramp) * seconds);
         // A course already at constant speed cannot be slowed in its span.
         if (ramp < 1e-9) break;
         const ratio: number = fastest() / planned;
-        if (ratio * planned <= PACE * M.SPEED_LIMIT) break;
-        plateau = (PACE * M.SPEED_LIMIT) / ratio;
+        if (ratio * planned <= PACE * bound) break;
+        plateau = (PACE * bound) / ratio;
         ramp = timed(plateau);
       }
       return {
@@ -256,6 +267,7 @@ export namespace HumanArmTrajectoryLaid {
         ramps: ramp >= 1e-9 && ramp < 0.5
           ? [times[from]! + ramp * seconds, times[to]! - ramp * seconds]
           : [],
+        pace,
       };
     };
 
@@ -288,6 +300,43 @@ export namespace HumanArmTrajectoryLaid {
         done: false,
       }),
     );
+
+    // The law's own pace at every second (`M.IContext.speed`): each
+    // transport's, read on its straight course above, and on the hold the
+    // fastest of the hold's own motion (the arm on its sites, as the caller
+    // gives it) and the two transports'. A transport the law does not move
+    // takes the fastest of the others; an arm the law moves nowhere has no
+    // pace to keep and none bounds it.
+    const holding: number = ((): number => {
+      let most: number = 0;
+      x.forEach((arm: number[][], a: number): void => {
+        for (let k: number = first; k < last; ++k) {
+          if (arm[k]!.length === 0 || arm[k + 1]!.length === 0) continue;
+          const now: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k]!, arm[k]!);
+          const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k + 1]!, arm[k + 1]!);
+          for (const p of T.SPEED)
+            most = Math.max(most, Vector3.length(V.step(
+              context.frames[a]![k]!, context.frames[a]![k + 1]!,
+              now.probes[p]![0], next.probes[p]![0])) / (times[k + 1]! - times[k]!));
+        }
+      });
+      return most;
+    })();
+    const [reach, back]: ITransport[] = transports as [ITransport, ITransport];
+    const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
+    // A span fixed from outside cannot stretch for a detour, so there the
+    // course may move as fast as a daily reach's fastest hand (`M.ENVELOPE`)
+    // where the law's own pace is slower.
+    const paced = (pace: number): number => {
+      const own: number = pace > 0 ? pace : widest > 0 ? widest : Infinity;
+      return stretches ? own : Math.max(own, M.ENVELOPE);
+    };
+    const onHold: number = paced(widest);
+    const reachPace: number = paced(reach.laid.pace);
+    const backPace: number = paced(back.laid.pace);
+    context.speed = (seconds: number): number =>
+      seconds <= times[first]! ? reachPace : seconds >= times[last]! ? backPace : onHold;
+
     let reading: M.IEvaluation = M.evaluate(context, x);
     for (let round: number = 0; round < DETOURS && reading.worst.value > M.TOLERANCE; ++round) {
       let moved: boolean = false;
@@ -297,7 +346,7 @@ export namespace HumanArmTrajectoryLaid {
       // only these (`M.evaluate`'s `kept`).
       const laid: boolean[] = new Array<boolean>(n).fill(false);
       const relay = (t: ITransport): void => {
-        t.laid = lay(t.from, t.to, t.detours);
+        t.laid = lay(t.from, t.to, t.detours, t.laid.pace, t === reach ? reachPace : backPace);
         for (let k: number = t.from + 1; k < t.to; ++k) laid[k] = true;
       };
       for (const t of transports) {
@@ -329,8 +378,7 @@ export namespace HumanArmTrajectoryLaid {
       reading = M.evaluate(context, x, { reading, laid });
     }
     for (const t of transports) ramps.push(...t.laid.ramps);
-    const worst: M.IEvaluation["worst"] = reading.worst;
-    return {
+    const worst: M.IEvaluation["worst"] = reading.worst;    return {
       trajectories: problem.arms.map(
         (_: HumanArmTrajectory.IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
           HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
@@ -343,7 +391,7 @@ export namespace HumanArmTrajectoryLaid {
   }
 }
 
-/** The share of the audit's bound a laid transport's plateau runs at: the margin its sampled arc and its waypoints' chords leave (provisional). */
+/** The share of the law's own pace a laid transport's plateau runs at: the margin its sampled arc and its waypoints' chords leave (provisional). */
 const PACE: number = 0.97;
 
 /** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */

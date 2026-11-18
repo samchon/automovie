@@ -13,7 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -211,10 +210,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
       carries.forEach((c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): void => {
         const fit: IAutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
         const rest: IAutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
-        const duration: number = carries.length === 1
-          ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit, resolution)
-          : reaching(body, p, c.side, rest, fit, resolution, projection);
-        longest = Math.max(longest, (duration * HumanArmTrajectoryModel.SPEED_LIMIT) / 1.875);
+        // The longest probe arc of the blend, read on the base without this
+        // arm: the planner's own where it plans one arm, solved here for two.
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
+        delete limbs[`${c.side}Arm`];
+        const base: IAutoMoviePose = carries.length === 1
+          ? at(t).pose
+          : resolveHumanPosture.seeded(body, { ...p, limbs }, undefined, undefined, resolution, undefined, projection).pose;
+        longest = Math.max(longest, AutoMovieMotionHumanArmObservation.longest(body, base, c.side, rest, fit, resolution));
       });
       return longest;
     };
@@ -365,7 +368,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // optimiser's seed.
     const laid: ReturnType<typeof AutoMovieMotionHumanArmCourse.course> =
       AutoMovieMotionHumanArmCourse.course({
-        body, span, arms: carries, at, aimed, problem, resolution,
+        body, span, stretches: plan?.stretches === true, arms: carries, at, aimed, problem, resolution,
       });
     if (laid?.admitted !== true) {
       guesses = carries.map(
@@ -416,8 +419,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
 /** The spacing of the trajectory's waypoints, seconds at most: the frame grid (`AutoMovieMotionHumanArmCourse.STEP`). */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-/** The farthest probe's travel between two waypoints of a reach, metres: the audit's travel bound over one of its twenty-fourth-second steps (`HumanArmTrajectoryModel.SPEED_LIMIT`). */
-const SPACING: number = HumanArmTrajectoryModel.SPEED_LIMIT / 24;
+/** The farthest probe's travel between two waypoints of a reach first cut, metres (provisional: a sampling density, not a bound; the solve splits any interval its frame-grid reading fails in). */
+const SPACING: number = 0.08;
 
 /** A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006 3:18). */
 const PEAK: number = 0.55;

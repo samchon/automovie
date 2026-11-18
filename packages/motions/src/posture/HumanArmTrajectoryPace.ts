@@ -15,12 +15,12 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * the frame grid a span is read on where no course gives its own, a laid
  * course's arms as coordinates on a context's waypoints, and the factor a
  * trajectory's span must grow by to keep every speed-bounded probe within
- * the audit's bound.
+ * the law's own pace (`M.IContext.speed`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three readings, their units and who reads them.
  * @evidence contracts/development/design.md#principled-representation Seconds for instants, joint coordinates per arm and waypoint, and a dimensionless slowing factor.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions and the grid step, read by the trajectory's solve alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The speed bound is the model's (`M.SPEED_LIMIT`) and the probes the terms' (`T.SPEED`); nothing is restated.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The speed bound is the context's, the law's own pace (`M.IContext.speed`), and the probes the terms' (`T.SPEED`); nothing is restated.
  */
 export namespace HumanArmTrajectoryPace {
   /** The frame grid's step, seconds, where no course gives its own grid. */
@@ -28,8 +28,8 @@ export namespace HumanArmTrajectoryPace {
 
   /**
    * The factor a trajectory's span must grow by for every speed-bounded
-   * probe to move within the audit's bound: the largest ratio, over each
-   * interval and probe, of the probe's speed to the bound.
+   * probe to move within the law's own pace: the largest ratio, over each
+   * interval and probe, of the probe's speed to the pace there.
    *
    * @param c The context the coordinates are read on.
    * @param x Each arm's coordinates at each waypoint.
@@ -68,7 +68,11 @@ export namespace HumanArmTrajectoryPace {
             now.probes[p]![0],
             next.probes[p]![0],
           );
-          most = Math.max(most, Vector3.length(d) / (M.SPEED_LIMIT * dt));
+          most = Math.max(
+            most,
+            Vector3.length(d) /
+              (c.speed((c.times[k]! + c.times[k + 1]!) / 2) * dt),
+          );
         }
       }
     });

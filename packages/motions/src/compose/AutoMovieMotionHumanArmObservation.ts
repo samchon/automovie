@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
@@ -31,16 +32,17 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * @evidence contracts/development/common.md#meaningful-documentation Documents reach arcs, target displacement and goal-to-site frame conversion at action-local seconds.
  * @evidence contracts/development/design.md#principled-representation Each reading uses canonical body poses and world-metre goal frames; speed and contact geometry keep their existing physical owners.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The planner and feedback reader share the same site/perception conversion; duration reads the same solved arm probes without owning trajectory optimization.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The arc's chord count derived from the arm and the model's tolerance, the speed bound, goal ownership and contact offsets are preserved; no action or body receives a special path.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The arc's chord count derived from the arm and the model's tolerance, the reach's movement-time source, goal ownership and contact offsets are preserved; no action or body receives a special path.
  */
 export namespace AutoMovieMotionHumanArmObservation {
   /**
-   * The shortest reach that keeps an arm within the audit's travel bound
-   * (`HumanArmTrajectoryModel.SPEED_LIMIT`) on the joint-space blend from one
-   * arm to another: a minimum-jerk reach peaks at 1.875 times its mean speed
-   * (Flash and Hogan 1985, J Neurosci 5:1688), so a path of length L takes
-   * at least 1.875 L over the bound, L the longest of the elbow's, the
-   * wrist's and the middle fingertip's arcs.
+   * The time a reach on the joint-space blend from one arm to another
+   * takes: its wrist's arc timed as a reach-to-grasp to a point by the
+   * two-factor movement-time model (McIntosh, Mon-Williams and Tresilian
+   * 2018, `AutoMovieMotionHumanTiming.aimed`). The arm planner paces the
+   * reach by the peak that timing gives its straight course (Flash and
+   * Hogan 1985's minimum-jerk peak, `HumanArmTrajectoryModel.UNIT`), so a
+   * detour takes proportionally longer.
    *
    * @param body The body.
    * @param posture The posture the arm moves in.
@@ -51,9 +53,9 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param projection Optional genuine same-body ROM metadata borrowed by the actual raw-base solve.
    * @returns Seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its source and the arcs it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk profile's peak-to-mean speed ratio over the longest arc of the blend.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one division.
+   * @evidence contracts/development/common.md#meaningful-documentation States the timing, its source and the arc it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation The two-factor reach-to-grasp movement time of the wrist's arc on the blend.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one movement-time reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is measured on the blend the arm takes, not on the straight line between the ends.
    * @evidence contracts/development/implementation.md#efficient-algorithms One original base solve and N+1 actual blended poses, N the chords that hold an arm-length half-turn's shortfall within a millimetre, retain their original arc integration. Each FK read admits every authored joint but resolves only the three probes and their ancestors; one operation reader shares unchanged scalar FK prerequisites. Runtime improvement is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses blendHumanJoint, HumanArmClearance.posed and poseBones. The actual removed-arm raw posture receives ordinary native admission/fitting; one local FK reader shares only fixed joint/rest/ancestor prerequisites across actual blend samples.
@@ -89,12 +91,12 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param from The original starting arm rotations.
    * @param to The original ending arm rotations.
    * @param source Optional exact FK source borrowed only until this measurement returns or throws.
-   * @returns The same speed-bound duration in seconds for this base's actual probe arcs.
+   * @returns The reach-to-grasp movement time in seconds of this base's actual wrist arc.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the supplied actual base, replaced arm joints, preserved finger/ancestor dependencies and second-valued duration.
-   * @evidence contracts/development/implementation.md#principled-implementation The three arm joints are replaced at every sample; all remaining FK dependencies come from the supplied solved base. N+1 samples (rcSamples) and the minimum-jerk peak/mean speed factor measure its actual elbow, wrist and fingertip arcs.
+   * @evidence contracts/development/implementation.md#principled-implementation The three arm joints are replaced at every sample; all remaining FK dependencies come from the supplied solved base. N+1 samples measure its actual elbow, wrist and fingertip arcs, and the two-factor reach-to-grasp model times the wrist's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure reaching owns raw-posture admission/resolution, this companion owns identical probe integration, and the existing single-arm planner supplies its already completed exact removed-arm base.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample, blend, arc increment, speed bound or tolerance changes. Multiarm planner bases still use the original raw resolver because removing both arms differs from removing only the measured arm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample, blend, arc increment or tolerance changes. Multiarm planner bases still use the original raw resolver because removing both arms differs from removing only the measured arm.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps N+1 actual probe blends/FK admissions and original integration; a valid existing canonical base avoids one duplicate solve. Three fixed-pair blenders prepare endpoint rotation/chart data once at first interior use, while every original share and clinical readback remain actual. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-arm planner's at(t).pose resolved exactly the same body/posture after removing that sole arm goal; its body and raw posture stay unchanged during this synchronous planning query. An explicit same-body operation may lend exact FK metadata from native base/endpoint solves to every original probe. Cold reaching still resolves its actual raw base normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base and optional exact FK source only until the scalar returns, with a local getter, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained, and no source enters the scalar result.
@@ -107,39 +109,42 @@ export namespace AutoMovieMotionHumanArmObservation {
     to: IAutoMovieMotionHumanArmClearance.IArm,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): number {
-    const probes: readonly AutoMovieHumanoidBone[] = [
-      `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
-    ];
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    const upper: ReturnType<typeof blendHumanJoint.between> =
-      blendHumanJoint.between(body, `${side}UpperArm`, from.upper, to.upper);
-    const lower: ReturnType<typeof blendHumanJoint.between> =
-      blendHumanJoint.between(body, `${side}LowerArm`, from.lower, to.lower);
-    const hand: ReturnType<typeof blendHumanJoint.between> =
-      blendHumanJoint.between(body, `${side}Hand`, from.hand, to.hand);
-    const points = (w: number): IAutoMovieVector3[] => {
-      const arm: IAutoMovieMotionHumanArmClearance.IArm = {
-        upper: upper(w), lower: lower(w), hand: hand(w),
-      };
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, HumanArmClearance.posed(base, side, arm), resolution(), requested);
-      return probes.map(
-        (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-          bones.get(bone)!.worldPosition,
-      );
-    };
-    const length: number[] = [0, 0, 0];
-    const samples: number = arcSamples(body, side, probes);
-    let last: IAutoMovieVector3[] = points(0);
-    for (let i: number = 1; i <= samples; ++i) {
-      const next: IAutoMovieVector3[] = points(i / samples);
-      next.forEach((p: IAutoMovieVector3, j: number): void => {
-        length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
-      });
-      last = next;
-    }
-    return (1.875 * Math.max(...length)) / HumanArmTrajectoryModel.SPEED_LIMIT;
+    // The wrist's travel timed as a reach-to-grasp to a point (McIntosh,
+    // Mon-Williams and Tresilian 2018, `AutoMovieMotionHumanTiming.aimed`);
+    // the longest arc is the planner's to pace by (`longest`).
+    return AutoMovieMotionHumanTiming.aimed(arcs(body, base, side, from, to, source)[1]!, 0);
+  }
+
+  /**
+   * The longest of the elbow's, the wrist's and the middle fingertip's arcs
+   * on the joint-space blend from one arm to another, read on an actual
+   * solved base as `reachingPose` reads them.
+   *
+   * @param body The unchanged body whose rig admits every probe sample.
+   * @param base The actual canonical base pose.
+   * @param side The measured arm.
+   * @param from The starting arm rotations.
+   * @param to The ending arm rotations.
+   * @param source Optional exact FK source borrowed only until this measurement returns or throws.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the arcs read and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The same blended probe samples `reachingPose` integrates, their longest arc.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend sampling and one maximum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is the blend's, not the chord between the ends.
+   * @evidence contracts/development/implementation.md#efficient-algorithms N+1 blended poses with the three probes' FK, as `reachingPose`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the blenders and FK reads `reachingPose` uses.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the scalar.
+   */
+  export function longest(
+    body: IAutoMovieMotionHumanBody,
+    base: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmClearance.IArm,
+    to: IAutoMovieMotionHumanArmClearance.IArm,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): number {
+    return Math.max(...arcs(body, base, side, from, to, source));
   }
 
   /**
@@ -338,5 +343,49 @@ function arcSamples(
   );
   const tolerance: number = HumanArmTrajectoryModel.TOLERANCE / 1000;
   return Math.ceil(Math.PI * Math.sqrt((Math.PI * reach) / (24 * tolerance)));
+}
+
+/** The elbow's, the wrist's and the middle fingertip's arcs on the joint-space blend from one arm to another, metres, on an actual solved base (`reachingPose`, `longest`). */
+function arcs(
+  body: IAutoMovieMotionHumanBody,
+  base: IAutoMoviePose,
+  side: AutoMovieHumanSide,
+  from: IAutoMovieMotionHumanArmClearance.IArm,
+  to: IAutoMovieMotionHumanArmClearance.IArm,
+  source?: Parameters<typeof prepareHumanPoseResolution>[0],
+): number[] {
+  const probes: readonly AutoMovieHumanoidBone[] = [
+    `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
+  ];
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+  const upper: ReturnType<typeof blendHumanJoint.between> =
+    blendHumanJoint.between(body, `${side}UpperArm`, from.upper, to.upper);
+  const lower: ReturnType<typeof blendHumanJoint.between> =
+    blendHumanJoint.between(body, `${side}LowerArm`, from.lower, to.lower);
+  const hand: ReturnType<typeof blendHumanJoint.between> =
+    blendHumanJoint.between(body, `${side}Hand`, from.hand, to.hand);
+  const points = (w: number): IAutoMovieVector3[] => {
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = {
+      upper: upper(w), lower: lower(w), hand: hand(w),
+    };
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, HumanArmClearance.posed(base, side, arm), resolution(), requested);
+    return probes.map(
+      (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        bones.get(bone)!.worldPosition,
+    );
+  };
+  const length: number[] = [0, 0, 0];
+  const samples: number = arcSamples(body, side, probes);
+  let last: IAutoMovieVector3[] = points(0);
+  for (let i: number = 1; i <= samples; ++i) {
+    const next: IAutoMovieVector3[] = points(i / samples);
+    next.forEach((p: IAutoMovieVector3, j: number): void => {
+      length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
+    });
+    last = next;
+  }
+  return length;
 }
 

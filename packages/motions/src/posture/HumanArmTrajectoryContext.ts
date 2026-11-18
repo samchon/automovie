@@ -412,6 +412,9 @@ export namespace HumanArmTrajectoryContext {
           }
         : {}),
       times: problem.times,
+      // The law's pace the laid course sets (`HumanArmTrajectoryLaid`), kept
+      // by a refinement of the same arms; none read yet bounds nothing.
+      speed: previous?.speed ?? ((): number => Infinity),
       setups,
       frames,
       sites,

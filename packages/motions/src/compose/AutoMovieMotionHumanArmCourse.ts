@@ -60,6 +60,9 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** The span's instants, seconds. */
     span: { start: number; ready: number; relax: number; end: number };
 
+    /** Whether the span is the law's own, which a slower replan lengthens (`IAutoMovieMotionHumanArmPlanned.ITogether.stretches`); a fixed one otherwise. */
+    stretches?: boolean;
+
     /** Each arm's side, rest, return and the bone of another arm its grip rides, in the group's order. */
     arms: readonly {
       side: "left" | "right";
@@ -214,6 +217,7 @@ export namespace AutoMovieMotionHumanArmCourse {
                 course.get(t)?.[a],
             ),
         ),
+        props.stretches === true,
       );
     return read;
   }

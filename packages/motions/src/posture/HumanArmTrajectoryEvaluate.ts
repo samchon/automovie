@@ -123,7 +123,7 @@ export function HumanArmTrajectoryEvaluate(
       for (const p of c.still ? [] : T.SPEED) {
         const step: number = travel(p);
         note(
-          step - M.stepLimit(dt),
+          step - M.stepLimit(c, k),
           "speed",
           () =>
             `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,

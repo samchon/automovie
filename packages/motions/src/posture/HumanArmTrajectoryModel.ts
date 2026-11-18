@@ -85,22 +85,25 @@ export namespace HumanArmTrajectoryModel {
   /** The largest violation of a constraint other than clearance accepted as feasible: a millimetre, or a millimetre per step; the solve refuses past it. */
   export const TOLERANCE: number = T.TOLERANCE;
 
-  /** The audit's bound on a point's travel, 80 mm per twenty-fourth of a second, metres per second: a bound against a step, not a human norm (a daily reach peaks near 0.55 m/s, J NeuroEng Rehabil 2006 3:18). */
-  export const SPEED_LIMIT: number = 0.08 * 24;
+  /** A minimum-jerk movement's peak speed over its mean, 1.875 (Flash and Hogan 1985, J Neurosci 5:1688): the peak a law's own timed straight path reaches, `UNIT` times its length over its time. */
+  export const UNIT: number = 1.875;
+
+  /** The fastest a hand moves in a daily reach, metres a second: the returning phase's peak hand velocity of drinking from a glass, 560 ± 79.1 mm/s over 20 controls (Alt Murphy, Sunnerhagen, Johnels and Willén 2006, J NeuroEng Rehabil 3:18, table 2, the faster of its reaching and returning phases), at its mean plus three standard deviations. A span fixed from outside (a weight, a meeting, a cue) cannot stretch for a detour, so there the course may move as fast as this or the law's own pace, whichever is larger. */
+  export const ENVELOPE: number = 0.56 + 3 * 0.0791;
 
   /**
    * The travel a speed-bounded probe may make over an interval, millimetres:
-   * the audit's bound over it less the tolerance a violation is accepted
-   * within. The audit reads its bound with no tolerance, so a step the model
-   * accepts at its own tolerance must still lie within the audit's bound; a
-   * step bounded at the audit's own figure and accepted a millimetre past it
-   * would not (measured: 33.0 mm in a sixtieth of a second against 32).
+   * the law's own pace there (`IContext.speed`, read at the interval's
+   * middle) over it less the tolerance a violation is accepted within, so a
+   * step the model accepts at its tolerance still lies within the pace.
    *
-   * @param dt The interval, seconds.
+   * @param c The context.
+   * @param k The interval's first waypoint.
    * @returns The bound, millimetres.
    */
-  export function stepLimit(dt: number): number {
-    return 1000 * SPEED_LIMIT * dt - TOLERANCE;
+  export function stepLimit(c: IContext, k: number): number {
+    const dt: number = c.times[k + 1]! - c.times[k]!;
+    return 1000 * c.speed((c.times[k]! + c.times[k + 1]!) / 2) * dt - TOLERANCE;
   }
 
   /** What a solve reads, built once (`HumanArmTrajectoryContext.of`). */
@@ -115,6 +118,21 @@ export namespace HumanArmTrajectoryModel {
     anchor?: readonly (readonly number[] | undefined)[];
     /** The waypoints' seconds. */
     times: readonly number[];
+    /**
+     * The fastest any speed-bounded probe may move at a second, metres a
+     * second: the peak the law's own timing gives its straight course there
+     * (`UNIT` times the fastest probe's straight arc over the transport's
+     * seconds, and on the hold the fastest of the hold's own motion and the
+     * transports'), so no course moves a point faster than the law's own
+     * timed arm, and a detour takes proportionally longer, the time scaling
+     * of a fixed path (Hollerbach and Flash 1982, Biol Cybern 44:67); on a
+     * span fixed from outside, which cannot stretch, no less than `ENVELOPE`,
+     * a daily reach's fastest hand. Set by
+     * the laid course (`HumanArmTrajectoryLaid`), kept by its refinements; a
+     * problem no course is laid for has no law's pace to read and none
+     * bounds it.
+     */
+    speed: (seconds: number) => number;
     /** Each arm's setup. */
     setups: IAutoMovieMotionHumanArmGeometry.ISetup[];
     /** Each arm's frame at each waypoint. */

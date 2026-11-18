@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned
  * was made) plus a feedback correction driven only by how far the goal has
  * moved since the plan perceived it (`AutoMovieMotionHumanArmPlanned.moved`),
  * mapped onto the arm by differential inverse kinematics and moved no faster
- * than the audit's travel bound leaves the plan room for.
+ * than the plan's own pace leaves it room for.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is followed, what drives the correction, how it maps onto the arm and its bound.
  * @evidence contracts/development/design.md#principled-representation A correction in the arm's coordinates added to the plan, the form of feed-forward plus error-driven feedback.
@@ -42,8 +42,9 @@ export namespace AutoMovieMotionHumanArmFollow {
    * (`moved`) less the contact's motion the correction has already made, so
    * a goal that has not moved leaves the correction exactly zero and the arm
    * exactly the plan. The step is shortened to keep the elbow, the wrist and
-   * the fingertip within the audit's travel bound (`SPEED_LIMIT`) beyond the
-   * plan's own travel that frame, and halved while it would take the arm
+   * the fingertip within the plan's own pace (its fastest probe's travel over
+   * a frame of the span, the law's own timed arm) beyond the plan's own
+   * travel that frame, and halved while it would take the arm
    * deeper past the tangle audit's skin than it is. After `relax` the
    * correction returns to zero within the same bound, so the return rejoins
    * the plan. Between grid frames the correction is interpolated, so the arm
@@ -58,7 +59,7 @@ export namespace AutoMovieMotionHumanArmFollow {
    * @returns The arm at a second, optionally borrowing same-body FK and genuine ROM metadata only while its missing grid steps are filled.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the start, the step, its two bounds, the release after the hold and how a second between frames is read.
-   * @evidence contracts/development/implementation.md#principled-implementation Error-driven feedback on a feed-forward plan by differential inverse kinematics (damped least squares), rate-limited by the audit's travel bound and kept by the planner's own clearance reading (`HumanArmTrajectoryModel.invalid`).
+   * @evidence contracts/development/implementation.md#principled-implementation Error-driven feedback on a feed-forward plan by differential inverse kinematics (damped least squares), rate-limited by the plan's own pace and kept by the planner's own clearance reading (`HumanArmTrajectoryModel.invalid`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One grid filled in order; per frame one error, one Jacobian, one step, its two bounds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero error gives a zero step, not a small one; the correction is never moved faster than the bound to catch up, and starts and ends at zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per grid frame of the hold: two goal reads, one frame, the Jacobian's forward placements (two per free coordinate) and a three-by-three solve, none when the goal has not moved; a frame whose correction is still zero reads nothing at all when the carry has no perceived goal (its two goal reads are one callback, premised deterministic; a goal that would throw at such a frame is then not read and no longer throws there) or the hold is over.
@@ -82,6 +83,10 @@ export namespace AutoMovieMotionHumanArmFollow {
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
     const corrections: number[][] = [zero];
     let settled: boolean = false;
+    // The plan's own fastest probe travel over a frame, metres, read once;
+    // the goal's fastest travel over a frame so far, and its last motion.
+    let pace: number | undefined;
+    let tracked: number = 0;
     const at = (j: number): number => span.ready + j * STEP;
     const add = (
       a: readonly number[],
@@ -187,11 +192,29 @@ export namespace AutoMovieMotionHumanArmFollow {
           read.contact,
           Vector3.subtract(read.error, made),
         );
+        tracked = Math.max(tracked, Vector3.length(Vector3.subtract(read.error, made)));
       }
+      // The plan's own pace: its fastest probe's travel over a frame of the
+      // span, read once on this frame's base; the correction keeps within it.
+      pace ??= ((): number => {
+        let most: number = 0;
+        let last: number[] = HumanArmGeometry.encode(setup, plan(span.start));
+        for (let s: number = span.start + STEP; s < span.end + STEP / 2; s += STEP) {
+          const now: number[] = HumanArmGeometry.encode(setup, plan(Math.min(s, span.end)));
+          most = Math.max(most, travel(last, now));
+          last = now;
+        }
+        return most;
+      })();
+      // The correction moves no faster than it takes to close what the goal
+      // has moved since the correction last met it, a frame of the person's
+      // own motion: it tracks the person at the person's speed, as a hand's
+      // online correction toward a moving target does (Brenner and Smeets
+      // 1997, J Mot Behav 29:297), and releases at the fastest it tracked
+      // after the hold; beyond that, at the plan's own pace.
       const room: number = Math.max(
         0,
-        HumanArmTrajectoryModel.SPEED_LIMIT * STEP -
-          travel(add(there, previous), current),
+        Math.max(pace, tracked) - travel(add(there, previous), current),
       );
       const extra: number = travel(current, add(current, step));
       if (extra > room)
@@ -204,9 +227,15 @@ export namespace AutoMovieMotionHumanArmFollow {
         HumanArmTrajectoryModel.TOLERANCE,
         depth(current),
       );
+      // Halvings below the model's tolerance (the depth it is compared at)
+      // change no reading: a step moves a probe at most the pace a frame.
+      const halvings: number = Math.max(
+        0,
+        Math.ceil(Math.log2((Math.max(pace, tracked) * 1000) / HumanArmTrajectoryModel.TOLERANCE)),
+      );
       for (
         let k: number = 0;
-        k < HALVINGS && depth(add(current, step)) > limit;
+        k < halvings && depth(add(current, step)) > limit;
         ++k
       )
         step = step.map((v: number): number => v / 2);
@@ -257,13 +286,3 @@ export namespace AutoMovieMotionHumanArmFollow {
 
 /** The correction's grid, seconds: the frame grid the planner's hold is sampled on (`AutoMovieMotionHumanArmCourse.STEP`). */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
-
-/**
- * Halvings of a step that would take the arm deeper past the skin, before
- * it is not taken: a step moves a probe at most the audit's speed bound
- * over a frame, and halving it further than below the model's tolerance (a
- * millimetre, the depth it is compared at) changes no reading.
- */
-const HALVINGS: number = Math.ceil(
-  Math.log2((HumanArmTrajectoryModel.SPEED_LIMIT * STEP * 1000) / HumanArmTrajectoryModel.TOLERANCE),
-);
