@@ -21,11 +21,6 @@ export interface IAutoMovieMotionHumanPianoPedal {
 
 /**
  * The intervals of the pianoPedal action.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the action that reads the intervals.
- * @evidence contracts/development/design.md#principled-representation Each interval describes depression, dwell and release on the action clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the stroke type alongside the pedal author's input.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The model and the body supply all spatial parameters.
  */
 export namespace IAutoMovieMotionHumanPianoPedal {
   /**

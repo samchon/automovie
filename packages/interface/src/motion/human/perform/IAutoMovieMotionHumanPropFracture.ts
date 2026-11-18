@@ -17,7 +17,7 @@ export namespace IAutoMovieMotionHumanPropFracture {
   /**
    * The contact and model for one authored breakaway.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the placed prop, the film's recorded hit, the model and the split budget's frame and units.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the placed prop, recorded hit, model and local budget units. The model splits deterministically or returns null to keep the prop intact.
    * @evidence contracts/development/design.md#principled-representation The exact hit id and its target disambiguate placement. The budget goes directly to the model's declared split.
    * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPerformance resolves the event target and reads the prop frame. The model owns piece generation.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No geometry inference or test-dependent outcome is encoded in the request.
@@ -32,21 +32,14 @@ export namespace IAutoMovieMotionHumanPropFracture {
     /** The same breakaway model used to place the prop. */
     model: IAutoMovieMotionHumanObject.IModel & {
       /**
-       * Split the model by the authored budget, or return null when intact.
-       *
-       * @evidence contracts/development/common.md#meaningful-documentation A deterministic model-owned split supplies the remainder and fragments with model-local velocity in m/s.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation The model provider owns how it decides and builds the split.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature passes only the model-local budget.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The provider owns numerical admission and fracture geometry.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The provider owns split cost.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The planner calls the model once per requested split.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer owns the lifetime of the data it gives the plan.
+       * Split deterministically from the authored budget, or return null when intact.
        */
       broken(budget: IRequest<Piece>["budget"]): {
         remainder: Piece | null;
         fragments: readonly {
           id: string;
           archetype: Piece;
+          /** Launch velocity in the model frame, in metres per second. */
           velocity: IAutoMovieVector3;
         }[];
       } | null;

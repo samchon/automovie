@@ -27,11 +27,6 @@ export interface IAutoMovieMotionHumanWallClimb {
 
 /**
  * The hold and move contracts read by the wall-climb authoring function.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two parts of the route's vocabulary.
- * @evidence contracts/development/design.md#principled-representation A hold is a target and a move names the one limb that changes its target.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps declarations used only by the wall-climb route alongside it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses established climbing limbs and prop or point target semantics.
  */
 export namespace IAutoMovieMotionHumanWallClimb {
   /**

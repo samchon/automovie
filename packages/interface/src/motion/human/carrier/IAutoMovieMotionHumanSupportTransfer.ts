@@ -38,11 +38,6 @@ export interface IAutoMovieMotionHumanSupportTransfer {
 
 /**
  * The canonical named surface selectors for the transfer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the prop instance and its named affordance.
- * @evidence contracts/development/design.md#principled-representation The two ids refer to the existing prop-scoped rectangular surface affordance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Holds the pair used for both ends of supportTransfer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry comes from the resolved prop affordance.
  */
 export namespace IAutoMovieMotionHumanSupportTransfer {
   /**

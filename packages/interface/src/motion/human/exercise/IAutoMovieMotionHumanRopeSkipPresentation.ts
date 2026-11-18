@@ -39,11 +39,6 @@ export interface IAutoMovieMotionHumanRopeSkipPresentation {
 
 /**
  * Presentation records for a driven rope.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the unintegrated world-space cord and both world-space handle frames.
- * @evidence contracts/development/design.md#principled-representation Keeps the derived cord and two rigid transforms on the same film sample.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The host positions the handle models and passes the cord to the existing soft surface adapter.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No render objects, solver populations or retained frame history cross the boundary.
  */
 export namespace IAutoMovieMotionHumanRopeSkipPresentation {
   /**

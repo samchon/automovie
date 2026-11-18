@@ -26,11 +26,6 @@ export interface IAutoMovieMotionHumanPianoScore {
 
 /**
  * The notes of the pianoScore authoring contract.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Locates the note contract alongside the score that admits it.
- * @evidence contracts/development/design.md#principled-representation A note binds one hand's digit to one named button on one time interval.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The note is nested under its consuming law's input.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No keyboard geometry or skill-dependent extra timing is encoded.
  */
 export namespace IAutoMovieMotionHumanPianoScore {
   /**

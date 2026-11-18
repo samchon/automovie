@@ -31,11 +31,6 @@ export interface IAutoMovieMotionHumanStepVault {
 
 /**
  * Targets on the fixed surfaces that support a step vault.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact-location contracts used by the route.
- * @evidence contracts/development/design.md#principled-representation A support location is a fixed point or a prop's named point, paired by anatomical side for a two-foot stance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the two route-specific target declarations alongside the route type.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses existing motion targets to represent positions and frames.
  */
 export namespace IAutoMovieMotionHumanStepVault {
   /**
