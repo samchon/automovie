@@ -32,22 +32,57 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One segment/eased progress serves pose and expression; joint maps remove repeated linear bone lookup, while no cache assumes keyframes or expression arrays remain unchanged across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Interior results own new interpolated records and endpoint wrappers share original root/joints/expression; temporary maps/sets are call-local, and no frame history, handle or task persists.
  */
-export const sampleMotion: (
+export function sampleMotion(
   motion: IAutoMovieMotion,
   seconds: number,
-) => IAutoMovieMotionSample = (
+): IAutoMovieMotionSample {
+  return readAt(motion, seconds, toSample, between);
+}
+
+/**
+ * Root-only sampling for world placement, velocities and camera clearance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The root reader shares the full sampler's time, easing, neutral root and endpoint ownership.
+ * @evidence contracts/development/design.md#principled-representation A root query returns the same optional transform carried by a full pose.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Placement and camera consumers need only this projection of the motion.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projections share the same segment selection and root interpolation.
+ */
+export namespace sampleMotion {
+  /**
+   * Sample the root of an admitted motion, borrowing endpoint transforms.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Uses the full motion clock and easing, with null for two absent roots and identity for one missing interpolation endpoint.
+   * @evidence contracts/development/implementation.md#principled-implementation The full sampler supplies this same lerpTransform result for the same selected segment.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared time selector delegates endpoint reading and interior root interpolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the exact-key tie, wrapping, easing, endpoint sharing and existing interpolation of rotation, translation and scale.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Endpoints take constant work; an interior requires O(log K) key reads and one transform interpolation, independent of the number of joints and expression channels.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both projections use the same time selection and transform interpolation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No query state survives the call. Endpoints borrow the authored transform and interior transforms belong to the caller.
+   */
+  export function root(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMovieTransform | null {
+    return readAt(motion, seconds, rootAtKey, rootBetween);
+  }
+}
+
+/** Select the clamped or wrapped key or eased segment for the requested projection. */
+function readAt<T>(
   motion: IAutoMovieMotion,
   seconds: number,
-): IAutoMovieMotionSample => {
+  endpoint: (motion: IAutoMovieMotion, key: IAutoMovieKeyframe) => T,
+  interior: (motion: IAutoMovieMotion, lo: IAutoMovieKeyframe, hi: IAutoMovieKeyframe, t: number) => T,
+): T {
   const frames: IAutoMovieKeyframe[] = motion.keyframes;
   if (frames.length === 0)
     throw new Error(`motion "${motion.id}" must have keyframes to sample`);
 
   const time: number = normalizeTime(seconds, motion.duration, motion.loop);
 
-  if (time <= frames[0]!.time) return toSample(motion, frames[0]!);
+  if (time <= frames[0]!.time) return endpoint(motion, frames[0]!);
   const last: IAutoMovieKeyframe = frames[frames.length - 1]!;
-  if (time >= last.time) return toSample(motion, last);
+  if (time >= last.time) return endpoint(motion, last);
 
   // Precondition: the clip has strictly increasing keyframe times (the contract
   // validateMotion enforces), so the binary search lands on a segment with a
@@ -66,11 +101,36 @@ export const sampleMotion: (
       ? cubicBezierEasing(lo.bezier, linearT)
       : ease(lo.easing, linearT);
 
+  return interior(motion, lo, hi, t);
+}
+
+function rootAtKey(
+  _motion: IAutoMovieMotion,
+  key: IAutoMovieKeyframe,
+): IAutoMovieTransform | null {
+  return key.pose.root;
+}
+
+function rootBetween(
+  _motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMovieTransform | null {
+  return lerpTransform(lo.pose.root, hi.pose.root, t);
+}
+
+function between(
+  motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMovieMotionSample {
   return {
     pose: interpolatePose(motion.skeleton, lo.pose, hi.pose, t),
     expression: interpolateExpression(lo.expression, hi.expression, t),
   };
-};
+}
 
 const normalizeTime: (
   seconds: number,
