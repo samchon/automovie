@@ -87,6 +87,60 @@ export namespace HumanArmTrajectoryKnots {
   }
 
   /**
+   * Sample a local repair against the original clock. An interior end inherits
+   * the original curve's central tangent. A true end keeps its rest tangent.
+   * The caller admits the resulting grid after joining it to the outside rows.
+   *
+   * @param times The solved interval's ordered knot seconds.
+   * @param x Each arm's solved coordinates at those knots.
+   * @param grid The whole laid course's frame seconds.
+   * @param laid The original coordinates used to measure each join's tangent.
+   * @param from The first frame of the repair.
+   * @param to The last frame of the repair.
+   * @returns The repair's frame rows, including both unchanged endpoint poses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original clock, interior joins, true ends and the reader that admits the joined rows.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds the cubic Hermite endpoint tangent basis in physical seconds on the adjacent interval using the laid course's original central difference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the regular knot interpolant and adjusts only samples inside an interval touching an interior join.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the input clock, coordinates at every knot, true endpoint conditions and whole-course admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds work linear in the number of coordinates and frame samples of the two boundary intervals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the ordinary knot reader for positions and computes one scalar correction weight per affected sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Updates only fresh sampled rows and returns them without retaining the source course.
+   */
+  export function splice(
+    times: readonly number[],
+    x: readonly (readonly (readonly number[])[])[],
+    grid: readonly number[],
+    laid: readonly (readonly (readonly number[])[])[],
+    from: number,
+    to: number,
+  ): number[][][] {
+    const played: number[][][] = read(times, grid.slice(from, to + 1), x);
+    for (const endpoint of [from, to]) {
+      if (endpoint === 0 || endpoint === grid.length - 1) continue;
+      const start: boolean = endpoint === from;
+
+      const edge: number = start ? times[1]! : times[times.length - 2]!;
+      const width: number = Math.abs(edge - grid[endpoint]!);
+      const dt: number = grid[endpoint + 1]! - grid[endpoint - 1]!;
+      for (let g: number = start ? from + 1 : to - 1;
+        start ? grid[g]! < edge : grid[g]! > edge;
+        g += start ? 1 : -1) {
+        const u: number = (grid[g]! - grid[endpoint]!) / width;
+        const basis: number = width * u * (1 - Math.abs(u)) ** 2;
+        played.forEach((arm: number[][], a: number): void => {
+          const source: readonly (readonly number[])[] = laid[a]!;
+          const row: number[] = arm[g - from]!;
+          for (let d: number = 0; d < row.length; ++d)
+            row[d]! += basis *
+              (source[endpoint + 1]![d]! - source[endpoint - 1]![d]!) / dt;
+        });
+      }
+    }
+    return played;
+  }
+
+  /**
    * A grid subproblem carried onto the knots' steps.
    *
    * @param c The knots' context; the grid's has the same arms and coordinates.
