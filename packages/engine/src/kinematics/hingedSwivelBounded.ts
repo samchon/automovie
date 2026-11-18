@@ -144,7 +144,7 @@ export namespace hingedSwivelBounded {
    * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound's key (the deviation, or its bucket under a tie width) exceeds an actual legal candidate's exact key is strictly behind it in the lexicographic order (legality first, the deviation's key second), so it is never the sweep's choice and never decides another step's refinement differently. A caller's incumbent stops the visit the same way and is kept only where the choice is legal and no worse than it, so the pruned brackets are strictly behind the choice; otherwise the visit runs without it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Per branch: the refusals, the bounded visit with its exact local-minimum tests, then the sweep-ordered fold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, tolerance, refinement count or score changes; a bound that cannot decide scores the candidate, and a sweep with no legal candidate visits every unrefused step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One constant bracket-bound read per step, one more for each neighbour of a visited step, and one sort of at most 360 steps per branch; scoring, refinement and obstruction work run only for the steps the bound cannot exclude. Unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bracket-bound read per step admitted by the branch refusal, one more for each neighbour of a visited step, and one sort of at most 360 steps per branch; scoring, refinement and obstruction work run only for the steps the bound cannot exclude. Unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Scored steps and refinements land in the branch's caches, which the articulation's full fallback pass reads again under the same unchanged score.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-branch bound and order arrays and one set of minima live until return; candidates go to the caller's caches.
    */
@@ -183,16 +183,16 @@ export namespace hingedSwivelBounded {
         if (out[step]) skipped = true;
       }
       // A step's own bound is read only for the neighbours of a visited
-      // step, so it is read on demand; every step's bracket bound orders the
-      // visit.
+      // step, so it is read on demand. Only admitted brackets enter the visit.
       const own: (number | undefined)[] = [];
       const at = (step: number): number =>
         (own[step] ??= branch.bound(step * STEP, step * STEP));
       const bracket: number[] = [];
       const order: number[] = [];
       for (let step: number = 0; step < count; ++step) {
+        if (out[step]) continue;
         bracket[step] = branch.bound(step * STEP - STEP, step * STEP + STEP);
-        if (!out[step]) order.push(step);
+        order.push(step);
       }
       order.sort(
         (a: number, b: number): number => bracket[a]! - bracket[b]! || a - b,
