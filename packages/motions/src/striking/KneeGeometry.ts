@@ -9,9 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
+import { KickThrust } from "./KickThrust";
 import { KneeForm } from "./KneeForm";
 import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
@@ -23,10 +26,13 @@ import { StrikingTarget } from "./StrikingTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the lazy knee plan consumer and original carriage/target/leg-key responsibility.
  * @evidence contracts/development/design.md#principled-representation The same physical KneeReach result and entry/contact segment directions describe the law's key; the law retains its original lazy ownership and invalidation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One synchronous solve and the two former key records keep numeric key construction separate from the knee law's clocks, contacts and stop lifecycle.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The carriage's settling tolerance, one synchronous solve and the two former key records keep numeric key construction separate from the knee law's clocks, contacts and stop lifecycle.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No authored behavior, solver, sampled pose cache, outcome or physical bound is added; the original numeric body is moved without changing its operations.
  */
 export namespace KneeGeometry {
+  /** The place tolerance the carriage's hip settles to, metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
+  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
+
   /**
    * The original thigh and shank directions in the world frame.
    *
@@ -85,12 +91,13 @@ export namespace KneeGeometry {
    * @param carriage The law's original lowered/pivoted carriage producer.
    * @param before The key this plan built before, when it has one: returned as it is when the launch reads the same target point, so a plan solves its key once and again only when a settle shows the target elsewhere at the launch's reading.
    * @returns The same measured reach/key used by the free and displayed courses.
+   * @throws {HumanRefusal} A `reach` refusal when solving the knee again from the hip its carriage leaves stops shrinking that hip's move before it is within `TOLERANCE`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines canonical planning inputs, exact original look-back target read, actual carriage callback and world-frame key fields.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves original target aiming, patella radius, travel bound, heading wrap, initial stance hip and every KneeForm.ROUNDS carriage/hip update, then derives entry/contact directions, stance slack and foot axes from the same geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines canonical planning inputs, exact original look-back target read, actual carriage callback, world-frame key fields and the unsettled carriage's refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves original target aiming, patella radius, travel bound, heading wrap and initial stance hip; the carriage's hip is iterated as a fixed point until its move is within the limb solver's place tolerance, then entry/contact directions, stance slack and foot axes derive from the same geometry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous numeric key owner serves the knee law's existing lazy geometry callback; the law alone retains/reset the completed original key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Target time, lookup order, complete carriage lowering, original solve rounds/limits, vector expression grouping and short/jammed status remain unchanged. No supported candidate or physical goal is omitted or predeclared solved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original fixed number of actual knee/carriage evaluations. One local exact workspace and lazy genuine unchanged-table ROM mapper share only fixed prerequisites across those real reads; separation adds no numerical algorithm or measured speedup claim.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Target time, lookup order, complete carriage lowering, solve limits, vector expression grouping and short/jammed status remain unchanged; no fixed pass count stands in for convergence, and a carriage that does not settle is refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One knee/carriage evaluation per pass until the hip settles. One local exact workspace and lazy genuine unchanged-table ROM mapper share only fixed prerequisites across those real reads; separation adds no numerical algorithm or measured speedup claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Within this one unchanged body/context calculation the explicit carriage and hip reads borrow the same exact workspace; changed postures still execute normally. The caller's original lazy settled-plan key is the only retained numeric result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local workspace, genuine ROM mapper and temporary posture/maps end on return or throw. Only the original key's numeric points/directions/status escape to the law, which clears it on settle and retains no reader or new time history.
    */
@@ -149,26 +156,47 @@ export namespace KneeGeometry {
     const turn: number = wrapDegrees(
       StrikingTarget.heading(solved.heading) - entry.yaw,
     );
-    for (let round: number = 0; round < KneeForm.ROUNDS; round++) {
-      hip = Vector3.subtract(
+    // The hip is the fixed point of the carriage under the solve it carries:
+    // each pass solves the knee again from the hip the last carriage left,
+    // until that hip moves within the limb solver's place tolerance. A pass
+    // that does not shrink the move cannot converge, and the knee is refused
+    // rather than solved from a hip the figure does not show.
+    let moved: number = Infinity;
+    for (;;) {
+      const next: IAutoMovieVector3 = Vector3.subtract(
         KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution, projection()),
         solved.thrust,
       );
+      const change: number = Vector3.distance(next, hip);
+      hip = next;
       solved = reach(hip);
+      if (change <= TOLERANCE) break;
+      if (!(change < moved))
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "target",
+          value: `${(Vector3.distance(start, target) * 1000).toFixed(0)} mm`,
+          feasible: { kind: "alternatives", values: ["a target the hip's drive settles on"] },
+          reason: `the knee's carriage does not settle: solving the knee again from the hip the carriage leaves still moves that hip ${(change * 1000).toFixed(1)} mm`,
+          fix: "aim the knee at a nearer or lower target, or stand nearer it",
+        });
+      moved = change;
     }
 
-    // The stance's leg under the stance's hip, and the contact's.
+    // The stance's leg under the stance's hip, its knee bent toward the line
+    // (no knee is read, so the plant's triangle takes the line's side), and
+    // the contact's.
     const rest: IAutoMovieVector3 = feet[side].ankle;
-    const bent: IAutoMovieVector3 = KneeReach.bent(
+    const stood: KickThrust.ILeg = KickThrust.planted(
       start,
       rest,
-      m.thigh,
-      m.shank,
+      start,
+      [m.thigh, m.shank],
       line,
     );
     const from: ILeg = {
-      thigh: Vector3.normalize(Vector3.subtract(bent, start)),
-      shank: Vector3.normalize(Vector3.subtract(rest, bent)),
+      thigh: Vector3.normalize(stood.thigh),
+      shank: Vector3.normalize(stood.shank),
     };
     const to: ILeg = {
       thigh: Vector3.normalize(
