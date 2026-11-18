@@ -113,6 +113,7 @@ export * from "./reviewVisualRead";
 export * from "./rootVelocityOf";
 export * from "./sampleProductionRenderFrame";
 export * from "./scriptAncestors";
+export * from "./sequenceEditorialMarkerTimeline";
 export * from "./sequenceEventTimeline";
 export * from "./sequenceTimeline";
 export * from "./skeletonRestFrames";

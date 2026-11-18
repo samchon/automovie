@@ -149,6 +149,7 @@ export type { IAutoMoviePlaceFormationSlot } from "./IAutoMoviePlaceFormationSlo
 export type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 export type { IAutoMoviePlantPerformShotStanceFeet } from "./IAutoMoviePlantPerformShotStanceFeet";
 export type { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
+export type { IAutoMoviePlaybackEditorialMarker } from "./IAutoMoviePlaybackEditorialMarker";
 export type { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
 export type { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 export type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";

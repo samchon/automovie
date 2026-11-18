@@ -1,7 +1,13 @@
-import { playbackCursor, sequenceTimeline } from "@automovie/engine";
+import {
+  playbackCursor,
+  preparePlaybackTimeline,
+  sequenceEditorialMarkerTimeline,
+} from "@automovie/engine";
 import type {
   IAutoMoviePlanSequenceRenderProps,
+  IAutoMoviePlaybackEditorialMarker,
   IAutoMoviePlaybackTimeline,
+  IAutoMoviePreparePlaybackTimeline,
   IAutoMovieSequence,
   IAutoMovieSequenceRenderFrame,
   IAutoMovieSequenceRenderPlan,
@@ -17,13 +23,13 @@ import { renderPathStem } from "./renderPathStem.js";
 /**
  * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim, playback-rate and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
  *
- * @evidence contracts/development/implementation.md#principled-implementation sequenceTimeline owns trim, playback-rate and overlap arithmetic, frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
+ * @evidence contracts/development/implementation.md#principled-implementation preparePlaybackTimeline owns trim, playback-rate and overlap arithmetic, and editorial markers use the prepared layout and shot index; frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The manifest gathers timeline spans, resolved frame samples and paths so a capture host reads one plan instead of independently implementing the cut.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mismatched render target or empty schedule refuses; output path overrides are caller data and no sequence identity is specially recognized.
  * @evidence contracts/development/common.md#meaningful-documentation The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, blend weights and host paths.
- * @evidence contracts/development/implementation.md#efficient-algorithms For S supplied shots, E timeline entries and F output frames, the engine first indexes all S shots, including unused extras; layout and the forward cursor then cost O(E+F), for O(S+E+F) planning time and peak metadata space. The returned manifest retains O(E+F) records and no per-frame full timeline scan occurs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One resolved timeline feeds shot spans, transitions and every frame sample; the forward cursor retains its current entry across increasing sample times only within this call.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains shot-span and frame metadata proportional to the output schedule; the temporary cursor and timeline are released on return, and planning opens no host resource.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For S supplied shots, E timeline entries and F output frames, the engine first indexes all S shots, including unused extras; layout and the forward cursor then cost O(E+F), for O(S+E+F) planning time and peak metadata space. Editorial projection also visits each marker once per play and sorts the retained placements; no per-frame full timeline scan occurs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared layout and index feed editorial marker placement, shot spans, transitions and every frame sample; the forward cursor retains its current entry across increasing sample times only within this call.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains shot spans, frame metadata proportional to the output schedule, and retained editorial marker placements; the temporary cursor and timeline are released on return, and planning opens no host resource.
  */
 export const planSequenceRender: (
   props: IAutoMoviePlanSequenceRenderProps,
@@ -35,10 +41,9 @@ export const planSequenceRender: (
       `render spec target "${props.spec.target}" must equal sequence "${props.sequence.id}"`,
     );
 
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
-    props.sequence,
-    props.shots,
-  );
+  const playback: IAutoMoviePreparePlaybackTimeline.IResult =
+    preparePlaybackTimeline(props.sequence, props.shots);
+  const timeline: IAutoMoviePlaybackTimeline = playback.timeline;
   const times: number[] = frameTimes(
     props.spec.frameFormat.fps,
     timeline.runtime,
@@ -52,8 +57,11 @@ export const planSequenceRender: (
   const frameDir: string = props.frameDir ?? `frames/${stem}`;
   const outputPath: string = props.outputPath ?? `${stem}.mp4`;
   const inputPattern: string = `${frameDir}/${framePattern()}`;
+  const editorialMarkers: IAutoMoviePlaybackEditorialMarker[] =
+    sequenceEditorialMarkerTimeline(props.sequence, playback);
   return {
     target: { kind: "sequence", id: props.sequence.id },
+    ...(editorialMarkers.length === 0 ? {} : { editorialMarkers }),
     sequenceFps: props.sequence.fps,
     renderFps: props.spec.frameFormat.fps,
     durationSeconds: timeline.runtime,

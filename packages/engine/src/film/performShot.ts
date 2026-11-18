@@ -38,6 +38,7 @@ import { sampleFormationMotion } from "../sampleFormationMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { admitShotEditorialMarkers } from "../validation/appendEditorialMarkersArtifact";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
 import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
@@ -72,7 +73,7 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  *
  * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
  *
- * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights and its practical surface tracks against the staged nodes and registered models, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights and its practical surface tracks against the staged nodes and registered models, a planned beat, a positive duration, authored editorial markers, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
  * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
  * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
@@ -194,6 +195,12 @@ export function performShot(
       `shot duration must be a finite number > 0 seconds, but was ${describeInvalidValue(performance.duration)}`,
       performance.duration,
     );
+  const editorialMarkers: IAutoMovieShot["editorialMarkers"] =
+    admitShotEditorialMarkers(
+      performance.editorialMarkers,
+      performance.duration,
+      out.items,
+    );
   appendPracticalSurfacesArtifact(
     props.practicalSurfaces,
     staged.scene.nodes,
@@ -204,12 +211,16 @@ export function performShot(
   const practicalSurfaces: IAutoMovieShot["practicalSurfaces"] =
     out.items.length === 0
       ? props.practicalSurfaces?.map(
-          (track: IAutoMoviePracticalSurfaceTrack): IAutoMoviePracticalSurfaceTrack => ({
+          (
+            track: IAutoMoviePracticalSurfaceTrack,
+          ): IAutoMoviePracticalSurfaceTrack => ({
             node: track.node,
             part: track.part,
             keys: track.keys.map(
-              ({ time, material }: IAutoMoviePracticalSurfaceTrack["keys"][number]):
-                IAutoMoviePracticalSurfaceTrack["keys"][number] => ({
+              ({
+                time,
+                material,
+              }: IAutoMoviePracticalSurfaceTrack["keys"][number]): IAutoMoviePracticalSurfaceTrack["keys"][number] => ({
                 time,
                 material,
               }),
@@ -379,6 +390,7 @@ export function performShot(
         EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
         compareCodeUnits(a.id, b.id),
     ),
+    ...(editorialMarkers === undefined ? {} : { editorialMarkers }),
     cameraIntent: camera.cameraIntent,
     coverage: camera.coverage,
     ...(camera.cameraClearance === undefined

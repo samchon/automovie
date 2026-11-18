@@ -32,7 +32,7 @@ export interface IAutoMovieShotProgram {
   /** Checked plan that the action program must realize. */
   blocking: IAutoMovieBlocking;
 
-  /** Thin verb program compiled by the engine. */
+  /** Thin verb program compiled by the engine, including any shot-local editorial markers. */
   performance: IAutoMoviePerformance;
 
   /** Shot-local material changes on staged prop parts, admitted by performShot. */

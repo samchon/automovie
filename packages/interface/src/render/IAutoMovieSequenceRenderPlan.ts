@@ -1,9 +1,10 @@
+import type { IAutoMoviePlaybackEditorialMarker } from "../production/IAutoMoviePlaybackEditorialMarker.js";
 import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
 import type { IAutoMovieSequenceRenderShotSpan } from "./IAutoMovieSequenceRenderShotSpan.js";
 import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan.js";
 
 /**
- * Public sequence render manifest: editorial timeline, transition spans, frame samples, output paths, and encoder args in one deterministic artifact.
+ * Public sequence render manifest: editorial timeline, transition spans, retained editorial markers, frame samples, output paths, and encoder args in one deterministic artifact.
  *
  * @evidence contracts/development/design.md#principled-representation The manifest binds a sequence target to editorial and output fps, resolved spans, exact sample metadata, paths and encoding arguments from one planning call.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Captures consume one complete manifest rather than independently deriving frame names, transitions and local shot times.
@@ -55,6 +56,9 @@ export interface IAutoMovieSequenceRenderPlan {
    * Incoming transition spans on the output clock.
    */
   transitionSpans: IAutoMovieSequenceRenderTransitionSpan[];
+
+  /** Retained editorial marker plays on the output clock. Omitted when none survive. */
+  editorialMarkers?: IAutoMoviePlaybackEditorialMarker[];
 
   /**
    * Frame samples in capture order.
