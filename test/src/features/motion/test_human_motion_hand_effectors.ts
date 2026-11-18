@@ -29,7 +29,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 0.6 m long that runs left to right at his chest height, 0.45 m ahead of
  * him.
  *
- * Scenarios, read at the middle of the touch's hold:
+ * Scenarios, read at the middle of the touch's hold, on the hand the touch
+ * moves to the place (no side is named, so the law takes the hand whose arm
+ * reaches with the least strain):
  * 1. `with: "handEdge"` on the partner's sternum: the hand's edge, the
  *    effector's own point, lies within 15 mm of the sternum (the campaign's
  *    contact bound), and the palm's centre lies further from it than the
@@ -82,10 +84,13 @@ export function test_human_motion_hand_effectors(): void {
     ],
   };
 
-  /** One touch: the performance and the middle of its hold. */
-  const perform = (
-    params: IAutoMovieMotionHumanTouch.IParams,
-  ): { performance: IAutoMovieMotionHumanPerformance; held: number } => {
+  /**
+   * One touch: the performance, the middle of its hold and the hand it
+   * touches with. A touch that names no side takes the hand whose arm
+   * reaches with the least strain (`touchSide`), so the hand read is the one
+   * that travels to the place, never an assumed right.
+   */
+  const perform = (params: IAutoMovieMotionHumanTouch.IParams): IRead => {
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "effector",
       props: [rail],
@@ -116,29 +121,35 @@ export function test_human_motion_hand_effectors(): void {
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) *
         placed.plan.duration;
+    const held: number = (instant("strokeEnd") + instant("relax")) / 2;
+    // The touching hand is the one that travels to the place: of the two,
+    // the hand whose wrist the touch moves farthest from its start.
+    const travel = (side: "left" | "right"): number =>
+      gap(
+        performance.bones("a", held).get(`${side}Hand`)!.worldPosition,
+        performance.bones("a", placed.start).get(`${side}Hand`)!.worldPosition,
+      );
     return {
       performance,
-      held: (instant("strokeEnd") + instant("relax")) / 2,
+      held,
+      side: travel("left") > travel("right") ? "left" : "right",
     };
   };
   const part = (
-    read: { performance: IAutoMovieMotionHumanPerformance; held: number },
+    read: IRead,
     name: IAutoMovieMotionHumanTouchEffectors.With,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanTouchEffector.point(
       body,
       read.performance.bones("a", read.held),
-      "right",
+      read.side,
       touch.EFFECTORS[name],
     );
 
   // 1, 2. The named part of the hand on the sternum.
   for (const name of ["handEdge", "heel"] as const)
     try {
-      const read: {
-        performance: IAutoMovieMotionHumanPerformance;
-        held: number;
-      } = perform({
+      const read: IRead = perform({
         target: { kind: "person", subject: "b", region: "sternum" },
         with: name,
         kind: "hold",
@@ -255,4 +266,11 @@ export function test_human_motion_hand_effectors(): void {
       `a level elbow for a wrist 5 m ahead: ${level}, a reach refusal on elbow offering natural expected`,
     );
   TestValidator.equals("a touch's hand part and its place", complaints, []);
+}
+
+/** A touch's performance, the middle of its hold and the hand it touches with. */
+interface IRead {
+  performance: IAutoMovieMotionHumanPerformance;
+  held: number;
+  side: "left" | "right";
 }
