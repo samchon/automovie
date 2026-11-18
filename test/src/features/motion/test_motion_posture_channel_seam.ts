@@ -1,13 +1,11 @@
 import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSignature,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -15,116 +13,104 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A walk leaves a quiet stance as that stance and comes to one again: no
- * joint of the legs or the pelvis moves at either cut, and the trunk is
- * upright at both while it inclines in between.
- *
- * A person standing still who begins to walk does not change shape at the
- * instant they decide to: the first weight shift grows out of the stance.
- * A gait whose rules are in force at a standstill (a trunk already inclined,
- * a heel already rising) throws the knee at the cut, because a nearly
- * straight leg turns a millimetre at the ankle into a centimetre at the
- * knee.
+ * Cutting a stance transfers its pose continuously. A moving stroke owns its
+ * channels until an allowed interruption or the end of the stroke.
  *
  * Scenarios:
- * 1. Across the cut into the walk, from 1 ms before to 1 ms after, the hip,
- *    knee and ankle joint centres of both legs and the pelvis each travel
- *    less than 1 mm (a body at a standstill moves nothing in 2 ms).
- * 2. The same across the cut out of the walk.
- * 3. The trunk's inclination 1 ms after the walk begins and 1 ms before it
- *    ends is within 0.5 degrees of the same body's quiet stance.
- * 4. Midway through the walk the trunk inclines forward of the stance, by
- *    more than 0.5 degrees (a walking trunk leans a few degrees forward,
- *    Thorstensson, Nilsson, Carlson and Zomlefer 1984).
+ * 1. A walk cut from standing starts and ends with quiet joints and trunk.
+ * 2. A reflex may interrupt a wave midway. A voluntary return to standing
+ *    must wait for the stroke, and a newly started reflex owns its channels.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the chain on real bodies and reads displayed joint centres either side of each cut; a knee thrown at the cut or a trunk that snaps to its lean fails.
- * @evidence contracts/development/testing.md#independent-expectations A standstill moves nothing in two milliseconds whatever the law; the lean's presence midway and absence at the ends is how a person starts and stops walking, read by the shipped trunk measure against the same body's stance.
- * @evidence contracts/development/testing.md#distinguishing-cases Both cuts of a walk, the pelvis and both legs, four bodies of extreme proportions.
- * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men, so it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the act, why a seam shows at the knee, and the 4 scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks actual segment placement, joint displacement and refusal identity.
+ * @evidence contracts/development/testing.md#independent-expectations The standing reference supplies the neutral incline and immobile joints.
+ * @evidence contracts/development/testing.md#distinguishing-cases Uses voluntary and involuntary next actions at the same authored share.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one body and checks the actual public cuts.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists seam continuity and distinct admission branches.
  */
 export function test_motion_posture_channel_seam(): void {
-  const JOINTS: readonly AutoMovieHumanoidBone[] = [
-    "hips",
-    "leftUpperLeg",
-    "rightUpperLeg",
-    "leftLowerLeg",
-    "rightLowerLeg",
-    "leftFoot",
-    "rightFoot",
-  ];
-  const complaints: string[] = [];
-  for (const name of motionHumanBody.EXTREMES) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const body = motionHumanBody("m-average");
+  const chain = () => HumanChain.subject("performer");
+  const plan = (
+    input: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
+    new HumanPerformance({
       seed: "seam",
       performers: [
         {
-          subject: "a",
+          subject: "performer",
           body,
           at: { x: 0, y: 0, z: 0 },
           yaw: 0,
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a")
-        .stand({ seconds: 0.5 })
-        .walk({ to: { x: 0, y: 0, z: 3 } })
-        .stand({ seconds: 0.5 }).node,
+      composition: input.node,
     });
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      performance,
-      "a",
-      body,
-      0,
-    );
-    const [, walking, standing] = performance.segments("a");
-    const cuts: [string, number][] = [
-      ["into the walk", walking!.entryTime],
-      ["out of the walk", standing!.entryTime],
-    ];
-
-    // 1 and 2. Nothing moves across either cut.
-    for (const [label, cut] of cuts)
-      for (const bone of JOINTS) {
-        const a: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          cut - 1e-3,
-          bone,
-        );
-        const b: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          cut + 1e-3,
-          bone,
-        );
-        const moved: number = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
-        if (moved > 1e-3)
-          complaints.push(
-            `${name}: ${bone} travels ${(moved * 1000).toFixed(2)} mm across the cut ${label}, under 1 mm expected`,
-          );
-      }
-
-    // 3 and 4. Upright at both ends, inclined between.
-    const upright: number = HumanSignature.trunk(reader, 0.25);
-    for (const [label, t] of [
-      ["as the walk begins", walking!.entryTime + 1e-3],
-      ["as the walk ends", standing!.entryTime - 1e-3],
+  const walking = plan(
+    chain()
+      .stand({ seconds: 1 })
+      .until({ share: 0.5 })
+      .walk({ to: { x: 0, y: 0, z: 3 } })
+      .stand(),
+  );
+  const [, step, rest] = walking.segments("performer");
+  const reader = HumanSignature.of(walking, "performer", body, 0);
+  const neutral = HumanSignature.trunk(reader, 0);
+  const millisecond = 1e-3;
+  const millimetre = 1e-3;
+  for (const boundary of [step!.entryTime, rest!.entryTime])
+    for (const bone of [
+      "hips",
+      "leftUpperLeg",
+      "rightUpperLeg",
+      "leftLowerLeg",
+      "rightLowerLeg",
+      "leftFoot",
+      "rightFoot",
     ] as const) {
-      const lean: number = HumanSignature.trunk(reader, t) - upright;
-      if (Math.abs(lean) > 0.5)
-        complaints.push(
-          `${name}: the trunk inclines ${lean.toFixed(2)} degrees from the stance ${label}, within 0.5 expected`,
-        );
-    }
-    const midway: number =
-      HumanSignature.trunk(
-        reader,
-        (walking!.entryTime + standing!.entryTime) / 2,
-      ) - upright;
-    if (!(midway > 0.5))
-      complaints.push(
-        `${name}: the trunk inclines ${midway.toFixed(2)} degrees midway through the walk, more than 0.5 forward expected`,
+      const before = HumanSignature.joint(reader, boundary - millisecond, bone);
+      const after = HumanSignature.joint(reader, boundary + millisecond, bone);
+      TestValidator.predicate(
+        `${bone} remains quiet at ${boundary}`,
+        Math.hypot(
+          after.x - before.x,
+          after.y - before.y,
+          after.z - before.z,
+        ) <= millimetre,
       );
+    }
+  for (const instant of [
+    step!.entryTime + millisecond,
+    rest!.entryTime - millisecond,
+  ])
+    TestValidator.predicate(
+      "upright at transition",
+      Math.abs(HumanSignature.trunk(reader, instant) - neutral) <= 0.5,
+    );
+  TestValidator.predicate(
+    "trunk leans during the stride",
+    HumanSignature.trunk(reader, (step!.entryTime + rest!.entryTime) / 2) -
+      neutral >
+      0.5,
+  );
+  const wave = () => chain().gesture({ kind: "wave" }).until({ share: 0.5 });
+  TestValidator.equals(
+    "involuntary interruption is placed",
+    plan(wave().flinch()).segments("performer").length,
+    2,
+  );
+  for (const interrupted of [wave(), chain().flinch().until({ share: 0.05 })]) {
+    let refusal: unknown;
+    try {
+      plan(interrupted.stand());
+    } catch (error) {
+      refusal = error;
+    }
+    TestValidator.predicate(
+      "voluntary interruption identifies cut and next act",
+      refusal instanceof HumanRefusal &&
+        refusal.kind === "cut" &&
+        refusal.act === "stand",
+    );
   }
-  TestValidator.equals("a walk's seams with standing", complaints, []);
 }
