@@ -102,6 +102,7 @@ export function test_human_motion_support_transfer(): void {
       ],
       base: { kind: "standing" },
       holds: {},
+      uses: {},
     };
     const soles: IAutoMovieMotionHumanFoot.ISocket[] = [
       ...HumanFoot.sockets(body, bones, "left"),
@@ -114,15 +115,34 @@ export function test_human_motion_support_transfer(): void {
         ),
       ) + 0.01;
     const newEdge: number = oldEdge + 0.055;
-    const station: number =
-      newEdge -
-      Math.min(
-        0,
-        ...soles.map(
-          (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.z,
-        ),
-      ) +
-      0.024;
+    const stanceCenter: IAutoMovieVector3 = Vector3.lerp(
+      entry.feet.left.ankle,
+      entry.feet.right.ankle,
+      0.5,
+    );
+
+    // The station is the centre of the landing sole sockets. Measure the
+    // flat landing feet's rear extent from that centre in the deck frame.
+    const rearmost: number = Math.min(
+      ...(["left", "right"] as const).flatMap((side) => {
+        const foot = entry.feet[side];
+        const flat: IAutoMovieRigidTransform["rotation"] = HumanFoot.rotation(
+          HumanFoot.heading(foot.rotation),
+          0,
+        );
+        const sole: IAutoMovieVector3 = HumanFoot.offset(body, side, "sole");
+        return HumanFoot.SOCKETS.map(
+          (socket): number =>
+            foot.ankle.z -
+            stanceCenter.z +
+            Quaternion.rotateVector(
+              flat,
+              Vector3.subtract(HumanFoot.offset(body, side, socket), sole),
+            ).z,
+        );
+      }),
+    );
+    const station: number = newEdge - rearmost + 0.024;
 
     const platform: IAutoMovieMotionHumanPropReader =
       supportTransferFixture.surface("platform", oldEdge - 0.5, 0, () => 0);
@@ -284,11 +304,6 @@ export function test_human_motion_support_transfer(): void {
       ...context.params,
       docking: "co-moving",
     };
-    const stanceCenter: IAutoMovieVector3 = Vector3.lerp(
-      entry.feet.left.ankle,
-      entry.feet.right.ankle,
-      0.5,
-    );
     for (const yawRate of [0, 15]) {
       const prop = (id: string): IAutoMovieMotionHumanPropReader => {
         const reader: IAutoMovieMotionHumanPropReader = movingProps(id);
