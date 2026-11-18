@@ -99,6 +99,9 @@ export namespace throwObject {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "throwObject";
 
+  /** The launch is the throw's physical outcome. Prop flight starts at its own release. */
+  export const physical: boolean = true;
+
   /** Cancel table: the thrower stands or walks once the follow-through ends. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
