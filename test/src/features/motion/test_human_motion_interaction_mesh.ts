@@ -215,6 +215,19 @@ export function test_human_motion_interaction_mesh(): void {
       moved <= 1e-6,
     );
   });
+  // A tetrahedron flat on the reference points (coplanar joints, oriented
+  // only by the joggle) records no side; every other must keep its sign.
+  // The joggle moves each corner by at most `δ` per axis, so each edge by
+  // `2 √3 δ`, and the triple product of three edges no longer than twice
+  // the extent by at most `3 (2 √3 δ)(2 extent)²`.
+  const joggle: number =
+    tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
+  const flat: number = 3 * (2 * Math.sqrt(3) * joggle) * (2 * extent) ** 2;
+  const oriented: Array<readonly [Tetrahedron, number]> = [];
+  for (const t of mesh.tetrahedra) {
+    const original: number = orientedVolume(reference.points, t);
+    if (Math.abs(original) > flat) oriented.push([t, Math.sign(original)]);
+  }
   // 3 and 4. Other pairs.
   for (const names of [
     ["f-small", "m-large"],
@@ -263,19 +276,10 @@ export function test_human_motion_interaction_mesh(): void {
       `${cell}: the paired wrists are ${(open * 1000).toFixed(2)} mm apart, ${BOUND * 1000} mm at most expected`,
       open <= BOUND,
     );
-    // A tetrahedron flat on the reference points (coplanar joints, oriented
-    // only by the joggle) records no side; every other must keep its sign.
-    // The joggle moves each corner by at most `δ` per axis, so each edge by
-    // `2 √3 δ`, and the triple product of three edges no longer than twice
-    // the extent by at most `3 (2 √3 δ)(2 extent)²`.
-    const joggle: number =
-      tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
-    const flat: number = 3 * (2 * Math.sqrt(3) * joggle) * (2 * extent) ** 2;
-    const inverted: number = mesh.tetrahedra.filter((t: Tetrahedron): boolean => {
-      const original: number = orientedVolume(reference.points, t);
-      return Math.abs(original) > flat &&
-        Math.sign(orientedVolume(adapted.points, t)) !== Math.sign(original);
-    }).length;
+    const inverted: number = oriented.filter(
+      ([t, sign]: readonly [Tetrahedron, number]): boolean =>
+        Math.sign(orientedVolume(adapted.points, t)) !== sign,
+    ).length;
     all.check(
       `${cell}: ${inverted} tetrahedra are inverted on the adapted points, none expected`,
       inverted === 0,
