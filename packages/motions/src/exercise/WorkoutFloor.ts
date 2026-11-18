@@ -251,9 +251,14 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftHand", "rightHand"],
       hands: true,
+      // The hands and the planted foot bear throughout; the driving foot
+      // bears only as it stands back in the plank, the right foot first and
+      // the left on alternate repetitions.
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },
+        { part: "leftFoot", kind: "plant" },
+        { part: "rightFoot", kind: "plant", at: ["extended"] },
       ],
       alternate: true,
       enter: 1.5,
@@ -284,9 +289,15 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftHand", "rightHand"],
       hands: true,
+      // The hands bear throughout; the feet bear crouched and in the plank,
+      // and leave the floor as they are shot back and brought in between.
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },
+        { part: "leftFoot", kind: "plant", at: ["crouched"] },
+        { part: "rightFoot", kind: "plant", at: ["crouched"] },
+        { part: "leftFoot", kind: "plant", at: ["plank"] },
+        { part: "rightFoot", kind: "plant", at: ["plank"] },
       ],
       enter: 0.8,
       reps: 3,
