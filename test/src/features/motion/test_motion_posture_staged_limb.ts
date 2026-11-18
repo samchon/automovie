@@ -2,20 +2,24 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanArm,
   HumanBodyFit,
   HumanChain,
   HumanHand,
   HumanPerformance,
+  StrikingReach,
+  StrikingStroke,
   poseBones,
   resolveHumanPosture,
   stand,
 } from "@automovie/motions";
 
-
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -50,6 +54,61 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_staged_limb(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
+  // A folded two-link stage arm has radius |a-b|, a straight one a+b.
+  const inputs: fixture.IInputs = fixture();
+  const upper: number = inputs.body.measure.upperArm;
+  const lower: number = inputs.body.measure.forearm;
+  for (const [angle, radius] of [
+    [0, upper + lower],
+    [90, Math.hypot(upper, lower)],
+    [180, Math.abs(upper - lower)],
+  ] as const)
+    all.check(
+      "two-link radius at " + angle,
+      Math.abs(StrikingReach.reach(upper, lower, angle) - radius) <= 1e-9,
+    );
+  // The descending half of the scalar minimum-jerk speed profile has one
+  // interior sample for each speed fraction and a unique maximum at 1/2.
+  for (const fraction of [0.5, 1]) {
+    const phase: number = StrikingStroke.impactShare(fraction);
+    all.check(
+      "descending speed at " + fraction,
+      phase >= 0.5 &&
+        Math.abs(16 * phase ** 2 * (1 - phase) ** 2 - fraction) <= 1e-9,
+    );
+  }
+  for (const sign of [-1, 1]) {
+    const markerClock: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanArm.stroke({
+        body: inputs.body,
+        side: "right",
+        clock: inputs.clock,
+        origin: inputs.origin,
+        path: (_pose, _time, progress) =>
+          fixture.target({
+            x: sign * upper * progress,
+            y: 1,
+            z: lower * (1 - progress),
+          }),
+      });
+    for (const [seconds, share] of [
+      [2, 0],
+      [3, 0.5],
+      [4, 1],
+      [5, 1],
+    ] as const) {
+      const actual = markerClock.write(inputs.posture, seconds).limbs.rightArm!
+        .point;
+      all.check(
+        "reflected stage marker at " + seconds,
+        Vector3.distance(actual, {
+          x: sign * upper * share,
+          y: 1,
+          z: lower * (1 - share),
+        }) <= 1e-9,
+      );
+    }
+  }
   const SKIN: number = 10;
   const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   for (const name of ["m-average"] as const) {
@@ -184,5 +243,4 @@ export function test_motion_posture_staged_limb(): void {
     }
   }
   all.assert("the whole-body fit lands the palms and reports a miss");
-
 }
