@@ -21,6 +21,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -33,12 +34,14 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
 import { climbStairsProfile } from "./climbStairsProfile";
+import { climbStairsWeight } from "./climbStairsWeight";
 
 /** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
 const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
@@ -135,10 +138,10 @@ export namespace climbStairs {
    * @throws {Error} When `flight` refuses the stairs.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace states the architecture, footprint and clearance rule, timing and refusals; this plan retains those rules and prepares fixed geometry.
-   * @evidence contracts/development/implementation.md#principled-implementation The same tread footprints and shortest clearance paths drive each foot, with unchanged stance lowering and lumbopelvic trunk inclination.
+   * @evidence contracts/development/implementation.md#principled-implementation Each forefoot follows its tread clearance path while the heel rises about the metatarsophalangeal joint as the shank bends. Both feet use their clocked support shares through double support, toe-off and touchdown.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed sole geometry, footprint/edge preparation, step clock, stance heights and prepared foot/pelvis readers precede the body primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No riser, tread, clearance, contact time, gait period or reach constraint changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored steps and clearance-path construction; pose reads select foot and pelvis intervals logarithmically and retain the same leg lowering/goal computations. Two fixed-rotation goal readers share actual footprint heading, knee/rest and toe-contact prerequisites, with ordinary goal fallback whenever the actual rotation changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Foot, pelvis and load intervals are selected logarithmically. Both feet share one lowered-hip FK read. Each rocker makes a bounded pitch search only when its initial pitch needs adjusting.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body and flight share sole offsets, each side/level footprint, edge-clearance heights and toe contacts; the final clock fixes every prepared interval. Synchronous stance-height construction borrows one exact FK workspace across all actual steps, and playback borrows only its current composite observation's source.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned footprints, edges, stance heights and readers grow with step count and release with the climb. The stance-construction FK workspace ends with that block, and neither it nor playback's current loan enters retained numeric heights or a query history.
    */
@@ -274,6 +277,8 @@ export namespace climbStairs {
       { holds: [] },
     );
     const duration: number = clock.duration;
+    const rightLoad: (seconds: number) => number =
+      climbStairsWeight(steps.map((step: (typeof steps)[number]): "left" | "right" => step.side), clock);
 
     // Each foot's prints in order, with the step that brings it there.
     const prints: Record<"left" | "right", { print: IPrint; step: number }[]> =
@@ -356,9 +361,7 @@ export namespace climbStairs {
         const at: IAutoMovieMotionHumanClearance.IPoint = path(minimumJerk.share(Math.min(1, Math.max(0, s))));
         return {
           ankle: framed.point({
-            x:
-              from.x +
-              (across * (at.z - from.z)) / forward,
+            x: from.x + (across * (at.z - from.z)) / forward,
             y: at.y,
             z: at.z,
           }),
@@ -407,24 +410,36 @@ export namespace climbStairs {
           left: footAt("left", seconds),
           right: footAt("right", seconds),
         };
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
         const root: IAutoMovieVector3 = reached(placed, {
           left: feet.left.placement,
           right: feet.right.placement,
-        }, resolution);
-        // A swinging foot keeps its ball on the path: where the ankle's
-        // range keeps the sole from lying flat (a deep step up), the heel
-        // rises about the ball and the forefoot leads onto the tread.
+        }, read);
+        // As the other foot takes the weight, the heel can rise around its
+        // fixed forefoot before toe-off. The same rocker follows the swing
+        // and settles continuously as the newly landed foot accepts weight.
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-        for (const side of ["left", "right"] as const)
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...placed.joints };
+        const hips: ReturnType<typeof hipJoints> = hipJoints(body, root,
+          resolveHumanPosture.heading(placed), placed.joints.hips, read());
+        const load: number = rightLoad(seconds);
+        for (const side of ["left", "right"] as const) {
+          let placement: IAutoMovieMotionHumanFoot.IPlacement = feet[side].placement;
+          const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(placement.rotation);
+          const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "mtp", placement);
+          const pitch: number = walkLeg.heelRise(body, side, hips[side], ball,
+            direction.heading, direction.pitch, walkLeg.ROCKER,
+            walkLeg.dorsal(side === "right" ? load : 1 - load));
+          if (pitch !== direction.pitch) {
+            placement = HumanFoot.pivot(body, side, "mtp", ball, direction.heading, pitch);
+            joints[`${side}Toes`] = [direction.pitch - pitch, 0, 0];
+          }
           limbs[`${side}Leg`] = {
-            ...goals[side](
-              { root, yaw },
-              feet[side].placement,
-              feet[side].planted,
-            ),
+            ...goals[side]({ root, yaw }, placement, feet[side].planted),
             contact: contact[side],
           };
-        return { ...placed, root, limbs };
+        }
+        return { ...placed, root, joints, limbs };
       },
     };
 
