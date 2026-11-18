@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+import type { walkStation } from "./walkStation";
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a
@@ -35,10 +36,10 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the step table for as long as the returned plan is held.
  */
 export function walkTempo(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   stretch: (index: number) => number,
   limp?: { side: "left" | "right"; share: number },
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   return warped(
     plan,
     (index: number, planned: number, side: "left" | "right"): number =>
@@ -110,9 +111,9 @@ export namespace walkTempo {
    * @throws {Error} When a given step lies outside that range, where the warp would run backwards.
    */
   export function entrained(
-    plan: IAutoMovieMotionHumanActionPlan,
+    plan: walkStation.IPlan,
     seconds: readonly number[],
-  ): IAutoMovieMotionHumanActionPlan {
+  ): walkStation.IPlan {
     return warped(plan, (index: number, planned: number): number => {
       const given: number | undefined = seconds[index + 1];
       const before: number | undefined = seconds[index];
@@ -135,9 +136,9 @@ export namespace walkTempo {
  * @returns The plan on the warped clock, or the plan itself when it names fewer than two heel strikes.
  */
 function warped(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   length: (index: number, planned: number, side: "left" | "right") => number,
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
   const strikes: number[] = struck.map(
     (s: { seconds: number }): number => s.seconds,
@@ -206,6 +207,9 @@ function warped(
   };
   const duration: number = toFilm(plan.duration);
   const share: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / duration;
+  const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
+  const sourceTime: (seconds: number) => number = (seconds: number): number =>
+    toPlan(Math.min(duration, Math.max(0, seconds)));
   return {
     ...plan,
     duration,
@@ -223,7 +227,10 @@ function warped(
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
+    ...(source === undefined ? {} : {
+      horizontalRoot: (seconds: number): walkStation.HorizontalPoint => source(sourceTime(seconds)),
+    }),
     posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
-      plan.posture(toPlan(Math.min(duration, Math.max(0, seconds))), channels, resolution, projection),
+      plan.posture(sourceTime(seconds), channels, resolution, projection),
   };
 }

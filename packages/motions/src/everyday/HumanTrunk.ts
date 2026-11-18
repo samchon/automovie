@@ -140,16 +140,28 @@ export namespace HumanTrunk {
     pelvisLimit: number = Infinity,
   ): IAutoMovieMotionHumanTrunk.IInclineResult {
     if (inclination <= 0) return { pitch: inclination, joints };
-    const pelvis: number = Math.max(
-      0,
-      Math.min(RHYTHM.pelvis * inclination, pelvisLimit),
-    );
+    const pelvis: number = pelvisPitch(inclination, pelvisLimit);
     const spine: number = inclination - pelvis;
     const out: IAutoMovieMotionHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
     addInclination(out, "spine", share, spine);
     addInclination(out, "chest", 1 - share, spine);
     return { pitch: pelvis, joints: out };
+  }
+
+  /**
+   * The pelvis's share of a trunk inclination, in degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what part is read and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The rhythm's existing pelvis share is capped by its allowed tilt.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar calculation serves whole-trunk and path-only readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The input's direction, rhythm and caller-supplied limit retain the inclination rule.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A scalar computation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pelvisPitch(inclination: number, pelvisLimit: number = Infinity): number {
+    return inclination <= 0 ? inclination : Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
   }
 
   /** How far short of the hip's flexion range a tilted pelvis stops, degrees (provisional: a margin off the joint's end stop, read from no measured source). */

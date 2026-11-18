@@ -3,7 +3,6 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanFormation,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkPace,
   IAutoMovieMotionHumanWalkStation,
@@ -57,16 +56,16 @@ import { walkPaced } from "./walkPaced";
  * @evidence contracts/development/implementation.md#principled-implementation The cited first-order law is integrated exactly over each `TICK` for a speed held constant in it; the travelled length is turned into the plan's second through the plan's own way, and `walkPaced` plays the plan on that clock. Speed is continuous where the plan's own clock takes over because that clock starts at the rate the speed has there.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the point's speeds, read the plan's way, integrate the two phases into one clock, hand it to `walkPaced`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `GAIN` is the cited fit; `FASTEST`, `STEP`, `TICK`, `SAMPLES` and `CRUISE` are named and provisional. The speed bound is the gait's, not a clamp of what was asked: the walker then arrives late, as stated. A clock that runs out of entries is refused, never jumped to the plan's end.
- * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` root-only postures of the plan, once per plan, sharing one FK workspace; each clock tick costs one logarithmic way search. Each root-only posture still settles the walk's pelvis, whose lowering the way does not read: a cost left with the plan's posture contract, which offers no cheaper horizontal root.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` horizontal path reads, once per plan; each clock tick costs one logarithmic way search. Plans without a horizontal projection still share one FK workspace for their root-only reads.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's root-distance samples share only an FK workspace, which changes no posture; every sample and timing step is computed, without a pose-result cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The construction releases its FK workspace and temporary speed/distance samples on return or throw; walkPaced holds only the plan and the numeric clock until released, without a queried-pose history.
  */
 export function walkStation(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
   rests: number,
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   // The point's speed between readings.
   const count: number = Math.ceil((rests - from) / walkStation.STEP);
   if (count < 1) return plan;
@@ -86,11 +85,14 @@ export function walkStation(
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
   const lengths: number[] = [0];
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-  let root: IAutoMovieMotionHumanPosture["root"] = plan.posture(0, ["root"], resolution).root;
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+    plan.horizontalRoot === undefined ? prepareHumanPoseResolution() : undefined;
+  const rootAt: walkStation.HorizontalRoot = plan.horizontalRoot ??
+    ((t: number): walkStation.HorizontalPoint => plan.posture(t, ["root"], resolution).root);
+  let root: walkStation.HorizontalPoint = rootAt(0);
   for (let i: number = 1; i <= walkStation.SAMPLES; ++i) {
     const t: number = (i / walkStation.SAMPLES) * plan.duration;
-    const now: IAutoMovieMotionHumanPosture["root"] = plan.posture(t, ["root"], resolution).root;
+    const now: walkStation.HorizontalPoint = rootAt(t);
     seconds.push(t);
     lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
     root = now;
@@ -190,6 +192,18 @@ export function walkStation(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {
+  /** The world axes which contribute to travelled ground distance. */
+  export type HorizontalPoint = Pick<IAutoMovieVector3, "x" | "z">;
+
+  /** Read the displayed root's horizontal coordinates at an action-local second. */
+  export type HorizontalRoot = (seconds: number) => HorizontalPoint;
+
+  /** The placed walking plan, with its exact horizontal-only projection when available. */
+  export interface IPlan extends IAutoMovieMotionHumanActionPlan {
+    /** The same horizontal coordinates that a root posture request would read. */
+    horizontalRoot?: HorizontalRoot;
+  }
+
   /** The gain of speed matching, per second: a follower's acceleration per unit of speed difference from the leader (Rio, Rhea and Warren 2014, J Vis 14(2):4, Table 1). */
   export const GAIN: number = 1.87;
 

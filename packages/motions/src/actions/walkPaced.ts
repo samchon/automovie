@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+import type { walkStation } from "./walkStation";
 
 /**
  * A stepping plan played on a tabulated clock: at each film second the body
@@ -28,10 +29,10 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the table for as long as the returned plan is held.
  */
 export function walkPaced(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   step: number,
   clock: readonly number[],
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   const last: number = clock.length - 1;
   const until: number = last * step;
   if (last < 1) return plan;
@@ -58,6 +59,7 @@ export function walkPaced(
     );
   };
   const moved: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / until;
+  const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
   return {
     ...plan,
     duration: until,
@@ -75,6 +77,9 @@ export function walkPaced(
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
+    ...(source === undefined ? {} : {
+      horizontalRoot: (seconds: number): walkStation.HorizontalPoint => source(toPlan(seconds)),
+    }),
     posture: (film: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
       plan.posture(toPlan(film), channels, resolution, projection),
   };

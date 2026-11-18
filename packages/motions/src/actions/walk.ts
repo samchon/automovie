@@ -472,10 +472,11 @@ export namespace walk {
     // thighs no nearer than they hang beside them, by one abduction read
     // over one of its strides (`walkCarriage`).
     let carried: Record<"left" | "right", number> | undefined;
-    const planned: IAutoMovieMotionHumanActionPlan = {
+    const planned: walkStation.IPlan = {
       duration,
       events,
       contacts,
+      horizontalRoot: walkPosture.horizontal(body, gait, steps),
       posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const legs: readonly ("left" | "right")[] = channels === undefined
