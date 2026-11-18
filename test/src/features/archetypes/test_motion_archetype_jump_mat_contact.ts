@@ -47,7 +47,7 @@ export function test_motion_archetype_jump_mat_contact(): void {
   const top: number = mat.affordance("surface").frame.translation.y;
   const complaints: string[] = [];
   const name = "f-small" as const;
-  witness: {
+  {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =

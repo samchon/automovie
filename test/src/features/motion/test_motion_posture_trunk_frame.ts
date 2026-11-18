@@ -1,4 +1,8 @@
-import { Quaternion, getConstraint } from "@automovie/engine";
+import {
+  Quaternion,
+  getConstraint,
+  preparePoseResolution,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -6,12 +10,22 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanTrunk, HumanTrunkTurn, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanChannel,
+  HumanRide,
+  HumanTrunk,
+  HumanTrunkTurn,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
 /**
  * A trunk turned toward a side by a share of its range
@@ -45,6 +59,63 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the posture and the 5 scenarios with their bounds.
  */
 export function test_motion_posture_trunk_frame(): void {
+  for (const bone of [
+    "spine",
+    "chest",
+    "upperChest",
+    "hips",
+    "leftShoulder",
+    "neck",
+  ] as const) {
+    TestValidator.equals(
+      "axial claim covers thoracic joints only",
+      AutoMovieMotionHumanChannel.covers(["trunkTurn"], bone),
+      ["spine", "chest", "upperChest"].includes(bone),
+    );
+  }
+  const idle: IAutoMovieMotionHumanPosture = {
+    root: { x: 0, y: 1, z: 0 },
+    yaw: 0,
+    pitch: 1,
+    roll: 2,
+    joints: {
+      hips: [1, 0, 0],
+      spine: [2, 0, 0],
+      chest: [3, 0, 0],
+      leftShoulder: [4, 0, 0],
+    },
+    limbs: {},
+  };
+  const merged = AutoMovieMotionHumanChannel.merge(
+    idle,
+    {
+      ...idle,
+      yaw: 30,
+      joints: {
+        hips: [10, 0, 0],
+        spine: [20, 0, 0],
+        chest: [30, 0, 0],
+        leftShoulder: [40, 0, 0],
+      },
+    },
+    ["trunkTurn"],
+  );
+  TestValidator.equals(
+    "only claimed joints are replaced",
+    [
+      merged.joints.hips![0],
+      merged.joints.spine![0],
+      merged.joints.chest![0],
+      merged.joints.leftShoulder![0],
+      merged.yaw,
+    ],
+    [1, 20, 30, 4, 0],
+  );
+  TestValidator.predicate(
+    "the two carriers yield axial turning",
+    [HumanRide.ride, stand].every((law) => law.yields?.includes("trunkTurn")),
+  );
+  stagedTrunkInput();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture = stand.posture(
     body,
@@ -208,3 +279,207 @@ type Constraint = NonNullable<ReturnType<typeof getConstraint>>;
 
 /** A joint recruited by the axial turn. */
 type TrunkJoint = "spine" | "chest" | "neck" | "head";
+
+function stagedTrunkInput(): void {
+  const canonical: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const trace: string[] = [];
+  const body: IAutoMovieMotionHumanBody = {
+    ...canonical,
+    get skeleton(): IAutoMovieSkeleton {
+      trace.push("skeleton");
+      return canonical.skeleton;
+    },
+  };
+  const demand: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
+  const prepared: ReturnType<typeof HumanTrunk.prepareResolve> =
+    HumanTrunk.prepareResolve(body, demand);
+  const state: ITrunkReadState = {
+    flexion: NaN,
+    lateFails: true,
+    rootFails: false,
+    supplierFails: false,
+    root: { x: 0, y: 0, z: 0 },
+  };
+  const lateError: Error = new Error("owned later trunk tuple failure");
+  const rootError: Error = new Error("owned trunk root failure");
+  const supplierError: Error = new Error("owned trunk supplier failure");
+  const head: readonly [number, number, number] = [0, 0, 0];
+  const finger: readonly [number, number, number] = [0, 0, 0];
+  for (const [tuple, name] of [
+    [head, "head"],
+    [finger, "finger"],
+  ] as const)
+    for (const axis of [0, 1, 2])
+      Object.defineProperty(tuple, axis, {
+        get: (): number => {
+          trace.push(`${name}.${axis}`);
+          if (name === "finger" && axis === 0 && state.lateFails)
+            throw lateError;
+          return name === "head" && axis === 0 ? state.flexion : 0;
+        },
+      });
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {
+    get head(): readonly [number, number, number] {
+      trace.push("map.head");
+      return head;
+    },
+    get leftIndexDistal(): readonly [number, number, number] {
+      trace.push("map.finger");
+      return finger;
+    },
+  };
+  const posture: IAutoMovieMotionHumanPosture = {
+    get root(): IAutoMovieVector3 {
+      trace.push("root");
+      if (state.rootFails) throw rootError;
+      return state.root;
+    },
+    yaw: 0,
+    pitch: 0,
+    roll: 0,
+    joints,
+    limbs: {},
+  };
+  const supplier: () => ReturnType<
+    typeof preparePoseResolution
+  > = (): ReturnType<typeof preparePoseResolution> => {
+    trace.push("supplier");
+    if (state.supplierFails) throw supplierError;
+    return preparePoseResolution();
+  };
+  const allScalars: string[] = [
+    "map.head",
+    "map.finger",
+    "head.0",
+    "head.1",
+    "head.2",
+    "finger.0",
+    "finger.1",
+    "finger.2",
+  ];
+  const complete: string[] = [...allScalars, "root", "skeleton", "supplier"];
+  const readers: readonly [
+    string,
+    () => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ][] = [
+    [
+      "raw",
+      (): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        HumanTrunk.resolve(body, posture, joints, supplier, demand),
+    ],
+    [
+      "prepared",
+      (): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        prepared(posture, supplier),
+    ],
+  ];
+  for (const [name, read] of readers) {
+    state.flexion = NaN;
+    state.lateFails = true;
+    state.rootFails = false;
+    state.supplierFails = false;
+    trace.length = 0;
+    TestValidator.predicate(
+      `${name} completes later tuple access before early numeric admission`,
+      caught(read) === lateError,
+    );
+    TestValidator.equals(
+      `${name} reads all map values before the tuple failure`,
+      trace,
+      allScalars.slice(0, 6),
+    );
+    state.lateFails = false;
+    state.rootFails = true;
+    trace.length = 0;
+    TestValidator.predicate(
+      `${name} constructs its actual root before native finite admission`,
+      caught(read) === rootError,
+    );
+    TestValidator.equals(
+      `${name} root failure follows every scalar read`,
+      trace,
+      [...allScalars, "root"],
+    );
+    state.rootFails = false;
+    state.supplierFails = true;
+    trace.length = 0;
+    TestValidator.predicate(
+      `${name} requests its actual workspace before finite admission`,
+      caught(read) === supplierError,
+    );
+    TestValidator.equals(
+      `${name} supplier failure keeps the original staging/root/carrier order`,
+      trace,
+      complete,
+    );
+    state.supplierFails = false;
+    trace.length = 0;
+    TestValidator.predicate(
+      `${name} finally refuses the actual unchanged NaN`,
+      throwsError(read, ["flexion", "finite"]),
+    );
+    TestValidator.equals(
+      `${name} numeric refusal retains all earlier observable work`,
+      trace,
+      complete,
+    );
+    state.flexion = 0;
+    state.root = { x: 0, y: 0, z: 0 };
+    const initial: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read();
+    TestValidator.equals(
+      `${name} emits only the demanded head`,
+      Array.from(initial.keys()),
+      ["head"],
+    );
+    const first: IAutoMovieResolvedBone = initial.get("head")!;
+    const point: IAutoMovieVector3 = { ...first.worldPosition };
+    first.worldPosition.x = 999;
+    state.root = { x: 1, y: 2, z: 3 };
+    const shifted: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read();
+    TestValidator.predicate(
+      `${name} observes current root translation with independently owned frames`,
+      shifted !== initial &&
+        shifted.get("head") !== first &&
+        vclose(
+          shifted.get("head")!.worldPosition,
+          { x: point.x + 1, y: point.y + 2, z: point.z + 3 },
+          1e-9,
+        ) &&
+        qclose(
+          shifted.get("head")!.worldRotation,
+          first.worldRotation,
+          1e-12,
+        ) &&
+        Object.is(first.worldPosition.x, 999),
+    );
+  }
+  TestValidator.predicate(
+    "the actual prepared consumer admits even an unrequested malformed override",
+    throwsError(
+      (): unknown =>
+        prepared(posture, supplier, {
+          head: [0, 0, 0],
+          leftIndexDistal: [NaN, 0, 0],
+        }),
+      ["flexion", "finite"],
+    ),
+  );
+}
+
+/** Observe only the owned action's actual failure; assertion predicates stay outside the catch. */
+function caught(action: () => unknown): unknown {
+  try {
+    action();
+  } catch (error) {
+    return error;
+  }
+  return undefined;
+}
+
+interface ITrunkReadState {
+  flexion: number;
+  lateFails: boolean;
+  rootFails: boolean;
+  supplierFails: boolean;
+  root: IAutoMovieVector3;
+}

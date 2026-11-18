@@ -1,7 +1,14 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanCarriedCouplingLoad } from "@automovie/motions";
+import {
+  HumanCarried,
+  HumanCarriedCoupling,
+  HumanCarriedCouplingLoad,
+  HumanLoad,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -17,6 +24,72 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_hand_bearing_reactions(): void {
+  const p = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
+  const tri = [p(0, 0), p(1, 0), p(0, 1)];
+  const thirds = HumanCarriedCouplingLoad.shares(tri, p(1 / 3, 1 / 3));
+  TestValidator.predicate(
+    "triangle barycentre and nonnegative reactions beyond its hull",
+    thirds.every((v) => nclose(v, 1 / 3, 1e-9)) &&
+      HumanCarriedCouplingLoad.shares(tri, p(2, 2)).every((v) => v >= 0),
+  );
+  const line = HumanCarriedCouplingLoad.shares(
+    [p(0, 0), p(1, 0), p(2, 0)],
+    p(0.3, 0),
+  );
+  TestValidator.predicate(
+    "collinear contact uses nearest bracketing pair",
+    line.every((v, i) => nclose(v, [0.7, 0.3, 0][i]!, 1e-9)) &&
+      HumanCarriedCouplingLoad.shares([p(0, 0)], p(5, 5))[0] === 1,
+  );
+  const small = motionHumanBody("f-small");
+  const base = HumanCarriedCoupling.couple(
+    small,
+    small,
+    HumanCarried.CARRIES.cradle,
+    "cradle",
+  );
+  const load = HumanCarriedCouplingLoad.load(small, base);
+  const own = base.contacts
+    .filter((c) => c.on.role === HumanCarriedCoupling.BEARER)
+    .reduce((sum, c) => sum + c.load, 0);
+  TestValidator.predicate(
+    "reaction fractions conserve total carried mass",
+    nclose(
+      base.contacts.reduce((sum, c) => sum + c.load, 0),
+      1,
+      1e-9,
+    ) && nclose(load.load, own * base.mass, 1e-9),
+  );
+  const capacity = (load.mass * load.height) / Math.abs(load.ahead);
+  if (capacity > base.mass) {
+    let rejected = false;
+    try {
+      HumanCarriedCoupling.couple(
+        small,
+        small,
+        HumanCarried.CARRIES.cradle,
+        "cradle",
+        capacity - base.mass + 1,
+      );
+    } catch (error) {
+      rejected =
+        error instanceof HumanRefusal &&
+        error.kind === "participant" &&
+        error.axis === "mass" &&
+        error.feasible?.kind === "range" &&
+        error.feasible.maximum !== null &&
+        nclose(error.feasible.maximum, capacity, 1e-6 * capacity);
+    }
+    TestValidator.predicate(
+      "one excess kilogram reports the physical capacity",
+      rejected,
+    );
+  }
+  TestValidator.predicate(
+    "lean admits below and refuses above moment capacity",
+    HumanLoad.lean({ ...load, load: capacity * 0.999 }) !== null &&
+      HumanLoad.lean({ ...load, load: capacity * 1.001 }) === null,
+  );
   const supports: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
