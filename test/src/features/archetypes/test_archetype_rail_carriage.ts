@@ -1,6 +1,7 @@
 import {
   ArchetypeAssembly,
   ArchetypeFrame,
+  ArchetypeRefusal,
   ArchetypeRide,
   createRailCarriage,
   createRailPlatform,
@@ -14,6 +15,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
 
 /**
@@ -29,11 +31,14 @@ import { vclose } from "../internal/vclose";
  * 3. Move the car 8 m on a straight ride and observe the seat, aisle and
  * threshold travel by 8 m while the standalone platform stays at the origin's
  * longitudinal station.
+ * 4. Measure the legacy seat height and both accepted bounds on the cushion
+ * and contact. Check boarding contacts and paired leaf travel at both bounds.
+ * 5. Refuse values below and above the band and nonfinite heights.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents the posed doorway, parked relation and moving-frame scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Admits the built models and assembly, measures actual leaf geometry, queries affordance frames and samples a ride.
- * @evidence contracts/development/testing.md#independent-expectations SCRTD 1968 design fixes the 54-inch opening, 40-inch floor, 126-inch body width and 22-inch seat. Access Board §§1192.53(d) and 1192.57 give platform and hardware bounds. A straight 8 m course translates every rigid contact by 8 m.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks the difference between shut, half-open and fully open, and between the moving and stationary supports.
+ * @evidence contracts/development/testing.md#independent-expectations SCRTD 1968 design fixes the 54-inch opening, 40-inch floor, 126-inch body width and 22-inch seat. Access Board §§1192.53(d) and 1192.57 give platform and hardware bounds. A straight 8 m course translates every rigid contact by 8 m. The RVAA Committee's transfer-seat guidance gives independent 17- and 19-inch bounds measured above the floor.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks the difference between shut, half-open and fully open, and between moving and stationary supports, then distinguishes the default, both closed height bounds and invalid requests.
  * @evidence contracts/development/testing.md#execution-ownership Local deterministic feature test, owning no host or external resources.
  */
 export function test_archetype_rail_carriage(): void {
@@ -44,7 +49,10 @@ export function test_archetype_rail_carriage(): void {
   const floorHeight: number = 40 * 0.0254;
   const open: typeof car = car.articulate({ door: leafWidth });
   type Members = {
-    car: ArchetypeAssembly.IMember<createRailCarriage.Affordance, never>;
+    car: ArchetypeAssembly.IMember<
+      createRailCarriage.Affordance,
+      createRailCarriage.Dimension
+    >;
     station: ArchetypeAssembly.IMember<"platform" | "platformEdge", never>;
   };
   const assembled: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>(
@@ -136,14 +144,16 @@ export function test_archetype_rail_carriage(): void {
       vclose(ArchetypeFrame.axis(rail.frame, "x"), { x: 0, y: 1, z: 0 }),
   );
 
-  const ride: ArchetypeRide.IRide<createRailCarriage.Affordance, never> =
-    ArchetypeRide.along(car, {
-      start: { x: 0, z: 0, heading: 0 },
-      legs: [{ kind: "straight", length: 8 }],
-      cruise: 2,
-      startSpeed: 2,
-      endSpeed: 2,
-    });
+  const ride: ArchetypeRide.IRide<
+    createRailCarriage.Affordance,
+    createRailCarriage.Dimension
+  > = ArchetypeRide.along(car, {
+    start: { x: 0, z: 0, heading: 0 },
+    legs: [{ kind: "straight", length: 8 }],
+    cruise: 2,
+    startSpeed: 2,
+    endSpeed: 2,
+  });
   for (const contact of ["seat", "aisle", "threshold"] as const) {
     const from: IAutoMovieAffordance["frame"] = ride.frame(contact, 0);
     const to: IAutoMovieAffordance["frame"] = ride.frame(
@@ -160,6 +170,95 @@ export function test_archetype_rail_carriage(): void {
   TestValidator.predicate("standalone platform stays at the parked bay", () =>
     nclose(platform.affordance("platformEdge").frame.translation.z, 0),
   );
+
+  const minimum: number = 17 * 0.0254;
+  const maximum: number = 19 * 0.0254;
+  const legacy: typeof car = createRailCarriage("legacy-carriage");
+  for (const [variant, height] of [
+    [legacy, 0.45],
+    [createRailCarriage("low-seat", { seatHeight: minimum }), minimum],
+    [createRailCarriage("high-seat", { seatHeight: maximum }), maximum],
+  ] as const) {
+    const floor: number = boxTop(variant, "cabin-floor");
+    const cushion: number = boxTop(variant, "seat-pad-front-0--1");
+    const contact: IAutoMovieAffordance = variant.affordance("seat");
+    TestValidator.predicate(
+      "record, cushion top and seat contact use the requested floor-relative height",
+      () =>
+        variant.dimensions.seatHeight !== undefined &&
+        nclose(variant.dimensions.seatHeight, height) &&
+        variant.provenance.units.seatHeight === "m" &&
+        nclose(floor, floorHeight) &&
+        nclose(cushion - floor, height) &&
+        nclose(contact.frame.translation.y, cushion),
+    );
+
+    const posed: typeof car = variant.articulate({ door: leafWidth });
+    TestValidator.predicate(
+      "seat height preserves the paired door opening",
+      () =>
+        nclose(leafEdge(posed, "door-lower", -1), leafWidth) &&
+        nclose(leafEdge(posed, "doorFollower-lower", 1), -leafWidth) &&
+        validateModel({ model: posed }).success,
+    );
+    for (const id of ["threshold", "doorway", "aisle", "grabRail"] as const) {
+      const expected: IAutoMovieAffordance = open.affordance(id);
+      const actual: IAutoMovieAffordance = posed.affordance(id);
+      TestValidator.predicate(
+        "seat height preserves the boarding contact frame",
+        () =>
+          vclose(actual.frame.translation, expected.frame.translation) &&
+          qclose(actual.frame.rotation, expected.frame.rotation),
+      );
+    }
+  }
+  TestValidator.predicate(
+    "string-only and default carriage ids",
+    () => legacy.id === "legacy-carriage" && car.id === "railCarriage",
+  );
+
+  for (const height of [minimum - 0.01, maximum + 0.01, Number.NaN]) {
+    TestValidator.predicate(
+      "invalid seat height reports the feasible metre band",
+      () => {
+        try {
+          createRailCarriage(undefined, { seatHeight: height });
+        } catch (error) {
+          return (
+            error instanceof ArchetypeRefusal &&
+            error.kind === "parameter" &&
+            error.axis === "seatHeight" &&
+            Object.is(error.value, height) &&
+            error.feasible?.kind === "range" &&
+            error.feasible.unit === "m" &&
+            error.feasible.minimum !== null &&
+            error.feasible.maximum !== null &&
+            nclose(error.feasible.minimum, minimum) &&
+            nclose(error.feasible.maximum, maximum)
+          );
+        }
+        return false;
+      },
+    );
+  }
+}
+
+/** The upper surface of a named box, in carriage-local vertical metres. */
+function boxTop(
+  car: ReturnType<typeof createRailCarriage>,
+  id: string,
+): number {
+  const part: IAutoMovieModelPart | undefined = car.parts.find(
+    (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
+  );
+  if (
+    part?.transform === undefined ||
+    part.transform === null ||
+    part.geometry.type !== "primitive" ||
+    part.geometry.shape.type !== "box"
+  )
+    throw new Error("Missing box " + id);
+  return part.transform.translation.y + part.geometry.shape.height / 2;
 }
 
 /** The inside edge of a lower door panel, in local longitudinal metres. */

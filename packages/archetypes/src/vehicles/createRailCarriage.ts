@@ -2,10 +2,12 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   type Archetype,
+  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
+  type IArchetypeBand,
 } from "../core";
 
 /**
@@ -23,26 +25,35 @@ import {
  * createRailPlatform and move only the carriage on a ride.
  *
  * @param id The scene model id, defaulting to railCarriage.
+ * @param params Optional seat height above the finished floor, in metres. The default is 0.45 m.
  * @returns The carriage at rest with the door pairs closed.
+ * @throws {ArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the model's source, coordinates, default pose, contact locations and boarding convention.
- * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. Paired leaves use opposite slider axes with a positive 1:1 coupling.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the model's source, coordinates, default pose, boarding convention and optional floor-relative seat height.
+ * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. One validated height determines both seat geometry and contact. Paired leaves use opposite slider axes with a positive 1:1 coupling.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the shell and doors, end walls and trucks, seats and grab rails, then the fixed boarding contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body and interior details are staged estimates, including sheet thickness, cushion depth and height and pole stations. The gap between cars has no bellows.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body and interior details are staged estimates, including sheet thickness, cushion depth and pole stations. The seat-height band uses the RVAA Committee's transfer-seat recommendation for scenic staging. The gap between cars has no bellows.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of primitive sections and two independently transformed leaves per door.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no model or external resource.
  */
 export function createRailCarriage(
   id: string = "railCarriage",
-): Archetype<createRailCarriage.Affordance, never> {
-  const builder: ArchetypeBuilder<createRailCarriage.Affordance, never> =
-    new ArchetypeBuilder({
-      id,
-      name: "metro carriage",
-      material: "steel",
-      draw: new ArchetypeDrawSession<never>("railCarriage", {}, undefined),
-    });
+  { seatHeight = 0.45 }: createRailCarriage.IParams = {},
+): Archetype<createRailCarriage.Affordance, createRailCarriage.Dimension> {
+  const draw: ArchetypeDrawSession<createRailCarriage.Dimension> =
+    new ArchetypeDrawSession("railCarriage", UNITS, undefined, { seatHeight });
+  const dimensions: Record<createRailCarriage.Dimension, number> =
+    draw.dimensions(BANDS);
+  const builder: ArchetypeBuilder<
+    createRailCarriage.Affordance,
+    createRailCarriage.Dimension
+  > = new ArchetypeBuilder({
+    id,
+    name: "metro carriage",
+    material: "steel",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const inch: number = ArchetypeUnits.INCH;
   const foot: number = ArchetypeUnits.FOOT;
@@ -53,14 +64,8 @@ export function createRailCarriage(
   const leaf: number = 27 * inch;
   const ceiling: number = floor + 86 * inch;
   const roof: number = 130 * inch;
-  const {
-    doorHeight,
-    wall,
-    threshold,
-    seatHeight,
-    seatDepth,
-    seatBack,
-  }: typeof ESTIMATES = ESTIMATES;
+  const { doorHeight, wall, threshold, seatDepth, seatBack }: typeof ESTIMATES =
+    ESTIMATES;
   const seatWidth: number = 22 * inch;
   const aisle: number = 2 * (half - wall - 2 * seatWidth);
 
@@ -239,7 +244,7 @@ export function createRailCarriage(
   }
 
   const seatX: number = half - wall - seatWidth;
-  const seatY: number = floor + seatHeight;
+  const seatY: number = floor + dimensions.seatHeight;
   const seatFront: number = 2 * leaf + seatDepth + 0.11;
   const rowPitch: number = 32 * inch;
   for (const bay of [-pitch, 0] as const)
@@ -249,7 +254,7 @@ export function createRailCarriage(
       for (const side of [-1, 1] as const) {
         const key: string = (bay === 0 ? "front-" : "rear-") + row + "-" + side;
         const x: number = side * seatX;
-        const base: number = seatHeight - 0.07;
+        const base: number = dimensions.seatHeight - 0.07;
         builder.box(
           "seat-base-" + key,
           v(2 * seatWidth, base, seatDepth),
@@ -356,12 +361,12 @@ type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
 type DoorId = DoorPair[number];
 
 /**
- * Fixed reference dimensions and named carriage contacts.
+ * Fixed shell dimensions, named carriage contacts and the authored seat height.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the two shared dimensions' datum and where to use the contact names.
- * @evidence contracts/development/design.md#principled-representation Two sourced sizes and a closed union of support and articulation ids.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes only authored contacts and the geometry shared with the platform.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both shared dimensions come from the same reference design.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines contact names, the seat-height datum and the two dimensions shared with the platform.
+ * @evidence contracts/development/design.md#principled-representation Two sourced shell sizes, a closed union of support and articulation ids and a typed scenic dimension in metres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the model's contacts, supported seat dimension and geometry shared with the platform.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Both shell dimensions come from the same reference design. A sourced closed band limits the separate seat dimension.
  */
 export namespace createRailCarriage {
   /**
@@ -382,6 +387,29 @@ export namespace createRailCarriage {
     | DoorId;
 
   /**
+   * The height of the seat pad's top above the finished cabin floor, in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the seat height's two reference surfaces and its unit.
+   * @evidence contracts/development/design.md#principled-representation The typed dimension key for the seat pad and contact frame's shared height.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The carriage accepts only one size override.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No arbitrary dimension names.
+   */
+  export type Dimension = "seatHeight";
+
+  /**
+   * Optional seat height in metres for staging seated contact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the finished floor datum, sourced interval and legacy default.
+   * @evidence contracts/development/design.md#principled-representation An optional physical measurement using the carriage's dimension key.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Scene identity stays in the first argument and shell dimensions stay fixed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The draw session enforces the closed height interval.
+   */
+  export interface IParams {
+    /** Seat pad top above the cabin floor, 17–19 inches expressed in metres. Defaults to 0.45 m. */
+    seatHeight?: number;
+  }
+
+  /**
    * Outside width and floor height above rail in metres, reference §II.C.3.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives units, reference and datum for use in matching a platform.
@@ -392,13 +420,28 @@ export namespace createRailCarriage {
   };
 }
 
+/** Unit shared by the seat-height input, band and record. */
+const UNITS: Readonly<
+  Record<createRailCarriage.Dimension, ArchetypeDrawSession.Unit>
+> = {
+  seatHeight: "m",
+};
+
+/** Rail transfer-seat guidance gives the scenic seat contact height above the finished floor. */
+const BANDS: Readonly<Record<createRailCarriage.Dimension, IArchetypeBand>> = {
+  seatHeight: ArchetypeBand.metres(
+    17 * ArchetypeUnits.INCH,
+    19 * ArchetypeUnits.INCH,
+    "U.S. Access Board RVAA Committee Final Report, Appendix §V.1, Transfer Seat Details (https://www.access-board.gov/advisory-committee-reports/rail/rvaac-report/#v-transfer-seat-details)",
+  ),
+};
+
 /** Provisional thicknesses and interior staging dimensions in metres. */
 const ESTIMATES: Readonly<{
   coupler: number;
   doorHeight: number;
   wall: number;
   threshold: number;
-  seatHeight: number;
   seatDepth: number;
   seatBack: number;
 }> = {
@@ -407,7 +450,6 @@ const ESTIMATES: Readonly<{
   wall: 0.04,
   // The landing strip extends far enough inboard for a boarding stance.
   threshold: 0.36,
-  seatHeight: 0.45,
   seatDepth: 0.42,
   seatBack: 0.48,
 };
