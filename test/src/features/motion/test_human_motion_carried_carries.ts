@@ -302,24 +302,24 @@ export function test_human_motion_carried_carries(): void {
     lifted.bodies.b,
     0,
   );
-  const ankles = (seconds: number): number =>
-    (HumanSignature.joint(borne, seconds, "leftFoot").y +
-      HumanSignature.joint(borne, seconds, "rightFoot").y) /
+  const ankles: (bones: CarryBones) => number = (bones: CarryBones): number =>
+    (bones.get("leftFoot")!.worldPosition.y +
+      bones.get("rightFoot")!.worldPosition.y) /
     2;
-  const stood: number = ankles(0.3);
-  const raised: number = ankles(1.3) - stood;
+  const stood: number = ankles(HumanSignature.bones(borne, 0.3));
+  const raised: number = ankles(HumanSignature.bones(borne, 1.3)) - stood;
   if (!(raised > 0.1 * lifted.bodies.b.measure.stature))
     complaints.push(
       `piggyback with a lift: 1 s into the carry the carried ankles are ${(raised * 1000).toFixed(0)} mm above where they stood, more than a tenth of the stature expected`,
     );
-  const down: number = Math.abs(ankles(2.3) - stood);
+  const settled: CarryBones = HumanSignature.bones(borne, 2.3);
+  const down: number = Math.abs(ankles(settled) - stood);
   if (!(down <= 0.015))
     complaints.push(
       `piggyback with a set-down: at the carry's end the carried ankles are ${(down * 1000).toFixed(1)} mm from their standing height, 15 mm at most expected`,
     );
   const upright: number =
-    HumanSignature.joint(borne, 2.3, "head").y -
-    HumanSignature.joint(borne, 2.3, "hips").y;
+    settled.get("head")!.worldPosition.y - settled.get("hips")!.worldPosition.y;
   if (!(upright > 0.3 * lifted.bodies.b.measure.stature))
     complaints.push(
       `piggyback with a set-down: at the carry's end the carried head is ${upright.toFixed(3)} m above the hips, more than 0.3 of the stature expected`,
@@ -338,3 +338,6 @@ export function test_human_motion_carried_carries(): void {
     );
   TestValidator.equals("a carried person rests on the carrier", complaints, []);
 }
+
+/** One displayed skeleton used for all sites at the same lift phase. */
+type CarryBones = ReturnType<typeof HumanSignature.bones>;
