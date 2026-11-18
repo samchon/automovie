@@ -17,11 +17,10 @@ import { kissBody } from "./kissBody";
  * @param entry The entry posture the kiss is written over.
  * @param stance The standing placements every candidate rises from.
  * @param twist The fixed head twist, degrees.
- * @param behind The backward displacement along the entry heading, metres.
  * @param seated Whether a seat bears the body, so it neither rises nor is lowered onto the feet.
  * @returns A fresh complete candidate posture for a pitch, roll, flexion and raise.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry, stance, angle and displacement units, the seated case and the fresh candidate returned.
+ * @evidence contracts/development/common.md#meaningful-documentation States the entry, stance and angle units, the seated case and the fresh candidate returned.
  * @evidence contracts/development/implementation.md#principled-implementation Each candidate is the displayed kiss's own body at the full share (`kissBody`: the rise, the hips' shift, the lean and the lowering onto the planted legs) with the head's flexion and turn shared over the neck and the head, so the mouth the search scores is the mouth the figure shows.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One body model, then one head addition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate skips the lowering the display applies; no angle is clamped here.
@@ -34,12 +33,11 @@ export function kissPose(
   entry: IAutoMovieMotionHumanPosture,
   stance: IAutoMovieMotionHumanRise.Stance,
   twist: number,
-  behind: number,
   seated: boolean,
 ): (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IAutoMovieMotionHumanPosture {
   const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(2, twist);
   return (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IAutoMovieMotionHumanPosture => {
-    const leaned: IAutoMovieMotionHumanPosture = kissBody(body, entry, stance, s, 1, behind, seated);
+    const leaned: IAutoMovieMotionHumanPosture = kissBody(body, entry, stance, s, 1, seated);
     const head: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(0, s.flexion);
     const held: (bone: "neck" | "head") => readonly [number, number, number] = (bone: "neck" | "head"): readonly [number, number, number] =>
       leaned.joints[bone] ?? [0, 0, 0];

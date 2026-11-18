@@ -70,19 +70,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
     ) => IAutoMovieVector3;
 
     /**
-     * How deep the body's trunk and legs on a posture pass into the people about it, metres (0 when clear), so a rise's shift over the forefoot keeps out of a partner standing close; no one is about when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the depth returned and its unit, who reads it and the default.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     */
-    clear?: (posture: IAutoMovieMotionHumanPosture) => number;
-
-    /**
      * The working arm's goal on a posture at the stroke's start, laid on its region, so the lean's balance weighs the arm where it reaches (`IAutoMovieMotionHumanLeanInto.IProps.arm`); the arm as the posture holds it when absent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, the goal returned, who reads it and the default.
@@ -123,12 +110,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /** The heels' raise at the region, degrees; 0 when the body does not rise. */
     raise: number;
-
-    /** How long the hips' shift over the forefoot leads the heels' rise, and trails their return, seconds; 0 when the body does not rise. The stroke's clock names its end `poised` and its return's start `unpoised`. */
-    poise: number;
-
-    /** The least seconds the heels' rise takes from the shifted stance, so the extrapolated centre of mass stays over the forefoot as the rise carries the body on over the toes; 0 when the body does not rise. The stroke's approach lasts at least this. */
-    rising: number;
 
     /** Whether the trunk leans from the hips at some progress of the stroke. */
     leaning: boolean;

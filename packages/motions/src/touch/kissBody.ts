@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanKiss,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
@@ -14,25 +13,23 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The body of a kiss at a share of its solved angles: risen on the toes by
- * the heel raise, the hips moved back along the heading by the balance
- * shift, leaned from the hips by the pitch and the roll, and, standing,
- * lowered onto the planted legs. The one model both the kiss's solve and
- * its displayed body read, so the mouth the solve places is the mouth the
- * figure shows.
+ * the heel raise, leaned from the hips by the pitch and the roll, and,
+ * standing, lowered onto the planted legs. The one model both the kiss's
+ * solve and its displayed body read, so the mouth the solve places is the
+ * mouth the figure shows. The feet stay planted, so no balance is solved:
+ * the lean and the rise are the kiss's key poses within their ranges.
  *
  * @param body The body.
  * @param posture The posture the kiss is written over.
  * @param stance Both feet as they stand.
  * @param solved The lean's pitch and roll and the heel raise, degrees.
- * @param share The share of the lean and of the shift, 0 to 1.
- * @param behind How far the hips stand back along the heading at the full share, metres.
+ * @param share The share of each angle, 0 to 1.
  * @param seated Whether a seat bears the body: it neither rises nor is lowered onto the feet.
- * @param heels The share of the heel raise, 0 to 1; `share` when absent. A rise's sway leads its heels (`AutoMovieMotionHumanRise.poise`), so the display gives the two their own shares.
  * @returns The posture; its neck and head are the given posture's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the body is at a share, why one model serves the solve and the display, and each input's unit.
- * @evidence contracts/development/implementation.md#principled-implementation The rise's lift, the hips' shift along the heading and the lean's pivot scale with the share; standing, the root is lowered as far as the planted legs ask to reach their risen feet (`resolveHumanPosture.lower`).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The rise and the shift, the lean, then the standing lowering.
+ * @evidence contracts/development/implementation.md#principled-implementation The rise's lift and the lean's pivot scale with the share; standing, the root is lowered as far as the planted legs ask to reach their risen feet (`resolveHumanPosture.lower`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The rise, the lean, then the standing lowering.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A seated body neither rises nor is lowered, by the seat's support, not by a flag the caller tunes; nothing is clamped.
  * @evidence contracts/development/implementation.md#efficient-algorithms One pivot and, standing, one lowering with its two leg goals.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The lift, the pivot, the leg goals and the lowering are their owners'; the kiss's solve and display both call this one function.
@@ -44,27 +41,14 @@ export function kissBody(
   stance: IAutoMovieMotionHumanRise.Stance,
   solved: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "raise">,
   share: number,
-  behind: number,
   seated: boolean,
-  heels: number = share,
 ): IAutoMovieMotionHumanPosture {
-  const yaw: number = (posture.yaw * Math.PI) / 180;
-  const raise: number = seated ? 0 : solved.raise * heels;
-  // The root's travel along the floor is the rise's at the sway's share and
-  // its height the rise's at the heels' share: swayed first, the heels rise
-  // under a root that keeps its place along the floor.
-  const along: IAutoMovieVector3 = seated
-    ? { x: 0, y: 0, z: 0 }
-    : AutoMovieMotionHumanRise.lift(body, stance, solved.raise * share);
-  const up: IAutoMovieVector3 = AutoMovieMotionHumanRise.lift(body, stance, raise);
+  const raise: number = seated ? 0 : solved.raise * share;
   const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
     body,
     {
       ...posture,
-      root: Vector3.add(
-        Vector3.add(posture.root, { x: along.x, y: up.y, z: along.z }),
-        { x: -Math.sin(yaw) * behind * share, y: 0, z: -Math.cos(yaw) * behind * share },
-      ),
+      root: Vector3.add(posture.root, AutoMovieMotionHumanRise.lift(body, stance, raise)),
     },
     { pitch: solved.pitch * share, roll: solved.roll * share },
   );
@@ -80,21 +64,15 @@ export function kissBody(
       AutoMovieMotionHumanRise.foot(body, side, stance[side], raise),
       true,
     );
-  // The legs stand on the raised feet with the toes bent back flat, as the
-  // rise's legs show them (`AutoMovieMotionHumanRise.legs`), so a balance
-  // read on this body bears on the base the figure stands on.
-  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-    ...leaned.limbs,
-    leftLeg: goal("left"),
-    rightLeg: goal("right"),
-  };
   return {
     ...leaned,
-    joints:
-      raise === 0
-        ? leaned.joints
-        : { ...leaned.joints, leftToes: [raise, 0, 0], rightToes: [raise, 0, 0] },
-    limbs,
-    root: resolveHumanPosture.lower(body, { ...leaned, limbs }).root,
+    root: resolveHumanPosture.lower(body, {
+      ...leaned,
+      limbs: {
+        ...leaned.limbs,
+        leftLeg: goal("left"),
+        rightLeg: goal("right"),
+      },
+    }).root,
   };
 }
