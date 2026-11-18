@@ -37,6 +37,12 @@ const ARCH: number = 0.1;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The turning is the flight pass's; this module only declares it and carries what comes back.
  */
 export namespace jumpAirborne {
+  /** Clinical coordinates varied by this free-flight law. All others are copied from the achieved takeoff pose. */
+  export const TRACKS: readonly AutoMovieHumanoidBone[] = Object.freeze([
+      "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
+      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot", "leftToes", "rightToes",
+    ] as const);
+
   /**
    * What the airborne shape is drawn from.
    *
@@ -130,10 +136,7 @@ export namespace jumpAirborne {
     });
     const archHeight: number = ARCH * body.measure.hipHeight;
     const tracks: IJointTrack[] = [];
-    for (const bone of [
-      "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
-      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot", "leftToes", "rightToes",
-    ] as const) {
+    for (const bone of TRACKS) {
       const from: readonly [number, number, number] = fixed.start.joints[bone] ?? [0, 0, 0];
       const into: readonly [number, number, number] = fixed.end.joints[bone] ?? [0, 0, 0];
       tracks.push({ bone, from, delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]] });

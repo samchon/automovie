@@ -26,6 +26,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { jump } from "../actions/jump";
+import { jumpAirborne } from "../actions/jumpAirborne";
+import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
+import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
@@ -275,13 +279,6 @@ export namespace HumanPerformanceFlight {
       return pose;
     };
 
-    const shape: (
-      seconds: number,
-    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
-      seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      readBones({ ...at(seconds), root: null }, readResolution());
-
     // The shape's inertia and relative momentum are tabulated once at the
     // knots for every stage and shooting trial
     // (`integrateAirborneRotation.tabulated`), so the flight reads no pose
@@ -296,138 +293,172 @@ export namespace HumanPerformanceFlight {
     // with `d` the budget `MOMENTUM_ACCURACY` states).
     // The shape reduction already obtains each mass centre in the root frame.
     // Playback needs its rigid placement at the uniform knots alone.
-    const centres: IAutoMovieVector3[] = [];
-    const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.tabulated(prepared, shape, {
-        from: t0,
-        to: t1,
-        step,
-        turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
-      }, observation, (index: number, centre: IAutoMovieVector3): void => {
-        centres[index] = centre;
-      });
-    const errorScope: symbol = Symbol("human flight");
-    try {
-      const q0: IAutoMovieQuaternion = root(at(t0));
-
-      // The largest angular momentum the take-off can give: the momentum about
-      // the centre is the moment of the ground's impulse, `|L| <= r |J|`, with
-      // the lever `r` at most the centre's distance from the foot, Hof's
-      // pendulum length, and the impulse the take-off momentum `m |v0|`, the
-      // centre's velocity read just after take-off from the ballistic composed
-      // centre (`c(t) = c0 + v0 t - g t² / 2`, so `v0 = (c(2δ) - c(δ)) / δ +
-      // 3 g δ / 2` vertically). First pass: the push's share bearing the
-      // weight is left out of `|J|`, so the bound is the impulse of the
-      // take-off velocity alone.
-      const ceiling: (at: number) => number = (at: number): number => {
-        const delta: number = integrateAirborneRotation.DELTA;
-        const centre: (t: number) => IAutoMovieVector3 = (
-          t: number,
-        ): IAutoMovieVector3 =>
-          prepareAutoMovieMassModel.place(
-            prepared,
-            readBones(unturned(t), readResolution()),
-          );
-        const one: IAutoMovieVector3 = centre(at + delta);
-        const two: IAutoMovieVector3 = centre(at + 2 * delta);
-        const v0: IAutoMovieVector3 = {
-          x: (two.x - one.x) / delta,
-          y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
-          z: (two.z - one.z) / delta,
-        };
-        return (
-          model.mass *
-          Vector3.length(v0) *
-          resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight)
-        );
-      };
-
-      // The momentum: given, or solved from the turns.
-      let momentum: IAutoMovieVector3;
-      let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
-      if (declared.momentum.kind === "momentum")
-        momentum = declared.momentum.momentum;
-      else {
-        const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
-        const maximum: number = turns.maximum ?? ceiling(t0);
-        const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-          history,
-          t0,
-          t1,
-          q0,
-          frame: turns.frame,
-          somersault: turns.somersault,
-          twist: turns.twist,
-          maximum,
-          integration: HumanPerformanceFlight.ACCURACY,
-          momentumTolerance: MOMENTUM_ACCURACY,
-          errorScope,
-        });
-        if (!solved.met)
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "turns",
-            value: { somersault: turns.somersault, twist: turns.twist },
-            feasible: null,
-            reason: `a flight of ${(t1 - t0).toFixed(2)} s misses the requested turns by ${solved.residual.somersault.toFixed(3)} somersault, ${solved.residual.tilt.toFixed(3)} tilt and ${solved.residual.twist.toFixed(3)} twist revolutions within ${maximum.toFixed(1)} kg m²/s of momentum`,
-            fix: "give a higher apex for a longer flight, or fewer turns",
-            performer: subject,
-            act: segment.name,
-          });
-        momentum = solved.momentum;
-        solvedFlight = solved.flight;
+    // A native isolated jump has explicit moving clinical tracks. Grouping changes
+    // neither the requested displayed articulation nor the takeoff/landing witnesses.
+    // Every actual adaptive knot rechecks the remaining local coordinates.
+    const changed: symbol = Symbol("flight articulation changed");
+    if (isolated && segment.law.plan === jump.plan &&
+      (segment.transition === undefined || segment.transition.kind === "redirect" || t0 - segment.transition.cut >= segment.transition.blend) &&
+      person.layers.every((row): boolean => row.to <= t0 || row.from >= t1 || HumanAirborneShape.prepared(row.layer) !== undefined)) {
+      const source: IAutoMoviePose = at(t0);
+      const frames: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, { ...source, root: null }, readResolution());
+      const grouped: prepareRigidFlightMass.IPrepared | undefined = prepareRigidFlightMass(body, source, frames, new Set(jumpAirborne.TRACKS));
+      if (grouped !== undefined) {
+        const mass: prepareAutoMovieMassModel.IPrepared = prepareAutoMovieMassModel(grouped.model);
+        try {
+          run(mass, poseBones.prepare(body, prepareAutoMovieMassModel.bones(mass)), grouped);
+          return;
+        } catch (error) {
+          if (error !== changed) throw error;
+        } finally {
+          prepareAutoMovieMassModel.release(mass);
+        }
       }
-      const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
-        solvedFlight ??
-        integrateAirborneRotation({
-          history,
-          t0,
-          t1,
-          q0,
-          momentum,
-          tolerance: HumanPerformanceFlight.ACCURACY,
-          momentumTolerance: MOMENTUM_ACCURACY,
-          errorScope,
-        });
+    }
+    run(prepared, readBones);
 
-      // The unturned root and the composed centre at the flight's knots, the
-      // poses the shape was read from, whatever steps the error control
-      // took; the turn from the one to the integrated root, whose own read
-      // between its knots keeps the rate the integration gave them.
-      const data: IPlayback = {
-        step: spacing,
-        times: knots,
-        table: knots.map((t: number, index: number): IPlayback["table"][number] => {
-          const pose: IAutoMoviePose = at(t);
-          const centre: IAutoMovieVector3 = centres[index]!;
-          return {
-            about: pose.root === null ? centre : Vector3.add(pose.root.translation, Quaternion.rotateVector(pose.root.rotation, centre)),
-            root: root(pose),
-          };
-        }),
+    /** Integrate the original physical law using either a checked rigid partition or all its original mass parts. */
+    function run(mass: prepareAutoMovieMassModel.IPrepared, readShape: ReturnType<typeof poseBones.prepare>,
+      grouped?: prepareRigidFlightMass.IPrepared): void {
+      const shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (seconds: number): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+        const pose: IAutoMoviePose = at(seconds);
+        if (grouped !== undefined && !grouped.matches(pose)) throw changed;
+        return readShape({ ...pose, root: null }, readResolution());
       };
-      const rotation: ReturnType<typeof HumanPerformanceFlightRotation> =
-        HumanPerformanceFlightRotation({
-          start: segment.start,
-          t0,
-          t1,
-          ...data,
-          orientation: turned.orientation,
+      const centres: IAutoMovieVector3[] = [];
+      const history: ReturnType<typeof integrateAirborneRotation.history> =
+        integrateAirborneRotation.tabulated(mass, shape, {
+          from: t0,
+          to: t1,
+          step,
+          turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
+        }, observation, (index: number, centre: IAutoMovieVector3): void => {
+          centres[index] = centre;
         });
-      plan.airborne!(rotation);
-    } catch (error) {
-      if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
-        throw HumanPerformanceFlightFailure(
-          error, body, plan, segment.start, t0,
-          (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds, undefined, evaluation),
-          readResolution,
-        );
-      throw error;
-    } finally {
-      // Playback was constructed in a numeric-only factory. Clearing the
-      // numeric memo is cleared before this flight's history/shape closure,
-      // evaluation workspace and borrowed FK key leave their local scope.
-      history.clear();
+      const errorScope: symbol = Symbol("human flight");
+      try {
+        const q0: IAutoMovieQuaternion = root(at(t0));
+
+        // The largest angular momentum the take-off can give: the momentum about
+        // the centre is the moment of the ground's impulse, `|L| <= r |J|`, with
+        // the lever `r` at most the centre's distance from the foot, Hof's
+        // pendulum length, and the impulse the take-off momentum `m |v0|`, the
+        // centre's velocity read just after take-off from the ballistic composed
+        // centre (`c(t) = c0 + v0 t - g t² / 2`, so `v0 = (c(2δ) - c(δ)) / δ +
+        // 3 g δ / 2` vertically). First pass: the push's share bearing the
+        // weight is left out of `|J|`, so the bound is the impulse of the
+        // take-off velocity alone.
+        const ceiling: (at: number) => number = (at: number): number => {
+          const delta: number = integrateAirborneRotation.DELTA;
+          const centre: (t: number) => IAutoMovieVector3 = (
+            t: number,
+          ): IAutoMovieVector3 =>
+            prepareAutoMovieMassModel.place(
+              prepared,
+              readBones(unturned(t), readResolution()),
+            );
+          const one: IAutoMovieVector3 = centre(at + delta);
+          const two: IAutoMovieVector3 = centre(at + 2 * delta);
+          const v0: IAutoMovieVector3 = {
+            x: (two.x - one.x) / delta,
+            y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+            z: (two.z - one.z) / delta,
+          };
+          return (
+            model.mass *
+            Vector3.length(v0) *
+            resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight)
+          );
+        };
+
+        // The momentum: given, or solved from the turns.
+        let momentum: IAutoMovieVector3;
+        let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
+        if (declared.momentum.kind === "momentum")
+          momentum = declared.momentum.momentum;
+        else {
+          const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
+          const maximum: number = turns.maximum ?? ceiling(t0);
+          const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+            history,
+            t0,
+            t1,
+            q0,
+            frame: turns.frame,
+            somersault: turns.somersault,
+            twist: turns.twist,
+            maximum,
+            integration: HumanPerformanceFlight.ACCURACY,
+            momentumTolerance: MOMENTUM_ACCURACY,
+            errorScope,
+          });
+          if (!solved.met)
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "turns",
+              value: { somersault: turns.somersault, twist: turns.twist },
+              feasible: null,
+              reason: `a flight of ${(t1 - t0).toFixed(2)} s misses the requested turns by ${solved.residual.somersault.toFixed(3)} somersault, ${solved.residual.tilt.toFixed(3)} tilt and ${solved.residual.twist.toFixed(3)} twist revolutions within ${maximum.toFixed(1)} kg m²/s of momentum`,
+              fix: "give a higher apex for a longer flight, or fewer turns",
+              performer: subject,
+              act: segment.name,
+            });
+          momentum = solved.momentum;
+          solvedFlight = solved.flight;
+        }
+        const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
+          solvedFlight ??
+          integrateAirborneRotation({
+            history,
+            t0,
+            t1,
+            q0,
+            momentum,
+            tolerance: HumanPerformanceFlight.ACCURACY,
+            momentumTolerance: MOMENTUM_ACCURACY,
+            errorScope,
+          });
+
+        // The unturned root and the composed centre at the flight's knots, the
+        // poses the shape was read from, whatever steps the error control
+        // took; the turn from the one to the integrated root, whose own read
+        // between its knots keeps the rate the integration gave them.
+        const data: IPlayback = {
+          step: spacing,
+          times: knots,
+          table: knots.map((t: number, index: number): IPlayback["table"][number] => {
+            const pose: IAutoMoviePose = at(t);
+            const centre: IAutoMovieVector3 = centres[index]!;
+            return {
+              about: pose.root === null ? centre : Vector3.add(pose.root.translation, Quaternion.rotateVector(pose.root.rotation, centre)),
+              root: root(pose),
+            };
+          }),
+        };
+        const rotation: ReturnType<typeof HumanPerformanceFlightRotation> =
+          HumanPerformanceFlightRotation({
+            start: segment.start,
+            t0,
+            t1,
+            ...data,
+            orientation: turned.orientation,
+          });
+        plan.airborne!(rotation);
+      } catch (error) {
+        if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
+          throw HumanPerformanceFlightFailure(
+            error, body, plan, segment.start, t0,
+            (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds, undefined, evaluation),
+            readResolution,
+          );
+        throw error;
+      } finally {
+        // Playback was constructed in a numeric-only factory. Clearing the
+        // numeric memo is cleared before this flight's history/shape closure,
+        // evaluation workspace and borrowed FK key leave their local scope.
+        history.clear();
+      }
     }
   }
 }
