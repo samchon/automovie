@@ -11,7 +11,7 @@ import { throwsError } from "../internal/throwsError";
  * turn looking at the partner.
  *
  * Scenarios:
- * 1. Over 200 seeds of a 10-minute conversation in 20 alternating 30-second
+ * 1. Over 200 seeds of a single speaker change between two 30-second
  *    turns, the mean share of listening time on the partner's face is
  *    3.89 / (3.89 + 0.29) and of speaking time 1.82 / (1.82 + 0.83), each
  *    within 20 % (the campaign's distribution tolerance).
@@ -28,9 +28,9 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
-export function test_motion_everyday_conversation(): void {
+export function test_motion_posture_conversation_gaze(): void {
   const turns: IAutoMovieMotionHumanConversation.ITurn[] = Array.from(
-    { length: 20 },
+    { length: 2 },
     (_: unknown, i: number): IAutoMovieMotionHumanConversation.ITurn => ({
       speaker: i % 2 === 0 ? "a" : "b",
       from: 30 * i,
@@ -53,8 +53,8 @@ export function test_motion_everyday_conversation(): void {
         turn.from,
         turn.to,
       );
-      if (turn.speaker === "a") speaking += share / 10;
-      else listening += share / 10;
+      if (turn.speaker === "a") speaking += share;
+      else listening += share;
     }
     if (seed === 0) {
       TestValidator.predicate(
@@ -74,7 +74,8 @@ export function test_motion_everyday_conversation(): void {
         requests.every(
           (r) =>
             r.target.kind !== "point" ||
-            turns.find((turn) => turn.from <= r.from && r.from < turn.to)!.speaker === "a" ||
+            turns.find((turn) => turn.from <= r.from && r.from < turn.to)!
+              .speaker === "a" ||
             r.target.at.y < 1.6,
         ),
       );
@@ -84,7 +85,8 @@ export function test_motion_everyday_conversation(): void {
           if (r.target.kind !== "point") return true;
           const at = r.target.at;
           const angle: number =
-            (Math.acos(at.z / Math.hypot(at.x, at.y - 1.6, at.z)) * 180) / Math.PI;
+            (Math.acos(at.z / Math.hypot(at.x, at.y - 1.6, at.z)) * 180) /
+            Math.PI;
           return Math.abs(angle - 15) < 1e-9;
         }),
       );

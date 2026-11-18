@@ -19,7 +19,7 @@ import { nclose } from "../internal/nclose";
  * Boarding a moving support (#3491): stepping from the ground onto a prop
  * that moves faster than the gait is refused with the speeds and the fix.
  *
- * Scenarios, the average man walking from the ground onto a cart:
+ * Scenarios:
  * 1. A cart just above the speed from Froude 0.2 refuses with a `base` refusal on `on` whose
  *    feasible range ends at that independently computed speed.
  * 2. A cart just below the same normal walk speed (about 1.35 m/s for the
@@ -31,7 +31,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the two numbered scenarios.
  */
-export function test_human_motion_support_board_refusal(): void {
+export function test_motion_posture_seat_support_admission(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const board = (speed: number): unknown => {
@@ -65,7 +65,9 @@ export function test_human_motion_support_board_refusal(): void {
   };
   // Fr = v²/(gL), with L the standing hip height. Relative sqrt(epsilon)
   // separates the two speeds above roundoff in the cart velocity difference.
-  const speed: number = Math.sqrt(0.2 * AutoMovieGravity.STANDARD * body.measure.hipHeight);
+  const speed: number = Math.sqrt(
+    0.2 * AutoMovieGravity.STANDARD * body.measure.hipHeight,
+  );
   const delta: number = speed * Math.sqrt(Number.EPSILON);
   const fast: unknown = board(speed + delta);
   TestValidator.predicate(
@@ -74,9 +76,11 @@ export function test_human_motion_support_board_refusal(): void {
       fast.kind === "base" &&
       fast.axis === "on" &&
       fast.feasible?.kind === "range" &&
-      fast.feasible.minimum === 0 && fast.feasible.unit === "m/s" &&
+      fast.feasible.minimum === 0 &&
+      fast.feasible.unit === "m/s" &&
       nclose(fast.feasible.maximum ?? NaN, speed, Number.EPSILON * speed) &&
-      typeof fast.value === "number" && nclose(fast.value, speed + delta, delta / 2),
+      typeof fast.value === "number" &&
+      nclose(fast.value, speed + delta, delta / 2),
   );
   TestValidator.predicate(
     "a slow cart is boarded",
