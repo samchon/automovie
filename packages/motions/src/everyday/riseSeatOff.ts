@@ -1,10 +1,12 @@
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -60,11 +62,21 @@ export function riseSeatOff(props: {
 
   /** Original current trunk flexion at a second and peak, degrees. */
   pitchAt: (seconds: number, peak: number) => number;
+  /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the feet are drawn to the first shank angle, the trunk peaks at the seat's own flexion and the seat leaves at `SEAT_OFF` of the rise, with no centre of mass read. */
+  physics?: IAutoMovieMotionHumanPhysics;
 }): {
   drawn: Record<"left" | "right", IAutoMovieVector3>;
   peak: number;
   off: number;
 } {
+  // Without the physics option the rise takes the study's own seat-off and
+  // the seat's own trunk peak: no extrapolated centre of mass is searched.
+  if (!HumanPhysics.balanced(props))
+    return {
+      drawn: props.drawAt(props.angles[0]!),
+      peak: seatedCourse.flexion(props.ratio),
+      off: SEAT_OFF * props.rising,
+    };
   let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
   let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
   let observe: ReturnType<typeof HumanBalance.prepareExtrapolated> | undefined;

@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
@@ -320,14 +321,15 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param reach How near the shoulder must come to the target, metres; `pitch`'s palm reach when absent.
+   * @param physics The physical terms asked (`IAutoMovieMotionHumanPhysics`); absent, the hips are not shifted and one pitch solve is made.
    * @returns The solved lowering.
    * @throws {HumanRefusal} As `pitch`, when the strategy cannot reach the target.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two passes, the inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips move back to keep the centre of mass over the feet (`HumanBalance.shift`), and the inclination is the least that reaches with that shift; the shift is solved again at the needed inclination, since it grows with the trunk's lean.
+   * @evidence contracts/development/implementation.md#principled-implementation Without the physics option the inclination is the least that reaches with the hips where the strategy places them; with it the hips move back to keep the centre of mass over the feet (`HumanBalance.shift`), the inclination is the least that reaches with that shift, and the shift is solved again at the needed inclination, since it grows with the trunk's lean.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two balance solves and two pitch solves, in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `NOMINAL` and `SHALLOW` are named provisional constants; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two balance scans and two pitch solves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pitch solve without the physics option; with it two balance scans and two pitch solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the bend law and by the pick-up's own lowering, so both lower a body alike.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -338,7 +340,12 @@ export namespace bendLower {
     side: AutoMovieHumanSide,
     strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     reach?: number,
+    physics?: IAutoMovieMotionHumanPhysics,
   ): IAutoMovieMotionHumanBendLower.ISolved {
+    // Without the physics option the hips stay over the feet as the
+    // strategy places them: no centre of mass is read, the lean is nought.
+    if (physics?.balance !== true)
+      return { strategy, lean: 0, pitch: pitch(body, upright, target, side, strategy, 0, reach) };
     const shift: (deg: number) => number = (deg: number): number =>
       HumanBalance.shift(
         body,

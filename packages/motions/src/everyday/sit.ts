@@ -30,6 +30,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -411,7 +412,11 @@ export namespace sit {
         ),
     );
     const held: number = contact - fall;
-    const reaches: number[] = ((): number[] => {
+    // The weight-over-the-feet course is the physics option's
+    // (`IAutoMovieMotionHumanPhysics.balance`); without it the seat socket goes
+    // back on its own minimum-jerk progress and no centre of mass is read.
+    const balancing: boolean = HumanPhysics.balanced(context.params);
+    const reaches: number[] = !balancing ? [] : ((): number[] => {
       const heading: IAutoMovieVector3 = {
         x: Math.sin((yaw0 * Math.PI) / 180),
         y: 0,
@@ -457,7 +462,7 @@ export namespace sit {
     })();
     function travel(t: number): number {
       const free: number = minimumJerk.share(t / across);
-      if (t >= contact || held <= 0) return free;
+      if (!balancing || t >= contact || held <= 0) return free;
       const kept: (at: number) => number = (at: number): number => {
         const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
         const k: number = Math.min(SHARES - 1, Math.floor(x));

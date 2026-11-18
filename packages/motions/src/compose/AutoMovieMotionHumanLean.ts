@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -233,7 +234,8 @@ export namespace AutoMovieMotionHumanLean {
   }
 
   /**
-   * A bow: the trunk pitched by a share of a peak, the hips moved back by the
+   * A bow: the trunk pitched by a share of a peak, and with the physics option
+   * (`IAutoMovieMotionHumanPhysics.balance`, off by default) the hips moved back by the
    * balance shift solved once at the peak ({@link HumanBalance.shift}) and
    * scaled between by the pitch's sine, the lever of the trunk's weight ahead
    * of the hips.
@@ -254,12 +256,15 @@ export namespace AutoMovieMotionHumanLean {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
-    const lean: number =
-      HumanBalance.shift(
-        props.body,
-        (back: number): IAutoMovieMotionHumanPosture =>
-          tip(props.body, props.standing, props.peak, back),
-      ) / sine(props.peak);
+    // Without the physics option the hips stay where they stand: no centre
+    // of mass is read.
+    const lean: number = !HumanPhysics.balanced(props)
+      ? 0
+      : HumanBalance.shift(
+          props.body,
+          (back: number): IAutoMovieMotionHumanPosture =>
+            tip(props.body, props.standing, props.peak, back),
+        ) / sine(props.peak);
     return {
       channels: ["root", "trunk"],
       reads: ["root", "trunk"],

@@ -296,6 +296,7 @@ export namespace rise {
       legged,
       drawAt,
       pitchAt,
+      physics: context.params.physics,
     });
 
     const swings: Partial<Record<"left" | "right", [number, number]>> = {};

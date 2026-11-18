@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 
@@ -29,6 +30,9 @@ export namespace IAutoMovieMotionHumanTrunk {
   export interface ICrouch {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
+
+    /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
+    physics?: IAutoMovieMotionHumanPhysics;
 
     /** A standing posture of the action, the one the balance is solved on. */
     standing: IAutoMovieMotionHumanPosture;

@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
@@ -40,11 +41,13 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * or sitting back on the heels, held, then rising the way it went down.
  *
  * The goals are floor points, solved by {@link kneelKeys}. The kneeling leg
- * steps back onto its tucked toes while the hips run a course along the
- * heading that keeps the extrapolated centre of mass between the feet
- * ({@link AutoMovieMotionHumanCourse}; Hof, Gazendam and Sinke 2005): it goes
- * from where it stands to the middle between the two feet as the foot
- * travels, so the hips trail the foot and arrive after it lands. Through the
+ * steps back onto its tucked toes while the hips travel along the heading
+ * from where they stand to where the step key puts them as the foot travels,
+ * so they trail the foot and arrive after it lands; with the physics option
+ * (`IAutoMovieMotionHumanPhysics.balance`) they run instead a course that
+ * keeps the extrapolated centre of mass between the feet
+ * ({@link AutoMovieMotionHumanCourse}; Hof, Gazendam and Sinke 2005), going
+ * to the middle between the two feet. Through the
  * step the hips ride as high as the less extended leg reaches its foot, the
  * reach going from the standing leg's to `REACH` of its length, a reverse
  * lunge, and the pelvis tips forward by what keeps the leg behind inside the
@@ -113,7 +116,7 @@ export namespace kneel {
    * @evidence contracts/development/implementation.md#principled-implementation Key states joined by minimum-jerk phases; on its feet the hips follow the balance course and the legs' reach, sitting back they turn about the knees; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key states, a phase list, one body row and two hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The constants are named and provisional; the root is lowered only where a planted leg cannot reach.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key solve and three balance courses per plan (the step's, read for the landing height, then down and up), about a hundred posture solves each; each posture costs one lowering and two arm solves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key solve per plan, and without the physics option no balance course (the hips follow the step key's line); with it three balance courses (the step's, read for the landing height, then down and up), about a hundred posture solves each; each posture costs one lowering and two arm solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Probe and actual-duration stand plans independently observe the borrowed entry in their original construction order. Fixed own key/foot/root phases prepare once. Course construction and body writes lend current FK only to actual raw hip lowering; original full course fits and required root/trunk/leg prefix channels remain.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its key states and the base.
    */
@@ -325,81 +328,101 @@ export namespace kneel {
       );
     };
 
-    // The courses: going down, the extrapolated centre of mass goes from
-    // where it stands to the middle between the feet as the foot travels;
+    // How far along the step the course stands at a second: going down it
+    // goes from where the body stands to the step's end as the foot travels;
     // coming up it is back over the standing foot while the knee leaves the
-    // floor, before the foot behind lifts. The landing height is read from
-    // the step's own course first.
-    const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): number =>
-      Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
-    const stood: number = centre(standing);
-    const middle: number =
-      (["left", "right"] as const)
-        .map((side: "left" | "right"): number => {
-          const foot: kneelKeys.IFoot = keys[1]!.feet[side];
-          return Vector3.dot(
-            HumanFoot.point(
-              body,
-              side,
-              "sole",
-              HumanFoot.pivot(
-                body,
-                side,
-                "mtp",
-                foot.at,
-                foot.heading,
-                foot.pitch,
-              ),
-              foot.toes,
-            ),
-            solved.forward,
-          );
-        })
-        .reduce((x: number, y: number): number => x + y, 0) / 2;
-    const course: (from: number, to: number, start: number) => (seconds: number) => number = (
-      from: number,
-      to: number,
-      start: number,
-    ): ((seconds: number) => number) =>
-      AutoMovieMotionHumanCourse.solve({
-        body,
-        yaw,
-        posture: (
-          seconds: number,
-          along: number,
-          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
-        target: (seconds: number): number => {
-          const { phase, u }: ReturnType<typeof at> = at(seconds);
-          const share: number =
-            phase.from < phase.to
-              ? phase.from === 0
-                ? u
-                : 1
-              : phase.from === 2
-                ? 1 - u
-                : 0;
-          return stood + (middle - stood) * share;
-        },
-        from,
-        to,
-        start,
-      });
+    // floor, before the foot behind lifts.
+    const share: (seconds: number) => number = (seconds: number): number => {
+      const { phase, u }: ReturnType<typeof at> = at(seconds);
+      return phase.from < phase.to
+        ? phase.from === 0
+          ? u
+          : 1
+        : phase.from === 2
+          ? 1 - u
+          : 0;
+    };
+
+    // The courses. Without the physics option the hips travel the step's own
+    // key line, from where they stand to where the step key puts them, on
+    // that share (`IAutoMovieMotionHumanPhysics`: no centre of mass is read).
+    // With it, the extrapolated centre of mass goes from where it stands to
+    // the middle between the feet (`AutoMovieMotionHumanCourse`); the
+    // landing height is read from the step's own course first.
     const landing: number = clock.at(phases[1]!.name);
-    heights.landed = write(
-      standing,
-      landing,
-      course(0, landing, 0)(landing),
-    ).root.y;
-    courses[0] = course(0, clock.at(phases[2]!.name), 0);
     const off: IPhase | undefined = phases.find(
       (p: IPhase): boolean => p.from === 2 && p.to === 1,
     );
-    if (off !== undefined)
-      courses[1] = course(clock.at(off.name), duration, kneeling);
-
+    if (!HumanPhysics.balanced(context.params)) {
+      const stepped: number = Vector3.dot(
+        Vector3.subtract(keys[1]!.root, standing.root),
+        solved.forward,
+      );
+      // The step key's place from the moment the foot lands; the way down
+      // to the knee and back up to standing blend from it (`write`).
+      const keyed: (seconds: number) => number = (seconds: number): number => {
+        const { phase, u }: ReturnType<typeof at> = at(seconds);
+        return stepped * (phase.from === 0 && phase.to === 1 ? u : 1);
+      };
+      heights.landed = write(standing, landing, keyed(landing)).root.y;
+      courses[0] = keyed;
+      if (off !== undefined) courses[1] = keyed;
+    } else {
+      const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): number =>
+        Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
+      const stood: number = centre(standing);
+      const middle: number =
+        (["left", "right"] as const)
+          .map((side: "left" | "right"): number => {
+            const foot: kneelKeys.IFoot = keys[1]!.feet[side];
+            return Vector3.dot(
+              HumanFoot.point(
+                body,
+                side,
+                "sole",
+                HumanFoot.pivot(
+                  body,
+                  side,
+                  "mtp",
+                  foot.at,
+                  foot.heading,
+                  foot.pitch,
+                ),
+                foot.toes,
+              ),
+              solved.forward,
+            );
+          })
+          .reduce((x: number, y: number): number => x + y, 0) / 2;
+      const course: (from: number, to: number, start: number) => (seconds: number) => number = (
+        from: number,
+        to: number,
+        start: number,
+      ): ((seconds: number) => number) =>
+        AutoMovieMotionHumanCourse.solve({
+          body,
+          yaw,
+          posture: (
+            seconds: number,
+            along: number,
+            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+          ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
+          target: (seconds: number): number => stood + (middle - stood) * share(seconds),
+          from,
+          to,
+          start,
+        });
+      heights.landed = write(
+        standing,
+        landing,
+        course(0, landing, 0)(landing),
+      ).root.y;
+      courses[0] = course(0, clock.at(phases[2]!.name), 0);
+      if (off !== undefined)
+        courses[1] = course(clock.at(off.name), duration, kneeling);
+    }
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       reads: ["root", "trunk", "leftLeg", "rightLeg"],

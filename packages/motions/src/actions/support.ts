@@ -17,6 +17,7 @@ import type {
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { crawl } from "../floor/crawl";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -35,9 +36,10 @@ const BLEND: number = 0.3;
  * bearing before any contact the next stance lacks lets go.
  *
  * A key posture is the static multi-contact posture nearest the posture the
- * body enters with that puts every contact on its target, keeps the centre
- * of mass over the hull of the bearing contacts and every joint in its range
- * (`HumanBodyFit`, Bouyarmane and Kheddar 2010; Escande, Kheddar and
+ * body enters with that puts every contact on its target and keeps every
+ * joint in its range, and with the physics option
+ * (`IAutoMovieMotionHumanPhysics.balance`, off by default) the centre of mass
+ * over the hull of the bearing contacts (`HumanBodyFit`, Bouyarmane and Kheddar 2010; Escande, Kheddar and
  * Miossec 2013), solved from the key before it, as a planner grows its next
  * stance from its parent. Between two stances the planner solves a third key
  * on the union of both stances' contacts, so the new contacts bear before
@@ -244,6 +246,10 @@ export namespace support {
     ): IAutoMovieMotionHumanPosture =>
       stance.prefer === undefined ? from : preference(stance, from);
 
+    // Whether the keys keep the centre of mass over what bears: the physics
+    // option, off by default (`IAutoMovieMotionHumanPhysics`).
+    const balanced: boolean = HumanPhysics.balanced(context.params);
+
     // Each key: one fit on its contacts, whose seed is selected by constraint violation.
     const keys: IKey[] = [
       { posture: preferred, seconds: 0, name: "start", contacts: [] },
@@ -327,6 +333,7 @@ export namespace support {
                 return top === null ? [] : [top];
               },
             ),
+            balanced,
           ),
           seconds,
           name: `lift${i}`,
@@ -343,6 +350,8 @@ export namespace support {
             place,
             `bear${i}`,
             MISS,
+            [],
+            balanced,
           ),
           seconds,
           name: `bear${i}`,
@@ -361,6 +370,8 @@ export namespace support {
             place,
             `bear${i}`,
             MISS,
+            [],
+            balanced,
           ),
           seconds,
           name: `bear${i}`,
@@ -379,6 +390,8 @@ export namespace support {
           place,
           `stance${i}`,
           MISS,
+          [],
+          balanced,
         ),
         seconds,
         name: stance.event ?? `stance${i}`,

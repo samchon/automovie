@@ -3,6 +3,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPhysics,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -12,6 +13,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -29,10 +31,11 @@ import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
  * Each foot rolls onto its toes where it stood (`crawlFeet.rolled`), into
  * the tucked foot the crawl kneels on, so no sole contact slides and no toe
  * sinks. Until a second support bears, the feet
- * alone carry the body, so the centre of mass must stay over them: the body
- * first sits down onto its knees with the trunk upright, the hips as far back
- * over the feet as balance asks (`HumanBalance.shift`) and the knee's sitting
- * flexion lets (`kneelKeys.SIT`). With the knees down, the feet and the knees
+ * alone carry the body: the body first sits down onto its knees with the
+ * trunk upright, the hips as far back as the knee's sitting flexion lets
+ * (`kneelKeys.SIT`) and the knees still land, and with the physics option
+ * (`IAutoMovieMotionHumanPhysics.balance`, off by default) no further back
+ * than keeps the centre of mass over the feet (`HumanBalance.shift`). With the knees down, the feet and the knees
  * bear, so the trunk leans until the palms reach their places, the shoulders
  * as far from the wrists as the crawl holds them, with the hips as far back
  * as keeps the centre of mass behind the knees, or behind the feet's toes
@@ -102,6 +105,9 @@ export namespace crawlDown {
 
     /** Whether the knees stop over the floor (a bear crawl), so until the hands land the feet alone bear the lean. */
     hover: boolean;
+
+    /** The physical terms asked (`IAutoMovieMotionHumanPhysics`): absent, the hips sit and lean back as far as the knees still land, and no centre of mass is read. */
+    physics?: IAutoMovieMotionHumanPhysics;
   }
 
   /**
@@ -345,7 +351,8 @@ export namespace crawlDown {
       // Sitting onto the knees, the feet alone bear: the hips as far back
       // as balance over the feet asks, the trunk upright.
       const sitting: number = furthest((): number => 0);
-      const satBack: number = Math.min(
+      const balanced: boolean = HumanPhysics.balanced(props);
+      const satBack: number = !balanced ? sitting : Math.min(
         sitting,
         HumanBalance.shift(
           body,
@@ -364,8 +371,9 @@ export namespace crawlDown {
       const error: (back: number) => number = (back: number): number =>
         along(read.centre(at(back, leanAt(back)))) - along(behind);
       const leaning: number = Math.min(sitting, furthest(leanAt));
-      const leantBack: number =
-        error(0) <= 0
+      const leantBack: number = !balanced
+        ? leaning
+        : error(0) <= 0
           ? 0
           : error(leaning) > 0
             ? leaning

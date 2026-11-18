@@ -29,6 +29,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -54,9 +55,10 @@ import { gestureHands } from "./gestureHands";
  * goals: the foot on the side away from the force steps back along the
  * force's line by `STAGGER` leg lengths and out until the feet stand a
  * shoulder width apart (a staggered, wider base); the pelvis drops until
- * the knees flex `KNEE` degrees and is then moved so the engine's
- * whole-body centre of mass stands over the middle of the new base's hull,
- * found on the solved posture; the trunk inclines 10 degrees toward the
+ * the knees flex `KNEE` degrees over the middle of the new base and, with
+ * the physics option (`IAutoMovieMotionHumanPhysics.balance`, off by
+ * default), is then moved so the engine's whole-body centre of mass stands
+ * over the middle of the new base's hull, found on the solved posture; the trunk inclines 10 degrees toward the
  * force; and both palms come up ahead of the chest's front surface (its
  * sternum region) along the force, facing it for an `impact` or a `push`,
  * turned up and lower to receive a `catchBody`. The arms rise from the
@@ -245,8 +247,9 @@ export namespace brace {
     const legsAt: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const bearing: number = Math.cos((forward * Math.PI) / 180);
 
-    // The set root: lowered by the knee flexion, then moved twice so the
-    // engine's centre of mass stands over the middle of the new base's hull.
+    // The set root: lowered by the knee flexion over the middle of the new
+    // base, then, with the physics option, moved twice so the engine's centre
+    // of mass stands over the middle of the new base's hull.
     const goal: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
@@ -272,6 +275,9 @@ export namespace brace {
         y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
         z: settled.z - centre.z,
       };
+      // Without the physics option the root stays lowered over the middle of
+      // the new base, and no centre of mass is read.
+      if (HumanPhysics.balanced(p))
       for (let round: number = 0; round < 2; round++) {
         const held: ReturnType<typeof HumanBalance.support> = HumanBalance.support(body, setAt(at), resolution, projection);
         const hull: IAutoMovieVector3[] = convexHull2D(held.points);

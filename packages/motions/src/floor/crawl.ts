@@ -356,6 +356,7 @@ export namespace crawl {
         : crawlDown.of({
             body,
             standing,
+            physics: context.params.physics,
             entry: context.entry.pose,
             sit: ((kneel.PHASES.lower + kneel.PHASES.sit) * period) / CYCLE,
             kneeling: (

@@ -223,6 +223,7 @@ export namespace motionComposeTrunk {
       pitch: number,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanTrunk.crouch({
+        physics: { balance: true },
         body,
         standing,
         clock: CLOCK,
@@ -305,6 +306,7 @@ export namespace motionComposeTrunk {
     );
     const bare: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanTrunk.crouch({
+        physics: { balance: true },
         body,
         standing: angles,
         clock: CLOCK,

@@ -27,6 +27,7 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -64,7 +65,9 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * allow: a full squat with flat heels leaves the thigh past the hip's range
  * at the crouching ankle, so it asks for `heels: "up"`.
  *
- * The trunk's forward inclination is found by bisection at every eighth of
+ * With the physics option (`IAutoMovieMotionHumanPhysics.balance`; off by
+ * default, when the trunk keeps the inclination it stands with and no centre
+ * of mass is read) the trunk's forward inclination is found by bisection at every eighth of
  * the descent, and by a secant search from those between them, so that the
  * whole-body centre of mass keeps a straight course over the soles, with no
  * speed to carry it off them: it stays where it stands with the heels flat,
@@ -424,9 +427,13 @@ export namespace crouch {
     // stands, or as near to that as the most inclination brings it at the
     // lowest pose; with the heels rising it reaches the middle of the
     // forefoot (`HumanBalance.offset`) by the share the heels leave the
-    // floor at, and stays over it.
+    // floor at, and stays over it. That course is the physics option's
+    // (`IAutoMovieMotionHumanPhysics.balance`); without it no centre of mass
+    // is read and the trunk keeps the upright inclination it stands with.
     const inclination: ReturnType<typeof prepareCrouchInclination> =
-      prepareCrouchInclination({
+      !HumanPhysics.balanced(context.params)
+        ? (): number => 0
+        : prepareCrouchInclination({
         body,
         forward,
         most,

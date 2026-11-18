@@ -65,7 +65,7 @@ export namespace knockdown {
   export const name: AutoMovieMotionHumanActionName = "knockdown";
 
   /** A knockdown's content is a staged fall, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
-  export const physical: true = true;
+  export const physical: boolean = true;
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};

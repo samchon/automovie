@@ -375,6 +375,7 @@ export namespace gesture {
             from: 0,
             to: duration,
             weight,
+            physics: p.physics,
           })
         : undefined;
     const prior: (t: number, geometry?: boolean,

@@ -87,7 +87,7 @@ export namespace perturb {
   export const name: AutoMovieMotionHumanActionName = "perturb";
 
   /** A perturbation's content is the body's physical answer to a force (a shove, a pull, a throw), so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
-  export const physical: true = true;
+  export const physical: boolean = true;
 
   /** Cancel table: a perturbation flows into a guard or a knockdown, as a stagger does. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
