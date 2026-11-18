@@ -50,7 +50,7 @@ function march(x: number): IAutoMoviePose {
  */
 export function test_film_camera_focus_pull(): void {
   const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite();
-  const staged: IAutoMovieStagedSet = stageScene(
+  const staging: IAutoMovieStagedSet = stageScene(
     script,
     makeStagingWrite({
       actors: [
@@ -59,7 +59,8 @@ export function test_film_camera_focus_pull(): void {
       ],
     }),
   );
-  if (staged.success !== true) throw new Error("staging must succeed");
+  if (staging.success !== true) throw new Error("staging must succeed");
+  const staged: IAutoMovieStagedSet.ISuccess = staging;
 
   const frame: IAutoMovieCameraAction = {
     verb: "frame",

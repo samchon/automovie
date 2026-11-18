@@ -83,7 +83,7 @@ export function test_film_playback_rate(): void {
     transition: null,
   };
   const plan: IAutoMovieEditPlan = {
-    sequence: { id: "at-table", name: null },
+    sequence: { id: "at-table", name: "At the table" },
     fps: 24,
     entries: [
       { ...entry, playbackRate: 2 },
