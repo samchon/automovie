@@ -18,7 +18,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
 export function test_human_motion_lexicon_rows_sport_push_small(): void {
   TestValidator.equals(
     "registered plans cover two-arm coordination on the smallest body",
-    LexiconRowNet.rows("sport", LexiconRowNet.SPORT.push, false, "f-small"),
+    LexiconRowNet.rows("sport", ["taiChiPush"], false, "f-small"),
     [],
   );
 }

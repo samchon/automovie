@@ -3,26 +3,32 @@ import { TestValidator } from "@nestia/e2e";
 import { LexiconRowNet } from "../internal/LexiconRowNet";
 
 /**
- * The lexicon registers and plans the sport rows with independent locomotion, exercise, floor or swimming laws on the staged bodies.
+ * Sport rows with a fixed support, hold, direction or distinct swimming stroke accept a standing entry.
  *
  * Scenarios:
- * 1. Each row plans under its own name with the parameters that branch needs.
- * 2. A row with a partner plans with each performer and partner assignment.
+ * 1. The three builds stage each fixed yoga hold and the two-step defensive slide.
+ * 2. Each stages the additional breaststroke, backstroke and floating postures.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names this group's construction boundary and the body and scene variations it exercises.
- * @evidence contracts/development/testing.md#behavioral-verification Places the actual registered law under its authored name on the public chain. A refused or misnamed placement fails the case with the exact row and performer.
- * @evidence contracts/development/testing.md#independent-expectations A registered row must accept the authored fixture and appear under the name the chain asked to place.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains the rows and body pairings of this group. Dedicated law tests own displayed geometry and physical bounds.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test builds in-memory performances on prepared bodies. Each row owns only the registration it uses.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixture, builds and independently staged variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers each row and checks its realized segment name and positive duration after a stand.
+ * @evidence contracts/development/testing.md#independent-expectations The authored row is expected to accept a standing entry at its specified support and hold.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the fixed support and hold combinations, including the child's pose and toe touch, on each build. The direct law sweep stages the exercise, stretch, dance, tread and crawl kinds.
+ * @evidence contracts/development/testing.md#execution-ownership Each retained performance has its own scene and is released after inspection.
  */
 export function test_human_motion_lexicon_rows_sport_remaining(): void {
   TestValidator.equals(
-    "registered plans cover the sport rows with independent locomotion, exercise, floor or swimming laws",
-    LexiconRowNet.rows(
-      "sport",
-      Object.values(LexiconRowNet.SPORT).flat(),
-      true,
-    ),
+    "fixed sport entries and additional swimming strokes plan on the staged builds",
+    LexiconRowNet.rows("sport", [
+      "defensiveSlide",
+      "chairPose",
+      "childsPose",
+      "hipFlexorStretch",
+      "corpsePose",
+      "toeTouch",
+      "breaststroke",
+      "backstroke",
+      "floating",
+    ]),
     [],
   );
 }

@@ -18,7 +18,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
 export function test_human_motion_lexicon_rows_sport_push_large(): void {
   TestValidator.equals(
     "registered plans cover two-arm coordination on the largest body",
-    LexiconRowNet.rows("sport", LexiconRowNet.SPORT.push, false, "m-large"),
+    LexiconRowNet.rows("sport", ["taiChiPush"], false, "m-large"),
     [],
   );
 }

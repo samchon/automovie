@@ -3,7 +3,7 @@ import { HUMAN_LEXICON } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The public sport catalogue resolves named postures and ball techniques to their authored law parameters.
+ * The public sport catalogue resolves exercise, dance, swimming and ball techniques to their authored law parameters.
  *
  * Scenarios:
  * 1. Each authored name occurs exactly once in the public catalogue and identifies its expected law.
@@ -18,6 +18,18 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_human_motion_lexicon_sport_dispatch(): void {
   const techniques: readonly Technique[] = [
+    ["lunges", "exercise", "lunge"],
+    ["highKnees", "exercise", "highKnees"],
+    ["neckStretch", "stretch", "neckSide"],
+    ["shoulderStretch", "stretch", "crossBody"],
+    ["sideStretch", "stretch", "overheadSide"],
+    ["quadStretch", "stretch", "quadriceps"],
+    ["treePose", "stretch", "tree"],
+    ["bounce", "dance", "bounce"],
+    ["stepTouch", "dance", "stepTouch"],
+    ["boxStep", "dance", "boxStep"],
+    ["treadWater", "swim", "treadWater"],
+    ["frontCrawl", "swim", "frontCrawl"],
     ["sprintStart", "athletics"],
     ["handstand", "gymnastics"],
     ["horseStance", "martialArt", "horseStance"],

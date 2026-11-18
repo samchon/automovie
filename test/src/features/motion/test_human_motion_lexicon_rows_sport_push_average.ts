@@ -18,7 +18,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
 export function test_human_motion_lexicon_rows_sport_push_average(): void {
   TestValidator.equals(
     "registered plans cover two-arm coordination on the average body",
-    LexiconRowNet.rows("sport", LexiconRowNet.SPORT.push, false, "m-average"),
+    LexiconRowNet.rows("sport", ["taiChiPush"], false, "m-average"),
     [],
   );
 }

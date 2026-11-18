@@ -112,16 +112,6 @@ export namespace LexiconRowNet {
     ["f-small", "m-average"],
   ];
 
-  /** Sport branches with separate contact or airborne geometry. */
-  export const SPORT: Readonly<Record<SportGroup, readonly string[]>> = {
-    start: ["sprintStart", "handstand"],
-    martial: ["horseStance", "karatePunches"],
-    push: ["taiChiPush"],
-    ball: ["dribble", "volleyDig", "volleySet", "throwIn"],
-    baseball: ["catcherCrouch", "fieldGrounder", "battingStance"],
-    racket: ["readyPosition", "splitStep", "golfAddress"],
-  };
-
   /** A performer's chain out of a short stand. */
   const starting = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
@@ -445,9 +435,6 @@ export namespace LexiconRowNet {
 
 /** The subject and partner, from the same public body fixture. */
 type Pairing = readonly [motionHumanBody.Name, motionHumanBody.Name];
-
-/** A sport group with independent entry or target geometry. */
-type SportGroup = "start" | "martial" | "push" | "ball" | "baseball" | "racket";
 
 /** The composition seam a lexicon test builds. */
 type Build = () => Pick<IAutoMovieMotionHumanChain, "node">;
