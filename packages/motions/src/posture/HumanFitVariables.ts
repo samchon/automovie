@@ -173,45 +173,6 @@ export namespace HumanFitVariables {
   }
 
   /**
-   * A posture moved by a share of the difference between two others, over
-   * the variables: how a fit's correction where a span starts or ends is
-   * carried into or out of the span.
-   *
-   * @param variables The variables.
-   * @param posture The posture moved, by its joint angles alone.
-   * @param from The posture the difference is taken from.
-   * @param to The posture the difference is taken to.
-   * @param share The share of the difference, from 0 to 1.
-   * @returns The moved posture.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Adds share times the to-minus-from difference to each current posture coordinate, preserving the existing linear blend in metres or degrees.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads three vectors, forms the shifted vector, then delegates posture reconstruction to written.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps scalar multiplication and addition order and performs no angular wrap, range expansion or substituted interpolation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(j+n) time and storage, including written's j stored joint records and n variable coordinates.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses vector and written as the single coordinate correspondence rather than duplicating posture traversal rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate vectors live only for the call; the returned posture owns its changed records and the module retains no blend state.
-   * @evidence contracts/development/common.md#meaningful-documentation States the difference, share, units, linear convention and output ownership.
-   */
-  export function shifted(
-    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
-    posture: IAutoMovieMotionHumanPosture,
-    from: IAutoMovieMotionHumanPosture,
-    to: IAutoMovieMotionHumanPosture,
-    share: number,
-  ): IAutoMovieMotionHumanPosture {
-    const a: Float64Array = vector(variables, from);
-    const b: Float64Array = vector(variables, to);
-    return written(
-      variables,
-      posture,
-      Float64Array.from(
-        vector(variables, posture),
-        (v: number, i: number): number => v + share * (b[i]! - a[i]!),
-      ),
-    );
-  }
-
-  /**
    * Each variable's rows for one step, in solved units: within its range and
    * the trust region. An axis the table locks, or one set outside its range
    * (which the resolver clamps), does not move.

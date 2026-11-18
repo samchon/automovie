@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
@@ -201,7 +202,7 @@ export namespace HumanHand {
     curl: number = 0,
   ): IAutoMovieMotionHumanHand.IFrame {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-    const palm =
+    const palm: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket];
     switch (surface) {
       case "wrist":
@@ -213,7 +214,7 @@ export namespace HumanHand {
       case "palm":
       case "grip":
       case "fist": {
-        const frame =
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.sockets[`${surface}${Side}` as AutoMovieHumanoidSocket];
         return {
           point: frame.point,
@@ -222,7 +223,7 @@ export namespace HumanHand {
         };
       }
       case "handBack": {
-        const frame =
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[`handBack${Side}` as AutoMovieHumanoidRegion];
         return {
           point: frame.point,

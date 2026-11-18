@@ -24,7 +24,7 @@ import { HumanJacobian } from "./HumanJacobian";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what rows a step has, their units and their slopes' source.
  * @evidence contracts/development/design.md#principled-representation A row and the reading it linearises, so the fit can measure how far a trial missed the row's linear model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the reading, annotated rows, shared goal-error aliases, contact/floor builders and lowest-candidate selection consumed by the fit and its merit.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the reading, annotated rows, contact/floor builders and lowest-candidate selection consumed by the fit and its merit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The slopes are the shared Jacobian's and the balance's own.
  */
 export namespace HumanBodyFitRows {
@@ -271,24 +271,6 @@ export namespace HumanBodyFitRows {
       }),
     );
   }
-
-  /** Rotation-error owner, retained under the existing public name.
-   *
-   * Identifies the single numerical owner and this preserved alias.
-   */
-  export const turn: typeof HumanFitTargets.turn = HumanFitTargets.turn;
-
-  /** Planar-normal error owner, retained under the existing public name.
-   *
-   * Identifies the single normal-error owner and preserved name.
-   */
-  export const tilt: typeof HumanFitTargets.tilt = HumanFitTargets.tilt;
-
-  /** Transverse-frame owner, retained under the existing public name.
-   *
-   * Identifies the shared transverse-frame owner and preserved name.
-   */
-  export const across: typeof HumanFitTargets.across = HumanFitTargets.across;
 
   /**
    * Each bearing part's lowest support candidate at a reading: the point

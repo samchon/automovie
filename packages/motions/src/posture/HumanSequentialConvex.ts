@@ -16,18 +16,6 @@ import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface
  * reading.
  */
 export namespace HumanSequentialConvex {
-    /**
-
-
-  
-
-  
-
-  
-
-  
-  
-
   /**
    * The steering's constants (`IOptions.steer`), as KNITRO-Active applies
    * Algorithm 5.1 (Byrd, Nocedal and Waltz, p. 13 of the 2007 technical

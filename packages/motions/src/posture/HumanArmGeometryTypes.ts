@@ -1,59 +1,18 @@
 import type {
-  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 /**
- * The rig, frame and placed-geometry records shared by arm trajectories.
- * HumanArmGeometry keeps its existing public interfaces by inheriting these fields.
+ * The base record an arm frame is built from, shared by arm trajectories.
+ * HumanArmGeometry keeps its existing public `IBase` by inheriting it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines each record's coordinate frame, units, shape/probe ordering and borrowed ownership, including the setup's unchanged-operation scope.
- * @evidence contracts/development/design.md#principled-representation Separates fixed rig metadata, per-instant collision geometry and resulting FK points, with world metres, clinical degrees and unit quaternion rotations imported from their existing owners.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These five records are the existing geometry, trajectory, Jacobian and clearance consumers' shared data; HumanArmGeometry interfaces inherit these shapes and preserve their established declaration-merging surface.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No new motion or collider representation is introduced; parallel probe arrays and nine-coordinate arrays still require caller-consistent ordering and sizes.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the base's pose and world-placed external colliders and their borrowed ownership.
+ * @evidence contracts/development/design.md#principled-representation A canonical pose and world-placed collider segments, types imported from their existing owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This base record is the frame builder's and trajectory contexts' shared input; HumanArmGeometry.IBase inherits it and preserves its established declaration-merging surface.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No new motion or collider representation is introduced.
  */
 export namespace HumanArmGeometryTypes {
-  /**
-   * The interface contract (IAutoMovieMotionHumanArmGeometry.IShape).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmGeometryTypes.IShape: The interface contract (IAutoMovieMotionHumanArmGeometry.IShape).
-   * @evidence contracts/development/design.md#principled-representation The record is the interface's (`IAutoMovieMotionHumanArmGeometry.IShape`); the alias adds nothing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
-   */
-  export type IShape = IAutoMovieMotionHumanArmGeometry.IShape;
-
-  /**
-   * The interface contract (IAutoMovieMotionHumanArmGeometry.ISetup).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmGeometryTypes.ISetup: The interface contract (IAutoMovieMotionHumanArmGeometry.ISetup).
-   * @evidence contracts/development/design.md#principled-representation The record is the interface's (`IAutoMovieMotionHumanArmGeometry.ISetup`); the alias adds nothing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
-   */
-  export type ISetup = IAutoMovieMotionHumanArmGeometry.ISetup;
-
-  /**
-   * The interface contract (IAutoMovieMotionHumanArmGeometry.IFrame).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmGeometryTypes.IFrame: The interface contract (IAutoMovieMotionHumanArmGeometry.IFrame).
-   * @evidence contracts/development/design.md#principled-representation The record is the interface's (`IAutoMovieMotionHumanArmGeometry.IFrame`); the alias adds nothing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
-   */
-  export type IFrame = IAutoMovieMotionHumanArmGeometry.IFrame;
-
-  /**
-   * The interface contract (IAutoMovieMotionHumanArmGeometry.IPlaced).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmGeometryTypes.IPlaced: The interface contract (IAutoMovieMotionHumanArmGeometry.IPlaced).
-   * @evidence contracts/development/design.md#principled-representation The record is the interface's (`IAutoMovieMotionHumanArmGeometry.IPlaced`); the alias adds nothing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
-   */
-  export type IPlaced = IAutoMovieMotionHumanArmGeometry.IPlaced;
-
   /**
    * A pose and external collider placements used to construct one arm frame.
    *

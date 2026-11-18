@@ -3,7 +3,6 @@ import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
   IAutoMovieMotionHumanJacobian,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieVector3,
@@ -97,31 +96,13 @@ export namespace HumanBodyFit {
   const NEAR: number = 0.08;
 
   /**
-   * The fitted posture.
-   *
-   * @param props The fit.
-   * @returns The posture, by joint angles alone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture `fit` solves.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a law that needs the residuals reads `fit`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The cost of `fit`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function solve(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanPosture {
-    return fit(props).posture;
-  }
-
-  /**
    * The fit and what it misses by.
    *
    * @param props The fit.
    * @returns The fitted posture, each target's residual, the balance's, whether it converged and why the loop stopped.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model equals the merit at no step.
+   * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model and the merit agree at the iterate they are taken about.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading/merit and shared loop; each fixed linearization owns fresh price shells. A selected step's trial getter selects its captured SOC model/delta, so a later discarded steering solve cannot replace the correction's basis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is a priced row and every collider near the floor a row; a residual is measured on the fitted posture, never taken from the model.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds the owning FK/Jacobian and sequential-convex/QP costs with actual projections per candidate. Each linearization admits fixed P/q/A once; radius/SOC refresh intervals. When all soft prices are implicit, steering reprices O(m) rows without another Jacobian/geometry pass. Explicit-price problems retain full convexification; actual steps and diagnostics remain unchanged and speedup is unmeasured.

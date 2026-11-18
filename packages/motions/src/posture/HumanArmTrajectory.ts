@@ -38,7 +38,7 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * where that reading fails. Two arms that move over one span are one
  * problem, their probes kept clear of each other as they both move:
  * planning one after the other is incomplete where their paths are coupled
- * (Erdmann and Lozano-P챕rez 1987, Algorithmica 2:477). A problem whose first
+ * (Erdmann and Lozano-Perez 1987, Algorithmica 2:477). A problem whose first
  * arm is the left is solved as its mirror image
  * (`HumanArmTrajectoryMirror`), so mirrored scenes give mirrored paths. A
  * problem still infeasible at the last penalty is refused.

@@ -11,8 +11,8 @@ import { HumanQuadraticValue } from "./HumanQuadraticValue";
  * A convex quadratic program with banded curvature and sparse rows, solved
  * by OSQP (Stellato, Banjac, Goulart, Bemporad and Boyd 2020, "OSQP: an
  * operator splitting solver for quadratic programs", Math Program Comput
- * 12:637): minimise `쩍 x巢Px + q巢x` over rows `l <= a쨌x <= u`, each row hard
- * (projected onto its interval) or soft (an exact l1 penalty `weight 횞` its
+ * 12:637): minimise `1/2 x^T P x + q^T x` over rows `l <= a.x <= u`, each row hard
+ * (projected onto its interval) or soft (an exact l1 penalty `weight` times its
  * distance from the interval, whose proximal step is a soft threshold toward
  * it), the form of the convex subproblem of TrajOpt's sequential convex
  * optimisation (Schulman et al. 2014, IJRR 33:1251).
@@ -34,8 +34,8 @@ import { HumanQuadraticValue } from "./HumanQuadraticValue";
  *   kept when its residuals are no larger.
  *
  * The curvature and the rows only couple variables within `band` of each
- * other, so every linear system is the banded reduced form `P + ?I + A巢
- * diag(?) A` (the paper's indirect form), factored by a banded Cholesky
+ * other, so every linear system is the banded reduced form `P + sigma I + A^T
+ * diag(rho) A` (the paper's indirect form), factored by a banded Cholesky
  * factorisation (`HumanQuadraticBand`). A warm start carries the iterates of
  * a solve of the same rows with other bounds. `HumanQuadraticPreparation`
  * shares complete numeric preparation only after exact P, q and ordered
@@ -60,13 +60,6 @@ export namespace HumanQuadraticProgram {
    * Names the inherited relative residual tolerance and distinguishes residual convergence from a componentwise solution-error guarantee.
    */
   export const TOLERANCE: number = 1e-3;
-
-  /**
-
-
-  
-
-  
 
   /**
    * A solve's multipliers by its rows' keys, for the next convexification to
@@ -174,7 +167,7 @@ export namespace HumanQuadraticProgram {
   }
 
   /**
-   * The value of `쩍 x巢Px + q巢x` plus each soft row's penalty: a trust
+   * The value of `1/2 x^T P x + q^T x` plus each soft row's penalty: a trust
    * region's model of the merit.
    *
    * @param problem The problem.

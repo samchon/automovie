@@ -67,9 +67,7 @@ export namespace HumanHandDirection {
         throw new Error("An explicit direction has a length");
     }
     const unit: IAutoMovieVector3 =
-      typeof direction === "string" && local !== undefined
-        ? local
-        : Vector3.normalize(local);
+      typeof direction === "string" ? local : Vector3.normalize(local);
     return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, unit);
   }
   /**
