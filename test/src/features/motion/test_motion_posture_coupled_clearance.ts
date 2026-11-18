@@ -125,7 +125,7 @@ export function test_motion_posture_coupled_clearance(): void {
     TestValidator.equals(
       carry + " anatomical support",
       [row.mine, row.theirs],
-      RESTS[carry],
+      [...RESTS[carry]],
     );
   }
   const pair: readonly [CarryFixture, CarryFixture] = ["m-average", "f-small"];
