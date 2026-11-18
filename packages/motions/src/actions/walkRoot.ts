@@ -97,7 +97,14 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
         2 * thigh * shank * Math.cos((resolveHumanPosture.KNEE * Math.PI) / 180),
     ) - (thigh + shank);
   const gathers: number = props.first + T;
-  const sheds: number = props.last + walkRoot.SHED - props.stop;
+
+  // A planned stop is made over the final step: the last push-off is cut
+  // short and the foot that first reaches its terminal place brakes the
+  // body (Jaeger and Vanitchatchavan 1992, J Biomech 25:1233; Vanitchatchavan
+  // 2009), so the gait's amount sheds from that foot's heel strike, the
+  // second-last, until the closing foot has taken the weight: its heel
+  // strike and its loading response (`LOADING` of the cycle of two steps).
+  const sheds: number = props.last - props.stop + 2 * walkRoot.LOADING * T;
   const over: number = props.firstLeft + props.front * T;
   const middle: number = props.firstLeft + (T - props.swing / 2);
   const amount: (t: number) => number = (t: number): number => {
@@ -146,8 +153,8 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkRoot {
-  /** The hip height the walking excursions are stated at, metres: the hip at which the walk's Froude paces give Bohannon's adult speeds (`walk.FROUDE`). */
-  export const REFERENCE_HIP: number = 0.93;
+  /** The hip height of an average adult, metres, at which gait measurements of ordinary adults are stated and scaled to a body by dynamic similarity: Winter's greater-trochanter height, 0.530 of stature (Winter, Biomechanics and Motor Control of Human Movement, segment table after Drillis and Contini 1966), of the mean stature of United States men aged 20 and over, 175.3 cm (Fryar et al. 2021, Vital Health Stat 3(46), Table 11, NHANES 2015-2018), about 0.93 m. The walk's Froude paces give Bohannon's adult speeds at it (`walk.FROUDE`). */
+  export const REFERENCE_HIP: number = 0.53 * 1.753;
 
   /** The pelvis's sway toward the stance foot at the reference hip, metres: 2 cm, half the 4 cm side-to-side travel of the centre of mass in normal gait (Perry and Burnfield). */
   export const SWAY: number = 0.02;
@@ -158,8 +165,8 @@ export namespace walkRoot {
   /** How far the walking pelvis's mean lies under its standing height at full gait at the reference hip, metres: one `BOB` down, so the pelvis rises to its standing height at mid-stance, where the stance leg stands straight over its foot as an inverted pendulum's, and falls `2 BOB` below it at double support (the inverted-pendulum stance of walking, Cavagna, Heglund and Taylor 1977, Am J Physiol 233:R243). */
   export const BOB_MEAN: number = -BOB;
 
-  /** Seconds past the last footfall the gait amount takes to shed, beyond the span from the second-last heel strike (provisional: the closing step's settling into stance; a search of gait termination timing found only unplanned stops, whose centre of mass comes to rest 0.96 to 1.41 s after the final heel strike, J Appl Biomech, doi 10.1123/jab.2015-0188, too slow for a planned stop). */
-  export const SHED: number = 0.2;
+  /** The share of a gait cycle, two step periods, a foot's loading response takes after its heel strike: the first 10 % of the cycle, the double support in which the limb accepts the body's weight (Perry and Burnfield, phases of gait). */
+  export const LOADING: number = 0.1;
 
   /** Seconds over which the entry root's offset from the planned path fades: the gait's initiation (`WalkPace.FIRST`, Brenière, Do and Bouisset 1987), over which the body leaves its standing root. */
   export const FADE: number = WalkPace.FIRST;

@@ -42,7 +42,7 @@ import { walkWindows } from "./walkWindows";
  * Speed comes from dynamic similarity (Alexander 1984): people of different
  * leg length walk alike at equal Froude number `v^2 / (g l)`, so each pace is
  * a Froude number on the hip height `l`: slow 0.12, normal 0.20 and fast
- * 0.32, which give 1.05, 1.35 and 1.71 m/s at a 0.93 m hip, inside the
+ * 0.32, which give 1.05, 1.35 and 1.71 m/s at the reference hip (`walkRoot.REFERENCE_HIP`, 0.93 m), inside the
  * comfortable and fast adult ranges (Bohannon 1997). Step length grows with
  * the square root of speed (Grieve and Gear 1966): `1.2 l sqrt(sqrt(Fr))`,
  * 0.8 hip heights at the normal pace (about 0.4 stature, Perry and Burnfield);
@@ -105,7 +105,7 @@ export namespace walk {
     "rightArm",
   ];
 
-  /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
+  /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at `walkRoot.REFERENCE_HIP`). */
   export const FROUDE: Readonly<Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>> =
     { slow: 0.12, normal: 0.2, fast: 0.32 };
 
@@ -146,8 +146,26 @@ export namespace walk {
     );
   }
 
-  /** The ankle's mid-swing lift above the line between its footprints, hip heights (provisional, no measured ankle lift was read: about 6.5 cm at a 0.93 m hip; the toe's own clearance is bounded separately, `walkFoot.CLEARANCE`). */
-  export const LIFT: number = 0.07;
+  /**
+   * The ankle's lift above its standing height at the middle of the swing,
+   * hip heights. The swing's middle, 80 % of the gait cycle, is the middle of
+   * Perry and Burnfield's mid-swing (73 to 87 %), between initial swing's end
+   * (hip flexed 15°, knee 60°) and mid-swing's end (hip 25°, knee 25°); read
+   * linearly there, the hip is flexed 20° and the knee 42.5°. A thigh `a` at
+   * hip flexion `h` and a shank `b` at `h - k` from vertical put the ankle
+   * `a (1 - cos h) + b (1 - cos (h - k))` above its standing height. With the
+   * thigh and the shank as shares of the hip height in Winter's segment table
+   * (greater trochanter at 0.530, knee at 0.285 and ankle at 0.039 of
+   * stature; Winter, Biomechanics and Motor Control of Human Movement, after
+   * Drillis and Contini 1966), that is about 0.063 hip heights, some 6 cm at
+   * the reference hip (`walkRoot.REFERENCE_HIP`). The toe's own clearance is bounded separately
+   * (`walkFoot.CLEARANCE`).
+   */
+  export const LIFT: number =
+    ((0.53 - 0.285) * (1 - Math.cos((((15 + 25) / 2) * Math.PI) / 180)) +
+      (0.285 - 0.039) *
+        (1 - Math.cos(((((15 + 25) / 2 - (60 + 25) / 2)) * Math.PI) / 180))) /
+    0.53;
 
   /** The arms' swing about the shoulder, degrees either way (Perry and Burnfield, normal gait kinematics: about 15°). */
   export const SHOULDER: number = 15;
