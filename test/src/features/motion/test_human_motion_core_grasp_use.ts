@@ -1,8 +1,4 @@
-import {
-  createDrinkware,
-  createSmoking,
-  createSword,
-} from "@automovie/archetypes";
+import { createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
@@ -55,13 +51,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the grasp is judged with. The reading is the angle between that asked line
  * and the line of the displayed sword at the end.
  *
- * Scenarios, on the average man for the lines `forearm` (level ahead, a
- * thrust's), `oblique` (45 degrees up, a sabre grip's) and `square`
- * (upright, a hammer grip's), and on the small woman for `oblique`; the
- * relation of scenario 2 is read on the average man's `forearm` line, the
- * glass on the average man and the cigarette on the small woman. A planned
- * pick-up with a use costs seconds, and each claim is about the rule, so
- * one body per claim with the opposite build on one line is enough:
+ * Scenarios, on the average man for the two ends of the lines' range,
+ * `forearm` (level ahead, a thrust's) and `square` (upright, a hammer
+ * grip's), and on the small woman for `oblique` (45 degrees up, a sabre
+ * grip's) between them; the relation of scenario 2 is read on the average
+ * man's `forearm` line. A planned pick-up with a use costs seconds, and each
+ * claim is about the rule, so each line is read once and each body on a
+ * line of its own: the ends bound the presented line's rise and the middle
+ * one is read on the opposite build, so the average man's `oblique`, which
+ * neither end nor build distinguishes, is not performed. The use at the
+ * mouth is not read here: a glass taken up by its body for its lip at the
+ * mouth, at this spec's place on the average man, is the pick-up
+ * `test_human_motion_core_overlay_hold` plans first, and a cigarette taken
+ * up for its mouth end at the lips on the `forearm` line, at waist height
+ * before the right shoulder on the small woman, is the pick-up
+ * `test_human_motion_prop_held_attitude_f_small` plans; each of those
+ * complains when it does not plan:
  * 1. Picked up with that use, the presented blade lies within `BOUND` of the
  *    asked line: the angle at which the sword's point strays the held-tool
  *    bound (`StrikingRoll.MISS`, the most a grasp chosen for a use may leave
@@ -72,18 +77,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    never makes the use worse.
  * 3. A use whose working point the sword does not declare is refused as an
  *    `affordance` refusal on `use` that lists `point`.
- * 4. A glass at waist height taken up by its body to bring its lip upright
- *    to the mouth (`at: "mouth"`) plans: a grasp exists that also holds
- *    there.
- * 5. A cigarette at waist height before the right shoulder taken up to
- *    bring its mouth end to the lips on the `forearm` line plans: at the
- *    mouth that line runs from the hand back into the face.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the pick-up and a presenting action through the public input and reads the displayed sword's line; a grasp that ignores the use, or a missing refusal, fails with the measured angle.
  * @evidence contracts/development/testing.md#independent-expectations The asked line is built in the test from the body's heading; the displayed line comes from the performance's own carry of the prop. The 15 degrees is the contract the parameter states, marked provisional there, and the comparison with the unnamed use is a relation between two runs.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, two lines a quarter turn apart, with and without the use, a working point the prop lacks, and a use at the mouth for a glass and for a cigarette (each must plan; no angle is read there). What a cut or a thrust then does with the blade is the blade tests'.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, the two ends of the presented line's rise a quarter turn apart on one and its middle on the other, with and without the use, and a working point the prop lacks. A use at the mouth for a glass is `test_human_motion_core_overlay_hold`'s pick-up and for a cigarette `test_human_motion_prop_held_attitude_f_small`'s; what a cut or a thrust then does with the blade is the blade tests'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the staging, the reading and the 5 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the staging, the reading, which line each body reads and why, where the uses at the mouth are read, and the 3 scenarios with their bounds.
  */
 export function test_human_motion_core_grasp_use(): void {
   const complaints: string[] = [];
@@ -295,10 +294,11 @@ export function test_human_motion_core_grasp_use(): void {
       "forearm" | "oblique" | "square",
       number,
     ][]) {
-      // A planned pick-up with a use costs seconds, so the small woman
-      // presents on one line and the relation to the unnamed use is read on
-      // one line of the average man: the claim is the rule, not the body.
-      if (name === "f-small" && use !== "oblique") continue;
+      // A planned pick-up with a use costs seconds, so the average man
+      // presents on the range's two ends and the small woman on its middle,
+      // and the relation to the unnamed use is read on one line of the
+      // average man: the claim is the rule, not the body.
+      if ((name === "f-small") !== (use === "oblique")) continue;
       let named: number;
       let unnamed: number;
       try {
@@ -320,83 +320,6 @@ export function test_human_motion_core_grasp_use(): void {
           `${name}: taken up for the ${use} line the blade lies ${named.toFixed(1)} degrees off it, and ${unnamed.toFixed(1)} with no use named; no worse expected`,
         );
     }
-
-    // 4. A glass taken up to be drunk from, by the average man.
-    if (name === "m-average")
-      try {
-        new HumanPerformance({
-          seed: "grasp",
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          props: [
-            HumanObject.prop("glass", createDrinkware({ kind: "glass" }), {
-              at: { x: 0.15, y: 0.58 * stature, z: 0.17 * stature },
-              yaw: 0,
-            }),
-          ],
-          composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .pickUp({
-              prop: "glass",
-              handle: "body",
-              use: { tip: "lip", line: "square", at: "mouth" },
-            }).node,
-        });
-      } catch (error) {
-        complaints.push(
-          `${name}: a glass taken up to bring its lip upright to the mouth: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-        );
-      }
-
-    // 5. A cigarette taken up to bring its mouth end to the lips, by the
-    // small woman, on whom it was first refused.
-    if (name === "f-small")
-      try {
-        new HumanPerformance({
-          seed: "grasp",
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          props: [
-            HumanObject.prop(
-              "cigarette",
-              createSmoking({ kind: "cigarette" }),
-              {
-                at: {
-                  x: -body.measure.shoulderHalfWidth,
-                  y: body.measure.waistHeight,
-                  z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-                },
-                yaw: 0,
-              },
-            ),
-          ],
-          composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .pickUp({
-              prop: "cigarette",
-              handle: "grip",
-              use: { tip: "mouth", line: "forearm", at: "mouth" },
-            }).node,
-        });
-      } catch (error) {
-        complaints.push(
-          `${name}: a cigarette taken up to bring its mouth end level to the lips: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-        );
-      }
 
     // 3. A working point the sword lacks.
     if (name !== "m-average") continue;
