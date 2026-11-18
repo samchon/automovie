@@ -27,6 +27,7 @@ import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
@@ -165,6 +166,20 @@ export namespace HumanSegmentOverlay {
       }
       return (sides[side] ??= HumanSegment.drives(overlay.plan, side));
     }
+    function postureAt(
+      overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    ): IAutoMovieMotionHumanPosture {
+      const plan: IAutoMovieMotionHumanSegment.IOverlay["plan"] = overlay.plan;
+      const reader: typeof plan.posture = plan.posture;
+      const local: number = Math.min(plan.duration, Math.max(0, seconds - overlay.start));
+      const sample: IAutoMovieMotionHumanPlayback.ISample | undefined =
+        HumanPreparedPlayback.read(
+          plan, body, reader, false, false, undefined,
+          local, undefined, resolution, projection,
+        );
+      return sample?.posture ??
+        Reflect.apply(reader, plan, [local, undefined, resolution, projection]);
+    }
     function build(
       k: number,
       under: IAutoMovieMotionHumanPosture,
@@ -231,12 +246,7 @@ export namespace HumanSegmentOverlay {
       const written: IAutoMovieMotionHumanPosture = (mergers[k] ??=
         AutoMovieMotionHumanChannel.prepareMerge(overlay.channels))(
         under,
-        ((postures ??= [])[k] ??= overlay.plan.posture(
-          Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
-          undefined,
-          resolution,
-          projection,
-        )),
+        ((postures ??= [])[k] ??= postureAt(overlay)),
       );
       const weight: number = ((weights ??= [])[k] ??= Math.min(
         minimumJerk.share(
