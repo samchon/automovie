@@ -198,7 +198,7 @@ export namespace HumanRide {
         }
 
         // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
-        const { lean, gripsAt, closures }: HumanRideHands.IHands =
+        const { lean, gripsAt, closures, bow }: HumanRideHands.IHands =
           HumanRideHands.of(context, on, support, seated, origin);
         const saddle: string | undefined = context.params.seat;
         if (saddle !== undefined && support.prop.points[saddle] === undefined)
@@ -242,8 +242,6 @@ export namespace HumanRide {
                 ),
               );
         };
-        const upright: IAutoMovieQuaternion =
-          resolveHumanPosture.heading(seated);
         const turned: IAutoMovieQuaternion = Quaternion.inverse(
           origin.rotation,
         );
@@ -255,11 +253,13 @@ export namespace HumanRide {
           // The seat sat on is passed on, so getting off after the ride still knows it.
           base: entered,
           posture: (at: number): IAutoMovieMotionHumanPosture => {
-            const now: IAutoMovieRigidTransform = support.frame(
-              context.start + Math.min(seconds, Math.max(0, at)),
-            );
+            const film: number = context.start + Math.min(seconds, Math.max(0, at));
+            const now: IAutoMovieRigidTransform = support.frame(film);
+            const taken: number = minimumJerk(Math.min(1, at / TAKE)).s;
+            const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(film, now);
+            const leant: IAutoMovieMotionHumanPosture = bow(lean(grips, now) * taken);
             const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
-              seated,
+              leant,
               origin,
               now,
             );
@@ -271,7 +271,7 @@ export namespace HumanRide {
             > = resolveHumanPosture.angles(
               Quaternion.multiply(
                 Quaternion.multiply(now.rotation, turned),
-                upright,
+                resolveHumanPosture.heading(leant),
               ),
             );
 
@@ -292,8 +292,6 @@ export namespace HumanRide {
             );
 
             // A foot on a part that moves within the support goes with the part: by how far the part has left the place the support alone would have carried it to.
-            const film: number =
-              context.start + Math.min(seconds, Math.max(0, at));
             const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
               ...carried.limbs,
             };
@@ -309,18 +307,12 @@ export namespace HumanRide {
                 ),
               };
             }
-            // What the hands hold now, read once for the lean and the holds.
-            const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> =
-              gripsAt(film, now);
             const seat: IAutoMovieVector3 =
               sat === undefined || saddle === undefined
                 ? { x: 0, y: 0, z: 0 }
                 : strayed(saddle, sat, film, now);
             const out: IAutoMovieMotionHumanPosture = {
-              ...HumanMountRider.leant(
-                carried,
-                lean(grips, now) * minimumJerk(Math.min(1, at / TAKE)).s,
-              ),
+              ...carried,
               limbs,
               root: {
                 x: carried.root.x + seat.x + up.x * lift,
@@ -345,7 +337,7 @@ export namespace HumanRide {
                   side,
                   out,
                   grip,
-                  minimumJerk(Math.min(1, at / TAKE)).s,
+                  taken,
                   closures[side] ?? {},
                 );
               limbs[`${side}Arm`] = held.arm;

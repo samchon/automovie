@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -17,8 +18,8 @@ import { HumanMountRider } from "./HumanMountRider";
  * hold (`HumanMountRider.lean`), in closed form: flexing the spine turns
  * everything above it about the spine joint's flexion axis, so each
  * shoulder runs on a circle read from three forward-kinematics passes, and
- * the least flexion bringing a point within reach is where the arc of reach
- * is first entered.
+ * the least flexion bringing both points within reach is found on the
+ * intersection of the reachable arcs.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is solved, how, and who reads it.
  * @evidence contracts/development/design.md#principled-representation The solve apart from the rider's seated pose, its circle a record of its own.
@@ -46,21 +47,27 @@ export namespace HumanMountReach {
    * @param body The body.
    * @param seated The seated posture.
    * @param sides The holding hands.
-   * @returns For what each hand holds, world metres in the seated posture's frame, the degrees of spine flexion to add: 0 when the arms reach as seated, `LEAN` when they do not even then.
+   * @param bow The optional rotation about the seat or the hips in place of spine flexion.
+   * @param span The bounds of that rotation, degrees from the entered posture.
+   * @returns For the hand goals in the seated frame, the rotation nearest the entered posture that reaches both, or the least worst excess reach when the arcs do not overlap.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is solved, why the shoulder runs on a circle, what is read once and both ends of the result.
    * @evidence contracts/development/implementation.md#principled-implementation A rotation about a fixed axis moves a point on a circle, so the distance to a fixed point is an exact sinusoid in the angle and its threshold crossing is an arccos root; the circle's vectors are solved from three exact forward-kinematics readings.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The circles once, then one root per hand per point set.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward that carries most of a rower's or a cyclist's tilt (Agius et al. 2023, Bioengineering 10:774, section 4.1) is not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three posture resolutions when the reader is built, each reading only the shoulders (the first also the elbows and wrists, for the reach); each call then costs one arccos per hand and no forward kinematics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare both circles once, then evaluate the joint reach's crossings and extrema when neutral is out of reach.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point beyond the reach of the specified rotation still leaves the hand short for the contact audit. The specified rotation is respected throughout.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three focused posture resolutions at preparation, then a finite set of arccos roots and no forward kinematics per instant.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The three resolutions share one forward-kinematics reader and one range-of-motion projector, and both shoulders share the circle's matrix and its determinant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and the projector end with construction; the returned function holds one circle and one reach per hand.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
     seated: IAutoMovieMotionHumanPosture,
-    sides: readonly ("left" | "right")[],
-  ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
+    sides: readonly AutoMovieHumanSide[],
+    bow: (degrees: number) => IAutoMovieMotionHumanPosture =
+      (degrees: number): IAutoMovieMotionHumanPosture => HumanMountRider.leant(seated, degrees),
+    span: readonly [number, number] = [0, HumanMountRider.LEAN],
+  ): (points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>) => number {
+    if (sides.length === 0) return (): number => 0;
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
     const angles: readonly [number, number, number] = [
       0,
@@ -69,7 +76,7 @@ export namespace HumanMountReach {
     ];
     const read: ReturnType<typeof poseBones>[] = readSamples(
       body,
-      seated,
+      bow,
       angles,
       sides,
     );
@@ -80,8 +87,8 @@ export namespace HumanMountReach {
         number,
       ],
     );
-    const circles: Map<"left" | "right", ICircle> = new Map(
-      sides.map((side: "left" | "right"): ["left" | "right", ICircle] => {
+    const circles: Map<AutoMovieHumanSide, ICircle> = new Map(
+      sides.map((side: AutoMovieHumanSide): [AutoMovieHumanSide, ICircle] => {
         const at: (k: number) => IAutoMovieVector3 = (
           k: number,
         ): IAutoMovieVector3 => read[k]!.get(`${side}UpperArm`)!.worldPosition;
@@ -103,43 +110,85 @@ export namespace HumanMountReach {
         ];
       }),
     );
-    const most: number = (HumanMountRider.LEAN * Math.PI) / 180;
+    const least: number = span[0] * Math.PI / 180;
+    const most: number = span[1] * Math.PI / 180;
     return (
-      points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+      points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     ): number => {
-      let needed: number = 0;
+      const arms: IArc[] = [];
       for (const [side, c] of circles) {
         const point: IAutoMovieVector3 | undefined = points[side];
         if (point === undefined) continue;
         const off: IAutoMovieVector3 = Vector3.subtract(c.a, point);
-        const k: number =
-          Vector3.dot(off, off) + Vector3.dot(c.b, c.b) - c.reach * c.reach;
-        const cb: number = 2 * Vector3.dot(off, c.b);
-        const cs: number = 2 * Vector3.dot(off, c.c);
-
-        // Within reach where k + h cos(θ - phase) <= 0: on the arc from
-        // phase + acos(-k / h) round to phase - acos(-k / h). Out of reach at
-        // 0, the arc is first entered at its start.
-        if (k + cb <= 0) continue;
-        const h: number = Math.hypot(cb, cs);
-        if (h <= 0 || -k / h < -1) return HumanMountRider.LEAN;
-        const phase: number = Math.atan2(cs, cb);
-        const start: number = phase + Math.acos(Math.min(1, -k / h));
-        const first: number =
-          ((start % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        if (first > most) return HumanMountRider.LEAN;
-        needed = Math.max(needed, (first * 180) / Math.PI);
+        arms.push({
+          k: Vector3.dot(off, off) + Vector3.dot(c.b, c.b) - c.reach * c.reach,
+          cos: 2 * Vector3.dot(off, c.b),
+          sin: 2 * Vector3.dot(off, c.c),
+        });
       }
-      return needed;
+      const neutral: boolean = least <= 0 && most >= 0;
+      if (neutral && arms.every((arm: IArc): boolean => arm.k + arm.cos <= 0)) return 0;
+      const candidates: number[] = neutral ? [0, least, most] : [least, most];
+      const period: number = 2 * Math.PI;
+      const add = (t: number): void => {
+        const angle: number = t + period * Math.ceil((least - t) / period);
+        if (angle <= most) candidates.push(angle);
+      };
+      const zeroes = (arc: IArc): void => {
+        const amplitude: number = Math.hypot(arc.cos, arc.sin);
+        if (amplitude === 0 || Math.abs(arc.k) > amplitude) return;
+        const phase: number = Math.atan2(arc.sin, arc.cos);
+        const t: number = Math.acos(-arc.k / amplitude);
+        add(phase - t);
+        add(phase + t);
+      };
+      // The maximum of the two excesses can turn only at a stationary
+      // point of an arm or where the arms tie. Include the zeros to find
+      // the nearest point inside their overlap (zero excess).
+      for (const arc of arms) {
+        zeroes(arc);
+        const phase: number = Math.atan2(arc.sin, arc.cos);
+        add(phase);
+        add(phase + Math.PI);
+      }
+      if (arms.length > 1) {
+        const [a, b] = arms as [IArc, IArc];
+        zeroes({ k: a.k - b.k, cos: a.cos - b.cos, sin: a.sin - b.sin });
+      }
+      let best: number = 0;
+      let gap: number = Infinity;
+      for (const angle of candidates) {
+        const sin: number = Math.sin(angle);
+        const cos: number = Math.cos(angle);
+        let excess: number = 0;
+        for (const arm of arms) {
+          const rounded: number = Number.EPSILON * (Math.abs(arm.k) + Math.abs(arm.cos) + Math.abs(arm.sin));
+          excess = Math.max(excess, arm.k + arm.cos * cos + arm.sin * sin - rounded);
+        }
+        if (excess < gap || (excess === gap && Math.abs(angle) < Math.abs(best))) {
+          best = angle;
+          gap = excess;
+        }
+      }
+      if (best === least) return span[0];
+      if (best === most) return span[1];
+      return best * 180 / Math.PI;
     };
+  }
+
+  /** Squared distance in excess of the hand's reach along the shoulder arc. */
+  interface IArc {
+    k: number;
+    cos: number;
+    sin: number;
   }
 
   /** The bones of the seated posture leant by each angle: the first resolution reads the shoulders, elbows and wrists, the others the shoulders alone, all through one forward-kinematics reader and one range-of-motion projector. */
   function readSamples(
     body: IAutoMovieMotionHumanBody,
-    seated: IAutoMovieMotionHumanPosture,
+    bow: (degrees: number) => IAutoMovieMotionHumanPosture,
     angles: readonly [number, number, number],
-    sides: readonly ("left" | "right")[],
+    sides: readonly AutoMovieHumanSide[],
   ): ReturnType<typeof poseBones>[] {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
@@ -147,7 +196,7 @@ export namespace HumanMountReach {
       prepareHumanPostureProjection(body);
     const shoulders: Set<AutoMovieHumanoidBone> = new Set(
       sides.map(
-        (side: "left" | "right"): AutoMovieHumanoidBone => `${side}UpperArm`,
+        (side: AutoMovieHumanSide): AutoMovieHumanoidBone => `${side}UpperArm`,
       ),
     );
     const measured: Set<AutoMovieHumanoidBone> = new Set(shoulders);
@@ -164,7 +213,7 @@ export namespace HumanMountReach {
         const pose: ReturnType<typeof resolveHumanPosture> =
           resolveHumanPosture.seeded(
             body,
-            { ...HumanMountRider.leant(seated, degrees), limbs: {} },
+            { ...bow(degrees), limbs: {} },
             undefined,
             undefined,
             prepared,
@@ -221,8 +270,8 @@ export namespace HumanMountReach {
         IAutoMovieVector3,
       ],
     ): Omit<ICircle, "reach"> => {
-      const solve: (axis: "x" | "y" | "z") => [number, number, number] = (
-        axis: "x" | "y" | "z",
+      const solve: (axis: keyof IAutoMovieVector3) => [number, number, number] = (
+        axis: keyof IAutoMovieVector3,
       ): [number, number, number] =>
         [0, 1, 2].map(
           (column: number): number =>

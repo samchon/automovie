@@ -37,6 +37,12 @@ import { HumanMountReach } from "./HumanMountReach";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is named and marked provisional or cited; no mount is named.
  */
 export namespace HumanMountRider {
+  /** A mounted hand's exact wrist goal and the axis the fingers follow. */
+  interface IWrist {
+    point: IAutoMovieVector3;
+    fingers: IAutoMovieVector3;
+  }
+
   /** The knee flexion a pedalling leg keeps at the bottom of the stroke, degrees: the low end of the 25 to 35 a saddle is set for (Bini, Hume and Croft 2011, Sports Med 41:463, as the bicycle archetype cites it; not re-read here, so provisional). */
   export const KNEE: number = 25;
 
@@ -138,6 +144,31 @@ export namespace HumanMountRider {
   /** How far ahead of the wrist the middle of the palm lies, hand lengths (provisional: the palm is about half the hand and its middle a little short of that). */
   export const CENTRE: number = 0.35;
 
+  /** Place the wrist by the grip's displayed palm normal and crossbar. */
+  export function wrist(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+  ): IWrist {
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      resolveHumanPosture.heading(posture),
+      { x: 0, y: 0, z: 1 },
+    );
+    const across: IAutoMovieVector3 = grip.axis === undefined
+      ? { x: 0, y: 0, z: 0 }
+      : Vector3.cross(grip.axis, grip.normal);
+    const fingers: IAutoMovieVector3 = Vector3.length(across) < 1e-6
+      ? forward
+      : Vector3.scale(Vector3.normalize(across), grip.across ?? (Vector3.dot(across, forward) < 0 ? -1 : 1));
+    return {
+      point: Vector3.add(grip.point, Vector3.add(
+        Vector3.scale(grip.normal, PALM * body.measure.hand + (grip.radius ?? 0)),
+        Vector3.scale(fingers, -CENTRE * body.measure.hand),
+      )),
+      fingers,
+    };
+  }
+
   /**
    * A hand holding a grip, a rein or a rim: where its wrist goes, how the
    * hand turns and how its fingers close, a share of the way from where
@@ -181,32 +212,7 @@ export namespace HumanMountRider {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading(posture),
-      { x: 0, y: 0, z: 1 },
-    );
-    const across: IAutoMovieVector3 =
-      grip.axis === undefined
-        ? { x: 0, y: 0, z: 0 }
-        : Vector3.cross(grip.axis, grip.normal);
-    const fingers: IAutoMovieVector3 =
-      Vector3.length(across) < 1e-6
-        ? forward
-        : Vector3.scale(
-            Vector3.normalize(across),
-            grip.across ?? (Vector3.dot(across, forward) < 0 ? -1 : 1),
-          );
-    // The grip lies across the middle of the palm, `CENTRE` of the hand's length ahead of the wrist.
-    const target: IAutoMovieVector3 = Vector3.add(
-      grip.point,
-      Vector3.add(
-        Vector3.scale(
-          grip.normal,
-          PALM * body.measure.hand + (grip.radius ?? 0),
-        ),
-        Vector3.scale(fingers, -CENTRE * body.measure.hand),
-      ),
-    );
+    const { point: target, fingers }: IWrist = wrist(body, posture, grip);
     const turned: IAutoMovieQuaternion = HumanHand.rotation(side, {
       fingers,
       palm: Vector3.scale(grip.normal, -1),
