@@ -65,8 +65,10 @@ const output: string = path.join(runs, String(process.pid));
  *
  * A workspace package resolves through its symlink to TypeScript under
  * `packages/`, which only a bundler can load; an installed package resolves
- * inside a `node_modules` directory and stays an import, so native addons
- * and packages with their own assets load as they do under `ttsx`.
+ * inside a `node_modules` directory and stays an import of that resolved
+ * file, so native addons and packages with their own assets load as they do
+ * under `ttsx`, and a package installed only beside the source importing it
+ * still loads from the bundle's own directory.
  */
 const installed: Plugin = {
   name: "installed-packages",
@@ -85,9 +87,13 @@ const installed: Plugin = {
           pluginData: resolving,
         });
         if (resolved.errors.length !== 0) return { errors: resolved.errors };
-        return resolved.external ||
-          resolved.path.split(/[\\/]/).includes("node_modules")
-          ? { path: args.path, external: true }
+        // A built-in stays its specifier. An installed package stays an
+        // import of the file it resolved to from its importer: the bundle
+        // runs from `bin/`, where the bare name may not resolve (a package
+        // installed only beside the workspace source that imports it).
+        if (resolved.external) return { path: args.path, external: true };
+        return resolved.path.split(/[\\/]/).includes("node_modules")
+          ? { path: pathToFileURL(resolved.path).href, external: true }
           : { path: resolved.path };
       },
     );
