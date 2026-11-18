@@ -94,7 +94,14 @@ export namespace HumanFitBalance {
     world: IAutoMovieVector3;
   }
 
-  /** Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`). */
+  /**
+   * Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`).
+   *
+   * @evidence contracts/development/design.md#principled-representation The base owner's record of a half-plane's corners, named here beside the riders it indexes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias of the base owner's type, read with `riders` in `IReading.through`; no member of its own.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFitBalanceBase.IThrough` instead of copying its members.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record holds and its owner.
+   */
   export type IThrough = HumanFitBalanceBase.IThrough;
 
   /**
