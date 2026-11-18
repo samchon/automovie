@@ -135,7 +135,7 @@ export namespace HumanLimbFit {
         Quaternion.rotateVector(frame.worldRotation, p),
       );
     const { on: _attached, clearanceOn, ...rest }: IAutoMovieHumanLimbGoal = goal;
-    const collider = (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => ({
+    const collider: (segment: IAutoMovieMotionHumanColliders.IPlaced) => IAutoMovieMotionHumanColliders.IPlaced = (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => ({
       ...segment,
       pose: {
         position: place(segment.pose.position),

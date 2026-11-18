@@ -165,12 +165,12 @@ export namespace HumanCarriedCouplingFit {
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
-    const reach = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side));
+    const reach: Gap[] = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side));
 
     // The bearer's bones by stance, so a change of the legs alone reads
     // them once.
     const stances: Map<string, Bones> = new Map();
-    const stood = (x: readonly number[]): Bones => {
+    const stood: (x: readonly number[]) => Bones = (x: readonly number[]): Bones => {
       const key: string = `${x[3]}|${x[4]}`;
       const found: Bones | undefined = stances.get(key);
       if (found !== undefined) return found;
@@ -182,7 +182,7 @@ export namespace HumanCarriedCouplingFit {
       stances.set(key, bones);
       return bones;
     };
-    const at = (x: readonly number[]): IRead => {
+    const at: (x: readonly number[]) => IRead = (x: readonly number[]): IRead => {
       const theirs: Bones = stood(x);
       const registration: HumanCarriedCouplingRigid.IRead = HumanCarriedCouplingRigid.read(
         bearer,
@@ -198,7 +198,7 @@ export namespace HumanCarriedCouplingFit {
       );
       return { fit: registration.fit, mine: registration.bones, theirs };
     };
-    const gaps = (reading: IRead): number[] => {
+    const gaps: (reading: IRead) => number[] = (reading: IRead): number[] => {
       const { fit, mine, theirs }: IRead = reading;
       const gaps: number[] = sides.map((side: AutoMovieHumanSide, index: number): number => {
         const k: number = side === "left" ? 0 : 1;
@@ -414,8 +414,8 @@ export namespace HumanCarriedCouplingFit {
         steer: true,
       },
     );
-    const met = solved.evaluation;
-    const clear = met.worst <= accuracy || (row.straddles === true &&
+    const met: IReading = solved.evaluation;
+    const clear: boolean = met.worst <= accuracy || (row.straddles === true &&
       sides.every((_, index: number): boolean => met.gaps[index]! <= accuracy) &&
       HumanCarriedStraddle.clear(bearer, met.read));
     if (!clear)
@@ -436,7 +436,16 @@ export namespace HumanCarriedCouplingFit {
     return solved.evaluation.read;
   }
 
-  /** Distance in metres beyond the bearing arm's real wrist reach, or at most zero within reach. */
+  /**
+   * Distance in metres beyond the bearing arm's real wrist reach, or at most zero within reach.
+   * @evidence contracts/development/common.md#meaningful-documentation States the distance and its sign.
+   * @evidence contracts/development/implementation.md#principled-implementation A bearing palm faces the held surface, so its hand offset fixes the wrist goal tested against the arm span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared wrist reader and one distance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the held surface's real current normal and the same palm offset as playback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only the modeled shoulder and wrist, with no elbow solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance and further helper use the same prepared wrist gap.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the observation.
+   */
   export function gap(
     bearer: IAutoMovieMotionHumanBody,
     bones: Bones,
@@ -448,7 +457,8 @@ export namespace HumanCarriedCouplingFit {
 
   /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
   function prepareGap(bearer: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): Gap {
-    const palm = HumanHandTarget.prepareMoving(bearer, side).wrist;
+    const palm: ReturnType<typeof HumanHandTarget.prepareMoving>["wrist"] =
+      HumanHandTarget.prepareMoving(bearer, side).wrist;
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     return (bones, place): number => Vector3.length(Vector3.subtract(
       palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place).point,

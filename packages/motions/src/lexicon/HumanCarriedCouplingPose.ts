@@ -234,7 +234,7 @@ export namespace HumanCarriedCouplingPose {
     // A further bearer reads the places in its own anchor frame.
     const frame: BearerFrame | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
-    const contactFor = (palm: AutoMovieHumanoidRegion): IAutoMovieMotionCoupling.IContact | undefined =>
+    const contactFor: (palm: AutoMovieHumanoidRegion) => MaybeContact = (palm: AutoMovieHumanoidRegion): MaybeContact =>
       coupling.contacts.find(
         (c: IAutoMovieMotionCoupling.IContact): boolean =>
           c.kind === "bear" && c.on.role === role && c.on.region === palm,
@@ -272,7 +272,7 @@ export namespace HumanCarriedCouplingPose {
         },
       }),
     );
-    const at = (
+    const at: (contact: MaybeContact) => MaybeGrip = (
       contact: ReturnType<typeof contactFor>,
     ): IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null => {
       if (contact === undefined) return null;
@@ -439,6 +439,10 @@ export namespace HumanCarriedCouplingPose {
     return resolveAutoMovieHumanoidSurfaces.point(frame, bone);
   }
 }
+
+/** An optional bearing contact or fitted grip in a two-hand carry. */
+type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;
+type MaybeGrip = IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null;
 
 /** A further bearer's anchor in the shared coupling frame. */
 type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];

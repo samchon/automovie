@@ -151,7 +151,7 @@ export namespace HumanCarriedCouplingCouple {
     // described grip is taken where it reaches, a nearer one only where it
     // does not, so a later grip costs a fit only when an earlier one missed.
     const grips: readonly Grip[] = [rules.HOLDS[carry], ...(rules.NEARER[carry] ?? [])];
-    const choose = (k: number): IGripFit => {
+    const choose: (k: number) => IGripFit = (k: number): IGripFit => {
       try {
         return {
           read: HumanCarriedCouplingFit.read(
@@ -190,7 +190,7 @@ export namespace HumanCarriedCouplingCouple {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       anchored.worldRotation,
     );
-    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, anchored.worldPosition),
@@ -226,7 +226,7 @@ export namespace HumanCarriedCouplingCouple {
       // The second helper stands upright where it is placed, so its grip is
       // the first of its carry's whose every held region lies within its
       // arm there (`HumanCarriedCouplingFit.gap`), or the described one.
-      const reaches = (grip: Grip): boolean =>
+      const reaches: (grip: Grip) => boolean = (grip: Grip): boolean =>
         SIDES.every(
           (hand: AutoMovieHumanSide, index: number): boolean => {
             const region: HeldRegion =
@@ -360,7 +360,7 @@ export namespace HumanCarriedCouplingCouple {
   }
 
   /** The contact window part a region's bone belongs to. */
-  const part = (
+  const part: (body: IAutoMovieMotionHumanBody, name: AutoMovieHumanoidRegion) => IAutoMovieMotionHumanContactWindow["part"] = (
     body: IAutoMovieMotionHumanBody,
     name: AutoMovieHumanoidRegion,
   ): IAutoMovieMotionHumanContactWindow["part"] => {
