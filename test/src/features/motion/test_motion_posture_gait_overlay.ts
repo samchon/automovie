@@ -1,5 +1,14 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import { HUMAN_LEXICON, HumanHand, HumanVerdicts } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import {
+  HUMAN_LEXICON,
+  HumanHand,
+  HumanRefusal,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -74,6 +83,88 @@ export function test_motion_posture_gait_overlay(): void {
     ) <= HumanVerdicts.SKIN,
   );
   const complaints: string[] = [];
+  const clock = (
+    film: ReturnType<typeof motionUpperPhrase.perform>,
+    event: string,
+  ): number => {
+    const placed = film.segments("a").at(-1)!;
+    return (
+      placed.start +
+      placed.plan.events.find((e) => e.name === event)!.share *
+        placed.plan.duration
+    );
+  };
+  const events = ["ready", "strokeStart", "stroke", "strokeEnd", "relax"].map(
+    (key) => clock(touch, key),
+  );
+  TestValidator.predicate(
+    "phrase milestones progress in time",
+    events.every((t, i) => i === 0 || t >= events[i - 1]!),
+  );
+  const wave = motionUpperPhrase.perform(body, "waveHand", {}, false);
+  const shoulder = wave.bones("a", clock(wave, "stroke")).get("rightShoulder")!
+    .worldPosition.y;
+  const sweeping = [];
+  for (
+    let t = clock(wave, "strokeStart");
+    t <= clock(wave, "strokeEnd");
+    t += 1 / 24
+  )
+    sweeping.push(
+      HumanHand.frame(body, wave.bones("a", t), "right", "palm", "flat").point,
+    );
+  const reach =
+    body.measure.upperArm + body.measure.forearm + body.measure.hand;
+  TestValidator.predicate(
+    "raised wave traverses a twentieth of an arm",
+    sweeping.every((p) => p.y > shoulder) &&
+      Math.max(...sweeping.map((p) => p.x)) -
+        Math.min(...sweeping.map((p) => p.x)) >
+        reach / 20,
+  );
+  const clap = motionUpperPhrase.perform(body, "clapHands", {}, false);
+  const meeting = clap.bones("a", clock(clap, "strokeStart"));
+  const hands = (["left", "right"] as const).map(
+    (side) => HumanHand.frame(body, meeting, side, "palm", "flat").point,
+  );
+  TestValidator.predicate(
+    "two palms meet at clap onset",
+    Vector3.length(Vector3.subtract(hands[0]!, hands[1]!)) <=
+      HumanVerdicts.SKIN,
+  );
+  const drink = motionUpperPhrase.perform(
+    body,
+    "drinkFrom",
+    { held: "stick" },
+    true,
+  );
+  const sip = clock(drink, "stroke"),
+    mouth = body.surfaces.regions.mouth;
+  const lips = resolveAutoMovieHumanoidSurfaces.place(
+    mouth,
+    drink.bones("a", sip).get(mouth.bone)!,
+  ).point;
+  const vessel = drink.prop("stick", sip);
+  const rim = Vector3.add(
+    vessel.position,
+    Quaternion.rotateVector(vessel.rotation, motionUpperPhrase.END),
+  );
+  TestValidator.predicate(
+    "held point reaches lips",
+    Vector3.length(Vector3.subtract(lips, rim)) <= HumanVerdicts.SKIN,
+  );
+  let refused = false;
+  try {
+    motionUpperPhrase
+      .perform(body, "eatWith", { held: "stick", point: "spout" }, true)
+      .segments("a");
+  } catch (error) {
+    refused = error instanceof HumanRefusal;
+  }
+  TestValidator.predicate(
+    "missing prop affordance returns a physical refusal",
+    refused,
+  );
   motionHumanOverlayChannels.read("m-average", complaints, true);
   TestValidator.equals("an overlay and its carrier", complaints, []);
 }
