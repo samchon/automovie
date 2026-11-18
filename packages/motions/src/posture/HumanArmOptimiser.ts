@@ -94,9 +94,19 @@ export namespace HumanArmOptimiser {
     // one linearisation (a smaller region, a reprice, the violation alone),
     // which share its rows, each start from the one solved before.
     const session: HumanQuadraticInteriorSession.ISession = {};
+    // A still solve never steps its fixed endpoints. Its single initial
+    // reading supplies those placements throughout this synchronous solve.
+    const changing: boolean[] | undefined = read.still
+      ? read.times.map((_time: number, i: number): boolean => M.inner(read, i))
+      : undefined;
+    let fixed: Parameters<typeof M.evaluate>[2];
     const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number[][][], M.IEvaluation> = {
-      evaluate: (x: number[][][]): M.IEvaluation =>
-        M.evaluate(read, spread(x), undefined, contact),
+      evaluate: (x: number[][][]): M.IEvaluation => {
+        const evaluation: M.IEvaluation = M.evaluate(read, spread(x), fixed, contact);
+        if (changing !== undefined && fixed === undefined)
+          fixed = { reading: evaluation, laid: changing };
+        return evaluation;
+      },
       feasible: (evaluation: M.IEvaluation): boolean =>
         evaluation.worst.value <= M.TOLERANCE,
       convexify: (
