@@ -1,7 +1,9 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, physicalShapeBounds, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanAudit,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -12,7 +14,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanAuditGround,
+  HumanColliders,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -23,6 +27,7 @@ import {
   seated,
 } from "@automovie/motions";
 import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanLaw } from "./motionHumanLaw";
 import { nclose } from "./nclose";
 
 /**
@@ -44,9 +49,9 @@ import { nclose } from "./nclose";
  * 3. The pick up keeps the seat: read five times over the plan, the body's
  *    seat socket stays within 5 mm of its point on the seat (the campaign's
  *    contact bound).
- * 4. Over the pick up, the shipped audit reads no foot sliding, lifting or
- *    sinking while planted (the campaign's 5 mm bounds), its other checks
- *    left unread.
+ * 4. Over the pick up, foot sockets and colliders show no sliding, lifting or
+ *    sinking while planted (the campaign's 5 mm bounds). Whole-body checks are
+ *    covered separately by the continuous verdict.
  * 5. A glass two arm lengths beyond the seated shoulder, past any lean, is
  *    refused as a `reach` refusal on `prop` that names standing up and
  *    stepping closer. The forward population limit is 163.3% of arm-plus-hand
@@ -63,7 +68,7 @@ import { nclose } from "./nclose";
  * @evidence contracts/development/implementation.md#principled-implementation Reads a real glass, chest, seated socket and soles on the displayed frame, and computes both reach limits independently of the refusal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The seated pick-up film supplies both the planned contact observations and the whole verdict before the far refusal case.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pick up that does not plan is a complaint with the refusal's words.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances per body. Both original audit grids read the same admitted pick-up, with one origin at film start and one at the pick-up.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances per body. The global 24 Hz grid and the original quarter points share one skeletal read for the seat and two feet per instant; whole-body verdicts retain their action-local grid.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted performance supplies the geometry and full verdicts that previously staged it twice.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
@@ -171,37 +176,34 @@ export function motionPickUpSeated(
         `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
       );
     const sitting: IAutoMovieVector3 = seated.point(body, chair);
-    let drift: number = 0;
     const seat: typeof body.surfaces.sockets.seat = body.surfaces.sockets.seat;
-    for (let i: number = 0; i <= 4; i++) {
-      const t: number = pick.start + (pick.plan.duration * i) / 4;
-      const bones: ReturnType<typeof film.bones> = film.bones("a", t);
+    const soles: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body,
+      new Set<AutoMovieHumanoidBone>(["leftFoot", "leftToes", "rightFoot", "rightToes"]));
+    const times: Set<number> = new Set([pick.start, pick.end]);
+    for (const t of AutoMovieMotionHumanAuditMotion.grid(0, film.duration, 24))
+      if (t >= pick.start && t <= pick.end) times.add(t);
+    for (let i: number = 1; i < 4; ++i) times.add(pick.start + (i * pick.plan.duration) / 4);
+    // Retain the audit's global frame clock, per-window endpoints and
+    // bearing-socket anchor. Its result now covers just the pick-up, so
+    // a larger slip elsewhere in the sitting film cannot hide this one.
+    const shared: motionHumanLaw.IFilm = motionHumanLaw.film(film);
+    const picking: IAutoMovieMotionHumanAuditMotion = {
+      duration: film.duration, segments: () => [pick], bones: shared.bones,
+    };
+    const slip: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.slip(picking, "a", body, 24);
+    const lift: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.lift(picking, "a", body, 24);
+    let seatDrift: number = 0;
+    let depth: number = 0;
+    for (const t of times) {
+      const bones: motionHumanLaw.Bones = shared.bones("a", t);
       const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(seat, bones.get(seat.bone)!).point;
-      drift = Math.max(drift, Vector3.distance(point, sitting));
+      seatDrift = Math.max(seatDrift, Vector3.distance(point, sitting));
+      for (const part of soles(bones))
+        for (const shape of part.shapes)
+          depth = Math.max(depth, -physicalShapeBounds(part.pose, shape).min.y);
     }
-    if (!(drift <= 0.005))
-      complaints.push(
-        `${name}: the seat socket leaves the seat by ${(drift * 1000).toFixed(1)} mm during the pick up, within 5 mm expected`,
-      );
-    // The shipped audit's floor, slip and lift on the feet, its other
-    // checks left unread (`AutoMovieMotionHumanAudit.run`'s null limits).
-    for (const finding of AutoMovieMotionHumanAudit.run(film, "a", body, {
-      limits: {
-        tangle: null,
-        jump: null,
-        reversal: null,
-        speed: null,
-        balance: null,
-      },
-    }).findings.filter(
-      (f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
-        f.seconds >= pick.start - 1e-6 &&
-        f.seconds <= pick.end + 1e-6 &&
-        /Foot|Toes/.test(f.where),
-    ))
-      complaints.push(
-        `${name}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
-      );
+    if (!(seatDrift <= 0.005 && slip.value <= 0.005 && lift.value <= 0.005 && depth <= 0.005))
+      complaints.push(`${name}: seat drift ${seatDrift * 1000}, sole slip ${slip.value * 1000}, lift ${lift.value * 1000}, penetration ${depth * 1000} mm, each within 5 mm expected`);
   } catch (error) {
     complaints.push(
       `${name}: a glass just beyond the seated arm: expected to plan, got ${said(error)}`,
