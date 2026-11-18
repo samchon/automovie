@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingAdvance,
   IAutoMovieMotionHumanStrikingBlade,
@@ -17,6 +18,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
@@ -157,6 +159,13 @@ export namespace StrikingBlade {
     const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}Hand`]);
     const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}LowerArm`]);
     const base: IAutoMovieMotionHumanActionPlan = StrikingAdvance.base(context, stroke);
+    // A support hand that already holds the same prop (a musket's left hand
+    // from the butt to above the lock) keeps its grip through the stroke: a
+    // held hand is driven only by an action that grips what it holds.
+    const supporting: IAutoMovieMotionHumanHeld.IHeld | undefined =
+      stroke.support !== null && tool.held !== undefined && context.entry.holds[other] === tool.held.prop
+        ? AutoMovieMotionHumanHeld.of(context, other, tool.held.prop)
+        : undefined;
 
     // The hand as displayed at the entry, kept relative to the root so it
     // travels with an advance.
@@ -334,9 +343,16 @@ export namespace StrikingBlade {
     return {
       duration,
       events: clock.events(),
-      contacts: [...base.contacts, ...StrikingHeld.grips(tool)],
+      contacts: [
+        ...base.contacts,
+        ...StrikingHeld.grips(tool),
+        ...(supporting === undefined ? [] : [AutoMovieMotionHumanHeld.grip(supporting)]),
+      ],
       contact: clock.at(stroke.decisive ?? "stroke"),
-      holds: StrikingHeld.holds(context, tool),
+      holds: [
+        ...StrikingHeld.holds(context, tool),
+        ...(supporting === undefined ? [] : [AutoMovieMotionHumanHeld.hold(context, supporting)]),
+      ],
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
       posture: (
