@@ -245,43 +245,79 @@ export namespace kiss {
       s: IAutoMovieMotionHumanKiss.ISolved,
       k: number,
       behind: number,
-    ): IAutoMovieMotionHumanPosture => kissBody(body, posture, stance, s, k, behind, seated);
+      heels: number = k,
+    ): IAutoMovieMotionHumanPosture => kissBody(body, posture, stance, s, k, behind, seated, heels);
     // Standing, the lean carries the centre ahead of the feet, so the hips
     // move back by the static balance's shift at the solved lean
     // (`HumanBalance.shift`, as a bow's do), and the lean is solved again
-    // with them there; seated, the seat bears the body.
-    const first: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
-    const behind: number = seated
-      ? 0
-      : HumanBalance.shift(
+    // with them there; seated, the seat bears the body. The lean solved
+    // again moves the centre, so the two are solved in turn until the
+    // shift settles within the balance's own tolerance, the rounds bounded
+    // by the halvings of the shift's search range down to it; the last
+    // round stands when they do not, its miss left to the verdict.
+    let solved: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
+    let behind: number = 0;
+    if (!seated) {
+      const rounds: number =
+        Math.ceil(
+          Math.log2((HumanBalance.RANGE * body.measure.hipHeight) / HumanBalance.TOLERANCE),
+        ) + 1;
+      for (let round: number = 0; round < rounds; ++round) {
+        const lean: IAutoMovieMotionHumanKiss.ISolved = solved;
+        const next: number = HumanBalance.shift(
           body,
-          (back: number): IAutoMovieMotionHumanPosture => written(entry, first, 1, back),
+          (back: number): IAutoMovieMotionHumanPosture => written(entry, lean, 1, back),
         );
-    const solved: IAutoMovieMotionHumanKiss.ISolved =
-      behind === 0
-        ? first
-        : solve(context, entry, stance, twist, at, seated, behind);
+        const moved: number = Math.abs(next - behind);
+        behind = next;
+        if (moved <= HumanBalance.TOLERANCE) break;
+        solved = solve(context, entry, stance, twist, at, seated, behind);
+      }
+    }
     const travel: number = Vector3.distance(HumanTrunk.region(body, entry, "mouth").point, at);
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
+    // Risen, the body bears on its forefoot alone: the sway (the lean and
+    // the hips' shift) leads the heels by the least time that keeps the
+    // extrapolated centre of mass in the flat feet's base, both ways, and
+    // the heels take at least the least time that keeps it over the
+    // forefoot (`AutoMovieMotionHumanRise.poise`), as the touch's rise does.
+    const rises: boolean = !seated && solved.raise > 0;
+    const swayed: IAutoMovieMotionHumanPosture = written(entry, solved, 1, behind, 0);
+    const poise: number = rises
+      ? AutoMovieMotionHumanRise.poise(body, written(entry, solved, 0, behind, 0), swayed, true)
+      : 0;
+    const rising: number = rises
+      ? AutoMovieMotionHumanRise.poise(body, swayed, written(entry, solved, 1, behind, 1), false)
+      : 0;
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
-        prepare: approach,
+        prepare: Math.max(approach, rising),
         attack: 0,
         hold,
-        retract: approach,
+        retract: Math.max(approach, rising),
       }),
       modifiers,
     );
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
+      timed.duration + 2 * poise,
       [
-        ...timed.instants,
-        { name: "contact", seconds: timed.at("ready") },
-        { name: "part", seconds: timed.at("relax") },
+        ...timed.instants.map((i) => ({ ...i, seconds: i.seconds + poise })),
+        { name: "contact", seconds: poise + timed.at("ready") },
+        { name: "part", seconds: poise + timed.at("relax") },
+        ...(poise === 0
+          ? []
+          : [
+              { name: "poised", seconds: poise },
+              { name: "unpoised", seconds: poise + timed.duration },
+            ]),
       ],
     );
     const share = (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+    const sway = (seconds: number): number =>
+      poise === 0 ? share(seconds) : clock.envelope(["start", "poised"], ["unpoised", "end"], seconds);
+    const heels = (seconds: number): number =>
+      poise === 0 ? share(seconds) : clock.envelope(["poised", "ready"], ["relax", "unpoised"], seconds);
     const head = AutoMovieMotionHumanHead.share(0, solved.flexion);
     const turn = AutoMovieMotionHumanHead.share(2, twist);
     return composeAutoMovieMotionHumanAction({
@@ -293,7 +329,7 @@ export namespace kiss {
           from: 0,
           to: clock.duration,
           write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
-            written(posture, solved, share(seconds), behind),
+            written(posture, solved, sway(seconds), behind, heels(seconds)),
         },
         ...(solved.raise > 0
           ? AutoMovieMotionHumanRise.legs({
@@ -302,7 +338,7 @@ export namespace kiss {
               from: 0,
               to: clock.duration,
               degrees: (seconds: number): number =>
-                solved.raise * share(seconds),
+                solved.raise * heels(seconds),
             })
           : []),
         AutoMovieMotionHumanJoints.pulse(
