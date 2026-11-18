@@ -44,24 +44,21 @@ import { vclose } from "../internal/vclose";
  * 4. A copied preparation wrapper is unissued and refuses transport. A copied
  *    raw posture still resolves ordinarily and agrees with an actual cold
  *    solve, with independently owned pose and nested outputs.
- * 5. A fixed-posture workspace solves two different free-leg candidates and
- *    then the first again. Current target contact, cold-pose agreement and
- *    earlier-result mutation distinguish fixed source work from cached fits.
- * 6. Carrying edited authoring may change an unrelated head joint, a
- *    leg ancestor or the actual goal. Every result retains the new head
- *    angle and current foot target beside an ordinary cold solve.
- * 7. Own nonenumerable and fresh inherited-array toJSON hooks may serialize
- *    a current head20 as the former10. Issued and arbitrary carried raw
+ * 5. Editing a copy of a translated posture may change an unrelated head
+ *    joint, a leg ancestor or the actual goal. Every result retains the new
+ *    head angle and current foot target beside an ordinary cold solve.
+ * 6. Own nonenumerable and fresh inherited-array toJSON hooks may serialize
+ *    a current head20 as the former10. Issued and arbitrary copied raw
  *    postures still display20, or5 after the actual ROM change, beside cold
  *    resolution. A matching JSON string never proves unchanged clinical data.
- * 8. Both leg slots may share one owned goal. Translation shifts that goal's
+ * 7. Both leg slots may share one owned goal. Translation shifts that goal's
  *    point/bend once, preserves the output alias graph and source values,
  *    and retains ordinary complete-pose results under the same root change.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, canonical Human provenance, fixed-base candidates, checked carried authoring, current JSON-hook fields, shared-goal translation and contact precision across eight scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated/carried and fixed-base candidate workspaces beside ordinary seeded resolution. It prepares distinct sources and changes results/head constraints, leg ancestors and actual goals, then observes clinical angles, cold parity and canonical displayed foot contact. Own/inherited JSON concealment must not certify stale joints, and aliased leg goals retain a single displacement and independent graph ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, canonical Human provenance, edited copies, current JSON-hook fields, shared-goal translation and contact precision across seven scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated beside ordinary seeded resolution. It prepares distinct sources and changes results/head constraints, leg ancestors and actual goals, then observes clinical angles, cold parity and canonical displayed foot contact. Own/inherited JSON concealment must not certify stale joints, and aliased leg goals retain a single displacement and independent graph ownership.
  * @evidence contracts/development/testing.md#independent-expectations Literal authored head angles and the later five-degree bound independently fix 10/20/5. World goals must retain their actual asked coordinates under source-plus-root displacement and the existing 0.001 metre contact limit. Own/inherited toJSON serializing20 as10 must not change those raw clinical values or their current ROM; one shared goal receives the root displacement once and remains shared. Cold parity supplements these assertions but cannot independently certify all inverse kinematics.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers translations, distinct sources, result edits, changed raw/rig, added goals, raw goal/bend transport, copied-wrapper refusal, copied raw, fresh outputs, A/B/A fixed-base fits and carried head/hip/goal changes, own versus inherited JSON hooks on issued/arbitrary carried inputs, current ROM and shared-goal graph preservation. No global table or shared fixture is mutated.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers translations, distinct sources, result edits, changed raw/rig, added goals, raw goal/bend transport, copied-wrapper refusal, copied raw, fresh outputs, edited head/hip/goal copies, own versus inherited JSON hooks on issued/arbitrary copied inputs, current ROM and shared-goal graph preservation. No global table or shared fixture is mutated.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the repository's canonical Human fixture and independently cloned skeleton/profile through the actual body factory. All changed records belong to the test; no renderer, viewer, foreign method replacement, subprocess or compiler is started.
  */
 export function test_motion_prepared_posture_translation(): void {
@@ -163,31 +160,6 @@ export function test_motion_prepared_posture_translation(): void {
   samePose(resolveHumanPosture(body, ordinary), resolveHumanPosture(body, structuredClone(carried)));
 
   const fixed: IAutoMovieMotionHumanPosture = { ...constrained, limbs: {} };
-  const workspace: ReturnType<typeof resolveHumanPosture.prepareBase> = resolveHumanPosture.prepareBase(body, fixed);
-  const candidates: IAutoMovieHumanLimbGoal[] = [
-    { point: { ...point }, bend: { ...bend } },
-    { point: { x: foot.x, y: foot.y + 0.09, z: foot.z - 0.04 }, bend: { ...bend } },
-  ];
-  let previous: IAutoMoviePose | undefined;
-  for (const index of [0, 1, 0]) {
-    const goal: IAutoMovieHumanLimbGoal = candidates[index]!;
-    const current: IAutoMoviePose = workspace.seeded({ leftLeg: goal }).pose;
-    const cold: IAutoMoviePose = resolveHumanPosture(body, { ...fixed, limbs: { leftLeg: goal } });
-    samePose(current, cold);
-    const endpoint: IAutoMovieVector3 = poseBones(body, current).get("leftFoot")!.worldPosition;
-    TestValidator.predicate("fixed-base candidate still performs its current actual fit",
-      Math.hypot(endpoint.x - goal.point.x, endpoint.y - goal.point.y, endpoint.z - goal.point.z) <= 0.001,
-    );
-    if (previous !== undefined)
-      TestValidator.predicate("a later candidate leaves earlier caller output unchanged",
-        previous.root!.translation.x === 777 &&
-        previous.joints.find((value: IAutoMovieJointPose): boolean => value.bone === "leftUpperLeg")!.flexion === 888,
-      );
-    current.root!.translation.x = 777;
-    current.joints.find((value: IAutoMovieJointPose): boolean => value.bone === "leftUpperLeg")!.flexion = 888;
-    previous = current;
-  }
-
   const variants: readonly ((posture: IAutoMovieMotionHumanPosture) => void)[] = [
     (posture: IAutoMovieMotionHumanPosture): void => { posture.joints.head = [2, 0, 0]; },
     (posture: IAutoMovieMotionHumanPosture): void => { posture.joints.hips = [10, 0, 0]; },
@@ -196,12 +168,11 @@ export function test_motion_prepared_posture_translation(): void {
   for (let i: number = 0; i < variants.length; i++) {
     const raw: IAutoMovieMotionHumanPosture = structuredClone(carried);
     variants[i]!(raw);
-    const checked: IAutoMovieMotionHumanPosture = resolveHumanPosture.carried(legPrepared, raw);
-    const actual: IAutoMoviePose = resolveHumanPosture(body, checked);
+    const actual: IAutoMoviePose = resolveHumanPosture(body, raw);
     samePose(actual, resolveHumanPosture(body, structuredClone(raw)));
     const endpoint: IAutoMovieVector3 = poseBones(body, actual).get("leftFoot")!.worldPosition;
     const target: IAutoMovieVector3 = raw.limbs.leftLeg!.point;
-    TestValidator.predicate("carried evidence never substitutes an old raw goal or whole pose",
+    TestValidator.predicate("an edited copy never takes an old raw goal or whole pose",
       nclose(head(actual), i === 0 ? 2 : 5, 1e-12) &&
       Math.hypot(endpoint.x - target.x, endpoint.y - target.y, endpoint.z - target.z) <= 0.001,
     );
@@ -245,8 +216,8 @@ function jsonSpoof(body: IAutoMovieMotionHumanBody, prepared: resolveHumanPostur
     TestValidator.equals("owned JSON hook really conceals the current clinical change", JSON.stringify(raw), before);
     const arbitrary: IAutoMovieMotionHumanPosture = structuredClone(raw);
     conceal(arbitrary.joints.head!, inherited);
-    TestValidator.equals("arbitrary carried candidate has the same misleading serialized signature", JSON.stringify(arbitrary), before);
-    for (const candidate of [raw, resolveHumanPosture.carried(prepared, arbitrary)]) {
+    TestValidator.equals("an arbitrary copied candidate has the same misleading serialized signature", JSON.stringify(arbitrary), before);
+    for (const candidate of [raw, arbitrary]) {
       const actual: IAutoMoviePose = resolveHumanPosture(body, candidate);
       const cold: IAutoMoviePose = resolveHumanPosture(body, structuredClone(candidate));
       TestValidator.predicate(`current scalar/ROM survive ${inherited ? "inherited" : "own"} JSON spoof, expected${expected}`,

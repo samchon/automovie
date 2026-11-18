@@ -22,8 +22,8 @@ import type {
  * frame, which a turn about +Y and a world translation leave as they are, so
  * it is handed back unchanged. A goal attached to a bone (`on`), or kept
  * clear of or resting on other bodies' colliders (`clear`, `rests`), names
- * world things the frame would have to carry, and is keyed in the world as
- * before; so is a pose without a root.
+ * world things the frame would have to carry, and is solved in the world;
+ * so is a pose without a root.
  *
  * The limb solver has no absolute floor-height term: free-leg geometry,
  * own-body arm clearance and contact re-aim depend on relative positions,
@@ -31,14 +31,14 @@ import type {
  * point moves together. A world-fixed ground goal remains different when
  * only the root moves vertically, because its relative target Y changes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world. The original GRID constant remains1e-12; its local documentation explains normalization rounding and the existing1e-9 moved-fit comparison.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world.
  * @evidence contracts/development/design.md#principled-representation A rigid reference frame removes all three root translation components and only its world-up heading; pitch/roll, joint coordinates, local contacts and seed branch/swivel remain unchanged. Optional y defaults to zero for existing explicitly constructed floor frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit; the solve counters; and the former memory's grid (`grid`, `GRID`) and hit/miss fields, which specifications written against the memory still read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit; and the solve counters with the former memory's hit/miss fields, which specifications still read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
  */
 export namespace HumanLimbFitFrame {
   /**
-   * The frame a fit of a pose and a goal is remembered in, or null when it
+   * The frame a fit of a pose and a goal is solved in, or null when it
    * stays in the world.
    *
    * @param pose The pose before the fit.
@@ -50,7 +50,7 @@ export namespace HumanLimbFitFrame {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One unchanged exclusion gate and one heading construction supply the common normalization frame for root, target, bend and rival.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps root-null/on/clear/rests exclusions and adds no tolerance, target replacement or acceptance rule; a fixed world goal changes relative Y when only the root rises.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion-vector/trigonometric work and one frame allocation, independent of rig/goal population.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame applies only to the current source/goal normalization; the body memory owns actual fit reuse under its original complete-input key/grid.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame applies only to the current source/goal normalization; no fit is reused across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned frame or null and retains no source, target, result or resource.
    */
   export function of(
@@ -87,7 +87,7 @@ export namespace HumanLimbFitFrame {
    * @evidence contracts/development/common.md#meaningful-documentation States world-metre input/output and zero default for an explicitly omitted frame Y.
    * @evidence contracts/development/implementation.md#principled-implementation Applies inverse translation followed by the same unit inverse-heading quaternion; subtracting Y commutes with a world-up turn and changes no local contact or rotation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One component subtraction record feeds the existing quaternion-vector owner for every root/goal/rival point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual point/frame scalars without rounding, normalization, threshold or point-specific exception; key rounding remains exclusively grid's original policy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual point/frame scalars without rounding, normalization, threshold or point-specific exception.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and fresh vector storage; no body, shape or joint scan.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller shares this one current frame among all mutually translated inputs, while each point is transformed independently.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no frame or point.
@@ -115,7 +115,7 @@ export namespace HumanLimbFitFrame {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A root-null identity branch or one shallow pose/root update reuses the common point transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clinical articulation, root scale or rotation normalization changes, and null roots preserve the original object.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant root transform/copy work without traversing J borrowed joints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows unchanged joints/scale only during normalization; actual numerical fit and stored-output ownership remain with the existing memory owner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows unchanged joints/scale only during normalization; the fit's output ownership remains with its solver.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input and returns the original root-null pose or fresh outer/root/translation/rotation records with unchanged members borrowed.
    */
   export function pose(frame: IAutoMovieMotionHumanLimbFitFrame.IFrame, pose: IAutoMoviePose): IAutoMoviePose {
@@ -162,49 +162,9 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
-   * The former fit memory's key grid, which no solve reads any more; kept
-   * while specifications written against the memory serialize with it.
-   * A key's number on the memory's grid (`GRID`), for `JSON.stringify`: a
-   * pose and a goal moved into the frame from two places or headings differ
-   * by the rounding of the move, a few units in the last place of a double
-   * (about 1e-15 of a metre or a unit quaternion), so their exact digits
-   * never meet; read on the grid they are one key. Every other value is
-   * kept as it is.
-   *
-   * @param _ The member's name, unread.
-   * @param value The member's value.
-   * @returns A number as its whole count of `GRID`, any other value as it is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the existing key-only numerical grid and unchanged nonnumeric values.
-   * @evidence contracts/development/implementation.md#principled-implementation The original Math.round(value/GRID) merges only normalization rounding under the established key policy; source and solver inputs are not rounded by this callback.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One type gate and original scalar expression serve JSON key construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts GRID remains1e-12 and no contact, ROM, target, success tolerance or numeric fallback is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per visited key value; serialization owns the complete-input traversal.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each supplied value is read independently without retained scalar results.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one primitive or original nonnumeric value and retains nothing.
-   */
-  export function grid(_: string, value: unknown): unknown {
-    return typeof value === "number" ? Math.round(value / GRID) : value;
-  }
-
-  /**
-   * The former memory key's resolution (read by no solve; kept with `grid`),
-   * in metres and in units of a quaternion or
-   * an angle: a thousand times the rounding of a move into the frame, so two
-   * copies of one fit read the same key but for the rare value that falls
-   * on a step of the grid, which is only solved again; and a thousand times
-   * finer than the 1e-9 m to which #3463 holds a moved fit to its original,
-   * so two inputs read as one differ by less than that acceptance reads.
-   *
-   * The key resolution remains1e-12; this constant does not change a physical
-   * contact, range-of-motion, target or success tolerance.
-   */
-  export const GRID: number = 1e-12;
-
-  /**
    * Record one actual operation event without retaining keys or inputs.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts and curve, continuation and course events; positive amounts accumulate actual work only.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts and curve and continuation events; positive amounts accumulate actual work only.
    * @evidence contracts/development/implementation.md#principled-implementation Call sites report events at their actual solver and planner boundaries.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed field-name union updates the same weak body's fixed scalar counter record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics never select a solver, alter acceptance, patch a method or keep a seen-key set to invent unavailable provenance.
@@ -220,7 +180,7 @@ export namespace HumanLimbFitFrame {
    * A body's limb-fit work counts since the process began.
    *
    * @param body The body.
-   * @returns Independent cumulative actual fitting, curve, continuation and course counts, with the former memory's hit/miss fields at zero.
+   * @returns Independent cumulative actual fitting, curve and continuation counts, with the former memory's hit/miss fields at zero.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines copied cumulative counters and initial zero values.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the body's actual scalar counters or initial zero fields and returns an independent observation; no unavailable cause of a historical miss is inferred.
@@ -241,10 +201,7 @@ export namespace HumanLimbFitFrame {
       out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0,
         curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
         curveColdFallbacks: 0, curveRefinements: 0, orientationRootTrials: 0,
-        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0,
-        courseAdmitted: 0, courseFallbacks: 0, courseRefusedSpeed: 0, courseRefusedSwept: 0,
-        courseRefusedSite: 0, courseRefusedLift: 0, courseRefusedLimit: 0, courseRefusedProbe: 0,
-        courseRefusedEmbedded: 0, courseRefusedCrossing: 0 };
+        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0 };
       COUNTS.set(body, out);
     }
     return out;

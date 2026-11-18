@@ -18,7 +18,6 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
-import { prepareHumanPostureTranslation } from "./prepareHumanPostureTranslation";
 import { prepareIssuedHumanPosture } from "./prepareIssuedHumanPosture";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
@@ -31,7 +30,7 @@ import { turnHumanPosture } from "./turnHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source provenance, free-leg scope, public cold versus owned continuous construction, actual rigid covariance, explicit transport and ordinary fallback.
  * @evidence contracts/development/design.md#principled-representation An actual solve of an owned raw snapshot plus complete constructed-graph/current-rig checks proves free-leg translation, a native numeric whole-body turn or joint-only rigid placement. Raw demands remain distinct from achieved output; JSON observes input but never establishes numerical equality.
- * @evidence contracts/development/design.md#minimal-and-owned-surface prepare/continued construct actual source solves, bones/seeds expose independent observations, placed/translated/turned/rigid construct owned raw consumers, and carried preserves comparisons without minting unowned authority. No partial-leg or general result/time cache is added.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare/continued construct actual source solves, bones/seeds expose independent observations, placed/translated/turned/rigid construct owned raw consumers and read lends a proven solve to the resolver. No partial-leg or general result/time cache is added.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Only actual owned constructors mint complete graph and leg capabilities. Forged/copied wrappers, arbitrary same-string raw objects, changed shape/body/metadata, base/near or unknown FK suppliers cannot certify cached numerical output.
  */
 export namespace HumanPosturePreparation {
@@ -60,9 +59,9 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Solves exactly the authoring given, which stays as it was solved under the value contract, so no later observation pairs different demands with this solution. Finite free world-leg goals admit translation equivalence, including shared goals shifted once; joint-only projection is rigid-placement independent. Unknown FK suppliers retain actual solving but issue no reuse proof.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and lends its output.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior time, quantized key, fitted target or manually asserted resolved state supplies the solution; unsupported source contexts remain ineligible and resolve normally after translation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms No copy of the authoring, the solved root or the public pose: values are kept and lent as they are. Expected translation prepares lazily only on an actual carried read, adding no scan to public translated-only consumers. Current rig metadata still compares fully and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms No copy of the authoring, the solved root or the public pose: values are kept and lent as they are. Current rig metadata still compares fully and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual private-reader assembly/native fitting or the incoming-reader independent route supplies the cold result. Genuine source-chain checks run before/after solving without invoking suppliers. Bones separately checks current rig/loan proof and copies before exposing a pose to any incoming reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each preparation holds the given authoring, one private seeded result, a rig checker and at most one lazily prepared expected-translation closure borrowing that authoring; synchronous reader/projector loans are not retained. Weak source/candidate ownership adds no result history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each preparation holds the given authoring, one private seeded result and a rig checker; synchronous reader/projector loans are not retained. Weak source/candidate ownership adds no result history.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -111,13 +110,12 @@ export namespace HumanPosturePreparation {
       topology: body.topology,
       rigUnchanged: native && prepareHumanPoseResolution.isNativeSource(resolution) && Raw.eligible(raw) && rigUnchanged !== undefined && rigUnchanged() ? rigUnchanged : undefined,
       raw,
-      expected: undefined,
       solved,
     });
     return prepared;
   }
 
-  /** Public cold preparation retains the original ordinary source/memory policy. */
+  /** Public cold preparation runs the ordinary owned source solve. */
   function coldSource(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return resolveHumanPostureSource.owned(body, posture, near, resolution, undefined, projection);
@@ -281,7 +279,7 @@ export namespace HumanPosturePreparation {
     const turn: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(raw);
     solved.pose.root.translation = turn.position;
     solved.pose.root.rotation = turn.rotation;
-    const source: ISource = { ...previous, raw: structuredClone(raw), solved, expected: undefined };
+    const source: ISource = { ...previous, raw: structuredClone(raw), solved };
     return issued(source, raw);
   }
 
@@ -320,46 +318,6 @@ export namespace HumanPosturePreparation {
     const raw: IAutoMovieMotionHumanPosture = Raw.translated(source.raw, root);
     raw.yaw = yaw; raw.pitch = pitch; raw.roll = roll;
     return issued(source, raw);
-  }
-
-  /**
-   * Preserve the existing raw comparison/JSON observations for a caller's
-   * posture. Whole reuse retains only an already constructor-issued graph
-   * from this source; an arbitrary same-string candidate resolves normally.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged raw/JSON observation order, no arbitrary whole certification, existing owned-graph retention and ordinary fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Original actual/expected JSON observations remain, including empty-goal Euler replacement, but strings cannot prove physical equality in the presence of toJSON. Only an already issued same-source owned graph can survive this comparison; rigid is the authoritative constructor for a new joint-only placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The expected-only builder avoids unnecessary private-prefix copies without changing external root reads. A source/signature record preserves subsequent original observations; read additionally requires actual constructor graph authority, and arbitrary composition transfers no partial-leg authority.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No same-string raw candidate obtains a new solved/leg capability. Own/inherited toJSON, a Proxy or modified clinical values therefore cannot substitute source output for different demands; no target, tolerance, goal or continuation rule is weakened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains linear exact raw signature walks and no FK/solver. The first carried call prepares a private plain alias-free source once; supported repeats allocate only changed point/root records. Other sources keep full translation; possible JSON callbacks detach the borrowed prefix. Public translated-only consumers pay no preparation, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Expected construction borrows only the immutable private raw prefix. Actual candidate serialization still precedes expected serialization; potential callbacks receive a detached prefix. Numerical reuse additionally requires preexisting same-source constructor graph and live rig/native-loan proof, with no mutable-input verdict cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak candidate entry keeps source/signature only while that candidate lives. The temporary expected record never enters output or evidence maps; inherited JSON hooks or nonnumeric replaced Euler fields trigger prefix detachment before serialization. One source owns one builder or unsupported marker, with no timestamp history.
-   */
-  export function carried(prepared: IPrepared, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
-    const source: ISource | undefined = SOURCES.get(prepared);
-    if (source === undefined || source.rigUnchanged === undefined || !Raw.eligible(posture)) return posture;
-    if (source.expected === undefined) source.expected = prepareHumanPostureTranslation(source.raw) ?? null;
-    const root: IAutoMovieVector3 = posture.root;
-    const borrowed: IAutoMovieMotionHumanPosture | undefined = source.expected?.(root);
-    const expected: IAutoMovieMotionHumanPosture = borrowed ?? Raw.translated(source.raw, root);
-    if (Object.keys(source.raw.limbs).length === 0 && Object.keys(posture.limbs).length === 0) {
-      expected.yaw = posture.yaw;
-      expected.pitch = posture.pitch;
-      expected.roll = posture.roll;
-    }
-    const signature: string | undefined = Raw.signature(posture);
-    const jsonCallbacks: boolean = borrowed !== undefined && signature !== undefined &&
-      (Object.getOwnPropertyDescriptor(Object.prototype, "toJSON") !== undefined ||
-      Object.getOwnPropertyDescriptor(Array.prototype, "toJSON") !== undefined || Object.getPrototypeOf(Array.prototype) !== Object.prototype ||
-      Reflect.ownKeys(expected.root).length !== 3 || ![expected.root.x, expected.root.y, expected.root.z].every(Number.isFinite) ||
-      ![expected.yaw, expected.pitch, expected.roll].every(Number.isFinite));
-    const compared: IAutoMovieMotionHumanPosture = jsonCallbacks ? { ...expected,
-      ...structuredClone({ joints: expected.joints, limbs: expected.limbs }) } : expected;
-    if (signature !== undefined && signature === Raw.signature(compared)) {
-      const previous: IEvidence | undefined = CARRIED.get(posture);
-      CARRIED.set(posture, { source, signature, unchanged: previous?.source === source ? previous.unchanged : undefined });
-    }
-    return posture;
   }
 
   /**
@@ -410,8 +368,6 @@ interface ISource {
   topology: IAutoMovieMotionHumanBody["topology"];
   rigUnchanged: (() => boolean) | undefined;
   raw: IAutoMovieMotionHumanPosture;
-  /** Optional nonescaping expected-only builder over the same immutable private raw clone. */
-  expected: ReturnType<typeof prepareHumanPostureTranslation> | null;
   solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
 }
 

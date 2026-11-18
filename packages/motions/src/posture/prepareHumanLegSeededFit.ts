@@ -12,9 +12,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLegChain } from "./HumanLegChain";
-import { HumanLimbFit } from "./HumanLimbFit";
+import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { poseBones } from "./poseBones";
-import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -31,12 +30,12 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @returns A reader of actual model-metre target/bend, model rotation and optional unchanged-law near seed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body/root scope, changing goal/near meanings, actual fit/read delegation and no-answer-retention lifetime.
- * @evidence contracts/development/implementation.md#principled-implementation One fixed pelvis/hip determines the same hips-only root by hip minus rotated rest-hip offset. Each query still calls HumanLimbFit.remembered, the direct solve, with its actual point/bend/rotation/near, preserving that owner's mirror and root-frame conventions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns fixed source/root construction and one operation reader; HumanLimbFit owns every solve and the supplied existing leg reader owns branch/swivel extraction.
+ * @evidence contracts/development/implementation.md#principled-implementation One fixed pelvis/hip determines the same hips-only root by hip minus rotated rest-hip offset. Each query still calls applyHumanLimbFit, the direct solve, with its actual point/bend/rotation/near, preserving that owner's mirror and root-frame conventions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns fixed source/root construction and one operation reader; applyHumanLimbFit owns every solve and the supplied existing leg reader owns branch/swivel extraction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No request is replaced by achieved coordinates or a previous seed, no fit policy changes, and no target or callback result is cached by this preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed root construction and lazy reader creation occur once for repeated probes. The actual local reader also lends its exact fixed source to prepareHumanLimbSource, so matching mirror/root-normalized solves share engine source geometry and rig coefficients. Every query retains its actual solve, ordered admission and requested four-frame FK. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/pelvis/hip prove this piece's source scope; the explicit source owner snapshots and matches complete current source scalars before sharing preparation, otherwise ordinary fitting runs. The bounded reader checks current fitted FK dependencies. Every goal, reference, callback and near remains a fresh query input; no target or answer crosses preparations.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns a hips-only pose, four-name demand and lazy FK reader plus its weakly owned bounded source-snapshot/factory pool until release. Goal workspaces and temporary maps end per query; only swivel/seed data escape, with no reader in a plan result, target history or handle.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed root construction and lazy reader creation occur once for repeated probes; the one operation reader shares exact unchanged FK prerequisites between probes. Every query retains its actual solve, ordered admission and requested four-frame FK. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/pelvis/hip prove this piece's source scope. The bounded reader checks current fitted FK dependencies. Every goal, reference, callback and near remains a fresh query input; no target or answer crosses preparations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns a hips-only pose, four-name demand and lazy FK reader until release. Goal workspaces and temporary maps end per query; only swivel/seed data escape, with no reader in a plan result, target history or handle.
  */
 export function prepareHumanLegSeededFit(
   body: IAutoMovieMotionHumanBody,
@@ -51,7 +50,7 @@ export function prepareHumanLegSeededFit(
   near?: IAutoMovieSwivelNear,
 ) => ReturnType<typeof HumanLegChain.seeded> {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanLimbSource(body, prepareHumanPoseResolution());
+    prepareHumanPoseResolution();
   const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
   const hips: IAutoMoviePose = {
     skeleton: body.skeleton.id,
@@ -71,7 +70,7 @@ export function prepareHumanLegSeededFit(
     rotation: IAutoMovieQuaternion,
     near?: IAutoMovieSwivelNear,
   ): ReturnType<typeof HumanLegChain.seeded> => {
-    const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
+    const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
       body, hips, side === "left" ? "leftLeg" : "rightLeg",
       { point: target, bend, rotation }, [], undefined, near, resolution,
     );

@@ -20,8 +20,6 @@ import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
-import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
-import type { HumanLimbView } from "./HumanLimbView";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
@@ -32,12 +30,12 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for
  * each limb after the trunk: the goal carried into the world by the bone
  * it is attached to, the engine's two-bone fit clear of the trunk and the
- * other arm, the end joint re-aimed so a contact stays put, and the fits
- * remembered per body.
+ * other arm, and the end joint re-aimed so a contact stays put. Every fit is
+ * solved from its own inputs; nothing is remembered between fits.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the four parts of a limb's fit and who runs it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three parts of a limb's fit, who runs it and that no fit is remembered.
  * @evidence contracts/development/design.md#principled-representation The fit of one limb is one responsibility, apart from the assembly of a whole pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, the world goal, the fit, the remembered fit and the memory's switch, all read by `resolveHumanPosture`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, the world goal, the world-frame and kernel fits and the closed-form swivel readings, read by the resolver, its direct solve and the arm course.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The solver is the engine's; nothing here sets an angle past the rig's range.
  */
 export namespace HumanLimbFit {
@@ -82,24 +80,6 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * The former switch of the limb-fit memory. No fit is remembered any more:
-   * every fit is solved directly (`solveHumanLimbFit`), with the switch on or
-   * off, so this call changes nothing. It stays only while specifications
-   * written against the memory still call it.
-   *
-   * @param _on Unread.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the switch has no effect, why, and why it remains.
-   * @evidence contracts/development/implementation.md#principled-implementation With no memory there is nothing to turn on or off; every fit is the direct solve either way.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure An empty body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims no effect and keeps no hidden state.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms No work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function memory(_on: boolean): void {}
-
-  /**
    * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
    * its point and bend carried from the bone's posed frame to the world
    * (`p_world = P + R p`) and its rotation composed after the bone's
@@ -136,11 +116,8 @@ export namespace HumanLimbFit {
   ): IAutoMovieHumanLimbGoal {
     const on: AutoMovieHumanoidBone | undefined = goal.on;
     if (on === undefined) return goal;
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const chain: readonly AutoMovieHumanoidBone[] = limb.endsWith("Arm")
-      ? [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]
-      : [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`];
-    if (chain.includes(on))
+    const own: IChain = chain(limb);
+    if (on === own.upper || on === own.lower || on === own.effector)
       throw new Error(
         `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
       );
@@ -373,45 +350,8 @@ export namespace HumanLimbFit {
           },
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
-      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
-        const fitted: IAutoMovieSeededChainFit = read(fitter, point, near, body, continued, incumbent);
-
-        // A workspace of a shared source solves on its own snapshot; its
-        // unchanged records are handed back as this pose's own, so the
-        // caller that merges the fit recognises the records it lent.
-        return fitter.lent === undefined ? fitted : { ...fitted, pose: fitter.lent(fitted.pose) };
-      });
-  }
-
-  /**
-   * The fit of one limb in the mirror image and root-position frame,
-   * solved directly every time (`solveHumanLimbFit`). The name is the
-   * former memory's; nothing is remembered.
-   *
-   * @param body The performer's body.
-   * @param pose The pose before the fit.
-   * @param limb The limb.
-   * @param goal Its goal, attached or not.
-   * @param placed The arms already placed.
-   * @param rival Where the other arm's wrist will be, while it is still to be fitted.
-   * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
-   * @param resolution Optional parent FK reader or lazy supplier, borrowed by the solve.
-   * @param admission The admission the fits of one pose share (`HumanLimbView.IAdmission`); absent, this fit admits the whole pose itself.
-   * @returns The pose with the limb fitted, and the seed that continues it; untouched records are shared with the input pose, which callers treat as immutable.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the direct solve, its frames, the shared admission and the shared-record result.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to solveHumanLimbFit, the memory's former miss path: mirror reflection and the rigid root frame leave the fit equivariant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call forwards every argument.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, lookup or stored answer; every request is solved from its own inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search on the records it reads, as solveHumanLimbFit states; no serialization or result clone.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is solved afresh.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function remembered(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, goal: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    admission?: HumanLimbView.IAdmission): IAutoMovieSeededChainFit {
-    return solveHumanLimbFit(body, pose, limb, goal, placed, rival, near, resolution, "ordinary", admission);
+      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit =>
+        read(fitter, point, near, body, continued, incumbent));
   }
 
   /**
@@ -477,7 +417,7 @@ export namespace HumanLimbFit {
     given: IAutoMovieSwivelNear | undefined, body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
     const near: IAutoMovieSwivelNear | undefined = continued ?? given;
     if (near === undefined) return workspace.fit(point);
-    const fitted: IAutoMovieSeededChainFit = workspace.continued(point, near,
+    return workspace.continued(point, near,
       (event: Parameters<NonNullable<Parameters<typeof workspace.continued>[2]>>[0]): void => {
         switch (event) {
           case "orientationRootTrial": HumanLimbFitFrame.work(body, "orientationRootTrials"); break;
@@ -486,8 +426,6 @@ export namespace HumanLimbFit {
           case "coldAttempt": HumanLimbFitFrame.work(body, "continuationColdAttempts"); break;
         }
       });
-    HumanLimbRootProvenance.capture(fitted);
-    return fitted;
   }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */

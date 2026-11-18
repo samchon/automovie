@@ -17,7 +17,7 @@ import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbIncumbent } from "./HumanLimbIncumbent";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
-import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
+import { mirrorHumanLimbSource } from "./mirrorHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -121,9 +121,9 @@ function solved(
 
   // A left limb is solved as the right limb in the mirror image of its
   // world, so the two sides are mirror images to the bit. The image is read
-  // through the operation reader's companion
-  // (`prepareHumanLimbSource.mirror`), so neither the pose's rows nor its
-  // image's are recomputed for the other's sake.
+  // through the operation reader's companion (`mirrorHumanLimbSource`), so
+  // neither the pose's rows nor its image's are recomputed for the other's
+  // sake.
   const left: boolean = limb.startsWith("left");
   const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
   const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
@@ -135,7 +135,7 @@ function solved(
     !left || resolution === undefined
       ? resolution
       : (): ReturnType<ReturnType<typeof prepareHumanPoseResolution>> =>
-          prepareHumanLimbSource.mirror(prepareHumanPoseResolution.read(resolution));
+          mirrorHumanLimbSource(prepareHumanPoseResolution.read(resolution));
 
   // Solved in the root-position frame; the merge keeps the caller's root.
   const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null = framed ? HumanLimbFitFrame.of(image, asked) : null;

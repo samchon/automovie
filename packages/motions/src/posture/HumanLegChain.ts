@@ -29,7 +29,7 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
  * A leg posed as the posture's own fit poses it, read through the engine's
  * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone,
  * and the leg is one bend branch and one swivel about its hip-to-ankle line.
- * `fit` runs the posture's leg fit itself (`HumanLimbFit.remembered`, solved
+ * `fit` runs the posture's leg fit itself (`applyHumanLimbFit`, solved
  * directly every time) on a pelvis and reads its branch and swivel,
  * and `seeded` does so continuing a nearby fit's seed;
  * `pose` places the leg from a held branch and swivel for any ankle, so a
@@ -186,8 +186,8 @@ export namespace HumanLegChain {
   }
 
   /**
-   * The posture's own leg fit (`HumanLimbFit.remembered`, the fit the posture
-   * it) on a pelvis, read as a branch and a swivel.
+   * The posture's own leg fit (`applyHumanLimbFit`, the fit a resolve
+   * runs) on a pelvis, read as a branch and a swivel.
    *
    * @param body The body.
    * @param side The leg.
@@ -203,7 +203,7 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit and its four requested bone frames feed the existing swivel reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds ordered authored-joint admission plus only the requested hips/thigh/shank/foot ancestor FK to the existing fit cost; unrelated body subtrees are not transformed for the swivel read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanLimbFit.remembered (the direct solve) and read. One invocation-owned lazy resolution reader shares only exact unchanged FK prerequisites between the solve and the actual fitted-pose reading; all poses and swivel results remain actual.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses applyHumanLimbFit (the direct solve) and read. One invocation-owned lazy resolution reader shares only exact unchanged FK prerequisites between the solve and the actual fitted-pose reading; all poses and swivel results remain actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its reader only through synchronous return or throw; requested maps and snapshots do not enter the returned swivel/seed.
    */
   export function fit(
@@ -221,7 +221,7 @@ export namespace HumanLegChain {
   /**
    * The posture's own leg fit, as `fit`, with the seed that continues it and,
    * given `near`, continuing a nearby fit of the same leg
-   * (`HumanLimbFit.remembered`'s `near`): every pass refines that seed
+   * (`applyHumanLimbFit`'s `near`): every pass refines that seed
    * instead of sweeping the swivel, so a fit of inputs a small step from a
    * fitted leg's costs a refinement, not a sweep.
    *

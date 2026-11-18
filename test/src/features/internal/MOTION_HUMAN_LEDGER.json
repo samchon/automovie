@@ -2151,11 +2151,6 @@
     },
     {
       "layer": "posture",
-      "symbol": "resolveHumanPosture.memory",
-      "tests": []
-    },
-    {
-      "layer": "posture",
       "symbol": "resolveHumanPosture.heading",
       "tests": [
         "test_motion_compose_placed",

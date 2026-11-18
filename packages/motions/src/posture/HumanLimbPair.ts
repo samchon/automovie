@@ -31,7 +31,7 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * Two arms with goals fitted as one coupled problem, symmetric in the two
  * arms by construction.
  *
- * Each arm is first fitted on its own (`HumanLimbFit.remembered`), the
+ * Each arm is first fitted on its own (`applyHumanLimbFit`), the
  * other arm only a coming wrist, so neither fit depends on the other's.
  * Arms whose fits keep clear of each other (`HumanArmClearance.overshoot`
  * against the other arm's segments alone) are done: their fits are
@@ -85,50 +85,6 @@ export namespace HumanLimbPair {
     > = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IFitted {
-    return paired(body, pose, goals, near, resolution, HumanLimbFit.remembered);
-  }
-
-  /**
-   * Fit the same pair inside a private freshly assembled COW posture operation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the private owned-source entrypoint and unchanged paired fitting contract.
-   * @evidence contracts/development/implementation.md#principled-implementation The common paired kernel preserves representative choice, rival geometry and coupled fitting; each arm is the direct solve (applyHumanLimbFit), as in fitted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This internal entrypoint selects applyHumanLimbFit; fitted, owned and constructed share one paired implementation and, with no fit memory, the same direct solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No solve, goal, near, clearance, comparison, ROM or tolerance changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two actual limb fits retain their searches; coupled optimization remains conditional on actual overlap; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only geometry/FK prerequisites share across fits; every current goal/near is evaluated and no stored pose or caller-selected numerical fitter is accepted.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary paired state/readers end with the synchronous call; the solved records transfer to its owner.
-   */
-  export function owned(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>> = {},
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IFitted {
-    return paired(body, pose, goals, near, resolution, applyHumanLimbFit);
-  }
-
-  /**
-   * Fit paired arms on the actual base-free assembler's clinical records.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the constructor-only record schema and unchanged paired goal/seed/result contract.
-   * @evidence contracts/development/implementation.md#principled-implementation Actual base-free construction and native arm mirroring preserve the closed clinical record schema; each arm is the direct solve.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Chooses the constructor route's limb fit in the same paired kernel; with no fit memory it is the same direct solve as the other entries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change mirror representatives, clearance, coupled optimizer, goal, near, ROM or acceptance; source provenance is the actual constructor path rather than a caller flag.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Both original fits and conditional coupled solve remain, with unmeasured gains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the one paired algorithm and the direct solver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local state ends with the synchronous call; outputs are the solved records.
-   */
-  export function constructed(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>> = {},
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IFitted {
-    return paired(body, pose, goals, near, resolution, applyHumanLimbFit.constructed);
-  }
-
-  /** One representative/coupling algorithm over the entry's limb fit. */
-  function paired(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>): IFitted {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const mirrored: IAutoMoviePose = HumanArmMirror.mirrored({
@@ -141,7 +97,7 @@ export namespace HumanLimbPair {
     };
     // Whole keys preserve every original getter/toJSON observation and key.
     if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
-      return solved(body, pose, goals, near, readResolution, fit);
+      return solved(body, pose, goals, near, readResolution);
     // The image's left arm is this pose's right arm, solved alike.
     const out: IFitted = solved(
       body,
@@ -152,7 +108,6 @@ export namespace HumanLimbPair {
         ...(near.left === undefined ? {} : { right: near.left }),
       },
       readResolution,
-      fit,
     );
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
@@ -188,7 +143,6 @@ function solved(
   goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
-  fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>,
 ): HumanLimbPair.IFitted {
   let authoredBones:
     | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
@@ -218,7 +172,7 @@ function solved(
   // Both arms are fitted on this one pose, so it is admitted once for both.
   const admission: HumanLimbView.IAdmission = { admitted: false };
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
-    left: fit(
+    left: applyHumanLimbFit(
       body,
       pose,
       "leftArm",
@@ -229,7 +183,7 @@ function solved(
       resolution,
       admission,
     ),
-    right: fit(
+    right: applyHumanLimbFit(
       body,
       pose,
       "rightArm",
