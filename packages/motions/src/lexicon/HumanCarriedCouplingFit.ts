@@ -44,7 +44,10 @@ type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
 /** The current gap for one bearing arm at a known surface. */
-type Gap = (bones: Bones, place: IAutoMovieMotionHumanCarriedCouplingPose.IHold) => number;
+type Gap = (
+  bones: Bones,
+  place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
+) => number;
 
 /** Grip indices follow the carry row's left-to-right order. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -152,69 +155,88 @@ export namespace HumanCarriedCouplingFit {
         ["leftUpperLeg", "abduction"],
       ] as const
     ).map(
-      (
-        [bone, axis]: LegCoordinate,
-        k: number,
-      ): IAutoMovieAngleRange =>
-        getConstraint(
-          bone,
-          readHumanBone(borne, bone)?.constraint ?? null,
-        )?.[axis] ?? { min: row.legs[k]!, max: row.legs[k]! },
+      ([bone, axis]: LegCoordinate, k: number): IAutoMovieAngleRange =>
+        getConstraint(bone, readHumanBone(borne, bone)?.constraint ?? null)?.[
+          axis
+        ] ?? { min: row.legs[k]!, max: row.legs[k]! },
     );
     const start: number[] = [...row.legs, 0, 0];
     const sides: AutoMovieHumanSide[] = SIDES.filter(
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
-    const reach: Gap[] = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side, row.holds[side === "left" ? 0 : 1]?.shape));
+    const reach: Gap[] = sides.map(
+      (side: AutoMovieHumanSide): Gap =>
+        prepareGap(bearer, side, row.holds[side === "left" ? 0 : 1]?.shape),
+    );
 
     // A perturbation of the borne legs leaves the bearer's current stance exact.
     function at(x: readonly number[], sameStance?: Bones): IRead {
-      const theirs: Bones = sameStance ?? HumanCarriedCouplingPose.stood(bearer, {
-        incline: x[3]!,
-        depth: x[4]!,
-      });
-      const registration: HumanCarriedCouplingRigid.IRead = HumanCarriedCouplingRigid.read(
-        bearer,
-        theirs,
-        borne,
-        row,
-        held,
-        [x[0]!, x[1]!, x[2]!],
-        {
+      const theirs: Bones =
+        sameStance ??
+        HumanCarriedCouplingPose.stood(bearer, {
           incline: x[3]!,
           depth: x[4]!,
-        },
-      );
+        });
+      const registration: HumanCarriedCouplingRigid.IRead =
+        HumanCarriedCouplingRigid.read(
+          bearer,
+          theirs,
+          borne,
+          row,
+          held,
+          [x[0]!, x[1]!, x[2]!],
+          {
+            incline: x[3]!,
+            depth: x[4]!,
+          },
+        );
       return { fit: registration.fit, mine: registration.bones, theirs };
     }
     const gaps: (reading: IRead) => number[] = (reading: IRead): number[] => {
       const { fit, mine, theirs }: IRead = reading;
-      const gaps: number[] = sides.map((side: AutoMovieHumanSide, index: number): number => {
-        const k: number = side === "left" ? 0 : 1;
-        const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-          borne.surfaces.regions[grips[k]!];
-        const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-          resolveAutoMovieHumanoidSurfaces.place(
-            surface,
-            mine.get(surface.bone)!,
-          );
-        const fingers: IAutoMovieVector3 | undefined = row.holds[k]?.fingers;
-        return reach[index]!(theirs, {
-          point: fit.place(local.point),
-          normal: Quaternion.rotateVector(fit.turn, local.normal),
-          ...(fingers === undefined ? {} : { forward: Quaternion.rotateVector(fit.turn,
-            Quaternion.rotateVector(mine.get("hips")!.worldRotation, fingers)) }),
-        });
-      });
-      return row.straddles === true ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)] : gaps;
+      const gaps: number[] = sides.map(
+        (side: AutoMovieHumanSide, index: number): number => {
+          const k: number = side === "left" ? 0 : 1;
+          const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+            borne.surfaces.regions[grips[k]!];
+          const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
+            resolveAutoMovieHumanoidSurfaces.place(
+              surface,
+              mine.get(surface.bone)!,
+            );
+          const fingers: IAutoMovieVector3 | undefined = row.holds[k]?.fingers;
+          return reach[index]!(theirs, {
+            point: fit.place(local.point),
+            normal: Quaternion.rotateVector(fit.turn, local.normal),
+            ...(fingers === undefined
+              ? {}
+              : {
+                  forward: Quaternion.rotateVector(
+                    fit.turn,
+                    Quaternion.rotateVector(
+                      mine.get(surface.bone)!.worldRotation,
+                      fingers,
+                    ),
+                  ),
+                }),
+          });
+        },
+      );
+      return row.straddles === true
+        ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)]
+        : gaps;
     };
     const keyed: IRead = at(start);
     const keyGaps: number[] = gaps(keyed);
-    if (keyGaps.every((g: number): boolean => g <= 0) && legRanges.every(
-      (range: IAutoMovieAngleRange, k: number): boolean =>
-        start[k]! >= range.min && start[k]! <= range.max,
-    )) return keyed;
+    if (
+      keyGaps.every((g: number): boolean => g <= 0) &&
+      legRanges.every(
+        (range: IAutoMovieAngleRange, k: number): boolean =>
+          start[k]! >= range.min && start[k]! <= range.max,
+      )
+    )
+      return keyed;
 
     // Only an inadmissible key needs to vary the legs or the bearer's stance.
     const spans: number[] = [
@@ -229,16 +251,22 @@ export namespace HumanCarriedCouplingFit {
       { min: 0, max: bends ? BENT : 0 },
       { min: 0, max: bends ? 1 : 0 },
     ];
-    const weight: number[] = spans.map((s: number): number => s > 0 ? 1 / s ** 2 : 0);
+    const weight: number[] = spans.map((s: number): number =>
+      s > 0 ? 1 / s ** 2 : 0,
+    );
     const n: number = start.length;
     const curvatures: readonly Float64Array[][] = [false, true].map(
-      (objective: boolean): Float64Array[] => weight.map((w: number): Float64Array => {
-        const diagonal: Float64Array = new Float64Array(n);
-        diagonal[0] = objective ? w : 0;
-        return diagonal;
-      }),
+      (objective: boolean): Float64Array[] =>
+        weight.map((w: number): Float64Array => {
+          const diagonal: Float64Array = new Float64Array(n);
+          diagonal[0] = objective ? w : 0;
+          return diagonal;
+        }),
     );
-    const all: number[] = Array.from({ length: n }, (_: unknown, k: number): number => k);
+    const all: number[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): number => k,
+    );
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     const accuracy: number = arm * Number.EPSILON ** 0.5;
     const origin: Float64Array = Float64Array.from(start);
@@ -260,7 +288,10 @@ export namespace HumanCarriedCouplingFit {
         gaps: g,
       };
     };
-    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IReading> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
+      Float64Array,
+      IReading
+    > = SCO.minimise(
       {
         evaluate,
         feasible: (e: IReading): boolean => e.worst <= accuracy,
@@ -281,9 +312,12 @@ export namespace HumanCarriedCouplingFit {
             up[k] = Math.min(ranges[k]!.max, x[k]! + h);
             down[k] = Math.max(ranges[k]!.min, x[k]! - h);
             if (!(up[k]! > down[k]!)) return e.gaps.map((): number => 0);
-            const sameStance: Bones | undefined = k < legRanges.length ? e.read.theirs : undefined;
-            const a: number[] = up[k] === x[k] ? e.gaps : gaps(at(up, sameStance));
-            const b: number[] = down[k] === x[k] ? e.gaps : gaps(at(down, sameStance));
+            const sameStance: Bones | undefined =
+              k < legRanges.length ? e.read.theirs : undefined;
+            const a: number[] =
+              up[k] === x[k] ? e.gaps : gaps(at(up, sameStance));
+            const b: number[] =
+              down[k] === x[k] ? e.gaps : gaps(at(down, sameStance));
             return a.map(
               (v: number, i: number): number =>
                 (v - b[i]!) / (up[k]! - down[k]!),
@@ -293,7 +327,11 @@ export namespace HumanCarriedCouplingFit {
           const q: Float64Array = Float64Array.from(all, (k: number): number =>
             objective ? weight[k]! * (x[k]! - start[k]!) : 0,
           );
-          const priced: (price: number) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (price: number): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+          const priced: (
+            price: number,
+          ) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (
+            price: number,
+          ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
             const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
               n,
               band: n - 1,
@@ -301,7 +339,10 @@ export namespace HumanCarriedCouplingFit {
               q,
               rows: [
                 ...e.gaps.map(
-                  (g: number, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+                  (
+                    g: number,
+                    i: number,
+                  ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                     key: `g|${i}`,
                     index: all,
                     coef: all.map((k: number): number => slope[k]![i]!),
@@ -325,22 +366,27 @@ export namespace HumanCarriedCouplingFit {
             let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
             return {
               reprice: priced,
-              solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
-                const problem: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
-                  ...model,
-                  rows: [
-                    ...model.rows,
-                    ...all.map(
-                      (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
-                        key: `t|${k}`,
-                        index: [k],
-                        coef: [1],
-                        l: (-r * spans[k]!) / widest,
-                        u: (r * spans[k]!) / widest,
-                      }),
-                    ),
-                  ],
-                };
+              solve: (
+                r: number,
+              ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+                const problem: IAutoMovieMotionHumanQuadraticProgram.IProblem =
+                  {
+                    ...model,
+                    rows: [
+                      ...model.rows,
+                      ...all.map(
+                        (
+                          k: number,
+                        ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+                          key: `t|${k}`,
+                          index: [k],
+                          coef: [1],
+                          l: (-r * spans[k]!) / widest,
+                          u: (r * spans[k]!) / widest,
+                        }),
+                      ),
+                    ],
+                  };
                 prepared ??= QP.prepare(problem);
                 warm = prepared.solve(problem.rows, warm);
                 const solved: Float64Array = warm.x;
@@ -373,7 +419,10 @@ export namespace HumanCarriedCouplingFit {
                   ),
                   met: Math.max(0, ...left) <= accuracy,
                   get trial(): Float64Array {
-                    return (trial ??= Float64Array.from(x, (v: number, k: number): number => v + solved[k]!));
+                    return (trial ??= Float64Array.from(
+                      x,
+                      (v: number, k: number): number => v + solved[k]!,
+                    ));
                   },
                   predicted: zero - QP.value(model, solved),
                   length: longest,
@@ -409,9 +458,13 @@ export namespace HumanCarriedCouplingFit {
       },
     );
     const met: IReading = solved.evaluation;
-    const clear: boolean = met.worst <= accuracy || (row.straddles === true &&
-      sides.every((_, index: number): boolean => met.gaps[index]! <= accuracy) &&
-      HumanCarriedStraddle.clear(bearer, met.read));
+    const clear: boolean =
+      met.worst <= accuracy ||
+      (row.straddles === true &&
+        sides.every(
+          (_, index: number): boolean => met.gaps[index]! <= accuracy,
+        ) &&
+        HumanCarriedStraddle.clear(bearer, met.read));
     if (!clear)
       throw new HumanRefusal({
         kind: "reach",
@@ -451,14 +504,26 @@ export namespace HumanCarriedCouplingFit {
   }
 
   /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
-  function prepareGap(bearer: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, shape?: IAutoMovieMotionHumanCarried.IHold["shape"]): Gap {
+  function prepareGap(
+    bearer: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    shape?: IAutoMovieMotionHumanCarried.IHold["shape"],
+  ): Gap {
     const palm: ReturnType<typeof HumanHandTarget.prepareMoving>["wrist"] =
-      HumanHandTarget.prepareMoving(bearer, side, shape === undefined ? undefined : { shape }).wrist;
+      HumanHandTarget.prepareMoving(
+        bearer,
+        side,
+        shape === undefined ? undefined : { shape },
+      ).wrist;
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    return (bones, place): number => Vector3.length(Vector3.subtract(
-      palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place, place.forward).point,
-      bones.get(`${side}UpperArm`)!.worldPosition,
-    )) - arm;
+    return (bones, place): number =>
+      Vector3.length(
+        Vector3.subtract(
+          palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place, place.forward)
+            .point,
+          bones.get(`${side}UpperArm`)!.worldPosition,
+        ),
+      ) - arm;
   }
 
   /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */

@@ -139,6 +139,8 @@ export namespace HumanCarriedBorne {
       ? undefined : demanded(carrier, HumanCarriedCoupling.BEARER);
     const helperBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = helper === undefined
       ? undefined : demanded(helper, HumanCarriedCoupling.SECOND);
+    const carried: ReturnType<typeof HumanCarriedCouplingPose.preparePosture> | undefined =
+      coupling === undefined ? undefined : HumanCarriedCouplingPose.preparePosture(body, coupling, row);
     const ownBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([body.surfaces.regions[row.mine].bone]);
     return HumanCarriedLift.over(context, {
       duration: seconds,
@@ -193,9 +195,9 @@ export namespace HumanCarriedBorne {
         // With no carrier the carry's posture is taken where the body stands.
         if (carrier === undefined)
           return { ...entry, pitch: row.pitch, joints, limbs: {} };
-        if (coupling !== undefined) {
+        if (carried !== undefined) {
           const t: number = context.start + Math.min(seconds, Math.max(0, at));
-          return HumanCarriedCouplingPose.posture(body, coupling, row, {
+          return carried({
             [HumanCarriedCoupling.BEARER]: {
               body: carrier.body,
               bones: carrier.bones(t, carrierBones),

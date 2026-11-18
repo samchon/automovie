@@ -139,7 +139,13 @@ export namespace HumanCarried {
       legs: [80, 70, 0],
       clings: [null, null],
       holds: [
-        { region: "sternum", offset: { out: 0.25, up: -0.15, forward: 0.35 } },
+        {
+          region: "sternum",
+          offset: { out: 0.25, up: -0.15, forward: 0.35 },
+          // Support the back with the fingers along it toward the head.
+          fingers: { x: 0, y: 1, z: 0 },
+          shape: "flat",
+        },
         { region: "sternum", offset: { out: 0.25, up: -0.15, forward: 0.35 } },
       ],
     },
@@ -152,7 +158,13 @@ export namespace HumanCarried {
       clings: [null, null],
       holds: [
         null,
-        { region: "shoulderRight", offset: { out: 0, up: 0, forward: 0.3 } },
+        {
+          region: "shoulderRight",
+          offset: { out: 0, up: 0, forward: 0.3 },
+          // The open palm supports the thigh; the fingers follow it away from the hip.
+          shape: "flat",
+          fingers: { x: 0, y: -1, z: 0 },
+        },
       ],
     },
     supported: {

@@ -31,6 +31,9 @@ export namespace IAutoMovieMotionHumanCarriedCouplingPose {
 
     /** Unit, out of the borne body. */
     normal: IAutoMovieVector3;
+
+    /** The fingers' tangent in the same frame, when the row directs them. */
+    forward?: IAutoMovieVector3;
   }
 
   /** A bearing hand's hold and the carried segments in the same anchor frame. */

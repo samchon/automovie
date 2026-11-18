@@ -150,7 +150,10 @@ export namespace HumanCarriedCouplingCouple {
     // reach the holds; a second helper keeps both bearers upright. The
     // described grip is taken where it reaches, a nearer one only where it
     // does not, so a later grip costs a fit only when an earlier one missed.
-    const grips: readonly Grip[] = [rules.HOLDS[carry], ...(rules.NEARER[carry] ?? [])];
+    const grips: readonly Grip[] = [
+      rules.HOLDS[carry],
+      ...(rules.NEARER[carry] ?? []),
+    ];
     const choose: (k: number) => IGripFit = (k: number): IGripFit => {
       try {
         return {
@@ -174,7 +177,10 @@ export namespace HumanCarriedCouplingCouple {
         throw error;
       }
     };
-    const { read: { fit, mine, theirs }, held }: IGripFit = choose(0);
+    const {
+      read: { fit, mine, theirs },
+      held,
+    }: IGripFit = choose(0);
     // The key frame is the bone the resting region rides on, so the borne
     // body goes with that bone wherever the bearer's action takes it.
     const anchor: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(
@@ -186,11 +192,14 @@ export namespace HumanCarriedCouplingCouple {
       row,
       fit.legs,
     );
+    const keyHeading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       anchored.worldRotation,
     );
-    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, anchored.worldPosition),
@@ -200,9 +209,10 @@ export namespace HumanCarriedCouplingCouple {
     // body's region on that side, facing as the first does.
     const besides: IBearingSide[] = [{ role: rules.BEARER, row, held }];
     const bearers: Record<string, Bearer> = {};
-    const secondBones: Bones | undefined = second === undefined
-      ? undefined
-      : HumanCarriedCouplingPose.stood(second.body, { incline: 0, depth: 0 });
+    const secondBones: Bones | undefined =
+      second === undefined
+        ? undefined
+        : HumanCarriedCouplingPose.stood(second.body, { incline: 0, depth: 0 });
     if (second !== undefined) {
       const still: Bones = secondBones!;
       const shift: IAutoMovieVector3 = Vector3.subtract(
@@ -227,24 +237,47 @@ export namespace HumanCarriedCouplingCouple {
       // the first of its carry's whose every held region lies within its
       // arm there (`HumanCarriedCouplingFit.gap`), or the described one.
       const reaches: (grip: Grip) => boolean = (grip: Grip): boolean =>
-        SIDES.every(
-          (hand: AutoMovieHumanSide, index: number): boolean => {
-            const region: HeldRegion =
-              second.row.holds[index] === null ? null : (grip[index] ?? null);
-            if (region === null) return true;
-            const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-              borne.surfaces.regions[region];
-            const place: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-              resolveAutoMovieHumanoidSurfaces.place(surface, mine.get(surface.bone)!);
-            return (
-              HumanCarriedCouplingFit.gap(second.body, still, hand, {
+        SIDES.every((hand: AutoMovieHumanSide, index: number): boolean => {
+          const region: HeldRegion =
+            second.row.holds[index] === null ? null : (grip[index] ?? null);
+          if (region === null) return true;
+          const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+            borne.surfaces.regions[region];
+          const place: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
+            resolveAutoMovieHumanoidSurfaces.place(
+              surface,
+              mine.get(surface.bone)!,
+            );
+          const fingers: IAutoMovieVector3 | undefined =
+            second.row.holds[index]?.fingers;
+          return (
+            HumanCarriedCouplingFit.gap(
+              second.body,
+              still,
+              hand,
+              {
                 point: Vector3.subtract(fit.place(place.point), shift),
                 normal: Quaternion.rotateVector(fit.turn, place.normal),
-              }) <= 0
-            );
-          },
-        );
-      const options: readonly Grip[] = [rules.HOLDS[second.carry], ...(rules.NEARER[second.carry] ?? [])];
+                ...(fingers === undefined
+                  ? {}
+                  : {
+                      forward: Quaternion.rotateVector(
+                        fit.turn,
+                        Quaternion.rotateVector(
+                          mine.get(surface.bone)!.worldRotation,
+                          fingers,
+                        ),
+                      ),
+                    }),
+              },
+              second.row.holds[index]?.shape,
+            ) <= 0
+          );
+        });
+      const options: readonly Grip[] = [
+        rules.HOLDS[second.carry],
+        ...(rules.NEARER[second.carry] ?? []),
+      ];
       besides.push({
         role: rules.SECOND,
         row: second.row,
@@ -263,18 +296,16 @@ export namespace HumanCarriedCouplingCouple {
           region: side.row.mine,
           on: side.row.theirs,
         });
-      SIDES.forEach(
-        (hand: AutoMovieHumanSide, index: number): void => {
-          const held: HeldRegion =
-            side.row.holds[index] === null ? null : (side.held[index] ?? null);
-          if (held !== null)
-            bearing.push({
-              role: side.role,
-              region: held,
-              on: hand === "left" ? "palmLeft" : "palmRight",
-            });
-        },
-      );
+      SIDES.forEach((hand: AutoMovieHumanSide, index: number): void => {
+        const held: HeldRegion =
+          side.row.holds[index] === null ? null : (side.held[index] ?? null);
+        if (held !== null)
+          bearing.push({
+            role: side.role,
+            region: held,
+            on: hand === "left" ? "palmLeft" : "palmRight",
+          });
+      });
     }
     const model: IAutoMovieResolveCenterOfMass.IModel = borne.massModel;
     const centre: IAutoMovieVector3 = fit.place(
@@ -319,20 +350,17 @@ export namespace HumanCarriedCouplingCouple {
       }),
     );
     for (const side of besides)
-      SIDES.forEach(
-        (hand: AutoMovieHumanSide, index: number): void => {
-          const cling: HeldRegion =
-            side.row.clings[index] ?? null;
-          if (cling !== null)
-            contacts.push({
-              part: hand === "left" ? "leftHand" : "rightHand",
-              region: hand === "left" ? "palmLeft" : "palmRight",
-              on: { role: side.role, region: cling },
-              kind: "grip",
-              load: 0,
-            });
-        },
-      );
+      SIDES.forEach((hand: AutoMovieHumanSide, index: number): void => {
+        const cling: HeldRegion = side.row.clings[index] ?? null;
+        if (cling !== null)
+          contacts.push({
+            part: hand === "left" ? "leftHand" : "rightHand",
+            region: hand === "left" ? "palmLeft" : "palmRight",
+            on: { role: side.role, region: cling },
+            kind: "grip",
+            load: 0,
+          });
+      });
     const coupling: IAutoMovieMotionCoupling = {
       bearer: rules.BEARER,
       borne: rules.BORNE,
@@ -345,7 +373,7 @@ export namespace HumanCarriedCouplingCouple {
         rotation: Quaternion.normalize(
           Quaternion.multiply(
             inverse,
-            Quaternion.multiply(fit.turn, resolveHumanPosture.heading(keyed)),
+            Quaternion.multiply(fit.turn, keyHeading),
           ),
         ),
         legs: fit.legs,
@@ -355,12 +383,20 @@ export namespace HumanCarriedCouplingCouple {
     };
     HumanCarriedCouplingLoad.bearable(bearer, coupling, rules.BEARER, theirs);
     if (second !== undefined)
-      HumanCarriedCouplingLoad.bearable(second.body, coupling, rules.SECOND, secondBones);
+      HumanCarriedCouplingLoad.bearable(
+        second.body,
+        coupling,
+        rules.SECOND,
+        secondBones,
+      );
     return coupling;
   }
 
   /** The contact window part a region's bone belongs to. */
-  const part: (body: IAutoMovieMotionHumanBody, name: AutoMovieHumanoidRegion) => IAutoMovieMotionHumanContactWindow["part"] = (
+  const part: (
+    body: IAutoMovieMotionHumanBody,
+    name: AutoMovieHumanoidRegion,
+  ) => IAutoMovieMotionHumanContactWindow["part"] = (
     body: IAutoMovieMotionHumanBody,
     name: AutoMovieHumanoidRegion,
   ): IAutoMovieMotionHumanContactWindow["part"] => {

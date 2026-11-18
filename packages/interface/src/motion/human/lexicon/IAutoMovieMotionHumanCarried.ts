@@ -1,5 +1,7 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanCarriedDrag } from "./IAutoMovieMotionHumanCarriedDrag";
 import type { IAutoMovieMotionHumanCarriedLift } from "./IAutoMovieMotionHumanCarriedLift";
 
@@ -142,6 +144,12 @@ export namespace IAutoMovieMotionHumanCarried {
 
     /** The wrist's offset from it, arm lengths. */
     offset: IAutoMovieMotionHumanCarried.IOffset;
+
+    /** The fingers' preferred tangent in the held region bone's local frame. */
+    fingers?: IAutoMovieVector3;
+
+    /** A hand shape the hold needs, such as a flat supporting palm. */
+    shape?: IAutoMovieMotionHumanHand.Shape;
   }
 
   /**

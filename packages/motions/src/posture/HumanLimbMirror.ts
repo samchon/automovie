@@ -99,6 +99,14 @@ export namespace HumanLimbMirror {
       ...(goal.rests === undefined
         ? {}
         : { rests: goal.rests.map(HumanArmMirror.reflected) }),
+      ...(goal.clearanceOn === undefined
+        ? {}
+        : {
+            clearanceOn: {
+              clear: goal.clearanceOn.clear.map(HumanArmMirror.reflected),
+              rests: goal.clearanceOn.rests.map(HumanArmMirror.reflected),
+            },
+          }),
     };
   }
 
