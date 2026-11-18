@@ -19,16 +19,28 @@ import type { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
 
+/**
+ * The most ankle-range and floor passes a swinging foot is given (provisional):
+ * each pass turns the foot inside the ankle's range and lifts it only off the
+ * floor, and the passes settle geometrically wherever the lift-to-turn gain
+ * is under one; at the cap the last lift leaves the foot on the floor.
+ */
+const PASSES: number = 8;
+
 /** Fixed physical bounds supplied by the walking reach rule's owner. */
 interface IBounds {
   /** Minimum knee flexion, degrees. */
   knee: number;
+
   /** Maximum thigh extension, degrees. */
   extension: number;
+
   /** Maximum ankle side lean, degrees. */
   side: number;
+
   /** Maximum hip twist, degrees. */
   twist: number;
+
   /** Swing share over which the ranges enter or leave. */
   fade: number;
 }
@@ -39,15 +51,15 @@ interface IBounds {
  * @param body The fixed body and leg lengths.
  * @param side The swinging foot.
  * @param bounds The walking reach owner's fixed joint/phase bounds.
- * @returns Its original swing constraint reader over a settled pelvis and foot.
+ * @returns The swing constraint reader over a settled pelvis and foot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body/side/bounds, the varying settled frame and the optional share semantics inherited from walkReach.swing.
- * @evidence contracts/development/implementation.md#principled-implementation Holds the foot inside the leg-length sphere, the thigh-extension cone, the hip-twist clamp and the ankle's side and bending ranges, with the optional boundary fade. A foot the ankle's range turns is raised only where it would otherwise pass into the floor, never back to its scheduled clearance: raising the ankle bends the knee, leans the shank and turns the foot further, a loop whose gain nears one at a straight leg, where a turn of under a degree held the foot centimetres up and released it at a square root's slope.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed reach/range/socket terms precede the one unchanged swing reader; walkReach owns the bounds and raw entry.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the ankle range on every pass, at most eight ankle/floor passes, and the interpolation arithmetic, without fitted or sampled replacement results; no foot is left under the floor.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and bounded constant work per foot; repeated time queries skip body-only reach, fixed range trigonometry and socket lookup. One actual toe-angle offset serves all floor passes; unchanged exact foot headings share the original shank's axes/length squares across those passes, while changed exact headings use ordinary current preparation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and the reach owner's bounds fix this reader. Each synchronous foot correction separately binds its actual toe offset and exact initial heading; every pelvis, ankle, rotation, toe angle and queried share still executes its dependent constraints, with exact heading mismatch handled by the ankle owner's raw preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains fixed body/bound/socket geometry, and each correction releases its actual toe-offset and fixed-heading shank reader on return or throw; no queried foot, hip, rotation or time history is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Holds the foot inside the leg-length sphere, the thigh-extension cone, the hip-twist clamp (keeping the foot's pitch and roll) and the ankle's side and bending ranges, with the optional boundary fade. A foot the ankle's range turns is raised only where it would otherwise pass into the floor, never back to its scheduled clearance: raising the ankle bends the knee, leans the shank and turns the foot further, a loop whose gain nears one at a straight leg, where a turn of under a degree held the foot centimetres up and released it at a square root's slope.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed reach/range/socket terms precede the one swing reader; walkReach owns the bounds and the entry.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle range is applied on every pass, for at most `PASSES` passes; no foot is left under the floor. A foot still being lifted at the cap keeps the turn of the last pass, which may then lie outside the ankle range by the last lift's lean, a stated limitation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and bounded constant work per foot; time queries skip body-only reach, range trigonometry and socket lookup. One toe-angle offset serves all floor passes, and the ankle range is prepared once for the foot's initial heading.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and the reach owner's bounds fix this reader. Each foot correction binds its own toe offset and initial heading; every pelvis, ankle, rotation, toe angle and queried share is evaluated for its own query.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds fixed body/bound/socket geometry; each correction releases its toe-offset and ankle-range readers on return or throw; no queried foot, hip, rotation or time history is kept.
  */
 export function prepareWalkReachSwing(
   body: IAutoMovieMotionHumanBody,
@@ -91,7 +103,11 @@ export function prepareWalkReachSwing(
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
     const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
     if (Math.abs(off) > bounds.twist)
-      rotation = HumanFoot.rotation(settled.yaw + Math.sign(off) * bounds.twist, HumanFoot.pitch(rotation));
+      rotation = HumanFoot.rotation(
+        settled.yaw + Math.sign(off) * bounds.twist,
+        HumanFoot.pitch(rotation),
+        HumanFoot.roll(rotation),
+      );
 
     // A foot held inside the ankle's side range moves under its own hip.
     const across: IAutoMovieVector3 = HumanFrame.point(
@@ -113,7 +129,7 @@ export function prepareWalkReachSwing(
     const lowest: (placement: IAutoMovieMotionHumanFoot.IPlacement) => number = (placement: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(toe(placement), heel(placement));
     const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> = walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
-    for (let k: number = 0; k < 8; k++) {
+    for (let k: number = 0; k < PASSES; k++) {
       rotation = ankleRange(h, ankle, rotation);
       const low: number = lowest({ ankle, rotation });
       if (low >= -1e-6) break;

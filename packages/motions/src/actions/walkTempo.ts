@@ -22,15 +22,15 @@ import type {
  * last the two clocks run alike.
  *
  * @param plan The stepping plan; its heel strikes are the events named `leftHeelStrike<n>` and `rightHeelStrike<n>`.
- * @param stretch The share by which step `index`, from 0, lasts longer than planned; negative for shorter. With the limp's share added, it is held within 0.2 either way.
+ * @param stretch The share by which step `index`, from 0, lasts longer than planned; negative for shorter. With the limp's share added, it is held within `walkTempo.HOLD` either way.
  * @param limp A limp, when the gait has one: each step standing on the spared leg (the one whose heel strike begins it) is cut short by the share and each step standing on the other drawn out by it.
  * @returns The plan on the uneven clock, with its duration, events, contact windows and decisive instant moved to their film seconds; the plan itself when it names fewer than two heel strikes.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what varies and what does not, the source of the variation's size, the clock law and why velocity stays continuous.
- * @evidence contracts/development/implementation.md#principled-implementation A time warp: the pose stays a pure function of the film second, and every named instant is mapped by the same warp, so events, contacts and poses agree. The warp is strictly increasing because `k` is above -1 for a stretch within 0.2.
+ * @evidence contracts/development/implementation.md#principled-implementation A time warp: the pose stays a pure function of the film second, and every named instant is mapped by the same warp, so events, contacts and poses agree. The warp is strictly increasing because `k = 2 (planned / lasts - 1)` stays above -1 for any step held within `HOLD`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the strikes, lay out the stretched steps, then two maps, film to plan in closed form and plan to film by bisection.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.2 hold is a guard on the warp's monotonicity, far outside the 1 to 3 % it carries; the size of the variation is the caller's, drawn from the performer's skill and seed.
- * @evidence contracts/development/implementation.md#efficient-algorithms A pose costs a logarithmic step lookup and closed-form map; a named instant retains its 40-step bisection once per plan. Each step's fixed rate amplitude is prepared once.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `HOLD` truncates a drawn stretch to the range of steps the planned gait still describes, far outside the 1 to 3 % the draw carries; the size of the variation is the caller's, drawn from the performer's skill and seed.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A pose costs a logarithmic step lookup and closed-form map; a named instant costs a 40-step bisection, once per plan. Each step's rate amplitude is computed once.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the step table built once per plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the step table for as long as the returned plan is held.
  */
@@ -39,13 +39,112 @@ export function walkTempo(
   stretch: (index: number) => number,
   limp?: { side: "left" | "right"; share: number },
 ): IAutoMovieMotionHumanActionPlan {
+  return warped(
+    plan,
+    (index: number, planned: number, side: "left" | "right"): number =>
+      planned *
+      (1 +
+        Math.max(
+          -walkTempo.HOLD,
+          Math.min(
+            walkTempo.HOLD,
+            stretch(index) +
+              (limp === undefined
+                ? 0
+                : side === limp.side
+                  ? -limp.share
+                  : limp.share),
+          ),
+        )),
+  );
+}
+
+/**
+ * The heel strikes a stepping plan names and the time warp that sends them
+ * to given seconds, companions of {@link walkTempo}.
+ */
+export namespace walkTempo {
+  /** The most a drawn variability stretches or shrinks a step's planned time, and the most a beat's period may differ from the gait's own step, as a share of it: beyond it the gait the footprints were planned at no longer describes the steps. A fifth either way spans the paced tempi walkers synchronise their steps to: 22.5 % faster than the preferred step rate (Leow, Parrott and Grahn 2014, Front Hum Neurosci 8:811, metronome and music cueing) and 0.9 to 1.1 of it (Brain Sci 2020, 10:273); its symmetric rounding is provisional. A single entrained step may depart further while phase correction draws its strike onto a beat; the warp stays increasing up to a step twice its planned time. */
+  export const HOLD: number = 0.2;
+
+  /** A heel strike of a plan. */
+  export interface IStrike {
+    /** Seconds of the plan. */
+    seconds: number;
+
+    /** The striking foot. */
+    side: "left" | "right";
+  }
+
+  /**
+   * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`), in time order.
+   *
+   * @param plan The stepping plan.
+   * @returns Its strikes.
+   */
+  export function strikes(plan: IAutoMovieMotionHumanActionPlan): IStrike[] {
+    return plan.events
+      .filter((e: IAutoMovieMotionEvent): boolean =>
+        /HeelStrike\d+$/.test(e.name),
+      )
+      .map(
+        (e: IAutoMovieMotionEvent): IStrike => ({
+          seconds: e.share * plan.duration,
+          side: e.name.startsWith("left") ? "left" : "right",
+        }),
+      )
+      .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
+  }
+
+  /**
+   * A stepping plan with each heel strike sent to a given second instead of
+   * a drawn stretch: the same warp, each step lasting exactly the time
+   * between its strike's second and the next's, so velocity stays
+   * continuous across strikes and the footprints and path stay the plan's
+   * own. The first strike keeps its second, as the warp keeps it; a strike
+   * with no given second keeps its planned step.
+   *
+   * @param plan The stepping plan.
+   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order; each step between them longer than none and shorter than twice its planned time (`walkCadence.strikes` refuses any other).
+   * @returns The plan on the entrained clock.
+   * @throws {Error} When a given step lies outside that range, where the warp would run backwards.
+   */
+  export function entrained(
+    plan: IAutoMovieMotionHumanActionPlan,
+    seconds: readonly number[],
+  ): IAutoMovieMotionHumanActionPlan {
+    return warped(plan, (index: number, planned: number): number => {
+      const given: number | undefined = seconds[index + 1];
+      const before: number | undefined = seconds[index];
+      if (given === undefined || before === undefined) return planned;
+      const lasts: number = given - before;
+      if (!(lasts > 0 && lasts < 2 * planned))
+        throw new Error(
+          `An entrained step of ${lasts.toFixed(3)} s cannot carry its planned ${planned.toFixed(3)} s without running backwards`,
+        );
+      return lasts;
+    });
+  }
+}
+
+/**
+ * The warp shared by the drawn and the entrained clocks.
+ *
+ * @param plan The stepping plan.
+ * @param length Each step's film seconds from its index, its planned seconds and the foot whose strike begins it; above zero and under twice the planned seconds.
+ * @returns The plan on the warped clock, or the plan itself when it names fewer than two heel strikes.
+ */
+function warped(
+  plan: IAutoMovieMotionHumanActionPlan,
+  length: (index: number, planned: number, side: "left" | "right") => number,
+): IAutoMovieMotionHumanActionPlan {
   const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
   const strikes: number[] = struck.map(
     (s: { seconds: number }): number => s.seconds,
   );
   if (strikes.length < 2) return plan;
 
-  // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other.
+  // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other: the rate `1 + k sin^2(pi u)` integrates to `1 + k / 2` over a step, so `k = 2 (planned / lasts - 1)`.
   const steps: {
     plan: number;
     film: number;
@@ -55,21 +154,7 @@ export function walkTempo(
   let film: number = strikes[0]!;
   for (let i: number = 0; i + 1 < strikes.length; ++i) {
     const planned: number = strikes[i + 1]! - strikes[i]!;
-    const lasts: number =
-      planned *
-      (1 +
-        Math.max(
-          -0.2,
-          Math.min(
-            0.2,
-            stretch(i) +
-              (limp === undefined
-                ? 0
-                : struck[i]!.side === limp.side
-                  ? -limp.share
-                  : limp.share),
-          ),
-        ));
+    const lasts: number = length(i, planned, struck[i]!.side);
     steps.push({ plan: strikes[i]!, film, amplitude: 2 * (planned / lasts - 1), lasts });
     film += lasts;
   }
@@ -103,6 +188,8 @@ export function walkTempo(
       steps[within("film", seconds)]!;
     return step.plan + gone(step, (seconds - step.film) / step.lasts);
   };
+
+  // Plan to film by bisection on the step's share: 40 halvings leave 2^-40 of a step, far under a microsecond.
   const toFilm: (seconds: number) => number = (seconds: number): number => {
     if (seconds <= steps[0]!.plan) return seconds;
     if (seconds >= end.plan) return end.film + (seconds - end.plan);
@@ -139,67 +226,4 @@ export function walkTempo(
     posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
       plan.posture(toPlan(Math.min(duration, Math.max(0, seconds))), channels, resolution, projection),
   };
-}
-
-/**
- * The heel strikes a stepping plan names and the time warp that sends them
- * to given seconds, companions of {@link walkTempo}.
- */
-export namespace walkTempo {
-  /** A heel strike of a plan. */
-  export interface IStrike {
-    /** Seconds of the plan. */
-    seconds: number;
-
-    /** The striking foot. */
-    side: "left" | "right";
-  }
-
-  /**
-   * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`), in time order.
-   *
-   * @param plan The stepping plan.
-   * @returns Its strikes.
-   */
-  export function strikes(plan: IAutoMovieMotionHumanActionPlan): IStrike[] {
-    return plan.events
-      .filter((e: IAutoMovieMotionEvent): boolean =>
-        /HeelStrike\d+$/.test(e.name),
-      )
-      .map(
-        (e: IAutoMovieMotionEvent): IStrike => ({
-          seconds: e.share * plan.duration,
-          side: e.name.startsWith("left") ? "left" : "right",
-        }),
-      )
-      .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
-  }
-
-  /**
-   * A stepping plan with each heel strike sent to a given second instead of
-   * a drawn stretch: the same warp, each step lasting the time between its
-   * strike's second and the next's (held within a fifth of its plan, the
-   * warp's guard), so velocity stays continuous across strikes and the
-   * footprints and path stay the plan's own. The first strike keeps its
-   * second, as the warp keeps it.
-   *
-   * @param plan The stepping plan.
-   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order.
-   * @returns The plan on the entrained clock.
-   */
-  export function entrained(
-    plan: IAutoMovieMotionHumanActionPlan,
-    seconds: readonly number[],
-  ): IAutoMovieMotionHumanActionPlan {
-    const planned: IStrike[] = strikes(plan);
-    return walkTempo(plan, (index: number): number => {
-      const span: number =
-        planned[index + 1]!.seconds - planned[index]!.seconds;
-      const given: number | undefined = seconds[index + 1];
-      const before: number | undefined = seconds[index];
-      return given === undefined || before === undefined || span <= 0
-        ? 0
-        : (given - before) / span - 1;
-    });
-  }
 }
