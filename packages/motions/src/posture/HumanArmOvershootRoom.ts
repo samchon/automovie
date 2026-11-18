@@ -200,7 +200,7 @@ export namespace HumanArmOvershootRoom {
 /** The rooms read, by the trunk's list, the others' list and the rests' list, then by side; an empty list is keyed by `EMPTY`. */
 const ROOMS: WeakMap<
   object,
-  WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", IRoom>>>>
+  WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", HumanArmOvershootRoom.IRoom>>>>
 > = new WeakMap();
 
 /** The key of an empty collider list: a reading given none makes a fresh empty list each time. */
