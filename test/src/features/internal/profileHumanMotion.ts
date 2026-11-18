@@ -38,6 +38,7 @@ export function profileHumanMotion(
   )
     return build();
 
+  console.log(JSON.stringify({ motion: label, phase: "plan-start" }));
   const before: IMark = mark();
   let film: IAutoMovieMotionHumanPerformance;
   try {
