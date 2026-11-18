@@ -1,0 +1,39 @@
+import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionAuditPoints } from "../internal/motionAuditPoints";
+import { nclose } from "../internal/nclose";
+
+/**
+ * The motion audit distinguishes continuous speed from a one-frame reversal.
+ *
+ * Scenarios:
+ * 1. Read the public measure on the declared input and its control.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification The motion audit distinguishes continuous speed from a one-frame reversal.
+ * @evidence contracts/development/testing.md#independent-expectations A linear two-metre-per-second marker has constant speed; an eight-centimetre impulse returns by exactly eight centimetres.
+ * @evidence contracts/development/testing.md#distinguishing-cases The temporal boundary distinguishes admitted and excluded observations.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ */
+export function test_motion_dynamics_audit_velocity(): void {
+  const read = (path: (t: number) => number) =>
+    AutoMovieMotionHumanAuditContinuity.measure(
+      motionAuditPoints(1, (t: number) => ({
+        rightHand: { x: path(t), y: 1, z: 0 },
+      })),
+      "a",
+    );
+  const smooth = read((t) => 2 * t);
+  TestValidator.predicate(
+    "uniform hand speed",
+    nclose(smooth.speed.value, 2) &&
+      smooth.jump.value === 0 &&
+      smooth.reversal.value === 0,
+  );
+  const spike = read((t) => (Math.abs(t - 0.5) < 1 / 48 ? 0.08 : 0));
+  TestValidator.predicate(
+    "visible reversal",
+    nclose(spike.reversal.value, 0.08) && nclose(spike.reversal.seconds, 0.5),
+  );
+}
