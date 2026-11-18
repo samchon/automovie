@@ -118,7 +118,7 @@ export namespace defend {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the answered strike has no contact or shown peak, or does not strike this performer at a region.
+   * @throws {HumanRefusal} When the answered strike has no contact or shown peak, does not strike this performer at a region, or the forced outcome is one plausible timing cannot meet (`DefenceOutcome.decide`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The outcome law times the start from the strike's launch and contact; the goal is built from what the defender sees at that read second, the guard held before it.
