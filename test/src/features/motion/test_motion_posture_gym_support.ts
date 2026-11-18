@@ -1,5 +1,5 @@
 import { createPlyoBox } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -9,10 +9,12 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanColliders,
   HumanFoot,
   HumanGymnastics,
   HumanObject,
   HumanPerformance,
+  workout,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -47,6 +49,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_motion_posture_gym_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  checkSupportedWorkout(complaints);
   const box: ReturnType<typeof createPlyoBox> = createPlyoBox({
     height: 0.762,
   });
@@ -151,4 +154,55 @@ export function test_motion_posture_gym_support(): void {
       );
   }
   complaints.assert("a box vault flies over its box and lands beyond it");
+}
+
+/** The physical floor is shared by prone, supine, elevated and lateral supports. */
+function checkSupportedWorkout(complaints: motionComplaints.IGatherer): void {
+  const body = motionHumanBody("f-small");
+  for (const kind of [
+    "superman",
+    "crunch",
+    "lyingLegRaise",
+    "pnfHamstring",
+    "benchPress",
+    "sidePlank",
+  ] as const) {
+    try {
+      const p = new HumanPerformance({
+        seed: "workout-floor",
+        laws: [workout],
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("a").registered("workout", {
+          kind,
+          reps: 1,
+          hold: kind === "sidePlank" ? 1.5 : 0.5,
+        }).node,
+      });
+      let deepest = 0;
+      for (let t = 0; t <= p.duration + 1e-9; t += 1 / 24)
+        for (const { pose, shapes } of HumanColliders.placed(
+          body,
+          p.bones("a", t),
+        ))
+          for (const shape of shapes)
+            deepest = Math.max(
+              deepest,
+              -physicalShapeBounds(pose, shape).min.y,
+            );
+      complaints.check(
+        kind + " floor penetration " + deepest,
+        deepest <= 0.005,
+      );
+    } catch (error) {
+      complaints.list.push(kind + ": " + String(error));
+    }
+  }
 }

@@ -14,6 +14,7 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -53,6 +54,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 6 scenarios.
  */
 export function test_motion_posture_entry_state(): void {
+  checkFloorBoundary();
   const complaints: string[] = [];
 
   // Keeps the entry posture on the entry's supports for half a second.
@@ -305,5 +307,95 @@ export function test_motion_posture_entry_state(): void {
     "an action is entered knowing its base and its holds",
     complaints,
     [],
+  );
+}
+
+/** Compare the carried floor pose and joint velocities across the next action's entrance. */
+function checkFloorBoundary(): void {
+  const body = motionHumanBody("f-small");
+  const actor = HumanChain.subject("a");
+  const perform = (chain: IAutoMovieMotionHumanChain) =>
+    new HumanPerformance({
+      seed: "floor-entry",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: chain.node,
+    });
+  for (const [label, chain, watched, ratio] of [
+    [
+      "knees to supine",
+      actor.crawl({ cycles: 1 }).lieDown({ position: "supine", hold: 0.5 }),
+      ["hips"],
+      0.15,
+    ],
+    [
+      "bear to pike",
+      actor
+        .crawl({ kind: "bear", cycles: 1 })
+        .crawl({ kind: "inchworm", cycles: 1 }),
+      ["leftFoot", "rightFoot"],
+      0.1,
+    ],
+    [
+      "continued crawl",
+      actor.crawl({ cycles: 1 }).crawl({ cycles: 1 }),
+      ["hips"],
+      0.15,
+    ],
+  ] as const) {
+    const p = perform(chain),
+      second = p.segments("a")[1]!,
+      at = second.entryTime,
+      step = 1 / 120;
+    const left = p.bones("a", at - step);
+    let before = p.bones("a", at - 0.1),
+      rise = 0,
+      speed = 0;
+    for (
+      let t = at - 0.1 + step;
+      t <= Math.min(second.end, at + 1.6);
+      t += step
+    ) {
+      const now = p.bones("a", t);
+      for (const [bone, b] of now) {
+        const prev = before.get(bone)!.worldPosition,
+          cur = b.worldPosition;
+        speed = Math.max(
+          speed,
+          Math.hypot(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z) / step,
+        );
+      }
+      for (const bone of watched)
+        rise = Math.max(
+          rise,
+          now.get(bone)!.worldPosition.y - left.get(bone)!.worldPosition.y,
+        );
+      before = now;
+    }
+    TestValidator.predicate(
+      label + " velocity and rise",
+      speed <= 30 && rise <= ratio * body.measure.stature,
+    );
+  }
+  let refusal: unknown;
+  try {
+    perform(
+      actor.lieDown({ position: "supine", hold: 0.5 }).crawl({ cycles: 1 }),
+    );
+  } catch (error) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "crawl from lying names its unsupported base",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "base" &&
+      refusal.axis === "base",
   );
 }
