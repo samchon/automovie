@@ -1,3 +1,4 @@
+import { RigidCarrierSample } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
@@ -17,6 +18,22 @@ type Sample = ArchetypeRide.ISample<
   createBoat.Affordance,
   createBoat.Dimension
 >;
+
+/** A rowboat and its authored clock and articulation readers. */
+type Ride = ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension>;
+
+/** The original full samplers and whether the course ends in a fixed pose. */
+interface IBindingSource {
+  boat: Archetype<createBoat.Affordance, createBoat.Dimension>;
+  placement: (seconds: number) => IAutoMovieTransform;
+  frame: Ride["frame"];
+  duration: number;
+  stillEnd: boolean;
+  current: () => boolean;
+}
+
+/** Only this producer can issue the curve of a ride's own clock. */
+const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
 
 /**
  * A rowboat rowed along a course: its root on the path, its oars swept through the stroke cycle and lifted out of the water on the recovery, at a stroke rate the speed sets, on still water or a seeded sea.
@@ -83,6 +100,14 @@ export function rowBoat(
     Archetype.projection(boat);
   const sea: ArchetypeSea.ISea | undefined =
     options.sea === undefined ? undefined : ArchetypeSea.of(options.sea);
+  /** The root pose and sea do not depend on the articulated sockets. */
+  const floated = (
+    placement: IAutoMovieTransform,
+    seconds: number,
+  ): IAutoMovieTransform =>
+    sea === undefined
+      ? placement
+      : ArchetypeSea.floated(sea, placement, seconds);
   function sample(seconds: number): Sample;
   function sample(
     seconds: number,
@@ -121,10 +146,7 @@ export function rowBoat(
       project?.(ArchetypeArticulation.travels(travels));
     let model: typeof boat | undefined =
       selected === undefined ? boat.articulate(travels) : undefined;
-    const placement: IAutoMovieTransform =
-      sea === undefined
-        ? state.placement
-        : ArchetypeSea.floated(sea, state.placement, seconds);
+    const placement: IAutoMovieTransform = floated(state.placement, seconds);
     if (socket.length === 1) {
       const [id] = socket;
       const local: IAutoMovieTransform =
@@ -158,6 +180,19 @@ export function rowBoat(
         seconds: number,
       ): IAutoMovieTransform => sample(seconds, id),
     };
+  if (course.kind !== "plan" && project !== undefined) {
+    const original: ArchetypeCourse.IPlan["at"] = plan.at;
+    SOURCES.set(ride, {
+      boat,
+      placement: (seconds: number): IAutoMovieTransform =>
+        floated(plan.at(seconds).placement, seconds),
+      frame: ride.frame,
+      duration: ride.duration,
+      stillEnd: sea === undefined,
+      current: (): boolean =>
+        Object.getOwnPropertyDescriptor(plan, "at")?.value === original,
+    });
+  }
   return ride;
 }
 
@@ -170,6 +205,62 @@ export function rowBoat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace rowBoat {
+  /**
+   * Bind a native rowing course to the film second it starts. The boat holds
+   * its initial pose until then. On still water it also holds its final
+   * placement and every socket strictly beyond the course. Pass the two
+   * returned callbacks directly to the prop adapter.
+   *
+   * @param ride The result of rowing a native course with this producer.
+   * @param start Film second corresponding to course second zero.
+   * @returns The independently callable root and socket readers in film seconds.
+   * @throws {RangeError} For an unbound, external course or a nonfinite start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the film offset, the exact stationary domains and how to pass the readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Both readers use the same clamped film clock. A constant argument fixes the initial state, and only still water fixes the world frame strictly beyond the course end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rowing producer owns the clock conversion and sends callbacks and domain predicates together.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied plan's timing is opaque. A sea always retains its actual evolving time after course completion. The root-only read uses the same placement and sea calculations as the full sample.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The binding adds constant work per read and the root-only reader skips computing articulated sockets.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Keeps the already authored course and articulation procedures. Only fully constant domains receive interval metadata.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride and the returned readers weakly own their bindings. No sampled outputs are retained.
+   */
+  export function bind(ride: Ride, start: number): RigidCarrierSample.IBinding {
+    const source: IBindingSource | undefined = SOURCES.get(ride);
+    if (source === undefined || !Number.isFinite(start))
+      throw new RangeError(
+        "A bound rowboat needs a native course and a finite film second.",
+      );
+    const clock = (seconds: number): number => Math.max(0, seconds - start);
+    const holds: RigidCarrierSample.IHold[] = [
+      {
+        from: -Infinity,
+        to: start,
+        contains: (seconds: number): boolean =>
+          source.current() && clock(seconds) === 0,
+      },
+    ];
+    if (source.stillEnd)
+      holds.push({
+        from: start + source.duration,
+        to: Infinity,
+        contains: (seconds: number): boolean =>
+          source.current() && clock(seconds) > source.duration,
+      });
+    return RigidCarrierSample.bind(
+      source.boat,
+      (seconds: number): ReturnType<RigidCarrierSample.IBinding["motion"]> => {
+        const placement: IAutoMovieTransform = source.placement(clock(seconds));
+        return {
+          position: placement.translation,
+          rotation: placement.rotation,
+        };
+      },
+      (id: string, seconds: number): IAutoMovieTransform =>
+        source.frame(id as createBoat.Affordance, clock(seconds)),
+      holds,
+    );
+  }
+
   /** The distance the boat covers each stroke, metres, a provisional value: no source read gives a fixed-seat rowboat's; the source to read is a measured distance per stroke of one, or one boat's speed and stroke rate measured together. Searched for #3497 without a figure: fixed-seat distance per stroke for skiffs, gigs and whalers; Cornish pilot gig stroke rate and speed; Whitehall strokes a minute and knots (only guesses and marketing); Navy whaleboat and cutter pulling drill; Agius et al. 2023, The Kinematics of Fixed-Seat Rowing (Bioengineering 10(7):774), which measures the body only; USNI Proceedings June 1890, Navy Boats, which gives no speed under oars. */
   export const STROKE: number = 3;
 

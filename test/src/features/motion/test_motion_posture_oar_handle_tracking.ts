@@ -115,39 +115,44 @@ export function test_motion_posture_oar_handle_tracking(): void {
         },
         water === "swell" ? { sea: { height: 1, seed: 7 } } : {},
       );
-      const placed: (seconds: number) => IAutoMovieRigidTransform = (
-        seconds: number,
-      ): IAutoMovieRigidTransform => {
-        const placement: IAutoMovieTransform = ride.at(
-          Math.max(0, seconds - WAIT),
-        ).placement;
-        return {
-          position: placement.translation,
-          rotation: placement.rotation,
-        };
-      };
-      const part: Part = (id: string, seconds: number): IAutoMovieTransform => {
-        const at: number = Math.max(0, seconds - WAIT);
-        const name: createBoat.Affordance = id as createBoat.Affordance;
-        if (rig === "original") return ride.frame(name, at);
-        const instant: ReturnType<typeof ride.at> = ride.at(at);
-        const native: typeof boat = instant.archetype;
-        const cycle: number = (instant.course.distance / rowBoat.STROKE) % 1;
-        const drive: number = rowBoat.drive(rowBoat.rate(instant.course.speed));
-        const phase: number =
-          cycle < drive ? cycle / drive : 1 + (cycle - drive) / (1 - drive);
-        const stroke: number = 45 * Math.cos(Math.PI * phase);
-        const posed: typeof boat = boat.articulate({
-          leftOarlock: stroke,
-          rightOarlock: stroke,
-          leftOar: native.travel("leftOar"),
-          rightOar: native.travel("rightOar"),
+      const binding: ReturnType<typeof rowBoat.bind> | undefined =
+        rig === "original" ? rowBoat.bind(ride, WAIT) : undefined;
+      const placed: (seconds: number) => IAutoMovieRigidTransform =
+        binding?.motion ??
+        ((seconds: number): IAutoMovieRigidTransform => {
+          const placement: IAutoMovieTransform = ride.at(
+            Math.max(0, seconds - WAIT),
+          ).placement;
+          return {
+            position: placement.translation,
+            rotation: placement.rotation,
+          };
         });
-        return ArchetypeFrame.compose(
-          instant.placement,
-          posed.affordance(name).frame,
-        );
-      };
+      const part: Part =
+        binding?.point ??
+        ((id: string, seconds: number): IAutoMovieTransform => {
+          const at: number = Math.max(0, seconds - WAIT);
+          const name: createBoat.Affordance = id as createBoat.Affordance;
+          const instant: ReturnType<typeof ride.at> = ride.at(at);
+          const native: typeof boat = instant.archetype;
+          const cycle: number = (instant.course.distance / rowBoat.STROKE) % 1;
+          const drive: number = rowBoat.drive(
+            rowBoat.rate(instant.course.speed),
+          );
+          const phase: number =
+            cycle < drive ? cycle / drive : 1 + (cycle - drive) / (1 - drive);
+          const stroke: number = 45 * Math.cos(Math.PI * phase);
+          const posed: typeof boat = boat.articulate({
+            leftOarlock: stroke,
+            rightOarlock: stroke,
+            leftOar: native.travel("leftOar"),
+            rightOar: native.travel("rightOar"),
+          });
+          return ArchetypeFrame.compose(
+            instant.placement,
+            posed.affordance(name).frame,
+          );
+        });
       const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
         boat,
         placed(0),

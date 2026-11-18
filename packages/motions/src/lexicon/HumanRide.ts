@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  RigidCarrierSample,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -14,7 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
+import { createHumanBody } from "../body/createHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -23,6 +28,7 @@ import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such
@@ -199,8 +205,19 @@ export namespace HumanRide {
         }
 
         // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
-        const { posture, gripsAt, closures, alternatives }: HumanRideHands.IHands =
-          HumanRideHands.of(context, on, support, seated, origin, TAKE);
+        const {
+          posture,
+          gripsAt,
+          closures,
+          alternatives,
+        }: HumanRideHands.IHands = HumanRideHands.of(
+          context,
+          on,
+          support,
+          seated,
+          origin,
+          TAKE,
+        );
         const saddle: string | undefined = context.params.seat;
         if (saddle !== undefined && support.prop.points[saddle] === undefined)
           throw new HumanRefusal({
@@ -247,135 +264,159 @@ export namespace HumanRide {
           origin.rotation,
         );
         // The pose and any certified candidate use the same actual carrier read.
-        const written = <T>(at: number, publish: (posture: IAutoMovieMotionHumanPosture, frame: IAutoMovieRigidTransform) => T): T => {
-            const film: number = context.start + Math.min(seconds, Math.max(0, at));
-            const now: IAutoMovieRigidTransform = support.frame(film);
-            const taken: number = minimumJerk(Math.min(1, at / TAKE)).s;
-            const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(film, now);
-            const leant: IAutoMovieMotionHumanPosture = posture(grips, now, taken, taken === 1 ? film : undefined);
-            const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
-              leant,
-              origin,
-              now,
-            );
+        const written = <T>(
+          at: number,
+          publish: (
+            posture: IAutoMovieMotionHumanPosture,
+            frame: IAutoMovieRigidTransform,
+          ) => T,
+          nativeFrame?: typeof support.frame,
+        ): T => {
+          const film: number =
+            context.start + Math.min(seconds, Math.max(0, at));
+          const now: IAutoMovieRigidTransform =
+            nativeFrame === undefined ? support.frame(film) : nativeFrame(film);
+          const taken: number = minimumJerk.share(Math.min(1, at / TAKE));
+          const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
+            film,
+            now,
+          );
+          const leant: IAutoMovieMotionHumanPosture = posture(
+            grips,
+            now,
+            taken,
+            taken === 1 ? film : undefined,
+          );
+          const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
+            leant,
+            origin,
+            now,
+          );
 
-            // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
-            const tipped: Pick<
-              IAutoMovieMotionHumanPosture,
-              "yaw" | "pitch" | "roll"
-            > = resolveHumanPosture.angles(
-              Quaternion.multiply(
-                Quaternion.multiply(now.rotation, turned),
-                resolveHumanPosture.heading(leant),
+          // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
+          const tipped: Pick<
+            IAutoMovieMotionHumanPosture,
+            "yaw" | "pitch" | "roll"
+          > = resolveHumanPosture.angles(
+            Quaternion.multiply(
+              Quaternion.multiply(now.rotation, turned),
+              resolveHumanPosture.heading(leant),
+            ),
+          );
+
+          // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
+          const through: number | undefined =
+            rising === undefined ? undefined : stride(at);
+          const lift: number =
+            through === undefined ? 0 : post * Math.sin(Math.PI * through) ** 2;
+          const up: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
+            x: 0,
+            y: 1,
+            z: 0,
+          });
+
+          // A foot on a part that moves within the support goes with the part: by how far the part has left the place the support alone would have carried it to.
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...carried.limbs,
+          };
+          for (const pedal of pedals) {
+            const goal: IAutoMovieHumanLimbGoal | undefined =
+              carried.limbs[`${pedal.side}Leg`];
+            if (goal === undefined) continue;
+            limbs[`${pedal.side}Leg`] = {
+              ...goal,
+              point: Vector3.add(
+                goal.point,
+                strayed(pedal.id, pedal.began, film, now),
               ),
-            );
-
-            // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
-            const through: number | undefined =
-              rising === undefined ? undefined : stride(at);
-            const lift: number =
-              through === undefined
-                ? 0
-                : post * Math.sin(Math.PI * through) ** 2;
-            const up: IAutoMovieVector3 = Quaternion.rotateVector(
-              now.rotation,
-              {
-                x: 0,
-                y: 1,
-                z: 0,
-              },
-            );
-
-            // A foot on a part that moves within the support goes with the part: by how far the part has left the place the support alone would have carried it to.
-            const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-              ...carried.limbs,
             };
-            for (const pedal of pedals) {
-              const goal: IAutoMovieHumanLimbGoal | undefined =
-                carried.limbs[`${pedal.side}Leg`];
-              if (goal === undefined) continue;
-              limbs[`${pedal.side}Leg`] = {
-                ...goal,
-                point: Vector3.add(
-                  goal.point,
-                  strayed(pedal.id, pedal.began, film, now),
-                ),
-              };
-            }
-            const seat: IAutoMovieVector3 =
-              sat === undefined || saddle === undefined
-                ? { x: 0, y: 0, z: 0 }
-                : strayed(saddle, sat, film, now);
-            const out: IAutoMovieMotionHumanPosture = {
-              ...carried,
-              limbs,
-              root: {
-                x: carried.root.x + seat.x + up.x * lift,
-                y: carried.root.y + seat.y + up.y * lift,
-                z: carried.root.z + seat.z + up.z * lift,
-              },
-              yaw:
-                tipped.yaw + 360 * Math.round((carried.yaw - tipped.yaw) / 360),
-              pitch: tipped.pitch,
-              roll: tipped.roll,
-            };
+          }
+          const seat: IAutoMovieVector3 =
+            sat === undefined || saddle === undefined
+              ? { x: 0, y: 0, z: 0 }
+              : strayed(saddle, sat, film, now);
+          const out: IAutoMovieMotionHumanPosture = {
+            ...carried,
+            limbs,
+            root: {
+              x: carried.root.x + seat.x + up.x * lift,
+              y: carried.root.y + seat.y + up.y * lift,
+              z: carried.root.z + seat.z + up.z * lift,
+            },
+            yaw:
+              tipped.yaw + 360 * Math.round((carried.yaw - tipped.yaw) / 360),
+            pitch: tipped.pitch,
+            roll: tipped.roll,
+          };
 
-            // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
-            const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
-            for (const side of ["left", "right"] as const) {
-              const grip: ReturnType<HumanRideHands.IHands["gripsAt"]>["left"] =
-                grips[side];
-              if (grip === undefined) continue;
-              const held: ReturnType<typeof HumanMountRider.hold> =
-                HumanMountRider.hold(
-                  context.body,
-                  side,
-                  out,
-                  grip,
-                  taken,
-                  closures[side] ?? {},
-                );
-              limbs[`${side}Arm`] = held.arm;
-              Object.assign(grasp, held.fingers);
-            }
-            if (Object.keys(grasp).length > 0)
-              out.joints = { ...out.joints, ...grasp };
-            if (pedals.length === 0) return publish(out, now);
+          // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
+          const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
+          const taking: ReturnType<typeof HumanMountRider.taking> | undefined =
+            taken < 1 &&
+            grips.left !== undefined &&
+            grips.right !== undefined &&
+            createHumanBody.owns(context.body)
+              ? HumanMountRider.taking(context.body, out, taken)
+              : undefined;
+          for (const side of ["left", "right"] as const) {
+            const grip: ReturnType<HumanRideHands.IHands["gripsAt"]>["left"] =
+              grips[side];
+            if (grip === undefined) continue;
+            const closed: IAutoMovieMotionHumanPosture["joints"] =
+              closures[side] ?? {};
+            const held: ReturnType<typeof HumanMountRider.hold> =
+              taking !== undefined
+                ? taking(side, grip, closed)
+                : HumanMountRider.hold(
+                    context.body,
+                    side,
+                    out,
+                    grip,
+                    taken,
+                    closed,
+                  );
+            limbs[`${side}Arm`] = held.arm;
+            Object.assign(grasp, held.fingers);
+          }
+          if (Object.keys(grasp).length > 0)
+            out.joints = { ...out.joints, ...grasp };
+          if (pedals.length === 0) return publish(out, now);
 
-            // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
-            const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
-              context.body,
-              out.root,
-              resolveHumanPosture.heading(out),
-              out.joints.hips,
-            );
-            for (const pedal of pedals) {
-              const goal: IAutoMovieHumanLimbGoal | undefined =
-                limbs[`${pedal.side}Leg`];
-              if (goal !== undefined)
-                limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(
-                  context.body,
-                  pedal.side,
+          // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
+          const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+            context.body,
+            out.root,
+            resolveHumanPosture.heading(out),
+            out.joints.hips,
+          );
+          for (const pedal of pedals) {
+            const goal: IAutoMovieHumanLimbGoal | undefined =
+              limbs[`${pedal.side}Leg`];
+            if (goal !== undefined)
+              limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(
+                context.body,
+                pedal.side,
 
-                  // A pedalling foot bears on its ball, so where the ankle cannot give the foot its turn (at the top of the stroke) the ball stays on the pedal and the turn gives way; its knee bends forward, toward a point a thigh's length ahead of its hip (the bend hint picks the side only), whichever way the leg came onto it.
-                  {
-                    ...goal,
-                    contact:
-                      goal.contact ??
-                      HumanFoot.offset(context.body, pedal.side, "ball"),
-                    bend: Vector3.add(
-                      hips[pedal.side],
-                      Quaternion.rotateVector(
-                        resolveHumanPosture.heading(out),
-                        { x: 0, y: 0, z: context.body.measure.thigh },
-                      ),
-                    ),
-                  },
-                  hips[pedal.side],
-                  resolveHumanPosture.heading(out),
-                );
-            }
-            return publish(out, now);
+                // A pedalling foot bears on its ball, so where the ankle cannot give the foot its turn (at the top of the stroke) the ball stays on the pedal and the turn gives way; its knee bends forward, toward a point a thigh's length ahead of its hip (the bend hint picks the side only), whichever way the leg came onto it.
+                {
+                  ...goal,
+                  contact:
+                    goal.contact ??
+                    HumanFoot.offset(context.body, pedal.side, "ball"),
+                  bend: Vector3.add(
+                    hips[pedal.side],
+                    Quaternion.rotateVector(resolveHumanPosture.heading(out), {
+                      x: 0,
+                      y: 0,
+                      z: context.body.measure.thigh,
+                    }),
+                  ),
+                },
+                hips[pedal.side],
+                resolveHumanPosture.heading(out),
+              );
+          }
+          return publish(out, now);
         };
         const plan: IAutoMovieMotionHumanActionPlan = {
           duration: seconds,
@@ -384,10 +425,56 @@ export namespace HumanRide {
 
           // The seat sat on is passed on, so getting off after the ride still knows it.
           base: entered,
-          posture: (at: number): IAutoMovieMotionHumanPosture => written(at, WorkingSeatRidePlan.postureOnly),
+          posture: (at: number): IAutoMovieMotionHumanPosture =>
+            written(at, WorkingSeatRidePlan.postureOnly),
         };
-        return alternatives === undefined ? plan : new WorkingSeatRidePlan(
-          plan, context.body, alternatives, (at: number): WorkingSeatRidePlan.IWritten => written(at, WorkingSeatRidePlan.withFrame),
+        if (alternatives === undefined) return plan;
+
+        // Roots, the seat and both grips share an authored stationary domain only
+        // after acquisition. A posting stride or moving pedals still change the rider.
+        const domains: readonly RigidCarrierSample.IHold[] | undefined =
+          rising === undefined && pedals.length === 0
+            ? RigidCarrierSample.holds(support.prop)
+            : undefined;
+        const nativeFrame: typeof support.prop.motion =
+          domains === undefined ? undefined : support.prop.motion;
+        let held: WorkingSeatRidePlan.IHeld | undefined;
+        if (
+          domains !== undefined &&
+          nativeFrame !== undefined &&
+          seconds >= TAKE
+        ) {
+          const hold = (
+            local: number,
+          ): RigidCarrierSample.IHold | undefined => {
+            if (
+              local < TAKE ||
+              RigidCarrierSample.holds(support.prop) !== domains
+            )
+              return undefined;
+            const film: number = context.start + Math.min(seconds, local);
+            return domains.find((domain: RigidCarrierSample.IHold): boolean =>
+              film >= domain.from && film <= domain.to && domain.contains(film),
+            );
+          };
+          const events: readonly number[] = [TAKE, seconds].filter(
+            (local: number): boolean => hold(local) !== undefined,
+          );
+          if (events.length > 0)
+            held = {
+              events,
+              hold,
+              frame: (local: number): WorkingSeatRidePlan.IWritten =>
+                written(local, WorkingSeatRidePlan.withFrame, nativeFrame),
+            };
+        }
+        return new WorkingSeatRidePlan(
+          plan,
+          context.body,
+          alternatives,
+          (at: number): WorkingSeatRidePlan.IWritten =>
+            written(at, WorkingSeatRidePlan.withFrame),
+          held,
         );
       },
     };

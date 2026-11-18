@@ -4,6 +4,7 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -152,20 +153,29 @@ export namespace HumanMountRider {
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
   ): IWrist {
     const material: HumanRideHands.IMaterialGrip = grip;
-    const across: IAutoMovieVector3 = grip.axis === undefined
-      ? { x: 0, y: 0, z: 0 }
-      : Vector3.cross(grip.axis, grip.normal);
+    const across: IAutoMovieVector3 =
+      grip.axis === undefined
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.cross(grip.axis, grip.normal);
     let fingers: IAutoMovieVector3;
     if (Vector3.length(across) < 1e-6) fingers = forward(posture);
     else {
-      const side: number = grip.across ?? (Vector3.dot(across, forward(posture)) < 0 ? -1 : 1);
+      const side: number =
+        grip.across ?? (Vector3.dot(across, forward(posture)) < 0 ? -1 : 1);
       fingers = Vector3.scale(Vector3.normalize(across), side);
     }
     return {
-      point: Vector3.add(grip.point, Vector3.add(
-        Vector3.scale(grip.normal, (material.palmDepth ?? PALM * body.measure.hand) + (grip.radius ?? 0)),
-        Vector3.scale(fingers, -CENTRE * body.measure.hand),
-      )),
+      point: Vector3.add(
+        grip.point,
+        Vector3.add(
+          Vector3.scale(
+            grip.normal,
+            (material.palmDepth ?? PALM * body.measure.hand) +
+              (grip.radius ?? 0),
+          ),
+          Vector3.scale(fingers, -CENTRE * body.measure.hand),
+        ),
+      ),
       fingers,
     };
   }
@@ -213,6 +223,63 @@ export namespace HumanMountRider {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
+    return held(
+      body,
+      side,
+      posture,
+      grip,
+      share,
+      closed,
+      () =>
+        freeHands(body, posture, FREE_HAND[side], resolution, projection).get(
+          `${side}Hand`,
+        )!,
+    );
+  }
+
+  /**
+   * Start both acquiring hands from the same unoccupied posture for one query.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shared pre-grip pose and the query lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands use the seated FK with neither arm already guided by a grip.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both origins together at first demand and use the ordinary grip interpolator for each hand.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current seat, legs and other direct channels still enter forward resolution. Each actual grip supplies its own current position and turn.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most one seated fit for both approaching wrists, and none after acquisition.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Sharing is local to one authored posture and never uses a free wrist from another second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller holds the acquiring reader only while building its current two goals.
+   */
+  export function taking(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    share: number,
+  ): Taking {
+    let free:
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      | undefined;
+    return (side, grip, closed) =>
+      held(body, side, posture, grip, share, closed, () => {
+        free ??= freeHands(body, posture, BOTH_HANDS);
+        return free.get(`${side}Hand`)!;
+      });
+  }
+
+  /** Acquire the selected hand using this query's relaxed origin and current grip. */
+  type Taking = (
+    side: AutoMovieHumanSide,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    closed: IAutoMovieMotionHumanPosture["joints"],
+  ) => IAutoMovieMotionHumanMountRider.IHoldResult;
+
+  /** A held grip requires its free origin only before acquisition finishes. */
+  function held(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    share: number,
+    closed: IAutoMovieMotionHumanPosture["joints"],
+    free: () => IAutoMovieResolvedBone,
+  ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const { point: target, fingers }: IWrist = wrist(body, posture, grip);
     const turned: IAutoMovieQuaternion = HumanHand.rotation(side, {
@@ -222,26 +289,7 @@ export namespace HumanMountRider {
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      delete limbs.leftArm;
-      delete limbs.rightArm;
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const requested: ReadonlySet<AutoMovieHumanoidBone> = FREE_HAND[side];
-      const hand: IAutoMovieResolvedBone = poseBones(
-        body,
-        resolveHumanPosture.seeded(
-          body,
-          { ...posture, limbs },
-          undefined,
-          undefined,
-          read,
-          prepareHumanPoseResolution.isNativeSource(resolution) ? requested : undefined,
-          projection,
-        ).pose,
-        read(),
-        requested,
-      ).get(`${side}Hand`)!;
+      const hand: IAutoMovieResolvedBone = free();
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
@@ -270,6 +318,36 @@ export namespace HumanMountRider {
       },
       fingers: closing,
     };
+  }
+
+  /** Resolve the unoccupied wrists from a single seated trunk, before either grip is assigned. */
+  function freeHands(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs.leftArm;
+    delete limbs.rightArm;
+    const read = prepareHumanPoseResolution(resolution);
+    return poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        { ...posture, limbs },
+        undefined,
+        undefined,
+        read,
+        prepareHumanPoseResolution.isNativeSource(resolution)
+          ? requested
+          : undefined,
+        projection,
+      ).pose,
+      read(),
+      requested,
+    );
   }
 
   /**
@@ -308,7 +386,14 @@ export namespace HumanMountRider {
     shapes: readonly IAutoMoviePhysicalShape[],
     frame: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const arm: IAutoMovieHumanLimbGoal = hold(body, side, posture, grip, 1, {}).arm;
+    const arm: IAutoMovieHumanLimbGoal = hold(
+      body,
+      side,
+      posture,
+      grip,
+      1,
+      {},
+    ).arm;
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
     const near = (shape: IAutoMoviePhysicalShape): number =>
@@ -330,7 +415,10 @@ export namespace HumanMountRider {
       "power",
       { point: arm.point, rotation: arm.rotation! },
       [{ shape: handle, frame }],
-      HumanHand.shape(side, material.palmDepth === undefined ? "relaxed" : "flat"),
+      HumanHand.shape(
+        side,
+        material.palmDepth === undefined ? "relaxed" : "flat",
+      ),
     ).joints;
   }
 
@@ -399,11 +487,23 @@ export namespace HumanMountRider {
 
 /** The rider's forward direction when the grip has yet to establish its finger side. */
 function forward(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
-  return Quaternion.rotateVector(resolveHumanPosture.heading(posture), { x: 0, y: 0, z: 1 });
+  return Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
 }
 
-/** Each free wrist observes its own ancestor chain while approaching a grip. */
-const FREE_HAND: Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>> = {
+/** Both free wrists observed from one unoccupied upper-body fit. */
+const BOTH_HANDS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftHand",
+  "rightHand",
+]);
+/** A single free wrist only needs its own ancestor chain. */
+const FREE_HAND: Record<
+  AutoMovieHumanSide,
+  ReadonlySet<AutoMovieHumanoidBone>
+> = {
   left: new Set(["leftHand"]),
   right: new Set(["rightHand"]),
 };

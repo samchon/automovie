@@ -1,10 +1,16 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  ROM_TOLERANCE,
+  type RigidCarrierSample,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieResolvedBone,
@@ -16,7 +22,9 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
+import { WorkingSeatTerminal } from "./WorkingSeatTerminal";
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -29,18 +37,23 @@ type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 /** Freeze a native structured clone before its source and display borrow the same raw graph. */
 function immutable(value: unknown): void {
-  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return;
+  if (value === null || typeof value !== "object" || Object.isFrozen(value))
+    return;
   for (const field of Object.values(value)) immutable(field);
   Object.freeze(value);
 }
 
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
+const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftFoot",
+  "rightFoot",
+]);
 
 /**
  * The native working-seat ride. It proposes torso articulation only when
  * keeping the original feet requires it. A complete actual pair judgement
  * and both actual sole positions admit a candidate. A single bare display
- * leaf can consume the very result that decided this law sample.
+ * leaf can consume the very result that decided this law sample. A native
+ * stationary carrier can also prepare its fully acquired endpoints once.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The original world-space goals enter the ordinary ordered/mirrored refit. Both original sole offsets are transformed by their realised bone frames. A candidate is accepted only on the complete existing pair predicate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only this native plan with its original reader issues a private single-use sample. A changed or composed raw posture never consumes it. No previous sample, frame key, prepared flag on user data or global result history is involved.
@@ -60,7 +73,13 @@ export class WorkingSeatRidePlan implements Plan {
   readonly #design: Design;
   readonly #frame: Frame;
 
-  constructor(plan: Plan, body: IAutoMovieMotionHumanBody, design: Design, frame: Frame) {
+  constructor(
+    plan: Plan,
+    body: IAutoMovieMotionHumanBody,
+    design: Design,
+    frame: Frame,
+    held?: WorkingSeatRidePlan.IHeld,
+  ) {
     this.duration = plan.duration;
     this.events = plan.events;
     this.contacts = plan.contacts;
@@ -69,32 +88,97 @@ export class WorkingSeatRidePlan implements Plan {
     this.#design = design;
     this.#frame = frame;
     this.posture = (...args: Parameters<Reader>): Posture =>
-      this.#sample(WorkingSeatRidePlan.postureOnly, ...args);
+      this.#sample(this.#frame(args[0]), WorkingSeatRidePlan.postureOnly, args);
+    const terminal: WorkingSeatTerminal | undefined =
+      held === undefined ? undefined : new WorkingSeatTerminal(body);
     HumanPreparedPlayback.attach(this, body, {
       mode: "fitted",
-      phases: [{
-        from: 0,
-        to: plan.duration,
-        sample: (...args: Parameters<Reader>): HumanPreparedPlayback.ISample =>
-          this.#sample((posture: Posture, solved?: Seeded): HumanPreparedPlayback.ISample => {
-            if (solved === undefined) return { posture };
-            immutable(posture);
-            return {
-              posture,
-              takeFit: (): Seeded | undefined => {
-                const fit: Seeded | undefined = solved;
-                solved = undefined;
-                return fit;
-              },
+      ...(held === undefined || terminal === undefined
+        ? {}
+        : {
+            prepare: (): void => this.#prepare(held, terminal),
+          }),
+      phases: [
+        {
+          from: 0,
+          to: plan.duration,
+          sample: (
+            ...args: Parameters<Reader>
+          ): IAutoMovieMotionHumanPlayback.ISample => {
+            const written: WorkingSeatRidePlan.IWritten = this.#frame(args[0]);
+            const event: RigidCarrierSample.IHold | undefined = held?.hold(
+              args[0],
+            );
+            const prepared: WorkingSeatTerminal.IResult | undefined =
+              event === undefined
+                ? undefined
+                : terminal?.read(event, written.frame, written.posture);
+            const publish = (
+              posture: Posture,
+              solved?: Seeded,
+            ): IAutoMovieMotionHumanPlayback.ISample => {
+              if (solved === undefined) return { posture };
+              immutable(posture);
+              return {
+                posture,
+                takeFit: (): Seeded | undefined => {
+                  const fit: Seeded | undefined = solved;
+                  solved = undefined;
+                  return fit;
+                },
+              };
             };
-          }, ...args),
-      }],
+            return prepared === undefined
+              ? this.#sample(written, publish, args)
+              : publish(prepared.posture, prepared.fit);
+          },
+        },
+      ],
     });
   }
 
-  #sample<T>(publish: Publish<T>, ...args: Parameters<Reader>): T {
-    const local: number = args[0];
-    const written: WorkingSeatRidePlan.IWritten = this.#frame(local);
+  /** Resolve only the finite stationary event representatives, after placement. */
+  #prepare(
+    held: WorkingSeatRidePlan.IHeld,
+    terminal: WorkingSeatTerminal,
+  ): void {
+    terminal.clear();
+    const prepared: Set<RigidCarrierSample.IHold> = new Set();
+    for (const local of held.events) {
+      const event: RigidCarrierSample.IHold | undefined = held.hold(local);
+      if (event === undefined || prepared.has(event)) continue;
+      prepared.add(event);
+      try {
+        const written: WorkingSeatRidePlan.IWritten = held.frame(local);
+        terminal.prepare(
+          event,
+          written.frame,
+          written.posture,
+          (): WorkingSeatTerminal.IResult =>
+            this.#sample(
+              written,
+              (
+                posture: Posture,
+                fit?: Seeded,
+              ): WorkingSeatTerminal.IResult => ({
+                posture,
+                fit: fit ?? resolveHumanPosture.seeded(this.#body, posture),
+              }),
+              [local],
+            ),
+        );
+      } catch {
+        // A failed optional preparation does not move the original sample's refusal to placement.
+      }
+    }
+  }
+
+  /** Select the exact working-seat variant for the instantaneous demands. */
+  #sample<T>(
+    written: WorkingSeatRidePlan.IWritten,
+    publish: Publish<T>,
+    args: Parameters<Reader>,
+  ): T {
     const raw: Posture = written.posture;
     const choices: ReturnType<Design> = this.#design(raw, written.frame);
     let feedback: fixedSeatWorkingPostures.IFeedback = { neck: false };
@@ -103,29 +187,51 @@ export class WorkingSeatRidePlan implements Plan {
     for (;;) {
       const next: ReturnType<typeof choices.next> = choices.next(feedback);
       if (next.done && best === undefined) return publish(raw);
-      const candidate: Posture = next.done ? best! : structuredClone(next.value);
+      const candidate: Posture = next.done
+        ? best!
+        : structuredClone(next.value);
       let violation: number = Infinity;
       let neck: boolean = false;
       const assembled: resolveHumanPostureSource.IAssembled =
-        resolveHumanPostureSource.assemble(this.#body, candidate, undefined, args[3]);
+        resolveHumanPostureSource.assemble(
+          this.#body,
+          candidate,
+          undefined,
+          args[3],
+        );
       const fit: Seeded = resolveHumanPostureSource.fit(
-        this.#body, assembled, undefined, {}, args[2], undefined, undefined, {
+        this.#body,
+        assembled,
+        undefined,
+        {},
+        args[2],
+        undefined,
+        undefined,
+        {
           analytic: !next.done,
-          inspect: (reading: Readonly<HumanArmTrajectoryModel.IEvaluation>): void => {
+          inspect: (
+            reading: Readonly<HumanArmTrajectoryModel.IEvaluation>,
+          ): void => {
             violation = reading.worst.value;
             if (reading.worst.term !== "embedded") return;
             for (const arm of reading.pairs)
               for (const pairs of arm)
                 if (pairs !== undefined)
                   for (const pair of pairs.embedded.values())
-                    if ((pair.bone === "head" || pair.bone === "neck") &&
-                        pair.short > HumanArmTrajectoryTerms.SKIN + HumanArmTrajectoryModel.TOLERANCE)
+                    if (
+                      (pair.bone === "head" || pair.bone === "neck") &&
+                      pair.short >
+                        HumanArmTrajectoryTerms.SKIN +
+                          HumanArmTrajectoryModel.TOLERANCE
+                    )
                       neck = true;
           },
         },
       );
-      if (violation <= HumanArmTrajectoryModel.TOLERANCE && this.#grounded(candidate, fit)) {
-
+      if (
+        violation <= HumanArmTrajectoryModel.TOLERANCE &&
+        this.#grounded(candidate, fit)
+      ) {
         return publish(candidate, fit);
       }
       if (next.done) return publish(raw);
@@ -139,26 +245,51 @@ export class WorkingSeatRidePlan implements Plan {
 
   /** Check ankle and material sole at the angular resolution of this rig. */
   #grounded(raw: Posture, solved: Seeded): boolean {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(this.#body, solved.pose, undefined, FEET);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      this.#body,
+      solved.pose,
+      undefined,
+      FEET,
+    );
     for (const side of SIDES) {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];
       if (!goal?.planted || !goal.contact || !goal.rotation) return false;
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
-      const ankle: IAutoMovieVector3 = Vector3.subtract(foot.worldPosition, goal.point);
-      const sole: IAutoMovieVector3 = Vector3.add(ankle, Vector3.subtract(
-        Quaternion.rotateVector(foot.worldRotation, goal.contact),
-        Quaternion.rotateVector(goal.rotation, goal.contact),
-      ));
-      const tolerance: number = (this.#body.measure.thigh + this.#body.measure.shank +
-        Vector3.length(goal.contact)) * ROM_TOLERANCE * Quaternion.DEG2RAD;
-      if (Vector3.length(ankle) > tolerance || Vector3.length(sole) > tolerance) return false;
+      const ankle: IAutoMovieVector3 = Vector3.subtract(
+        foot.worldPosition,
+        goal.point,
+      );
+      const sole: IAutoMovieVector3 = Vector3.add(
+        ankle,
+        Vector3.subtract(
+          Quaternion.rotateVector(foot.worldRotation, goal.contact),
+          Quaternion.rotateVector(goal.rotation, goal.contact),
+        ),
+      );
+      const tolerance: number =
+        (this.#body.measure.thigh +
+          this.#body.measure.shank +
+          Vector3.length(goal.contact)) *
+        ROM_TOLERANCE *
+        Quaternion.DEG2RAD;
+      if (Vector3.length(ankle) > tolerance || Vector3.length(sole) > tolerance)
+        return false;
     }
     return true;
   }
 }
 
 export namespace WorkingSeatRidePlan {
+  /** The actual acquired or terminal fixed carrier domains for this ride. */
+  export interface IHeld {
+    /** Local seconds representing the authored acquisition and end events. */
+    events: readonly number[];
+    /** Whether the actual local second lies within a certified stationary interval. */
+    hold(local: number): RigidCarrierSample.IHold | undefined;
+    /** Author using only this source's certified native carrier reader. */
+    frame: Frame;
+  }
+
   /** The original posture and the exact carrier frame that placed it. */
   export interface IWritten {
     /** The current original authoring. */
@@ -168,10 +299,15 @@ export namespace WorkingSeatRidePlan {
   }
 
   /** A normal ride has no use for the carrier frame after authoring. */
-  export function postureOnly(posture: Posture): Posture { return posture; }
+  export function postureOnly(posture: Posture): Posture {
+    return posture;
+  }
 
   /** A working ride's alternative borrows the carrier frame read by its author. */
-  export function withFrame(posture: Posture, frame: IAutoMovieRigidTransform): IWritten {
+  export function withFrame(
+    posture: Posture,
+    frame: IAutoMovieRigidTransform,
+  ): IWritten {
     return { posture, frame };
   }
 }
