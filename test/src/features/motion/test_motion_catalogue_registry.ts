@@ -52,6 +52,16 @@ export function test_motion_catalogue_registry(): void {
           rows.some((row) => row === value),
         );
   }
+  for (const rows of Object.values(HUMAN_LEXICON))
+    for (const row of rows) {
+      if (row.resolve === undefined) continue;
+      const forwarded = Object.freeze({ callerKey: row.name });
+      TestValidator.equals(
+        row.name + " dispatch preserves open arguments",
+        row.resolve(forwarded),
+        { ...row.resolve({}), callerKey: row.name },
+      );
+    }
   const installed: readonly IAutoMovieMotionHumanActionLaw<never>[] =
     Object.values(HUMAN_LEXICON).flat();
   const register = (

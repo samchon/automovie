@@ -7,6 +7,8 @@ import type {
 import {
   HumanChain,
   HumanPerformance,
+  HumanPerformanceParams,
+  HumanRefusal,
   HumanVerdicts,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -38,6 +40,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the 3 scenarios and why both directions matter.
  */
 export function test_motion_catalogue_public_verdict(): void {
+  let invalid: unknown;
+  try {
+    HumanPerformanceParams.check("stand", { seconds: -1 });
+  } catch (error) {
+    invalid = error;
+  }
+  TestValidator.predicate(
+    "negative duration names its bound and repair",
+    invalid instanceof HumanRefusal &&
+      invalid.axis === "seconds" &&
+      invalid.value === -1 &&
+      invalid.feasible?.kind === "range" &&
+      invalid.feasible.unit === "s" &&
+      invalid.fix.length > 0,
+  );
+  HumanPerformanceParams.check("stand", { seconds: 1 });
   const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const perform = (

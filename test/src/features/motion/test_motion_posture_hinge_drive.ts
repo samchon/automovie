@@ -1,8 +1,15 @@
-import { createStorage } from "@automovie/archetypes";
-import { AutoMovieComposition, Quaternion } from "@automovie/engine";
+import {
+  type Archetype,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  createStorage,
+} from "@automovie/archetypes";
+import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -16,6 +23,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
 
 /**
  * Two acts that drive one articulation at overlapping seconds are refused,
@@ -37,6 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the two numbered scenarios.
  */
 export function test_motion_posture_hinge_drive(): void {
+  checkKnobWriters();
   const chest: ReturnType<typeof createStorage> = createStorage({
     kind: "chest",
   });
@@ -163,4 +172,143 @@ export function test_motion_posture_hinge_drive(): void {
         (resolved.state("chest", resolved.duration)[drawer.id] ?? 0) - 0.2,
       ) <= 1e-9,
     );
+}
+
+/** The two knobs attached to the shared gear. */
+type Knob = "drive" | "follower";
+/** Two knob coordinates of the same degree, at a standing hand's height, with a two-to-one reversible ratio. */
+function coupled(): Archetype<Knob, never> {
+  const frame: ReturnType<typeof ArchetypeFrame.upright> =
+    ArchetypeFrame.upright(Vector3.create(0, 1, 0));
+  return new ArchetypeBuilder<Knob, never>({
+    material: "steel",
+    name: "coupled-operation",
+    draw: new ArchetypeDrawSession<never>("coupled-operation", {}, undefined),
+  })
+    .box("base", Vector3.create(0.05, 0.05, 0.05), Vector3.create(0, 0.025, 0))
+    .affordance({
+      id: "drive",
+      kind: "knob",
+      frame,
+      extent: null,
+      travel: 360,
+      reverse: 360,
+    })
+    .affordance({
+      id: "follower",
+      kind: "knob",
+      frame,
+      extent: null,
+      travel: 720,
+      reverse: 720,
+      follows: { id: "drive", ratio: 2, reversible: true },
+    })
+    .build(1);
+}
+
+/** The signed ratio, persistent endpoint and overlapping writes of a two-knob fixture. */
+function checkKnobWriters(): void {
+  const body = motionHumanBody("m-average");
+  const model: ReturnType<typeof coupled> = coupled();
+  const turn = (
+    who: string,
+    point: Knob,
+    amount: number,
+  ): IAutoMovieMotionHumanChain =>
+    HumanChain.subject(who).operate(
+      {
+        hand: who === "a" ? "right" : "left",
+        mechanism: {
+          kind: "knob",
+          at: { kind: "prop", subject: "mechanism", point },
+          turn: amount,
+        },
+      },
+      `${who}-turn`,
+    );
+  const input = (
+    composition: IAutoMovieComposition,
+  ): IAutoMovieMotionHumanPerformance.IInput => ({
+    seed: "coupled-writers",
+    props: [
+      HumanObject.prop("mechanism", model, {
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        fixed: true,
+      }),
+    ],
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: -0.15, y: 0, z: 0.45 },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body,
+        at: { x: 0.15, y: 0, z: 0.45 },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition,
+  });
+  const sequence: IAutoMovieMotionHumanPerformance = new HumanPerformance(
+    input(
+      AutoMovieComposition.parallel(
+        turn("a", "drive", 30).node,
+        turn("b", "follower", 60).sync({ of: "a-turn", event: "end" }).node,
+      ),
+    ),
+  );
+  const first = sequence.segments("a")[0]!;
+  TestValidator.equals(
+    "knob starts at rest",
+    model.articulate(sequence.state("mechanism", 0)).travel("drive"),
+    0,
+  );
+  TestValidator.predicate(
+    "first operation leaves sixty follower degrees",
+    nclose(
+      model
+        .articulate(sequence.state("mechanism", first.end))
+        .travel("follower"),
+      60,
+      1e-9,
+    ),
+  );
+  const final: Record<string, number> = sequence.state(
+    "mechanism",
+    sequence.duration,
+  );
+  TestValidator.predicate(
+    "a follower operation starts where its leader left it",
+    final.drive === undefined &&
+      nclose(final.follower!, 120, 1e-9) &&
+      nclose(model.articulate(final).travel("drive"), 60, 1e-9),
+  );
+
+  let refusal: unknown;
+  try {
+    new HumanPerformance(
+      input(
+        AutoMovieComposition.parallel(
+          turn("a", "drive", 30).node,
+          turn("b", "follower", 60).node,
+        ),
+      ),
+    );
+  } catch (error) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "simultaneous coordinates of one degree still conflict",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "cut" &&
+      refusal.axis === "drives" &&
+      refusal.message.includes("a") &&
+      refusal.message.includes("b"),
+  );
 }
