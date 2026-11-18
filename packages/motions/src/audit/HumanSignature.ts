@@ -330,6 +330,7 @@ export namespace HumanSignature {
     let bearing: number = 0;
     for (const side of ["left", "right"] as const) {
       let before: boolean | undefined;
+      let last: number | undefined;
       for (const t of ts) {
         const now: boolean = bears(reader, t, side, 0, from);
         if (now) bearing++;
@@ -337,15 +338,14 @@ export namespace HumanSignature {
         // A foot strikes once a stride: a contact that flickers within a
         // quarter second of the same foot's last strike (a heel handing the
         // load to the ball) is the same footfall.
-        const mine: IAutoMovieMotionHumanSignature.IGait["strikes"] =
-          strikes.filter((s): boolean => s.side === side);
-        const last: number | undefined = mine[mine.length - 1]?.seconds;
         if (
           before === false &&
           now &&
           (last === undefined || t - last >= STRIDE)
-        )
+        ) {
           strikes.push({ seconds: t, side });
+          last = t;
+        }
         before = now;
       }
     }
