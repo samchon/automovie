@@ -37,11 +37,11 @@ const SWIPE_SECONDS: number = 0.2851;
  * and withdraws. `strokeStart` is touch-in, `strokeEnd` (also `relax`) is
  * touch-out, and `end` returns the hand to its entry pose. The stroke takes
  * 285.1 ms by default, the mean touch-in to touch-out duration from Jeong
- * and Liu (2017, doi:10.1080/00140139.2017.1313457; Jeong's dissertation,
- * Table 2.6). The shared transport rule times the reach and withdrawal. The
- * contact carries no weight. The screen belongs to a stationary fixture and
- * the body keeps its entry stance. The entire wrist path must lie in the
- * arm's geometric reach; place the fixture and actor within that range.
+ * and Liu (2017, doi:10.1080/00140139.2017.1313457). Jeong reports the
+ * measured mean in Table 2.6 of his dissertation. The shared transport rule
+ * times the reach and withdrawal. The contact carries no weight. The screen
+ * belongs to a stationary fixture and the body keeps its entry stance. Place
+ * the fixture and actor so the entire wrist path is in geometric reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the target frame, contact, events, timing source, and reach refusal.
  * @evidence contracts/development/design.md#principled-representation A registrable arm-stroke law whose endpoints are shares of the declared screen width.

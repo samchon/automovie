@@ -156,6 +156,11 @@ function plan(
     hold: AutoMovieMotionHumanTiming.PAUSES.brief * pace,
     retract: reach * pace,
   });
+  const entryElbow: IAutoMovieVector3 = bones.get(
+    `${side}LowerArm`,
+  )!.worldPosition;
+  const reaching = (seconds: number): number =>
+    clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.stroke({
     body,
     side,
@@ -185,18 +190,23 @@ function plan(
         ),
       ),
       rotation: fit.shown.rotation,
-      bend,
+      bend: Vector3.lerp(entryElbow, bend, reaching(seconds)),
     }),
   });
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+    context,
+    clock.duration,
+  );
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      base,
       clock,
       contact: "stroke",
       primitives: [arm],
     });
   const limb: "leftArm" | "rightArm" = `${side}Arm`;
   const fitted = (seconds: number): IAutoMovieMotionHumanPosture => {
+    if (reaching(seconds) === 0) return base.posture(seconds);
     const at: IAutoMovieMotionHumanPosture = composed.posture(seconds);
     return {
       ...at,
