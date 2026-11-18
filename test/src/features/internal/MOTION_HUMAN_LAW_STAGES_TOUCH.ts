@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { touch } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -59,21 +60,57 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
-  ): motionHumanLawSweep.IScene =>
-    S.duo(a, b, 0.45, [
-      S.chain().act("kiss", {
-        partner: "b",
-        // A head turned left kisses the mirrored cheek, as a left hand
-        // touches the mirrored shoulder: staged at one cheek for both turns,
-        // the left row was not the right row's mirror, and the two heads
-        // stood the cheeks' distance apart (measured 0.1231 m).
-        region:
-          pick("region") ??
-          (pick("side") === "left" ? "cheekRight" : "cheekLeft"),
-        ...S.set(pick, "side"),
-      }),
-      S.chain("b").act("stand", { seconds: 6, sway: 0 }),
-    ]),
+  ): motionHumanLawSweep.IScene => {
+    // A head turned left kisses the mirrored cheek, as a left hand
+    // touches the mirrored shoulder: staged at one cheek for both turns,
+    // the left row was not the right row's mirror, and the two heads
+    // stood the cheeks' distance apart (measured 0.1231 m).
+    const region: string =
+      pick("region") ??
+      (pick("side") === "left" ? "cheekRight" : "cheekLeft");
+    const kiss: object = { partner: "b", region, ...S.set(pick, "side") };
+    const hand: "left" | "right" | undefined =
+      region === "handBackLeft"
+        ? "left"
+        : region === "handBackRight"
+          ? "right"
+          : undefined;
+    if (hand === undefined)
+      return S.duo(a, b, 0.45, [
+        S.chain().act("kiss", kiss),
+        S.chain("b").act("stand", { seconds: 6, sway: 0 }),
+      ]);
+    // A hand kiss is given to a presented hand: the partner holds the hand
+    // out, palm down, and the kisser bows to it (the baciamano), so b lays
+    // the hand's palm down on a place ahead of the shoulder before a's kiss
+    // starts, held out by the share a touch keeps its wrist within
+    // (`touch.REACH`), at the height of the kisser's neck so the kiss is a
+    // bow of the head and not a stoop (provisional), and the kisser stands that far again of
+    // her own arm from the hand, where her bow meets it; b faces a, so b's
+    // left lies toward -x.
+    const held: number = touch.REACH * (b.measure.upperArm + b.measure.forearm);
+    const gap: number = held + touch.REACH * (a.measure.upperArm + a.measure.forearm);
+    const across: number = (hand === "left" ? -1 : 1) * b.measure.shoulderHalfWidth;
+    return S.duo(a, b, gap, [
+      S.chain("b").act(
+        "touch",
+        {
+          target: S.point(
+            across,
+            a.measure.neckHeight,
+            gap - held,
+            { x: 0, y: 1, z: 0 },
+          ),
+          kind: "hold",
+          with: "palm",
+          side: hand,
+          hold: 6,
+        },
+        "presented",
+      ),
+      S.chain().act("kiss", kiss).sync({ of: "presented", event: "ready" }),
+    ]);
+  },
   highFive: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
