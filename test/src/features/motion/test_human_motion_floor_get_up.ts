@@ -2,6 +2,7 @@ import { physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
@@ -46,27 +47,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. A knockdown, a rise and a crawl, as a fall and a crawl away are
  *    written: the three plan.
  * 6. A rise from standing is refused as a `base` refusal on the `base`
- *    axis.
+ *    axis, with the supported floor bases offered as alternatives.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each chain through the public chain and reads displayed bones and colliders; a rise that ends off its feet, jumps, sinks into the floor, or accepts a standing body fails with the case and its numbers.
  * @evidence contracts/development/testing.md#independent-expectations Standing is the stance owner's own hips height; the speed, floor and skin bounds are the verdicts' for any human motion; the 20 mm give is marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases Both lying bases, both patterns, the hands and knees, the chain after a knockdown and a refused base, on two extreme bodies; the floor laws' own entries are `test_human_motion_floor_entry_base`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds twelve short performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and attempts eleven performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how standing, continuity and the floor are read with their bounds, and the 6 scenarios.
  */
 export function test_human_motion_floor_get_up(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const STEP: number = 1 / 120;
-  type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stood: number = poseBones(
       body,
       resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
     ).get("hips")!.worldPosition.y;
-    const perform = (composition: {
-      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
-    }): IAutoMovieMotionHumanPerformance =>
+    const perform = (composition: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "get-up",
         performers: [
@@ -92,9 +90,7 @@ export function test_human_motion_floor_get_up(): void {
     // 1 to 4. A rise read through.
     const rise = (
       label: string,
-      composition: {
-        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
-      },
+      composition: IAutoMovieMotionHumanChain,
     ): void => {
       let performance: IAutoMovieMotionHumanPerformance;
       try {
@@ -108,50 +104,65 @@ export function test_human_motion_floor_get_up(): void {
       }
       const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
-      let fastest: { speed: number; bone: string; seconds: number } = {
-        speed: 0,
-        bone: "none",
-        seconds: 0,
-      };
-      let deepest: { depth: number; seconds: number } = {
-        depth: 0,
-        seconds: 0,
-      };
-      let before: Bones = performance.bones("a", placed.entryTime - 0.1);
-      for (
-        let seconds: number = placed.entryTime - 0.1 + STEP;
-        seconds <= placed.end + 1e-9;
-        seconds += STEP
-      ) {
+      let fastest: number = 0;
+      let fastestBone: AutoMovieHumanoidBone = "hips";
+      let fastestAt: number = placed.entryTime;
+      let deepest: number = 0;
+      let deepestAt: number = placed.entryTime;
+      const from: number = placed.entryTime - 0.1;
+      const floorStart: number = placed.entryTime + (placed.transition?.blend ?? 0);
+      // The speed standard is a 120 Hz finite difference. Exact seam and
+      // endpoint observations get their own 1/120 s predecessor, even if
+      // they coincide with the regular grid to floating-point precision.
+      const times: Set<number> = new Set([placed.entryTime, floorStart, placed.end]);
+      for (let index: number = 1; from + index * STEP < placed.end; index++)
+        times.add(from + index * STEP);
+      let previous: number = from;
+      let before: Bones = performance.bones("a", previous);
+      for (const seconds of [...times].sort((a: number, b: number): number => a - b)) {
+        const predecessor: number = seconds - STEP;
+        // Four rounded operations form a grid time. Bound their accumulated
+        // error relative to the film time before borrowing the prior frame.
+        const roundoff: number = 4 * Number.EPSILON * Math.max(1, Math.abs(seconds));
+        const prior: Bones = Math.abs(previous - predecessor) <= roundoff
+          ? before : performance.bones("a", predecessor);
         const now: Bones = performance.bones("a", seconds);
         for (const [bone, b] of now) {
-          const a: IAutoMovieResolvedBone = before.get(bone)!;
+          const a: IAutoMovieResolvedBone = prior.get(bone)!;
           const speed: number =
             Math.hypot(
               b.worldPosition.x - a.worldPosition.x,
               b.worldPosition.y - a.worldPosition.y,
               b.worldPosition.z - a.worldPosition.z,
             ) / STEP;
-          if (speed > fastest.speed) fastest = { speed, bone, seconds };
+          if (speed > fastest) {
+            fastest = speed;
+            fastestBone = bone;
+            fastestAt = seconds;
+          }
         }
         // The floor is read on the rise's own posture, once the entering
         // transition has carried off the act before's offset.
         const depth: number =
-          seconds >= placed.entryTime + (placed.transition?.blend ?? 0)
+          seconds >= floorStart
             ? -lowest(now, /./)
             : 0;
-        if (depth > deepest.depth) deepest = { depth, seconds };
+        if (depth > deepest) {
+          deepest = depth;
+          deepestAt = seconds;
+        }
+        previous = seconds;
         before = now;
       }
       all.check(
-        `${name} ${label}: the fastest joint centre is the ${fastest.bone} at ${fastest.speed.toFixed(1)} m/s at ${fastest.seconds.toFixed(3)} s, below 30 expected`,
-        fastest.speed <= 30,
+        `${name} ${label}: the fastest joint centre is the ${fastestBone} at ${fastest.toFixed(1)} m/s at ${fastestAt.toFixed(3)} s, below 30 expected`,
+        fastest <= 30,
       );
       all.check(
-        `${name} ${label}: the body sinks ${(deepest.depth * 1000).toFixed(1)} mm under the floor at ${deepest.seconds.toFixed(2)} s, within 5 expected`,
-        deepest.depth <= 0.005,
+        `${name} ${label}: the body sinks ${(deepest * 1000).toFixed(1)} mm under the floor at ${deepestAt.toFixed(2)} s, within 5 expected`,
+        deepest <= 0.005,
       );
-      const end: Bones = performance.bones("a", placed.end);
+      const end: Bones = before;
       const hips: number = end.get("hips")!.worldPosition.y;
       const feet: number = Math.max(
         lowest(end, /^left(Foot|Toes)$/),
@@ -198,7 +209,8 @@ export function test_human_motion_floor_get_up(): void {
       );
     }
 
-    // 6. Not from standing.
+    // Base refusal precedes any geometry. One standing body exercises it.
+    if (name !== "f-small") continue;
     let refused: unknown;
     try {
       perform(HumanChain.subject("a").stand({ seconds: 0.3 }).getUp());
@@ -209,8 +221,14 @@ export function test_human_motion_floor_get_up(): void {
       `${name} stand then getUp: refused on the base, got ${refused instanceof HumanRefusal ? `${refused.kind} on ${refused.axis}` : String(refused)}`,
       refused instanceof HumanRefusal &&
         refused.kind === "base" &&
-        refused.axis === "base",
+        refused.axis === "base" && refused.value === "standing" &&
+        refused.feasible?.kind === "alternatives" &&
+        ["lying", "kneeling", "crouched"].every((kind: string): boolean =>
+          refused.feasible?.kind === "alternatives" && refused.feasible.values.includes(kind)),
     );
   }
   all.assert("getting up from the floor ends standing on the feet");
 }
+
+/** World joint transforms evaluated at a single film instant. */
+type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

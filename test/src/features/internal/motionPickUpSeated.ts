@@ -1,8 +1,7 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAudit,
-  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -24,6 +23,7 @@ import {
   seated,
 } from "@automovie/motions";
 import { motionHumanBody } from "./motionHumanBody";
+import { nclose } from "./nclose";
 
 /**
  * A seated person picks up a glass beyond the seated arm by leaning forward
@@ -49,7 +49,9 @@ import { motionHumanBody } from "./motionHumanBody";
  *    left unread.
  * 5. A glass two arm lengths beyond the seated shoulder, past any lean, is
  *    refused as a `reach` refusal on `prop` that names standing up and
- *    stepping closer.
+ *    stepping closer. The forward population limit is 163.3% of arm-plus-hand
+ *    length (Haas et al., 2023, Table 4). Inside it, the straight arm after
+ *    maximal lean supplies the tighter anatomical limit.
  * The same displayed film supplies the complete verdicts for the glass of 1:
  * 6. Over the pick up, the whole shipped verdicts read clean: no tangle, no
  *    foot sliding, lifting or sinking, no joint past its range, no jump.
@@ -58,7 +60,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * @param complaints The owning test gathers the geometry and verdicts on both bodies here.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, the case it comes from and the 6 scenarios with their bounds.
- * @evidence contracts/development/implementation.md#principled-implementation The chain's own sit and pick up of a real glass archetype, read on the displayed glass, chest and soles and the plan's declared contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads a real glass, chest, seated socket and soles on the displayed frame, and computes both reach limits independently of the refusal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The seated pick-up film supplies both the planned contact observations and the whole verdict before the far refusal case.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pick up that does not plan is a complaint with the refusal's words.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances per body. Both original audit grids read the same admitted pick-up, with one origin at film start and one at the pick-up.
@@ -111,22 +113,9 @@ export function motionPickUpSeated(
   // The seated shoulder and chest, from a film that only sits.
   const still: IAutoMovieMotionHumanPerformance = perform(null);
   const sat: IAutoMovieMotionHumanSegment = still.segments("a")[0]!;
-  const reader0: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-    still,
-    "a",
-    body,
-    0,
-  );
-  const shoulder: IAutoMovieVector3 = HumanSignature.joint(
-    reader0,
-    sat.end,
-    "rightUpperArm",
-  );
-  const chest: IAutoMovieVector3 = HumanSignature.joint(
-    reader0,
-    sat.end,
-    "chest",
-  );
+  const seatedBones: ReturnType<typeof still.bones> = still.bones("a", sat.end);
+  const shoulder: IAutoMovieVector3 = seatedBones.get("rightUpperArm")!.worldPosition;
+  const chest: IAutoMovieVector3 = seatedBones.get("chest")!.worldPosition;
   const socket: number = Vector3.length(
     HumanHand.offset(body, "right", "grip").point,
   );
@@ -183,17 +172,12 @@ export function motionPickUpSeated(
       );
     const sitting: IAutoMovieVector3 = seated.point(body, chair);
     let drift: number = 0;
+    const seat: typeof body.surfaces.sockets.seat = body.surfaces.sockets.seat;
     for (let i: number = 0; i <= 4; i++) {
-      const t: number = (pick.plan.duration * i) / 4;
-      drift = Math.max(
-        drift,
-        Vector3.length(
-          Vector3.subtract(
-            seated.socket(body, pick.plan.posture(t)),
-            sitting,
-          ),
-        ),
-      );
+      const t: number = pick.start + (pick.plan.duration * i) / 4;
+      const bones: ReturnType<typeof film.bones> = film.bones("a", t);
+      const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(seat, bones.get(seat.bone)!).point;
+      drift = Math.max(drift, Vector3.distance(point, sitting));
     }
     if (!(drift <= 0.005))
       complaints.push(
@@ -201,19 +185,7 @@ export function motionPickUpSeated(
       );
     // The shipped audit's floor, slip and lift on the feet, its other
     // checks left unread (`AutoMovieMotionHumanAudit.run`'s null limits).
-    const motion: IAutoMovieMotionHumanAuditMotion = {
-      duration: film.duration,
-      segments: (
-        subject: string,
-      ): ReturnType<IAutoMovieMotionHumanAuditMotion["segments"]> =>
-        film.segments(subject),
-      bones: (
-        subject: string,
-        seconds: number,
-      ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
-        film.bones(subject, seconds),
-    };
-    for (const finding of AutoMovieMotionHumanAudit.run(motion, "a", body, {
+    for (const finding of AutoMovieMotionHumanAudit.run(film, "a", body, {
       limits: {
         tangle: null,
         jump: null,
@@ -243,15 +215,28 @@ export function motionPickUpSeated(
   } catch (error) {
     thrown = error;
   }
+  // Straight ahead the Haas et al. (2023) seated reach is 163.3% of the
+  // acromion-to-fingertip length. Horizontal and vertical offsets form
+  // the independent hypotenuse from this seated shoulder to the grip.
+  const maximum: number = 1.633 * (arm + body.measure.hand);
+  const distance: number = Math.hypot(2 * arm, chair.at.y + grip.y - shoulder.y);
+  // A grip inside the population reach envelope can still exceed this
+  // body's two straight arm segments after maximal seated lean. Then
+  // leaning must shorten the distance, yet leave a positive reach deficit.
+  const envelopeExceeded: boolean = distance > maximum;
   if (
     !(
       thrown instanceof HumanRefusal &&
       thrown.kind === "reach" &&
       thrown.axis === "prop" &&
-      /stand/.test(thrown.fix ?? "")
+      /stand/.test(thrown.fix ?? "") &&
+      typeof thrown.value === "number" &&
+      (envelopeExceeded ? nclose(thrown.value, distance) : thrown.value > arm && thrown.value < distance) &&
+      thrown.feasible?.kind === "range" && thrown.feasible.minimum === 0 &&
+      thrown.feasible.unit === "m" && nclose(thrown.feasible.maximum ?? NaN, envelopeExceeded ? maximum : arm)
     )
   )
     complaints.push(
-      `${name}: a glass two arm lengths ahead: expected a reach refusal on prop that names standing, got ${said(thrown)}`,
+      `${name}: a glass two arm lengths ahead: starting distance ${distance} m, expected maximum ${envelopeExceeded ? maximum : arm} m, got ${said(thrown)}`,
     );
 }
