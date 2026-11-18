@@ -191,11 +191,24 @@ export function test_human_motion_coupled_helpers(): void {
       c: motionHumanBody(names[1]),
       b: motionHumanBody(names[2]),
     };
+    let coupling: IAutoMovieMotionCoupling;
     let film: IAutoMovieMotionHumanPerformance;
     try {
       // The first helper at the origin, the second where the coupling puts
       // it, the helped body between them.
-      const offset: IAutoMovieVector3 = secondAt(bodies.a, bodies.c, bodies.b);
+      coupling = HumanCarriedCoupling.couple(
+        bodies.a,
+        bodies.b,
+        HumanCarried.CARRIES.supported,
+        "supported",
+        0,
+        {
+          body: bodies.c,
+          row: HumanCarried.CARRIES.supportedLeft,
+          carry: "supportedLeft",
+        },
+      );
+      const offset: IAutoMovieVector3 = secondAt(bodies.a, bodies.c, coupling);
       film = new HumanPerformance({
         seed: "coupled-signature",
         laws: [HumanCarried.borne, HumanCarried.bearing],
@@ -238,18 +251,6 @@ export function test_human_motion_coupled_helpers(): void {
       );
       continue;
     }
-    const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
-      bodies.a,
-      bodies.b,
-      HumanCarried.CARRIES.supported,
-      "supported",
-      0,
-      {
-        body: bodies.c,
-        row: HumanCarried.CARRIES.supportedLeft,
-        carry: "supportedLeft",
-      },
-    );
     const share = (role: string): number =>
       coupling.contacts
         .filter(
@@ -260,15 +261,11 @@ export function test_human_motion_coupled_helpers(): void {
             s + c.load,
           0,
         );
+    const firstShare: number = share(HumanCarriedCoupling.BEARER);
+    const secondShare: number = share(HumanCarriedCoupling.SECOND);
     all.check(
-      `${cell}: each helper bears a share, read ${share(HumanCarriedCoupling.BEARER).toFixed(3)} and ${share(HumanCarriedCoupling.SECOND).toFixed(3)}, both positive and summing to 1 within 1e-9`,
-      share(HumanCarriedCoupling.BEARER) > 0 &&
-        share(HumanCarriedCoupling.SECOND) > 0 &&
-        Math.abs(
-          share(HumanCarriedCoupling.BEARER) +
-            share(HumanCarriedCoupling.SECOND) -
-            1,
-        ) <= 1e-9,
+      `${cell}: each helper bears a share, read ${firstShare.toFixed(3)} and ${secondShare.toFixed(3)}, both positive and summing to 1 within 1e-9`,
+      firstShare > 0 && secondShare > 0 && Math.abs(firstShare + secondShare - 1) <= 1e-9,
     );
     const readers: Record<
       WalkSubject,
@@ -278,14 +275,15 @@ export function test_human_motion_coupled_helpers(): void {
       c: HumanSignature.of(film, "c", bodies.c, 0),
       b: HumanSignature.of(film, "b", bodies.b, 0),
     };
+    const bearing: IAutoMovieMotionCoupling.IContact[] = coupling.contacts.filter(
+      (c: IAutoMovieMotionCoupling.IContact): boolean => c.kind === "bear",
+    );
     for (const t of HumanSignature.times(
       START + HumanCarried.TAKE,
       START + SECONDS,
       20,
     ))
-      for (const contact of coupling.contacts.filter(
-        (c: IAutoMovieMotionCoupling.IContact): boolean => c.kind === "bear",
-      )) {
+      for (const contact of bearing) {
         const on: IAutoMovieMotionHumanSignature.IReader =
           contact.on.role === HumanCarriedCoupling.SECOND
             ? readers.c
@@ -367,20 +365,8 @@ function helperStand(
 function secondAt(
   first: IAutoMovieMotionHumanBody,
   second: IAutoMovieMotionHumanBody,
-  helped: IAutoMovieMotionHumanBody,
+  coupling: IAutoMovieMotionCoupling,
 ): IAutoMovieVector3 {
-  const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
-    first,
-    helped,
-    HumanCarried.CARRIES.supported,
-    "supported",
-    0,
-    {
-      body: second,
-      row: HumanCarried.CARRIES.supportedLeft,
-      carry: "supportedLeft",
-    },
-  );
   const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
   const anchor = HumanCarriedCouplingPose.stood(first, {
     incline: 0,
