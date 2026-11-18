@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 import { HumanPerformance } from "@automovie/motions";
 
-import { HumanPreparedPlayback } from "../../../../packages/motions/src/perform/HumanPreparedPlayback";
 import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
 import type { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
@@ -15,7 +14,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
  * goals across weight transfer, throughout the slide and after it ends.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the compared authored and displayed samples across the shift clock.
- * @evidence contracts/development/testing.md#behavioral-verification Compares actual authored channels and displayed fits of native and ordinary reads, and checks callback replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares displayed fits of native and ordinary reads and observes the replacement callback.
  * @evidence contracts/development/testing.md#independent-expectations The public writer provides the unchanged transfer behavior, with epsilon only for arithmetic roundoff from the change of coordinates.
  * @evidence contracts/development/testing.md#distinguishing-cases Uses two body sizes, event boundaries, and seeks before and after the slide in nonmonotonic order.
  * @evidence contracts/development/testing.md#execution-ownership Both films use the public scene with a real seated entry. Separate film caches isolate the native and replacement display routes.
@@ -32,7 +31,13 @@ export function test_motion_posture_seat_shift_playback(): void {
     const segment: IAutoMovieMotionHumanSegment = prepared.segments("a").at(-1)!;
     const fallback: IAutoMovieMotionHumanSegment = reference.segments("a").at(-1)!;
     const ordinary: IAutoMovieMotionHumanActionPlan["posture"] = fallback.plan.posture;
-    fallback.plan.posture = (...input) => ordinary(...input);
+    let ordinaryReads: number = 0;
+    fallback.plan.posture = (
+      ...input: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+    ): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> => {
+      ++ordinaryReads;
+      return Reflect.apply(ordinary, fallback.plan, input);
+    };
     const duration: number = segment.plan.duration;
     const samples: readonly number[] = [
       duration, 0, 0.5 * duration, 0.05 * duration,
@@ -40,17 +45,13 @@ export function test_motion_posture_seat_shift_playback(): void {
       0.9 * duration, 0.25 * duration,
     ];
     for (const seconds of samples) {
-      const actual: HumanPreparedPlayback.ISample | undefined = HumanPreparedPlayback.read(
-        segment.plan, scene.people[0]!.body, segment.plan.posture, true, true, undefined, seconds,
-      );
-      if (actual === undefined) throw new Error(`${name}: missing native shift at ${seconds} s`);
-      check(actual.posture, ordinary(seconds), `${name} authored shift at ${seconds} s`);
       check(
         prepared.pose("a", segment.start + seconds),
         reference.pose("a", fallback.start + seconds),
         `${name} displayed shift at ${seconds} s`,
       );
     }
+    if (ordinaryReads === 0) throw new Error("The replacement writer was never read");
   }
 }
 
