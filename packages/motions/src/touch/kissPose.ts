@@ -1,35 +1,33 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKiss,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
+import { kissBody } from "./kissBody";
 
 /**
- * Build each actual kiss-search candidate from the current raw entry.
- * Only the primitive fixed cervical twist is prepared; every candidate
- * re-reads heading, standing rise, pivot and authored joint additions.
+ * Build each kiss-search candidate: the kiss's body at its full share
+ * (`kissBody`, the model the displayed kiss writes), with the neck's
+ * flexion and the head's turn added.
  *
  * @param body The unchanged canonical body for this synchronous search.
- * @param entry The borrowed raw entry, whose fields/getters remain current.
- * @param stance The standing placements read by every original rise.
- * @param twist The fixed primitive head twist, degrees.
- * @param behind The backward displacement along current entry heading, metres.
- * @returns A fresh complete candidate posture for actual pitch/roll/flexion/raise.
+ * @param entry The entry posture the kiss is written over.
+ * @param stance The standing placements every candidate rises from.
+ * @param twist The fixed head twist, degrees.
+ * @param behind The backward displacement along the entry heading, metres.
+ * @param seated Whether a seat bears the body, so it neither rises nor is lowered onto the feet.
+ * @returns A fresh complete candidate posture for a pitch, roll, flexion and raise.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States raw entry/stance observation, primitive angular/displacement units and fresh current candidate ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the original standing-foot rise, trunk pivot, cervical sharing and ordered root/joint additions for every actual candidate.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed scalar twist supplies shared cervical constants; the returned reader independently computes current heading/rise/pivot/flexion and fresh authored fields.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No entry identity certifies fixed raw authoring. Every candidate re-reads its original entry heading, foot rise, pivot and joint fields without a supplied cached displacement, changed angle or omitted physical fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms The primitive fixed twist's constant head-share record prepares once, while all original candidate rise, heading, pivot, current authored assembly and downstream FK work remains. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the immutable primitive twist and head-share formula establish reusable constants. Raw entry/stance fields and changing candidate angles are evaluated independently, with no pose, shoulder, rise or solved-answer memo.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns this reader and fixed cervical constants until return or throw. It stores no candidate pose, derived raw offset, FK workspace, time, displacement or history; only selected scalar angles/miss escape the enclosing solve.
+ * @evidence contracts/development/common.md#meaningful-documentation States the entry, stance, angle and displacement units, the seated case and the fresh candidate returned.
+ * @evidence contracts/development/implementation.md#principled-implementation Each candidate is the displayed kiss's own body at the full share (`kissBody`: the rise, the hips' shift, the lean and the lowering onto the planted legs) with the head's flexion and turn shared over the neck and the head, so the mouth the search scores is the mouth the figure shows.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One body model, then one head addition.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate skips the lowering the display applies; no angle is clamped here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The head twist's share is prepared once; each candidate costs one body model, the standing lowering's leg fits included.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The body model is `kissBody`, shared with the kiss's display; only the fixed twist's head share is shared across candidates.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns this reader and the twist's share until it returns; each candidate posture is fresh and nothing else is retained.
  */
 export function kissPose(
   body: IAutoMovieMotionHumanBody,
@@ -37,22 +35,11 @@ export function kissPose(
   stance: IAutoMovieMotionHumanRise.Stance,
   twist: number,
   behind: number,
+  seated: boolean,
 ): (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IAutoMovieMotionHumanPosture {
   const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(2, twist);
   return (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IAutoMovieMotionHumanPosture => {
-    const yaw: number = (entry.yaw * Math.PI) / 180;
-    const offset: IAutoMovieVector3 = { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind };
-    const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-      body,
-      {
-        ...entry,
-        root: Vector3.add(
-          Vector3.add(entry.root, AutoMovieMotionHumanRise.lift(body, stance, s.raise)),
-          offset,
-        ),
-      },
-      { pitch: s.pitch, roll: s.roll },
-    );
+    const leaned: IAutoMovieMotionHumanPosture = kissBody(body, entry, stance, s, 1, behind, seated);
     const head: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(0, s.flexion);
     const held: (bone: "neck" | "head") => readonly [number, number, number] = (bone: "neck" | "head"): readonly [number, number, number] =>
       leaned.joints[bone] ?? [0, 0, 0];

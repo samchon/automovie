@@ -19,8 +19,6 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -29,7 +27,7 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { kissBody } from "./kissBody";
 import { kissPose } from "./kissPose";
 
 /**
@@ -125,7 +123,7 @@ export namespace kiss {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, behind);
+    const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, behind, seated);
     const mouth: ReturnType<typeof HumanTrunk.preparePoint> = HumanTrunk.preparePoint(body, "mouth");
     const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
       Vector3.distance(
@@ -239,55 +237,15 @@ export namespace kiss {
     const seated: boolean = context.entry.supports.some(
       (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
     );
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin((entry.yaw * Math.PI) / 180),
-      y: 0,
-      z: Math.cos((entry.yaw * Math.PI) / 180),
-    };
     // The body at a share of the kiss: risen, leaned from the hips, the hips
     // moved back by `behind` along the heading, and, standing, lowered onto
-    // the planted legs.
+    // the planted legs: the one model the solve scores (`kissBody`).
     const written = (
       posture: IAutoMovieMotionHumanPosture,
       s: IAutoMovieMotionHumanKiss.ISolved,
       k: number,
       behind: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-        body,
-        {
-          ...posture,
-          root: Vector3.add(
-            Vector3.add(
-              posture.root,
-              AutoMovieMotionHumanRise.lift(body, stance, s.raise * k),
-            ),
-            Vector3.scale(forward, -behind * k),
-          ),
-        },
-        { pitch: s.pitch * k, roll: s.roll * k },
-      );
-      if (seated) return leaned;
-      const goal = (side: "left" | "right") =>
-        AutoMovieMotionHumanLeg.goal(
-          body,
-          leaned,
-          side,
-          AutoMovieMotionHumanRise.foot(body, side, stance[side], s.raise * k),
-          true,
-        );
-      return {
-        ...leaned,
-        root: resolveHumanPosture.lower(body, {
-          ...leaned,
-          limbs: {
-            ...leaned.limbs,
-            leftLeg: goal("left"),
-            rightLeg: goal("right"),
-          },
-        }).root,
-      };
-    };
+    ): IAutoMovieMotionHumanPosture => kissBody(body, posture, stance, s, k, behind, seated);
     // Standing, the lean carries the centre ahead of the feet, so the hips
     // move back by the static balance's shift at the solved lean
     // (`HumanBalance.shift`, as a bow's do), and the lean is solved again

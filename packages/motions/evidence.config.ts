@@ -283,6 +283,7 @@ const files: string[] = [
   "src/terrain/climbStairsProfile.ts",
   "src/touch/touchLayouts.ts",
   "src/touch/touchReach.ts",
+  "src/touch/kissBody.ts",
   "src/touch/kissPose.ts",
   "src/throwing/throwObjectCurve.ts",
 ];
