@@ -51,7 +51,19 @@ export interface IAutoMovieMotionHumanLayer {
    */
   channels?: readonly AutoMovieMotionHumanChannel[];
 
-  /** Evaluate the contribution at a window weight in [0,1] when its dependent targets must follow the shape produced by that weight. Ordinary layers use the shared posture mixer. */
+  /**
+   * Evaluate the contribution at the scheduled window weight, where zero
+   * returns the incoming posture and one applies the full layer. A dependent
+   * target can follow the joint geometry the provider produces at that weight.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the incoming pose, film second, shared performer context and dimensionless window weight. The implementation returns a posture in the same frame.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This interface defines the weighted call. The layer provider owns its interpolation.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The provider owns the implementation structure.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature contains no algorithm or fitted parameters.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The actual layer determines the required geometry and computational cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The provider owns any shared posture evaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The interface retains no values or handles.
+   */
   blend?(posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext, weight: number): IAutoMovieMotionHumanPosture;
 
   /**

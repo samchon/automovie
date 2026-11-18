@@ -23,7 +23,7 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  *
  * @param skeleton Rig to index; read, never modified.
  *
- * @evidence contracts/development/implementation.md#principled-implementation An adjacency list keyed by parent followed by a depth-first root walk; unique names are checked before grouping, so each bone has one parent and a cycle has no root from which it could recurse. The reachable set therefore matches the forward-kinematics traversal without ambiguous repeated identities.
+ * @evidence contracts/development/implementation.md#principled-implementation The children-only projection uses the same duplicate admission and parent grouping, without performing a root traversal. An adjacency list keyed by parent followed by a depth-first root walk; unique names are checked before grouping, so each bone has one parent and a cycle has no root from which it could recurse. The reachable set therefore matches the forward-kinematics traversal without ambiguous repeated identities.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the pose-independent part of forward kinematics once so `resolvePose` and `reachableBoneNames` share it; the root sentinel comes from the shared `SKELETON_ROOT_PARENT` both read.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bone is filed by its declared parent alone; an orphan or cycle is left unreachable rather than reattached or rejected, and no bone name is special-cased.
  * @evidence contracts/development/common.md#meaningful-documentation States what each map holds and in which order, the root key, which bones are unreachable and why, and that the index is a snapshot the caller rebuilds after changing the skeleton.
@@ -59,13 +59,6 @@ export namespace indexSkeletonTopology {
   /**
    * Group declared bones by parent. Reject duplicate names before traversal.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines parent grouping and duplicate admission.
-   * @evidence contracts/development/implementation.md#principled-implementation Each declared parent link enters its adjacency list in declaration order, including detached links.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The topology index and direct FK share this single grouping pass.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Duplicate bone names throw before traversal and null parents use the canonical root key.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pass and O(B) entries for B declared bones. No reachable set is constructed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both hierarchy consumers share these adjacency semantics.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned map borrows declared bone records. The temporary name set is released after construction.
    */
   export function children(
     skeleton: IAutoMovieSkeleton,

@@ -24,7 +24,7 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 /**
  * Sample caller-admitted clinical motion at finite seconds using clamped or looping clip time and the outgoing segment's easing. Ordered finite keyframes and valid pose/easing data are validateMotion's premise. End samples shallowly share frame data; interior samples interpolate joints, roots and expressions, treating unauthored values as neutral.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lower-bound segment search with earlier-segment exact-key ties, interpolates clinical axes linearly through easing, root translation/scale by lerp and rotation by slerp; null axes/roots/expressions are neutral, with null retained only when both sides omit that value.
+ * @evidence contracts/development/implementation.md#principled-implementation Pose and root projections evaluate the same time interval and easing, omitting only fields their callers never read. Uses the shared lower-bound segment search with earlier-segment exact-key ties, interpolates clinical axes linearly through easing, root translation/scale by lerp and rotation by slerp; null axes/roots/expressions are neutral, with null retained only when both sides omit that value.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One sampler owns sparse-to-dense clinical interpolation; named/bezier easing and segment search have shared owners, while expression channels blend separately from pose geometry.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Empty keyframes throw and caller admission owns finite clock/ordered keys; differing expression presets switch at eased midpoint and cubicBezier requires authored controls rather than a fabricated curve. These conventions are explicit API semantics.
  * @evidence contracts/development/common.md#meaningful-documentation States finite/admitted motion premise, local-time clamp/wrap, exact endpoint sharing, neutral treatment and the distinct interpolation laws.
@@ -53,13 +53,6 @@ export namespace sampleMotion {
    * This uses the full sample's skeleton, joint order, easing and neutral
    * values. Endpoint pose wrappers borrow their key's joints and root.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the output, clock, interpolation and endpoint ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the full sample's key search, pose interpolation and endpoint wrapping.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the shared motion clock and pose readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Evaluates every authored pose joint under the original rules and preserves the original skeleton override.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One segment lookup and joint interpolation, independent of the number of expression channels.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full samples and this projection share both pose readers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the resulting pose wrapper and interior joints; no query state is retained.
    */
   export function pose(
     motion: IAutoMovieMotion,
@@ -71,13 +64,6 @@ export namespace sampleMotion {
   /**
    * Sample the root of an admitted motion, borrowing endpoint transforms.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Uses the full motion clock and easing, with null for two absent roots and identity for one missing interpolation endpoint.
-   * @evidence contracts/development/implementation.md#principled-implementation The full sampler supplies this same lerpTransform result for the same selected segment.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared time selector delegates endpoint reading and interior root interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the exact-key tie, wrapping, easing, endpoint sharing and existing interpolation of rotation, translation and scale.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Endpoints take constant work; an interior requires O(log K) key reads and one transform interpolation, independent of the number of joints and expression channels.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both projections use the same time selection and transform interpolation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No query state survives the call. Endpoints borrow the authored transform and interior transforms belong to the caller.
    */
   export function root(
     motion: IAutoMovieMotion,
