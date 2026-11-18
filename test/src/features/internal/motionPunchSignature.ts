@@ -1,7 +1,9 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanAudit } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -17,6 +19,7 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @param complaints The gatherer the checks are written to.
  * @param name The body.
  * @param rows The punch rows staged on it.
+ * @param contact Whether this spec also owns the straight contact continuity and rear shoulder checks.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, on what and where the bounds and their sources are stated.
  * @evidence contracts/development/implementation.md#principled-implementation Each row is staged through the shared signature harness and read off the displayed joints of both performers at the punch's own events, every bound checked into the gatherer so a failing cell does not hide the others.
@@ -30,6 +33,7 @@ export function motionPunchSignature(
   complaints: motionComplaints.IGatherer,
   name: motionHumanBody.Name,
   rows: readonly string[],
+  contact: boolean = false,
 ): void {
   const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const row of rows) {
@@ -58,6 +62,17 @@ export function motionPunchSignature(
       `${cell}: peak fist speed ${peak.toFixed(2)} m/s, [5, 15] expected (Kimm and Thiel 2015; provisional)`,
       peak >= 5 && peak <= 15,
     );
+    if (contact)
+      checkStraightContact(
+        complaints,
+        cell,
+        s,
+        side,
+        row,
+        launch,
+        impact,
+        peak,
+      );
     complaints.check(
       `${cell}: launch to impact ${(impact - launch).toFixed(3)} s, [0.15, 0.6] expected (provisional)`,
       impact - launch >= 0.15 && impact - launch <= 0.6,
@@ -104,6 +119,62 @@ export function motionPunchSignature(
     );
   }
   for (const c of M.calibrate(name)) complaints.check(c, false);
+}
+
+/** Check straight-arm continuity at impact and rear shoulder participation. */
+function checkStraightContact(
+  complaints: motionComplaints.IGatherer,
+  cell: string,
+  staged: M.IStaged,
+  side: AutoMovieHumanSide,
+  row: string,
+  launch: number,
+  impact: number,
+  handPeak: number,
+): void {
+  const maximum: number = AutoMovieMotionHumanAudit.LIMITS.jump;
+  // Even at the audit's highest accepted speed, the full stencil covers
+  // at most half the jump limit. It detects a branch switch without asking
+  // a perfectly legitimate fast elbow to hold still at impact.
+  const h: number = maximum / (4 * AutoMovieMotionHumanAudit.LIMITS.speed);
+  const before: IAutoMovieVector3 = M.joint(
+    staged,
+    impact - h,
+    `${side}LowerArm`,
+  );
+  const after: IAutoMovieVector3 = M.joint(
+    staged,
+    impact + h,
+    `${side}LowerArm`,
+  );
+  const jump: number = Math.hypot(
+    after.x - before.x,
+    after.y - before.y,
+    after.z - before.z,
+  );
+  complaints.check(
+    `${cell}: elbow displacement ${jump * 1000} mm across impact, at most ${maximum * 1000} mm`,
+    jump <= maximum,
+  );
+
+  if (row === "hand=rear") {
+    // Cheraghi et al. 2014, Table 1 (DOI 10.18869/acadpub.aassjournal.2.2.39).
+    // The lowest observed acromion peak over the highest observed fist
+    // peak is a conservative dimensionless lower bound. Rig joint centres
+    // approximate those landmarks. The study did not measure trunk rotation.
+    const shoulderPeak: number = M.speed(
+      staged,
+      `${side}UpperArm`,
+      launch,
+      impact,
+    );
+    const ratio: number = shoulderPeak / handPeak;
+    const least: number = 2.1 / 9.4;
+    complaints.check(
+      `${cell}: relative shoulder peak ${ratio.toFixed(3)}, at least ${least.toFixed(3)} expected`,
+      ratio >= least,
+    );
+  }
 }
 
 /**

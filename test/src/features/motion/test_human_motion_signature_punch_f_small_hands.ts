@@ -29,6 +29,14 @@ import { motionPunchSignature } from "../internal/motionPunchSignature";
  * - Trunk: a boxer leans into a punch, never back from it. Bound:
  *   inclination at impact at least -2 degrees (provisional: the shoulders
  *   no more than a little behind the hips).
+ * - Continuity: the elbow spans no more than the audit's 5 mm jump limit
+ *   across impact. The sample width lets ordinary continuous motion travel
+ *   only half that amount even at the audit's speed ceiling.
+ * - Rear shoulder: its peak speed is at least 2.1/9.4 of the hand's peak.
+ *   Cheraghi et al. 2014 Table 1 gives those extreme marker speeds for the
+ *   rear straight punch. Joint centres approximate the markers. The
+ *   observed ratio is a comparison for animation, without a direct trunk
+ *   rotation measurement or a small-woman cohort.
  *
  * The trunk is read as the line from the hip joints' midpoint to the
  * shoulder joints' midpoint, the trunk segment of the cited studies, and
@@ -50,6 +58,6 @@ import { motionPunchSignature } from "../internal/motionPunchSignature";
  */
 export function test_human_motion_signature_punch_f_small_hands(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  motionPunchSignature(complaints, "f-small", motionPunchSignature.HANDS);
+  motionPunchSignature(complaints, "f-small", motionPunchSignature.HANDS, true);
   complaints.assert("the punch has the signature of a boxer's punch");
 }

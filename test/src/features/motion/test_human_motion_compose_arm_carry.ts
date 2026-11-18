@@ -178,8 +178,10 @@ export function test_human_motion_compose_arm_carry(): void {
         const need1: number = room(last);
         for (const share of [0.2, 0.4, 0.6, 0.8]) {
           const allowed: number = need0 * (1 - share) + need1 * share;
-          const need: number = room(shown(share));
           const written: IAutoMovieMotionHumanPosture = carried(share);
+          const need: number = room(
+            poseBones(body, resolveHumanPosture(body, written)),
+          );
           // What the carry's own reading says of the written arm, of the
           // plain blend and of the two ends, so a failing row tells a
           // clearing that found no way from one that read another room;

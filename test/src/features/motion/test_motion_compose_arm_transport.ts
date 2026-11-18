@@ -24,8 +24,8 @@ import { TestValidator } from "@nestia/e2e";
  * The body is a stub whose hand surface is the wrist, so the written goal's
  * point is the blended point itself. The clock has `ready` at 0.25 s,
  * `strokeStart` at 0.375, `stroke` at 0.625, `strokeEnd` at 0.875, `relax` at
- * 1 and lasts 1.25 s. A minimum-jerk progress is 0.5 half way through its
- * window by its symmetry, so every expected point is an end or a midpoint.
+ * 1 and lasts 1.25 s. Flash and Hogan's minimum-jerk polynomial gives
+ * 53/512 at a quarter and 1/2 at the middle of the reach.
  *
  * A bowed path adds to the straight path's point `curvature * length *
  * sin(pi s)` along the arm's own side less its part along the path. At the
@@ -45,9 +45,10 @@ import { TestValidator } from "@nestia/e2e";
  *    is the nearer end; it claims the arm and the hand and keeps other limbs.
  * 3. The bowed middle for each of the five paths above; a curvature of 0 is
  *    the straight middle; both ends are unmoved by any curvature.
- * 4. `reach` starts on its origin at its window's start, is half way at the
- *    window's middle and on its target at the end; `retract` is its mirror;
- *    `hold` is on its target throughout, wherever the target moves.
+ * 4. `reach` follows the minimum-jerk curve through a quarter and its middle
+ *    to the target. The same quarter on a turned, translated carrier is
+ *    the rigid transform of the original. `retract` reverses the reach and
+ *    `hold` follows its moving target.
  * 5. `bearing` gives no window without a contact and one over the two
  *    instants' shares of the duration with one.
  * 6. A stroke is on its origin at both ends, on its ready point from `ready`
@@ -59,7 +60,7 @@ import { TestValidator } from "@nestia/e2e";
  *    window runs from `strokeStart` to `relax`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls each public function and reads the goal it writes, its channels and its contact windows; a blend in the wrong frame, a bow to the wrong side or along the path, an unclamped weight, a stroke read at the wrong progress or an extent applied on a solid place fails.
- * @evidence contracts/development/testing.md#independent-expectations Every point is a stated end or a midpoint, and each bowed middle is worked out by hand in the comment from the stated definition.
+ * @evidence contracts/development/testing.md#independent-expectations The clock's quarter is the independent Flash-Hogan polynomial value 53/512. A positive quarter turn maps (x,y,z) to (z,y,-x), and each bowed middle follows the stated plane geometry.
  * @evidence contracts/development/testing.md#distinguishing-cases Both arms, three path directions and a turned performer for the bow; inside, at and outside the weight's range; with and without a contact; an extent in the air against one on a solid place.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on a stub body of the socket the goals read; it runs in CI. The solved limb is the real-body tests'.
  * @evidence contracts/development/common.md#meaningful-documentation States the stub, the clock and the bow's arithmetic, and lists the 7 scenarios.
@@ -302,13 +303,29 @@ export function test_motion_compose_arm_transport(): void {
     start,
     far,
   );
+  const quarterSeconds: number = 0.25 + (0.375 - 0.25) / 4;
+  const quarterMetres: number = (0.4 * 53) / 512;
   TestValidator.predicate(
-    "a reach leaves its origin, is half way at its window's middle and arrives",
+    "a reach follows the minimum-jerk quarter, middle and endpoints",
     close(reach.from, 0.25) &&
       close(reach.to, 0.375) &&
       at(goal(reach, 0.25).point, -0.2, 1, 0) &&
+      at(goal(reach, quarterSeconds).point, -0.2, 1, quarterMetres) &&
       at(goal(reach, 0.3125).point, -0.2, 1, 0.2) &&
       at(goal(reach, 0.375).point, -0.2, 1, 0.4),
+  );
+  const movedReach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.reach(
+    body,
+    clock,
+    "right",
+    window,
+    start,
+    target({ x: 1.4, y: 1.1, z: 2.2 }),
+  );
+  TestValidator.predicate(
+    "quarter progress follows the same path in the carrier's translated quarter turn",
+    at(goal(movedReach, quarterSeconds, standing(90, { x: 1, y: 0.1, z: 2 })).point,
+      1 + quarterMetres, 1.1, 2.2),
   );
   const retract: IAutoMovieMotionHumanPrimitive =
     AutoMovieMotionHumanArm.retract(body, clock, "right", window, far, start);
