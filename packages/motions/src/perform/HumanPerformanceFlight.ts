@@ -258,13 +258,15 @@ export namespace HumanPerformanceFlight {
       { length: intervals + 1 },
       (_: unknown, k: number): number => (k === intervals ? t1 : t0 + k * spacing),
     );
-    const posed: Map<number, IAutoMoviePose> = new Map();
+    // Only the uniform knots have a second reader in playback. The shape
+    // table reduces each inserted knot immediately and owns that reduction.
+    const posed: Map<number, UniformPose> = new Map();
+    for (const knot of knots) posed.set(knot, null);
     const at: (seconds: number) => IAutoMoviePose = (seconds: number): IAutoMoviePose => {
-      let pose: IAutoMoviePose | undefined = posed.get(seconds);
-      if (pose === undefined) {
-        pose = unturned(seconds);
-        posed.set(seconds, pose);
-      }
+      const known: UniformPose | undefined = posed.get(seconds);
+      if (known !== null) return known ?? unturned(seconds);
+      const pose: IAutoMoviePose = unturned(seconds);
+      posed.set(seconds, pose);
       return pose;
     };
 
@@ -424,6 +426,9 @@ export namespace HumanPerformanceFlight {
     }
   }
 }
+
+/** A regular playback knot is empty until its unturned pose is first evaluated. */
+type UniformPose = IAutoMoviePose | null;
 
 /** Numeric playback data shared by staged and physical rotation policies. */
 type IPlayback = Pick<Parameters<typeof HumanPerformanceFlightRotation>[0], "step" | "times" | "table">;
