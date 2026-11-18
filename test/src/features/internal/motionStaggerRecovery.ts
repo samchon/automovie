@@ -25,6 +25,20 @@ import { motionHumanBody } from "./motionHumanBody";
  *   and its range from none to the fastest push the body catches that way,
  *   which lies between 0.5 and 1.5 m/s.
  *
+ * The two speeds bracket people's threshold. A push of speed `v` sets the
+ * extrapolated centre of mass `v / omega0` ahead of the feet, as a release
+ * from a lean `theta` sets it `l sin theta` (Hof's pendulum, `omega0 =
+ * sqrt(g / l)`), so a lean reads as `v = sqrt(g l) sin theta`: about 3.2
+ * m/s per unit sine on the small woman and 3.5 on the average man. Young
+ * adults released from a backward lean recover by stepping from at most 9
+ * degrees (Pitts et al. 2024, Appl Ergon 117:104236, 16 adults, maximum
+ * recoverable lean) to 16.4 +- 3.1 degrees (Telonio, Cyr, Moglo and
+ * Smeesters 2005, ISB XX abstract 430), and allowing more steps does not
+ * raise the lean recovered from (Cyr and Smeesters 2007, J Biomech
+ * 40:2857, 28 adults, one step, two and no limit). So 0.5 m/s, a lean of
+ * 9 degrees on the small woman, is caught by every body; 1.5 m/s, a lean
+ * of 28 and 26 degrees, lies past every measured backward threshold.
+ *
  * @param name The body.
  * @returns What went wrong; empty when every scene reads as stated.
  *
