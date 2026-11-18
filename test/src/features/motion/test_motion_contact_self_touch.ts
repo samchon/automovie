@@ -51,5 +51,33 @@ export function test_motion_contact_self_touch(): void {
   );
   all.check(`elbow displacement: ${max.value} m`, max.value <= 0.08);
   all.check("release leaves the skin", gap(film.performance.duration) > 0.01);
+  for (const region of ["templeLeft", "templeRight"] as const) {
+    try {
+      const lateral: motionHumanLaw.IFilm = motionHumanLaw.perform(
+        "temple",
+        [{ subject: "a", body }],
+        HumanChain.subject("a").touch({
+          target: { kind: "self", region },
+          side: "left",
+          kind: "press",
+          with: "palm",
+        }),
+      );
+      const t: number = motionHumanLaw.event(lateral, "ready");
+      const bones: motionHumanLaw.Bones = lateral.bones("a", t);
+      const distance: number = fixture.skin(
+        body,
+        bones,
+        "left",
+        fixture.site(body, bones, region),
+      );
+      all.check(
+        "the left hand reaches " + region + " with skin gap " + distance,
+        Math.abs(distance) <= 0.01,
+      );
+    } catch (error: unknown) {
+      all.check(region + " contact: " + String(error), false);
+    }
+  }
   all.assert("self touch owns its approach, hold and release");
 }

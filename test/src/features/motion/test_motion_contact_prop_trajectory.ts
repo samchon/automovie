@@ -3,7 +3,6 @@ import { AutoMovieGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
