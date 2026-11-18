@@ -23,6 +23,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
+import { prepareBilateralSupport } from "./prepareBilateralSupport";
 import { prepareSupportSeed } from "./prepareSupportSeed";
 import { supportContact } from "./supportContact";
 
@@ -92,7 +93,7 @@ export namespace supportKey {
         (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
           f.target,
       ),
-      ...heels(body, from, preferred, contacts, points),
+      ...heels(body, from, preferred, contacts, points, miss),
     ];
     const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [...holding, ...swings];
     // Select the less violated of the previous solution and the geometrically
@@ -130,8 +131,10 @@ export namespace supportKey {
         if (corrected.violation < Math.min(stated.violation, previous.violation))
           start = aligned;
       }
+      seed?: IAutoMovieMotionHumanPosture,
     }
     const fitted: (
+      seed: IAutoMovieMotionHumanPosture = start,
       on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
     ) => IAutoMovieMotionHumanBodyFitTypes.IResult = (
       on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
@@ -139,7 +142,7 @@ export namespace supportKey {
       HumanBodyFit.fit({
         body,
         posture: preferred,
-        start,
+        start: seed,
         targets: on,
         bearing,
         ...(balance ? { balance: { parts: bearing } } : {}),
@@ -157,6 +160,18 @@ export namespace supportKey {
     // bears: where its top cannot be reached with every contact kept (a
     // large body's leg brought forward from the hands and knees), the key
     // is the supports' posture without it, and a contact that misses there
+    // A three-support predecessor may be closer in aggregate while its
+    // fourth limb is on the wrong side of a joint limit. A fully bilateral
+    // support has a second physical branch from the already placed side.
+    if (misses(result)) {
+      const symmetric: ReturnType<typeof prepareBilateralSupport> = prepareBilateralSupport(
+        body, from, contacts, forms.map((form: supportContact.IForm): typeof form.target => form.target),
+      );
+      if (symmetric !== undefined) {
+        const paired: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, symmetric);
+        if (!misses(paired)) result = paired;
+      }
+    }
     // is refused.
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
     if (swings.length > 0 && misses(result))
@@ -179,6 +194,7 @@ export namespace supportKey {
   /** Keep the horizontal heel datum of a foot already on an unnamed floor placement. */
   function heels(
     body: IAutoMovieMotionHumanBody,
+    miss: number,
     from: IAutoMovieMotionHumanPosture,
     preferred: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
@@ -213,7 +229,13 @@ export namespace supportKey {
     return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
       const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(foot.frame, bones.get(foot.frame.bone)!);
       const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
-      const sole: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(body, intended, foot.side);
+      const current: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(body, bones, foot.side);
+      const planted: boolean = Math.hypot(toes.x - foot.target.x, toes.z - foot.target.z) <= miss / 1000 &&
+        current.some((socket: (typeof current)[number]): boolean => Math.abs(socket.point.y - foot.target.y) <= HumanFoot.BEARING);
+      // A retained floor target carries its actual bearing surface forward.
+      // A requested new foot placement uses the preferred posture's sole.
+      const sole: ReturnType<typeof HumanFoot.sockets> = planted || intended === bones
+        ? current : HumanFoot.sockets(body, intended, foot.side);
       const lowest: (typeof sole)[number] = sole.reduce((a: (typeof sole)[number], b: (typeof sole)[number]): (typeof sole)[number] =>
         a.point.y <= b.point.y ? a : b);
       // A foot supported on the ball or toe can carry its heel above the
