@@ -19,7 +19,7 @@ import { hasViolation } from "../internal/hasViolation";
  * @evidence contracts/development/testing.md#execution-ownership Uses a single in-memory rig.
  * @evidence contracts/development/common.md#meaningful-documentation Lists accepted neighbors and independent refusals.
  */
-export function test_validation_clip_identity(): void {
+export function test_validation_motion_clip_identity(): void {
   const motion = createValidMotion();
   const skeleton = createSkeleton();
   for (const loop of [true, false])

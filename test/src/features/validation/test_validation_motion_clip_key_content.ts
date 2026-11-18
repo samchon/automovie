@@ -26,7 +26,7 @@ import { makePose } from "../internal/makePose";
  * @evidence contracts/development/testing.md#execution-ownership Calls the validator directly on one rig.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each family of delegated checks.
  */
-export function test_validation_clip_key_content(): void {
+export function test_validation_motion_clip_key_content(): void {
   const motion = createValidMotion();
   const skeleton = createSkeleton();
   const origin = keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })]));

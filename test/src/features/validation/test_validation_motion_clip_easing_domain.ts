@@ -24,7 +24,7 @@ import { withoutArraySlot } from "../internal/withoutArraySlot";
  * @evidence contracts/development/testing.md#execution-ownership Changes only the first key of a valid clip.
  * @evidence contracts/development/common.md#meaningful-documentation States the payload and coordinate rules.
  */
-export function test_validation_clip_easing_domain(): void {
+export function test_validation_motion_clip_easing_domain(): void {
   const motion = createValidMotion();
   const skeleton = createSkeleton();
   const check = (patch: Partial<IAutoMovieKeyframe>) =>

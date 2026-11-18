@@ -24,7 +24,7 @@ import { makePose } from "../internal/makePose";
  * @evidence contracts/development/testing.md#execution-ownership Uses the public validator on in-memory records.
  * @evidence contracts/development/common.md#meaningful-documentation States both ends of the admitted interval.
  */
-export function test_validation_clip_clock_domain(): void {
+export function test_validation_motion_clip_clock_domain(): void {
   const motion: IAutoMovieMotion = createValidMotion();
   const skeleton = createSkeleton();
   const inspect = (duration: number, times: number[]): IAutoMovieValidation =>
