@@ -1,17 +1,20 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieInteractionEvent,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
+  HumanSignature,
   StrikingRecord,
 } from "@automovie/motions";
 
@@ -25,15 +28,26 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * arrives, never on an observation still to come.
  *
  * Scenes:
- * - `settling`: the punch row's former stage, a straight punch launched at
- *   0.8 s at the face of a partner whose guard settles until 0.6 s, from
- *   the striking captures' punching range (1.3 of the puncher's arm from
- *   the shoulder to the fingertips). Read a reaction time before the
- *   launch the guard is still moving, so the launch plan extrapolates the
- *   face about 10 cm beyond where it comes to rest; the corrections bring
- *   the fist onto it, and the arm, its step decided at the launch, lands
- *   bent: the punch records `jammed`, and the elbow at impact lies within
- *   its range of motion (`DEFAULT_HUMANOID_ROM`).
+ * - `settling`: a straight punch at the face of a partner who steps back
+ *   as it is launched, from the striking captures' punching range (1.3 of
+ *   the puncher's arm from the shoulder to the fingertips). The partner
+ *   holds a guard for a second and takes one fighting step back (half a
+ *   stance length over 0.35 s, `step`), then holds the guard again; the
+ *   puncher holds its guard for 1.5 s and throws. It reads the partner a
+ *   reaction time and a look before the launch (`HumanPerception.REACTION`,
+ *   `StrikingTarget.LOOK`), inside the step, and predicts the face at the
+ *   contact from its velocity then (`StrikingAim`, first order): from
+ *   anywhere between the step's 40 and 60 % the face moves at 1.73 or more
+ *   step lengths per step period (the minimum-jerk profile's speed there)
+ *   and the contact is more than 0.43 s (a jab's own time) away, so the
+ *   plan lies more than a step length beyond where the face comes to rest,
+ *   which a plan made on observations still to come would not. The
+ *   corrections then bring the fist onto the face: the punch's first stop
+ *   on the partner is on the head, and the elbow at impact lies within its
+ *   range of motion (`DEFAULT_HUMANOID_ROM`). The punch row's former stage,
+ *   a guard settling under the perception, staged this until the guard
+ *   kept its head on the opponent (the face then hardly travels while the
+ *   guard settles, and the punch reached it as planned).
  * - `exchange`: two novices throwing a jab, a cross and a hook at each
  *   other at once, 2.4 m apart. Each punch reads the other's punch while it
  *   plans; it must plan, or be refused by a `HumanRefusal` naming its
@@ -58,18 +72,19 @@ export namespace motionHumanStrikeScenes {
   });
 
   /**
-   * The straight punch at a guard still settling as the puncher perceives it.
+   * The straight punch at a partner seen stepping back as it is launched.
    *
    * @param one The puncher's body.
    * @param other The partner's body.
-   * @returns What went wrong; empty when the punch records `jammed` and its elbow lies within its range.
+   * @returns What went wrong; empty when the punch planned beyond the face's rest by more than the partner's step, first stops on the head and its elbow lies within its range.
    */
   export function settling(
     one: motionHumanBody.Name,
     other: motionHumanBody.Name,
   ): string[] {
-    const label: string = `a straight punch by ${one} at ${other}'s settling guard`;
+    const label: string = `a straight punch by ${one} at ${other} stepping back`;
     const puncher = motionHumanBody(one);
+    const partner = motionHumanBody(other);
     const range: number =
       1.3 *
       (puncher.measure.upperArm +
@@ -83,7 +98,7 @@ export namespace motionHumanStrikeScenes {
           { subject: "a", body: puncher },
           {
             subject: "b",
-            body: motionHumanBody(other),
+            body: partner,
             at: { x: 0, y: 0, z: range },
             yaw: 180,
           },
@@ -92,10 +107,13 @@ export namespace motionHumanStrikeScenes {
           kind: "parallel",
           parts: [
             HumanChain.subject("a")
-              .act("guard", { seconds: 0.8 })
+              .act("guard", { seconds: 1.5 })
               .act("punch", { technique: "straight", ...face("b", "face") })
               .node,
-            HumanChain.subject("b").act("guard", { seconds: 3 }).node,
+            HumanChain.subject("b")
+              .act("guard", { seconds: 1 })
+              .act("step", { direction: "back" })
+              .act("guard", { seconds: 2 }).node,
           ],
         },
       );
@@ -112,13 +130,41 @@ export namespace motionHumanStrikeScenes {
     if (punch === undefined || record === undefined)
       return [`${label}: planned without a punch record`];
     const out: string[] = [];
-    if (record.status !== "jammed")
-      out.push(`${label}: records ${record.status}, jammed expected`);
     const impact: number =
       punch.start +
       (punch.plan.events.find((e): boolean => e.name === "impact")?.share ??
         1) *
         punch.plan.duration;
+
+    // The step's length as the film shows it (the hips' travel over the
+    // step), and how far the launch planned beyond the face at rest along
+    // the line from the puncher (+z).
+    const stepped: IAutoMovieMotionHumanSegment | undefined = film.performance
+      .segments("b")
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "step");
+    if (stepped === undefined) return [`${label}: the partner took no step`];
+    const hips = (seconds: number): IAutoMovieVector3 =>
+      film.performance.bones("b", seconds).get("hips")!.worldPosition;
+    const length: number = Math.hypot(
+      hips(stepped.end).x - hips(stepped.start).x,
+      hips(stepped.end).z - hips(stepped.start).z,
+    );
+    const rest: IAutoMovieVector3 = HumanSignature.region(
+      HumanSignature.of(film, "b", partner, 180),
+      "face",
+      impact,
+    );
+    const beyond: number = record.planned.z - rest.z;
+    if (!(beyond > length))
+      out.push(
+        `${label}: the launch planned ${(beyond * 1000).toFixed(0)} mm beyond the face at rest, more than the partner's step (${(length * 1000).toFixed(0)} mm) expected`,
+      );
+    const first: IAutoMovieInteractionEvent | undefined =
+      film.performance.hits("b")[0];
+    if (first?.bone !== "head")
+      out.push(
+        `${label}: the punch first stops on the partner's ${first?.bone ?? "nothing"}, the head expected`,
+      );
     const bone: "leftLowerArm" | "rightLowerArm" =
       record.limb === "leftHand" ? "leftLowerArm" : "rightLowerArm";
     const flexion: number =

@@ -7,11 +7,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionTarget,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,8 +17,8 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * Where an action is directed: a target resolved to a place, and a place
@@ -44,6 +42,26 @@ import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union and the hand and foot owners; a self region the trunk does not carry throws instead of reading a limb that is not solved yet.
  */
 export namespace AutoMovieMotionHumanTarget {
+  /**
+   * The bones a posture places without solving a limb (`HumanTrunk.resolve`):
+   * a region of the performer's own body is read on the posture only on
+   * these; one on any other bone rides a limb not solved yet.
+   */
+  export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([
+      "hips",
+      "spine",
+      "chest",
+      "upperChest",
+      "neck",
+      "head",
+      "leftEye",
+      "rightEye",
+      "jaw",
+      "leftShoulder",
+      "rightShoulder",
+    ]);
+
   /**
    * Default places (provisional shares):
    *
@@ -121,7 +139,7 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per case of the target union.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `none` that states a line or a range keeps the virtual opponent it asks for instead of the default; a limb's self region throws instead of reading an unsolved bone.
    * @evidence contracts/development/implementation.md#efficient-algorithms One aim or one forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `IHumanActionContext.aim`, `HumanTrunk.region` and `fallback`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to aim, HumanTrunk.region and fallback. A self-region may synchronously borrow its parent's same-body FK metadata; the actual raw posture and region are still read normally.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function resolve(
@@ -130,6 +148,7 @@ export namespace AutoMovieMotionHumanTarget {
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
     place: IAutoMovieMotionHumanTarget.IDefault,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanTarget.IPlace {
     if (target === undefined) return fallback(context.body, posture, place);
     switch (target.kind) {
@@ -149,7 +168,7 @@ export namespace AutoMovieMotionHumanTarget {
             fix: "aim at a region of the trunk or the head",
           });
         return {
-          ...HumanTrunk.region(context.body, posture, target.region),
+          ...HumanTrunk.region(context.body, posture, target.region, resolution),
           solid: true,
         };
       }
@@ -227,57 +246,28 @@ export namespace AutoMovieMotionHumanTarget {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): IAutoMovieMotionHumanArmTarget.ITarget {
-    const surface: IAutoMovieMotionHumanHand.Surface =
-      options.surface ?? "palm";
-    const shape: IAutoMovieMotionHumanHand.Shape = options.shape ?? "relaxed";
-    const normal: IAutoMovieVector3 = Vector3.scale(
-      Vector3.normalize(place.normal),
-      -1,
-    );
-    const heading: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const forward: IAutoMovieVector3 =
-      options.forward ??
-      (Math.abs(Vector3.dot(heading, normal)) < ALONG
-        ? heading
-        : { x: 0, y: 1, z: 0 });
-    const rotation: IAutoMovieQuaternion = HumanHand.align(
-      HumanHand.offset(body, side, surface, shape),
-      { normal, forward },
-    );
-    return {
-      surface,
-      shape,
-      point: place.point,
-      rotation,
-      bend:
-        options.bend === undefined && options.out === undefined
-          ? AutoMovieMotionHumanBend.solve({
-              body,
-              posture,
-              side,
-              point: HumanHand.place(
-                body,
-                side,
-                surface,
-                place.point,
-                rotation,
-                shape,
-              ).point,
-              rotation,
-              fallback: "hang",
-            })
-          : AutoMovieMotionHumanBend.arm(
-              body,
-              posture,
-              side,
-              options.bend,
-              options.out ?? 0,
-            ),
-      ...(options.curl === undefined ? {} : { curl: options.curl }),
-    };
+    return HumanHandTarget(body, posture, side, place, options);
+  }
+
+  /**
+   * Prepare fixed hand-surface geometry while each queried posture/point
+   * retains its actual default bend search or explicitly requested preset.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/side/normal/options and varying posture/world-point targets.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates unchanged surface geometry and explicit-forward alignment preparation to the same owner as hand, retaining actual current Bend solving.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade exposes HumanHandTarget.prepare for crawl's repeated flat-palm targets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target point, solved elbow or previous fit is cached; existing defaults, reserve, fallback and ranges remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed explicit-forward alignment/local wrist offset prepare once; every varying default bend retains its bounded search and no measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/surface/normal/options lifetime proves geometric reuse; current heading is still read when forward is absent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan-owned reader retains constant geometry snapshots and body metadata until release, with fresh output rotations and no query/result history.
+   */
+  export function prepareHand(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    normal: IAutoMovieVector3,
+    options: IAutoMovieMotionHumanTarget.IHand = {},
+  ): ReturnType<typeof HumanHandTarget.prepare> {
+    return HumanHandTarget.prepare(body, side, normal, options);
   }
 
   /**
@@ -309,22 +299,3 @@ export namespace AutoMovieMotionHumanTarget {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }
 }
-
-/** The cosine past which a heading counts as running along a normal. */
-const ALONG: number = 0.9;
-
-/** The bones a posture places without solving a limb (`HumanTrunk.resolve`). */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-    "leftEye",
-    "rightEye",
-    "jaw",
-    "leftShoulder",
-    "rightShoulder",
-  ]);

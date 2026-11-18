@@ -34,7 +34,7 @@ Set the promised asset and its use from the commission. Where the choice is dele
 
 [Prepare the screenplay](../story/workflow/SKILL.md). For a short with narrative passes, use the [programmed draft](../story/workflow/short.md#4-programmed-film-draft) built and repaired during the short route.
 
-For long films or films whose screenplays skip narrative passes, start [programmed motion](../motion/performance.md#order) from the finished text. Run the [pre-composition discovery checkpoint](../story/planning/discovery.md#checkpoints) first when the long route runs narrative passes.
+For long films or films whose screenplays skip narrative passes, start [programmed motion](../motion/performance.md) from the finished text. Run the [pre-composition discovery checkpoint](../story/planning/discovery.md#checkpoints) first when the long route runs narrative passes.
 
 A motion hint or direct 3D film is silent by default. Follow the [soundtrack route](../audio/soundtrack.md) when the commission includes sound.
 

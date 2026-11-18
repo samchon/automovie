@@ -1,10 +1,7 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -17,6 +14,7 @@ import type {
   IAutoMovieMotionHumanStrikingBody,
   IAutoMovieMotionHumanStrikingContact,
   IAutoMoviePhysicalShape,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -24,6 +22,9 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -41,7 +42,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each fact is for and the identity-rest premise the socket convention rests on.
  * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over the body, its resolved bones and world rotations, in world metres and clinical degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The trunk, region, socket, fist, foot, curl and collider readings the striking laws, the reactions and the captures use.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The actual trunk and fixed-demand trunk producer, region/socket/hand/foot geometry and collider readings serve striking, reactions and captures; canonical pose/FK preparation remains with its existing owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's surface resolver and the interface's region and socket unions; the collider list overlaps the posture package's HumanColliders, which owns the signed distances, and is kept only as the shape list the floor rest reads.
  */
 export namespace StrikingBody {
@@ -50,37 +51,67 @@ export namespace StrikingBody {
    * so the shoulders and hips are where the root, the heading and the trunk
    * joints put them, the points every limb solve starts from.
    *
-   * @param body The body.
+   * @param body The body with topology indexed from its same, unchanged skeleton.
    * @param posture The posture.
+   * @param resolution Optional exact reader or lazy supplier borrowed only within this synchronous evaluation.
+   * @param requested Optional output bones whose ancestry is needed; every authored joint is still admitted and clamped.
+   * @param projection Optional genuine same-body ROM projector borrowed from this synchronous operation; the posture owner checks provenance and still projects every current joint.
    * @returns Resolved bones by rig bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why the result is the limb solves' start.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then forward kinematics with the canonical axes and rest frames.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States dropped limb goals, the result's role as limb-solve input, unchanged-skeleton topology and the optional synchronous borrowed FK workspace.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then complete forward kinematics with the canonical axes, rest frames and the body's parent-first topology.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and the canonical poseBones adapter keep mapping, topology and direct Map insertion with their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual posture clamp, digit solve and needed FK ancestor remains; requested output names omit only unused transforms, and the optional reader shares exact scalar prerequisites without a posed-result cache or changed goal policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Posture assembly/clamping still scans rig/joints and retains actual digit searches. Requested final FK admits all joints but computes only demanded ancestry and allocates only requested transforms; omitted demand returns the full map. A parent reader shares only equal scalar prerequisites, and a genuine same-operation projector reuses only fixed ROM metadata while every joint is projected; no measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses body topology and, only when supplied, one parent-owned exact FK workspace across actual posture and displayed-frame reads; every posture and authored record still executes normally with fresh output transforms.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map/transforms. An optional local getter borrows at most one parent reader only until return or throw; no reader, supplier or posed result enters body memory, a returned plan or persistent state.
    */
   export function trunk(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const pose = resolveHumanPosture(body, { ...posture, limbs: {} });
-    return new Map(
-      resolvePose(
-        pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      resolution === undefined ? undefined : prepareHumanPoseResolution(resolution);
+    const pose: IAutoMoviePose = trunkPose(body, posture, read, projection);
+    return poseBones(body, pose, read?.(), requested);
   }
 
+  /**
+   * Prepare a fixed genuine bone demand for repeated complete trunk queries.
+   * No posed result or FK workspace is retained by the returned producer.
+   *
+   * @param body The unchanged canonical body and its existing rig producer.
+   * @param requested Optional real output demand, snapshotted once; all outputs when absent.
+   * @returns A reader of each actual posture, optional synchronous FK source and optional genuine same-body ROM projector, neither retained by the producer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed canonical body/name demand, snapshot behavior, changing posture/source and independent output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The same trunkPose owner clears only limb goals and executes original seeded assembly/clamping/digit semantics. poseBones.prepare binds the body's genuine requested-name producer once; each current admitted pose still supplies its actual FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demand preparation returns one reader; the original one-shot trunk and this repeated-demand path share the exact posture owner, and canonical poseBones retains name/topology/FK ownership.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint, root rotation, digit demand and clamp remains. No fabricated indices, caller resolved flag, pose answer, target, seed or query history enters the factory; omitting demand preserves complete FK output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed K-name sorting/reachable-demand preparation runs once for N queries. Each query retains full authored admission and actual digit work, followed by its original requested FK ancestry and fresh maps/frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body and snapshotted real bone set establish demand equivalence. Every changing posture, borrowed FK source and genuine ROM projection loan is used only by its current synchronous invocation. Canonical owners check exact dependencies/provenance and every authored joint is still projected.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one bounded body/demand producer until its action or search ends; it retains neither source set, pose, reader nor answers. Each invocation creates or borrows one local exact workspace released on return or throw, and only its fresh bone map escapes.
+   */
+  export function prepareTrunk(
+    body: IAutoMovieMotionHumanBody,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const frames: ReturnType<typeof poseBones.prepare> | undefined =
+      requested === undefined ? undefined : poseBones.prepare(body, requested);
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const pose: IAutoMoviePose = trunkPose(body, posture, read, projection);
+      return frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
+    };
+  }
+
+  /** The exact original complete admission/digit path with only limb goals cleared. */
+  function trunkPose(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMoviePose {
+    return resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined, read, undefined, projection).pose;
+  }
   /**
    * A region of a body at its resolved bones.
    *
@@ -92,10 +123,10 @@ export namespace StrikingBody {
    * @throws {Error} When an offset is asked of a region the engine does not place by a ray.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result's frame and what the offset selects.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame, or its surface point at the offset, placed by its bone's world transform.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame or exact authored tangent-offset ray is placed on its actual world bone; pointNormal retains the original point and normal math while omitting unconsumed forward.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time at the region's own point; one rest pose and one ray at an offset.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant point/normal work at the region centre, or the original rest-pose/skin-ray cost at an offset. The canonical pointNormal producer omits unused forward rotation and an extra stripping wrapper; both actual consumed vectors stay fresh and speedup is unmeasured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; a strike reads its offset point a few times per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -105,8 +136,34 @@ export namespace StrikingBody {
     region: AutoMovieHumanoidRegion,
     tangent?: IAutoMovieHumanoidSurfaces.ITangent,
   ): IAutoMovieMotionHumanStrikingBody.IRegionResult {
-    const frame: IAutoMovieHumanoidSurfaces.IFrame =
-      tangent === undefined || (tangent.up === 0 && tangent.out === 0)
+    const local: IAutoMovieHumanoidSurfaces.IFrame = frame(body, region, tangent);
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.pointNormal> =
+      resolveAutoMovieHumanoidSurfaces.pointNormal(local, bones.get(local.bone)!);
+    return placed;
+  }
+
+  /**
+   * A region's fixed bone-local frame, including an authored tangent offset.
+   *
+   * @param body The unchanged canonical body supplying the physical skin.
+   * @param region The named anatomical region.
+   * @param tangent Optional fixed offset on its tangent plane; absent or zero keeps the prepared centre frame.
+   * @returns The actual engine frame in its owning bone's coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States bone-local units/frame, canonical-body stability and the central-versus-offset cases.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the prepared anatomical centre frame, or the engine's existing offset ray on the same skeleton/profile for the exact requested tangent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One centre/offset branch owns the choice shared by region placement and fixed-target consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same region, tangent, skin ray and out-of-domain refusal; no surface tolerance or target point is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Centre selection is constant work; a nonzero tangent pays the engine's original rest-pose/skin-ray cost once when a fixed-target consumer prepares it. No speedup is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable canonical body contract fixes skeleton/profile and a caller's explicit region/tangent fixes this bone-local frame; consumers may retain that metadata while still placing the actual posed bone at every observation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This function stores no cache; callers borrow the central frame or own the offset result for their geometry's lifetime, without retaining a world pose, observation or FK reader.
+   */
+  export function frame(
+    body: IAutoMovieMotionHumanBody,
+    region: AutoMovieHumanoidRegion,
+    tangent?: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
+    return tangent === undefined || (tangent.up === 0 && tangent.out === 0)
         ? body.surfaces.regions[region]
         : resolveAutoMovieHumanoidSurfaces.offset(
             body.skeleton,
@@ -114,50 +171,34 @@ export namespace StrikingBody {
             region,
             tangent,
           );
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
-      frame,
-      bones.get(frame.bone)!,
-    );
-    return { point: placed.point, normal: placed.normal };
   }
 
   /**
-   * A region's radius: half the distance from its point to the nearest other
-   * region's point at rest, so every point within it is nearer to this
-   * region than to any other.
+   * A region's radius: the extent the body built for it with its surfaces
+   * (`AutoMovieHumanoidSurfaceExtents`), the disc about its point that is
+   * still that region, so a strike aimed within it lands on that region.
    *
    * @param body The body.
    * @param region The region.
    * @returns The radius, metres.
+   * @throws {Error} When the body's surface table gives the region no extent, a defect of the body's producer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the definition and the property it gives.
-   * @evidence contracts/development/implementation.md#principled-implementation Half the nearest-neighbour distance is the largest ball about a point in which that point is the nearest of the set.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the regions at rest.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the body's own regions, with no radius typed per region.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the regions.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; a strike reads it once per plan.
+   * @evidence contracts/development/common.md#meaningful-documentation States the definition, its owner and the producer defect thrown on.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's own region extent: half the way to the nearest region facing the same way, within its segment's half breadth, read from the body's rest pose when the body is built.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's surface table.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is typed or recomputed here; a missing extent throws rather than falling back.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The extent is the one the body owns, the same the touch law's landing disc reads; no store beside the body keeps a second copy.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(
     body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
-    const at = (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
-      const frame: IAutoMovieHumanoidSurfaces.IFrame =
-        body.surfaces.regions[name];
-      return Vector3.add(body.rest.get(frame.bone)!, frame.point);
-    };
-    const own: IAutoMovieVector3 = at(region);
-    let nearest: number = Infinity;
-    for (const name of Object.keys(
-      body.surfaces.regions,
-    ) as AutoMovieHumanoidRegion[])
-      if (name !== region)
-        nearest = Math.min(
-          nearest,
-          Vector3.length(Vector3.subtract(at(name), own)),
-        );
-    return 0.5 * nearest;
+    const extent: number | undefined = body.surfaces.regions[region].radius;
+    if (extent === undefined)
+      throw new Error(`The body's surface table gives the region ${region} no extent`);
+    return extent;
   }
 
   /**
@@ -309,9 +350,7 @@ export namespace StrikingBody {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanStrikingContact.ICollider[] {
     return HumanColliders.placed(body, bones).flatMap(
-      (
-        segment: IAutoMovieMotionHumanColliders.IPlaced,
-      ): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
         segment.shapes.map(
           (
             shape: IAutoMoviePhysicalShape,

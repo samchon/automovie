@@ -1,10 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
@@ -14,11 +12,10 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHand } from "../posture/HumanHand";
+import { HumanHeldEffector } from "./HumanHeldEffector";
 
 /**
  * An act performed with the prop the hand already holds: the prop's own
@@ -63,145 +60,21 @@ export namespace HumanHeld {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the prop is read, each input and the three refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The held prop's owner gives the contact's point from the grip socket and its direction in the hand bone's axes, the offset a grip keeps fixed; the socket's own offset from the wrist is added, and the tool's shares are that point's components along the hand's three orthonormal axes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The point, the hand's frame, the held check, the two axes by kind, the tool.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the held contact and the turn to HumanHeldEffector.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Whether the hand holds the prop is the entry state's fact, read by the owner, which refuses otherwise; a direction too near the normal to be laid across it falls back to the hand axis least along it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's axes and `HumanHand.offset`, so the tool is stated against the surface the generator reads.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pose resolve and constant vector work per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work effector, sides and steadiest share HumanHeldEffector's geometry, with no second point or axis formula.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK and contact read and constant vector work per call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: AutoMovieHumanSide,
     subject: string,
     point?: string,
     turn: number = 0,
   ): IAutoMovieMotionHumanTouchEffector.IEffector {
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-      context,
-      side,
-      subject,
-    );
-    const name: string | undefined = point ?? row.point;
-    if (name === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "point",
-        value: name,
-        feasible: {
-          kind: "alternatives",
-          values: held.affordances.map(
-            (affordance: IAutoMovieAffordance): string => affordance.id,
-          ),
-        },
-        reason: `the act names no point of a held prop to bring to its region`,
-        fix: "name one of the prop's contacts as `point`, or perform the act without a prop",
-      });
-
-    // The point and the prop's origin from the wrist joint, in the hand
-    // bone's axes: the core reads them from the grip socket.
-    const named: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
-      AutoMovieMotionHumanHeld.point(held, name);
-    const socket: IAutoMovieVector3 = HumanHand.offset(
-      body,
-      side,
-      "grip",
-    ).point;
-    const normal: IAutoMovieVector3 = named.direction;
-
-    // A direction laid across the normal; the hand axis least along the
-    // normal when the direction runs along it.
-    const across = (direction: IAutoMovieVector3): IAutoMovieVector3 => {
-      const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.subtract(v, Vector3.scale(normal, Vector3.dot(v, normal)));
-      if (Vector3.length(flat(direction)) > 0.3)
-        return Vector3.normalize(flat(direction));
-      const spare: IAutoMovieVector3 = (["fingers", "palm", "thumb"] as const)
-        .map(
-          (axis: "fingers" | "palm" | "thumb"): IAutoMovieVector3 =>
-            AutoMovieMotionHumanTouchEffector.axis(side, axis),
-        )
-        .sort(
-          (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-            Math.abs(Vector3.dot(a, normal)) - Math.abs(Vector3.dot(b, normal)),
-        )[0]!;
-      return Vector3.normalize(flat(spare));
-    };
-    const own = (
-      direction: IAutoMovieMotionHumanTouchEffector.Direction | undefined,
-      otherwise: IAutoMovieMotionHumanTouchEffector.Axis,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanTouchEffector.direction(side, direction ?? otherwise);
-
-    // A vector of the hand's frame as weights on its three axes.
-    const weights = (
-      v: IAutoMovieVector3,
-    ): Record<"fingers" | "palm" | "thumb", number> => ({
-      fingers: Vector3.dot(
-        v,
-        AutoMovieMotionHumanTouchEffector.axis(side, "fingers"),
-      ),
-      palm: Vector3.dot(
-        v,
-        AutoMovieMotionHumanTouchEffector.axis(side, "palm"),
-      ),
-      thumb: Vector3.dot(
-        v,
-        AutoMovieMotionHumanTouchEffector.axis(side, "thumb"),
-      ),
-    });
-
-    let at: IAutoMovieVector3 = Vector3.add(socket, named.point);
-    let facing: IAutoMovieVector3 = normal;
-    let along: IAutoMovieVector3 = across(own(row.effector.along, "fingers"));
-    if (row.upright === true) {
-      // The rim's ring about the vessel's axis, met on the side the row's
-      // facing axis points to.
-      const origin: IAutoMovieVector3 = Vector3.add(
-        socket,
-        held.frame.position,
-      );
-      const centre: IAutoMovieVector3 = Vector3.add(
-        origin,
-        Vector3.scale(
-          normal,
-          Vector3.dot(Vector3.subtract(at, origin), normal),
-        ),
-      );
-      const radius: number = Vector3.length(Vector3.subtract(at, centre));
-      along = normal;
-
-      // The side of the rim: the act's facing direction laid across the
-      // axis, turned about the axis by `turn`.
-      const toward: IAutoMovieVector3 = across(
-        own(row.effector.facing, "palm"),
-      );
-      const angle: number = (turn * Math.PI) / 180;
-      facing = Vector3.add(
-        Vector3.scale(toward, Math.cos(angle)),
-        Vector3.scale(Vector3.cross(normal, toward), Math.sin(angle)),
-      );
-      at = Vector3.add(centre, Vector3.scale(facing, radius));
-    }
-
-    // The point as the generator's tool: its offset from the surface along
-    // the hand's three axes, in hand lengths.
-    const from: IAutoMovieVector3 = Vector3.subtract(
-      at,
-      HumanHand.offset(body, side, row.effector.surface, row.effector.shape)
-        .point,
-    );
-    return {
-      surface: row.effector.surface,
-      shape: row.effector.shape,
-      tool: weights(Vector3.scale(from, 1 / body.measure.hand)),
-      facing: weights(facing),
-      along: weights(along),
-    };
+    return HumanHeldEffector(context, row, side, subject, point)(turn);
   }
 
   /** The most an upright vessel may tilt where it is brought, degrees (a held container stays level within 10 degrees outside a sip, the acceptance of the hand-to-face family, #3361). */
@@ -209,6 +82,62 @@ export namespace HumanHeld {
 
   /** The sides of an upright vessel's rim tried for a region, degrees round its axis from the side the act's facing direction points to (provisional: every eighth of the rim). */
   export const SIDES: readonly number[] = [0, 45, -45, 90, -90, 135, -135, 180];
+
+  /**
+   * The rim's sides in the order a hand tries them: `SIDES` for the right
+   * hand and their mirror for the left. A turn is measured in the hand's own
+   * frame from its facing toward `normal x facing`, and a left hand's frame
+   * is the right's mirrored, where that cross product points the other way:
+   * one list for both hands had the left hand try the mirror of -45 where
+   * the right tries 45, so of two sides that hold the vessel alike the two
+   * hands took sides that are not each other's mirror.
+   */
+  function turns(side: AutoMovieHumanSide): readonly number[] {
+    return side === "right"
+      ? SIDES
+      : SIDES.map((turn: number): number => (turn === 0 ? 0 : -turn));
+  }
+
+  /**
+   * The effectors of an upright vessel at every side of its rim the search
+   * tries (`SIDES`, the act's own side first), for an act that searches the
+   * side with its own admission, as a drink does (`handToFaceVessel`).
+   *
+   * @param context The action's context; the prop is read in the hand at the action's entry.
+   * @param row The act's use of the prop.
+   * @param side The holding hand.
+   * @param subject The prop's subject id.
+   * @param point The prop's point; the row's own when absent.
+   * @returns One effector per side, in `SIDES`' order for the right hand and in its mirror's for the left.
+   * @throws {HumanRefusal} As `effector`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the sides, their order, who reads them and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A round rim meets a region on any side, so the side is a free turn of the vessel about its own axis in the hand, each one the shared effector owner's turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One held reading, one turn per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is chosen here; the act's search admits one or refuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK/contact reading and constant vector work per side, no arm solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed held prop and row share one `HumanHeldEffector` geometry across the sides, as `steadiest` does.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh effector weights and retains nothing.
+   */
+  export function sides(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
+    subject: string,
+    point: string | undefined,
+  ): IAutoMovieMotionHumanTouchEffector.IEffector[] {
+    const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
+      context,
+      row,
+      side,
+      subject,
+      point,
+    );
+    return turns(side).map(
+      (turn: number): IAutoMovieMotionHumanTouchEffector.IEffector =>
+        effect(turn),
+    );
+  }
 
   /**
    * The effector of a held prop on the side its arm holds best: for an
@@ -232,15 +161,12 @@ export namespace HumanHeld {
    * @evidence contracts/development/implementation.md#principled-implementation A pick-up takes the grip its reach allows, so which side of the rim then faces a region is not the act's to assume; each side is solved by the upright search and its reached tilt compared.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of effector, search and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted, unless the act leans it, whose own search then admits the lean or refuses it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most eight sides of at most thirteen arm solves each, once per plan: a tilt is never below 0, so the search stops at the first side that holds the vessel exactly upright, a bound that returns what the whole search would.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `effector` and `AutoMovieMotionHumanTouchUpright.solve`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One held-entry FK/contact/hand-geometry and hanging hint serve at most eight rim sides. Each side runs its upright solve and tilt fit; the search stops once a tilt is within the joints' tolerance of zero.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held geometry and the hanging hint are read once for every side; each side runs its own upright solve and tilt fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local geometry producer/hint are released on return or throw; only the best fresh effector weights escape, without body/prop readers, fits, time history or handles.
    */
   export function steadiest(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: AutoMovieHumanSide,
     subject: string,
@@ -249,31 +175,26 @@ export namespace HumanHeld {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     leans: boolean = false,
   ): IAutoMovieMotionHumanTouchEffector.IEffector {
-    let best: IAutoMovieMotionHumanTouchEffector.IEffector = effector(
+    const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
       context,
       row,
       side,
       subject,
       point,
     );
+    let best: IAutoMovieMotionHumanTouchEffector.IEffector = effect();
     if (row.upright !== true) return best;
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(context.body, posture, side);
     let least: number = Infinity;
-    for (const turn of SIDES) {
-      const candidate: IAutoMovieMotionHumanTouchEffector.IEffector = effector(
-        context,
-        row,
-        side,
-        subject,
-        point,
-        turn,
-      );
+    for (const turn of turns(side)) {
+      const candidate: IAutoMovieMotionHumanTouchEffector.IEffector = effect(turn);
       const facing: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
         context.body,
         posture,
         side,
         candidate,
         place,
-        AutoMovieMotionHumanBend.hang(context.body, posture, side),
+        bend,
       ).facing;
 
       // The tilt the stroke itself will show: the arm laid with the elbow
@@ -296,13 +217,19 @@ export namespace HumanHeld {
         ),
         facing,
       );
-      if (tilt < least - 1e-6) {
+
+      // Two tilts within the joints' tolerance (the resolution a fit meets a
+      // rotation to) are one, as the drink's facings read them
+      // (`AutoMovieMotionHumanTouchDrink`), so a rounding-sized difference
+      // between a hand's fit and its mirror's never chooses another side.
+      if (tilt < least - ROM_TOLERANCE) {
         least = tilt;
         best = candidate;
       }
+
       // A tilt is an angle, never below 0, so once the best is within the
-      // margin of 0 no later side can replace it.
-      if (least <= 1e-6) break;
+      // tolerance of 0 no later side can replace it.
+      if (least <= ROM_TOLERANCE) break;
     }
 
     // A vessel the arm cannot hold level there is not brought tilted, unless
@@ -346,10 +273,7 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan it wraps and nothing else.
    */
   export function kept(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
     plan: IAutoMovieMotionHumanActionPlan,
     side: AutoMovieHumanSide,
     subject: string,

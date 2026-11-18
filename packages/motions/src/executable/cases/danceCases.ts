@@ -11,6 +11,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -80,18 +81,7 @@ export function danceCases(
           }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const beats: number[] = [];
@@ -113,16 +103,26 @@ export function danceCases(
           if (v[i]! < v[i - 1]! && v[i]! <= v[i + 1]!) found.push(grid[i]!);
         return found;
       };
-      // The worst distance from a beat to its nearest found instant.
-      const worst = (found: readonly number[], of: readonly number[]): number =>
-        Math.max(
-          ...of.map((b: number): number =>
-            Math.min(
-              ...found.map((t: number): number => Math.abs(t - b)),
-              Infinity,
-            ),
-          ),
-        );
+      // The worst distance from each instant of `of` to its nearest found
+      // instant; with nothing to place, none is near, so the reading is
+      // infinite rather than the empty maximum's -Infinity.
+      const worst: (
+        found: readonly number[],
+        of: readonly number[],
+      ) => number = (
+        found: readonly number[],
+        of: readonly number[],
+      ): number =>
+        of.length === 0
+          ? Infinity
+          : Math.max(
+              ...of.map((b: number): number =>
+                Math.min(
+                  ...found.map((t: number): number => Math.abs(t - b)),
+                  Infinity,
+                ),
+              ),
+            );
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];

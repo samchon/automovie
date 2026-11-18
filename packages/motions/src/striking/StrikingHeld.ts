@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHand,
@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
-import { StrikingRoll } from "./StrikingRoll";
+import { StrikingHeldGoal } from "./StrikingHeldGoal";
 
 /**
  * A thing held in the hand as the effector of an action: a blade whose point
@@ -45,6 +45,36 @@ import { StrikingRoll } from "./StrikingRoll";
  */
 export namespace StrikingHeld {
   /**
+   * The cancel table of an action whose effector is a held tool: anything
+   * may follow from the named instant on, blended in by inertialization, the
+   * grip kept so the tool stays in the hand.
+   *
+   * @param instant The event from which a follow-up may cut in.
+   * @returns The table.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window, the blend and what is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation One row for every follow-up: the held tool's actions differ only in the instant they open from.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade's and the firearm's actions read this one table instead of a copy each.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by `HumanSword`, `HumanSwordGuard`, `HumanSwordThrust`, `HumanSwordParry` and `HumanWeaponPresent`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export const follows = (
+    instant: string,
+  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
+    any: [
+      {
+        window: [instant, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+        keep: ["grip"],
+      },
+    ],
+  });
+
+    /**
    * Read what a hand holds at an action's entry.
    *
    * @param context The action's context.
@@ -63,16 +93,10 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "subject"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
     side: AutoMovieHumanSide,
     prop?: string,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
-      tip: "point",
-      edge: "edge",
-    },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     if (prop === undefined) return bare(context.body, side);
     // The prop as the hand holds it, read by the one owner of that frame.
@@ -95,15 +119,8 @@ export namespace StrikingHeld {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by of and the supporting-hand goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bare(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-  ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
-      body,
-      side,
-      "grip",
-    );
+  export function bare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IAutoMovieMotionHumanStrikingHeld.ITool {
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip");
     const axis: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
     return {
       side,
@@ -136,10 +153,7 @@ export namespace StrikingHeld {
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
-      tip: "point",
-      edge: "edge",
-    },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeldFrame.read(held, points);
   }
@@ -170,18 +184,43 @@ export namespace StrikingHeld {
     axis: IAutoMovieVector3,
     edge: IAutoMovieVector3,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-    const along: IAutoMovieVector3 = Vector3.normalize(axis);
-    const rotation: IAutoMovieQuaternion = HumanHand.align(
-      { normal: tool.axis, forward: tool.edge },
-      { normal: along, forward: square(along, edge) },
-    );
+    const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
     return {
       rotation,
-      point: Vector3.subtract(
-        at,
-        Quaternion.rotateVector(rotation, placed(tool, back)),
-      ),
+      point: Vector3.subtract(at, Quaternion.rotateVector(rotation, placed(tool, back))),
     };
+  }
+
+  /**
+   * Prepare the rigid hand rotation and kept-point offset for a fixed tool
+   * orientation, then place fresh hand frames at changing world points.
+   *
+   * @param tool The unchanged held tool's hand-local axis, edge and working point.
+   * @param back The kept point's distance behind its working point, metres.
+   * @param axis The unchanged nonzero world line.
+   * @param edge The unchanged world edge direction, squared by hand's existing rule.
+   * @returns A world-point reader with independent position and rotation outputs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed tool/orientation premise, metre offset, changing world point and fresh output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing HumanHand.align relation fixes rotation from the hand-local tool pair to the normalized world pair. Its rotated kept-point offset is independent of the world placement and is subtracted in the same original expression.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Alignment and fixed offset are prepared once; the returned reader performs one subtraction and copies the fixed quaternion into a fresh frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves normalization, parallel-edge fallback, kept-point geometry and operation order; no pose, fit, candidate acceptance or time answer is prepared.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup replaces repeated alignment/offset rotation for K placements under the same orientation; each placement uses constant arithmetic and fresh output allocation. Physical arm fitting remains payable and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly fixed tool/back/axis/edge scalar geometry proves alignment and offset equivalence. A changed held grip or orientation requires a new producer; changing world points are always evaluated anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one fixed quaternion and vector for its enclosing search or fixed-axis operation; each output is independent, no inputs/candidate history are retained, and release of the operation drops the reader.
+   */
+  export function prepareHand(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+    axis: IAutoMovieVector3,
+    edge: IAutoMovieVector3,
+  ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const rotation: IAutoMovieQuaternion = alignment(tool, axis, edge);
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, placed(tool, back));
+    return (at: IAutoMovieVector3): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+      rotation: { ...rotation },
+      point: Vector3.subtract(at, offset),
+    });
   }
 
   /**
@@ -239,12 +278,10 @@ export namespace StrikingHeld {
     back: number,
   ): number {
     const off = (behind: number): number =>
-      Vector3.length(
-        Vector3.subtract(
+      Vector3.distance(
           point(tool, fitted, behind),
           point(tool, asked, behind),
-        ),
-      );
+        );
     return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
@@ -262,7 +299,7 @@ export namespace StrikingHeld {
    * @evidence contracts/development/common.md#meaningful-documentation States what the goal holds and which point stays when the turn gives way.
    * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the grip socket and hand rotation; the kept contact lets the resolver re-aim the wrist. The same two offsets strayed judges become point limits, so a trajectory preserves the action's physical miss bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist placement and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is planted, as a gripping hand's is, so a transition never slides the tool.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held-prop goal keeps the original planting and both task limits so transitions retain the tool contact; a bare-hand goal retains its original absence of prop planting and limits.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -274,36 +311,31 @@ export namespace StrikingHeld {
     back: number,
     bend: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
-    const grip: IAutoMovieVector3 = HumanHand.offset(
-      context.body,
-      tool.side,
-      "grip",
-    ).point;
-    return {
-      point: Vector3.subtract(
-        frame.point,
-        Quaternion.rotateVector(frame.rotation, grip),
-      ),
-      rotation: frame.rotation,
-      bend,
+    return StrikingHeldGoal.goal(context, tool, frame, back, bend);
+  }
 
-      // The elbow is left to the body: the fit takes the least hand error,
-      // then the reference's side where the law gives one, then the least
-      // strain (`HumanPosture.IGoal.elbow`), the one place an elbow is chosen.
-      elbow: "strain",
-      contact: Vector3.add(grip, placed(tool, back)),
-      ...(tool.prop === undefined
-        ? {}
-        : {
-            limits: [back > 0 ? back : tool.length, 0].map(
-              (behind: number): IAutoMovieHumanEffectorPointLimit => ({
-                contact: Vector3.add(grip, placed(tool, behind)),
-                bound: StrikingRoll.MISS,
-              }),
-            ),
-          }),
-      ...(tool.prop === undefined ? {} : { planted: true }),
-    };
+  /**
+   * Prepare a fixed held tool's hand-local goal geometry for candidate frames.
+   *
+   * @param context The unchanged canonical body.
+   * @param tool The unchanged held tool and hand side.
+   * @param back Metres behind the working point of the kept point.
+   * @returns A goal reader of the actual world hand frame and fallback bend; mutable contact/limit records are fresh, rotation/bend borrow the original inputs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/tool/back prerequisites, changing world frame/bend and exact output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation StrikingHeldGoal prepares the original canonical grip and rigid contact/limit offsets once; every actual frame still determines its wrist by the same inverse rigid placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared goal owner serves this fixed-operation producer and the original one-shot goal, with one physical policy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves strain, original planted/prop distinction, kept contact, both ordered MISS task limits and all later fits; no candidate, pose or time answer is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup removes repeated fixed grip/tool arithmetic across K candidates, retaining actual per-frame wrist placement, fresh goal/task records and every physical solve. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged canonical body/tool geometry and back prove only local-offset equivalence; changed geometry requires another producer, while each frame and bend still evaluate anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing fixed-tool action or synchronous search owns fixed grip/contact/two-limit metadata until action release or search completion/failure. Fresh mutable outputs retain no factory, body or query history; borrowed rotation/bend retain their existing input semantics.
+   */
+  export function prepareGoal(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+  ): (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
+    return StrikingHeldGoal.prepare(context, tool, back);
   }
 
   /**
@@ -321,9 +353,7 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grips(
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-  ): IAutoMovieMotionHumanContactWindow[] {
+  export function grips(tool: IAutoMovieMotionHumanStrikingHeld.ITool): IAutoMovieMotionHumanContactWindow[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.grip(tool.held)];
@@ -354,12 +384,18 @@ export namespace StrikingHeld {
       : [AutoMovieMotionHumanHeld.hold(context, tool.held)];
   }
 
+  /** The same normalized rigid alignment for one-shot and fixed-orientation placements. */
+  function alignment(tool: IAutoMovieMotionHumanStrikingHeld.ITool, axis: IAutoMovieVector3, edge: IAutoMovieVector3): IAutoMovieQuaternion {
+    const along: IAutoMovieVector3 = Vector3.normalize(axis);
+    return HumanHand.align(
+      { normal: tool.axis, forward: tool.edge },
+      { normal: along, forward: square(along, edge) },
+    );
+  }
+
   /** A point of the tool from the grip socket, hand frame. */
-  const placed = (
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-    back: number,
-  ): IAutoMovieVector3 =>
-    Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
+  const placed = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 =>
+    StrikingHeldGoal.offset(tool, back);
 
   /** The perpendicular axis construction shared with the held-point reader. */
   const square: typeof StrikingHeldFrame.square = StrikingHeldFrame.square;

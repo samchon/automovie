@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMoviePoseVelocity } from "../../IAutoMoviePoseVelocity";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
+import type { IAutoMovieMotionHumanGraspUse } from "../handling/IAutoMovieMotionHumanGraspUse";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
@@ -72,6 +73,14 @@ export interface IAutoMovieMotionHumanEntryState {
    * from how near the prop lies.
    */
   holds: Partial<Record<"left" | "right", string>>;
+
+  /**
+   * The use each held prop's grip was chosen for, by the holding hand
+   * (`IAutoMovieMotionPropHold.use`); a hand whose grip was chosen for its
+   * reach alone is absent. An act that uses the prop reads whether the grip
+   * allows it here.
+   */
+  uses: Partial<Record<"left" | "right", IAutoMovieMotionHumanGraspUse.IUse>>;
 
   /** The interrupted action, when the entry is a cut. */
   from?: IAutoMovieMotionHumanEntryState.IFrom;

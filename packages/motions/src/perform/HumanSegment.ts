@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -11,9 +12,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * One placed action of one person, and how a person's displayed pose is
@@ -41,6 +44,13 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * name and pass straight to their owners.
  */
 export namespace HumanSegment {
+  /** The interface contract (`IAutoMovieMotionHumanSegment.IShown`). */
+  export type IShown = IAutoMovieMotionHumanSegment.IShown;
+
+  
+
+  
+
   /**
    * A weapon's key among its person's stops.
    *
@@ -48,14 +58,11 @@ export namespace HumanSegment {
    * @param id The weapon's id within its plan.
    * @returns The key.
    */
-  export function weapon(
-    segment: IAutoMovieMotionHumanSegment,
-    id: string,
-  ): string {
+  export function weapon(segment: IAutoMovieMotionHumanSegment, id: string): string {
     return `${segment.index}:${id}`;
   }
 
-  /**
+    /**
    * Whether a plan drives a hand: it has a contact window on it or names it.
    *
    * @param plan The plan.
@@ -68,8 +75,7 @@ export namespace HumanSegment {
   ): boolean {
     return (
       plan.contacts.some(
-        (c: IAutoMovieMotionHumanContactWindow): boolean =>
-          c.part === `${side}Hand`,
+        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === `${side}Hand`,
       ) || (plan.hands ?? []).includes(side)
     );
   }
@@ -117,10 +123,7 @@ export namespace HumanSegment {
    * @param plan The plan.
    * @returns The share.
    */
-  export function share(
-    at: number | string,
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): number {
+  export function share(at: number | string, plan: IAutoMovieMotionHumanActionPlan): number {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
     if (event === undefined)
@@ -166,8 +169,10 @@ export namespace HumanSegment {
   export function displayed(
     person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return HumanSegmentPose.displayed(person, seconds);
+    return HumanSegmentPose.displayed(person, seconds, requested, prepared);
   }
 
   /**
@@ -182,11 +187,56 @@ export namespace HumanSegment {
   export function forget(person: IAutoMovieMotionHumanSegment.IPerson): void {
     for (const segment of person.segments) {
       segment.plan.settle?.();
+      HumanPreparedPlayback.forget(segment.plan);
       if (segment.transition !== undefined) delete segment.transition.offset;
+      delete segment.incumbents;
+      delete segment.legs;
     }
-    for (const overlay of person.overlays) overlay.plan.settle?.();
+    for (const overlay of person.overlays) {
+      overlay.plan.settle?.();
+      HumanPreparedPlayback.forget(overlay.plan);
+    }
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
+  }
+
+  /**
+   * Run one action's planning with the placed people's displayed poses
+   * shared between its readers. While the schedule is being resolved no pose
+   * is kept from one placement to the next, since each placement changes
+   * what later actions read; but within the planning of one action nothing
+   * is placed, and its planner reads the same people at the same seconds
+   * again and again (a partner's pose at every instant of an arm's course,
+   * for every candidate it lays). A nested planning runs with its own poses
+   * and leaves the outer one none, and a placement inside clears them
+   * (`placed`), so no pose outlives the placed state it was read in.
+   *
+   * @param people Every person of the performance.
+   * @param run The planning.
+   * @returns What the planning returns.
+   */
+  export function planning<T>(people: Iterable<IAutoMovieMotionHumanSegment.IPerson>, run: () => T): T {
+    const all: IAutoMovieMotionHumanSegment.IPerson[] = [...people];
+    const nested: boolean[] = all.map((person: IAutoMovieMotionHumanSegment.IPerson): boolean => person.planning !== undefined);
+    for (const person of all) person.planning = new Map();
+    try {
+      return run();
+    } finally {
+      all.forEach((person: IAutoMovieMotionHumanSegment.IPerson, i: number): void => {
+        if (nested[i]) person.planning = new Map();
+        else delete person.planning;
+      });
+    }
+  }
+
+  /**
+   * Drop the poses a planning shares, after anything is placed: an action,
+   * an overlay or a hold changes what every later read shows.
+   *
+   * @param people Every person of the performance.
+   */
+  export function placed(people: Iterable<IAutoMovieMotionHumanSegment.IPerson>): void {
+    for (const person of people) person.planning?.clear();
   }
 
   /**

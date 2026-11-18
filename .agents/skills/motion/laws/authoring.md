@@ -1,6 +1,6 @@
 # Effector goals
 
-Define each action as time-bounded effector goals. Solve joint angles by inverse kinematics.
+Define the action's interaction through time-bounded effector goals. Fit them with the owning package's primitives, using analytic two-bone IK for a limb when its assumptions hold. Plan coupled fits under [pose by time](transitions.md#pose-by-time).
 
 ## Writing a goal
 
@@ -18,7 +18,7 @@ A goal on a body attaches to the bone under its target, so a layered sway carrie
 
 ## The path in time
 
-Move an effector on the bell-shaped speed profile of minimum jerk (Flash and Hogan 1985). A throw, strike or kick moves its segments from the trunk outward (Putnam 1993) and arrives still fast.
+Use measured phase timing and endpoint velocities. A minimum-jerk curve models an unconstrained point-to-point reach with settled endpoints (Flash and Hogan 1985). An action that makes contact at speed needs its own boundary velocities and segment timing (Putnam 1993).
 
 When the root travels during a stroke, express the effector path in the moving shoulder or hip frame.
 
@@ -30,7 +30,7 @@ Document and implement the reach rule. Reject a goal that would require moving t
 
 ## The root
 
-Place the root once from contacts and reaches. Compute balance only for a staged physical outcome or at the caller's request. Take a planted posture's compensation from its studied key poses. If needed, lower, lean or step and refit every limb while keeping contacts fixed.
+Plan the root from contacts, reaches and studied postural compensation. Evaluate balance only for an explicit request or a physical response that needs it, over the active interval. If lowering, leaning or stepping is needed, fit the affected limbs against the same supports.
 
 Place bearing joints at their contact heights.
 

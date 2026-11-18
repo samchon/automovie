@@ -29,7 +29,11 @@ export class AutoMovieStepPlanner {
   /** Owned initial support placements. */
   private readonly initial: Record<string, IAutoMovieStepPlanner.IPlacement>;
 
-  /** Compute a complete schedule from pure desired-placement inputs. */
+  /**
+   * Compute a complete schedule from pure desired-placement inputs, sampled
+   * every `1 / rate` seconds from start to end: (end - start) rate samples.
+   * Throws when that period no longer advances the clock at some sample.
+   */
   public constructor(input: IAutoMovieStepPlanner.IInput) {
     const limbs: IAutoMovieFootfallPattern["limbs"] = input.pattern.limbs;
     if (
@@ -130,6 +134,12 @@ export class AutoMovieStepPlanner {
     let lastEnd: number = -Infinity;
     const available: Map<string, number> = new Map();
     for (let t: number = input.start; t < input.end; t += 1 / input.rate) {
+      // A sample period under half the spacing of doubles at `t` leaves the
+      // clock where it is, and the schedule would never reach its end.
+      if (!(t + 1 / input.rate > t))
+        throw new Error(
+          `The step planner's rate ${input.rate} is finer than the resolution of second ${t}`,
+        );
       while (next < busy.length && busy[next]!.start <= t) {
         const reservation: IAutoMovieStepPlanner.IReservation = busy[next++]!;
         const to: IAutoMovieStepPlanner.IPlacement = structuredClone(

@@ -136,46 +136,6 @@ export namespace KneeReach {
   }
 
   /**
-   * A standing leg's knee from its hip and its ankle: the point one thigh
-   * from the hip and one shank from the ankle, on the side a direction names.
-   *
-   * @param hip The hip joint, world metres.
-   * @param ankle The ankle joint, world metres.
-   * @param thigh The thigh length, metres.
-   * @param shank The shank length, metres.
-   * @param forward The side the knee bends to, a world direction not along the leg.
-   * @returns The knee joint, world metres; on the hip-ankle line when the leg is at or past full stretch.
-   */
-  export function bent(
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    thigh: number,
-    shank: number,
-    forward: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const span: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const d: number = Math.max(1e-9, Vector3.length(span));
-    const along: IAutoMovieVector3 = Vector3.scale(span, 1 / d);
-
-    // The foot of the knee's perpendicular on the hip-ankle line (law of
-    // cosines), and the knee's height above it.
-    const foot: number = Math.min(
-      thigh,
-      (thigh * thigh - shank * shank + d * d) / (2 * d),
-    );
-    const height: number = Math.sqrt(Math.max(0, thigh * thigh - foot * foot));
-    const across: IAutoMovieVector3 = Vector3.subtract(
-      forward,
-      Vector3.scale(along, Vector3.dot(forward, along)),
-    );
-    const side: number = Vector3.length(across);
-    return Vector3.add(
-      Vector3.add(hip, Vector3.scale(along, foot)),
-      side > 1e-9 ? Vector3.scale(across, height / side) : { x: 0, y: 0, z: 0 },
-    );
-  }
-
-  /**
    * A unit direction swung toward another along the great arc between them.
    *
    * @param from The direction at share 0, unit.

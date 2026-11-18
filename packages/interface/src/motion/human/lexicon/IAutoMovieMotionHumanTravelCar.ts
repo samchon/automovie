@@ -51,7 +51,7 @@ export namespace IAutoMovieMotionHumanTravelCar {
     /** The door's opening, as `HumanObstacle.apertures` reads it from the car. */
     through: IAutoMovieMotionObstacleAperture;
 
-    /** Seconds of the sitting down; `sit`'s own when absent. */
+    /** Seated hold forwarded to sit, seconds; sit's own when absent. */
     seconds?: number;
   }
 }

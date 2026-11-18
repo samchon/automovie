@@ -4949,6 +4949,171 @@
       }
     },
     "wipeAcross": {},
-    "wipeMouthAcross": {}
+    "wipeMouthAcross": {},
+    "leadHook": {},
+    "rearHook": {},
+    "leadUppercut": {},
+    "rearUppercut": {},
+    "switchKick": {},
+    "pushKick": {},
+    "teep": {},
+    "leadKnee": {},
+    "rearKnee": {},
+    "cover": {},
+    "handParry": {},
+    "elbowBlock": {},
+    "highBlock": {},
+    "checkKick": {},
+    "slip": {},
+    "rollUnder": {},
+    "swayBack": {},
+    "braceImpact": {},
+    "bracePush": {},
+    "throwJavelin": {},
+    "throwSpear": {},
+    "throwKnife": {},
+    "throwGrenade": {},
+    "hurlStone": {},
+    "hurlBottle": {},
+    "sling": {},
+    "castAtlatl": {},
+    "coverVent": {},
+    "spongeBore": {},
+    "passCharge": {},
+    "loadCharge": {},
+    "ramCharge": {},
+    "prickVent": {},
+    "runUp": {},
+    "layGun": {},
+    "hookPrimer": {},
+    "pullLanyard": {},
+    "takeFirelock": {},
+    "orderArms": {},
+    "handleCartridge": {},
+    "biteCartridge": {},
+    "prime": {},
+    "shutPan": {},
+    "charge": {},
+    "drawRammer": {},
+    "ramDown": {},
+    "returnRammer": {},
+    "seize": {},
+    "makeReady": {},
+    "fireMusket": {},
+    "liftBolt": {},
+    "drawBolt": {},
+    "closeBolt": {},
+    "lowerBolt": {},
+    "seatMagazine": {},
+    "pressRelease": {},
+    "dropMagazine": {},
+    "cockRevolver": {},
+    "fanHammer": {},
+    "openGate": {},
+    "loadChamber": {},
+    "closeGate": {},
+    "takeArrow": {},
+    "nockArrow": {},
+    "drawBow": {},
+    "loose": {},
+    "spanCrossbow": {},
+    "shootCrossbow": {},
+    "shoulderArms": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "castAbout": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "recover": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentMusket": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentBow": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentCrossbow": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "standClear": {
+      "properties": {
+        "stride": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.6,
+            "maximum": 1.3,
+            "default": 1,
+            "x-unit": ""
+          }
+        },
+        "armSwing": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 1,
+            "x-unit": ""
+          }
+        },
+        "elbows": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0,
+            "x-unit": "degrees"
+          }
+        }
+      }
+    }
   }
 }

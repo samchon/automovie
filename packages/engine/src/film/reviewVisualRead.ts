@@ -274,7 +274,7 @@ function missNote(
 function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
   return foldRoot(
     performer.node.transform,
-    sampleMotion(performer.motion, Math.max(0, t - performer.offset)).pose.root,
+    sampleMotion.root(performer.motion, Math.max(0, t - performer.offset)),
   ).translation;
 }
 

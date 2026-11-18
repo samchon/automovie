@@ -1,14 +1,15 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  type IAutoMovieHingedArticulation,
+  IAutoMovieHingedArticulation,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationDomain,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieResolvedJointAngles,
-  type IAutoMovieRestFrame,
+  IAutoMovieResolvedBone,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -32,7 +33,8 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
 /**
  * The arm pose, upper arm and forearm articulation, that brings the `side`
  * hand onto `target` in the skeleton's model space: the harness `reach` verb
- * made concrete, solved in closed form with no iteration.
+ * made concrete with analytic hinge geometry and the original bounded swivel
+ * search for its clinical range of motion.
  *
  * Segment offsets and the shoulder's rest frame come from the skeleton's rest
  * pose, and {@link hingedArmArticulation} solves the chain: the elbow turns
@@ -65,26 +67,21 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
  *   `HUMANOID_REST_FRAME`.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the arm's rest offsets under the premise that the three bones form one parent chain, which it checks before solving, so each offset is in its parent's frame as the hinge solve requires; candidates are scored through the same clinical decomposition and `jointRomOvershoot` the result is reported and gated with, so the solver cannot pick a pose by a kinder rule than `validatePose` applies.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the humanoid arm convention, bone names, axes under the bones' own declarations, rest frames and ROM lookup, while `hingedArmArticulation` owns the geometry and `armChainFault` the rig diagnosis shared with the perform-shot gate.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One call owns original source admission/full rest FK/clinical lift and delegates hinge geometry/search to hingedArmArticulation. Each call rereads source data so live target callbacks may edit borrowed rig/mapping values between calls, without an unused preparation layer or source wrapper.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; an impossible reach returns its least-overshoot pose for the gate to report rather than a clamped one, and every refusal is a structural or geometric fact about the rig.
- * @evidence contracts/development/common.md#meaningful-documentation States the clinical output and why, the axis and rest-frame pairing with its default, the unreachable and illegal-target behavior, every `null` case including the parent-chain requirement, and each parameter's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three linear bone lookups and one rest-pose forward-kinematics pass, linear in the bone count, then the hinge solve's at most 720 candidates, each two decompositions and two ROM scorings; the candidate sweep dominates and is constant per call.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one rig, side and target; per-frame callers pass a different target each time, so no result is shared across calls.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning; the rest-pose bones and candidate scores are local to the call, and the caller owns the returned pose.
+ * @evidence contracts/development/common.md#meaningful-documentation States clinical output, axis/frame defaults, every null/refusal case, model-metre target units, original complete candidate search and fresh results.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each call retains three bone searches, diagnosis, merged axes and full B-bone rest FK before at most 720 coarse candidates plus the original bounded refinements, each with two clinical decompositions/scorings. Two local bone/constraint wrappers are formed once instead of per candidate; current frame/basis/ROM reads remain at every original site. Source data serves only that solve; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual source call shares its shoulder FK and effective constraint references across its own candidates. Local domain wrappers hold only the fixed names and those same references, not copied ROM scalars; every candidate still reads current axes, frames and constraint fields through the original decomposition. Borrowed identities certify no immutable scalars, so no source or answer crosses calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source/candidate closures end with the call or throw; only a fresh pose with fresh joint records escapes, without target history, a retained source reader, task or handle.
  */
-export const reachPose: (
-  skeleton: IAutoMovieSkeleton,
-  side: "left" | "right",
-  target: IAutoMovieVector3,
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-) => IAutoMoviePose | null = (
+export function reachPose(
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   target: IAutoMovieVector3,
   restFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
   > = HUMANOID_REST_FRAME,
-): IAutoMoviePose | null => {
+): IAutoMoviePose | null {
   if (side !== "left" && side !== "right") return null;
 
   const upperName: AutoMovieHumanoidBone =
@@ -102,6 +99,7 @@ export const reachPose: (
   const upperBone: IAutoMovieBone | undefined = declared(upperName);
   const lowerBone: IAutoMovieBone | undefined = declared(lowerName);
   const handBone: IAutoMovieBone | undefined = declared(handName);
+
   // The solve rotates the hand's rest offset in the lower arm's frame and the
   // lower arm's offset in the upper arm's frame, so they must be one chain.
   if (
@@ -140,6 +138,14 @@ export const reachPose: (
     lowerName,
     lowerBone.constraint,
   );
+  const upperDomain: IAutoMovieJointRotationDomain = {
+    bone: upperName,
+    constraint: upperConstraint,
+  };
+  const lowerDomain: IAutoMovieJointRotationDomain = {
+    bone: lowerName,
+    constraint: lowerConstraint,
+  };
 
   const jointsOf: (
     upperDelta: IAutoMovieQuaternion,
@@ -150,17 +156,21 @@ export const reachPose: (
   ): [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] => [
     {
       bone: upperName,
-      ...decomposeJointRotation(upperDelta, upperAxes, restFrames[upperName], {
-        bone: upperName,
-        constraint: upperConstraint,
-      }),
+      ...decomposeJointRotation(
+        upperDelta,
+        upperAxes,
+        restFrames[upperName],
+        upperDomain,
+      ),
     },
     {
       bone: lowerName,
-      ...decomposeJointRotation(lowerDelta, lowerAxes, restFrames[lowerName], {
-        bone: lowerName,
-        constraint: lowerConstraint,
-      }),
+      ...decomposeJointRotation(
+        lowerDelta,
+        lowerAxes,
+        restFrames[lowerName],
+        lowerDomain,
+      ),
     },
   ];
 
@@ -172,6 +182,7 @@ export const reachPose: (
       endOffset: handBone.rest.translation,
       hinge: lowerAxes.flexion,
       target,
+
       // Scored through the same clinical decomposition the result is reported
       // in, so the candidate the solver picks is the candidate `validatePose`
       // will grade.
@@ -199,4 +210,4 @@ export const reachPose: (
     root: null,
     joints: jointsOf(articulation.upper, articulation.lower),
   };
-};
+}

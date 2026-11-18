@@ -1,4 +1,6 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
@@ -86,6 +88,8 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * The posture with its hands on the load.
      *
      * @param posture The posture the exercise's key gives.
+     * @param resolution Optional FK source borrowed from this same synchronous write.
+     * @param projection Optional genuine same-body ROM metadata from that write.
      * @returns The same posture with the holding arms' goals.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
@@ -96,7 +100,9 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
-    apply(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture;
+    apply(posture: IAutoMovieMotionHumanPosture,
+      resolution?: IAutoMoviePoseResolution.ISource,
+      projection?: (pose: IAutoMoviePose) => IAutoMoviePose): IAutoMovieMotionHumanPosture;
 
     /** The grip's contact window. */
     contacts: IAutoMovieMotionHumanContactWindow[];

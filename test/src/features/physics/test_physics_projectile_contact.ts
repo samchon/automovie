@@ -1,4 +1,8 @@
-import { Vector3, projectileFirstContact } from "@automovie/engine";
+import {
+  Vector3,
+  physicalShapeNearest,
+  projectileFirstContact,
+} from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -6,6 +10,9 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * A projectile's first contact (#3478) through the one contact resolver.
@@ -19,12 +26,13 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A ball dropped from 1 m meets the ground plane with the plane's +Y
  *    normal at sqrt(2 h / g) within 1e-5 s.
  * 3. A flight passing between two colliders meets nothing.
+ * 4. Prepared fixture geometry preserves the full-only signed scan's result.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Finds the contacts of a fast capsule, a falling sphere and a miss; a coarse step that tunnels, a wrong normal or a false contact fails one.
  * @evidence contracts/development/testing.md#independent-expectations Entry times are the geometry over the speed and the free-fall time, written here.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a thin capsule, a plane and a gap.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a thin capsule, a plane and a gap. The same thin capsule uses prepared and full-only paths.
  * @evidence contracts/development/testing.md#execution-ownership The named unit calls the engine's contact search directly.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios with their inputs and bounds.
  */
 export function test_physics_projectile_contact(): void {
   const zero = { x: 0, y: 0, z: 0 };
@@ -51,9 +59,10 @@ export function test_physics_projectile_contact(): void {
     gravity: zero,
     attitude: { kind: "fixed" },
   };
+  const shape: IAutoMoviePhysicalShape = post(10, 0);
   const hit: IAutoMovieHit | null = projectileFirstContact(
     arrow,
-    [projectileFirstContact.shape("post", post(10, 0), pose)],
+    [projectileFirstContact.shape("post", shape, pose())],
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
   );
@@ -64,6 +73,28 @@ export function test_physics_projectile_contact(): void {
   TestValidator.predicate(
     "the post's normal faces the arrow",
     hit !== null && Vector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >= 1 - 1e-6,
+  );
+  const opaque: IAutoMovieHit | null = projectileFirstContact(
+    arrow,
+    [
+      {
+        id: "post",
+        nearest: (a, b) => physicalShapeNearest(pose(), shape, a, b),
+      },
+    ],
+    { from: 0, to: 1 },
+    { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
+  );
+  TestValidator.predicate(
+    "fixture preparation preserves time and witnesses",
+    hit !== null &&
+      opaque !== null &&
+      hit.collider === opaque.collider &&
+      nclose(hit.time, opaque.time, 0) &&
+      vclose(hit.point, opaque.point, 0) &&
+      hit.normal !== undefined &&
+      opaque.normal !== undefined &&
+      vclose(hit.normal, opaque.normal, 0),
   );
 
   // 2. The ball on the ground.

@@ -6,14 +6,17 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
+import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
+import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
@@ -41,7 +44,8 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Presets are a closed union keyed into one table; shares are plain numbers of a stated unit, and no law name appears.
  */
 export namespace AutoMovieMotionHumanBend {
-  /** The arm holds of {@link Arm}, as data. */
+
+  /** The arm holds of {@link IAutoMovieMotionHumanBend.Arm}, as data. */
   export const ARMS = [
     "hang",
     "tucked",
@@ -69,9 +73,7 @@ export namespace AutoMovieMotionHumanBend {
    * - `akimbo`: out wide at waist height, a hand on the hip;
    * - `raised`: out wide above the shoulder, a hand behind the head.
    */
-  export const ARM: Readonly<
-    Record<IAutoMovieMotionHumanBend.Arm, IAutoMovieMotionHumanBend.IShares>
-  > = {
+  export const ARM: Readonly<Record<IAutoMovieMotionHumanBend.Arm, IAutoMovieMotionHumanBend.IShares>> = {
     hang: { out: 0.4, up: -1, forward: -0.5 },
     tucked: { out: 0.35, up: -1, forward: -0.3 },
     behind: { out: 0.35, up: -0.9, forward: -0.4 },
@@ -106,12 +108,10 @@ export namespace AutoMovieMotionHumanBend {
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
     side: AutoMovieHumanSide,
     preset:
-      | IAutoMovieMotionHumanBend.Arm
-      | IAutoMovieMotionHumanBend.IShares = "hang",
+      | IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares = "hang",
     out: number = 0,
   ): IAutoMovieVector3 {
-    const shares: IAutoMovieMotionHumanBend.IShares =
-      typeof preset === "string" ? ARM[preset] : preset;
+    const shares: IAutoMovieMotionHumanBend.IShares = typeof preset === "string" ? ARM[preset] : preset;
     const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
     const sign: number = side === "left" ? 1 : -1;
     const length: number = body.measure.upperArm;
@@ -185,18 +185,57 @@ export namespace AutoMovieMotionHumanBend {
     heading: number = posture.yaw,
     splay: number = 0,
   ): IAutoMovieVector3 {
-    return HumanFrame.point(
-      {
-        origin: HumanFrame.point(
-          { origin: posture.root, yaw: posture.yaw },
-          body.rest.get(`${side}LowerLeg`)!,
-        ),
-        yaw: heading + (side === "left" ? splay : -splay),
-      },
-      { x: 0, y: 0, z: 1 },
-    );
+    return AutoMovieMotionHumanKneeBend.at(body, posture, side, heading, splay);
   }
 
+  /**
+   * Prepare the original knee hint for a fixed foot heading and moving body frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes unchanged body/side and degree heading/splay, returning fresh world hints for actual current root/yaw.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the cold knee owner's same two nested frame groups, with lazy fixed unit-step products and one guarded last-yaw rest-knee transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade connects Leg.prepareGoal to AutoMovieMotionHumanKneeBend.prepare without another formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Current root/yaw, side sign, one-metre direction and original arithmetic remain unchanged; no leg/target result is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot-heading products prepare once and inner products change only with exact current yaw; every point remains actual and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed body/rest/foot geometry proves only scalar-product reuse; changed fixed inputs require a new producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns constant private products/rest data and one last yaw until release, without current roots, FK readers, results or pose/time history.
+   */
+  export function prepareKnee(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, heading: number,
+    splay: number = 0): ReturnType<typeof AutoMovieMotionHumanKneeBend.prepare> {
+    return AutoMovieMotionHumanKneeBend.prepare(body, side, heading, splay);
+  }
+
+  /**
+   * Prepare a fixed body's trunk and side for actual solve/strain queries.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixed body/root/heading/side own one real chain and collider context; every query keeps its own world wrist, hand rotation, hint and explicit fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates fixed geometry to the original search owner and retains distinct original legality/strain and elbow-side rankings for solve and strain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The preparation adapter exposes the two existing queries over one fixed search context.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original numerical sweep/refinement, fallback, refusal and exact-zero legality rule remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One real chain/FK preparation serves all Q differently ranked queries while their actual numerical sweeps remain unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/profile/rig/ROM and rootXYZ/yaw/pitch/roll/side share geometry only. A bounded authored support-state plan may own a context only when its state proves those exact fixed inputs and supplies privately immutable coordinates; differing current wrists/rotations still run their original sweeps.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous selector or bounded authored support-state plan owns its fixed chain/collider/neutral context until release. It retains original body/fallback geometry but no query wrist, result, FK reader, pose/time history or external handle; changing fixed source requires a new context.
+   */
+  export function prepare(
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+  ): AutoMovieMotionHumanBendPreparation.IPrepared {
+    return AutoMovieMotionHumanBendPreparation.of(fixed);
+  }
+
+  /**
+   * Share genuine trunk geometry across actual sides within one person evaluation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixed body/root/yaw/pitch/roll and optional current-person FK yield lazy side solve/strain contexts; release the returned reader before this evaluation ends.
+   * @evidence contracts/development/implementation.md#principled-implementation Preparation.both supplies genuine checked trunk geometry while each requested side retains original chain preparation and every actual goal/rank/sweep/refusal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade routes actual crawl/load paired-arm consumers to the same existing search/chain numerical owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side, candidate, actual solve, contact bound or source-validation branch is skipped; no fit answer or caller result flag is accepted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed trunk FK/placement prepares once across sides; actual chains/sweeps remain and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit same-body fixed-trunk scope proves geometry only; every varying goal remains independently solved.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases the trunk source, at-most-two side contexts and optional FK loan before returning; no plan, output goal or posture may retain this reader.
+   */
+  export function prepareBoth(fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    resolution?: Parameters<typeof AutoMovieMotionHumanBendPreparation.both>[1]): ReturnType<typeof AutoMovieMotionHumanBendPreparation.both> {
+    return AutoMovieMotionHumanBendPreparation.both(fixed, resolution);
+  }
   /**
    * The elbow place of least joint strain for a hand goal.
    *
@@ -228,39 +267,10 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable wrist and a circle with no allowed place are refused with the reason; the fallback is taken only when the caller names it, and no candidate is clamped into range.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the hanging arm's angles are the body's (`IAutoMovieMotionHumanBody.hanging`).
    */
-  export function solve(
-    props: IAutoMovieMotionHumanBend.ISolve,
-  ): IAutoMovieVector3 {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-      AutoMovieMotionHumanBendSearch.search(
-        props,
-        (): ((
-          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-        ) => AutoMovieMotionHumanBendSearch.IScore) =>
-          (
-            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-          ): AutoMovieMotionHumanBendSearch.IScore => ({
-            overshoot: candidate.overshoot,
-            deviation: candidate.strain,
-          }),
-        hung,
-      );
-    if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
-    if (props.fallback !== undefined)
-      return arm(props.body, props.posture, props.side, props.fallback);
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "target",
-      value: props.side,
-      reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
-        typeof found === "string"
-          ? found
-          : "every place leaves a joint out of range or the forearm inside the body"
-      }`,
-      fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
-    });
+  export function solve(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
+    return prepare(props).solve(props);
   }
 
   /**
@@ -281,9 +291,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve` and `strain`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
-  export function level(
-    props: IAutoMovieMotionHumanBend.ISolve,
-  ): IAutoMovieVector3 {
+  export function level(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
     const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
       AutoMovieMotionHumanBendSearch.search(
         props,
@@ -302,7 +310,6 @@ export namespace AutoMovieMotionHumanBend {
               Math.abs(candidate.elbow.y - chain.shoulder.y) +
               1e-4 * Math.min(candidate.strain, 10),
           }),
-        hung,
       );
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
@@ -336,28 +343,8 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve`, so a preset and the solver are compared on one measure.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
-  export function strain(
-    props: IAutoMovieMotionHumanBend.ISolve,
-    bend: IAutoMovieVector3,
-  ): number {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-      AutoMovieMotionHumanBendSearch.search(
-        props,
-        (
-          chain: AutoMovieMotionHumanBendChain.IChain,
-        ): ((
-          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-        ) => AutoMovieMotionHumanBendSearch.IScore) =>
-          AutoMovieMotionHumanBendSearch.toward(
-            chain.shoulder,
-            props.point,
-            bend,
-          ),
-        hung,
-      );
-    return typeof found === "string" || found.overshoot !== 0
-      ? Infinity
-      : found.strain;
+  export function strain(props: IAutoMovieMotionHumanBend.ISolve, bend: IAutoMovieVector3): number {
+    return prepare(props).strain(props, bend);
   }
 
   /**
@@ -370,7 +357,7 @@ export namespace AutoMovieMotionHumanBend {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the axis, the turn's sense, the result's frame and the two cases with nothing to turn.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel angle of Tolani, Goswami and Badler 2000: the elbow's one freedom once the wrist is placed is its turn about the shoulder-to-wrist line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The foot of the elbow on the line and one rotation of the radial vector.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates original chain admission, line projection and radial rotation to AutoMovieMotionHumanBendTurn's single numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legality is not judged here: a caller reads `strain` on the result.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shoulder from the chain `solve` and `strain` prepare.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One chain preparation and constant work.
@@ -381,32 +368,7 @@ export namespace AutoMovieMotionHumanBend {
     elbow: IAutoMovieVector3,
     degrees: number,
   ): IAutoMovieVector3 {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
-    if (chain === null) return elbow;
-    const axis: IAutoMovieVector3 = Vector3.subtract(
-      props.point,
-      chain.shoulder,
-    );
-    if (!(Vector3.length(axis) > 1e-9)) return elbow;
-    const line: IAutoMovieVector3 = Vector3.normalize(axis);
-    const foot: IAutoMovieVector3 = Vector3.add(
-      chain.shoulder,
-      Vector3.scale(
-        line,
-        Vector3.dot(Vector3.subtract(elbow, chain.shoulder), line),
-      ),
-    );
-    const radial: IAutoMovieVector3 = Vector3.subtract(elbow, foot);
-    if (!(Vector3.length(radial) > 1e-9)) return elbow;
-    const angle: number = (degrees * Math.PI) / 180;
-    return Vector3.add(
-      foot,
-      Vector3.add(
-        Vector3.scale(radial, Math.cos(angle)),
-        Vector3.scale(Vector3.cross(line, radial), Math.sin(angle)),
-      ),
-    );
+    return AutoMovieMotionHumanBendTurn(props, elbow, degrees);
   }
 
   /**
@@ -426,9 +388,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the search's strain and hanging arm.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The search's.
    */
-  export function strainOf(
-    props: IAutoMovieMotionHumanHand.IStrainOfProps,
-  ):
+  export function strainOf(props: IAutoMovieMotionHumanHand.IStrainOfProps ):
     | ((
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
@@ -439,14 +399,36 @@ export namespace AutoMovieMotionHumanBend {
       props.body,
       props.side,
       props.rotation,
-      hung,
     );
   }
 
-  /** The `hang` preset's hint for an upright trunk at the origin, from which the search reads the hanging arm. */
-  const hung = (
+  /**
+   * The shoulder angles of a body's unloaded hanging arm, the angles the
+   * strain `solve` minimises is measured from: the wrist under the relaxed
+   * elbow, the elbow on the `hang` preset's side of an upright trunk at the
+   * origin (`AutoMovieMotionHumanBendSearch.hanging`). A body reads it once
+   * per side (`IAutoMovieMotionHumanBody.hanging`).
+   *
+   * @param body The body.
+   * @param side The arm.
+   * @returns The clinical angles, degrees, or null when the rig has no arm chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which preset, who keeps it and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation The search's hanging arm with this owner's `hang` hint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One hint and one search.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the search refuses nothing it could guess.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation and one sweep, run once per body and side by the body.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The body owns the result.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function hanging(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-  ): IAutoMovieVector3 =>
-    arm(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side, "hang");
+  ): IAutoMovieResolvedJointAngles | null {
+    return AutoMovieMotionHumanBendSearch.hanging(
+      body,
+      side,
+      arm(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side, "hang"),
+    );
+  }
 }

@@ -20,6 +20,7 @@ import { touch } from "../../touch/touch";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -322,14 +323,7 @@ function attempt(
   try {
     return run();
   } catch (error) {
-    out.push({
-      name,
-      times: [{ seconds: 0, label: "refused" }],
-      performers: [],
-      verdicts: [
-        { name: "planned", passed: false, detail: (error as Error).message },
-      ],
-    });
+    out.push(FamilyCaseKit.refused(name, error));
     return null;
   }
 }

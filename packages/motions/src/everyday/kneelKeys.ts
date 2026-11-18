@@ -33,12 +33,44 @@ import { hipJoints } from "../posture/hipJoints";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each key state, how its places follow from the body and the sources of the sitting flexion.
  * @evidence contracts/development/design.md#principled-representation Key states as a root and two feet, each foot a floor point, a heading, a pitch and its toes' angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the kneel's geometry; read only by the kneel law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the kneel's geometry; the kneel law and its phase preparation read the keys, the crawl laws read `tucked` and `SIT`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No world coordinate is typed; every place is read from the body's measure and its range table.
  */
 export namespace kneelKeys {
   /** Knee flexion sitting back on the heels, degrees (Acker et al. 2011; inside the range table's 150). */
   export const SIT: number = 145;
+
+  /** How far a toe joint may move between keys and still stand, metres: a staying foot differs by round-off, a step by centimetres. */
+  const STILL: number = 1e-4;
+
+  /**
+   * Whether a foot keeps its floor point from one key to the next.
+   *
+   * @param from The foot in the first key.
+   * @param to The foot in the second key.
+   * @returns Whether the toe joint stays within `STILL` of its place.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test and its tolerance.
+   * @evidence contracts/development/implementation.md#principled-implementation The Euclidean distance of the two toe joints against a tolerance between round-off and a step.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance and one comparison, shared by the foot courses and the plant windows.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is named and derived; nothing is special-cased.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function still(from: IFoot, to: IFoot): boolean {
+    return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
+  }
+
+  /** A range-table limit the kneel needs, signed degrees; throws when the table has none. */
+  function required(
+    bone: Parameters<typeof AutoMovieMotionHumanRange.limit>[0],
+    motion: Parameters<typeof AutoMovieMotionHumanRange.limit>[1],
+  ): number {
+    const end: number | null = AutoMovieMotionHumanRange.limit(bone, motion);
+    if (end === null) throw new Error(`${bone} has no ${motion} limit`);
+    return end;
+  }
 
   /**
    * A foot's place on the floor.
@@ -121,8 +153,8 @@ export namespace kneelKeys {
    * @evidence contracts/development/implementation.md#principled-implementation The toes' joint is found on the floor behind the knee where the ankle is a shank from the knee, and the foot's pitch is the one that leaves the ankle at its dorsiflexion range against the shank's slope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A foot from a distance and a pitch, a bisection for the distance and a fixed-point loop for the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges are read from the range table; past the toes' range the toes' joint rises instead of the toes overextending.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Six 40-step bisections of a closed-form ankle place.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFoot.pivot` for the ankle; callers solve a foot once and translate it with its knee.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six fixed-point pitch updates and the final placement retain all seven 40-step distance bisections. Fixed rotation/socket/toe height prepare once per pitch; each distance trial emits only its observed point instead of a discarded full foot record.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanFoot.prepareAt for each fixed-pitch ankle transform; callers solve a foot once and translate it with its knee.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tucked(
@@ -132,39 +164,56 @@ export namespace kneelKeys {
     yaw: number,
     floor: number,
   ): IFoot {
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
-    const dorsiflexion: number =
-      AutoMovieMotionHumanRange.limit(`${side}Foot`, "flexion") ?? 0;
-    const extension: number =
-      AutoMovieMotionHumanRange.limit(`${side}Toes`, "flexion") ?? 90;
+    const dorsiflexion: number = required(`${side}Foot`, "flexion");
+    const extension: number = required(`${side}Toes`, "flexion");
     const toe: number = Vector3.length(
       Vector3.subtract(
         HumanFoot.offset(body, side, "toe"),
         HumanFoot.offset(body, side, "mtp"),
       ),
     );
-    const foot = (d: number, pitch: number): IFoot => ({
-      at: {
+    const atPitch: (pitch: number) => (d: number) => IAutoMovieVector3 = (
+      pitch: number,
+    ): ((d: number) => IAutoMovieVector3) => {
+      const height: number =
+        floor +
+        toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
+      return (d: number): IAutoMovieVector3 => ({
         ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
-        y:
-          floor +
-          toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180),
-      },
+        y: height,
+      });
+    };
+    const foot: (d: number, pitch: number) => IFoot = (
+      d: number,
+      pitch: number,
+    ): IFoot => ({
+      at: atPitch(pitch)(d),
       heading: yaw,
       pitch: -pitch,
       toes: Math.min(extension, pitch),
       planted: true,
     });
-    const ankle = (at: IFoot): IAutoMovieVector3 =>
+    const ankle: (at: IFoot) => IAutoMovieVector3 = (at: IFoot): IAutoMovieVector3 =>
       HumanFoot.pivot(body, side, "mtp", at.at, at.heading, at.pitch).ankle;
-    const back = (pitch: number): number => {
+    const back: (pitch: number) => number = (pitch: number): number => {
+      const at: (d: number) => IAutoMovieVector3 = atPitch(pitch);
+      const pivot: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(
+        body,
+        side,
+        "mtp",
+        yaw,
+        -pitch,
+      );
+      // Forty halvings narrow a bracket under a metre to below a picometre,
+      // past a double's resolution of a coordinate of a metre.
       let lo: number = 0;
       let hi: number = m.shank + m.footLength;
       for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (
-          Vector3.length(Vector3.subtract(ankle(foot(mid, pitch)), kneeAt)) <
+          Vector3.length(Vector3.subtract(pivot(at(mid)).ankle, kneeAt)) <
           m.shank
         )
           lo = mid;
@@ -172,6 +221,11 @@ export namespace kneelKeys {
       }
       return (lo + hi) / 2;
     };
+    // Six substitutions of the pitch for the slope it gives the shank. The
+    // map contracts: a degree of pitch moves the ankle by the toe-joint-to-
+    // ankle lever times a radian's share, about 0.12 m / 0.43 m of the shank's
+    // slope, so each round shrinks the error to about 0.3 of the last and six
+    // rounds take a 30 degree start below 0.03 degrees.
     let pitch: number = 90 - dorsiflexion;
     for (let i: number = 0; i < 6; i++) {
       const rise: number = ankle(foot(back(pitch), pitch)).y - kneeAt.y;
@@ -184,29 +238,27 @@ export namespace kneelKeys {
   }
 
   /**
-   * A root turned about a pivot from one place to another, as the hips turn
-   * about the knees when the body sits back on its heels.
+   * A root's circular path about a pivot from one place to another, as the
+   * hips turn about the knees when the body sits back on its heels.
    *
    * @param pivot The pivot, world metres.
    * @param a The root at progress 0.
    * @param b The root at progress 1.
-   * @param u Progress in [0, 1].
-   * @returns The root.
+   * @returns The root at a progress in [0, 1].
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the turn, each input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A spherical interpolation of the two arms from the pivot, so the root keeps its distance from the knees when the arms are equally long.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two arms, their angle and one weighted sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arms closer than a millionth of a radian return the first root instead of dividing by the angle's sine.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No equivalent work exists to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the turn, each input in world metres and the progress the reader takes.
+   * @evidence contracts/development/implementation.md#principled-implementation A spherical interpolation of the two arms from the pivot, so the root keeps its distance from the knees when the arms are equally long, as the kneel's thigh-long arms are.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two arms, their angle and its sine are computed once; the reader forms one weighted sum per progress.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arms closer than a millionth of a radian return the first root instead of dividing by a vanishing sine.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per phase to prepare and two sines per reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The endpoints and pivot are fixed for a phase, so their arms and angle are shared by every reading of it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds two arm vectors, the pivot, the first root and two scalars until its plan is released.
    */
-  export function turn(
+  export function prepareTurn(
     pivot: IAutoMovieVector3,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
-    u: number,
-  ): IAutoMovieVector3 {
+  ): (u: number) => IAutoMovieVector3 {
     const from: IAutoMovieVector3 = Vector3.subtract(a, pivot);
     const to: IAutoMovieVector3 = Vector3.subtract(b, pivot);
     const angle: number = Math.acos(
@@ -218,18 +270,23 @@ export namespace kneelKeys {
         ),
       ),
     );
-    if (angle < 1e-6) return a;
-    return Vector3.add(
-      pivot,
+    if (angle < 1e-6) return (_u: number): IAutoMovieVector3 => a;
+    const sine: number = Math.sin(angle);
+    return (u: number): IAutoMovieVector3 =>
       Vector3.add(
-        Vector3.scale(from, Math.sin((1 - u) * angle) / Math.sin(angle)),
-        Vector3.scale(to, Math.sin(u * angle) / Math.sin(angle)),
-      ),
-    );
+        pivot,
+        Vector3.add(
+          Vector3.scale(from, Math.sin((1 - u) * angle) / sine),
+          Vector3.scale(to, Math.sin(u * angle) / sine),
+        ),
+      );
   }
 
   /** How far short of the hip's extension range a thigh reaching behind is kept, degrees (provisional). */
-  export const SPARE: number = 5;
+  const SPARE: number = 5;
+
+  /** The width over which `lean`'s corner at zero is rounded, degrees (provisional). */
+  const ROUND: number = 2;
 
   /**
    * The forward tilt of the pelvis that keeps the legs inside the hips'
@@ -257,12 +314,10 @@ export namespace kneelKeys {
     ankles: Record<"left" | "right", IAutoMovieVector3>,
     forward: IAutoMovieVector3,
   ): number {
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     let most: number = -Infinity;
     for (const side of ["left", "right"] as const) {
-      const range: number = -(
-        AutoMovieMotionHumanRange.limit(`${side}UpperLeg`, "extension") ?? 0
-      );
+      const range: number = -required(`${side}UpperLeg`, "extension");
       const to: IAutoMovieVector3 = Vector3.subtract(ankles[side], hips[side]);
       const length: number = Math.max(
         1e-6,
@@ -284,7 +339,9 @@ export namespace kneelKeys {
         ((line - inside) * 180) / Math.PI - (range - SPARE),
       );
     }
-    return (most + Math.sqrt(most * most + 4)) / 2;
+    // A smooth maximum with zero: (x + sqrt(x^2 + w^2)) / 2 leaves x past the
+    // corner and reaches w / 2 at it.
+    return (most + Math.sqrt(most * most + ROUND * ROUND)) / 2;
   }
 
   /**
@@ -300,8 +357,8 @@ export namespace kneelKeys {
    * @evidence contracts/development/implementation.md#principled-implementation Each place is solved from the thigh, the shank, the knee's radius and the ankle's and toes' ranges.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Standing feet, the kneeling height, the tucked feet, the sitting root, then the key list.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The knee's radius is the shank collider's, marked provisional in the namespace of the law.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two tucked feet, each six 40-step bisections of a closed-form ankle place.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The first knee's tucked foot serves every key after the step.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Solves one tucked foot for a one-knee route, two for both-knee routes, each retaining seven 40-step bisections; sitting-pivot geometry is demanded only by sitBack.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Standing placements are read once per side and the first knee's tucked foot serves every key after the step.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
@@ -310,7 +367,7 @@ export namespace kneelKeys {
     kind: "one" | "both" | "sitBack",
     k: "left" | "right",
   ): IKeys {
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const f: "left" | "right" = k === "left" ? "right" : "left";
     const yaw: number = standing.yaw;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -326,9 +383,13 @@ export namespace kneelKeys {
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
       };
     };
+    const standingFeet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+      left: flat("left"),
+      right: flat("right"),
+    };
     const stood = (side: "left" | "right"): IFoot => ({
-      at: HumanFoot.point(body, side, "mtp", flat(side)),
-      heading: HumanFoot.heading(flat(side).rotation),
+      at: HumanFoot.point(body, side, "mtp", standingFeet[side]),
+      heading: HumanFoot.heading(standingFeet[side].rotation),
       pitch: 0,
       toes: 0,
       planted: true,
@@ -337,7 +398,10 @@ export namespace kneelKeys {
       left: stood("left"),
       right: stood("right"),
     };
-    const ankleOf = (side: "left" | "right", foot: IFoot): IAutoMovieVector3 =>
+    const ankleOf: (side: "left" | "right", foot: IFoot) => IAutoMovieVector3 = (
+      side: "left" | "right",
+      foot: IFoot,
+    ): IAutoMovieVector3 =>
       HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch)
         .ankle;
 
@@ -345,13 +409,18 @@ export namespace kneelKeys {
     // hip joint a thigh above it.
     const knee: number = m.shankRadius;
     const hipY: number = knee + m.thigh;
-    const frontAnkle: IAutoMovieVector3 = flat(f).ankle;
+    const frontAnkle: IAutoMovieVector3 = standingFeet[f].ankle;
     const above: number = hipY - (frontAnkle.y + m.shank);
     const behind: number = Math.sqrt(
       Math.max(0, m.thigh * m.thigh - above * above),
     );
-    const rest = hipJoints(body, { x: 0, y: 0, z: 0 }, HumanFrame.turn(yaw));
-    const standingHips = hipJoints(body, standing.root, HumanFrame.turn(yaw));
+    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+      body,
+      { x: 0, y: 0, z: 0 },
+      HumanFrame.turn(yaw),
+    );
+    const standingHips: Record<"left" | "right", IAutoMovieVector3> =
+      hipJoints(body, standing.root, HumanFrame.turn(yaw));
     const hipK: IAutoMovieVector3 = {
       ...Vector3.add(
         standingHips[k],
@@ -370,50 +439,51 @@ export namespace kneelKeys {
       Vector3.scale(up, m.thigh),
     );
     const backFoot: IFoot = tucked(body, k, kneeK, yaw, foot0[k].at.y);
-    const secondFoot: IFoot = tucked(
-      body,
-      f,
-      { ...Vector3.add(rootKneel, rest[f]), y: knee },
-      yaw,
-      foot0[f].at.y,
-    );
 
-    // Sitting back: the thigh turns back about the knee until it flexes SIT
-    // degrees.
-    const shankDir: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankleOf(k, backFoot), kneeK),
-    );
-    const across: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(shankDir, up),
-    );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(across, shankDir),
-    );
-    const open: number = ((180 - SIT) * Math.PI) / 180;
-    const hipSit: IAutoMovieVector3 = Vector3.add(
-      kneeK,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(shankDir, Math.cos(open)),
-          Vector3.scale(normal, Math.sin(open)),
-        ),
-        m.thigh,
-      ),
-    );
-
-    const feet = (front: IFoot): IKey["feet"] =>
-      ({ [f]: front, [k]: backFoot }) as IKey["feet"];
+    const feet: (front: IFoot) => IKey["feet"] = (front: IFoot): IKey["feet"] =>
+      f === "left" ? { left: front, right: backFoot } : { left: backFoot, right: front };
     const keys: IKey[] = [
       { root: standing.root, feet: foot0 },
       { root: rootKneel, feet: feet(foot0[f]) },
       { root: rootKneel, feet: feet(foot0[f]) },
     ];
-    if (kind !== "one") keys.push({ root: rootKneel, feet: feet(secondFoot) });
-    if (kind === "sitBack")
-      keys.push({
-        root: Vector3.subtract(hipSit, rest[k]),
-        feet: feet(secondFoot),
-      });
+    if (kind !== "one") {
+      const secondFoot: IFoot = tucked(
+        body,
+        f,
+        { ...Vector3.add(rootKneel, rest[f]), y: knee },
+        yaw,
+        foot0[f].at.y,
+      );
+      keys.push({ root: rootKneel, feet: feet(secondFoot) });
+      if (kind === "sitBack") {
+        // Only sitting back turns the thigh about the knee to SIT degrees.
+        const shankDir: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(ankleOf(k, backFoot), kneeK),
+        );
+        const across: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.cross(shankDir, up),
+        );
+        const normal: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.cross(across, shankDir),
+        );
+        const open: number = ((180 - SIT) * Math.PI) / 180;
+        const hipSit: IAutoMovieVector3 = Vector3.add(
+          kneeK,
+          Vector3.scale(
+            Vector3.add(
+              Vector3.scale(shankDir, Math.cos(open)),
+              Vector3.scale(normal, Math.sin(open)),
+            ),
+            m.thigh,
+          ),
+        );
+        keys.push({
+          root: Vector3.subtract(hipSit, rest[k]),
+          feet: feet(secondFoot),
+        });
+      }
+    }
     return {
       keys,
       forward,

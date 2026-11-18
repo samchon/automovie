@@ -85,29 +85,41 @@ export namespace HumanMutual {
 
   /**
    * One person kisses another: the kisser performs `kiss` on the partner's
-   * region; the kissed turns its gaze to the kisser's face with `look`,
-   * the eyes and head meeting the approach as people do when kissed, while
-   * its body stands.
+   * region. A hand kiss presents the named hand and brings both roles to a
+   * shared point. For other regions the kissed turns its gaze with `look`.
    */
   export const kiss: IAutoMovieMotionHumanMutual<
-    Omit<IAutoMovieMotionHumanKiss.IParams, "partner">,
+    Omit<IAutoMovieMotionHumanKiss.IParams, "partner" | "handRole">,
     "kisser" | "kissed"
   > = {
     name: "kiss",
     roles: ["kisser", "kissed"],
     act: (
       role: "kisser" | "kissed",
-      params: Omit<IAutoMovieMotionHumanKiss.IParams, "partner">,
+      params: Omit<IAutoMovieMotionHumanKiss.IParams, "partner" | "handRole">,
       cast: Readonly<Record<"kisser" | "kissed", string>>,
     ): IAutoMovieMotionHumanMutual.IAct =>
-      role === "kisser"
-        ? { name: "kiss", params: { ...params, partner: cast.kissed } }
-        : {
-            name: "look",
+      params.region === "handBackLeft" || params.region === "handBackRight"
+        ? {
+            name: "kiss",
             params: {
-              target: { kind: "person", subject: cast.kisser, region: "face" },
+              ...params,
+              handRole: role === "kisser" ? "kisser" : "presenter",
+              partner: role === "kisser" ? cast.kissed : cast.kisser,
             },
-          },
+          }
+        : role === "kisser"
+          ? { name: "kiss", params: { ...params, partner: cast.kissed } }
+          : {
+              name: "look",
+              params: {
+                target: {
+                  kind: "person",
+                  subject: cast.kisser,
+                  region: "face",
+                },
+              },
+            },
   };
 
   /**

@@ -1,4 +1,9 @@
-import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedBisection,
+  minimumJerk,
+  superposeMinimumJerk,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
@@ -79,9 +84,7 @@ export namespace StrikingStroke {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function delivery(
-    d: IAutoMovieMotionHumanStrikingStroke.IDelivery,
-  ): IAutoMovieSuperposeMinimumJerk.IUnit[] {
+  export function delivery(d: IAutoMovieMotionHumanStrikingStroke.IDelivery): IAutoMovieSuperposeMinimumJerk.IUnit[] {
     const units: IAutoMovieSuperposeMinimumJerk.IUnit[] = [];
     let from: IAutoMovieVector3 = d.origin;
     let begin: number = d.launch;
@@ -95,11 +98,11 @@ export namespace StrikingStroke {
       begin = d.via.end - d.via.overlap;
     }
     const u: number = impactShare(d.speed);
-    const s: number = minimumJerk(u).s;
+    const s: number = minimumJerk.share(u);
     let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
-    const length: number = Vector3.length(Vector3.subtract(d.impact, from));
+    const length: number = Vector3.distance(d.impact, from);
     const through: IAutoMovieVector3 = Vector3.add(
       d.impact,
       Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)),
@@ -108,7 +111,7 @@ export namespace StrikingStroke {
     // over that speed; it starts that share of itself before the contact.
     if (d.peak !== undefined) {
       const fast: number =
-        (u * 1.875 * Vector3.length(Vector3.subtract(through, from))) / d.peak;
+        (u * 1.875 * Vector3.distance(through, from)) / d.peak;
       if (fast < span) {
         begin = d.contact - fast;
         span = fast;
@@ -140,18 +143,13 @@ export namespace StrikingStroke {
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units for the paths, a recoil through the optional re-chamber on two overlapping units (Flash and Hogan's via-point fit), and a causal scan for the stop when none is resolved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The recoil, the free path and the stop as closures, composed into the shown path.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a nested read during a scan sees the free path, as documented in its comment.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units per evaluation; the scan's samples are spent once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second are memoised so every evaluation order gives the same stop.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and the scan state, released with the stroke.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the original ordered units per evaluation; every original duration/normalized-time admission remains, including inactive units. Actual path readers request position only, omitting unused derivative polynomials and velocity/acceleration/state records; the unchanged scan spends its samples once and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second retain their original memo policy. Each current tracker query's readonly units are spread directly into the path's own mutable combined list, avoiding a second intermediate copy without retaining or mutating the producer's units.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and original scan state until stroke release. Current correction arrays are borrowed only while constructing operation-owned unit lists; no producer array, new time history or mutable scratch list is retained.
    */
-  export function create(
-    input: IAutoMovieMotionHumanStrikingStroke.IInput,
-  ): IAutoMovieMotionHumanStrikingStroke.IStroke {
-    const corrections = (
-      seconds: number,
-    ): IAutoMovieSuperposeMinimumJerk.IUnit[] => [
-      ...(input.tracker?.units(seconds) ?? []),
-    ];
+  export function create(input: IAutoMovieMotionHumanStrikingStroke.IInput): IAutoMovieMotionHumanStrikingStroke.IStroke {
+    const corrections: (seconds: number) => readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = (seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
+      input.tracker?.units(seconds) ?? EMPTY_UNITS;
 
     // The return from a point at a second: straight, or out through the
     // re-chamber point on two overlapping units (Flash and Hogan's via-point
@@ -198,7 +196,7 @@ export namespace StrikingStroke {
         );
         units.push(...recoil(settled, input.contact));
       }
-      return superposeMinimumJerk(input.origin, units, seconds).position;
+      return superposeMinimumJerk.position(input.origin, units, seconds);
     };
 
     // The scan advances on a fixed grid and remembers how far it has found no
@@ -245,14 +243,12 @@ export namespace StrikingStroke {
           // stays in contact once it touches.
           if (next > until + 1e-12) {
             if (gap(free(until), until) > 0) return undefined;
-            let lo: number = clear;
-            let hi: number = next;
-            for (let i: number = 0; i < 24; i++) {
-              const mid: number = (lo + hi) / 2;
-              if (mid >= until || gap(free(mid), mid) <= 0) hi = mid;
-              else lo = mid;
-            }
-            found = hi;
+            found = bracketedBisection(
+              (mid: number): boolean => mid < until && gap(free(mid), mid) > 0,
+              clear,
+              next,
+              (next - clear) / 2 ** 24,
+            );
             return found <= seconds ? found : undefined;
           }
           const g: number = gap(free(next), next);
@@ -279,9 +275,11 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const met: IAutoMovieVector3 = free(at);
-        return superposeMinimumJerk(met, recoil(met, at + DWELL), seconds)
-          .position;
+        return superposeMinimumJerk.position(met, recoil(met, at + DWELL), seconds);
       },
     };
   }
 }
+
+/** Shared absence of correction units; consumers only spread this private readonly list. */
+const EMPTY_UNITS: readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = [];

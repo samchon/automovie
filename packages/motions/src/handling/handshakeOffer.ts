@@ -1,4 +1,8 @@
-import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedBisection,
+  resolveAutoMovieMutualGoal,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -36,8 +40,8 @@ import { handshakeReach } from "./handshakeReach";
  * @evidence contracts/development/implementation.md#principled-implementation The engine's two-sphere mutual goal applied at the elbows, so the accommodation falls on the joints RULA scores lightest.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one criterion for a straightened arm shared by the plane rule and the world rule, one call of the shared rule.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Partners the arms cannot bring together are refused with the bound that failed, its measured value and the band of gaps that would plan; nothing is clamped onto an arm.
- * @evidence contracts/development/implementation.md#efficient-algorithms Closed form but for fixed-length bisections.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveAutoMovieMutualGoal` and the hand's palm socket.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Closed form but for bisections to a fixed share of their brackets (2^-50 of the turn and the lowering, 2^-40 of the upper arms' swings).
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveAutoMovieMutualGoal`, the engine's `bracketedBisection` and the hand's palm socket.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
  */
 export namespace handshakeOffer {
@@ -141,14 +145,13 @@ export namespace handshakeOffer {
         lower * Math.sin(slope - turned) -
         left;
       if (excess(0) >= 0) return 0;
-      let low: number = 0;
-      let high: number = Math.PI / 2 - slope;
-      for (let i: number = 0; i < 50; i++) {
-        const middle: number = (low + high) / 2;
-        if (excess(middle) < 0) low = middle;
-        else high = middle;
-      }
-      return high;
+      const steepest: number = Math.PI / 2 - slope;
+      return bracketedBisection(
+        (turned: number): boolean => excess(turned) < 0,
+        0,
+        steepest,
+        steepest / 2 ** 50,
+      );
     };
     // Whether the higher palm stays within reach at the bottom of the pump.
     const fits = (lowered: number): boolean => {
@@ -163,18 +166,16 @@ export namespace handshakeOffer {
         ) <= limit
       );
     };
-    let lowered: number = 0;
-    if (!fits(0)) {
-      lowered = offered;
-      if (fits(offered)) {
-        let low: number = 0;
-        for (let i: number = 0; i < 50; i++) {
-          const middle: number = (low + lowered) / 2;
-          if (fits(middle)) lowered = middle;
-          else low = middle;
-        }
-      }
-    }
+    const lowered: number = fits(0)
+      ? 0
+      : !fits(offered)
+        ? offered
+        : bracketedBisection(
+            (angle: number): boolean => !fits(angle),
+            0,
+            offered,
+            offered / 2 ** 50,
+          );
     return {
       lowered: (lowered * 180) / Math.PI,
       turn: (turn(lowered) * 180) / Math.PI,
@@ -356,13 +357,12 @@ export namespace handshakeOffer {
         elbow(b, -1, degrees),
       ];
       if (apart(raised(90)) > forearms) return far(raised(90));
-      let low: number = SHOULDER;
-      let high: number = 90;
-      for (let i: number = 0; i < 40; i++) {
-        const middle: number = (low + high) / 2;
-        if (apart(raised(middle)) > forearms) low = middle;
-        else high = middle;
-      }
+      const high: number = bracketedBisection(
+        (degrees: number): boolean => apart(raised(degrees)) > forearms,
+        SHOULDER,
+        90,
+        (90 - SHOULDER) / 2 ** 40,
+      );
       elbows = raised(high);
       angles = [high, high];
     } else {
@@ -389,14 +389,9 @@ export namespace handshakeOffer {
       ) {
         // Lowered to hanging and still overreaching, the arm is left hanging
         // and the near rule below brings both arms back together.
-        let low: number = 0;
-        let high: number = SHOULDER;
-        if (!short(high))
-          for (let i: number = 0; i < 40; i++) {
-            const middle: number = (low + high) / 2;
-            if (short(middle)) low = middle;
-            else high = middle;
-          }
+        const high: number = short(SHOULDER)
+          ? SHOULDER
+          : bracketedBisection(short, 0, SHOULDER, SHOULDER / 2 ** 40);
         elbows = lowered(high);
         angles =
           top === 0 ? [SHOULDER - high, SHOULDER] : [SHOULDER, SHOULDER - high];
@@ -422,17 +417,18 @@ export namespace handshakeOffer {
         return within(at, 0) && within(at, 1);
       };
       if (!holds(RETRACT)) return deep(back(RETRACT));
-      let low: number = 0;
-      let high: number = RETRACT;
-      for (let i: number = 0; i < 40; i++) {
-        const middle: number = (low + high) / 2;
-        if (holds(middle)) high = middle;
-        else low = middle;
-      }
+      const step: number = RETRACT / 2 ** 40;
+      const high: number = bracketedBisection(
+        (degrees: number): boolean => !holds(degrees),
+        0,
+        RETRACT,
+        step,
+      );
       elbows = back(high);
       // Brought back until they part beyond the forearms before both pump
-      // bottoms reach: the pump is missed where the elbows still met.
-      if (apart(elbows) > forearms) return deep(back(low));
+      // bottoms reach: the pump is missed where the elbows still met, one
+      // bisection step short of the bound.
+      if (apart(elbows) > forearms) return deep(back(Math.max(0, high - step)));
       met = meet(elbows);
       if (!within(met, 0) || !within(met, 1)) return deep(elbows);
     }

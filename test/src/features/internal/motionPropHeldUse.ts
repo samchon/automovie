@@ -7,10 +7,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -22,39 +19,42 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { motionPropHeldDrift } from "./motionPropHeldDrift";
 
 /**
  * The tasks with held objects on one body, which the
- * `test_human_motion_prop_held_use_*` specs read one body each: a person
- * picks a glass up and drinks from its rim, picks a phone up and holds its
- * screen to the ear (#3358, #3361, #3346). The objects are archetypes, read
- * through `HumanObject.prop`, each standing at waist height before the right
+ * `test_human_motion_prop_held_use_*` specs read: a person picks a phone up
+ * and holds its screen to the ear, and a held glass is refused what it
+ * cannot be asked (#3358, #3346). The objects are archetypes, read through
+ * `HumanObject.prop`, each standing at waist height before the right
  * shoulder, 0.6 of the arm's length ahead.
  *
- * Scenarios, the glass on every body and the rest on the average man only (a
- * pick-up for a use costs seconds to plan, and a second stature adds nothing
- * to a refusal):
- * 1. Drinking from a held glass: through the hold at the mouth the glass's
- *    rim passes within 15 mm of the mouth region (#3361's acceptance for
- *    the rim), read as the mouth's distance to the rim's circle.
- * 2. A held phone at the ear: the screen's centre lies within 15 mm of the
+ * The drink from a held glass, its rim at the mouth and its grip, is read on
+ * every body by the `test_human_motion_prop_held_attitude_*` specs, off the
+ * one film of that drink that also gives its attitude: the two readers
+ * performed the same pick-up and drink apart, each a pick-up for a use that
+ * costs seconds to plan.
+ *
+ * Scenarios, on the body (a flat device and a refusal show on one body, and
+ * a second stature adds nothing to a refusal):
+ * 1. A held phone at the ear: the screen's centre lies within 15 mm of the
  *    right ear region at `atEar`.
- * 3. In each, from the grip's closing to the end of a stand that follows
- *    the task, the object stays where it was in the hand's own frame within
- *    1 mm (the campaign's bound for a grip).
- * 4. Refused, each naming its axis: the drink with a glass that still
+ * 2. From the grip's closing to the end of a stand that follows the call,
+ *    the phone stays where it was in the hand's own frame within 1 mm (the
+ *    campaign's bound for a grip, `motionPropHeldDrift`).
+ * 3. Refused, each naming its axis: the drink with a glass that still
  *    stands on the table (`prop`: the hand does not hold it), and a held
  *    glass asked for a point it does not have (`point`, listing the glass's
  *    points).
  *
  * @param name The body.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the placement, which body reads which scenario and the 4 scenarios with their bounds and sources.
- * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame, hand and face regions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and reading per task, then the refusals, gathered as complaints and asserted once.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the placement, where the glass's drink is read and why, and the 3 scenarios with their bounds and sources.
+ * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame, hand and ear region and the thrown refusals.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and reading for the phone, then the refusals, gathered as complaints and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A task that does not plan is a complaint with the refusal's words; the bounds are the spec's own, unchanged by the split.
- * @evidence contracts/development/implementation.md#efficient-algorithms One short performance per task and refusal, the grip read every half second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One short performance for the phone, the grip read every half second, and one composition per refusal.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The grip's reading is `motionPropHeldDrift`, shared with `motionPropHeldAttitude`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPropHeldUse(name: motionHumanBody.Name): void {
@@ -95,216 +95,96 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (
-    segment: IAutoMovieMotionHumanSegment,
-    event: string,
-  ): number =>
-    segment.start +
-    (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
-      segment.plan.duration;
 
-  // A point of a prop's own space in the world at a second.
-  const world = (
-    performance: IAutoMovieMotionHumanPerformance,
-    subject: string,
-    seconds: number,
-    local: IAutoMovieVector3,
-  ): IAutoMovieVector3 => {
-    const frame: IAutoMovieRigidTransform = performance.prop(subject, seconds);
-    return Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, local),
-    );
-  };
-
-  // 3. The prop's origin in the holding hand's frame, from the grip on.
-  const drift = (
-    performance: IAutoMovieMotionHumanPerformance,
-    subject: string,
-  ): number => {
-    const from: number = instant(performance.segments("a")[0]!, "gripClosed");
-    const seat = (seconds: number): IAutoMovieVector3 => {
-      const hand: IAutoMovieResolvedBone = performance
-        .bones("a", seconds)
-        .get("rightHand")!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(
-          performance.prop(subject, seconds).position,
-          hand.worldPosition,
-        ),
-      );
-    };
-    const first: IAutoMovieVector3 = seat(from + 1e-3);
-    let worst: number = 0;
-    for (
-      let seconds: number = from + 1e-3;
-      seconds <= performance.duration;
-      seconds += 0.5
-    )
-      worst = Math.max(
-        worst,
-        Vector3.length(Vector3.subtract(seat(seconds), first)),
-      );
-    return worst;
-  };
-  const tasks: [
-    string,
-    IAutoMovieMotionHumanProp,
-    () => IAutoMovieMotionHumanChain,
-    (performance: IAutoMovieMotionHumanPerformance) => void,
-  ][] = [
-    [
-      "glass",
-      HumanObject.prop("glass", glass, stood),
-      (): IAutoMovieMotionHumanChain =>
-        HumanChain.subject("a")
-          .pickUp({
-            prop: "glass",
-            handle: "body",
-            use: { tip: "lip", line: "square", at: "mouth" },
-          })
-          .handToFace({ task: "drink", prop: "glass" })
-          .stand({ seconds: 0.5 }),
-      (performance: IAutoMovieMotionHumanPerformance): void => {
-        // 1. The rim at the mouth through the hold.
-        const drink: IAutoMovieMotionHumanSegment =
-          performance.segments("a")[1]!;
-        const reader: IAutoMovieMotionHumanSignature.IReader =
-          HumanSignature.of(performance, "a", body, 0);
-        const lip: IAutoMovieVector3 =
-          glass.affordance("lip").frame.translation;
-        const radius: number = Math.hypot(lip.x, lip.z);
-        let rim: number = 0;
-        const from: number = instant(drink, "atMouth");
-        const to: number = instant(drink, "relax");
-        for (let i: number = 0; i <= 2; i++) {
-          const seconds: number = from + ((to - from) * i) / 2;
-          const centre: IAutoMovieVector3 = world(
-            performance,
-            "glass",
-            seconds,
-            { x: 0, y: lip.y, z: 0 },
-          );
-          const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-            performance.prop("glass", seconds).rotation,
-            { x: 0, y: 1, z: 0 },
-          );
-          const mouth: IAutoMovieVector3 = Vector3.subtract(
-            HumanSignature.region(reader, "mouth", seconds),
-            centre,
-          );
-          const along: number = Vector3.dot(mouth, axis);
-          const across: number = Vector3.length(
-            Vector3.subtract(mouth, Vector3.scale(axis, along)),
-          );
-          rim = Math.max(rim, Math.hypot(across - radius, along));
-        }
-        if (!(rim <= 0.015))
-          complaints.push(
-            `${name}: the held glass's rim is ${mm(rim)} mm from the mouth at its farthest in the hold, within 15 mm expected`,
-          );
-      },
-    ],
-    [
-      "phone",
+  // 1 and 2. The phone's screen at the ear, and the phone in the hand.
+  try {
+    const performance: IAutoMovieMotionHumanPerformance = perform(
       HumanObject.prop("phone", phone, stood),
-      (): IAutoMovieMotionHumanChain =>
-        HumanChain.subject("a")
-          .pickUp({ prop: "phone", handle: "grip" })
-          .handToFace({ task: "phone", prop: "phone", seconds: 1 })
-          .stand({ seconds: 0.5 }),
-      (performance: IAutoMovieMotionHumanPerformance): void => {
-        // 2. The screen at the ear.
-        const seconds: number = instant(performance.segments("a")[1]!, "atEar");
-        const off: number = Vector3.length(
-          Vector3.subtract(
-            world(
-              performance,
-              "phone",
-              seconds,
-              phone.affordance("screen").frame.translation,
-            ),
-            HumanSignature.region(
-              HumanSignature.of(performance, "a", body, 0),
-              "earRight",
-              seconds,
-            ),
+      HumanChain.subject("a")
+        .pickUp({ prop: "phone", handle: "grip" })
+        .handToFace({ task: "phone", prop: "phone", seconds: 1 })
+        .stand({ seconds: 0.5 }),
+    );
+    const call: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
+    const seconds: number =
+      call.start +
+      (call.plan.events.find((e): boolean => e.name === "atEar")?.share ??
+        NaN) *
+        call.plan.duration;
+    const frame: IAutoMovieRigidTransform = performance.prop("phone", seconds);
+    const off: number = Vector3.length(
+      Vector3.subtract(
+        Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(
+            frame.rotation,
+            phone.affordance("screen").frame.translation,
           ),
-        );
-        if (!(off <= 0.015))
-          complaints.push(
-            `${name}: the held phone's screen is ${mm(off)} mm from the right ear at atEar, within 15 mm expected`,
-          );
-      },
-    ],
-  ];
-  // The glass on both statures; the phone on the average man, since one
-  // body shows a flat device at the ear and each pick-up costs seconds.
-  for (const [label, prop, chain, read] of tasks.filter(
-    ([label]: (typeof tasks)[number]): boolean =>
-      label === "glass" || name === "m-average",
-  ))
-    try {
-      const performance: IAutoMovieMotionHumanPerformance = perform(
-        prop,
-        chain(),
-      );
-      read(performance);
-      const moved: number = drift(performance, prop.subject);
-      if (!(moved <= 0.001))
-        complaints.push(
-          `${name}: the held ${label} moves ${mm(moved)} mm in the hand's frame, within 1 mm expected`,
-        );
-    } catch (error) {
+        ),
+        HumanSignature.region(
+          HumanSignature.of(performance, "a", body, 0),
+          "earRight",
+          seconds,
+        ),
+      ),
+    );
+    if (!(off <= 0.015))
       complaints.push(
-        `${name}: the held ${label}: expected to plan, got ${(error as Error).message}`,
+        `${name}: the held phone's screen is ${mm(off)} mm from the right ear at atEar, within 15 mm expected`,
       );
-    }
+    const moved: number = motionPropHeldDrift(performance, "phone");
+    if (!(moved <= 0.001))
+      complaints.push(
+        `${name}: the held phone moves ${mm(moved)} mm in the hand's frame, within 1 mm expected`,
+      );
+  } catch (error) {
+    complaints.push(
+      `${name}: the held phone: expected to plan, got ${(error as Error).message}`,
+    );
+  }
 
-  // 4. What a held prop cannot be asked.
-  if (name === "m-average")
-    for (const [label, chain, axis, lists] of [
-      [
-        "a drink from a glass left on the table",
-        HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .handToFace({ task: "drink", prop: "glass" }),
-        "prop",
-        null,
-      ],
-      [
-        "a point the glass lacks",
-        HumanChain.subject("a")
-          .pickUp({
-            prop: "glass",
-            handle: "body",
-            use: { tip: "lip", line: "square", at: "mouth" },
-          })
-          .handToFace({ task: "drink", prop: "glass", point: "spout" }),
-        "point",
-        "lip",
-      ],
-    ] as const) {
-      let thrown: unknown = null;
-      try {
-        perform(HumanObject.prop("glass", glass, stood), chain);
-      } catch (error) {
-        thrown = error;
-      }
-      if (
-        !(
-          thrown instanceof HumanRefusal &&
-          thrown.kind === "affordance" &&
-          thrown.axis === axis &&
-          (lists === null ||
-            (thrown.feasible?.kind === "alternatives" &&
-              thrown.feasible.values.includes(lists)))
-        )
-      )
-        complaints.push(
-          `${name}: ${label}: expected an affordance refusal on ${axis}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
-        );
+  // 3. What a held prop cannot be asked.
+  for (const [label, chain, axis, lists] of [
+    [
+      "a drink from a glass left on the table",
+      HumanChain.subject("a")
+        .stand({ seconds: 0.3 })
+        .handToFace({ task: "drink", prop: "glass" }),
+      "prop",
+      null,
+    ],
+    [
+      "a point the glass lacks",
+      HumanChain.subject("a")
+        .pickUp({
+          prop: "glass",
+          handle: "body",
+          use: { tip: "lip", line: "square", at: "mouth" },
+        })
+        .handToFace({ task: "drink", prop: "glass", point: "spout" }),
+      "point",
+      "lip",
+    ],
+  ] as const) {
+    let thrown: unknown = null;
+    try {
+      perform(HumanObject.prop("glass", glass, stood), chain);
+    } catch (error) {
+      thrown = error;
     }
+    if (
+      !(
+        thrown instanceof HumanRefusal &&
+        thrown.kind === "affordance" &&
+        thrown.axis === axis &&
+        (lists === null ||
+          (thrown.feasible?.kind === "alternatives" &&
+            thrown.feasible.values.includes(lists)))
+      )
+    )
+      complaints.push(
+        `${name}: ${label}: expected an affordance refusal on ${axis}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+      );
+  }
   TestValidator.equals(`tasks with held objects (${name})`, complaints, []);
 }

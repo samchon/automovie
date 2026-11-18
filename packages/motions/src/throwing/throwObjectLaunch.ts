@@ -31,6 +31,14 @@ export namespace throwObjectLaunch {
    * @param side The throwing hand.
    * @param release The release's share of the throw.
    * @returns The window, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window's span and the empty-handed case.
+   * @evidence contracts/development/implementation.md#principled-implementation A held object keeps its grip until the hand releases it, so the grip window runs from the throw's start to its release.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record or none.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No window is written for an empty hand.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function held(
     prop: string | undefined,
@@ -59,6 +67,14 @@ export namespace throwObjectLaunch {
    * @param attitude How it turns in flight; its release rotation kept when absent.
    * @param launch The throw's launch.
    * @returns The published launches.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is published, the attitude's absent case and the empty-handed case.
+   * @evidence contracts/development/implementation.md#principled-implementation The prop leaves with the launch's own point, velocity and instant, the state its catcher reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record or none.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is launched for an empty hand.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function launches(
     prop: string | undefined,
@@ -124,6 +140,14 @@ export namespace throwObjectLaunch {
    * @param launch The launch.
    * @param seconds Seconds after the release.
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Constant gravity along -Y without drag, the model the launch is aimed in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The launch's own path, with no fitted correction.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The flight's closed form is the engine's `projectileAt`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function path(
     launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,

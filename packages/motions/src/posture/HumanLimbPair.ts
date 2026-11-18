@@ -1,12 +1,14 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
@@ -20,13 +22,17 @@ import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanLimbFit } from "./HumanLimbFit";
+import type { HumanLimbView } from "./HumanLimbView";
+import { applyHumanLimbFit } from "./applyHumanLimbFit";
+import { compareHumanLimbPair } from "./compareHumanLimbPair";
 import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * Two arms with goals fitted as one coupled problem, symmetric in the two
  * arms by construction.
  *
- * Each arm is first fitted on its own (`HumanLimbFit.remembered`), the
+ * Each arm is first fitted on its own (`applyHumanLimbFit`), the
  * other arm only a coming wrist, so neither fit depends on the other's.
  * Arms whose fits keep clear of each other (`HumanArmClearance.overshoot`
  * against the other arm's segments alone) are done: their fits are
@@ -54,21 +60,50 @@ import { poseBones } from "./poseBones";
  */
 export namespace HumanLimbPair {
   /**
+   * Observe the returned two-arm fit during this static posture request. In
+   * analytic mode a trial that needs the general optimiser returns its direct
+   * result and reports that result's residual for the caller to reject.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the observed posture, the lifetime of the observer and the analytic-only trial behavior.
+   * @evidence contracts/development/design.md#principled-representation The callback observes the existing native evaluation, which carries the fit's geometric residuals in their original units. The flag selects whether the general optimiser can run.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The paired fitter owns this request. The caller needs one native residual report and one search policy to compare its posture trials.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both search modes report the actual evaluation through the same typed callback. The mode does not mark a failed candidate as accepted.
+   */
+  export interface Assessment {
+    /**
+     * Read the complete native model at the returned pair. Consume the
+     * evaluation during the call if a stable observation is needed.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies the evaluation passed to the receiver and its request lifetime.
+     * @evidence contracts/development/implementation.md#principled-implementation The fitter supplies the evaluation from the accepted direct or adjusted pair, the returned direct trial, or the general optimiser's result.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callback receives the already available evaluation on the selected return branch.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No residual is synthesized or replaced by a convenience success value.
+     * @evidence contracts/development/implementation.md#efficient-algorithms The fitter passes the current evaluation without another model evaluation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reading serves native branch admission and the caller's trial comparison.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fitter holds the callback only for the current request and does not attach it to the returned fit.
+     */
+    inspect(reading: Readonly<M.IEvaluation>): void;
+    /** Only certified ordinary analytic branches can win a speculative trial. */
+    analytic: boolean;
+  }
+
+  /**
    * The pose with both arms fitted.
    *
    * @param body The body.
    * @param pose The pose before the arms, its legs fitted.
    * @param goals Each arm's goal.
    * @param near Each arm's nearby fit to continue, if any.
+   * @param resolution Optional parent-owned exact reader or lazy supplier; a standalone pair creates a reader only on first actual FK demand.
    * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fits, one clearance reading per arm, then one coupled solve when they meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither arm is fitted against the other's fit; the representative is chosen from the inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two remembered fits; a coupled solve only where the arms meet.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanLimbFit`, `HumanArmClearance`, the trajectory's context, model and optimiser.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two directly solved arm fits, followed by the existing coupled optimizer only on actual overlap. Source attachment FK stays lazy, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing fit, clearance and trajectory owners. A supplied person/refit reader crosses only these synchronous calls; actual mirror/root-frame poses and changed arm descendants still invalidate scalar dependencies, and near/target/result choices remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local source FK and temporary callbacks end with this call. A borrowed reader remains with its synchronous parent, or a lazily created standalone reader ends here; no returned pose, seed, value or retained optimizer context captures the reader or supplier.
    */
   export function fitted(
     body: IAutoMovieMotionHumanBody,
@@ -77,7 +112,11 @@ export namespace HumanLimbPair {
     near: Readonly<
       Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
     > = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    assess?: Assessment,
   ): IFitted {
+    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     const mirrored: IAutoMoviePose = HumanArmMirror.mirrored({
       pose,
       others: [],
@@ -86,35 +125,21 @@ export namespace HumanLimbPair {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
-    // The inputs serialised by content, each joint under its bone's name in
-    // name order, so the mirror's exchange of the sides' names reorders
-    // nothing.
-    const key = (
-      p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-    ): string =>
-      JSON.stringify([
-        p.root,
-        [...p.joints]
-          .sort((x: IAutoMovieJointPose, y: IAutoMovieJointPose): number =>
-            x.bone < y.bone ? -1 : x.bone > y.bone ? 1 : 0,
-          )
-          .map((j: IAutoMovieJointPose) => [
-            j.bone,
-            j.flexion ?? null,
-            j.abduction ?? null,
-            j.twist ?? null,
-          ]),
-        g.left,
-        g.right,
-      ]);
-    if (key(pose, goals) <= key(mirrored, image))
-      return solved(body, pose, goals, near);
+    // Whole keys preserve every original getter/toJSON observation and key.
+    if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
+      return solved(body, pose, goals, near, readResolution, assess);
     // The image's left arm is this pose's right arm, solved alike.
-    const out: IFitted = solved(body, mirrored, image, {
-      ...(near.right === undefined ? {} : { left: near.right }),
-      ...(near.left === undefined ? {} : { right: near.left }),
-    });
+    const out: IFitted = solved(
+      body,
+      mirrored,
+      image,
+      {
+        ...(near.right === undefined ? {} : { left: near.right }),
+        ...(near.left === undefined ? {} : { right: near.left }),
+      },
+      readResolution,
+      assess,
+    );
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
       seeds: { left: out.seeds.right, right: out.seeds.left },
@@ -127,7 +152,7 @@ export namespace HumanLimbPair {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
    * @evidence contracts/development/design.md#principled-representation The pose and one seed per arm, null where the fit has none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Pose, per-arm seeds and per-arm fit values are the existing data the refit caller consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
    */
   export interface IFitted {
@@ -148,43 +173,68 @@ function solved(
   pose: IAutoMoviePose,
   goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
+  resolution: ReturnType<typeof prepareHumanPoseResolution>,
+  assess?: HumanLimbPair.Assessment,
 ): HumanLimbPair.IFitted {
-  const world = (limb: "leftArm" | "rightArm"): IAutoMovieHumanLimbGoal =>
-    HumanLimbFit.world(
-      body,
-      pose,
-      limb,
-      goals[limb === "leftArm" ? "left" : "right"],
-    );
+  let authoredBones:
+    | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+    | undefined;
+  const readAuthored: () => ReadonlyMap<
+    AutoMovieHumanoidBone,
+    IAutoMovieResolvedBone
+  > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    if (authoredBones === undefined) {
+      const requested: Set<AutoMovieHumanoidBone> = new Set();
+      if (goals.left.on !== undefined) requested.add(goals.left.on);
+      if (goals.right.on !== undefined) requested.add(goals.right.on);
+      authoredBones = poseBones(body, pose, resolution(), requested);
+    }
+    return authoredBones;
+  };
+  const world: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal> = {
+    left: HumanLimbFit.world(body, pose, "leftArm", goals.left, readAuthored),
+    right: HumanLimbFit.world(body, pose, "rightArm", goals.right, readAuthored),
+  };
+  // Both arms are fitted on this one pose, so it is admitted once for both.
+  const admission: HumanLimbView.IAdmission = { admitted: false };
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
-    left: HumanLimbFit.remembered(
+    left: applyHumanLimbFit(
       body,
       pose,
       "leftArm",
       goals.left,
       [],
-      world("rightArm").point,
+      world.right.point,
       near.left,
+      resolution,
+      admission,
     ),
-    right: HumanLimbFit.remembered(
+    right: applyHumanLimbFit(
       body,
       pose,
       "rightArm",
       goals.right,
       [],
-      world("leftArm").point,
+      world.left.point,
       near.right,
+      resolution,
+      admission,
     ),
   };
   const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {
     left: own.left.seed,
     right: own.right.seed,
   };
-  const arm = (
+  const arm: (
+    p: IAutoMoviePose,
+    side: "left" | "right",
+  ) => IAutoMovieMotionHumanArmClearance.IArm = (
     p: IAutoMoviePose,
     side: "left" | "right",
   ): IAutoMovieMotionHumanArmClearance.IArm => {
-    const read = (
+    const read: (
+      bone: AutoMovieHumanoidBone,
+    ) => readonly [number, number, number] = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {
       const j: IAutoMovieJointPose | undefined = p.joints.find(
@@ -198,11 +248,10 @@ function solved(
       hand: read(`${side}Hand`),
     };
   };
-  const fits: Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IArm> =
-    {
-      left: arm(own.left.pose, "left"),
-      right: arm(own.right.pose, "right"),
-    };
+  const fits: Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IArm> = {
+    left: arm(own.left.pose, "left"),
+    right: arm(own.right.pose, "right"),
+  };
   const both: IAutoMoviePose = HumanArmClearance.posed(
     HumanArmClearance.posed(pose, "left", fits.left),
     "right",
@@ -210,14 +259,24 @@ function solved(
   );
 
   // Each arm's forearm against the other arm's segments alone.
-  const bones = poseBones(body, both);
-  const meets = (side: "left" | "right"): boolean => {
-    const other: "left" | "right" = side === "left" ? "right" : "left";
-    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanArmClearance.obstacles(body, bones, [other]).filter(
-        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-          s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
-      );
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    both,
+    resolution(),
+    ARM_BONES,
+  );
+  const meets: (side: "left" | "right") => boolean = (
+    side: "left" | "right",
+  ): boolean => {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
+      body,
+      bones,
+      [other],
+    ).filter(
+      (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+        s.bone.startsWith(other) && /(UpperArm|LowerArm|Hand)$/.test(s.bone),
+    );
     return (
       HumanArmClearance.overshoot(
         body,
@@ -228,7 +287,8 @@ function solved(
       ) > 0
     );
   };
-  if (!meets("left") && !meets("right"))
+  const independent: boolean = !meets("left") && !meets("right");
+  if (independent && assess === undefined)
     return {
       pose: both,
       seeds,
@@ -237,10 +297,10 @@ function solved(
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
-  const site = (side: "left" | "right"): M.ISite => {
-    const goal: IAutoMovieHumanLimbGoal = world(
-      side === "left" ? "leftArm" : "rightArm",
-    );
+  const site: (side: "left" | "right") => M.ISite = (
+    side: "left" | "right",
+  ): M.ISite => {
+    const goal: IAutoMovieHumanLimbGoal = world[side];
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
     return {
       point: Vector3.add(
@@ -255,26 +315,31 @@ function solved(
       ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
     };
   };
-  const others: IAutoMovieMotionHumanColliders.IPlaced[] = (
-    ["left", "right"] as const
-  ).flatMap(
+  const others: IAutoMovieMotionHumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
     (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [
       ...(goals[side].clear ?? []),
       ...(goals[side].rests ?? []),
     ],
   );
-  const base: G.IBase = { pose, others };
-  const sides = ["right", "left"] as const;
+  const rests: IAutoMovieMotionHumanColliders.IPlaced[] = (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [...(goals[side].rests ?? [])],
+  );
+  const base: G.IBase = { pose, others, ...(rests.length === 0 ? {} : { rests }) };
+  const sides: readonly ["right", "left"] = ["right", "left"];
   const context: M.IContext = HumanArmTrajectoryContext.of({
     body,
     times: [0, 1, 2],
     bases: [base, base, base],
-    arms: sides.map((side: "left" | "right") => ({
-      side,
-      rest: arm(pose, side),
-      sites: [undefined, site(side), undefined],
-      anchor: fits[side],
-    })),
+    arms: sides.map(
+      (
+        side: "left" | "right",
+      ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
+        side,
+        rest: arm(pose, side),
+        sites: [undefined, site(side), undefined],
+        anchor: fits[side],
+      }),
+    ),
     still: true,
   });
   const start: number[][][] = sides.map(
@@ -284,10 +349,51 @@ function solved(
       [...context.back[a]!],
     ],
   );
-  const result: { x: number[][][] } = HumanArmOptimiser.optimise(
+  // The segment clearance precheck is conservative. Admission by the
+  // complete posed two-arm model is sufficient at this static instant.
+  const initial: M.IEvaluation = M.evaluate(context, start);
+  if (independent || initial.worst.value <= M.TOLERANCE) {
+    assess?.inspect(initial);
+    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+  }
+
+  // A free elbow swivel can separate a pair with both hands already on
+  // their sites. Keep one arm fixed, fit the other around its actual
+  // colliders, and require the same two-arm model before using the pose.
+  for (const side of sides) {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
+      body, both, `${side}Arm`, goals[side], [other], world[other].point,
+      own[side].seed === null ? near[side] : { ...own[side].seed, tolerance: hingedArmSwivel.RESOLUTION }, resolution,
+    );
+    const candidate: number[][][] = start.map((frames: number[][], a: number): number[][] =>
+      sides[a] === side
+        ? [frames[0]!, G.encode(context.setups[a]!, arm(fitted.pose, side)), frames[2]!]
+        : frames,
+    );
+    const checked: M.IEvaluation = M.evaluate(context, candidate);
+    if (checked.worst.value <= M.TOLERANCE) {
+      assess?.inspect(checked);
+      return {
+        pose: fitted.pose,
+        seeds: { ...seeds, [side]: fitted.seed },
+        values: { left: undefined, right: undefined },
+      };
+    }
+  }
+
+  // A speculative posture which no ordinary direct branch admits is a
+  // rejected proposal. Only the selected candidate needs the general solve.
+  if (assess?.analytic) {
+    assess.inspect(initial);
+    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+  }
+
+  const result: ReturnType<typeof HumanArmOptimiser.optimise> = HumanArmOptimiser.optimise(
     context,
     start,
   );
+  assess?.inspect(result.evaluation);
   let out: IAutoMoviePose = pose;
   sides.forEach((side: "left" | "right", a: number): void => {
     out = HumanArmClearance.posed(
@@ -298,3 +404,8 @@ function solved(
   });
   return { pose: out, seeds, values: { left: undefined, right: undefined } };
 }
+
+/** Only the two actual arm chains feed the independent-fit mutual-clearance check. */
+const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand",
+]);

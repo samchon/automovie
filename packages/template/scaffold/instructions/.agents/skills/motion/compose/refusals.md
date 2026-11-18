@@ -1,6 +1,6 @@
 # Refusals
 
-A refusal identifies an unsupported action or object before rendering. Read the installed package's README and types for the specific cause.
+The vocabulary refuses an unsupported composition when it builds the performance. Read the installed [package API](../../automovie/SKILL.md#reading-a-package) for the specific cause.
 
 ## Repairing the named axis
 
@@ -10,6 +10,6 @@ Of the feasible repairs, choose the one that realizes the beat. Keep the refusal
 
 ## When no repair holds
 
-A beat that no repair can keep asks for what a body cannot do, and returns to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
+A feasible beat outside the installed vocabulary goes through [vocabulary extension](../laws/extension.md). Return a physically infeasible beat to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
 
-A refusal whose stated change does not make the composition plan, or that names no axis, cannot be repaired in the production. Tell the user, with the composition and the refusal's text.
+Report a package defect when documented use fails or its refusal gives no repairable axis. Include the composition and refusal or observed failure. Keep the case visible for repair at the package owner and continue independent work.

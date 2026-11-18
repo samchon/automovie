@@ -17,6 +17,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -75,18 +76,7 @@ export function handToFaceCases(
           HumanChain.subject("a").act("handToFace", { task }),
         );
       } catch (error) {
-        out.push({
-          name: `hand-face-${task}${suffix}`,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(`hand-face-${task}${suffix}`, error));
         continue;
       }
       const ready: number = TouchVerdicts.event(performance, "a", "ready");

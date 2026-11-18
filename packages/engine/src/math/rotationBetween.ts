@@ -1,4 +1,7 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
@@ -24,22 +27,27 @@ import { Vector3 } from "./Vector3";
  * `|a.x| < 0.9` axis split).
  *
  * @evidence contracts/development/implementation.md#principled-implementation Normalized directions supply cross-product sine and dot-product cosine to atan2 for a shortest arc; exact collinearity selects identity or a deterministic perpendicular half-turn without an angular deadzone.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Analytic aiming and iterative world-driver paths share this primitive, giving direction scaling and antiparallel conventions one owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only exact zero sine selects collinear branches, so small representable turns remain active; zero vectors follow the declared identity convention.
- * @evidence contracts/development/common.md#meaningful-documentation States finite direction magnitudes, shortest-arc construction, zero/parallel identity, deterministic antiparallel axis and binary64 precision limits.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two normalizations, one cross/dot pair and one axis-angle conversion take constant work and storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both angle coordinates reuse the normalized directions during the call; changing the target invalidates any prior turn.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepare entries share one normalized-direction turn core, so analytic/iterative callers and repeated two-bone aims have one scaling/collinearity owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact zero sine alone selects collinearity; prepare snapshots only one normalized source and still normalizes every target through the same core, with no new threshold or fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation States finite-input premises, shortest-arc/collinear conventions and precision limits; prepare's child documents owned source snapshot, later source mutation behavior and fresh target results.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The direct path normalizes two directions; prepare normalizes its source once and omits that work/allocation per target, retaining constant cross/dot/atan2/axis-angle work and no measured speedup claim.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both angle coordinates share normalized directions; prepare additionally owns a normalized source snapshot independent of later caller edits. No target, angle, quaternion result or object-identity key is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct direction/cross/result records are call-local. One prepared closure owns one normalized vector until caller release; each target/output remains local with no global state, history or handles.
  */
-export const rotationBetween: (
+export function rotationBetween(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
-) => IAutoMovieQuaternion = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-): IAutoMovieQuaternion => {
+): IAutoMovieQuaternion {
   const from: IAutoMovieVector3 = Vector3.normalize(a);
   const to: IAutoMovieVector3 = Vector3.normalize(b);
+  return turn(from, to);
+}
+
+/** Exact normalized-direction core, shared by ordinary and fixed-source turns. */
+function turn(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieQuaternion {
   const cross: IAutoMovieVector3 = Vector3.cross(from, to);
   const sin: number = Vector3.length(cross);
   const cos: number = Vector3.dot(from, to);
@@ -55,4 +63,36 @@ export const rotationBetween: (
     cross,
     (Math.atan2(sin, cos) * 180) / Math.PI,
   );
-};
+}
+
+/**
+ * Fixed-source shortest-arc preparation for repeated target directions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates one owned normalized source snapshot from changing target directions and fresh quaternion outputs.
+ * @evidence contracts/development/design.md#principled-representation A shortest arc depends only on normalized directions; normalizing one unchanged source once preserves the direct turn's actual arithmetic and collinear convention.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface aimRotation.prepare consumes the source reader for upper and lower two-bone candidate aims; no axis, angle or target-result cache is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The direct path keeps live source normalization and the same shared turn core; prepared construction snapshots only one normalized vector and adds no deadzone or alternate fallback.
+ */
+export namespace rotationBetween {
+  /**
+   * Normalize and own one source direction, then compute every requested
+   * target's shortest arc through the direct function's same core. The
+   * caller supplies finite vectors as in the direct entry; named finite
+   * refusal belongs to aimRotation. Changing the original source afterward
+   * does not alter this explicit snapshot. Zero/parallel/antiparallel inputs
+   * retain the direct identity/perpendicular convention.
+   *
+   * The direct normalization is target-independent, so its completed vector
+   * serves the same cross/dot/atan2 and axis-angle core for every separately
+   * normalized target. Setup and each query use constant work; one closure
+   * owns the source vector until caller release. No prior target, angle or
+   * quaternion is retained, and direct calls keep live source normalization.
+   */
+  export function prepare(
+    source: IAutoMovieVector3,
+  ): (target: IAutoMovieVector3) => IAutoMovieQuaternion {
+    const from: IAutoMovieVector3 = Vector3.normalize(source);
+    return (target: IAutoMovieVector3): IAutoMovieQuaternion =>
+      turn(from, Vector3.normalize(target));
+  }
+}

@@ -10,12 +10,13 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { floorEntry } from "./floorEntry";
+import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its
@@ -76,10 +77,10 @@ export namespace crawlFrame {
    * @returns Each wrist from its palm, metres in the heading's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's own palm target and goal place the wrist, so the hand's thickness and the palm's offset are the body's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target and one goal per side.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand owner's identical rigid palm alignment and wrist placement supply only the datum being measured, with the same downward palm normal and forward direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid hand placement per side, without constructing an unused elbow hint or arm goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The palm is laid at the origin facing up, so the offset is the hand's alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two goals, once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two constant-cost rigid hand placements once per plan; the unused default elbow-strain searches are not demanded by a wrist-offset reading.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers keep the result for the plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -91,16 +92,16 @@ export namespace crawlFrame {
     const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
-        AutoMovieMotionHumanArm.goal(
+        HumanHand.reach(
           body,
           side,
-          AutoMovieMotionHumanTarget.hand(
-            body,
-            standing,
-            side,
-            { point: { x: 0, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
-            { surface: "palm", shape: "flat", forward },
-          ),
+          "palm",
+          {
+            point: { x: 0, y: 0, z: 0 },
+            normal: Vector3.scale(Vector3.normalize({ x: 0, y: 1, z: 0 }), -1),
+            forward,
+          },
+          "flat",
         ).point,
       );
     return { left: wrist("left"), right: wrist("right") };
@@ -155,6 +156,49 @@ export namespace crawlFrame {
   }
 
   /**
+   * Prepare the two flat-palm target frames for one crawl plan. Only their
+   * floor points and the current trunk change; each arm's original default
+   * elbow solve still runs on that posture and point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States explicit fixed palm geometry and unchanged elbow searches. Callers must keep current root/trunk/forward unchanged across their same-call palm callbacks; the generic laid facade retains its original callback/read sequence instead of opting into this contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same flat-palm/upward-floor-normal/explicit-forward geometry to prepareCrawlPalms, which shares each actual wrist between its native default bend and final contact-goal owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared two-palm owner preserves ordered left/right writes while keeping surface geometry, actual bend solving and goal assembly with their original owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not substitute a bend preset or cache a pose, elbow solution or time query; each actual target still executes its default bend policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed orientation/offset/contact geometry and flat shapes share across a plan; each current wrist is placed once for its actual bend and contact goal, with both original numerical bend searches retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit caller holds body/hand surfaces, flat shape, floor normal and forward fixed for the reader and preserves current trunk scalars across its two palm callbacks. Actual native crawl callers satisfy this source contract; generic callbacks use laid's unprepared original sequence.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers until release and borrows the module's two immutable flat shape maps; neither the readers nor those constants retain an evaluated posture, FK workspace or query history.
+   */
+  export function prepareLaid(
+    body: IAutoMovieMotionHumanBody,
+    forward: IAutoMovieVector3,
+  ): ReturnType<typeof prepareCrawlPalms> {
+    return prepareCrawlPalms(body, forward, FLAT);
+  }
+
+  /**
+   * Write the crawl's flat fingers without constructing palm goals. This
+   * serves descent phases whose joint-space arm writer replaces both goals
+   * immediately, while retaining the laid posture's finger fallback.
+   *
+   * @param posture The current kneeling posture with its leg goals.
+   * @returns A new posture and joint map, with all other fields preserved.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unused-goal consumer, retained finger fallback and new output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Writes the same ordered left/right flat shape maps that prepareLaid writes; joint-space descent arms then apply their original held-finger fallback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint-map merge exposes the finger shaping separately from the independently demanded palm targets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No actual contact goal or fitted arm is replaced: callers use this only where both original palm goals were overwritten before resolution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies J current joints plus the thirty fixed digit entries; no unused default elbow search or target goal is constructed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same two immutable side-only flat maps as the laid-palm owner, while current posture joints and returned maps remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No state is retained by a call; its returned posture owns a fresh joint map and borrows only immutable angle tuples.
+   */
+  export function flatHands(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
+    return {
+      ...posture,
+      joints: { ...posture.joints, ...FLAT.left, ...FLAT.right },
+    };
+  }
+
+  /**
    * A posture with both arms written by their joints, carried in joint space
    * from held angles toward others by a share, each hand shaped flat with
    * them (`HumanHand.shape`), and the arms' goals removed.
@@ -170,9 +214,9 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the arm is blended between two sets of angles (`blendHumanJoint`), never re-solved toward a goal that moves.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three blended joints and the fingers per arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers start from the held ones, or the posture's where the arm holds none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy O(B) rig index serves the six interior joint blends for B rig bones, with each actual interpolation's existing cost; endpoint shares allocate no metadata reader, and fixed flat shapes/key lists are not rebuilt.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous blendHumanJoint metadata owner serves the six actual arm joints, and the two side-only flat shapes/key lists are shared constants; current endpoints and posture fingers remain per-query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous joint-metadata reader ends on return or throw; two side-only immutable flat shape maps and key lists are bounded module constants, and no current posture or blended result is retained.
    */
   export function armed(
     body: IAutoMovieMotionHumanBody,
@@ -181,10 +225,68 @@ export namespace crawlFrame {
     toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
   ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...posture.joints,
-    };
+    return writeArms(body, posture, held, toward, share);
+  }
+
+  /**
+   * Prepare the descent's fixed arm-angle endpoints. Body/angles remain
+   * unchanged while the current trunk, finger fallbacks and share vary.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/arm endpoints and changing current posture, finger fallback and progress.
+   * @evidence contracts/development/implementation.md#principled-implementation The same writeArms owner applies each joint's blendHumanJoint.between rule and the original flat-finger interpolation, then removes the two arm goals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Six fixed joint readers precede one current-posture writer shared with armed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Between retains original endpoint tuples, clipping, NaN and ROM rules; each current finger fallback is read from the supplied posture and no elbow solution or evaluated pose is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each joint's fixed quaternion/chart prerequisites are prepared lazily once instead of per query; every read retains six current interpolations/readbacks plus the existing ordered finger maps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning descent keeps body and the held/target clinical tuples unchanged. Only their six bounded numerical preparations persist; current posture fields, fallback fingers and outputs remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns six bounded between readers until release, with no retained queried share, blended posture, current FK map or solver workspace.
+   */
+  export function prepareArmed(
+    body: IAutoMovieMotionHumanBody,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+  ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
+    const arm: (side: "left" | "right") => IArmReaders["left"] = (
+      side: "left" | "right",
+    ): IArmReaders["left"] => ({
+      upper: blendHumanJoint.between(
+        body,
+        `${side}UpperArm`,
+        held[side].upper,
+        toward[side].upper,
+      ),
+      lower: blendHumanJoint.between(
+        body,
+        `${side}LowerArm`,
+        held[side].lower,
+        toward[side].lower,
+      ),
+      hand: blendHumanJoint.between(
+        body,
+        `${side}Hand`,
+        held[side].hand,
+        toward[side].hand,
+      ),
+    });
+    const readers: IArmReaders = { left: arm("left"), right: arm("right") };
+    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
+      writeArms(body, posture, held, toward, share, readers);
+  }
+
+  /** Fixed clinical pairs use their numerical owner; changing pairs share one synchronous metadata pass. */
+  function writeArms(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    share: number,
+    prepared?: IArmReaders,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+      prepared !== undefined || share <= 0 || share >= 1
+        ? undefined
+        : blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
       const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
       const to: IAutoMovieMotionHumanArmAngles.IAngles = toward[side];
@@ -192,23 +294,31 @@ export namespace crawlFrame {
         [`${side}UpperArm`, "upper"],
         [`${side}LowerArm`, "lower"],
         [`${side}Hand`, "hand"],
-      ] as const)
-        joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
-      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-        side,
-        "flat",
-      );
+      ] as const) {
+        if (prepared !== undefined) {
+          joints[bone] = prepared[side][key](share);
+          continue;
+        }
+        joints[bone] =
+          share <= 0
+            ? from[key]
+            : share >= 1
+              ? to[key]
+              : blend!(bone, from[key], to[key], share);
+      }
+      const flat: IAutoMovieMotionHumanPosture["joints"] = FLAT[side];
       const was: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
+      for (const bone of FLAT_BONES[side]) {
         const held: readonly [number, number, number] | undefined =
           from.fingers?.[bone] ?? posture.joints[bone];
         if (held !== undefined) was[bone] = held;
       }
-      Object.assign(joints, floorEntry.blended(was, flat, share));
+      Object.assign(joints, prepareHumanShapeBlend(was, flat)(share));
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };
   }
+
   /**
    * The body tilted forward by a pitch at a share of the way down, its
    * pelvis turned about the spine's axis and the spine and the chest
@@ -336,4 +446,27 @@ export namespace crawlFrame {
     );
     return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
   }
+
+  /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
+  const FLAT: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {
+    left: HumanHand.shape("left", "flat"),
+    right: HumanHand.shape("right", "flat"),
+  };
+
+  /** The same deterministic digit order is used when reading held finger endpoints. */
+  const FLAT_BONES: Readonly<
+    Record<"left" | "right", readonly AutoMovieHumanoidBone[]>
+  > = {
+    left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[],
+    right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[],
+  };
+
+  /** Six arm-joint fixed-endpoint readers owned by one descent plan. */
+  type IArmReaders = Record<
+    "left" | "right",
+    Record<
+      "upper" | "lower" | "hand",
+      ReturnType<typeof blendHumanJoint.between>
+    >
+  >;
 }

@@ -1,8 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -22,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -29,6 +31,7 @@ import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
+import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
@@ -58,6 +61,11 @@ import { handshake } from "./handshake";
  *
  * Events: `gripClosed` when the fingers close on the prop, `taken` at the
  * end. The hand grips the prop from `gripClosed` and holds it afterwards.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the transport and grip, the carrying place, the seated lean, the outcomes and the events.
+ * @evidence contracts/development/design.md#principled-representation The receiver's half of one shared handover plan, read from the partners' one meeting record.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the carrying forearm's pitches and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip is the prop's own affordance where the shared plan puts the offer; no prop or partner is named.
  */
 export namespace receive {
   /** The action's name. */
@@ -66,9 +74,9 @@ export namespace receive {
   /** Cancel table: once taken the prop is held. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
-    walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
   };
 
   /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
@@ -79,6 +87,14 @@ export namespace receive {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law defines giver/receiver hands, prop and shared timing, actual reached grip attitude, decline/transfer behavior, fingers and contacts; this method returns the complete receiver course.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and constrained grasp/transfer plan, original reaching/take-away transports and actual upright-turn fitting, with the grasp's own reference held through contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede digit schedules and the original current raw body/task assembler; every pitch/yaw query runs its own actual complete fit.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original decline/withdraw/transfer branches, grip/release events, source grip attitude, reference weights, all nine actual yaw fits and bounds remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet, entry reads request giver hand and receiver hips/feet/hand. Every original carry-place pitch reads its actual shoulder and every yaw re-runs its raw body/path/digit callback and complete fit. Only canonical metadata and explicitly owned digit arithmetic are prepared; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed body/posture graphs never establish a fixed direct base, shoulder or per-time request. Every pitch/yaw uses current source and original full solves; scalar course interpolation and current request/tip formulas retain their owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains original base/transports/digits, selected grip/reference and scalar course. Planning maps and actual fit scratch release synchronously, without fixed-source base/frame readers, queried-time pose history or external handles.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanReceive.IParams>,
@@ -89,9 +105,7 @@ export namespace receive {
     const giver: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.from,
     );
-    const prop: IAutoMovieMotionHumanPropReader = context.prop(
-      context.params.prop,
-    );
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(context.params.prop);
     const giverSide: AutoMovieHumanSide = context.params.giverHand ?? "right";
     // The place both partners read from one meeting record.
     const met: IAutoMovieMotionMeeting = context.meeting(
@@ -111,12 +125,14 @@ export namespace receive {
       giver: {
         body: giver.body,
         side: giverSide,
-        bones: giver.bones(context.start),
+        bones: giver.bones(context.start, new Set<AutoMovieHumanoidBone>([`${giverSide}Hand`])),
       },
       receiver: {
         body,
         side,
-        bones: context.performer(context.subject).bones(context.start),
+        bones: context.performer(context.subject).bones(context.start, new Set<AutoMovieHumanoidBone>([
+          "hips", "leftFoot", "rightFoot", `${side}Hand`,
+        ])),
       },
       prop: prop.prop,
       frame: prop.frame(context.start),
@@ -140,10 +156,7 @@ export namespace receive {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: {
-      share: number;
-      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
-    } =
+    const lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[]; } =
       shared.outcome === "decline"
         ? { share: 0, joints: [] }
         : HumanSeatedReach.need(
@@ -154,8 +167,7 @@ export namespace receive {
               posture: held,
               bones: entered,
               seated: context.entry.supports.some(
-                (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-                  s.kind === "seat",
+                (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
               ),
             },
             shoulder,
@@ -170,15 +182,14 @@ export namespace receive {
       Vector3.scale(shared.target.approach, setback),
     );
     const arrive: IAutoMovieVector3 = takes ? shared.receiverAt.point : short;
-    const out: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        shared.receiverFrom.point,
-        arrive,
-        shared.target.approach,
-        takes ? setback : 0,
-        { from: shared.receiverFrom.rotation, to: shared.receiverAt.rotation },
-        shared.reach,
-      );
+    const out: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
+      shared.receiverFrom.point,
+      arrive,
+      shared.target.approach,
+      takes ? setback : 0,
+      { from: shared.receiverFrom.rotation, to: shared.receiverAt.rotation },
+      shared.reach,
+    );
 
     // After the transfer: the carrying place in front of the body, or home.
     // The forearm is raised as far of `PITCHES` as the arm needs to hold the
@@ -190,31 +201,25 @@ export namespace receive {
       held,
       side,
     );
-    let carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
+    let carry: IAutoMovieVector3 = shared.receiverFrom.point;
     if (takes) {
+      const carryAt: (pitch?: number) => IAutoMovieVector3 = (pitch: number = 0): IAutoMovieVector3 =>
+        HumanHandover.carried(body, held, side, pitch);
+      carry = carryAt();
+      const tipped: (goal: IAutoMovieHumanLimbGoal) => number = (goal: IAutoMovieHumanLimbGoal): number =>
+        HumanHandover.tipped(body, side, { ...held, limbs: { ...held.limbs, [`${side}Arm`]: goal } });
       let least: number = Infinity;
       for (const pitch of PITCHES) {
-        const place: IAutoMovieVector3 = HumanHandover.carried(
-          body,
-          held,
-          side,
-          pitch,
-        );
+        const place: IAutoMovieVector3 = carryAt(pitch);
         for (const yaw of HumanHandover.YAWS) {
           const tip: number =
-            HumanHandover.tipped(body, side, {
-              ...held,
-              limbs: {
-                ...held.limbs,
-                [side === "left" ? "leftArm" : "rightArm"]: {
-                  point: place,
-                  rotation: Quaternion.multiply(
-                    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-                    shared.receiverShown.rotation,
-                  ),
-                  bend,
-                },
-              },
+            tipped({
+              point: place,
+              rotation: Quaternion.multiply(
+                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+                shared.receiverShown.rotation,
+              ),
+              bend,
             }) +
             0.1 * pitch;
           if (tip < least - 1e-9) {
@@ -231,22 +236,21 @@ export namespace receive {
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
 
-    const home: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        arrive,
-        end,
-        { x: 0, y: 0, z: 0 },
-        0,
-        {
-          from: takes
-            ? shared.receiverShown.rotation
-            : shared.receiverAt.rotation,
-          to: takes
-            ? shared.receiverShown.rotation
-            : shared.receiverFrom.rotation,
-        },
-        back,
-      );
+    const home: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
+      arrive,
+      end,
+      { x: 0, y: 0, z: 0 },
+      0,
+      {
+        from: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverAt.rotation,
+        to: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverFrom.rotation,
+      },
+      back,
+    );
     const leave: number = takes ? shared.release : shared.gripClosed;
     const duration: number =
       shared.outcome === "decline" ? shared.release : leave + back;
@@ -267,22 +271,23 @@ export namespace receive {
       shared.target.width,
     ).joints;
     const peak: number = HumanPrehension.peak(context.random("peak"));
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open,
       closed,
     };
-    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> | undefined = takes
+      ? undefined : HumanPrehension.prepareShape({ entry: open, open: shapes.entry, closed: shapes.entry }, 1);
+
     // The body at a second with the carried hand turned by a yaw, degrees,
     // about the world's up: a hand that took the prop keeps the rotation it
     // showed at the grip, not the one it was asked there, since the prop sits
     // in the hand as the hand was shown, and its upright carry leaves only
     // the turn about the vertical, which the take-away chooses
-    // (`HumanHandover.upright`).
-    const pose = (
-      seconds: number,
-      yaw: number,
-    ): IAutoMovieMotionHumanPosture => {
+    // (`HumanHandoverUpright`). Each original yaw callback re-reads its raw
+    // transport, digits, direct body and complete other goals.
+    const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (seconds: number): HumanHandoverUpright.IFrame => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
@@ -295,79 +300,66 @@ export namespace receive {
       } else if (t <= shared.gripClosed) {
         wrist = out.wrist(t - shared.reachStart);
         rotation = out.turn(t - shared.reachStart);
-        digits = HumanPrehension.shape(
-          shapes,
-          peak,
-          (t - shared.reachStart) / shared.reach,
-        );
-        share = minimumJerk((t - shared.reachStart) / shared.reach).s;
+        digits = shapeAt((t - shared.reachStart) / shared.reach);
+        share = minimumJerk.share((t - shared.reachStart) / shared.reach);
       } else if (t <= leave) {
         wrist = arrive;
         rotation = shared.receiverAt.rotation;
         digits = closed;
         share = 1;
       } else {
-        share = 1 - Math.min(1, minimumJerk((t - leave) / back).s);
+        share = 1 - Math.min(1, minimumJerk.share((t - leave) / back));
         wrist = home.wrist(t - leave);
         rotation = takes
-          ? Quaternion.multiply(
-              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-              shared.receiverShown.rotation,
-            )
+          ? shared.receiverShown.rotation
           : home.turn(t - leave);
         digits = takes
           ? closed
-          : HumanPrehension.shape(
-              { entry: open, open: shapes.entry, closed: shapes.entry },
-              1,
-              minimumJerk((t - leave) / back).s,
-            );
+          : returnShape!(minimumJerk.share((t - leave) / back));
       }
       const base: IAutoMovieMotionHumanPosture = leaned(share);
       return {
-        ...base,
-        joints: { ...base.joints, ...digits },
-        limbs: {
-          ...base.limbs,
-          [limb]: {
-            point: wrist,
-            rotation,
-            bend,
-            // The grasp's own arm solution anchors the hold, the reach
-            // more and more as it arrives, and the take-away less and
-            // less as it leaves: at the carrying place the arm is another
-            // arm, and a full reference there is paid for by the hand's
-            // rotation, which tips what it carries.
-            ...(takes && t > leave
-              ? {
-                  reference: {
-                    ...shared.receiverReference,
-                    // The share is held at 1 first: at the take-away's end it
-                    // rounds a hair past 1, and its complement below 0.
-                    weight: 1 - Math.min(1, minimumJerk((t - leave) / back).s),
-                  },
-                }
-              : takes && t >= shared.gripClosed
-                ? { reference: shared.receiverReference }
-                : takes && t > shared.reachStart
-                  ? {
-                      reference: {
-                        ...shared.receiverReference,
-                        weight: minimumJerk(
-                          (t - shared.reachStart) / shared.reach,
-                        ).s,
-                      },
-                    }
-                  : {}),
-            ...(takes && t >= shared.gripClosed && t <= leave
-              ? { planted: true }
-              : {}),
-          },
+        posture: { ...base, joints: { ...base.joints, ...digits } },
+        goal: {
+          point: wrist,
+          bend,
+          // The grasp's own arm solution anchors the hold, the reach
+          // more and more as it arrives, and the take-away less and
+          // less as it leaves: at the carrying place the arm is another
+          // arm, and a full reference there is paid for by the hand's
+          // rotation, which tips what it carries.
+          ...(takes && t > leave
+            ? {
+                reference: {
+                  ...shared.receiverReference,
+                  // The share is held at 1 first: at the take-away's end it
+                  // rounds a hair past 1, and its complement below 0.
+                  weight: share,
+                },
+              }
+            : takes && t >= shared.gripClosed
+              ? { reference: shared.receiverReference }
+              : takes && t > shared.reachStart
+                ? {
+                    reference: {
+                      ...shared.receiverReference,
+                      weight: share,
+                    },
+                  }
+                : {}),
+          ...(takes && t >= shared.gripClosed && t <= leave
+            ? { planted: true }
+            : {}),
         },
+        rotation: (yaw: number): IAutoMovieQuaternion => takes && t > leave
+          ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)
+          : rotation,
       };
     };
     const turn: (seconds: number) => number = takes
-      ? HumanHandover.upright(body, side, pose, leave, duration, [0, undefined])
+      ? HumanHandover.upright(body, side,
+          (seconds: number, yaw: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
+          leave, duration, [0, undefined])
       : (): number => 0;
 
     const part: IAutoMovieMotionHumanContactWindow["part"] =
@@ -425,8 +417,7 @@ export namespace receive {
         : {}),
       hands: [side],
       contact: shared.gripClosed,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-        pose(seconds, turn(seconds)),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
     };
   }
 }

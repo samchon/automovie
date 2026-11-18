@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated";
 
 /**
@@ -60,6 +61,15 @@ export namespace IAutoMovieMotionHumanSit {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
+    /**
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
+     */
+    balance?: IAutoMovieMotionHumanBalance;
+
     /** The seat. */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 

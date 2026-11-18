@@ -22,7 +22,7 @@ Write the complete [screenplay](../layers/screenplay.md). Repair brief decisions
 
 ### 4. Programmed film draft
 
-Skip this step for a screenplay-only commission. For a whole motion hint, direct 3D film or generated film, [program the performance](../../motion/performance.md#order) from the screenplay.
+Skip this step for a screenplay-only commission. For a whole motion hint, direct 3D film or generated film, [program the performance](../../motion/performance.md) from the screenplay.
 
 Judge the film on captured stills, and repair each cause where it lies, in the screenplay, the brief or the code, until the film reads as intended.
 

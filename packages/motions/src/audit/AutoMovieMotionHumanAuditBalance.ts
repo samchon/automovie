@@ -1,14 +1,13 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
@@ -29,7 +28,8 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * Winter's definition). A person whose extrapolated centre leaves that hull must
  * step or fall, so a motion that keeps both feet planted while it lies
  * outside shows a body no one could hold. While a part other than a foot
- * bears on the ground (a `bear` window: a knee, a shin, a palm), the base is
+ * bears on the ground (a `bear` window, a knee or a shin, or the `plant` of a
+ * palm laid on the floor), the base is
  * the planted feet's outlines and those parts' contact points
  * (`AutoMovieMotionHumanAuditStatics.point`), and the instant is read when
  * every open window bears on the ground through the hold (#3425). An instant where a hand grips, a
@@ -40,19 +40,38 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * the body (the seat a person lowers onto): that body is taking the step
  * Hof et al.'s condition demands, and in steady walking the extrapolated
  * centre does lie ahead of the leading foot through the double support
- * (Hof 2008, Hum Mov Sci 27:112).
+ * (Hof 2008, Hum Mov Sci 27:112). An instant is read only inside an action
+ * whose balance is its content (`HumanPhysics.judged`: a staged physical
+ * outcome, or physics its caller asked for); a posed action on planted
+ * feet computes no balance and is not judged by it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the measure with its source, its pendulum length, the support hull and which instants are read.
  * @evidence contracts/development/implementation.md#principled-implementation Hof et al.'s extrapolated centre of mass through the engine's owners of the centre, the extrapolation and the hull margin.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one measure of an instant, one walk of the grid.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones; an instant is skipped only by the declared contacts, never by its margin.
- * @evidence contracts/development/implementation.md#efficient-algorithms A whole motion reads only its grid's poses, each instant's velocity from its two neighbours; the mass model is built once per call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A whole motion reads only its grid's poses, each instant's velocity from its two neighbours; the mass model is the body's own (`body.massModel`), built once with the body.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditBalance {
   /** Half the span of the velocity's central difference when one instant is read alone, seconds. */
   export const STEP: number = 1 / 240;
+
+  /** One action's candidate interval as indices into the original film grid. */
+  interface ISampledInterval {
+    span: HumanPhysics.ISpan;
+    from: number;
+    to: number;
+  }
+
+  /** Displayed bones and the mass centre, computed at most once on the stencil. */
+  interface IStencilSample {
+    bones: Bones;
+    centre?: IAutoMovieVector3;
+  }
+
+  /** Read or allocate the one sample shared by overlapping stencils. */
+  type StencilAt = (seconds: number, bones?: Bones) => IStencilSample;
 
   /**
    * How far the extrapolated centre of mass leaves the feet's hull over the
@@ -70,39 +89,97 @@ export namespace AutoMovieMotionHumanAuditBalance {
     body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
-    const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      HumanAuditMotion.windows(motion, subject);
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     let worst: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
       seconds: 0,
       where: "none",
     };
-    const hold: number =
-      1 /
-      resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-      );
-    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
-    for (let i: number = 0; i < times.length; i++) {
-      const t: number = times[i]!;
+    // Select the plans that can ask for a balance judgement before reading
+    // any support geometry or mass data.
+    const spans: readonly HumanPhysics.ISpan[] = motion.segments(subject);
+    const candidates: ISampledInterval[] = [];
+    let times: HumanAuditMotion.IGrid | undefined;
+    for (const span of spans)
+      for (const interval of HumanPhysics.intervals(span)) {
+        times ??= HumanAuditMotion.lattice(0, motion.duration, rate);
+        // Preserve the exact action-clock comparison at an endpoint even
+        // when reversing the offset rounds onto the adjacent grid tick.
+        const from: number = Math.max(0, locate(times, interval.from, false) - 1);
+        const to: number = Math.min(times.length - 1, locate(times, interval.to, true));
+        if (from <= to) candidates.push({ span, from, to });
+      }
+    if (times === undefined || candidates.length === 0) return worst;
+    candidates.sort((a: ISampledInterval, b: ISampledInterval): number => a.from - b.from);
+    let windows: IAutoMovieMotionHumanAuditMotion.IWindow[] | undefined;
+    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
+    let hold: number | undefined;
+    const samples: Map<number, IStencilSample> = new Map();
+    const sampleAt: StencilAt = (seconds: number, bones?: Bones): IStencilSample => {
+      const known: IStencilSample | undefined = samples.get(seconds);
+      if (known !== undefined) return known;
+      const sample: IStencilSample = { bones: bones ?? motion.bones(subject, seconds) };
+      samples.set(seconds, sample);
+      return sample;
+    };
+    const centreAt: CentreAt = (seconds: number, bones?: Bones): IAutoMovieVector3 => {
+      const sample: IStencilSample = sampleAt(seconds, bones);
+      sample.centre ??= resolveAutoMovieCenterOfMass.place(model ??= body.massModel, sample.bones);
+      return sample.centre;
+    };
+    const active: ISampledInterval[] = [];
+    let next: number = 0;
+    for (let i: number = candidates[0]!.from; i < times.length; ++i) {
+      for (let j: number = active.length - 1; j >= 0; --j)
+        if (active[j]!.to < i) active.splice(j, 1);
+      if (active.length === 0) {
+        if (next === candidates.length) break;
+        i = Math.max(i, candidates[next]!.from);
+      }
+      while (next < candidates.length && candidates[next]!.from <= i)
+        active.push(candidates[next++]!);
+      const t: number = times.at(i);
+      if (!active.some(({ span }: ISampledInterval): boolean =>
+        span.entryTime <= t && t <= span.end && HumanPhysics.judged(span, t),
+      )) continue;
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
+      windows ??= HumanAuditMotion.windows(motion, subject);
+      hold ??= 1 / resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      );
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
-      const value: number = -margin(
-        motion,
-        subject,
+      const before: number = times.at(Math.max(0, i - 1));
+      const after: number = times.at(Math.min(times.length - 1, i + 1));
+
+      // The three-point stencil advances monotonically. A mass centre can
+      // serve later stencils only while its time remains in this span.
+      for (const known of samples.keys()) if (known < before) samples.delete(known);
+      const value: number = -marginAt(
         body,
-        model,
+        windows,
+        sampleAt(t).bones,
+        centreAt,
         t,
-        times[Math.max(0, i - 1)]!,
-        times[Math.min(times.length - 1, i + 1)]!,
+        before,
+        after,
       );
       if (value > worst.value)
         worst = { value, seconds: t, where: "both feet" };
     }
     return worst;
+  }
+
+  /** Locate the first sample at (or strictly after) a second on the film grid. */
+  function locate(times: HumanAuditMotion.IGrid, seconds: number, strict: boolean): number {
+    let from: number = 0;
+    let to: number = times.length;
+    while (from < to) {
+      const middle: number = from + Math.floor((to - from) / 2);
+      const at: number = times.at(middle);
+      if (at < seconds || (strict && at === seconds)) from = middle + 1;
+      else to = middle;
+    }
+    return from;
   }
 
   /**
@@ -126,14 +203,34 @@ export namespace AutoMovieMotionHumanAuditBalance {
     before: number = Math.max(0, seconds - STEP),
     after: number = Math.min(motion.duration, seconds + STEP),
   ): number {
-    const com = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
+    return marginAt(
+      body,
+      HumanAuditMotion.windows(motion, subject),
+      motion.bones(subject, seconds),
+      (at: number, bones?: Bones): IAutoMovieVector3 =>
+        resolveAutoMovieCenterOfMass.place(model, bones ?? motion.bones(subject, at)),
+      seconds,
+      before,
+      after,
+    );
+  }
 
+  /** Read the support and three-point Hof margin on the current bone frames. */
+  function marginAt(
+    body: IAutoMovieMotionHumanBody,
+    windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
+    bones: Bones,
+    centre: CentreAt,
+    seconds: number,
+    before: number,
+    after: number,
+  ): number {
     // The base of support: the planted feet's outlines and the contact point
-    // of every other part bearing on the ground (a knee, a palm), or both
-    // feet when no window says otherwise.
-    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      HumanAuditMotion.windows(motion, subject).filter(
+    // of every other part bearing on the ground, whether its window is a
+    // `bear` (a knee, a shin) or a `plant` (a palm laid on the floor), or
+    // both feet when no window says otherwise. The instants `standing` reads
+    // admit both kinds, so the base takes both.
+    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] = windows.filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
           seconds >= w.from &&
           seconds <= w.to &&
@@ -141,10 +238,11 @@ export namespace AutoMovieMotionHumanAuditBalance {
       );
     const borne: IAutoMovieMotionHumanAuditMotion.IWindow[] = open.filter(
       (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-        w.contact.kind === "bear",
+        w.contact.kind === "bear" ||
+        (w.contact.kind === "plant" &&
+          w.contact.part !== "leftFoot" &&
+          w.contact.part !== "rightFoot"),
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      motion.bones(subject, seconds);
     const feet: ("left" | "right")[] =
       borne.length === 0
         ? ["left", "right"]
@@ -163,8 +261,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
           AutoMovieMotionHumanAuditStatics.point(body, bones, w.contact),
       ),
     ];
-    const a: IAutoMovieVector3 = com(before);
-    const b: IAutoMovieVector3 = com(after);
+    const a: IAutoMovieVector3 = centre(before, before === seconds ? bones : undefined);
+    const b: IAutoMovieVector3 = after === before
+      ? a
+      : centre(after, after === seconds ? bones : undefined);
     const span: number = after - before;
     const velocity: IAutoMovieVector3 =
       span > 0
@@ -176,7 +276,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
         : { x: 0, y: 0, z: 0 };
     return resolveAutoMovieCenterOfMass.margin(
       resolveAutoMovieCenterOfMass.extrapolate(
-        com(seconds),
+        seconds === before ? a : seconds === after ? b : centre(seconds, bones),
         velocity,
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       ),
@@ -270,3 +370,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
     return left && right;
   }
 }
+
+/** The displayed bones as owned by the audit's motion. */
+type Bones = ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>;
+
+/** The mass centre at an actual film second, reusing displayed frames when supplied. */
+type CentreAt = (seconds: number, bones?: Bones) => IAutoMovieVector3;

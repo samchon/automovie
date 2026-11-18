@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+import type { walkStation } from "./walkStation";
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a
@@ -22,122 +23,41 @@ import type {
  * last the two clocks run alike.
  *
  * @param plan The stepping plan; its heel strikes are the events named `leftHeelStrike<n>` and `rightHeelStrike<n>`.
- * @param stretch The share by which step `index`, from 0, lasts longer than planned; negative for shorter. With the limp's share added, it is held within 0.2 either way.
+ * @param stretch The share by which step `index`, from 0, lasts longer than planned; negative for shorter. With the limp's share added, it is held within `walkTempo.HOLD` either way.
  * @param limp A limp, when the gait has one: each step standing on the spared leg (the one whose heel strike begins it) is cut short by the share and each step standing on the other drawn out by it.
  * @returns The plan on the uneven clock, with its duration, events, contact windows and decisive instant moved to their film seconds; the plan itself when it names fewer than two heel strikes.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what varies and what does not, the source of the variation's size, the clock law and why velocity stays continuous.
- * @evidence contracts/development/implementation.md#principled-implementation A time warp: the pose stays a pure function of the film second, and every named instant is mapped by the same warp, so events, contacts and poses agree. The warp is strictly increasing because `k` is above -1 for a stretch within 0.2.
+ * @evidence contracts/development/implementation.md#principled-implementation A time warp: the pose stays a pure function of the film second, and every named instant is mapped by the same warp, so events, contacts and poses agree. The warp is strictly increasing because `k = 2 (planned / lasts - 1)` stays above -1 for any step held within `HOLD`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the strikes, lay out the stretched steps, then two maps, film to plan in closed form and plan to film by bisection.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.2 hold is a guard on the warp's monotonicity, far outside the 1 to 3 % it carries; the size of the variation is the caller's, drawn from the performer's skill and seed.
- * @evidence contracts/development/implementation.md#efficient-algorithms A pose costs one search of the steps and a closed-form map; a named instant costs a 40-step bisection, once per plan.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `HOLD` truncates a drawn stretch to the range of steps the planned gait still describes, far outside the 1 to 3 % the draw carries; the size of the variation is the caller's, drawn from the performer's skill and seed.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A pose costs a logarithmic step lookup and closed-form map; a named instant costs a 40-step bisection, once per plan. Each step's rate amplitude is computed once.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the step table built once per plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the step table for as long as the returned plan is held.
  */
 export function walkTempo(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   stretch: (index: number) => number,
   limp?: { side: "left" | "right"; share: number },
-): IAutoMovieMotionHumanActionPlan {
-  const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
-  const strikes: number[] = struck.map(
-    (s: { seconds: number }): number => s.seconds,
-  );
-  if (strikes.length < 2) return plan;
-
-  // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other.
-  const steps: {
-    plan: number;
-    film: number;
-    planned: number;
-    lasts: number;
-  }[] = [];
-  let film: number = strikes[0]!;
-  for (let i: number = 0; i + 1 < strikes.length; ++i) {
-    const planned: number = strikes[i + 1]! - strikes[i]!;
-    const lasts: number =
+): walkStation.IPlan {
+  return warped(
+    plan,
+    (index: number, planned: number, side: "left" | "right"): number =>
       planned *
       (1 +
         Math.max(
-          -0.2,
+          -walkTempo.HOLD,
           Math.min(
-            0.2,
-            stretch(i) +
+            walkTempo.HOLD,
+            stretch(index) +
               (limp === undefined
                 ? 0
-                : struck[i]!.side === limp.side
+                : side === limp.side
                   ? -limp.share
                   : limp.share),
           ),
-        ));
-    steps.push({ plan: strikes[i]!, film, planned, lasts });
-    film += lasts;
-  }
-  const end: { plan: number; film: number } = {
-    plan: strikes[strikes.length - 1]!,
-    film,
-  };
-
-  // The plan's seconds gone at a share of a step: the integral of the rate.
-  const gone = (step: { planned: number; lasts: number }, u: number): number =>
-    step.lasts *
-    (u +
-      2 *
-        (step.planned / step.lasts - 1) *
-        (u / 2 - Math.sin(2 * Math.PI * u) / (4 * Math.PI)));
-
-  // The step a second falls in, on either clock: the last one that has begun.
-  const within = (clock: "plan" | "film", seconds: number): number => {
-    let index: number = 0;
-    for (let i: number = 1; i < steps.length; ++i)
-      if (steps[i]![clock] <= seconds) index = i;
-    return index;
-  };
-  const toPlan = (seconds: number): number => {
-    if (seconds <= steps[0]!.film) return seconds;
-    if (seconds >= end.film) return end.plan + (seconds - end.film);
-    const step: { plan: number; film: number; planned: number; lasts: number } =
-      steps[within("film", seconds)]!;
-    return step.plan + gone(step, (seconds - step.film) / step.lasts);
-  };
-  const toFilm = (seconds: number): number => {
-    if (seconds <= steps[0]!.plan) return seconds;
-    if (seconds >= end.plan) return end.film + (seconds - end.plan);
-    const step: { plan: number; film: number; planned: number; lasts: number } =
-      steps[within("plan", seconds)]!;
-    let low: number = 0;
-    let high: number = 1;
-    for (let i: number = 0; i < 40; ++i) {
-      const middle: number = (low + high) / 2;
-      if (step.plan + gone(step, middle) < seconds) low = middle;
-      else high = middle;
-    }
-    return step.film + ((low + high) / 2) * step.lasts;
-  };
-  const duration: number = toFilm(plan.duration);
-  const share = (was: number): number => toFilm(was * plan.duration) / duration;
-  return {
-    ...plan,
-    duration,
-    events: plan.events.map(
-      (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
-        ...e,
-        share: share(e.share),
-      }),
-    ),
-    contacts: plan.contacts.map(
-      (
-        c: IAutoMovieMotionHumanContactWindow,
-      ): IAutoMovieMotionHumanContactWindow => ({
-        ...c,
-        from: share(c.from),
-        to: share(c.to),
-      }),
-    ),
-    ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-      plan.posture(toPlan(Math.min(duration, Math.max(0, seconds)))),
-  };
+        )),
+  );
 }
 
 /**
@@ -145,6 +65,9 @@ export function walkTempo(
  * to given seconds, companions of {@link walkTempo}.
  */
 export namespace walkTempo {
+  /** The most a drawn variability stretches or shrinks a step's planned time, and the most a beat's period may differ from the gait's own step, as a share of it: beyond it the gait the footprints were planned at no longer describes the steps. A fifth either way spans the paced tempi walkers synchronise their steps to: 22.5 % faster than the preferred step rate (Leow, Parrott and Grahn 2014, Front Hum Neurosci 8:811, metronome and music cueing) and 0.9 to 1.1 of it (Brain Sci 2020, 10:273); its symmetric rounding is provisional. A single entrained step may depart further while phase correction draws its strike onto a beat; the warp stays increasing up to a step twice its planned time. */
+  export const HOLD: number = 0.2;
+
   /** A heel strike of a plan. */
   export interface IStrike {
     /** Seconds of the plan. */
@@ -176,29 +99,138 @@ export namespace walkTempo {
 
   /**
    * A stepping plan with each heel strike sent to a given second instead of
-   * a drawn stretch: the same warp, each step lasting the time between its
-   * strike's second and the next's (held within a fifth of its plan, the
-   * warp's guard), so velocity stays continuous across strikes and the
-   * footprints and path stay the plan's own. The first strike keeps its
-   * second, as the warp keeps it.
+   * a drawn stretch: the same warp, each step lasting exactly the time
+   * between its strike's second and the next's, so velocity stays
+   * continuous across strikes and the footprints and path stay the plan's
+   * own. The first strike keeps its second, as the warp keeps it; a strike
+   * with no given second keeps its planned step.
    *
    * @param plan The stepping plan.
-   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order.
+   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order; each step between them longer than none and shorter than twice its planned time (`walkCadence.strikes` refuses any other).
    * @returns The plan on the entrained clock.
+   * @throws {Error} When a given step lies outside that range, where the warp would run backwards.
    */
   export function entrained(
-    plan: IAutoMovieMotionHumanActionPlan,
+    plan: walkStation.IPlan,
     seconds: readonly number[],
-  ): IAutoMovieMotionHumanActionPlan {
-    const planned: IStrike[] = strikes(plan);
-    return walkTempo(plan, (index: number): number => {
-      const span: number =
-        planned[index + 1]!.seconds - planned[index]!.seconds;
+  ): walkStation.IPlan {
+    return warped(plan, (index: number, planned: number): number => {
       const given: number | undefined = seconds[index + 1];
       const before: number | undefined = seconds[index];
-      return given === undefined || before === undefined || span <= 0
-        ? 0
-        : (given - before) / span - 1;
+      if (given === undefined || before === undefined) return planned;
+      const lasts: number = given - before;
+      if (!(lasts > 0 && lasts < 2 * planned))
+        throw new Error(
+          `An entrained step of ${lasts.toFixed(3)} s cannot carry its planned ${planned.toFixed(3)} s without running backwards`,
+        );
+      return lasts;
     });
   }
+}
+
+/**
+ * The warp shared by the drawn and the entrained clocks.
+ *
+ * @param plan The stepping plan.
+ * @param length Each step's film seconds from its index, its planned seconds and the foot whose strike begins it; above zero and under twice the planned seconds.
+ * @returns The plan on the warped clock, or the plan itself when it names fewer than two heel strikes.
+ */
+function warped(
+  plan: walkStation.IPlan,
+  length: (index: number, planned: number, side: "left" | "right") => number,
+): walkStation.IPlan {
+  const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
+  const strikes: number[] = struck.map(
+    (s: { seconds: number }): number => s.seconds,
+  );
+  if (strikes.length < 2) return plan;
+
+  // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other: the rate `1 + k sin^2(pi u)` integrates to `1 + k / 2` over a step, so `k = 2 (planned / lasts - 1)`.
+  const steps: {
+    plan: number;
+    film: number;
+    amplitude: number;
+    lasts: number;
+  }[] = [];
+  let film: number = strikes[0]!;
+  for (let i: number = 0; i + 1 < strikes.length; ++i) {
+    const planned: number = strikes[i + 1]! - strikes[i]!;
+    const lasts: number = length(i, planned, struck[i]!.side);
+    steps.push({ plan: strikes[i]!, film, amplitude: 2 * (planned / lasts - 1), lasts });
+    film += lasts;
+  }
+  const end: { plan: number; film: number } = {
+    plan: strikes[strikes.length - 1]!,
+    film,
+  };
+
+  // The plan's seconds gone at a share of a step: the integral of the rate.
+  const gone: (step: { amplitude: number; lasts: number }, u: number) => number = (step: { amplitude: number; lasts: number }, u: number): number =>
+    step.lasts *
+    (u +
+      step.amplitude *
+        (u / 2 - Math.sin(2 * Math.PI * u) / (4 * Math.PI)));
+
+  // The step a second falls in, on either clock: the last one that has begun.
+  const within: (clock: "plan" | "film", seconds: number) => number = (clock: "plan" | "film", seconds: number): number => {
+    let index: number = 0;
+    let high: number = steps.length - 1;
+    while (index < high) {
+      const middle: number = (index + high + 1) >>> 1;
+      if (steps[middle]![clock] <= seconds) index = middle;
+      else high = middle - 1;
+    }
+    return index;
+  };
+  const toPlan: (seconds: number) => number = (seconds: number): number => {
+    if (seconds <= steps[0]!.film) return seconds;
+    if (seconds >= end.film) return end.plan + (seconds - end.film);
+    const step: (typeof steps)[number] =
+      steps[within("film", seconds)]!;
+    return step.plan + gone(step, (seconds - step.film) / step.lasts);
+  };
+
+  // Plan to film by bisection on the step's share: 40 halvings leave 2^-40 of a step, far under a microsecond.
+  const toFilm: (seconds: number) => number = (seconds: number): number => {
+    if (seconds <= steps[0]!.plan) return seconds;
+    if (seconds >= end.plan) return end.film + (seconds - end.plan);
+    const step: (typeof steps)[number] =
+      steps[within("plan", seconds)]!;
+    let low: number = 0;
+    let high: number = 1;
+    for (let i: number = 0; i < 40; ++i) {
+      const middle: number = (low + high) / 2;
+      if (step.plan + gone(step, middle) < seconds) low = middle;
+      else high = middle;
+    }
+    return step.film + ((low + high) / 2) * step.lasts;
+  };
+  const duration: number = toFilm(plan.duration);
+  const share: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / duration;
+  const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
+  const sourceTime: (seconds: number) => number = (seconds: number): number =>
+    toPlan(Math.min(duration, Math.max(0, seconds)));
+  return {
+    ...plan,
+    duration,
+    events: plan.events.map(
+      (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
+        ...e,
+        share: share(e.share),
+      }),
+    ),
+    contacts: plan.contacts.map(
+      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+        ...c,
+        from: share(c.from),
+        to: share(c.to),
+      }),
+    ),
+    ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
+    ...(source === undefined ? {} : {
+      horizontalRoot: (seconds: number): walkStation.HorizontalPoint => source(sourceTime(seconds)),
+    }),
+    posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
+      plan.posture(sourceTime(seconds), channels, resolution, projection),
+  };
 }

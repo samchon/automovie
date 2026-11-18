@@ -1,18 +1,22 @@
-import {
+import type {
+  AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
-  type IAutoMovieFootPlant,
+  IAutoMovieFootPlant,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
-  type IAutoMoviePerformedShot,
-  type IAutoMoviePlantPerformShotStanceFeet,
-  type IAutoMoviePlantedFeet,
+  IAutoMoviePerformedShot,
+  IAutoMoviePlantPerformShotStanceFeet,
+  IAutoMoviePlantedFeet,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
-  type IAutoMovieStagedSet,
+  IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { plantStanceFeet } from "../motion/plantStanceFeet";
@@ -37,8 +41,8 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actor meeting the stated conditions is planted the same way; a rig without recognized feet is left as authored rather than given invented contacts.
  * @evidence contracts/development/common.md#meaningful-documentation States which actors are planted and which are left alone, the frame conversions and their premise, the ground source, the effect on `motions`, the footless-rig rule and why, and the order of the result.
  * @evidence contracts/development/implementation.md#efficient-algorithms Sorts A motion entries in O(A log A), scans staged nodes per qualifying actor and runs one delegated plantStanceFeet solve per such actor; that solve's motion sampling, FK and IK costs depend on rig and clip populations, rather than sample count alone.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actor's rig/axis/frame lookups complete before its genuine snapshot is created. Subsequent ground reads use only the private rigid conversion and library-owned spaceGround/heightAt under that owner's unchanged-space preparation contract; no host ground/target callback runs inside the solve. Exact static/FK work serves detection/correction and prior plants are indexed once.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index ends at return. Each actor's immutable rig snapshot and child-owned FK rows end after its synchronous planting call, with weak provenance retaining neither strongly. Only numeric planted clips/points enter caller motions and returned entries; no operation reader, rig workspace, callback history, task or handle escapes.
  */
 export function plantPerformShotStanceFeet(
   props: IAutoMoviePlantPerformShotStanceFeet.IProps,
@@ -92,11 +96,18 @@ export function plantPerformShotStanceFeet(
               z: plan.z,
             }).y;
           };
+    const jointAxes:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined = props.jointAxes?.(actor);
+    const restFrames:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+      | undefined = props.restFrames?.(actor);
     const planted: IAutoMoviePlantedFeet = plantStanceFeet({
       skeleton: rig,
       motion,
-      jointAxes: props.jointAxes?.(actor),
-      restFrames: props.restFrames?.(actor),
+      jointAxes,
+      restFrames,
+      poseResolution: prepareSkeletonPoseResolution(rig, jointAxes, restFrames),
       ...(modelGround === null ? {} : { groundY: modelGround }),
       openingPlants: (prior ?? []).map(
         (

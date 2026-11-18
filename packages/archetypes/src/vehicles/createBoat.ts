@@ -207,7 +207,9 @@ export function createBoat(
     const pivot: number = gunwale + createBoat.LOCK;
     const seat: number = pivot - BoatOars.HEIGHT * span;
     const aft: number = BoatOars.AFT * span;
-    BoatHull.thwart(builder, "thwart0", seat, aft, beam * e.seats.rowing, -1);
+    // The rowing station's height comes from the oarlock geometry rather
+    // than chair ergonomics. Its rower's joints admit the working seat.
+    BoatHull.thwart(builder, "thwart0", seat, aft, beam * e.seats.rowing, -1, true);
     BoatHull.thwart(
       builder,
       "thwart1",

@@ -1,5 +1,7 @@
 import type { IAutoMovieRandom } from "../../../core/IAutoMovieRandom";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
@@ -48,6 +50,21 @@ export interface IAutoMovieMotionHumanLayer {
    * nothing. Absent for a layer that does not say what it writes.
    */
   channels?: readonly AutoMovieMotionHumanChannel[];
+
+  /**
+   * Evaluate the contribution at the scheduled window weight, where zero
+   * returns the incoming posture and one applies the full layer. A dependent
+   * target can follow the joint geometry the provider produces at that weight.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the incoming pose, film second, shared performer context and dimensionless window weight. The implementation returns a posture in the same frame.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This interface defines the weighted call. The layer provider owns its interpolation.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The provider owns the implementation structure.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature contains no algorithm or fitted parameters.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The actual layer determines the required geometry and computational cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The provider owns any shared posture evaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The interface retains no values or handles.
+   */
+  blend?(posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext, weight: number): IAutoMovieMotionHumanPosture;
 
   /**
    * The posture with this layer's contribution added.
@@ -99,6 +116,36 @@ export namespace IAutoMovieMotionHumanLayer {
     attributes?: Readonly<
       Partial<Record<IAutoMovieMotionHumanAttribute.Name, number>>
     >;
+
+    /**
+     * Exact FK metadata borrowed only during this synchronous layer apply.
+     * Call lazily for the same unchanged body; neither the reader nor this
+     * getter may be stored in a plan, output posture or callback. The host
+     * revokes its borrowed source on return or throw; a retained getter then
+     * creates an independent fresh reader rather than retaining the source.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.resolution: Exact FK metadata borrowed only during this synchronous layer apply.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies resolution and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
+    resolution?: () => IAutoMoviePoseResolution;
+
+    /**
+     * Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.projection: Genuine same-body direct ROM projection, borrowed only during apply.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies projection and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
+    projection?: () => (pose: IAutoMoviePose) => IAutoMoviePose;
 
     /**
      * A target's world point and outward normal at a film second.
@@ -233,7 +280,7 @@ export namespace IAutoMovieMotionHumanLayer {
     /** When it ends; the film's end when absent. */
     to?: AutoMovieMotionHumanScheduledInstant;
 
-    /** Seconds over which it comes in after `from` and goes out before `to`; 0.3 when absent. */
+    /** Seconds over which it comes in after `from` and goes out before `to`; an overlay's fade (`HumanSegment.FADE`) when absent. */
     fade?: number;
 
     /**

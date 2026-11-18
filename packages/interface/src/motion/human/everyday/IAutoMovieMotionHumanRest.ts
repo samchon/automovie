@@ -81,7 +81,7 @@ export namespace IAutoMovieMotionHumanRest {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both hands' rest goals on a posture ({@link restGoals}). A rest place.
    * @evidence contracts/development/design.md#principled-representation Closed choices "side", "pocket", "hip", "crossed", "claspedFront", "claspedBehind", "behindHead", "chinRest", "elbowSupport" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/rest.ts (rest.goals, places); everyday/restGoals.ts (restGoals, places); everyday/rest.ts (rest.PAIRED); everyday/rest.ts (rest.plan); everyday/restGoals.ts (restGoals); everyday/restGoals.ts (restGoals.BENDS).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/rest.ts (rest.goals, places); everyday/restGoals.ts (restGoals, places); everyday/rest.ts (rest.PAIRED); everyday/rest.ts (rest.plan); everyday/restGoals.ts (restGoals).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in rest.goals.
    */
   export type Place =

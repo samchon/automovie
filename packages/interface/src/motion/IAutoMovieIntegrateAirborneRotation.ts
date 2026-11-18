@@ -2,6 +2,7 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePrincipalTensorFrame } from "../physics/IAutoMoviePrincipalTensorFrame";
 import type { IAutoMovieIntegrateMotionTrajectory } from "./IAutoMovieIntegrateMotionTrajectory";
+import type { IAutoMovieMotionTrajectoryPartition } from "./IAutoMovieMotionTrajectoryPartition";
 
 /**
  * Root-frame mass histories and world-frame flight integration. integrateMotionTrajectory validates the time interval, step and tolerances; callers supply finite momentum, unit orientations and nonsingular positive principal moments.
@@ -39,11 +40,22 @@ export namespace IAutoMovieIntegrateAirborneRotation {
     /** The integrator's step, seconds; its default when absent. Under a `tolerance`, the first step tried. */
     h?: number;
 
-    /** The integrator's error control (`integrateMotionTrajectory.ITolerance`); the fixed step when absent. */
-    tolerance?: IAutoMovieIntegrateMotionTrajectory.ITolerance;
+    /** Relative and absolute integration error budgets; fixed-step when absent. The physical orientation and the same-unit tangent matrix use independent norms. A nonzero absolute number acts in each block's own units, not a shared physical unit. */
+    tolerance?: Pick< IAutoMovieIntegrateMotionTrajectory.ITolerance,
+      "relative" | "absolute"
+    >;
+
+    /** Optional dense angular-momentum error control, requiring adaptive integration. Relative is a share of the requested world momentum and absolute is kg m²/s; they are separate from the orientation budget. A zero resulting scale admits only zero defect. Sampled dense control does not certify a separate finite-difference pose observation. */
+    momentumTolerance?: Pick<IAutoMovieIntegrateMotionTrajectory.ITolerance, "relative" | "absolute">;
+
+    /** Optional caller-owned unique token correlating this flight's trajectory failures with its caller. Omitted, this integration creates its own token. Histories receive no token; nested failures with another scope pass through unchanged. */
+    errorScope?: symbol;
 
     /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
     variations?: readonly IAutoMovieVector3[];
+
+    /** Optional time partition shared by one owned-history shooting operation. Each momentum still receives its original error checks; playback retains no partition. */
+    partition?: IAutoMovieMotionTrajectoryPartition.IPartition;
   }
 
   /**
@@ -94,10 +106,10 @@ export namespace IAutoMovieIntegrateAirborneRotation {
     /** Touchdown, seconds. */
     t1: number;
 
-    /** The integrator's step, seconds; under a tolerance, its first step tried. */
+    /** The numerical integrator's first step tried, seconds; the requested/default step metadata for a supported exact curve. */
     h: number;
 
-    /** The integrator's knot count, the steps plus one; under a tolerance, its accepted steps plus one. */
+    /** Numerical stored-knot count (accepted steps plus one adaptively), or two logical interval boundaries for an exact closed curve. Exact boundaries are not RK/DP stages or stored orientation samples. */
     knots: number;
 
     /**

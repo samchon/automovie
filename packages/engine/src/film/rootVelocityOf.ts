@@ -59,7 +59,7 @@ function worldRootAt(
   clip: IAutoMovieMotion,
   t: number,
 ): IAutoMovieVector3 {
-  return foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation;
+  return foldRoot(node.transform, sampleMotion.root(clip, t)).translation;
 }
 
 /** Difference of the world root over `[t0, t1]`; zero for an empty window. */

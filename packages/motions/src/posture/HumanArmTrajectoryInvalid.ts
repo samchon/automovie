@@ -69,7 +69,7 @@ export namespace HumanArmTrajectoryInvalid {
     };
     q.forEach((v: readonly number[], a: number): void => {
       const site: M.ISite | undefined = c.sites[a]![k];
-      if (site !== undefined && site.limits !== undefined) {
+      if (site !== undefined && (site.limits !== undefined || site.skinDistance !== undefined)) {
         const at: P.ILocated = P.located(
           c,
           (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
@@ -78,7 +78,7 @@ export namespace HumanArmTrajectoryInvalid {
           k,
           site,
         );
-        for (const limit of HumanArmTrajectoryLimits.of(site, at, placed[a]!))
+        for (const limit of HumanArmTrajectoryLimits.of(site, at, placed[a]!, c.frames[a]![k]!))
           note(
             limit.distance - limit.allowance,
             () =>

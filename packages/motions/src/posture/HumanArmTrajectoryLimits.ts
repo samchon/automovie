@@ -1,11 +1,13 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { physicalShapeNearest, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanArmShapes } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -47,6 +49,7 @@ export namespace HumanArmTrajectoryLimits {
    * @param site The task and its effector-local point limits.
    * @param at The site's current world frame, including its moving parent.
    * @param own The actual hand.
+   * @param frame The posed material colliders of the arm and digits.
    * @returns The points' geometric readings; none for a task without limits.
    * @throws {Error} When limits name no asked rotation.
    *
@@ -62,13 +65,16 @@ export namespace HumanArmTrajectoryLimits {
     site: M.ISite,
     at: P.ILocated,
     own: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    frame: IAutoMovieMotionHumanArmGeometry.IFrame,
   ): IRead[] {
-    if (site.limits === undefined) return [];
+    const material: IRead[] = site.skinDistance === undefined
+      ? [] : [skin(frame, own, at.point, site.skinDistance)];
+    if (site.limits === undefined) return material;
     const rotation: IAutoMovieQuaternion | undefined =
       at.rotation ?? site.rotation;
     if (rotation === undefined)
       throw new Error("Task point limits require an asked effector rotation");
-    return site.limits.map(
+    return material.concat(site.limits.map(
       (limit: NonNullable<M.ISite["limits"]>[number]): IRead => {
         const contact: IAutoMovieVector3 = P.pad(own, limit.contact);
         const point: IAutoMovieVector3 = Vector3.add(
@@ -85,7 +91,7 @@ export namespace HumanArmTrajectoryLimits {
           allowance: Math.max(0, 1000 * limit.bound - T.TOLERANCE),
         };
       },
-    );
+    ));
   }
 
   /**
@@ -119,9 +125,9 @@ export namespace HumanArmTrajectoryLimits {
     weight: number,
     index: (a: number, k: number, f: number) => number,
   ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
-    if (site.limits === undefined) return [];
+    if (site.limits === undefined && site.skinDistance === undefined) return [];
     const located: P.ILocated = P.located(c, at.placed, a, k, site);
-    return of(site, located, at.placed[a]![k]!).flatMap(
+    return of(site, located, at.placed[a]![k]!, c.frames[a]![k]!).flatMap(
       (
         limit: IRead,
         i: number,
@@ -168,4 +174,30 @@ export namespace HumanArmTrajectoryLimits {
       },
     );
   }
-}
+  /** The closest material point of the union of hand and digit solids to the requested site. */
+  function skin(
+    frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+    own: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    point: IAutoMovieVector3,
+    bound: number,
+  ): IRead {
+    const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = HumanArmShapes.colliders(frame, own);
+    let index: number = 0;
+    let nearest: IAutoMoviePhysicalShapeNearest.IResult | undefined;
+    for (const collider of frame.colliders) {
+      for (const solid of collider.shapes) {
+        const placed: IAutoMovieMotionHumanArmGeometry.IShape = shapes[index++]!;
+        if (collider.owner !== "hand") continue;
+        if (nearest !== undefined && Vector3.distance(placed.centre, point) - placed.radius > nearest.distance) continue;
+        const read: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(placed.pose, solid, point, point);
+        if (nearest === undefined || read.distance < nearest.distance) nearest = read;
+      }
+    }
+    if (nearest === undefined) throw new Error("A material hand contact requires a hand collider");
+    return {
+      contact: nearest.point,
+      point,
+      distance: 1000 * Math.abs(nearest.distance),
+      allowance: Math.max(0, 1000 * bound - T.TOLERANCE),
+    };
+  }}

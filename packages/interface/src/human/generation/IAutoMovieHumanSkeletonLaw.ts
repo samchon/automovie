@@ -52,8 +52,13 @@ export namespace IAutoMovieHumanSkeletonLaw {
     /** The legs' tapes and controls. */
     legs: IAutoMovieHumanLegConstruction.IInputs;
 
-    /** The trunk's defining landmarks, canonical left side. */
-    trunk: IAutoMovieHumanTrunkLandmarks;
+    /**
+     * The trunk's defining landmarks the skeleton reads, canonical left side:
+     * the column's axis, the crotch height and the shoulder's two points.
+     */
+    trunk: Pick< IAutoMovieHumanTrunkLandmarks,
+      "axis" | "crotch" | "shoulder" | "glenohumeral"
+    >;
 
     /** The generating head lane's joint and eye references. */
     head: Pick<IAutoMovieHumanHeadLane.IOutput, "skeleton" | "eyes">;

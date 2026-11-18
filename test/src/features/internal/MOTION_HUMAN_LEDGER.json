@@ -178,7 +178,7 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionClock.phrase",
       "tests": [
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
@@ -404,18 +404,8 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBase.under",
       "tests": [
-        "test_human_motion_overlay_channels_m_average_unclaimed",
-        "test_human_motion_overlay_channels_m_average_claimed",
-        "test_human_motion_overlay_channels_f_small_unclaimed",
-        "test_human_motion_overlay_channels_f_small_claimed",
-        "test_human_motion_overlay_channels_continuity_1",
-        "test_human_motion_overlay_channels_continuity_2",
-        "test_human_motion_overlay_channels_continuity_3",
-        "test_human_motion_overlay_channels_continuity_4",
-        "test_human_motion_overlay_channels_continuity_5",
-        "test_human_motion_overlay_channels_continuity_6",
-        "test_human_motion_overlay_channels_continuity_7",
-        "test_human_motion_overlay_channels_continuity_8"
+        "test_human_motion_overlay_channels_m_average",
+        "test_human_motion_overlay_channels_f_small"
       ]
     },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
@@ -556,14 +546,14 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanGaze.look",
       "tests": [
-        "test_human_motion_compose_gaze_m_average"
+        "test_human_motion_compose_gaze"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanGaze.glance",
       "tests": [
-        "test_human_motion_compose_gaze_m_average"
+        "test_human_motion_compose_gaze"
       ]
     },
     {
@@ -1016,21 +1006,21 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.foot",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.lift",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.legs",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
@@ -1448,8 +1438,8 @@
     },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.SPAN", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
@@ -1472,7 +1462,7 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.GIRDLE", "tests": ["test_human_motion_hand_reach_up"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.solve", "tests": ["test_human_motion_hand_reach_up"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average", "test_human_motion_hand_effectors"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average", "test_human_motion_prop_held_use_m_average", "test_human_motion_hand_effectors"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.CHEST",
@@ -1831,13 +1821,6 @@
     },
     {
       "layer": "posture",
-      "symbol": "HumanArmClearance.broad",
-      "tests": [
-        "test_human_motion_core_arm_clearance_screen"
-      ]
-    },
-    {
-      "layer": "posture",
       "symbol": "HumanArmClearance.overshoot",
       "tests": [
         "test_human_motion_compose_arm_carry",
@@ -1965,7 +1948,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.heading",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_moves",
         "test_motion_compose_placed"
       ]
@@ -1974,7 +1957,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.pitch",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_placed"
       ]
     },
@@ -2003,7 +1986,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.point",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_placed",
         "test_motion_posture_frames"
       ]
@@ -2126,11 +2109,11 @@
       "tests": [
         "test_human_motion_audit_tangle",
         "test_human_motion_compose_arm_carry",
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_m_average",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_reach_fit_m_average",
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
@@ -2145,11 +2128,11 @@
       "symbol": "resolveHumanPosture",
       "tests": [
         "test_human_motion_compose_arm_carry",
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_m_average",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_reach_fit_m_average",
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
@@ -2157,13 +2140,6 @@
         "test_motion_posture_frames",
         "test_motion_posture_hand",
         "test_motion_posture_resolve_helpers"
-      ]
-    },
-    {
-      "layer": "posture",
-      "symbol": "resolveHumanPosture.memory",
-      "tests": [
-        "test_human_motion_core_fit_memory"
       ]
     },
     {
@@ -2223,7 +2199,86 @@
       "tests": [
         "test_motion_posture_resolve_helpers"
       ]
-    }
+    },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepare", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareEnvelope", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareWave", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanArm.prepareGoal", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.hanging", "tests": ["test_motion_compose_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepare", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareBoth", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareKnee", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.claims", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.covers", "tests": ["test_human_motion_channel_trunk_turn"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.digit", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.prepareMerge", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.TURN", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.prepareRead", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingSwivel.ranged", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHand.prepareFingers", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHand.prepareFingerWriter", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLean.about", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.prepareArc", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.prepareGoal", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.preparePlacement", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLegPhrase.prepareBetween", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanPlaced.carryFrom", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.prepareCheck", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.comfortable", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.draw", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.grasp", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.admits", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.prepareHand", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.TRUNK", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTrunk.prepareCrouch", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTrunk.preparePlanted", "tests": [] },
+    { "layer": "posture", "symbol": "blendHumanJoint.between", "tests": [] },
+    { "layer": "posture", "symbol": "blendHumanJoint.prepare", "tests": [] },
+    { "layer": "posture", "symbol": "HumanArmClearance.baseline", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.bones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.nearest", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.prepareMinima", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.preparePlaced", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.reading", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.bones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.headingPitch", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareAnkle", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareAt", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareHeight", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareOffset", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.preparePivot", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.preparePoint", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareSole", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.reading", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.roll", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.sole", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.turned", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFrame.prepare", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanFrame.prepareLerp", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanFrame.preparePoint", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanHand.bone", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.DIGIT_SURFACES", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.digital", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.frameBones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.prepareAlignment", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.preparePoint", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepare", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepareRead", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepareTuples", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.read", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.assemble", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.derive", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.fit", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.KNEE", "tests": ["test_motion_lowering_soft_reach"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.limbSeeded", "tests": ["test_motion_limb_refit_ownership"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.prepare", "tests": ["test_motion_pose_resolution_native_loans", "test_motion_prepared_posture_translation"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.preparedBones", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.prepareShort", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.refit", "tests": ["test_motion_limb_refit_ownership"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.rigid", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.seeded", "tests": ["test_motion_prepared_leg_chain", "test_motion_selected_goal_fallback"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.translated", "tests": ["test_motion_pose_resolution_native_loans", "test_motion_prepared_posture_translation"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.tryRigid", "tests": [] }
   ],
   "laws": [
     {
@@ -2512,8 +2567,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2521,10 +2575,7 @@
           "row": "with=auto",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2532,10 +2583,7 @@
           "row": "with=eyes",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2543,11 +2591,7 @@
           "row": "with=head",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2555,10 +2599,7 @@
           "row": "with=trunk",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2566,11 +2607,7 @@
           "row": "cue=seen",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2578,11 +2615,7 @@
           "row": "cue=signal",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         }
@@ -2622,8 +2655,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_78"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2631,10 +2663,7 @@
           "row": "kind=wave",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2642,10 +2671,7 @@
           "row": "kind=raiseHand",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2653,11 +2679,7 @@
           "row": "kind=cheer",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2665,10 +2687,7 @@
           "row": "kind=stopPalm",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2676,10 +2695,7 @@
           "row": "kind=point",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2687,10 +2703,7 @@
           "row": "kind=palmsUp",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_81"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2698,10 +2711,7 @@
           "row": "kind=beckon",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2709,10 +2719,7 @@
           "row": "kind=clap",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2720,10 +2727,7 @@
           "row": "kind=rubHands",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2731,46 +2735,7 @@
           "row": "kind=touchFace",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_74",
-            "test_human_motion_law_sweep_posture_75",
-            "test_human_motion_law_sweep_posture_76",
-            "test_human_motion_law_sweep_posture_77",
-            "test_human_motion_law_sweep_posture_78",
-            "test_human_motion_law_sweep_posture_79",
-            "test_human_motion_law_sweep_posture_80",
-            "test_human_motion_law_sweep_posture_81",
-            "test_human_motion_law_sweep_posture_82",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_gesture_face_central"
           ],
           "sweep": "reduced"
         },
@@ -2778,10 +2743,7 @@
           "row": "kind=palmsTogether",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2789,10 +2751,7 @@
           "row": "kind=pushGlasses",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2800,10 +2759,7 @@
           "row": "kind=scratchHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2811,10 +2767,7 @@
           "row": "kind=shrug",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2822,10 +2775,7 @@
           "row": "kind=nod",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2833,10 +2783,7 @@
           "row": "kind=shakeHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_91"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2844,10 +2791,7 @@
           "row": "kind=bow",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2855,10 +2799,7 @@
           "row": "kind=chinLift",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2866,10 +2807,7 @@
           "row": "kind=squareShoulders",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2877,10 +2815,7 @@
           "row": "kind=slump",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2888,97 +2823,87 @@
           "row": "kind=thumbsDown",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
         {
           "row": "region=forehead",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=noseBridge",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=mouth",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=chin",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=templeLeft",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=templeRight",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=earLeft",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=earRight",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=nape",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2986,32 +2911,7 @@
           "row": "side=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         }
@@ -3047,10 +2947,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3058,10 +2955,7 @@
           "row": "place=side",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3069,10 +2963,7 @@
           "row": "place=pocket",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3080,10 +2971,7 @@
           "row": "place=hip",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3091,10 +2979,7 @@
           "row": "place=crossed",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3102,10 +2987,7 @@
           "row": "place=claspedFront",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3113,10 +2995,7 @@
           "row": "place=claspedBehind",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3124,10 +3003,7 @@
           "row": "place=behindHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3135,10 +3011,7 @@
           "row": "place=chinRest",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_91"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3146,10 +3019,7 @@
           "row": "place=elbowSupport",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         }
@@ -3773,10 +3643,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3784,10 +3651,7 @@
           "row": "back=upright",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3795,10 +3659,7 @@
           "row": "back=lean",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3806,10 +3667,7 @@
           "row": "back=slump",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -3844,18 +3702,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_81",
-            "test_human_motion_law_sweep_posture_82",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -3889,18 +3736,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_78",
-            "test_human_motion_law_sweep_posture_79",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -4036,6 +3872,51 @@
         {
           "row": "default",
           "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "release",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": ["test_human_motion_prop_drop"],
           "audit": [],
           "sweep": "reduced"
         },
@@ -4229,8 +4110,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4238,10 +4118,7 @@
           "row": "strategy=stoop",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4249,10 +4126,7 @@
           "row": "strategy=semiSquat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4260,11 +4134,7 @@
           "row": "strategy=squat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4272,10 +4142,7 @@
           "row": "strategy=auto",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_78"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4283,11 +4150,7 @@
           "row": "side=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4295,11 +4158,7 @@
           "row": "side=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         }
@@ -4382,10 +4241,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4393,10 +4249,7 @@
           "row": "kind=impact",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4404,10 +4257,7 @@
           "row": "kind=push",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4415,10 +4265,7 @@
           "row": "kind=catchBody",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         }
@@ -4457,18 +4304,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_84",
-            "test_human_motion_law_sweep_posture_85",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_type_text"
           ],
           "sweep": "reduced"
         }
@@ -4511,129 +4347,19 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
             "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -4642,50 +4368,10 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -4694,129 +4380,19 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
             "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -4825,50 +4401,10 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -4877,129 +4413,19 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
             "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -5008,84 +4434,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
-            "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle"
+            "test_human_motion_law_touch_self_wipe_brow"
           ],
           "sweep": "reduced"
         },
@@ -5094,84 +4450,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
-            "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle"
+            "test_human_motion_law_touch_self_wipe_brow"
           ],
           "sweep": "reduced"
         },
@@ -5180,129 +4466,19 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
             "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -5311,84 +4487,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
-            "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle"
+            "test_human_motion_law_touch_self_wipe_brow"
           ],
           "sweep": "reduced"
         },
@@ -5403,129 +4509,19 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
             "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
             "test_human_motion_law_touch_partner_cup_cheek",
-            "test_human_motion_law_touch_partner_cup_cheek_mirror",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_1",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_2",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_3",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_4",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_5",
-            "test_human_motion_law_touch_partner_cup_cheek_motion_6",
-            "test_human_motion_law_touch_partner_cup_cheek_tangle",
             "test_human_motion_law_touch_partner_pat_head",
-            "test_human_motion_law_touch_partner_pat_head_mirror",
-            "test_human_motion_law_touch_partner_pat_head_motion_1",
-            "test_human_motion_law_touch_partner_pat_head_motion_2",
-            "test_human_motion_law_touch_partner_pat_head_motion_3",
-            "test_human_motion_law_touch_partner_pat_head_motion_4",
-            "test_human_motion_law_touch_partner_pat_head_motion_5",
-            "test_human_motion_law_touch_partner_pat_head_motion_6",
-            "test_human_motion_law_touch_partner_pat_head_tangle",
             "test_human_motion_law_touch_partner_rub_back",
-            "test_human_motion_law_touch_partner_rub_back_mirror",
-            "test_human_motion_law_touch_partner_rub_back_motion_1",
-            "test_human_motion_law_touch_partner_rub_back_motion_2",
-            "test_human_motion_law_touch_partner_rub_back_motion_3",
-            "test_human_motion_law_touch_partner_rub_back_motion_4",
-            "test_human_motion_law_touch_partner_rub_back_motion_5",
-            "test_human_motion_law_touch_partner_rub_back_motion_6",
-            "test_human_motion_law_touch_partner_rub_back_tangle",
             "test_human_motion_law_touch_partner_stroke_arm",
-            "test_human_motion_law_touch_partner_stroke_arm_mirror",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_1",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_2",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_3",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_4",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_5",
-            "test_human_motion_law_touch_partner_stroke_arm_motion_6",
-            "test_human_motion_law_touch_partner_stroke_arm_tangle",
-            "test_human_motion_law_touch_partner_tap_shoulder",
-            "test_human_motion_law_touch_partner_tap_shoulder_mirror",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_1",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_2",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_3",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
-            "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
+            "test_human_motion_law_touch_partner_tap_shoulder"
           ],
           "sweep": "reduced"
         },
@@ -5534,84 +4530,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
-            "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle"
+            "test_human_motion_law_touch_self_wipe_brow"
           ],
           "sweep": "reduced"
         },
@@ -5632,84 +4558,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
-            "test_human_motion_law_touch_self_cover_ears_motion_1",
-            "test_human_motion_law_touch_self_cover_ears_motion_2",
-            "test_human_motion_law_touch_self_cover_ears_motion_3",
-            "test_human_motion_law_touch_self_cover_ears_motion_4",
-            "test_human_motion_law_touch_self_cover_ears_motion_5",
-            "test_human_motion_law_touch_self_cover_ears_motion_6",
-            "test_human_motion_law_touch_self_cover_ears_tangle",
             "test_human_motion_law_touch_self_facepalm",
-            "test_human_motion_law_touch_self_facepalm_mirror",
-            "test_human_motion_law_touch_self_facepalm_motion_1",
-            "test_human_motion_law_touch_self_facepalm_motion_2",
-            "test_human_motion_law_touch_self_facepalm_motion_3",
-            "test_human_motion_law_touch_self_facepalm_motion_4",
-            "test_human_motion_law_touch_self_facepalm_motion_5",
-            "test_human_motion_law_touch_self_facepalm_motion_6",
-            "test_human_motion_law_touch_self_facepalm_tangle",
             "test_human_motion_law_touch_self_hand_on_heart",
-            "test_human_motion_law_touch_self_hand_on_heart_mirror",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_1",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_2",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_3",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_4",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_5",
-            "test_human_motion_law_touch_self_hand_on_heart_motion_6",
-            "test_human_motion_law_touch_self_hand_on_heart_tangle",
             "test_human_motion_law_touch_self_hug_self",
-            "test_human_motion_law_touch_self_hug_self_motion_1",
-            "test_human_motion_law_touch_self_hug_self_motion_2",
-            "test_human_motion_law_touch_self_hug_self_motion_3",
-            "test_human_motion_law_touch_self_hug_self_motion_4",
-            "test_human_motion_law_touch_self_hug_self_motion_5",
-            "test_human_motion_law_touch_self_hug_self_motion_6",
-            "test_human_motion_law_touch_self_hug_self_tangle",
             "test_human_motion_law_touch_self_pat_belly",
-            "test_human_motion_law_touch_self_pat_belly_mirror",
-            "test_human_motion_law_touch_self_pat_belly_motion_1",
-            "test_human_motion_law_touch_self_pat_belly_motion_2",
-            "test_human_motion_law_touch_self_pat_belly_motion_3",
-            "test_human_motion_law_touch_self_pat_belly_motion_4",
-            "test_human_motion_law_touch_self_pat_belly_motion_5",
-            "test_human_motion_law_touch_self_pat_belly_motion_6",
-            "test_human_motion_law_touch_self_pat_belly_tangle",
             "test_human_motion_law_touch_self_rub_nape",
-            "test_human_motion_law_touch_self_rub_nape_mirror",
-            "test_human_motion_law_touch_self_rub_nape_motion_1",
-            "test_human_motion_law_touch_self_rub_nape_motion_2",
-            "test_human_motion_law_touch_self_rub_nape_motion_3",
-            "test_human_motion_law_touch_self_rub_nape_motion_4",
-            "test_human_motion_law_touch_self_rub_nape_motion_5",
-            "test_human_motion_law_touch_self_rub_nape_motion_6",
-            "test_human_motion_law_touch_self_rub_nape_tangle",
             "test_human_motion_law_touch_self_scratch_forearm",
-            "test_human_motion_law_touch_self_scratch_forearm_mirror",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_1",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_2",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_3",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_4",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_5",
-            "test_human_motion_law_touch_self_scratch_forearm_motion_6",
-            "test_human_motion_law_touch_self_scratch_forearm_tangle",
             "test_human_motion_law_touch_self_slap_thigh",
-            "test_human_motion_law_touch_self_slap_thigh_mirror",
-            "test_human_motion_law_touch_self_slap_thigh_motion_1",
-            "test_human_motion_law_touch_self_slap_thigh_motion_2",
-            "test_human_motion_law_touch_self_slap_thigh_motion_3",
-            "test_human_motion_law_touch_self_slap_thigh_motion_4",
-            "test_human_motion_law_touch_self_slap_thigh_motion_5",
-            "test_human_motion_law_touch_self_slap_thigh_motion_6",
-            "test_human_motion_law_touch_self_slap_thigh_tangle",
-            "test_human_motion_law_touch_self_wipe_brow",
-            "test_human_motion_law_touch_self_wipe_brow_mirror",
-            "test_human_motion_law_touch_self_wipe_brow_motion_1",
-            "test_human_motion_law_touch_self_wipe_brow_motion_2",
-            "test_human_motion_law_touch_self_wipe_brow_motion_3",
-            "test_human_motion_law_touch_self_wipe_brow_motion_4",
-            "test_human_motion_law_touch_self_wipe_brow_motion_5",
-            "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle"
+            "test_human_motion_law_touch_self_wipe_brow"
           ],
           "sweep": "reduced"
         },
@@ -5761,16 +4617,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_drink",
-            "test_human_motion_law_hand_to_face_drink_mirror",
-            "test_human_motion_law_hand_to_face_drink_motion_1",
-            "test_human_motion_law_hand_to_face_drink_motion_2",
-            "test_human_motion_law_hand_to_face_drink_motion_3",
-            "test_human_motion_law_hand_to_face_drink_motion_4",
-            "test_human_motion_law_hand_to_face_drink_motion_5",
-            "test_human_motion_law_hand_to_face_drink_motion_6",
-            "test_human_motion_law_hand_to_face_drink_population",
-            "test_human_motion_law_hand_to_face_drink_tangle"
+            "test_human_motion_law_hand_to_face_drink"
           ],
           "sweep": "reduced"
         },
@@ -5778,16 +4625,7 @@
           "row": "task=drink",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_drink",
-            "test_human_motion_law_hand_to_face_drink_mirror",
-            "test_human_motion_law_hand_to_face_drink_motion_1",
-            "test_human_motion_law_hand_to_face_drink_motion_2",
-            "test_human_motion_law_hand_to_face_drink_motion_3",
-            "test_human_motion_law_hand_to_face_drink_motion_4",
-            "test_human_motion_law_hand_to_face_drink_motion_5",
-            "test_human_motion_law_hand_to_face_drink_motion_6",
-            "test_human_motion_law_hand_to_face_drink_population",
-            "test_human_motion_law_hand_to_face_drink_tangle"
+            "test_human_motion_law_hand_to_face_drink"
           ],
           "sweep": "reduced"
         },
@@ -5795,16 +4633,7 @@
           "row": "task=sip",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_sip",
-            "test_human_motion_law_hand_to_face_sip_mirror",
-            "test_human_motion_law_hand_to_face_sip_motion_1",
-            "test_human_motion_law_hand_to_face_sip_motion_2",
-            "test_human_motion_law_hand_to_face_sip_motion_3",
-            "test_human_motion_law_hand_to_face_sip_motion_4",
-            "test_human_motion_law_hand_to_face_sip_motion_5",
-            "test_human_motion_law_hand_to_face_sip_motion_6",
-            "test_human_motion_law_hand_to_face_sip_population",
-            "test_human_motion_law_hand_to_face_sip_tangle"
+            "test_human_motion_law_hand_to_face_sip"
           ],
           "sweep": "reduced"
         },
@@ -5812,15 +4641,7 @@
           "row": "task=eat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_eat",
-            "test_human_motion_law_hand_to_face_eat_mirror",
-            "test_human_motion_law_hand_to_face_eat_motion_1",
-            "test_human_motion_law_hand_to_face_eat_motion_2",
-            "test_human_motion_law_hand_to_face_eat_motion_3",
-            "test_human_motion_law_hand_to_face_eat_motion_4",
-            "test_human_motion_law_hand_to_face_eat_motion_5",
-            "test_human_motion_law_hand_to_face_eat_motion_6",
-            "test_human_motion_law_hand_to_face_eat_tangle"
+            "test_human_motion_law_hand_to_face_eat"
           ],
           "sweep": "reduced"
         },
@@ -5828,15 +4649,7 @@
           "row": "task=bite",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_bite",
-            "test_human_motion_law_hand_to_face_bite_mirror",
-            "test_human_motion_law_hand_to_face_bite_motion_1",
-            "test_human_motion_law_hand_to_face_bite_motion_2",
-            "test_human_motion_law_hand_to_face_bite_motion_3",
-            "test_human_motion_law_hand_to_face_bite_motion_4",
-            "test_human_motion_law_hand_to_face_bite_motion_5",
-            "test_human_motion_law_hand_to_face_bite_motion_6",
-            "test_human_motion_law_hand_to_face_bite_tangle"
+            "test_human_motion_law_hand_to_face_bite"
           ],
           "sweep": "reduced"
         },
@@ -5844,15 +4657,7 @@
           "row": "task=phone",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_phone",
-            "test_human_motion_law_hand_to_face_phone_mirror",
-            "test_human_motion_law_hand_to_face_phone_motion_1",
-            "test_human_motion_law_hand_to_face_phone_motion_2",
-            "test_human_motion_law_hand_to_face_phone_motion_3",
-            "test_human_motion_law_hand_to_face_phone_motion_4",
-            "test_human_motion_law_hand_to_face_phone_motion_5",
-            "test_human_motion_law_hand_to_face_phone_motion_6",
-            "test_human_motion_law_hand_to_face_phone_tangle"
+            "test_human_motion_law_hand_to_face_phone"
           ],
           "sweep": "reduced"
         },
@@ -5860,15 +4665,7 @@
           "row": "task=read",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_read",
-            "test_human_motion_law_hand_to_face_read_mirror",
-            "test_human_motion_law_hand_to_face_read_motion_1",
-            "test_human_motion_law_hand_to_face_read_motion_2",
-            "test_human_motion_law_hand_to_face_read_motion_3",
-            "test_human_motion_law_hand_to_face_read_motion_4",
-            "test_human_motion_law_hand_to_face_read_motion_5",
-            "test_human_motion_law_hand_to_face_read_motion_6",
-            "test_human_motion_law_hand_to_face_read_tangle"
+            "test_human_motion_law_hand_to_face_read"
           ],
           "sweep": "reduced"
         },
@@ -5876,15 +4673,7 @@
           "row": "task=brushTeeth",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_brush_teeth",
-            "test_human_motion_law_hand_to_face_brush_teeth_mirror",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_1",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_2",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_3",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_4",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_5",
-            "test_human_motion_law_hand_to_face_brush_teeth_motion_6",
-            "test_human_motion_law_hand_to_face_brush_teeth_tangle"
+            "test_human_motion_law_hand_to_face_brush_teeth"
           ],
           "sweep": "reduced"
         },
@@ -5892,15 +4681,7 @@
           "row": "task=comb",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_comb",
-            "test_human_motion_law_hand_to_face_comb_mirror",
-            "test_human_motion_law_hand_to_face_comb_motion_1",
-            "test_human_motion_law_hand_to_face_comb_motion_2",
-            "test_human_motion_law_hand_to_face_comb_motion_3",
-            "test_human_motion_law_hand_to_face_comb_motion_4",
-            "test_human_motion_law_hand_to_face_comb_motion_5",
-            "test_human_motion_law_hand_to_face_comb_motion_6",
-            "test_human_motion_law_hand_to_face_comb_tangle"
+            "test_human_motion_law_hand_to_face_comb"
           ],
           "sweep": "reduced"
         },
@@ -5908,14 +4689,7 @@
           "row": "task=washFace",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_wash_face",
-            "test_human_motion_law_hand_to_face_wash_face_motion_1",
-            "test_human_motion_law_hand_to_face_wash_face_motion_2",
-            "test_human_motion_law_hand_to_face_wash_face_motion_3",
-            "test_human_motion_law_hand_to_face_wash_face_motion_4",
-            "test_human_motion_law_hand_to_face_wash_face_motion_5",
-            "test_human_motion_law_hand_to_face_wash_face_motion_6",
-            "test_human_motion_law_hand_to_face_wash_face_tangle"
+            "test_human_motion_law_hand_to_face_wash_face"
           ],
           "sweep": "reduced"
         },
@@ -5923,15 +4697,7 @@
           "row": "task=wipeMouth",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face_wipe_mouth",
-            "test_human_motion_law_hand_to_face_wipe_mouth_mirror",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_1",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_2",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_3",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_4",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_5",
-            "test_human_motion_law_hand_to_face_wipe_mouth_motion_6",
-            "test_human_motion_law_hand_to_face_wipe_mouth_tangle"
+            "test_human_motion_law_hand_to_face_wipe_mouth"
           ],
           "sweep": "reduced"
         },
@@ -5978,10 +4744,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_81"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -5989,10 +4752,7 @@
           "row": "depth=partial",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -6000,10 +4760,7 @@
           "row": "depth=full",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -6011,10 +4768,7 @@
           "row": "heels=flat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -6022,10 +4776,7 @@
           "row": "heels=up",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         }
@@ -6063,8 +4814,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -6072,10 +4822,7 @@
           "row": "kind=one",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -6083,10 +4830,7 @@
           "row": "kind=both",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_kneel_floor"
           ],
           "sweep": "reduced"
         },
@@ -6094,11 +4838,7 @@
           "row": "kind=sitBack",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_kneel_floor"
           ],
           "sweep": "reduced"
         },
@@ -6106,10 +4846,7 @@
           "row": "knee=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -6117,10 +4854,7 @@
           "row": "knee=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         }
@@ -6423,10 +5157,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -6434,10 +5165,7 @@
           "row": "position=supine",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -6445,10 +5173,7 @@
           "row": "position=prone",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -6456,10 +5181,7 @@
           "row": "position=lateralLeft",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -6467,10 +5189,7 @@
           "row": "position=lateralRight",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         }
@@ -6496,18 +5215,7 @@
             "test_human_motion_support_sequence"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_70",
-            "test_human_motion_law_sweep_posture_91",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_support"
           ],
           "sweep": "reduced"
         }
@@ -6546,11 +5254,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         },
@@ -6560,10 +5264,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         },
@@ -6573,10 +5274,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         }

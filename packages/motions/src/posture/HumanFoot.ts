@@ -14,6 +14,14 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFootOutline } from "./HumanFootOutline";
+import { HumanFootRotation } from "./HumanFootRotation";
+import { humanFootBones } from "./humanFootBones";
+import { humanFootOffset } from "./humanFootOffset";
+import { prepareHumanFootAnkle } from "./prepareHumanFootAnkle";
+import { prepareHumanFootAt } from "./prepareHumanFootAt";
+import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
+import { prepareHumanFootSole } from "./prepareHumanFootSole";
+import { readHumanFoot } from "./readHumanFoot";
 
 /**
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
@@ -40,8 +48,18 @@ import { HumanFootOutline } from "./HumanFootOutline";
  * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
+  /** Bound base/socket geometry for one unchanged synchronous displayed-bone reading (`readHumanFoot`); release it with that evaluation. */
+  export const reading: typeof readHumanFoot = readHumanFoot;
+
+  /** The ankle alone of a foot pivoting about a fixed sole point, for a search over pitches (`prepareHumanFootAnkle`); the reader overwrites the record it returns. */
+  export const prepareAnkle: typeof prepareHumanFootAnkle =
+    prepareHumanFootAnkle;
+
+  /** A fixed-articulation reader over a varying world contact (`prepareHumanFootAt`), preserving fresh placement outputs. */
+  export const prepareAt: typeof prepareHumanFootAt = prepareHumanFootAt;
+
   /** The sole sockets of {@link Socket}, as data. */
-  export const SOCKETS = [
+  export const SOCKETS: readonly ["heel", "ball", "toe"] = [
     "heel",
     "ball",
     "toe",
@@ -66,16 +84,16 @@ export namespace HumanFoot {
       (
         socket: IAutoMovieMotionHumanFoot.Socket,
       ): IAutoMovieMotionHumanFoot.ISocket => {
-        const frame =
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.sockets[
             `${socket}${side === "left" ? "Left" : "Right"}`
           ];
         return {
           socket,
-          point: resolveAutoMovieHumanoidSurfaces.place(
+          point: resolveAutoMovieHumanoidSurfaces.point(
             frame,
             bones.get(frame.bone)!,
-          ).point,
+          ),
         };
       },
     );
@@ -98,10 +116,9 @@ export namespace HumanFoot {
    * points whose convex hull a margin of stability is measured to (Hof,
    * Gazendam and Sinke 2005).
    *
-   * Each foot's outline is its sole sockets and the corners of the outline
-   * of its colliders seen from below (`outline`), placed on the displayed
-   * bones; of these, the points within `BEARING` of the foot's lowest one
-   * bear, so a heel lifted off the floor leaves the base to the forefoot.
+   * Place the sole collider outline on the displayed bones. A foot without
+   * a collider outline uses its sole sockets. Points within `BEARING` of
+   * the lowest point bear, so lifting the heel shifts support to the forefoot.
    *
    * @param body The body.
    * @param bones The displayed bones.
@@ -113,25 +130,7 @@ export namespace HumanFoot {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     sides: readonly ("left" | "right")[] = ["left", "right"],
   ): IAutoMovieVector3[] {
-    return sides.flatMap((side: "left" | "right"): IAutoMovieVector3[] => {
-      const points: IAutoMovieVector3[] = [
-        ...sockets(body, bones, side).map(
-          (s: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieVector3 => s.point,
-        ),
-        ...outline(body, side).map(
-          (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
-            resolveAutoMovieHumanoidSurfaces.place(
-              frame,
-              bones.get(frame.bone)!,
-            ).point,
-        ),
-      ];
-      let low: number = Infinity;
-      for (const p of points) low = Math.min(low, p.y);
-      return points.filter(
-        (p: IAutoMovieVector3): boolean => p.y <= low + BEARING,
-      );
-    });
+    return readHumanFoot(body, bones).base(sides);
   }
 
   /**
@@ -148,29 +147,11 @@ export namespace HumanFoot {
     side: "left" | "right",
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3[] {
-    const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-    return [
-      ...SOCKETS.map(
-        (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 =>
-          point(body, side, socket, foot),
-      ),
-      ...outline(body, side).map(
-        (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
-          Vector3.add(
-            foot.ankle,
-            Quaternion.rotateVector(
-              foot.rotation,
-              frame.bone === `${side}Foot`
-                ? frame.point
-                : Vector3.add(
-                    Vector3.subtract(body.rest.get(frame.bone)!, ankle),
-                    frame.point,
-                  ),
-            ),
-          ),
-      ),
-    ];
+    return prepareHumanFootSole(body, side)(foot);
   }
+
+  /** Flat-toed sole geometry over changing foot placements (`prepareHumanFootSole`), shared only for unchanged body-local geometry. */
+  export const prepareSole: typeof prepareHumanFootSole = prepareHumanFootSole;
 
   /**
    * A foot's outline on its sole, the corners of its colliders seen from
@@ -193,10 +174,7 @@ export namespace HumanFoot {
     return {
       ankle: foot.ankle,
       rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
-          foot.rotation,
-        ),
+        Quaternion.multiply(YAW(degrees), foot.rotation),
       ),
     };
   }
@@ -209,21 +187,18 @@ export namespace HumanFoot {
    * @param roll Degrees about the foot's forward axis, positive lifting its outer border on the left foot's side (+X at rest); none when absent.
    * @returns The rotation.
    */
-  export function rotation(
+  export const rotation: (
     heading: number,
     pitch: number,
-    roll: number = 0,
-  ): IAutoMovieQuaternion {
-    return Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
-        ),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
-      ),
-    );
-  }
+    roll?: number,
+  ) => IAutoMovieQuaternion = HumanFootRotation;
+
+  /** Prepare the exact height component of one fixed articulated socket for actual clearance-only queries. */
+  export const prepareHeight: typeof prepareHumanFootHeight =
+    prepareHumanFootHeight;
+
+  /** Actual socket/outline frame bone membership for one unchanged displayed-foot observation. */
+  export const bones: typeof humanFootBones = humanFootBones;
 
   /**
    * The roll of a foot's rotation about its forward axis, degrees, as
@@ -271,7 +246,40 @@ export namespace HumanFoot {
       y: 0,
       z: 1,
     });
-    const yaw: number = (heading(rotation) * Math.PI) / 180;
+    return pitchAt(toes, heading(rotation));
+  }
+
+  /**
+   * Read heading and toes-up pitch from the same foot rotation, sharing
+   * the lateral-axis heading needed by both values.
+   *
+   * @param rotation The foot's world rotation.
+   * @returns A fresh degree-valued pair, preserving pitch beyond vertical.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world rotation input, degree outputs, shared heading and the past-vertical pitch convention.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses heading's original lateral-axis direction and pitch's original forward-axis projection; the one heading feeds the same pitchAt formula as raw pitch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One heading read and one forward-axis read supply the pair, with the pitch formula owned once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normalization, clamp, range or angle convention changes, and neither angle is cached across rotations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work; a consumer of both angles omits the repeated lateral-axis rotation and heading atan2 that separate heading/pitch calls require.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both scalar values derive from this same supplied quaternion within this call; no identity, pose or time key is involved.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh scalar pair and retains no input or state.
+   */
+  export function headingPitch(rotation: IAutoMovieQuaternion): {
+    heading: number;
+    pitch: number;
+  } {
+    const angle: number = heading(rotation);
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    return { heading: angle, pitch: pitchAt(toes, angle) };
+  }
+
+  /** Pitch projected along the same lateral-axis heading, in clinical degrees. */
+  function pitchAt(toes: IAutoMovieVector3, angle: number): number {
+    const yaw: number = (angle * Math.PI) / 180;
     return (
       (Math.atan2(toes.y, toes.x * Math.sin(yaw) + toes.z * Math.cos(yaw)) *
         180) /
@@ -289,30 +297,11 @@ export namespace HumanFoot {
    * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The offset, metres.
    */
-  export function offset(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
-    toes: number = 0,
-  ): IAutoMovieVector3 {
-    const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-    if (point === "mtp")
-      return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
-    const socket =
-      body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
-    if (socket.bone === `${side}Foot`) return socket.point;
-    const joint: IAutoMovieVector3 = Vector3.subtract(
-      body.rest.get(socket.bone)!,
-      foot,
-    );
-    return Vector3.add(
-      joint,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: -1, y: 0, z: 0 }, toes),
-        socket.point,
-      ),
-    );
-  }
+  export const offset: typeof humanFootOffset = humanFootOffset;
+
+  /** Fixed body/socket geometry over varying actual toe angles, owned by humanFootOffset.prepare. */
+  export const prepareOffset: typeof humanFootOffset.prepare =
+    humanFootOffset.prepare;
 
   /**
    * The foot placed by pivoting about a sole point fixed on the floor.
@@ -349,6 +338,55 @@ export namespace HumanFoot {
     return {
       ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
       rotation: r,
+    };
+  }
+
+  /**
+   * Prepare rigid sole geometry for repeated pitch trials under one fixed
+   * heading, toe flexion, roll and default contact. An explicit contact changes
+   * only the translation under that same prepared geometry.
+   *
+   * @param body The body owning the sole socket.
+   * @param side The foot.
+   * @param pivot Which socket stays fixed.
+   * @param at The socket's fixed world position, metres.
+   * @param heading The fixed foot heading, degrees about +Y.
+   * @param toes The fixed toe flexion, degrees; zero when absent.
+   * @param roll The fixed foot roll, degrees; zero when absent.
+   * @returns A reader of pitch in degrees, positive toes up, with pivot's placement; an explicit world contact replaces only the default at under the same fixed rotation/socket preparation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, frames, units, defaults and the reader's equivalence to pivot.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses exactly rotation's yaw-times-roll prefix, normalization and varying pitch multiplication, then the actual default or explicitly supplied contact minus its rotated socket offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rotation prefix and socket offset precede one pitch reader of the same rigid transform as pivot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Calls offset for toe articulation and preserves quaternion multiplication order; no pitch or angle bound changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; socket lookup and fixed yaw and roll quaternion construction run once per rocker.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes body, side, socket, heading, toes and roll. Default at remains fixed; an explicitly supplied current contact changes translation alone and is actually subtracted each time, without sharing a placed result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains its default contact, socket offset and rotation prefix until its solve/action releases it; explicit current contacts and queried results are not retained.
+   */
+  export function preparePivot(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+    at: IAutoMovieVector3,
+    heading: number,
+    toes: number = 0,
+    roll: number = 0,
+  ): (
+    pitch: number,
+    contact?: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanFoot.IPlacement {
+    const turned: ReturnType<typeof HumanFootRotation.prepare> =
+      HumanFootRotation.prepare(heading, roll);
+    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
+    return (
+      pitch: number,
+      contact: IAutoMovieVector3 = at,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const r: IAutoMovieQuaternion = turned(pitch);
+      return {
+        ankle: Vector3.subtract(contact, Quaternion.rotateVector(r, local)),
+        rotation: r,
+      };
     };
   }
 
@@ -399,9 +437,49 @@ export namespace HumanFoot {
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
+    return pointAt(offset(body, side, point, toes), foot);
+  }
+
+  /**
+   * Prepare a sole point whose body, socket and toe flexion remain fixed.
+   *
+   * @param body The socket's body.
+   * @param side The foot.
+   * @param point The socket to place.
+   * @param toes Fixed toe flexion, degrees; zero when absent.
+   * @returns A reader of foot placement yielding the same world point as `point`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed socket inputs, angular default, world-point result and placement reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the articulated ankle-local socket once and uses point's same quaternion rotation and ankle translation for every placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset preparation and the shared pointAt rigid transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Toe articulation remains offset's formula; no placement is sampled, rounded or retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; repeated placements skip socket/rest lookups and the fixed toe rotation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, socket and toe flexion fix one local offset for the reader's lifetime; the varying placement is always evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one offset until its owning rocker or action releases it, without query history.
+   */
+  export function preparePoint(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    toes: number = 0,
+  ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3 {
+    const local: IAutoMovieVector3 = offset(body, side, point, toes);
+    return (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 =>
+      pointAt(local, foot);
+  }
+
+  /** The common ankle translation and rigid rotation of a prepared local socket. */
+  function pointAt(
+    local: IAutoMovieVector3,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieVector3 {
     return Vector3.add(
       foot.ankle,
-      Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)),
+      Quaternion.rotateVector(foot.rotation, local),
     );
   }
 }
+
+/** The unchanged world-up axis shared only as axis-angle scalar preparation. */
+const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

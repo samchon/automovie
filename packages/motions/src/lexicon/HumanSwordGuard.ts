@@ -101,7 +101,7 @@ export namespace HumanSwordGuard {
   export const guard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordGuard.IParams> =
     {
       name: "swordGuard",
-      interrupts: HumanSword.follows("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordGuard.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {

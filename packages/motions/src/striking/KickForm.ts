@@ -50,6 +50,22 @@ export namespace KickForm {
   /** The push kick's backward tip of the body at contact, degrees (provisional reading of coaching photographs of the teep). */
   export const PUSH_PITCH: number = 8;
 
+  /**
+   * The most the push kick's thigh rises above the level at its chamber,
+   * degrees: the knee is lifted to the target's height, as far as the hip
+   * flexes with a folded knee (120 degrees from the standing leg, the
+   * clinical range of hip flexion, AAOS).
+   */
+  export const PUSH_RAISE_MOST: number = 30;
+
+  /**
+   * How much of its shank's turn a push kick's ankle takes up while the leg
+   * extends, degrees, so the sole faces the target before the knee is
+   * straight: the ankle's dorsiflexion (20 degrees, the clinical range,
+   * AAOS).
+   */
+  export const PUSH_ANKLE_GIVE: number = 20;
+
   /** Share of the way the root travels from its entry to over the support ankle at contact (provisional: the centre of mass stays inside the support foot's length). */
   export const CENTRE_SHARE: number = 0.8;
 
@@ -68,11 +84,21 @@ export namespace KickForm {
   /** The least horizontal distance along the line the kicking hip keeps from the planned point when the support foot steps up, as a share of the thigh (provisional: within a thigh's length the knee passes the target and the thigh, not the shin or the foot, meets it). */
   export const STEP_ROOM_SHARE: number = 1;
 
-  /** How many times a contact raises the support foot's step-up by what the fitted leg still lacks (provisional: each round removes the lack the last fit measured, so a second round only absorbs what the hip's range of motion changed). */
-  export const STEP_ROUNDS: number = 4;
 
   /** Share of the chamber phase by which the extension's unit overlaps the chamber's, so the ankle rounds the chamber point instead of resting on it (Flash and Hogan 1985 fit via-point movements by such overlapping units; the share is provisional). */
   export const VIA_OVERLAP: number = 0.4;
+
+  /**
+   * The share of the lift by which the knee has folded to its chamber, the
+   * hip taking the whole lift: one half. A leg leaving the floor folds its
+   * knee before its thigh swings: in walking the knee is flexed 40 degrees
+   * at toe-off and at its 60 degree peak by the end of initial swing, while
+   * the hip has flexed 15 of the 25 degrees it reaches in mid-swing (Perry
+   * and Burnfield, Gait Analysis, 2nd ed., the swing phases). The half is a
+   * provisional reading of that order for a kick's chamber; no study of the
+   * lift's joint timing was read.
+   */
+  export const KNEE_LEAD: number = 0.5;
 
   /** The most the fitted leg may miss its solved ankle, and the support ball its plant, for a kick to count as reached, metres (the limb fit's own convergence scale). */
   export const TOLERANCE: number = 1e-3;
@@ -112,17 +138,8 @@ export namespace KickForm {
   /** How far the knee's bend hint sits from the solved knee, as a share of the thigh (provisional). */
   export const HINT_SHARE: number = 0.25;
 
-  /** How long past the planned contact the leg stays a weapon, seconds (provisional: the through-travel's settling). */
-  export const WEAPON_TAIL: number = 0.1;
-
   /** The foot capsule's radius as a share of the ankle height (provisional: half the foot's depth). */
   export const FOOT_RADIUS_SHARE: number = 0.5;
-
-  /** The aim tracker's observation step, seconds: one film frame at 24 frames a second, as the punch reads its target. */
-  export const TRACK_STEP: number = 1 / 24;
-
-  /** The aim tracker's shortest correction unit, seconds, as the punch's. */
-  export const TRACK_SHORTEST: number = 0.04;
 
   /** Share of the recoil over which the foot returns from its contact rotation to its chamber rotation, the first of the stroke's two return units ({@link StrikingStroke}). */
   export const RECHAMBER_SHARE: number = 0.45;

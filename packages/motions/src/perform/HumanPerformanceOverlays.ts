@@ -146,6 +146,9 @@ export namespace HumanPerformanceOverlays {
     HumanPerformanceContacts.hold(person, overlay, true);
     self.riding.add(entries.length);
     person.overlays.push(overlay);
+
+    // An overlay changes what the person shows from here on.
+    person.planning?.clear();
     if (intent.anchor !== undefined)
       self.anchors.set(
         intent.anchor,

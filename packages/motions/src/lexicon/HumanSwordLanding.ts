@@ -79,23 +79,18 @@ export namespace HumanSwordLanding {
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate keeps the landing part on the target and the edge along the travel (`StrikingHeld.hand`); the arm's fit chooses among them and refines the lean and the turn between them (`StrikingRoll.chosen`), so the ranges of the shoulder, the forearm and the wrist decide.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidates on the line first, then the turned ones by strain, then one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turns and leans are a stated search resolution; the cut's refusal still judges the chosen pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The turned candidates are ranked by the closed-form strain and fitted lazily, ending at the first the arm holds exactly.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per cut plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The candidates are a fixed grid (`TURNS` by `LEANS` on the line; the leans by the cone's tilts, eight directions and the rolls off it), each ranked by its closed-form strain; `StrikingRoll.chosen` fits the arm only to the ranked ones it tries, at most `StrikingRoll.TRIED` off the line.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each candidate frame is built from the props as given and ranked once; the arm's fits are `StrikingRoll.chosen`'s.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The candidate arrays end with the call; only the chosen hand frame is returned.
    */
   export function frame(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     props: IProps,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-    const { tool, back, target, reach, travel, posture } = props;
-    const leaning = (
-      lean: number,
-      turn: number,
-    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+    const { tool, back, target, reach, travel, posture }: IProps = props;
+    const leaning: (lean: number, turn: number) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = (lean: number, turn: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
       StrikingHeld.hand(
-        tool,
-        back,
-        target,
+        tool, back, target,
         Quaternion.rotateVector(
           Quaternion.fromAxisAngle(travel, turn),
           Vector3.subtract(
@@ -111,12 +106,7 @@ export namespace HumanSwordLanding {
     )
       .map((values: [number, number]): [[number, number], number] => [
         values,
-        StrikingRoll.strain(
-          context,
-          tool,
-          leaning(values[0], values[1]),
-          posture,
-        ),
+        StrikingRoll.strain(context, tool, leaning(values[0], values[1]), posture),
       ])
       .sort(
         (
@@ -127,9 +117,7 @@ export namespace HumanSwordLanding {
       .map((c: [[number, number], number]): [number, number] => c[0]);
     // The line leaned further, `tilt` degrees inside `cone`
     // toward `around`, and an edgeless tool rolled `roll` degrees about it.
-    const free = (
-      values: readonly number[],
-    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const free = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [lean, turn, roll, tilt, around] = values as readonly [
         number,
         number,
@@ -137,18 +125,10 @@ export namespace HumanSwordLanding {
         number,
         number,
       ];
-      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(
-        lean,
-        turn,
-      );
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(lean, turn);
       if (roll === 0 && tilt === 0) return frame;
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(
-        frame.rotation,
-        tool.axis,
-      );
-      const aside: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(run, travel),
-      );
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, tool.axis);
+      const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(run, travel));
       const leant: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(run, around),
         Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), run),

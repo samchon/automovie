@@ -1,6 +1,8 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -14,26 +16,27 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkStanceCourse } from "../actions/walkStanceCourse";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmSwing } from "../posture/HumanArmSwing";
-import { HumanFoot } from "../posture/HumanFoot";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
+import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
-import { staggerKnots } from "./staggerKnots";
+import { staggerContacts } from "./staggerContacts";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
+import { staggerResolved } from "./staggerResolved";
+import { staggerRocking } from "./staggerRocking";
+import { staggerShift } from "./staggerShift";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -45,7 +48,10 @@ import { staggerRecover } from "./staggerRecover";
  * as near the extrapolated centre of mass `x + v / omega0`, `omega0 = sqrt(g
  * / l)`, as the bearing feet reach: on it, which holds it, or at the nearest
  * point of their outline, from which it runs on (Hof 2008, Hum Mov Sci
- * 27:112). Each recovery step chooses its time and its place within measured
+ * 27:112). After the push it moves without a jump: a weight shift carries
+ * it onto the stance foot before each step, ending where the swing holds
+ * it, and onto a landed foot only by the next shift, never at a
+ * touch-down. Each recovery step chooses its time and its place within measured
  * bounds, as capture-point stepping does (Koolen et al. 2012, Int J Robot Res
  * 31:1094; Griffin et al. 2017): the weight shifts onto the stance foot over
  * both feet, the foot swings in its direction's step time and lands the sole
@@ -53,15 +59,17 @@ import { staggerRecover } from "./staggerRecover";
  * footstep region allows, and the body is caught once the extrapolated
  * centre of mass lies inside the base the two feet make. The region is the
  * stance foot's: within its direction's longest recovery step of where the
- * foot stood beside the stance foot, and inside the legs' own reachable set
- * from the pelvis the centre of mass carries at the landing, the trunk free
- * to tilt, the landing foot to turn out and the two legs clear of each other
- * as the tangle audit reads them (`walkStanceCourse`, `walkLegClearance`); a
- * step past it shortens toward the stance foot. The legs may cross: a
- * footstep planner's region on the stepping foot's own side of the stance
- * foot (Deits and Tedrake 2014) keeps a walking robot's legs apart, but it
- * forbids the crossover step people take in most lateral recoveries, so it
- * is not this region. Every order of the feet over up to four steps is tried,
+ * foot stood beside the stance foot; a step past it shortens toward the
+ * stance foot. The legs then admit each step at its mid-swing and its
+ * landing, under the pelvis the centre of mass carries there: each planted
+ * leg's reach, knee flexion and thigh extension as a two-bone chain, and
+ * crossed legs clear of each other as the tangle audit reads them
+ * (`staggerAdmission`, `walkLegClearance`); a step they do not hold refuses
+ * its order of the feet. The legs may cross, a sole's length in front of or
+ * behind the stance foot: a footstep planner's region on the stepping foot's
+ * own side of the stance foot (Deits and Tedrake 2014) keeps a walking
+ * robot's legs apart, but it forbids the crossover step people take in most
+ * lateral recoveries, so it is not this region. Every order of the feet over up to four steps is tried,
  * the fewest steps first, so capture is monotone in the push's speed; the
  * order preferred alternates its feet forward and backward (Maki and McIlroy
  * 1997), beginning with the foot further along the push, the rear foot for a
@@ -82,33 +90,35 @@ import { staggerRecover } from "./staggerRecover";
  * up to four recovery steps (Debelle, Maganaris and O'Brien 2021): it is
  * refused, naming the fastest push the body catches that way.
  *
- * Once caught, the other foot closes at the entry's stance width, as far
- * ahead or behind as stands the middle of the two ankles under the caught
- * point as the entry stood over its own. The extrapolated centre of mass
+ * Once caught, the other foot closes at least at the entry's stance width,
+ * as far ahead or behind as stands the middle of the two ankles, as the
+ * entry stood over its own, under where the extrapolated centre of mass will
+ * be when it lands, and the close holds only with the extrapolated centre of
+ * mass then inside the two feet's base (Hof 2008). The extrapolated centre of mass
  * then tracks a minimum-jerk course to where the body stood over its feet,
  * its centre of pressure placed by the divergent component's tracking law
  * inside the base (Englsberger, Ott and Albu-Schaffer 2015), and the centre
  * of mass follows it, `x' = omega0 (xi - x)`, until both rest within a
  * millimetre.
  *
- * The body over its feet is one stance course (`walkStanceCourse`): the
- * pelvis's drop, each planted foot's pitch about its ball and its turn on
- * the floor, and the trunk's tilt about the hips, as one trajectory
- * optimisation, the pelvis carrying the centre of mass on its course less
- * the shift the trunk's tilt makes of it. The legs' reach, the hip's
- * extension and rotation and the ankle's range are its constraints, with the
- * feet bearing the centre of pressure and the caught extrapolated centre of
- * mass, so a backward landing carries the pelvis back over the rear foot by
- * bending the trunk against the fall, the hip strategy (Horak and Nashner
- * 1986, J Neurophysiol 55:1369), because the ranges ask for it rather than
- * by a rule. A stance whose leg leans further to its side than the ankle's
- * 25 degrees rolls onto its edge; a stepping foot first rises clear of the
- * floor by the minimum toe clearance of walking (`walkFoot.CLEARANCE`,
- * Killeen et al. 2017), over the share of its swing a walking foot takes to set down
- * from that height, then swings as a walking foot swings (`walkFoot.swing`)
- * to the stance it lands in, held inside its leg's ranges and as high over
- * the floor as its swing carries it (`walkReach.swing`), so it leaves and
- * joins its stances where they stand.
+ * The body over its feet is read at each second from prepared courses
+ * (`StaggerFeet`): the trunk bends about the hips against the fall, the hip
+ * strategy (Horak and Nashner 1986, J Neurophysiol 55:1369), by the
+ * inclination of the extrapolated centre of mass's lead over the pendulum's
+ * length, bounded by the hip's extension and eased in from the measured
+ * reaction (`staggerLean`, the relation provisional); the pelvis carries the
+ * centre of mass's course less the shift that tilt makes of it, and is
+ * lowered to the height its planted legs allow, as the walk settles its
+ * pelvis (`walkReach.ground`), each heel rising about its ball where the
+ * ankle runs out of room. A stepping foot
+ * first rises clear of the floor by the minimum toe clearance of walking
+ * (`walkFoot.CLEARANCE`, Killeen et al. 2017), over the share of its swing a
+ * walking foot takes to set down from that height, then swings as a walking
+ * foot swings (`walkFoot.prepareSwing`) to the stance it lands in, bowed
+ * clear of the standing foot by the soles' own clearance in closed form
+ * (`staggerSwingBow`) and held inside its leg's ranges and as high over the
+ * floor as its swing carries it (`walkReach.swing`), so it leaves and joins
+ * its stances where they stand.
  *
  * Both
  * arms abduct as balance reactions, 9.4 degrees from 154 ms after the push
@@ -116,7 +126,8 @@ import { staggerRecover } from "./staggerRecover";
  * 10.7 and 8.0 degrees, at its measured onset; Weerdesteyn, Laing and
  * Robinovitch 2008, Exp Brain Res 186:571), held through the steps and let
  * down as the body settles, each let out further where it would pass into
- * the body (`HumanArmSwing.of`). The steps, the catch and the settling are
+ * the body, read once for the plan at `KNOTS` a second as a gait reads its
+ * carriage (`HumanArmSwing.carriage`) and interpolated between. The steps, the catch and the settling are
  * the body's dynamics, which no manner changes; the manner's tempo scales
  * the righting.
  *
@@ -129,8 +140,19 @@ import { staggerRecover } from "./staggerRecover";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot, gait, target, clock, balance and primitive owners; the steps scale with each body's pendulum, feet and stature.
  */
 export namespace stagger {
+  /** A settled sample lent only to the writer that is evaluating that instant. */
+  interface ILoan {
+    /** Action seconds. */
+    seconds: number;
+
+    /** The foot, pelvis and trunk result at that instant. */
+    solved: ReturnType<StaggerFeet["solve"]>;
+  }
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "stagger";
+
+  /** A stagger's content is a staged loss of balance, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  export const physical: boolean = true;
 
   /** Cancel table: a stagger flows into a guard or a knockdown. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
@@ -145,8 +167,7 @@ export namespace stagger {
   };
 
   /** A forward recovery step's landing after the push (`staggerBounds.LANDING`), the step's time `perturb` reads. */
-  export const LANDING: IAutoMovieMotionHumanTiming.Span =
-    staggerBounds.LANDING;
+  export const LANDING: IAutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
 
   /**
    * Plan a stagger.
@@ -157,21 +178,21 @@ export namespace stagger {
    * @throws {HumanRefusal} `parameter` on `speed` when no `STEPS` recovery steps catch the push: a fall, with the fastest push the body catches that way.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum (`staggerRecover`); the feet, the pelvis and the trunk on one stance course under the legs' ranges (`StaggerFeet`); the arms abducted from their measured onset.
+   * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum, admitted by the legs as two-bone chains (`staggerRecover`); the feet and the pelvis read from those courses with the walk's own pelvis settling (`StaggerFeet`); the arms abducted from their measured onset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One recovery search and two posture solves per plan; per posture one pelvis settling and a swing's hold, with each step's two stance ends memoised.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `staggerRecover`, `staggerLimit`, `StaggerFeet`, `HumanArmSwing` and `ReactionSource`; the push, its recovery and the trunk's shift of the centre of mass are read once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the recovery and its feet, released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning steps at most 30 closed-form pendulum prefixes and admits only the prefixes of an order the pendulum catches; a refused push adds the limit's bisection of such recoveries over one prepared entry geometry. No stance course or quadratic program is solved; each pose query is one course read, one ground settling and at most two prepared swing holds.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. While the plan is built, each sample's feet and pelvis with no balance shift are solved once and lent to the legs' writer for the arms' carriage read and the first balance pass, which show the plan there before any shift exists; the second balance pass and every pose query solve their own, shifted. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at `KNOTS` a second, about 50 samples a second of plan, each raised to its neighbours' largest) and interpolated, so a pose query writes the arms as joint angles with no fit; between samples the clearance is the interpolated envelope's, unverified inside an interval.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION } =
+    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION }: typeof staggerBounds =
       staggerBounds;
     const p: IAutoMovieMotionHumanStagger.IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
-    const body = context.body;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const righting: number =
       AutoMovieMotionManner.of(context, p.manner).tempo *
@@ -195,12 +216,19 @@ export namespace stagger {
       ),
       y: 0,
     });
+
+    const fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
+      body,
+      context.entry,
+    );
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
       push,
       p.speed,
       righting,
+      true,
+      fixed,
     );
     if (recovery === null) {
       const caught: number = staggerLimit.of(
@@ -208,6 +236,7 @@ export namespace stagger {
         context.entry,
         push,
         p.speed,
+        fixed,
       );
       throw new HumanRefusal({
         kind: "parameter",
@@ -230,13 +259,22 @@ export namespace stagger {
       ],
     );
     const duration: number = clock.duration;
-    const last = (): number => recovery.steps.at(-1)!.land;
-    const feet: StaggerFeet = new StaggerFeet(
-      body,
-      context.entry,
-      recovery,
-      staggerKnots.bending(body, context.entry),
-    );
+    const last: () => number = (): number => recovery.steps.at(-1)!.land;
+    const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
+    const landing: Map<staggerRecover.IStep, IAutoMovieHumanLimbReference> = new Map();
+    const rocking: ReturnType<typeof staggerRocking> = staggerRocking(body, context.entry, recovery, landing);
+    const settledEntry: number = feet.settle(0, feet.standing(0)).root.y;
+    const reaction: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.REACTION);
+
+    // The root's level shift at a second, `balanced` interpolated; the feet
+    // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
+    const shiftAt: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 => {
+      const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
+      const k: number = Math.floor(at);
+      const a: IAutoMovieVector3 | undefined = balanced[k];
+      const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
+      return a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+    };
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -244,143 +282,189 @@ export namespace stagger {
       write: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => {
-        const { feet: scheduled, settled, reached } = feet.solve(seconds);
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-          ...posture.limbs,
+        if (seconds <= 0) return entry;
+        // The root carries the plan-time residual of the displayed centre of
+        // mass from the pendulum's course (`balanced`), interpolated, and the
+        // pelvis is settled where that puts it, under the trunk's tilt: the
+        // legs are fitted to the hips the pose shows.
+        const reacting: number = minimumJerk.share(seconds / reaction);
+        const shift: IAutoMovieVector3 = Vector3.scale(shiftAt(seconds), reacting);
+        const solved: ReturnType<StaggerFeet["solve"]> =
+          lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
+        const settled: ReturnType<StaggerFeet["solve"]>["settled"] = solved.settled;
+        const root: IAutoMovieVector3 = reacting === 1 ? settled.root : {
+          ...settled.root,
+          y: settled.root.y + (entry.root.y - settledEntry) * (1 - reacting),
         };
-        for (const side of ["left", "right"] as const) {
-          // The knee points over the foot's own heading.
-          const knee: IAutoMovieVector3 = staggerKnots.kneePole(
-            body,
-            settled.root,
-            settled.yaw,
-            side,
-            HumanFoot.heading(reached[side].rotation),
-          );
-          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: reached[side].ankle,
-            bend: knee,
-            rotation: reached[side].rotation,
-            ...(scheduled[side].swing === undefined
-              ? { planted: true, contact: settled.contacts[side] }
-              : {}),
-          };
-        }
-        // The trunk tilts about the hips as the course bends it, so the legs
-        // stay on their feet.
-        return AutoMovieMotionHumanLean.pivot(
-          body,
-          {
-            ...posture,
-            root: settled.root,
-            yaw: settled.yaw,
-            joints: {
-              ...posture.joints,
-              leftToes: [reached.left.toes, 0, 0],
-              rightToes: [reached.right.toes, 0, 0],
-            },
-            limbs,
-          },
-          walkStanceCourse.at(feet.course(), seconds).trunk,
-        );
+        return rocking({ posture, solved, root, seconds, reacting });
       },
     };
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
-    // into the body (`HumanArmSwing.of`).
-    const held: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanArmAngles.IAngles
-    > = {
+    // into the body by its plan-time carriage (`carried`).
+    const held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
     const onset: number = AutoMovieMotionHumanTiming.seconds(ONSET);
-    const raised = (seconds: number): number => {
+    const raised: (seconds: number) => number = (seconds: number): number => {
       const end: number = last();
-      const rise: number = minimumJerk(
+      const rise: number = minimumJerk.share(
         Math.min(1, Math.max(0, (seconds - onset) / (swing - onset))),
-      ).s;
-      const fall: number = minimumJerk(
+      );
+      const fall: number = minimumJerk.share(
         Math.min(1, Math.max(0, (seconds - end) / (duration - end))),
-      ).s;
+      );
       return ABDUCTION * Math.max(0, rise - fall);
     };
     const arms: IAutoMovieMotionHumanPrimitive = {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const more: number = raised(seconds);
-        const abducted = (
+
+        // The let-out's envelope between the two samples around this second.
+        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, carried.left.length - 1));
+        const k: number = Math.floor(at);
+        const out: (side: "left" | "right") => number = (side: "left" | "right"): number => {
+          const series: number[] = carried[side];
+          if (series.length === 0) return 0;
+          const a: number = series[k]!;
+          const b: number = series[Math.min(series.length - 1, k + 1)]!;
+          return a + (b - a) * (at - k);
+        };
+        const abducted: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles = (
           side: "left" | "right",
         ): IAutoMovieMotionHumanArmAngles.IAngles => ({
           ...held[side],
           upper: [
             held[side].upper[0],
-            held[side].upper[1] + more,
+            held[side].upper[1] + more + out(side),
             held[side].upper[2],
           ],
         });
-        return HumanArmSwing.of(
+        return AutoMovieMotionHumanArm.carry(
           body,
-          AutoMovieMotionHumanArm.carry(
-            body,
-            posture,
-            { left: abducted("left"), right: abducted("right") },
-            0,
-          ),
-          ["left", "right"],
+          posture,
+          { left: abducted("left"), right: abducted("right") },
+          0,
         );
       },
     };
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
-        base: {
-          ...AutoMovieMotionHumanBase.still(duration, {
-            root: entry.root,
-            yaw: entry.yaw,
-            pitch: entry.pitch,
-            roll: entry.roll,
-            joints: entry.joints,
-            limbs: {},
-          }),
-        },
-        clock,
-        primitives: [legs, arms],
-      });
-    return {
-      ...composed,
-      get contacts(): IAutoMovieMotionHumanContactWindow[] {
-        const out: IAutoMovieMotionHumanContactWindow[] = [];
-        for (const side of ["left", "right"] as const) {
-          let from: number = 0;
-          for (const step of recovery.steps) {
-            if (step.side !== side) continue;
-            if (step.start > from)
-              out.push({
-                part: `${side}Foot`,
-                kind: "plant",
-                from: from / duration,
-                to: step.start / duration,
-                support: { kind: "ground" },
-              });
-            from = step.land;
-          }
-          out.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from: Math.min(1, from / duration),
-            to: 1,
-            support: { kind: "ground" },
-          });
-        }
-        return out;
+    // Each arm's let-out from the body (`HumanArmSwing.carriage`, the gait's
+    // own clearance), read once at plan time at `KNOTS` a second against the
+    // plan's own posture there (its dropped pelvis and swinging thighs), each
+    // sample raised to the largest of its neighbours' so the interpolated
+    // let-out holds at both samples around every second; no pose query fits
+    // an arm.
+    const KNOTS: number = staggerBounds.KNOTS;
+    let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
+    let balanced: IAutoMovieVector3[] = [];
+    let lent: ILoan | undefined;
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: {
+        ...AutoMovieMotionHumanBase.still(duration, {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: entry.joints,
+          limbs: {},
+        }),
       },
+      clock,
+      primitives: [legs, arms],
+    });
+    const samples: number[] = Array.from(
+      { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
+      (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
+    );
+
+    // Each sample's feet and pelvis with no balance shift, solved once and
+    // lent to the legs' writer while the plan is read there before any shift
+    // exists: the arms' carriage and the first balance pass each settled
+    // that same pelvis again.
+    const unshifted: ReturnType<StaggerFeet["solve"]>[] = samples.map(
+      (seconds: number): ReturnType<StaggerFeet["solve"]> => feet.solve(seconds),
+    );
+    const lend: <T>(i: number, read: () => T) => T = <T>(i: number, read: () => T): T => {
+      lent = balanced.length === 0 ? { seconds: samples[i]!, solved: unshifted[i]! } : undefined;
+      try {
+        return read();
+      } finally {
+        lent = undefined;
+      }
     };
+    const resolved: staggerResolved.IReader = staggerResolved(body);
+    const needs: Record<"left" | "right", number>[] = samples.map(
+      (seconds: number, i: number): Record<"left" | "right", number> =>
+        lend(i, (): Record<"left" | "right", number> =>
+          resolved.carriage(i, composed.posture(seconds)),
+        ),
+    );
+    const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
+      needs.map((_: Record<"left" | "right", number>, i: number): number =>
+        Math.max(
+          needs[Math.max(0, i - 1)]![side],
+          needs[i]![side],
+          needs[Math.min(needs.length - 1, i + 1)]![side],
+        ),
+      );
+    carried = { left: envelope("left"), right: envelope("right") };
+
+    // The displayed centre of mass kept on the pendulum's course: at each
+    // sample the residual of the displayed posture's centre of mass
+    // (`HumanBalance.centre`) from the course's horizontal point is added
+    // to the root, as the fixed point of the per-frame centre of mass
+    // correction (Phillips and Badler 1991): the legs stand planted while
+    // the rest of the body follows the root, so each step leaves the planted
+    // legs' share of the residual, and the shift is the sum of that series,
+    // read from the residual with no shift and the one its shift leaves
+    // (`staggerShift`).
+    const residuals: () => IAutoMovieVector3[] = (): IAutoMovieVector3[] =>
+      samples.map((seconds: number, i: number): IAutoMovieVector3 => {
+        const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
+          resolved.centre(i, composed.posture(seconds)),
+        );
+        const travel: IAutoMovieVector3 = recovery.course(seconds);
+        return {
+          x: recovery.centre.x + travel.x - shown.x,
+          y: 0,
+          z: recovery.centre.z + travel.z - shown.z,
+        };
+      });
+    const first: IAutoMovieVector3[] = residuals();
+    balanced = first;
+    feet.shifted(shiftAt);
+    const second: IAutoMovieVector3[] = residuals();
+    balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
+    feet.shifted(shiftAt);
+    // A crossing leg may have two almost equal swivels; use the touchdown
+    // solution through the approach and the ensuing stance. One scoped fit
+    // per landing determines the branch with no previous-frame dependency.
+    for (const step of recovery.steps) {
+      const key: keyof IAutoMovieMotionHumanPosture["limbs"] = `${step.side}Leg`;
+      const postfix: AutoMovieHumanoidBone = `${step.side}LowerLeg`;
+      const wanted: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([postfix, `${step.side}Foot`]);
+      const posture: IAutoMovieMotionHumanPosture = composed.posture(step.land, ["root", "trunk", key]);
+      const solved: ReturnType<typeof resolveHumanPosture.seeded> = resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        undefined,
+        wanted,
+      );
+      landing.set(step, resolveHumanPosture.reference(solved.pose, key));
+    }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = staggerContacts(
+      recovery,
+      duration,
+    );
+    return { ...composed, contacts, physicalWindow: { from: 0, to: recovery.settled } };
   }
 }

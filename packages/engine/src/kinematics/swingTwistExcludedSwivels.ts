@@ -1,13 +1,12 @@
-import {
+import type {
   IAutoMovieAngleRange,
-  type IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
-  type IAutoMovieJointRotationFrame,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
-  type IAutoMovieRestFrame,
-  type IAutoMovieSwingTwistLimit,
-  type IAutoMovieSwivelArcs,
+  IAutoMovieRestFrame,
+  IAutoMovieSwingTwistLimit,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -15,8 +14,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { toRigAngle } from "../rom/toRigAngle";
-import { normalizeJointAxes } from "./normalizeJointAxes";
-import { swingTwistBasis } from "./swingTwistBasis";
+import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
+import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
 import { swingTwistRegion } from "./swingTwistRegion";
 import { swivelArcs } from "./swivelArcs";
 
@@ -67,7 +66,7 @@ import { swivelArcs } from "./swivelArcs";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The rotation is read at three swivels, each bound gives one sinusoid, the sinusoids their arcs and the arcs one union the test reads.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sound by construction, never by sampling: an arc is refused only from its sinusoid's roots with the joints' tolerance to spare, and a case the analysis does not cover refuses nothing.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations fit both sinusoids, at most two arcs are merged once, and each test is a scan of the few merged intervals (`swivelArcs.covers`).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, the rig interval `toRigAngle`'s, the rest direction `swingTwistBasis`'s and the radii `swingTwistRegion`'s cached table, shared with `swingTwistRange`.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, the rig interval `toRigAngle`'s, the rest direction the range frame's own basis (`SwingTwistFramePreparation.basis`) and the greatest radius `swingTwistRegion.greatest`, kept with the region's table, shared with `swingTwistRange`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the merged arc list in the returned test only.
  */
 export function swingTwistExcludedSwivels(props: {
@@ -93,10 +92,10 @@ export function swingTwistExcludedSwivels(props: {
     constraint === null ||
     gate === null ||
     gate === undefined ||
-    !same(props.basis, props.frame, props.joint)
+    !readsSwingTwistFrame(props.basis, props.frame, props.joint)
   )
     return (): boolean => false;
-  const u: IAutoMovieVector3 = swingTwistBasis.of(props.joint.axes).u;
+  const u: IAutoMovieVector3 = SwingTwistFramePreparation.basis(props.joint).u;
 
   // The rotation's half-angle readings and its rest direction's cosine at
   // swivels 0, 90 and 180.
@@ -151,9 +150,7 @@ export function swingTwistExcludedSwivels(props: {
     return (): boolean => true;
 
   // The swing past the region's greatest radius.
-  const greatest: number = Math.max(
-    ...swingTwistRegion.table(constraint, props.joint),
-  );
+  const greatest: number = swingTwistRegion.greatest(constraint, props.joint);
   if (
     greatest < 180 &&
     refuse(fit(({ d }): number => Math.cos(greatest * Quaternion.DEG2RAD) - d))
@@ -171,39 +168,3 @@ export function swingTwistExcludedSwivels(props: {
  * rounding of every step.
  */
 const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
-
-/**
- * Whether the caller's basis and rest frame are the range's own, so that the
- * angles the caller reads compose back, in the range's frame, to the
- * rotation it decomposed.
- */
-function same(
-  basis: IAutoMovieJointAxes,
-  frame: IAutoMovieRestFrame | undefined,
-  joint: IAutoMovieJointRotationFrame,
-): boolean {
-  const own: IAutoMovieJointAxes = normalizeJointAxes(
-    joint.axes,
-    "swingTwistExcludedSwivels axes",
-  );
-  const vector = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    a.x === b.x && a.y === b.y && a.z === b.z;
-  const axis = (
-    a: IAutoMovieAxisFrame | undefined,
-    b: IAutoMovieAxisFrame | undefined,
-  ): boolean =>
-    a === b ||
-    (a !== undefined &&
-      b !== undefined &&
-      a.sign === b.sign &&
-      a.neutral === b.neutral);
-  return (
-    vector(basis.flexion, own.flexion) &&
-    vector(basis.abduction, own.abduction) &&
-    vector(basis.twist, own.twist) &&
-    basis.twistPlacement === own.twistPlacement &&
-    axis(frame?.flexion, joint.frame?.flexion) &&
-    axis(frame?.abduction, joint.frame?.abduction) &&
-    axis(frame?.twist, joint.frame?.twist)
-  );
-}

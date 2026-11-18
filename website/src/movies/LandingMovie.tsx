@@ -99,27 +99,19 @@ export default function LandingMovie(props: {
     <div className="am-app am-landing-page">
       <section className="am-hero" aria-labelledby="am-hero-title">
         <div className="am-hero-text">
-          <h1 id="am-hero-title">Your coding agent directs the film.</h1>
+          <h1 id="am-hero-title">Stage a scene in motion.</h1>
           <p className="am-hero-lede">
-            AutoMovie composes people, objects and motion from a few typed
-            pieces into the same frames every time, as a motion hint for video
-            diffusion or as a film rendered directly.
+            Explore the movements and objects a coding agent uses to turn a
+            screenplay into reproducible 3D footage for video diffusion.
           </p>
           <p className="am-buttons">
-            <Link className="am-button" href="/scenes/">
-              Browse scenes
+            <Link className="am-button" href="/motions/">
+              Browse motions
             </Link>
-            <Link className="am-button am-button-quiet" href="/docs/">
-              Get started
+            <Link className="am-button am-button-quiet" href="/objects/">
+              Browse archetypes
             </Link>
-            <a
-              className="am-button am-button-quiet"
-              href="https://github.com/samchon/automovie"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
+            <Link href="/scenes/">See scenes</Link>
           </p>
         </div>
         {scene === undefined ? null : (
@@ -142,7 +134,7 @@ export default function LandingMovie(props: {
             />
             <figcaption className="am-hero-caption">
               <span className="am-muted am-small">
-                Now playing {index + 1} / {featured.length}
+                Scene {index + 1} / {featured.length}
               </span>
               <strong>{scene.title}</strong>
               <span className="am-muted am-small">

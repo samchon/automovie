@@ -48,9 +48,9 @@ export namespace walkHeading {
     const a: number = Math.abs(amplitude);
     if (a <= STEP[0]![0]) return STEP[0]![1];
     for (let i: number = 1; i < STEP.length; i++) {
-      const [x1, y1] = STEP[i]!;
+      const [x1, y1]: readonly [number, number] = STEP[i]!;
       if (a <= x1) {
-        const [x0, y0] = STEP[i - 1]!;
+        const [x0, y0]: readonly [number, number] = STEP[i - 1]!;
         return y0 + ((y1 - y0) * (a - x0)) / (x1 - x0);
       }
     }
@@ -92,7 +92,7 @@ export namespace walkHeading {
       right: yaw + wrapDegrees(start.right - yaw),
     };
     // A foot already within the twist of the way turns no more in place.
-    const far = (s: "left" | "right"): boolean =>
+    const far: (s: "left" | "right") => boolean = (s: "left" | "right"): boolean =>
       Math.abs(heading - last[s]) > twist;
     if (
       Math.abs(heading - last.left) <= limit &&

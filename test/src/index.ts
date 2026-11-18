@@ -6,19 +6,18 @@ import process from "node:process";
 import type { IScenarioExecutionAssessment } from "./IScenarioExecutionAssessment";
 import { assessScenarioExecution } from "./scenarioExecution";
 import { prepareScenarioFilter } from "./scenarioSelection";
+import { watchScenarioStall } from "./watchScenarioStall";
 
-/** Run the selected scenarios, report completed failures immediately, and exit with their combined verdict. */
+/** Seconds one scenario may run before the run ends it as a stall: the project's cap on one spec, three minutes, past which a spec is a defect to fix rather than a run to wait on. */
+const SCENARIO_LIMIT: number = 180;
+
+/**
+ * Run the selected scenarios and exit with their combined verdict. A
+ * scenario past `SCENARIO_LIMIT` ends the run by name with its JavaScript
+ * stack (`watchScenarioStall`). Completed failures keep their immediate
+ * report and timing assessment.
+ */
 async function main(): Promise<void> {
-  // Static dependencies have loaded; selected unit discovery and execution
-  // follow this owned-process marker. Compiler/launcher time remains separate.
-  console.log(
-    JSON.stringify({
-      stage: "entry",
-      pid: process.pid,
-      started: new Date().toISOString(),
-      phase: "after-static-imports-before-unit-discovery",
-    }),
-  );
   console.log("---------------------------------------------------");
   console.log("AutoMovie Test Program");
   console.log("Start", new Date().toLocaleString("en-US"));
@@ -37,9 +36,21 @@ async function main(): Promise<void> {
     (filter: (name: string) => boolean): Promise<DynamicExecutor.IReport> =>
       DynamicExecutor.validate({ ...discovery, filter }),
   );
+  // A scenario whose work never returns ends the run by name with its stack
+  // (`watchScenarioStall`), past AUTOMOVIE_TEST_SCENARIO_LIMIT seconds.
+  const watch: ReturnType<typeof watchScenarioStall> = watchScenarioStall(
+    Number(process.env.AUTOMOVIE_TEST_SCENARIO_LIMIT ?? SCENARIO_LIMIT),
+  );
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     ...discovery,
+
+    // The watch marks the selected call's start; it names a stall by itself.
+    parameters: (name: string): [] => {
+      watch.start(name);
+      return [];
+    },
     onComplete: (exec: DynamicExecutor.IExecution): void => {
+      watch.complete();
       const result: IScenarioExecutionAssessment =
         assessScenarioExecution(exec);
       const mark: string = result.passed

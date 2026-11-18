@@ -321,9 +321,6 @@ function rawAndWork(failures: string[]): void {
     )
   )
     failures.push("source-Hessian point arithmetic changed");
-  console.log(
-    `source value work: point divisions ${pointDivisions}, full divisions ${counter.divisions}`,
-  );
 }
 
 /** Explicit degree-elevated ellipse controls supply an independent G2 point oracle. */

@@ -408,6 +408,9 @@ export namespace IAutoMovieMotionHumanPerformance {
     /** What everyone does. */
     composition: IAutoMovieComposition;
 
+    /** Authored airborne turns use deterministic staged rotation by default, preserving the law's centre path and fitted articulation without claiming angular-momentum conservation. The existing landing pose requires complete revolutions on each axis; nonclosing fractional turns need a compatible landing outcome and are refused. Physical solves turns from the composed body's inertia and take-off limit but does not repair that legacy landing limitation. A flight with explicitly supplied momentum always remains physical. */
+    flight?: "staged" | "physical";
+
     /**
      * The production's legality rules, such as `KickboxingRules.rules`,
      * checked against the placed schedule with the engine's

@@ -1,14 +1,19 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
+import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
+import type { IAutoMovieMotionHumanGraspUse } from "../handling/IAutoMovieMotionHumanGraspUse";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { AutoMovieHumanLimb } from "../posture/AutoMovieHumanLimb";
 import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
@@ -69,6 +74,34 @@ export interface IAutoMovieMotionHumanSegment {
     /** The offset, captured on first use. */
     offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
   };
+
+  /**
+   * Each limb's seed of the action's last displayed leaf resolve, held for
+   * the next one's swept fits as their bounded search's incumbent
+   * (`IAutoMovieFitChainToTargetProps.incumbent`), which cannot change their
+   * answer; absent until a leaf resolve, and released when the person's memos
+   * are forgotten.
+   */
+  incumbents?: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+
+  /**
+   * The legs' fit of a leaf resolve inside the plan's legs-still window
+   * (`IAutoMovieMotionHumanActionPlan.legsStill`): the plan second it was
+   * read at, the legs' joint records it gave and their seeds, which every
+   * later leaf resolve in that window keeps in place of fitting the legs
+   * again; absent until then, and released when the person's memos are
+   * forgotten.
+   */
+  legs?: {
+    /** The plan second, clamped to the plan, the legs were fitted at. */
+    at: number;
+
+    /** The legs' joint records the fit gave, thigh to toes. */
+    joints: readonly IAutoMovieJointPose[];
+
+    /** The legs' seeds the fit chose. */
+    seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+  };
 }
 
 /** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
@@ -111,10 +144,17 @@ export namespace IAutoMovieMotionHumanSegment {
     initial: IAutoMovieMotionHumanPosture;
 
     /** Displayed poses already evaluated, by film second; bounded to 4096 entries. */
-    cache: Map<number, IAutoMoviePose>;
+    cache: Map<number, IAutoMovieMotionHumanSegment.IShown>;
 
     /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
     resolving: boolean;
+
+    /**
+     * Displayed poses read while one action is being planned, by film second
+     * (`planning`): what is placed does not change during one plan, so its
+     * readers share each pose; absent outside a plan.
+     */
+    planning?: Map<number, IAutoMovieMotionHumanSegment.IShown>;
 
     /** Additive layers over the person's actions, in order, each inside its window. */
     layers: IAutoMovieMotionHumanSegment.ILayered[];
@@ -174,6 +214,9 @@ export namespace IAutoMovieMotionHumanSegment {
     /** The action that took hold. */
     source: IAutoMovieMotionHumanSegment;
 
+    /** The use the grip was chosen for (`IAutoMovieMotionPropHold.use`); absent when it was chosen for its reach alone. */
+    use?: IAutoMovieMotionHumanGraspUse.IUse;
+
     /** Film second the hold starts. */
     from: number;
 
@@ -215,5 +258,21 @@ export namespace IAutoMovieMotionHumanSegment {
 
     /** The arm's solution there. */
     reference: IAutoMovieHumanLimbReference;
+  }
+
+  /**
+   * One displayed pose as its evaluation produced it, kept with what its readers take from it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSegment.IShown: One displayed pose as its evaluation produced it, kept with what its readers take from it.
+   * @evidence contracts/development/design.md#principled-representation One record of pose, reading over the canonical IAutoMoviePose, IAutoMovieSkeletonPoseResolution contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieMotionHumanSegment contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
+  export interface IShown {
+    /** The complete pose. */
+    pose: IAutoMoviePose;
+
+    /** The pose's bones as the body's rig admitted them (`poseBones.read`): made when the pose's bones are first read and taken by every later reader of them, so the pose is admitted once; absent until then. */
+    reading?: IAutoMovieSkeletonPoseResolution.IReading;
   }
 }

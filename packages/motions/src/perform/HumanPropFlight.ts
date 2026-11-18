@@ -61,20 +61,20 @@ export namespace HumanPropFlight {
    * @evidence contracts/development/common.md#meaningful-documentation Defines film ordering, action-window launch filtering, borrowed cached output and predecessor flights exposed during recursive construction.
    * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows, stably sorts them by film time and delegates each flight to the engine-backed fly owner; recursive frame reads see only flights already built.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection/order, flight construction and per-performance retention stay distinct; sweep and continuation laws remain with their existing owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. Final-state cache identity does not independently detect caller mutation of performance inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection scans action segments/launches and sorts L matching launches in O(L log L), then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. BUILDING shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. The kept flights do not detect caller mutation of performance inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A kept read is O(1); uncached collection scans action segments/launches and sorts L matching launches in O(L log L), then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. The performance's flying map shares predecessor output only during one recursive construction; resolving performances do not keep final results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The flying map drops the subject in finally on success or refusal; the performance's flights keep at most the queried launched props and their launch/contact/trajectory output until it is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      KEPT.get(self)?.get(subject);
+      self.flights.get(subject);
     if (kept !== undefined) return kept;
     const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      BUILDING.get(self)?.get(subject);
+      self.flying.get(subject);
     if (building !== undefined) return building;
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
@@ -102,24 +102,14 @@ export namespace HumanPropFlight {
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) return [];
     const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
-    const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> =
-      BUILDING.get(self) ?? new Map();
-    map.set(subject, out);
-    BUILDING.set(self, map);
+    self.flying.set(subject, out);
     try {
       for (const { seconds, source, launch } of launches)
         out.push(fly(self, prop, seconds, source, launch));
     } finally {
-      map.delete(subject);
+      self.flying.delete(subject);
     }
-    if (!self.resolving) {
-      const done: Map<
-        string,
-        readonly IAutoMovieMotionHumanPropFlight.IFlight[]
-      > = KEPT.get(self) ?? new Map();
-      done.set(subject, out);
-      KEPT.set(self, done);
-    }
+    if (!self.resolving) self.flights.set(subject, out);
     return out;
   }
 
@@ -328,16 +318,4 @@ export namespace HumanPropFlight {
         return undefined;
     }
   }
-
-  /** The flights found, per placed performance and prop. */
-  const KEPT: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]>
-  > = new WeakMap();
-
-  /** The flights being found, so a launch reading its prop sees the flights before it. */
-  const BUILDING: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]>
-  > = new WeakMap();
 }

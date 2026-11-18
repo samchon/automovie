@@ -212,6 +212,25 @@ export namespace HumanFormation {
   }
 
   /**
+   * A block's rear rank: the greatest rank its slots stand in.
+   *
+   * @param formation The formation.
+   * @param block The block, from 0.
+   * @returns The rank, 0 for a block of one rank.
+   */
+  export function rear(
+    formation: IAutoMovieMotionHumanFormation,
+    block: number,
+  ): number {
+    let first: number = 0;
+    for (let b: number = 0; b < block; ++b) first += formation.blocks[b]!.count;
+    let last: number = 0;
+    for (let k: number = 0; k < formation.blocks[block]!.count; ++k)
+      last = Math.max(last, local(formation, first + k).rank);
+    return last;
+  }
+
+  /**
    * The formation's frame at a film second: its origin and heading.
    *
    * @param formation The formation.
@@ -429,15 +448,26 @@ function coursed(
 ): { at: IAutoMovieVector3; heading: number } {
   const s: readonly IAutoMovieMotionHumanFormation.ISample[] = frame.samples;
   if (s.length === 0) throw new RangeError("A course frame has no samples");
+
+  // The last span start at or before the second, at most the second to last
+  // sample, found by bisection: a steered crowd's course holds a sample
+  // every film frame, and every member reads it at every frame.
   let i: number = 0;
-  while (i + 2 < s.length && s[i + 1]!.seconds <= seconds) ++i;
+  let hi: number = Math.max(0, s.length - 2);
+  while (i < hi) {
+    const mid: number = (i + hi + 1) >> 1;
+    if (s[mid]!.seconds <= seconds) i = mid;
+    else hi = mid - 1;
+  }
   const a: IAutoMovieMotionHumanFormation.ISample = s[i]!;
   const b: IAutoMovieMotionHumanFormation.ISample =
     s[Math.min(i + 1, s.length - 1)]!;
   const span: number = b.seconds - a.seconds;
   const u: number =
     span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
-  // A course that carries its headings (a wheel) turns as they say, read between samples linearly.
+  // A course that carries its headings (a wheel) turns as they say, read
+  // between samples along the shorter arc, so two samples written either
+  // side of the ±180 seam do not spin the frame the long way round.
   if (a.heading !== undefined && b.heading !== undefined)
     return {
       at: {
@@ -445,7 +475,8 @@ function coursed(
         y: a.y + (b.y - a.y) * u,
         z: a.z + (b.z - a.z) * u,
       },
-      heading: a.heading + (b.heading - a.heading) * u,
+      heading:
+        a.heading + (((((b.heading - a.heading) % 360) + 540) % 360) - 180) * u,
     };
   const heading = (k: number): number | null => {
     const p: IAutoMovieMotionHumanFormation.ISample = s[k]!;

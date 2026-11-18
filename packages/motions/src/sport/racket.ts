@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -83,16 +84,16 @@ export namespace racket {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, shared rows, then one branch per position.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per crouch and one posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the leg arc and the placed arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each hand supplies the actual phrase span to the existing arm trajectory planner, preparing reach/hold/return work once; the original crouch, footwork and active-time goals remain with their shared primitives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, leg arc and placed arm's existing span-driven planner rather than re-entering deprecated share-only arm clearance on every displayed second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRacket.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanRacket.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const hold: number = p.seconds ?? 0.6;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -113,9 +114,18 @@ export namespace racket {
       },
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
-    const local = (
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    };
+    const local: (
+      posture: IAutoMovieMotionHumanPosture,
+      v: IAutoMovieVector3,
+    ) => IAutoMovieVector3 = (
       posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
@@ -123,14 +133,14 @@ export namespace racket {
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] =
-      AutoMovieMotionHumanBase.plants();
-    const grip = (
+    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    const grip: (
       hand: "left" | "right",
-      place: (
-        posture: IAutoMovieMotionHumanPosture,
-        s: number,
-      ) => IAutoMovieVector3,
+      place: (posture: IAutoMovieMotionHumanPosture, s: number) => IAutoMovieVector3,
+      bend: "front" | "forward",
+    ) => IAutoMovieMotionHumanPrimitive[] = (
+      hand: "left" | "right",
+      place: (posture: IAutoMovieMotionHumanPosture, s: number) => IAutoMovieVector3,
       bend: "front" | "forward",
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
@@ -140,6 +150,7 @@ export namespace racket {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
         weight: into,
+        span,
         surface: "grip",
         shape: "fist",
         place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
@@ -161,19 +172,22 @@ export namespace racket {
       const half: number = Math.max(0, (4 * m.shoulderHalfWidth - apart) / 2);
       const wider: number =
         p.kind === "splitStep" ? 0.5 * m.shoulderHalfWidth : 0;
-      const hop = (s: number): number => {
+      // The hop's rise, metres: the root and both feet leave the floor by
+      // the same height, so the legs keep their length through the hop.
+      const height: number = 0.03 * m.stature * modifiers.extent;
+      const hop: (s: number) => number = (s: number): number => {
         if (p.kind !== "splitStep") return 0;
         const u: number = clock.linear("strokeStart", "stroke", s);
-        return u > 0 && u < 1 ? 4 * u * (1 - u) : 0;
+        return u > 0 && u < 1 ? height * 4 * u * (1 - u) : 0;
       };
-      const landed = (s: number): number =>
+      const landed: (s: number) => number = (s: number): number =>
         clock.linear("strokeStart", "stroke", s);
       for (const foot of ["left", "right"] as const) {
         const from: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: context.entry.feet[foot].ankle,
           rotation: context.entry.feet[foot].rotation,
         };
-        const out = (by: number): IAutoMovieMotionHumanFoot.IPlacement => ({
+        const out: (by: number) => IAutoMovieMotionHumanFoot.IPlacement = (by: number): IAutoMovieMotionHumanFoot.IPlacement => ({
           ankle: Vector3.add(
             from.ankle,
             Vector3.scale(leftward, (foot === "left" ? 1 : -1) * by),
@@ -186,10 +200,7 @@ export namespace racket {
             side: foot,
             from: 0,
             to: clock.duration,
-            placement: (
-              _: IAutoMovieMotionHumanPosture,
-              s: number,
-            ): IAutoMovieMotionHumanFoot.IPlacement => {
+            placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
               const placed: IAutoMovieMotionHumanFoot.IPlacement =
                 AutoMovieMotionHumanLegPhrase.between(
                   from,
@@ -200,7 +211,7 @@ export namespace racket {
                 ...placed,
                 ankle: {
                   ...placed.ankle,
-                  y: placed.ankle.y + 0.03 * m.stature * hop(s),
+                  y: placed.ankle.y + hop(s),
                 },
               };
             },
@@ -214,14 +225,11 @@ export namespace racket {
           channels: ["root"],
           from: 0,
           to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
+          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
             ...posture,
             root: {
               ...posture.root,
-              y: posture.root.y + 0.03 * m.stature * hop(s) * modifiers.extent,
+              y: posture.root.y + hop(s),
             },
           }),
         },
@@ -229,10 +237,7 @@ export namespace racket {
           channels: ["trunk"],
           from: 0,
           to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
+          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
             ...posture,
             pitch: posture.pitch + 15 * into(s),
           }),
@@ -262,7 +267,23 @@ export namespace racket {
           "front",
         ),
       );
-      contacts = [];
+      // Each foot bears where it is planted: from the step out to the step
+      // back, the split step's hop excepted.
+      const share: (instant: string) => number = (instant: string): number =>
+        clock.at(instant) / clock.duration;
+      const bearing: [number, number][] =
+        p.kind === "splitStep"
+          ? [
+              [share("ready"), share("strokeStart")],
+              [share("stroke"), share("relax")],
+            ]
+          : [[share("ready"), share("relax")]];
+      contacts = bearing
+        .filter(([from, to]: [number, number]): boolean => to > from)
+        .flatMap(
+          ([from, to]: [number, number]): IAutoMovieMotionHumanContactWindow[] =>
+            AutoMovieMotionHumanBase.plants(from, to),
+        );
     } else {
       primitives.push(
         AutoMovieMotionHumanTrunk.crouch({
@@ -275,7 +296,7 @@ export namespace racket {
           pitch: 35 * modifiers.extent,
         }),
       );
-      const waggle = (s: number): number =>
+      const waggle: (s: number) => number = (s: number): number =>
         0.05 *
         arm *
         AutoMovieMotionClock.wave(clock, ["strokeStart", "strokeEnd"], 2, s);

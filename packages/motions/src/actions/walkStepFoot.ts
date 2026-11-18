@@ -18,19 +18,22 @@ import { walkReach } from "./walkReach";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a foot's schedule is made of and who owns the rockers.
  * @evidence contracts/development/design.md#principled-representation The footfall as data and one schedule built over a side's footfalls.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The footfall, the toe-off pitch, the instants and stance spans, and the schedule, read by the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The footfall, the toe-off pitches, the instants and stance spans, and the schedule, read by the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A swing's two halves read the stances it joins, so no foot place is typed.
  */
 export namespace walkStepFoot {
   /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
   export const PUSH: number = 55;
 
+  /** The share of its straight push-off pitch a foot turned from the pelvis by `walkReach.TWIST` keeps: the ankle plantarflexion at toe-off of a step turn against straight walking, 1.37° against 10.37° (Ficanha, Rastgaar, Moridian and Mahmoudian 2013, ASME DSCC2013-3782, motion capture; the straight value as the same group reports it in US patent 9,849,003), a turning step pivoting more and pushing less in the sagittal plane (Hase and Stein 1999). */
+  export const TURNED_SHARE: number = 1.37 / 10.37;
+
   /**
    * One footfall.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The side, the two instants, the flat footprint, its heading and the push-off before it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by the plan and the schedule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by the plan and the schedule.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The footprint is a placement, the ankle derived by `HumanFoot`.
    */
   export interface IStep {
@@ -52,16 +55,17 @@ export namespace walkStepFoot {
     /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
     push: number;
 
-    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.stance`). False when absent. */
+    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.prepareStance`). False when absent. */
     backward?: boolean;
   }
 
   /**
    * Set each footfall's push-off: a foot turned from the pelvis at its
    * toe-off pushes off less, since a turning step pivots more and pushes
-   * less in the sagittal plane (Hase and Stein 1999; Taylor et al. 2005;
-   * provisional, the pitch falls linearly to 15 degrees as the turn reaches
-   * `walkReach.TWIST`), and a leg kept straight leaves the floor nearly
+   * less in the sagittal plane (Hase and Stein 1999): the pitch falls to
+   * `TURNED_SHARE` of the straight one (Ficanha et al. 2013) as the turn
+   * reaches `walkReach.TWIST`, linearly between (the interpolation is
+   * provisional, no intermediate turn having been read), and a leg kept straight leaves the floor nearly
    * flat, a steep push-off needing the knee it does not bend.
    *
    * @param steps The footfalls, in order; each one's `push` is set.
@@ -73,7 +77,7 @@ export namespace walkStepFoot {
    * @evidence contracts/development/common.md#meaningful-documentation States both rules, their sources and each input.
    * @evidence contracts/development/implementation.md#principled-implementation The turn a foot leaves is its last heading against the pelvis's at the toe-off; the pitch falls with it and is capped for a straight knee.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 15 degrees and the linear fall are provisional and stated so.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `TURNED_SHARE` is the cited ratio; only the linear fall between straight and fully turned is provisional, and stated so.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footfalls.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes the footfalls given and retains nothing.
@@ -94,9 +98,8 @@ export namespace walkStepFoot {
               (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),
         );
         step.push =
-          -push +
-          (push - Math.min(push, 15)) *
-            Math.min(1, Math.abs(turned) / walkReach.TWIST);
+          -push *
+          (1 - (1 - TURNED_SHARE) * Math.min(1, Math.abs(turned) / walkReach.TWIST));
         if (stiff === side)
           step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
         leaving = step.heading;
@@ -172,86 +175,86 @@ export namespace walkStepFoot {
    * @param side The foot.
    * @param start The foot flat where the walk begins.
    * @param own The foot's footfalls, in order.
+   * @param typical The gait's cruising stance, seconds, which an opening or closing stance's rockers take their shares of (`walkFoot.prepareStance`).
    * @param raised How far the gait holds the heels off the floor, degrees.
+   * @param inPlace A stepping turn without a heel strike or forefoot push.
    * @returns The foot's scheduled stance at a second, with its swing while it swings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.stance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the footfalls per read.
+   * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.prepareStance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares one stance reader per footprint, then selects the first unfinished footfall by its heel strike.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The last stance is held open, so a foot after its last footfall stays planted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the foot's footfalls per read, a few dozen at most.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `walkFoot.stance`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The schedule holds the footfalls only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in the foot's footfalls, logarithmic selection and one stance evaluation per planted read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing reuses its two scheduled endpoint stances; the body, side, footfalls, typical stance and raised pitch are fixed for the schedule.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned schedule owns its readers and two endpoints per footfall, released with that plan; no query history is retained.
    */
   export function schedule(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
+    typical: number,
     raised: number,
+    inPlace: boolean = false,
   ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
-    return (t: number): IAutoMovieMotionHumanWalkFoot.IScheduled => {
-      let flat: IAutoMovieMotionHumanFoot.IPlacement = start;
-      let facing: number = HumanFoot.heading(flat.rotation);
-      let strike: number = -Infinity;
-      let back: boolean = false;
-      for (const [i, step] of own.entries()) {
-        // A starting stance leaves the way its first step goes.
-        const backward: boolean = Number.isFinite(strike)
-          ? back
-          : step.backward === true;
-        const leave = (at: number): IAutoMovieMotionHumanWalkFoot.IFoot =>
-          walkFoot.stance(
-            body,
-            side,
-            flat,
-            facing,
-            strike,
-            step.toeOff,
-            at,
-            step.push,
-            raised,
-            backward,
-          );
-        if (t < step.toeOff) return leave(t);
-        if (t < step.heelStrike) {
-          const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
-          const next: IStep | undefined = own[i + 1];
-          return {
-            ...(u < 0.5
-              ? leave(step.toeOff)
-              : walkFoot.stance(
-                  body,
-                  side,
-                  step.flat,
-                  step.heading,
-                  step.heelStrike,
-                  next?.toeOff ?? Infinity,
-                  step.heelStrike,
-                  next?.push ?? -PUSH,
-                  raised,
-                  step.backward === true,
-                )),
-            swing: { u, off: step.toeOff, on: step.heelStrike },
-          };
-        }
-        flat = step.flat;
-        facing = step.heading;
-        strike = step.heelStrike;
-        back = step.backward === true;
-      }
-      return walkFoot.stance(
-        body,
-        side,
-        flat,
-        facing,
-        strike,
-        Infinity,
-        t,
-        -PUSH,
-        raised,
-        back,
+    const stances: ((t: number) => IAutoMovieMotionHumanWalkFoot.IFoot)[] = [];
+    for (let i: number = 0; i <= own.length; i++) {
+      const previous: IStep | undefined = own[i - 1];
+      const next: IStep | undefined = own[i];
+      const flat: IAutoMovieMotionHumanFoot.IPlacement = previous?.flat ?? start;
+      const facing: number =
+        previous?.heading ?? HumanFoot.heading(start.rotation);
+      const strike: number = previous?.heelStrike ?? -Infinity;
+
+      // The opening stance follows its first step's direction; later ones
+      // retain the direction of the footprint they stand on.
+      const backward: boolean = (previous ?? next)?.backward === true;
+      stances.push(
+        inPlace
+          ? (): IAutoMovieMotionHumanWalkFoot.IFoot => ({
+              placement: { ankle: { ...flat.ankle }, rotation: { ...flat.rotation } },
+              toes: 0,
+            })
+          : walkFoot.prepareStance(
+          body,
+          side,
+          flat,
+          facing,
+          strike,
+          next?.toeOff ?? Infinity,
+          next?.push ?? -PUSH,
+          typical,
+          raised,
+          backward,
+        ),
       );
+    }
+    const ends: { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot }[] = own.map(
+      (step: IStep, i: number): { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot } => ({
+        from: stances[i]!(step.toeOff),
+        to: stances[i + 1]!(step.heelStrike),
+      }),
+    );
+    return (t: number): IAutoMovieMotionHumanWalkFoot.IScheduled => {
+      let low: number = 0;
+      let high: number = own.length;
+      while (low < high) {
+        const middle: number = (low + high) >>> 1;
+        if (t < own[middle]!.heelStrike) high = middle;
+        else low = middle + 1;
+      }
+      const step: IStep | undefined = own[low];
+      if (step === undefined || t < step.toeOff) return stances[low]!(t);
+      const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
+      const end: IAutoMovieMotionHumanWalkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;
+      return {
+        placement: {
+          ankle: { ...end.placement.ankle },
+          rotation: { ...end.placement.rotation },
+        },
+        toes: end.toes,
+        swing: { u, off: step.toeOff, on: step.heelStrike },
+      };
     };
   }
 }

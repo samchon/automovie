@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
 
+import { repositoryRoot } from "../internal/repositoryRoot";
+
 interface IWorkspaceYaml {
   packages?: string[];
   catalogs: Record<string, Record<string, string>>;
@@ -19,7 +21,7 @@ interface IManifest {
   devDependencies?: Record<string, string>;
 }
 
-const ROOT: string = path.resolve(__dirname, "../../../..");
+const ROOT: string = repositoryRoot();
 
 /**
  * `createAutoMovieScaffold` selects layers and generated files by kind, names

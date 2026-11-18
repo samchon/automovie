@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { HumanActionRow } from "../law/HumanActionRow";
 import { kick } from "../striking/kick";
 import { knee } from "../striking/knee";
@@ -30,68 +35,92 @@ import { punch } from "../striking/punch";
  */
 export namespace HumanStrike {
   /** A straight punch with the lead hand. */
-  export const jab = HumanActionRow.of("jab", punch, {
+  export const jab: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["jab"]
+  > = HumanActionRow.of("jab", punch, {
     technique: "straight",
     hand: "lead",
   });
 
   /** A straight punch with the rear hand. */
-  export const cross = HumanActionRow.of("cross", punch, {
+  export const cross: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["cross"]
+  > = HumanActionRow.of("cross", punch, {
     technique: "straight",
     hand: "rear",
   });
 
   /** A hook with the lead hand. */
-  export const leadHook = HumanActionRow.of("leadHook", punch, {
+  export const leadHook: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["leadHook"]
+  > = HumanActionRow.of("leadHook", punch, {
     technique: "hook",
     hand: "lead",
   });
 
   /** A hook with the rear hand. */
-  export const rearHook = HumanActionRow.of("rearHook", punch, {
+  export const rearHook: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["rearHook"]
+  > = HumanActionRow.of("rearHook", punch, {
     technique: "hook",
     hand: "rear",
   });
 
   /** An uppercut with the lead hand. */
-  export const leadUppercut = HumanActionRow.of("leadUppercut", punch, {
+  export const leadUppercut: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["leadUppercut"]
+  > = HumanActionRow.of("leadUppercut", punch, {
     technique: "uppercut",
     hand: "lead",
   });
 
   /** An uppercut with the rear hand. */
-  export const rearUppercut = HumanActionRow.of("rearUppercut", punch, {
+  export const rearUppercut: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["rearUppercut"]
+  > = HumanActionRow.of("rearUppercut", punch, {
     technique: "uppercut",
     hand: "rear",
   });
 
   /** A round kick with the rear leg's shin. */
-  export const roundKick = HumanActionRow.of("roundKick", kick, {
+  export const roundKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["roundKick"]
+  > = HumanActionRow.of("roundKick", kick, {
     technique: "round",
     leg: "rear",
   });
 
   /** A round kick with the lead leg. */
-  export const switchKick = HumanActionRow.of("switchKick", kick, {
+  export const switchKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["switchKick"]
+  > = HumanActionRow.of("switchKick", kick, {
     technique: "round",
     leg: "lead",
   });
 
   /** A push kick with the lead foot. */
-  export const pushKick = HumanActionRow.of("pushKick", kick, {
+  export const pushKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["pushKick"]
+  > = HumanActionRow.of("pushKick", kick, {
     technique: "push",
     leg: "lead",
   });
 
   /** A push kick with the rear foot. */
-  export const teep = HumanActionRow.of("teep", kick, {
+  export const teep: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["teep"]
+  > = HumanActionRow.of("teep", kick, {
     technique: "push",
     leg: "rear",
   });
 
   /** A knee with the lead leg. */
-  export const leadKnee = HumanActionRow.of("leadKnee", knee, { leg: "lead" });
+  export const leadKnee: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["leadKnee"]
+  > = HumanActionRow.of("leadKnee", knee, { leg: "lead" });
 
   /** A knee with the rear leg. */
-  export const rearKnee = HumanActionRow.of("rearKnee", knee, { leg: "rear" });
+  export const rearKnee: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["rearKnee"]
+  > = HumanActionRow.of("rearKnee", knee, { leg: "rear" });
 }

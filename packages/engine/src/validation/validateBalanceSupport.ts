@@ -211,7 +211,7 @@ export const validateBalanceSupport: (
         IAutoMovieVector3
       >();
       const pose: IAutoMovieResolvedBone[] = resolvePose(
-        sampleMotion(props.motion, time).pose,
+        sampleMotion.pose(props.motion, time),
         props.skeleton,
         props.jointAxes,
         props.restFrames,

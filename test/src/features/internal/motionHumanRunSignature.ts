@@ -1,10 +1,11 @@
 import type { motionComplaints } from "./motionComplaints";
+import { motionHumanMetamorphic } from "./motionHumanMetamorphic";
 import type { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
  * The running signature of one body (the specs
- * `test_human_motion_signature_run_<body>`), read at each pace over the
+ * `test_human_motion_signature_run`), read at each pace over the
  * steady middle half of a 6 m run.
  *
  * Bounds and sources:
@@ -55,7 +56,8 @@ export namespace motionHumanRunSignature {
   export function read(
     name: motionHumanBody.Name,
     complaints: motionComplaints.IGatherer,
-  ): void {
+  ): Record<string, motionHumanMetamorphic.ISimilarityReading> {
+    const similarity: Record<string, motionHumanMetamorphic.ISimilarityReading> = {};
     const lean: Record<string, number> = {};
     for (const row of ["pace=jog", "pace=run", "pace=sprint", "default"]) {
       const cell: string = `run ${row} ${name}`;
@@ -70,36 +72,65 @@ export namespace motionHumanRunSignature {
         `${cell}: mean trunk inclination ${lean[row]!.toFixed(2)} deg outside [2, 20] (Thorstensson et al. 1984; Novacheck 1998)`,
         lean[row]! >= 2 && lean[row]! <= 20,
       );
-      const g: M.IGait = M.gait(s, from, to);
-      complaints.check(
-        `${cell}: duty factor ${g.duty.toFixed(3)} not below ${sprint ? 0.35 : 0.45} (Alexander 1984; Novacheck 1998)`,
-        g.duty < (sprint ? 0.35 : 0.45),
-      );
-      complaints.check(
-        `${cell}: cadence ${g.cadence.toFixed(0)} steps/min outside ${sprint ? "[200, inf)" : "[150, 200]"} (Cavanagh and Kram 1989; Mero et al. 1992)`,
-        sprint ? g.cadence >= 200 : g.cadence >= 150 && g.cadence <= 200,
-      );
+      let bearing: number = 0;
+      const strikes: M.IGait["strikes"] = [];
+      const lastStrike: Partial<Record<"left" | "right", number>> = {};
       let flight: number = 0;
       let both: number = 0;
       const stances: { from: number; to: number; side: "left" | "right" }[] =
         [];
       const open: Partial<Record<"left" | "right", number>> = {};
-      for (const t of M.times(from, to, 120)) {
-        const l: boolean = M.bears(s, t, "left");
-        const r: boolean = M.bears(s, t, "right");
+
+      // One 120 Hz series from the window's start: the trunk's 30 Hz mean,
+      // the gait and each stance read its instants, and a foot's speed is
+      // read on its own neighbours (`HumanSignature.bears`), so the film is
+      // resolved once an instant.
+      const instants: number[] = M.times(from, to, 120);
+      for (const t of instants) {
+        const l: boolean = M.bears(s, t, "left", 0, from);
+        const r: boolean = M.bears(s, t, "right", 0, from);
         if (!l && !r) flight++;
         if (l && r) both++;
         for (const [side, down] of [
           ["left", l],
           ["right", r],
         ] as const) {
-          if (down && open[side] === undefined) open[side] = t;
+          if (down) bearing++;
+          if (down && open[side] === undefined) {
+            open[side] = t;
+
+            // A foot already bearing at the window edge has no observed strike.
+            // Suppress a heel-to-ball handoff within the same footfall.
+            const previous: number | undefined = lastStrike[side];
+            if (t > from && (previous === undefined || t - previous >= M.STRIDE)) {
+              strikes.push({ seconds: t, side });
+              lastStrike[side] = t;
+            }
+          }
           if (!down && open[side] !== undefined) {
             stances.push({ from: open[side]!, to: t, side });
             delete open[side];
           }
         }
       }
+      const duty: number = bearing / (2 * instants.length);
+      const cadence: number = strikes.length < 2
+        ? 0
+        : (60 * (strikes.length - 1)) / (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds);
+      if (row !== "default")
+        similarity[row] = motionHumanMetamorphic.similarityReading(s, from, to, {
+          cadence,
+          duty,
+          strikes,
+        });
+      complaints.check(
+        `${cell}: duty factor ${duty.toFixed(3)} not below ${sprint ? 0.35 : 0.45} (Alexander 1984; Novacheck 1998)`,
+        duty < (sprint ? 0.35 : 0.45),
+      );
+      complaints.check(
+        `${cell}: cadence ${cadence.toFixed(0)} steps/min outside ${sprint ? "[200, inf)" : "[150, 200]"} (Cavanagh and Kram 1989; Mero et al. 1992)`,
+        sprint ? cadence >= 200 : cadence >= 150 && cadence <= 200,
+      );
       complaints.check(
         `${cell}: ${flight} instants of flight and ${both} of double support at 120 Hz (Alexander 1984)`,
         flight > 0 && both === 0,
@@ -119,8 +150,9 @@ export namespace motionHumanRunSignature {
           drop >= 0.005,
         );
         let peak: number = 0;
-        for (const t of M.times(p.from, p.to, 120))
-          peak = Math.max(peak, M.knee(s, t, p.side));
+        for (const t of instants)
+          if (t >= p.from && t <= p.to)
+            peak = Math.max(peak, M.knee(s, t, p.side));
         complaints.check(
           `${cell}: peak stance knee flexion ${peak.toFixed(1)} deg (${p.side}, ${mid.toFixed(2)} s) outside [25, 60] (Novacheck 1998; provisional)`,
           peak >= 25 && peak <= 60,
@@ -133,5 +165,6 @@ export namespace motionHumanRunSignature {
         lean["pace=run"]! <= lean["pace=sprint"]! + 0.5,
     );
     for (const c of M.calibrate(name)) complaints.check(c, false);
+    return similarity;
   }
 }

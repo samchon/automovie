@@ -3,7 +3,6 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropDrive,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -34,26 +33,8 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A drive never moves the prop's frame; the travel is the act's own function.
  */
 export namespace HumanPerformanceObject {
-  /** One timed writer of an articulation's travel. */
-  export interface IWriter {
-    /** The articulation affordance. */
-    articulation: string;
-
-    /** The independent degree of freedom this coordinate addresses. */
-    leader: string;
-
-    /** Film second it begins. */
-    from: number;
-
-    /** Film second it ends. */
-    to: number;
-
-    /** The travel at a film second inside the window. */
-    travel(seconds: number): number;
-
-    /** The action that drives it, or undefined for the prop's own track. */
-    source?: IAutoMovieMotionHumanSegment & { subject: string };
-  }
+  /** One timed writer of an articulation's travel, the performance's record (`IAutoMovieMotionHumanPerformanceState.IWriter`). */
+  export type IWriter = IAutoMovieMotionHumanPerformanceState.IWriter;
 
   /**
    * Every writer of a prop's articulations in film order, with its independent
@@ -69,9 +50,7 @@ export namespace HumanPerformanceObject {
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,
   ): readonly IWriter[] {
-    const known: readonly IWriter[] | undefined = WRITERS.get(self)?.get(
-      prop.subject,
-    );
+    const known: readonly IWriter[] | undefined = self.writers.get(prop.subject);
     if (known !== undefined) return known;
     const out: IWriter[] = [];
     const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
@@ -119,12 +98,8 @@ export namespace HumanPerformanceObject {
       });
     }
     out.sort((a: IWriter, b: IWriter): number => a.from - b.from);
-    if (!self.resolving) {
-      const kept: Map<string, readonly IWriter[]> =
-        WRITERS.get(self) ?? new Map();
-      kept.set(prop.subject, out);
-      WRITERS.set(self, kept);
-    }
+    if (!self.resolving) self.writers.set(prop.subject, out);
+
     return out;
   }
 
@@ -204,20 +179,14 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): IAutoMovieMotionHumanProp.IPosed {
-    const kept: Map<
-      string,
-      { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
-    > = POSED.get(self) ?? new Map();
-    const last = kept.get(prop.subject);
+    const last: { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed } | undefined =
+      self.posed.get(prop.subject);
     if (last !== undefined && last.seconds === seconds && !self.resolving)
       return last.posed;
     const posed: IAutoMovieMotionHumanProp.IPosed = prop.articulate!(
       state(self, prop, seconds),
     );
-    if (!self.resolving) {
-      kept.set(prop.subject, { seconds, posed });
-      POSED.set(self, kept);
-    }
+    if (!self.resolving) self.posed.set(prop.subject, { seconds, posed });
     return posed;
   }
 
@@ -275,16 +244,5 @@ export namespace HumanPerformanceObject {
           }
     }
   }
-
-  /** The writers kept per placed performance and prop. */
-  const WRITERS: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, readonly IWriter[]>
-  > = new WeakMap();
-
-  /** The last posed prop read per performance and prop. */
-  const POSED: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }>
-  > = new WeakMap();
 }
+

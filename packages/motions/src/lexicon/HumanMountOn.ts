@@ -14,6 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -26,10 +27,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<
-  IAutoMovieMotionHumanPosture,
-  "root" | "yaw" | "pitch" | "joints"
->;
+type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -92,7 +90,7 @@ export namespace HumanMountOn {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse, time the climb, place the feet's ends, find when each foot leaves and bears, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rest out of the seated leg's reach is not clamped onto: the foot hangs, as the seat's `footrests` doc declares. The timing shares and the constants of `HumanMount` are provisional and named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance; each posture passes its caller's forward-kinematics reader and range-of-motion projector to the hands' fit (`seated.arms`).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(
@@ -136,9 +134,9 @@ export namespace HumanMountOn {
     // The seat's height above the floor the feet leave (`seated.floor`).
     const under: number = seated.floor(body, context.entry);
 
-    // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop.
+    // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop. It is on it when nearer its place than a hop rises, so a climb would overshoot its own seat.
     const settled: boolean =
-      Vector3.length(Vector3.subtract(goal, start)) < 0.1 * m.thigh;
+      Vector3.length(Vector3.subtract(goal, start)) < HumanMount.HOP * m.thigh;
     const climb: number =
       (settled
         ? HumanMount.SETTLE
@@ -147,41 +145,48 @@ export namespace HumanMountOn {
             2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
           )) * AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const duration: number = climb + hold;
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw0,
+    );
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const upright: IAutoMovieMotionHumanPosture["joints"] =
-      standUpright.of(body).joints;
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
+    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+      Object.entries(final.joints) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][];
 
     // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
     const crossing: readonly [number, number] = astride
       ? [0.3 * climb, contact]
       : [0, 0.7 * climb];
     const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk(
+      const across: number = minimumJerk.share(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
-      ).s;
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * across,
         y:
           start.y +
           (goal.y + hop - start.y) *
-            minimumJerk((t - 0.1 * climb) / (0.45 * climb)).s -
-          hop * minimumJerk((t - 0.55 * climb) / (0.25 * climb)).s,
+            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
+          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
         z: start.z + (goal.z - start.z) * across,
       };
-      const settle: number = minimumJerk((t - 0.6 * climb) / (0.4 * climb)).s;
+      const settle: number = minimumJerk.share(
+        (t - 0.6 * climb) / (0.4 * climb),
+      );
       const lean: number =
         t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
+          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {
-        ...stand.relaxed(body),
-        ...upright,
-      };
-      for (const [bone, a] of Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]) {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+      for (const [bone, a] of finish) {
         const was: readonly [number, number, number] = joints[bone] ?? [
           0, 0, 0,
         ];
@@ -191,10 +196,8 @@ export namespace HumanMountOn {
           was[2] + a[2] * settle,
         ];
       }
-      const tilt: {
-        pitch: number;
-        joints: IAutoMovieMotionHumanPosture["joints"];
-      } = HumanTrunk.incline(joints, lean);
+      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
+        HumanTrunk.incline(joints, lean);
       const yaw: number = yaw0 + turn * across;
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
@@ -329,7 +332,7 @@ export namespace HumanMountOn {
       places[side].rests &&
       Vector3.length(
         Vector3.subtract(starts[side].ankle, places[side].foot.ankle),
-      ) < 0.005;
+      ) < HumanMount.ON;
     const stays: Record<"left" | "right", boolean> = {
       left: stay("left"),
       right: stay("right"),
@@ -413,15 +416,15 @@ export namespace HumanMountOn {
       contacts,
       contact: touch,
       base: { kind: "seated", seat },
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
-          body,
-          frame.root,
-          yaw0,
-          floor,
-        );
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(frame.root, floor);
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
@@ -435,9 +438,9 @@ export namespace HumanMountOn {
             limbs[limb] = planted;
             continue;
           }
-          const share: number = minimumJerk(
+          const share: number = minimumJerk.share(
             (t - leaves) / (arrives - leaves),
-          ).s;
+          );
           limbs[limb] = HumanMount.leg(
             body,
             side,
@@ -452,7 +455,7 @@ export namespace HumanMountOn {
                 : starts[side],
               places[side].foot,
               share,
-              0.1 * m.shank,
+              walk.LIFT * m.hipHeight,
               astride && side === push ? over : undefined,
             ),
             places[side].rests && t >= bearing[side],
@@ -461,7 +464,9 @@ export namespace HumanMountOn {
         return seated.arms(
           body,
           { ...frame, roll: 0, limbs },
-          minimumJerk((t - 0.5 * climb) / (0.5 * climb)).s,
+          minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
+          resolution,
+          projection,
         );
       },
     };

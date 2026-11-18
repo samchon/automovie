@@ -1,11 +1,14 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanJacobian,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -15,11 +18,23 @@ import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFitPairs } from "../posture/HumanFitPairs";
 import { HumanFitVariables } from "../posture/HumanFitVariables";
+import { HumanFoot } from "../posture/HumanFoot";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
+import { admittedSupportPosture } from "./admittedSupportPosture";
+import { prepareBilateralSupport } from "./prepareBilateralSupport";
+import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
+import { preparePairedFloorSupport } from "./preparePairedFloorSupport";
+import { prepareSupportSeed } from "./prepareSupportSeed";
 import { supportContact } from "./supportContact";
+
+/** A contact with no authored or previously laid world position yet. */
+type ContactPoint = IAutoMovieVector3 | null;
+
+/** An imported rig can omit a heel socket. */
+type HeelFrame = IAutoMovieHumanoidSurfaces.IFrame | undefined;
 
 /**
  * A support planner's key postures (`support`): one solved on a stance's
@@ -27,7 +42,7 @@ import { supportContact } from "./supportContact";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two things the file holds and who reads them.
  * @evidence contracts/development/design.md#principled-representation A key is the static multi-contact posture on its contacts; the course between keys is a blend of their joints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key's solve and the blend, read by the support law alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The support law owns key solving; its intervals and the squat vault consume the same prepared key interpolation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit and the joint blend are their owners' (`HumanBodyFit`, `blendHumanJoint`); no posture is typed.
  */
 export namespace supportKey {
@@ -42,15 +57,17 @@ export namespace supportKey {
    * @param label The key's name, for the refusal.
    * @param miss How far a contact may miss its target, millimetres.
    * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
+   * @param form The contact frames for the plan's unchanged body, including its measured quiet-foot normals.
+   * @param held Whether the preceding transfer already established this stance's preference and exact contact set.
    * @returns The posture.
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms and bearing hull, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `supportContact.form` and `HumanBodyFit.fit`.
+   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms is seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original contact forms and whole-body merit admit both direct and reduced support candidates. A held-contact miss can open the diagonal or bilateral branch before the original refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing, and a swing whose top would cost a contact is dropped from the key rather than traded against it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A feasible preference already minimizes the merit and needs no SQP. An unplaced knee or trunk contact earns one geometric seed alongside the two original seeds. The best seed gets one fit, plus a retry without a swing only if that swing costs a contact.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepareForm operation shares unchanged body geometry across all contacts, and HumanBodyFit.fit remains the actual complete multi-contact solve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solved(
@@ -58,26 +75,30 @@ export namespace supportKey {
     preferred: IAutoMovieMotionHumanPosture,
     from: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
-    at: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null,
+    at: (c: IAutoMovieMotionHumanSupport.IContact) => ContactPoint,
     label: string,
     miss: number,
     swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
+    form: ReturnType<typeof supportContact.prepareForm> = supportContact.prepareForm(body),
+    held: boolean = false,
   ): IAutoMovieMotionHumanPosture {
+    const points: ContactPoint[] = contacts.map(at);
     const forms: supportContact.IForm[] = contacts.map(
-      (c: IAutoMovieMotionHumanSupport.IContact): supportContact.IForm =>
-        supportContact.form(body, c, at(c)),
+      (c: IAutoMovieMotionHumanSupport.IContact, k: number): supportContact.IForm =>
+        form(c, points[k]!),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
         f.bearing === undefined ? [] : [f.bearing],
     );
-    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
+    const holding: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
       ...forms.map(
         (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
           f.target,
       ),
-      ...swings,
+      ...heels(body, from, preferred, contacts, points, miss),
     ];
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [...holding, ...swings];
     // Select the less violated of the previous solution and the geometrically
     // placed preference before the one SQP solve. This is a seed selection,
     // not a retry: both candidates are measured on the same full merit rows.
@@ -90,30 +111,93 @@ export namespace supportKey {
       targets,
       angles: [],
       bearing,
-      balance: { parts: bearing },
       pairs: HumanFitPairs.of(body),
       key: HumanFitVariables.vector(variables, preferred),
       price: HumanBodyFit.PRICE,
     });
-    const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
-      HumanFitVariables.vector(variables, from),
-    );
     const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, preferred),
     );
-    const start: IAutoMovieMotionHumanPosture =
+    if (merit.holds(stated.misses)) return admittedSupportPosture(preferred, stated.r.written);
+    if (swings.length === 0) {
+      const paired: ReturnType<typeof preparePairedFloorSupport> =
+        preparePairedFloorSupport(body, preferred, from, contacts, targets, bearing, merit);
+      if (paired !== undefined) return paired;
+    }
+    const previous: HumanBodyFitMerit.IEvaluation = preferred === from ? stated : merit.evaluate(
+      HumanFitVariables.vector(variables, from),
+    );
+    if (held && merit.holds(previous.misses)) return admittedSupportPosture(from, previous.r.written);
+    let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
-    const result: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
-      body,
-      posture: preferred,
-      start,
-      targets,
-      bearing,
-      balance: { parts: bearing },
-    });
+    if (!merit.holds(previous.misses)) {
+      if (swings.length === 0) {
+        const closed: ReturnType<typeof prepareRaisedKneeSupport> =
+          prepareRaisedKneeSupport(body, preferred, from, contacts, holding, bearing, merit);
+        if (closed !== undefined) return closed;
+      }
+      const aligned: ReturnType<typeof prepareSupportSeed> =
+        prepareSupportSeed(body, preferred, contacts, holding);
+      if (aligned !== undefined) {
+        const corrected: HumanBodyFitMerit.IEvaluation = merit.evaluate(HumanFitVariables.vector(variables, aligned));
+        if (merit.holds(corrected.misses)) return admittedSupportPosture(aligned, corrected.r.written);
+        if (corrected.violation < Math.min(stated.violation, previous.violation))
+          start = aligned;
+      }
+    }
+    const fitted: (
+      on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+      seed?: IAutoMovieMotionHumanPosture,
+    ) => IAutoMovieMotionHumanBodyFitTypes.IResult = (
+      on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+      seed: IAutoMovieMotionHumanPosture = start,
+    ): IAutoMovieMotionHumanBodyFitTypes.IResult =>
+      HumanBodyFit.fit({
+        body,
+        posture: preferred,
+        start: seed,
+        targets: on,
+        bearing,
+      });
+    const misses: (r: IAutoMovieMotionHumanBodyFitTypes.IResult) => boolean = (
+      r: IAutoMovieMotionHumanBodyFitTypes.IResult,
+    ): boolean =>
+      r.residuals.some(
+        (residual: Residual, k: number): boolean =>
+          k < contacts.length &&
+          points[k] !== null &&
+          residual.point > miss,
+      );
+    // A stepping part's swing is an aim of the step, never one of what
+    // bears: where its top cannot be reached with every contact kept (a
+    // large body's leg brought forward from the hands and knees), the key
+    // is the supports' posture without it, and a contact that misses there
+    // is refused.
+    let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
+    if (swings.length > 0 && misses(result))
+      result = fitted(holding);
+    // The preceding support can leave a limb against its range boundary.
+    // The authored stance supplies its own articulation on the other side
+    // of that boundary, even when its initial aggregate error is larger.
+    if (start !== preferred && misses(result)) {
+      const statedFit: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, preferred);
+      if (!misses(statedFit)) result = statedFit;
+    }
+    // A three-support predecessor may be closer in aggregate while its
+    // fourth limb is on the wrong side of a joint limit. A fully bilateral
+    // support has a second physical branch from the already placed side.
+    if (misses(result)) {
+      const symmetric: ReturnType<typeof prepareBilateralSupport> = prepareBilateralSupport(
+        body, from, contacts, forms.map((form: supportContact.IForm): typeof form.target => form.target),
+      );
+      if (symmetric !== undefined) {
+        const paired: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, symmetric);
+        if (!misses(paired)) result = paired;
+      }
+    }
     result.residuals.forEach(
-      (r: { point: number; turn: number }, k: number): void => {
-        if (k < contacts.length && at(contacts[k]!) !== null && r.point > miss)
+      (r: Residual, k: number): void => {
+        if (k < contacts.length && points[k] !== null && r.point > miss)
           throw new HumanRefusal({
             kind: "reach",
             axis: "stances",
@@ -124,6 +208,86 @@ export namespace supportKey {
       },
     );
     return result.posture;
+  }
+
+  /** Keep the horizontal heel datum of a foot already on an unnamed floor placement. */
+  function heels(
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    preferred: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+    points: readonly ContactPoint[],
+    miss: number,
+  ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] {
+    const feet: IHeel[] = [];
+    for (const [k, contact] of contacts.entries()) {
+      const target: ContactPoint = points[k] ?? null;
+      if (target === null || !supportContact.onFloorTarget(target) || !contact.part.endsWith("Foot")) continue;
+      const side: AutoMovieHumanSide = contact.part === "leftFoot" ? "left" : "right";
+      const frame: HeelFrame = body.surfaces.sockets[side === "left" ? "heelLeft" : "heelRight"];
+      if (frame === undefined) continue;
+      feet.push({
+        frame,
+        side,
+        toes: `${side}Toes`,
+        target,
+      });
+    }
+    if (feet.length === 0) return [];
+    const names: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      feet.flatMap((foot: IHeel): AutoMovieHumanoidBone[] => [foot.frame.bone, foot.toes]),
+    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, from),
+      undefined,
+      names,
+    );
+    const intended: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      preferred === from ? bones : poseBones(body, resolveHumanPosture(body, preferred), undefined, names);
+    return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
+      const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(foot.frame, bones.get(foot.frame.bone)!);
+      const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
+      const current: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(body, bones, foot.side);
+      const planted: boolean = Math.hypot(toes.x - foot.target.x, toes.z - foot.target.z) <= miss / 1000 &&
+        current.some((socket: (typeof current)[number]): boolean => Math.abs(socket.point.y - foot.target.y) <= HumanFoot.BEARING);
+      // A retained floor target carries its actual bearing surface forward.
+      // A requested new foot placement uses the preferred posture's sole.
+      const sole: ReturnType<typeof HumanFoot.sockets> = planted || intended === bones
+        ? current : HumanFoot.sockets(body, intended, foot.side);
+      const lowest: (typeof sole)[number] = sole.reduce((a: (typeof sole)[number], b: (typeof sole)[number]): (typeof sole)[number] =>
+        a.point.y <= b.point.y ? a : b);
+      // A foot supported on the ball or toe can carry its heel above the
+      // floor in quadruped or half kneel. Place the supporting skin itself.
+      if (sole[0]!.point.y > lowest.point.y + HumanFoot.BEARING) {
+        const socket: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.sockets[`${lowest.socket}${foot.side === "left" ? "Left" : "Right"}`];
+        return { bone: socket.bone, point: socket.point, goal: foot.target, axes: ["y"] };
+      }
+      return {
+        bone: foot.frame.bone,
+        point: foot.frame.point,
+        goal: { x: foot.target.x + heel.x - toes.x, y: foot.target.y, z: foot.target.z + heel.z - toes.z },
+        axes: ["x", "y", "z"],
+      };
+    });
+  }
+
+  /** The solver's measured miss of one target. */
+  type Residual = IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
+
+  /** An existing floor toe target and the heel whose horizontal offset it keeps. */
+  interface IHeel {
+    /** The foot whose sole bears on the floor. */
+    side: AutoMovieHumanSide;
+    /** The rig's heel socket. */
+    frame: IAutoMovieHumanoidSurfaces.IFrame;
+
+    /** The toe datum's bone. */
+    toes: AutoMovieHumanoidBone;
+
+    /** The toe datum's world-metre target. */
+    target: IAutoMovieVector3;
   }
 
   /**
@@ -144,8 +308,8 @@ export namespace supportKey {
    * @evidence contracts/development/implementation.md#principled-implementation The stated tilt and joints use the fit's actual local contact offsets. Their mean Cartesian miss places the seed; floor contacts lower it to the floor, while entirely raised contacts retain their target height without floor penetration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture and one floor reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One contact-point resolution per anchor and one floor reading per stance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.lowest`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All anchors share one current candidate resolution and demanded FK, followed by the existing separately translated floor reading; N points require O(N) transforms rather than N candidate solves.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Anchor points observe the same unchanged turned candidate within supportContact.points; their offsets retain the form owner, and the translated floor posture receives its own actual reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function preferred(
@@ -189,13 +353,14 @@ export namespace supportKey {
     let dx: number = 0;
     let dy: number = 0;
     let dz: number = 0;
-    for (const a of anchors) {
-      const now: IAutoMovieVector3 = supportContact.point(
-        body,
-        turned,
-        a.contact,
-        a.at,
-      );
+    const points: IAutoMovieVector3[] = supportContact.points(
+      body,
+      turned,
+      anchors,
+    );
+    for (let i: number = 0; i < anchors.length; ++i) {
+      const a: (typeof anchors)[number] = anchors[i]!;
+      const now: IAutoMovieVector3 = points[i]!;
       dx += (a.at.x - now.x) / anchors.length;
       if (a.at.y > 0) dy += (a.at.y - now.y) / anchors.length;
       dz += (a.at.z - now.z) / anchors.length;
@@ -214,7 +379,7 @@ export namespace supportKey {
     );
     const grounded: boolean = stance.contacts.some(
       (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
-        supportContact.form(body, c, place(c)).bearing !== undefined,
+        supportContact.onFloorTarget(place(c)),
     );
     return {
       ...keyed,
@@ -226,49 +391,97 @@ export namespace supportKey {
   }
 
   /**
-   * Two keys blended by a share, each joint on its own range, the root and
-   * the turn linearly.
+   * Prepare interpolation between two joint-space support keys the caller
+   * holds unchanged: each joint on its own range (`blendHumanJoint`), the
+   * root linearly and the heading the shorter way. Reads take the share
+   * unclipped; outputs carry no limb goals.
    *
-   * @param body The body.
-   * @param a The key at share 0.
-   * @param b The key at share 1.
-   * @param w The share.
-   * @returns The posture, by joint angles alone.
+   * @param body The unchanged body and its canonical axes/ranges.
+   * @param a The fixed key at zero progress, in world metres and degrees.
+   * @param b The fixed key at full progress in the same frame.
+   * @returns A reader of the share, with a fresh posture and joint map.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is blended and how.
-   * @evidence contracts/development/implementation.md#principled-implementation A free movement between two postures is smooth in joint space (Flash and Hogan 1985 for its minimum-jerk share), each joint on its range (`blendHumanJoint`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the joints of either key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading takes the shorter arc, so a turn across south is not a spin.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the joints, no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `blendHumanJoint`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key/body premises, world-metre/degree frame, unclipped share, ROM joint interpolation and output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A free movement between two postures is smooth in joint space (Flash and Hogan 1985 for the caller's minimum-jerk share), each joint on its range (`blendHumanJoint`); a joint one key lacks blends from or to clinical zero; the heading difference is wrapped by `wrapDegrees`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed joint pairs and trunk deltas precede per-pair range readers and one per-read fallback for a pair missing an endpoint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint interpolation, range admission, root arithmetic or heading wrap is replaced with a fitted or sampled pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) construction over the J union joints. Each complete pair pays its range reader's lazy preparation once, then each read evaluates only its numerical blend; M missing-endpoint pairs share one O(B+M) metadata pass for B bones per interior read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint tuples, order, trunk deltas and each pair's range metadata serve every read, since the caller holds the body and keys unchanged. Missing-endpoint zeros are per-read inputs to the generic joint owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pairs and at most J range readers until release. A missing-pair read's metadata ends with that read; no share, blended output or FK workspace is retained.
    */
-  export function blended(
+  export function prepareBlended(
     body: IAutoMovieMotionHumanBody,
     a: IAutoMovieMotionHumanPosture,
     b: IAutoMovieMotionHumanPosture,
-    w: number,
-  ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+  ): (w: number) => IAutoMovieMotionHumanPosture {
     const bones: Set<AutoMovieHumanoidBone> = new Set([
       ...(Object.keys(a.joints) as AutoMovieHumanoidBone[]),
       ...(Object.keys(b.joints) as AutoMovieHumanoidBone[]),
     ]);
-    for (const bone of bones)
-      joints[bone] = blendHumanJoint(
-        body,
-        bone,
-        a.joints[bone] ?? [0, 0, 0],
-        b.joints[bone] ?? [0, 0, 0],
-        w,
-      );
-    return {
-      root: Vector3.lerp(a.root, b.root, w),
-      yaw: a.yaw + (((b.yaw - a.yaw + 540) % 360) - 180) * w,
-      pitch: a.pitch + (b.pitch - a.pitch) * w,
-      roll: a.roll + (b.roll - a.roll) * w,
-      joints,
-      limbs: {},
+    const pairs: IBlendPair[] = [...bones].map(
+      (bone: AutoMovieHumanoidBone): IBlendPair => {
+        const from: IBlendPair["from"] = a.joints[bone];
+        const to: IBlendPair["to"] = b.joints[bone];
+        return {
+          bone,
+          from,
+          to,
+          read:
+            from !== undefined && to !== undefined
+              ? blendHumanJoint.between(body, bone, from, to)
+              : undefined,
+        };
+      },
+    );
+    const generic: boolean = pairs.some(
+      (pair: IBlendPair): boolean => pair.read === undefined,
+    );
+    const yaw: number = wrapDegrees(b.yaw - a.yaw);
+    const pitch: number = b.pitch - a.pitch;
+    const roll: number = b.roll - a.roll;
+    return (w: number): IAutoMovieMotionHumanPosture => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+      const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+        !generic || w <= 0 || w >= 1
+          ? undefined
+          : blendHumanJoint.prepare(body);
+      for (const pair of pairs) {
+        if (pair.read !== undefined) {
+          joints[pair.bone] = pair.read(w);
+          continue;
+        }
+        const from: readonly [number, number, number] = pair.from ?? [0, 0, 0];
+        const to: readonly [number, number, number] = pair.to ?? [0, 0, 0];
+        joints[pair.bone] =
+          blend === undefined
+            ? w >= 1
+              ? to
+              : from
+            : blend(pair.bone, from, to, w);
+      }
+      return {
+        root: Vector3.lerp(a.root, b.root, w),
+        yaw: a.yaw + yaw * w,
+        pitch: a.pitch + pitch * w,
+        roll: a.roll + roll * w,
+        joints,
+        limbs: {},
+      };
     };
+  }
+
+  /** One fixed union joint; absent tuples keep their original fresh-zero rule. */
+  interface IBlendPair {
+    /** The canonical joint name in original union order. */
+    bone: AutoMovieHumanoidBone;
+
+    /** Its authored first tuple, absent for clinical zero. */
+    from: readonly [number, number, number] | undefined;
+
+    /** Its authored second tuple, absent for clinical zero. */
+    to: readonly [number, number, number] | undefined;
+
+    /** The joint owner's lazy fixed-endpoint reader, absent when an endpoint falls back to clinical zero. */
+    read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }
 }

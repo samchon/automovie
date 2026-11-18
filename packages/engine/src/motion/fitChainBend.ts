@@ -1,27 +1,24 @@
-import {
-  AutoMovieHumanoidBone,
-  type IAutoMovieFitChainToTargetProps,
+import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
-  type IAutoMovieSeededChainFit,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSolvePreparedChainPlantProps,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
-import { Quaternion } from "../math/Quaternion";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import type { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Vector3 } from "../math/Vector3";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
-import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
-import { prepareChainPlant } from "./prepareChainPlant";
-import { resolveBoneMap } from "./resolveBoneMap";
+import { fitHingedChainBend } from "./fitHingedChainBend";
+import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
+import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
@@ -33,180 +30,142 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then
  * the exact residual.
  *
- * @param input The fit request.
- * @returns The fitted pose and its seed, or null for none.
+ * @param props The current model-metre target with this workspace's unchanged source fields; its point stays unchanged through this synchronous search.
+ * @param workspace The matching unchanged source request and its scoped invariant data.
+ * @returns The fitted pose and its hinged seed; failed preparation or analytic admission keeps the source pose with no seed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order of the candidates, the ranking and the result.
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 for a hinged mid joint (`fitHingedChainCandidate`), and a pole vector's bend plane as game-engine two-bone IK takes it, every candidate judged by its clamped forward kinematics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The search alone: preparation, the analytic solve, the swivel candidate and the candidate's forward kinematics have their own owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate preparation or solve keeps the given pose; no ideal measurement replaces the clamped forward kinematics.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 34 initial candidates plus 32 minima times 20 refinement candidates, each a constant-size forward kinematics, and the search stops at the first exact one.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every candidate shares the prepared frames, domains and reference angles.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sweep's arrays hold at most 32 entries and every temporary pose is released with the call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Free-bend search retains at most 34 initial candidates plus 32 minima times 20 refinements, stopping under its original rule; hinged requests add their unchanged search. Every candidate computes actual clamped FK/residual, but geodesic continuity runs only for equal residual buckets or the original explicit-reference stop. The incumbent retains only its actual clamped joint pair; exactly the final fitted winner copies the ordered O(J) source prefix, while a source winner returns by identity. Invariant geometry/factors stay shared and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Targets share prepared frames/domains, authored/reference data, ordered source prefix and resolved clamps. A candidate's admitted raw quaternions serve actual FK and its lazy memoized continuity, whose numerical value is independent of comparison order under fixed source/reference inputs. Lexicographic comparison reads that value only after an equal residual bucket; every needed ranking/stop and cold/near decision remains the same. Target-owned composers still perform each candidate's original angle/frame admission and fresh outer product while sharing pure factors.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays hold at most 32 entries each, with two raw rotations and a lazy continuity reader per retained score. The incumbent additionally holds two clamped joint records rather than a copied full pose. Composers retain bounded factors. Search records release with the target, including on throw; only one final pose/seed escape, with no history or handles.
  */
 export const fitChainBend: (
-  input: IAutoMovieFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
+  workspace: prepareChainFit.IWorkspace,
 ) => IAutoMovieSeededChainFit = (
-  input: IAutoMovieFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
+  workspace: prepareChainFit.IWorkspace,
 ): IAutoMovieSeededChainFit => {
-  // Declared bone axes take precedence over the host table, once, so the
-  // preparation, the analytic solve and the candidate FK read one basis.
-  const props: IAutoMovieFitChainToTargetProps = {
-    ...input,
-    jointAxes: skeletonJointAxes(input.skeleton, input.jointAxes),
-  };
-  const prepared: ReturnType<typeof prepareChainPlant> =
-    prepareChainPlant(props);
+  const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null) return { pose: props.pose, seed: null };
+  const solveProps: IAutoMovieSolvePreparedChainPlantProps = {
+    prepared,
+    target: props.target,
+    jointAxes: props.jointAxes,
+    restFrames: props.restFrames,
+    bendNormal: undefined,
+  };
+  let targetPreparation:
+    | twoBoneChainArticulation.IPreparedTarget
+    | null
+    | undefined;
   const solve: (
     bendNormal?: IAutoMovieVector3,
   ) => ReturnType<typeof solvePreparedChainPlant> = (
     bendNormal?: IAutoMovieVector3,
-  ): ReturnType<typeof solvePreparedChainPlant> =>
-    solvePreparedChainPlant({
-      prepared,
-      target: props.target,
-      bendNormal,
-      jointAxes: props.jointAxes,
-      restFrames: props.restFrames,
-    });
-
-  // A bend hint picks the bend plane the way a pole vector does in game-engine
-  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
-  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
-  // component across the root-to-target axis. Without a hint, the analytic
-  // default bends toward world-down and the search below takes over.
-  const pole: ReturnType<typeof solve> = solve(
-    props.bend === undefined
-      ? undefined
-      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
-  );
-  if (pole === null) return { pose: props.pose, seed: null };
-  const authored: IAutoMovieVector3 = resolveBoneMap(
-    props.skeleton,
-    props.pose,
-    props.topology,
-    props.jointAxes,
-    props.restFrames,
-  ).get(props.chain.effector)!.worldPosition;
-  const distance: (position: IAutoMovieVector3) => number = (
-    position: IAutoMovieVector3,
-  ): number => Vector3.length(Vector3.subtract(position, props.target));
-  const reference: IAutoMoviePose = props.referencePose ?? props.pose;
-  const referenceAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-    new Map(
-      reference.joints.map(
-        (
-          joint: IAutoMovieJointPose,
-        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
-          [joint.bone, joint] as const,
-      ),
+  ): ReturnType<typeof solvePreparedChainPlant> => {
+    if (targetPreparation === undefined) {
+      const source: ReturnType<typeof workspace.articulation> =
+        workspace.articulation();
+      targetPreparation = source === null ? null : source.target(props.target);
+    }
+    if (targetPreparation === null) return null;
+    solveProps.bendNormal = bendNormal;
+    return solvePreparedChainPlant(
+      solveProps,
+      workspace.rig,
+      targetPreparation,
     );
-  const authoredAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-    new Map(
-      props.pose.joints.map(
-        (
-          joint: IAutoMovieJointPose,
-        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
-          [joint.bone, joint] as const,
-      ),
-    );
-  const rotationDistance: (
-    bone: AutoMovieHumanoidBone,
-    candidate: IAutoMovieJointPose | undefined,
-  ) => number = (
-    bone: AutoMovieHumanoidBone,
-    candidate: IAutoMovieJointPose | undefined,
-  ): number =>
-    jointRotationDistance(
-      candidate ?? {
-        bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      },
-      referenceAngles.get(bone),
-      props.jointAxes?.[bone],
-      props.restFrames?.[bone],
-    );
-  let best: IPlantCandidate = {
-    pose: props.pose,
-    residual: distance(authored),
-    continuity:
-      props.referencePose === undefined
-        ? 0
-        : rotationDistance(
-            props.chain.upper,
-            authoredAngles.get(props.chain.upper),
-          ) +
-          rotationDistance(
-            props.chain.lower,
-            authoredAngles.get(props.chain.lower),
-          ),
   };
+
+  // The analytic solve has an answer exactly where the source's triangle and
+  // this target admit one (`twoBoneChainArticulation`: neither segment and
+  // not the reach shorter than 1e-6), whatever the bend plane; a chain
+  // without one keeps its pose. The pole candidate itself is solved below,
+  // only when the hinged candidate is not the answer.
+  const source: ReturnType<typeof workspace.articulation> =
+    workspace.articulation();
+  targetPreparation = source === null ? null : source.target(props.target);
+  if (targetPreparation === null) return { pose: props.pose, seed: null };
+  const { authored }: prepareChainFit.IReading = workspace.read();
+  const authoredContinuity: number =
+    props.referencePose === undefined ? 0 : workspace.authoredContinuity();
+  let best: IPlantCandidate = {
+    kind: "source",
+    residual: Vector3.distance(authored, props.target),
+    continuity: (): number => authoredContinuity,
+  };
+  let composeUpper:
+    | ReturnType<typeof jointToQuaternionOnBasis.prepare>
+    | undefined;
+  let composeLower:
+    | ReturnType<typeof jointToQuaternionOnBasis.prepare>
+    | undefined;
   const consider: (
     solved: NonNullable<ReturnType<typeof solve>>,
   ) => IPlantCandidateScore = (
     solved: NonNullable<ReturnType<typeof solve>>,
   ): IPlantCandidateScore => {
-    const upper: IAutoMovieJointPose = clampJointToSkeleton(
-      solved.upper,
-      props.skeleton,
+    const upper: IAutoMovieJointPose = workspace.clamp(solved.upper);
+    const lower: IAutoMovieJointPose = workspace.clamp(solved.lower);
+    const upperBasis: IAutoMovieJointAxes = workspace.rig.jointBasis(
+      upper.bone,
+      "jointToQuaternion axes",
     );
-    const lower: IAutoMovieJointPose = clampJointToSkeleton(
-      solved.lower,
-      props.skeleton,
+    const upperFrame: IAutoMovieRestFrame | undefined =
+      props.restFrames?.[upper.bone];
+    composeUpper ??= jointToQuaternionOnBasis.prepare(upperBasis, upperFrame);
+    const upperRotation: IAutoMovieQuaternion = composeUpper(upper);
+    const lowerBasis: IAutoMovieJointAxes = workspace.rig.jointBasis(
+      lower.bone,
+      "jointToQuaternion axes",
     );
-    const candidate: IAutoMoviePose = {
-      ...props.pose,
-      joints: [
-        ...props.pose.joints.filter(
-          (joint: IAutoMovieJointPose): boolean =>
-            joint.bone !== props.chain.upper &&
-            joint.bone !== props.chain.lower,
+    const lowerFrame: IAutoMovieRestFrame | undefined =
+      props.restFrames?.[lower.bone];
+    composeLower ??= jointToQuaternionOnBasis.prepare(lowerBasis, lowerFrame);
+    const lowerRotation: IAutoMovieQuaternion = composeLower(lower);
+    const candidateResidual: number = Vector3.distance(
+      resolvePreparedChainEffector(
+        {
+          prepared,
+          upper,
+          lower,
+          jointAxes: props.jointAxes,
+          restFrames: props.restFrames,
+        },
+        resolvePreparedChainLower.fromRotations(
+          prepared,
+          upperRotation,
+          lowerRotation,
         ),
-        upper,
-        lower,
-      ],
-    };
-    const candidateResidual: number = distance(
-      resolvePreparedChainEffector({
-        prepared,
-        upper,
-        lower,
-        jointAxes: props.jointAxes,
-        restFrames: props.restFrames,
-      }),
+      ),
+      props.target,
     );
-    const continuity: number =
-      jointRotationDistance(
-        upper,
-        referenceAngles.get(upper.bone),
-        props.jointAxes?.[upper.bone],
-        props.restFrames?.[upper.bone],
-      ) +
-      jointRotationDistance(
-        lower,
-        referenceAngles.get(lower.bone),
-        props.jointAxes?.[lower.bone],
-        props.restFrames?.[lower.bone],
-      );
+    let turned: number | undefined;
+    const continuity: () => number = (): number => {
+      if (turned === undefined)
+        turned =
+          workspace.continuity(upper.bone, upperRotation) +
+          workspace.continuity(lower.bone, lowerRotation);
+      return turned;
+    };
     const score: IPlantCandidateScore = {
       residual: candidateResidual,
       continuity,
     };
     if (comparePlantCandidate(score, best) < 0)
       best = {
-        pose: candidate,
+        kind: "fitted",
+        upper,
+        lower,
         residual: candidateResidual,
         continuity,
       };
     return score;
   };
-  const canFinish: () => boolean = (): boolean =>
-    plantResidualBucket(best.residual) === 0 &&
-    (props.referencePose === undefined ||
-      best.continuity <= PLANT_CONTINUITY_EPSILON);
 
   // A hinged mid joint (an elbow or a knee, whose abduction is immobile) can
   // bend only about its own flexion axis, while the free-swing candidates
@@ -221,71 +180,31 @@ export const fitChainBend: (
   // wrist turns only with the forearm's distal twist, an ankle only with the
   // whole leg's swivel, the hip's rotation): Tolani's analysis chooses the
   // swivel inside the end joint's limits too, so that candidate leads.
-  const hingeAxes: IAutoMovieJointAxes | undefined =
-    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
-  const hingedMid: boolean =
-    prepared.lowerDomain.constraint !== null &&
-    prepared.lowerDomain.constraint.abduction === null &&
-    hingeAxes !== undefined;
   // A hinged chain takes the swivel candidate whenever it reaches, so the
   // choice never alternates between two methods from frame to frame; the
   // hint plane and the sweep remain for a chain the swivel cannot solve.
-  if (hingedMid) {
-    const hinged: NonNullable<ReturnType<typeof solve>> | null =
-      fitHingedChainCandidate(
-        props,
-        prepared,
-        hingeAxes!,
-        props.effectorRotation,
-      );
-    if (hinged !== null) {
-      const upper: IAutoMovieJointPose = clampJointToSkeleton(
-        hinged.upper,
-        props.skeleton,
-      );
-      const lower: IAutoMovieJointPose = clampJointToSkeleton(
-        hinged.lower,
-        props.skeleton,
-      );
-      const residual: number = distance(
-        resolvePreparedChainEffector({
-          prepared,
-          upper,
-          lower,
-          jointAxes: props.jointAxes,
-          restFrames: props.restFrames,
-        }),
-      );
-      // A limb at its full length, or a knee or an elbow stopped at the end
-      // of its range, rests the effector on the reachable shell along the
-      // line to the target, the nearest point the chain allows, so that
-      // candidate is the answer as well: handing
-      // it to the search below would trade it between frames for whichever
-      // free-swing candidate the clamp happened to leave a micrometre nearer.
-      if (
-        plantResidualBucket(Math.abs(residual - (hinged.shortfall ?? 0))) === 0
-      )
-        return {
-          pose: {
-            ...props.pose,
-            joints: [
-              ...props.pose.joints.filter(
-                (j: IAutoMovieJointPose): boolean =>
-                  j.bone !== props.chain.upper && j.bone !== props.chain.lower,
-              ),
-              upper,
-              lower,
-            ],
-          },
-          seed: hinged.seed ?? null,
-          ...(hinged.value === undefined ? {} : { value: hinged.value }),
-        };
-      consider(hinged);
-    }
+  const hinged: ReturnType<typeof fitHingedChainBend> = fitHingedChainBend(
+    props,
+    workspace,
+  );
+  if (hinged !== null) {
+    if (hinged.fitted !== null) return hinged.fitted;
+    consider(hinged.candidate);
   }
 
+  // A bend hint picks the bend plane the way a pole vector does in game-engine
+  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
+  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // component across the root-to-target axis. Without a hint, the analytic
+  // default bends toward world-down and the search below takes over.
+  const pole: NonNullable<ReturnType<typeof solve>> = solve(
+    props.bend === undefined
+      ? undefined
+      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
+  )!;
   consider(pole);
-  if (canFinish()) return { pose: best.pose, seed: null };
+  if (canFinish(props, best))
+    return { pose: plantPose(props, workspace, best), seed: null };
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
   const reachAxis: IAutoMovieVector3 = Vector3.normalize(
@@ -305,49 +224,26 @@ export const fitChainBend: (
   );
   const normalAt: (angle: number) => IAutoMovieVector3 = (
     angle: number,
-  ): IAutoMovieVector3 =>
-    Vector3.add(
-      Vector3.scale(primary, Math.cos(angle)),
-      Vector3.scale(secondary, Math.sin(angle)),
-    );
+  ): IAutoMovieVector3 => {
+    const cosine: number = Math.cos(angle);
+    const sine: number = Math.sin(angle);
+    return {
+      x: primary.x * cosine + secondary.x * sine,
+      y: primary.y * cosine + secondary.y * sine,
+      z: primary.z * cosine + secondary.z * sine,
+    };
+  };
 
   if (props.referencePose !== undefined) {
-    const referenceJoints: IAutoMovieJointPose[] = [
-      props.chain.upper,
-      props.chain.lower,
-    ].map(
-      (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
-        referenceAngles.get(bone) ?? {
-          bone,
-          flexion: null,
-          abduction: null,
-          twist: null,
-        },
-    );
-    const referenceLower: IAutoMovieResolvedBone = resolveBoneMap(
-      props.skeleton,
-      {
-        ...props.pose,
-        joints: [
-          ...props.pose.joints.filter(
-            (joint: IAutoMovieJointPose): boolean =>
-              joint.bone !== props.chain.upper &&
-              joint.bone !== props.chain.lower,
-          ),
-          ...referenceJoints,
-        ],
-      },
-      props.topology,
-      props.jointAxes,
-      props.restFrames,
-    ).get(props.chain.lower)!;
+    const referenceLower: IAutoMovieResolvedBone = workspace.referenceLower();
     const referenceNormal: IAutoMovieVector3 = Vector3.cross(
       reachAxis,
       Vector3.subtract(referenceLower.worldPosition, upper.worldPosition),
     );
     if (Vector3.length(referenceNormal) >= 1e-6) {
       consider(solve(Vector3.normalize(referenceNormal))!);
-      if (canFinish()) return { pose: best.pose, seed: null };
+      if (canFinish(props, best))
+        return { pose: plantPose(props, workspace, best), seed: null };
     }
   }
 
@@ -356,7 +252,8 @@ export const fitChainBend: (
   for (let index: number = 0; index < segments; ++index) {
     const angle: number = (2 * Math.PI * index) / segments;
     sweep.push({ angle, ...consider(solve(normalAt(angle))!) });
-    if (canFinish()) return { pose: best.pose, seed: null };
+    if (canFinish(props, best))
+      return { pose: plantPose(props, workspace, best), seed: null };
   }
   const minima: IPlantBendCandidate[] = sweep.filter(
     (entry: IPlantBendCandidate, index: number): boolean => {
@@ -377,39 +274,75 @@ export const fitChainBend: (
     let step: number = (2 * Math.PI) / segments;
     for (let iteration: number = 0; iteration < 10; ++iteration) {
       step /= 2;
-      for (const angle of [center.angle - step, center.angle + step]) {
+
+      // Both probes belong to this iteration's old center, even when the
+      // first probe replaces it before the second is evaluated.
+      const left: number = center.angle - step;
+      const right: number = center.angle + step;
+      for (let probe: number = 0; probe < 2; ++probe) {
+        const angle: number = probe === 0 ? left : right;
         const candidate: IPlantBendCandidate = {
           angle,
           ...consider(solve(normalAt(angle))!),
         };
         if (comparePlantCandidate(candidate, center) < 0) center = candidate;
-        if (canFinish()) return { pose: best.pose, seed: null };
+        if (canFinish(props, best))
+          return { pose: plantPose(props, workspace, best), seed: null };
       }
     }
   }
-  return { pose: best.pose, seed: null };
+  return { pose: plantPose(props, workspace, best), seed: null };
 };
 
+/** Existing squared-radian equality threshold for stopping an exact-pin search. */
 const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
+/** The original exact-pin stopping rule, evaluated from the current best after each candidate. */
+function canFinish(
+  props: IAutoMovieFitChainToTargetProps,
+  best: IPlantCandidateScore,
+): boolean {
+  return (
+    plantResidualBucket(best.residual) === 0 &&
+    (props.referencePose === undefined ||
+      best.continuity() <= PLANT_CONTINUITY_EPSILON)
+  );
+}
+
+/** Residual and continuity keys under the solver's existing lexicographic order. */
 interface IPlantCandidateScore {
   /** Actual target distance after rig-ROM clamping, model metres. */
   residual: number;
 
-  /** Squared joint-rotation distance to the reference pose. */
-  continuity: number;
+  /** Lazy actual squared-radian turn; only an equal residual bucket can rank by it. */
+  continuity(): number;
 }
 
-/** Best actual pose and its unchanged contact/continuity scores. */
-interface IPlantCandidate extends IPlantCandidateScore {
-  pose: IAutoMoviePose;
+/** Best actual source or clamped joint pair, without copying unused intermediate pose arrays. */
+type IPlantCandidate = IPlantCandidateScore &
+  (
+    | { kind: "source" }
+    | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
+  );
+
+/** Only the final selected clamped pair needs the source's ordered unrelated-joint prefix. */
+function plantPose(
+  props: IAutoMovieFitChainToTargetProps,
+  workspace: prepareChainFit.IWorkspace,
+  candidate: IPlantCandidate,
+): IAutoMoviePose {
+  return candidate.kind === "source"
+    ? props.pose
+    : workspace.pose(candidate.upper, candidate.lower);
 }
 
 /** Bend-plane parameter beside the contact/continuity scores it produced. */
 interface IPlantBendCandidate extends IPlantCandidateScore {
+  /** Bend-plane angle around the current reach axis, radians. */
   angle: number;
 }
 
+/** Place actual model-metre residual in the existing pin-accuracy bucket. */
 const plantResidualBucket: (residual: number) => number = (
   residual: number,
 ): number => Math.floor(residual / PLANT_RESIDUAL_EPSILON);
@@ -425,41 +358,10 @@ const comparePlantCandidate: (
   const residualOrder: number =
     plantResidualBucket(left.residual) - plantResidualBucket(right.residual);
   if (residualOrder !== 0) return residualOrder;
-  const continuityOrder: number = left.continuity - right.continuity;
+  const continuityOrder: number = left.continuity() - right.continuity();
   return continuityOrder === 0
     ? left.residual - right.residual
     : continuityOrder;
-};
-
-/** Sign-insensitive geodesic distance between two joint rotations. */
-const jointRotationDistance: (
-  joint: IAutoMovieJointPose,
-  reference: IAutoMovieJointPose | undefined,
-  axes: IAutoMovieJointAxes | undefined,
-  restFrame: IAutoMovieRestFrame | undefined,
-) => number = (
-  joint: IAutoMovieJointPose,
-  reference: IAutoMovieJointPose | undefined,
-  axes: IAutoMovieJointAxes | undefined,
-  restFrame: IAutoMovieRestFrame | undefined,
-): number => {
-  const candidate: IAutoMovieQuaternion = Quaternion.normalize(
-    jointToQuaternion(joint, axes, restFrame),
-  );
-  const prior: IAutoMovieQuaternion = Quaternion.normalize(
-    jointToQuaternion(
-      reference ?? {
-        bone: joint.bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      },
-      axes,
-      restFrame,
-    ),
-  );
-  const angle: number = Quaternion.angle(candidate, prior);
-  return angle * angle;
 };
 
 /**

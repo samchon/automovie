@@ -1,3 +1,5 @@
+import { bracketedCrossing } from "../math/bracketedCrossing";
+
 /**
  * Evaluate a CSS-style cubic Bézier easing `[x1, y1, x2, y2]` at progress `t`.
  *
@@ -5,7 +7,7 @@
  * bisection fallback), then returns y(s). Endpoints are fixed at (0,0)–(1,1).
  * The caller supplies CSS-legal x controls in [0,1], as validateMotion requires; finite y controls may overshoot the output interval. Progress is clamped to [0,1].
  *
- * @evidence contracts/development/implementation.md#principled-implementation Solves cubic x(s)=clamped progress with at most eight Newton steps then 32 bisections when the x residual remains at least 1e-5; CSS-legal x controls make x(s) monotone, while finite y controls may produce intentional overshoot.
+ * @evidence contracts/development/implementation.md#principled-implementation Solves cubic x(s)=clamped progress with at most eight Newton steps then, when the x residual remains at least 1e-5, a bracketed crossing on [0, 1] to the width 32 bisections leave (false position, then bisection); CSS-legal x controls make x(s) monotone, while finite y controls may produce intentional overshoot.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The local cubic and derivative share Horner-form coefficients; residual-based fallback stays with this one inverse-easing owner rather than changing the motion sampler.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite progress or controls throw; the 1e-6 derivative cutoff and 1e-5 residual select a bounded numerical fallback, while CSS x-domain admission remains validateMotion's caller premise.
  * @evidence contracts/development/common.md#meaningful-documentation Gives fixed endpoints, clamped progress, CSS x-domain premise, finite y overshoot and Newton/bisection method.
@@ -61,14 +63,20 @@ export const cubicBezierEasing: (
   // the residual shows it did not converge, bisect on [0,1]: x(0)=0 and
   // x(1)=1, so a root exists, and CSS-legal control x's keep x(s) monotone.
   if (Math.abs(bez(x1, x2, s) - x) >= 1e-5) {
-    let lo: number = 0;
-    let hi: number = 1;
-    for (let i: number = 0; i < 32; ++i) {
-      s = (lo + hi) / 2;
-      if (bez(x1, x2, s) < x) lo = s;
-      else hi = s;
-    }
-    s = (lo + hi) / 2;
+    // The bracket is closed to the width 32 bisections leave
+    // (`bracketedCrossing`: false position on the cubic, then bisection for
+    // whatever width that leaves), and its middle taken as before.
+    const closed: { low: number; high: number } = bracketedCrossing({
+      f: (at: number): number => bez(x1, x2, at) - x,
+      past: (excess: number): boolean => !(excess < 0),
+      low: 0,
+      high: 1,
+      tolerance: 2 ** -HALVINGS,
+    });
+    s = (closed.low + closed.high) / 2;
   }
   return bez(y1, y2, s);
 };
+
+/** The bisections whose final bracket width the fallback closes to. */
+const HALVINGS: number = 32;

@@ -1,8 +1,8 @@
+import { clampJointToSkeleton } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
   IAutoMovieMotionHumanJacobian,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieVector3,
@@ -14,7 +14,9 @@ import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanJacobian } from "./HumanJacobian";
+import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
+import { HumanQuadraticValue } from "./HumanQuadraticValue";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 
 /**
@@ -51,6 +53,18 @@ import { HumanSequentialConvex } from "./HumanSequentialConvex";
  * solved by the shared quadratic program (`HumanQuadraticProgram`) inside a
  * trust region, with one second-order correction of a rejected step
  * (Nocedal and Wright 2006, (15.36) and Algorithm 15.2).
+ *
+ * Each convex model is solved by the interior-point method
+ * (`HumanQuadraticProgram.interior`, Mehrotra's predictor-corrector as HPIPM
+ * implements it, Frison and Diehl 2020), whose iteration count does not grow
+ * with the conditioning of the model's dense joint-space curvature, and by
+ * the operator splitting (OSQP) only where the interior method does not
+ * converge. Solved by the splitting first, a third of a rise's models ended
+ * unfinished at its iteration guard, short of the minimiser, and their steps
+ * were rejected by the trust region for the error (measured on the get-up's
+ * supine rise: 24 of 72 programs, 8.0 s of a 9.4 s fit, against 0.7 s by
+ * the interior method, which met the splitting's polished minimisers to
+ * 1e-9).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the problem with its sources, the variables, the objective, the rows, the merit and the loop.
  * @evidence contracts/development/design.md#principled-representation Goals and contacts are the priced rows of one quadratic program over the posture's own variables, the static multi-contact posture problem's representation.
@@ -95,60 +109,41 @@ export namespace HumanBodyFit {
   const NEAR: number = 0.08;
 
   /**
-   * The fitted posture.
-   *
-   * @param props The fit.
-   * @returns The posture, by joint angles alone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture `fit` solves.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a law that needs the residuals reads `fit`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The cost of `fit`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function solve(
-    props: IAutoMovieMotionHumanBodyFitTypes.IProps,
-  ): IAutoMovieMotionHumanPosture {
-    return fit(props).posture;
-  }
-
-  /**
    * The fit and what it misses by.
    *
    * @param props The fit.
-   * @returns The fitted posture, each target's residual, the balance's, whether it converged and why the loop stopped.
+   * @returns The fitted posture, its constraint residuals and feasibility, whether the loop converged and why it stopped.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model equals the merit at no step.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one merit, one model per convexification, the shared loop.
+   * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model and the merit agree at the iterate they are taken about.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading/merit and shared loop; each fixed linearization owns fresh price shells. A selected step's trial getter selects its captured SOC solve/delta, so a later discarded steering solve cannot replace the correction's basis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is a priced row and every collider near the floor a row; a residual is measured on the fitted posture, never taken from the model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and one Jacobian per convexification, one forward kinematics per trial; a collider or pair far from contact is rowed only when a step brings it near.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds the owning FK/Jacobian and sequential-convex/QP costs with actual projections per candidate. Each subproblem is solved by the interior method in a bounded number of dense factorisations of the n-variable system, independent of the curvature's conditioning; the splitting, whose iteration count grows with it (a third of a supine rise's programs ended unfinished at its 4000-iteration guard), runs only on a program the interior method leaves unsolved. Measured on the get-up's supine rise: 0.7 s of interior solves against 8.0 s of splitting. When all soft prices are implicit, steering reprices O(m) rows without another Jacobian/geometry pass.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A fit-local canonical factory shares skeleton metadata. At fixed x/e/objective, only default soft prices depend on mu; absent every explicit target/angle/centre price, fresh row identities carry exact new weights. One interior session per linearisation shares its scales, scratch and last converged point across its regions, reprices and correction, a start that decides no answer; a new linearisation clears them. The splitting's fallback keeps its same-row warm iterates and keyed duals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns indices, at most two curvatures, canonical metadata, one interior session (one scaling, one scratch set and one point) and current models/iterates/evaluations. A fallback convexification's splitting model holds copied fixed rows and bounded solver scratch until replacement or return; final written posture ownership transfers to the result, without a global result/body cache.
    */
-  export function fit(
-    props: IAutoMovieMotionHumanBodyFitTypes.IProps,
-  ): IAutoMovieMotionHumanBodyFitTypes.IResult {
-    const {
-      body,
-      posture,
-    }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> =
-      props;
+  export function fit(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanBodyFitTypes.IResult {
+    const { body, posture }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> = props;
     const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       props.variables ?? HumanFitVariables.BODY;
-    const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] =
-      props.targets ?? [];
-    const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] =
-      props.angles ?? [];
+    const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = props.targets ?? [];
+    const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] = props.angles ?? [];
+    const repriced: boolean = targets.every((t: IAutoMovieMotionHumanBodyFitTypes.ITarget): boolean => t.price === undefined)
+      && angles.every((a: IAutoMovieMotionHumanFitGoals.IAngle): boolean => a.price === undefined)
+      && props.centre?.price === undefined;
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
+    const hasJointVariables: boolean = variables.some(
+      (variable: IAutoMovieMotionHumanJacobian.IVariable): boolean => variable.kind === "angle",
+    );
     const key: Float64Array = HumanFitVariables.vector(variables, posture);
     const units: number[] = variables.map(
-      (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
-        HumanFitVariables.unit(v),
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number => HumanFitVariables.unit(v),
+    );
+    const index: readonly number[] = Array.from(
+      { length: n },
+      (_: unknown, i: number): number => i,
     );
 
     // A step under a variable's resolution share, in the widest region's
@@ -176,10 +171,18 @@ export namespace HumanBodyFit {
       price: PRICE,
     });
 
-    // The last model solved, which a rejected trial's second-order correction
+    // The selected trial's model, which its rejected second-order correction
     // re-solves with each row shifted by the trial's miss from its linear model
     // (Nocedal and Wright 2006, (15.36), p. 443, and Algorithm 15.2).
     let last: ILast | null = null;
+
+    // Variables, solved units and the pure table weights are fixed for this
+    // fit. Neither QP admission nor SOC changes these raw curvature buffers.
+    let objectiveP: Float64Array[] | undefined;
+    let steeringP: Float64Array[] | undefined;
+
+    // Only canonical metadata crosses models; every candidate is projected.
+    let projection: ReturnType<typeof clampJointToSkeleton.prepare> | undefined;
 
     // The last quadratic program solved and its iterates, from which the next
     // solve starts: the same model at another radius from its iterates, a new
@@ -191,10 +194,14 @@ export namespace HumanBodyFit {
       state: IAutoMovieMotionHumanQuadraticProgram.IState;
       rows: IRead[];
     } | null = null;
-    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
-      Float64Array,
-      IEvaluation
-    > = {
+
+    // The interior-point solves of one linearisation share a session: its
+    // scales, its scratch, and its last converged point as the start of the
+    // next program of the same rows (a smaller region, a reprice, the
+    // correction's shifted bounds). A new linearisation has other rows and is
+    // scaled on its own.
+    const session: HumanQuadraticInteriorSession.ISession = {};
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
       evaluate: merit.evaluate,
       feasible: (e: IEvaluation): boolean => merit.holds(e.misses),
       correct: (
@@ -204,25 +211,19 @@ export namespace HumanBodyFit {
       ): Float64Array | null => {
         if (last === null || last.x !== x) return null;
         const l: ILast = last;
-        const shifted: IAutoMovieMotionHumanQuadraticProgram.IRow[] =
-          l.rows.map((r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+        const shifted: IAutoMovieMotionHumanQuadraticProgram.IRow[] = l.rows.map(
+          (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => {
             let model: number = 0;
             for (let a: number = 0; a < r.row.index.length; a++)
               model += r.row.coef[a]! * l.moved[r.row.index[a]!]!;
             const miss: number = (r.f(trial.r) - r.f(l.at)) * MM - model;
             return { ...r.row, l: r.row.l - miss, u: r.row.u - miss };
-          });
-        const state: IAutoMovieMotionHumanQuadraticProgram.IState =
-          HumanQuadraticProgram.solve({
-            n,
-            band: n - 1,
-            p: l.p,
-            q: l.q,
-            rows: [
-              ...shifted,
-              ...HumanFitVariables.bounds(variables, x, l.radius),
-            ],
-          });
+          },
+        );
+        const state: IAutoMovieMotionHumanQuadraticProgram.IState = l.solve([
+          ...shifted,
+          ...HumanFitVariables.bounds(variables, x, l.radius),
+        ]);
         return moved(x, state.x);
       },
       convexify: (
@@ -233,27 +234,36 @@ export namespace HumanBodyFit {
         objective: boolean,
       ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
         const at: IReading = e.r;
+
+        // A new linearisation has other rows: its interior solves are scaled
+        // and started on their own.
+        session.scaling = undefined;
+        session.point = undefined;
         const step: HumanBodyFitRows.IStep = {
           body,
           at,
-          motions: HumanJacobian.of(
+          motions: HumanJacobian.read(
             body,
-            HumanFitVariables.written(variables, posture, x),
+            at.written,
             at.bones,
             variables,
-          ),
+            hasJointVariables
+              ? (projection ??= clampJointToSkeleton.prepare(body.skeleton))
+              : undefined,
+          ).motions,
           units,
+          index,
           targets,
           angles,
           ...(props.centre === undefined ? {} : { centre: props.centre }),
           price: mu,
-          touching: HumanBodyFitRows.lowest(at),
+          touching: e.touching,
         };
         const rowed: Set<number> = new Set();
         at.heights.forEach((h: number, c: number): void => {
           const low: number = at.lows[at.of[c]!]!;
           if (
-            !step.touching.includes(c) &&
+            !e.touchingSet.has(c) &&
             (h < 0 || (low <= NEAR && h <= low + HumanBodyFitRows.MARGIN))
           )
             rowed.add(c);
@@ -261,92 +271,131 @@ export namespace HumanBodyFit {
         const rows: IRead[] = [
           ...HumanBodyFitRows.of(step),
           ...HumanBodyFitRows.floor(step, rowed),
-          ...pairs
-            .filter(
-              (pair: HumanFitPairs.IPair): boolean =>
-                HumanFitPairs.gap(at.bones, pair).distance <= NEAR,
-            )
-            .map(
-              (pair: HumanFitPairs.IPair): IRead =>
-                HumanFitPairs.row(step, pair, BAND, MM),
-            ),
         ];
+
+        // Misses holds actual negative gaps for this same ordered pair list.
+        pairs.forEach((pair: HumanFitPairs.IPair, k: number): void => {
+          if (-e.misses.pairs[k]! <= NEAR)
+            rows.push(HumanFitPairs.row(step, pair, BAND, MM, e.gaps[k]!));
+        });
 
         // The objective's curvature and slope in solved units; none for the
         // steering's model of the violation alone.
-        const p: Float64Array[] = Array.from(
-          { length: n },
-          (_: unknown, i: number): Float64Array => new Float64Array(n - i),
-        );
+        const retained: Float64Array[] | undefined = objective
+          ? objectiveP
+          : steeringP;
+        const p: Float64Array[] =
+          retained ??
+          Array.from(
+            { length: n },
+            (_: unknown, i: number): Float64Array => new Float64Array(n - i),
+          );
         const q: Float64Array = new Float64Array(n);
         if (objective)
           for (let i: number = 0; i < n; i++) {
             const w: number = HumanFitVariables.weight(variables[i]!);
-            p[i]![0] = w * units[i]! ** 2;
+            if (retained === undefined) p[i]![0] = w * units[i]! ** 2;
             q[i] = w * units[i]! * (x[i]! - key[i]!);
           }
-        return {
-          solve: (
-            radius: number,
-          ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
-            const qp: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
-              n,
-              band: n - 1,
-              p,
-              q,
-              rows: [
-                ...rows.map(
-                  (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow =>
-                    r.row,
-                ),
-                ...HumanFitVariables.bounds(variables, x, radius),
-              ],
-            };
-            const state: IAutoMovieMotionHumanQuadraticProgram.IState =
-              previous !== null && previous.rows === rows
-                ? HumanQuadraticProgram.solve(qp, previous.state)
-                : HumanQuadraticProgram.solve(
-                    qp,
-                    undefined,
-                    previous === null
-                      ? undefined
-                      : HumanQuadraticProgram.multipliers(
-                          previous.qp,
-                          previous.state,
-                        ),
-                  );
-            previous = { qp, state, rows };
-            const solved: Float64Array = state.x;
-            last = { x, at, rows, p, q, radius, moved: solved };
-            let linear: number = 0;
-            let met: boolean = true;
-            for (const r of rows) {
-              let s: number = 0;
-              for (let a: number = 0; a < r.row.index.length; a++)
-                s += r.row.coef[a]! * solved[r.row.index[a]!]!;
-              const d: number = Math.max(0, r.row.l - s, s - r.row.u);
-              linear += ((r.row.weight ?? mu) / mu) * d;
-              if (d > BAND * MM) met = false;
-            }
-            return {
-              trial: moved(x, solved),
-              predicted:
-                HumanQuadraticProgram.value(qp, new Float64Array(n)) -
-                HumanQuadraticProgram.value(qp, solved),
-              length: Math.max(
-                ...Array.from(
-                  solved,
-                  (s: number, i: number): number =>
-                    Math.abs(s * units[i]!) /
-                    HumanFitVariables.reach(variables[i]!),
-                ),
-              ),
-              full: HumanFitVariables.edge(variables, solved, radius),
-              violation: linear,
-              met,
-            };
-          },
+        if (objective) objectiveP = p;
+        else steeringP = p;
+
+        // Radius trials change only hard bounds, not this model's objective.
+        // Compute its zero value lazily, after the first QP admission. The
+        // splitting's prepared model is built only for a program the
+        // interior method leaves unsolved.
+        let model: ReturnType<typeof HumanQuadraticProgram.prepare> | undefined;
+        const solveRows: (
+          rows: readonly IAutoMovieMotionHumanQuadraticProgram.IRow[],
+          warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
+          duals?: ReadonlyMap<string, number>,
+        ) => IAutoMovieMotionHumanQuadraticProgram.IState = (
+          rows: readonly IAutoMovieMotionHumanQuadraticProgram.IRow[],
+          warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
+          duals?: ReadonlyMap<string, number>,
+        ): IAutoMovieMotionHumanQuadraticProgram.IState => {
+          const qp: IAutoMovieMotionHumanQuadraticProgram.IProblem = { n, band: n - 1, p, q, rows };
+          return HumanQuadraticProgram.interior(qp, session) ??
+            (model ??= HumanQuadraticProgram.prepare(qp)).solve(rows, warm, duals);
         };
+        const priced: (price: number, current: IRead[]) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (
+          price: number,
+          current: IRead[],
+        ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
+          let zero: number | undefined;
+          let fixedRows: IAutoMovieMotionHumanQuadraticProgram.IRow[] | undefined;
+          return {
+            ...(repriced ? {
+              reprice: (next: number): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> =>
+                priced(next, current.map((r: IRead): IRead => ({ ...r, row: { ...r.row, weight: next } }))),
+            } : {}),
+            solve: (
+              radius: number,
+            ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+              const qp: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
+                n,
+                band: n - 1,
+                p,
+                q,
+                rows: [
+                  ...(fixedRows ??= current.map(
+                    (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => r.row,
+                  )),
+                  ...HumanFitVariables.bounds(variables, x, radius),
+                ],
+              };
+
+              // The splitting, where it solves, starts from the last solve
+              // of these rows or from the last solve's multipliers by key.
+              const state: IAutoMovieMotionHumanQuadraticProgram.IState =
+                previous !== null && previous.rows === current
+                  ? solveRows(qp.rows, previous.state)
+                  : solveRows(
+                      qp.rows,
+                      undefined,
+                      previous === null
+                        ? undefined
+                        : HumanQuadraticProgram.multipliers(
+                            previous.qp,
+                            previous.state,
+                          ),
+                    );
+              previous = { qp, state, rows: current };
+              const solved: Float64Array = state.x;
+              const selected: ILast = { x, at, rows: current, solve: solveRows, radius, moved: solved };
+              let linear: number = 0;
+              let met: boolean = true;
+  
+              // Model rows are all priced; appended variable bounds are hard.
+              // One actual soft-row product serves objective and diagnostics.
+              // Both owned curvatures are diagonal; the QP row band stays full.
+              const value: number = HumanQuadraticValue(
+                qp,
+                solved,
+                (row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number): void => {
+                  linear += ((row.weight ?? price) / price) * miss;
+                  if (miss > BAND * MM) met = false;
+                },
+                0,
+              );
+              let trial: Float64Array | undefined;
+              return {
+                get trial(): Float64Array {
+                  // Steering may solve a discarded model after this step.
+                  last = selected;
+                  return (trial ??= moved(x, solved));
+                },
+                predicted:
+                  (zero ??= HumanQuadraticValue(qp)) - value,
+                length: length(solved),
+                full: HumanFitVariables.edge(variables, solved, radius),
+                violation: linear,
+                met,
+              };
+            },
+          };
+          };
+        return priced(mu, rows);
       },
     };
     const moved: (x: Float64Array, s: Float64Array) => Float64Array = (
@@ -358,50 +407,55 @@ export namespace HumanBodyFit {
         (v: number, i: number): number => v + s[i]! * units[i]!,
       );
 
-    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
-      Float64Array,
-      IEvaluation
-    > = HumanSequentialConvex.minimise(
-      problem,
-      HumanFitVariables.vector(variables, props.start ?? posture),
-      {
-        schedule: {
-          eta: ACCEPTED,
-          low: POOR,
-          high: GOOD,
-          shrink: 0.5,
-          expand: 2,
-          boundary: true,
-          widest: 1,
-          trust: 1,
-          least,
-          tries: HALVINGS + 1,
-          improved: (merit: number): number => merit * CONVERGED,
+    /** Reduce in solved-coordinate order without a temporary vector or changed unit arithmetic. */
+    const length: (s: Float64Array) => number = (s: Float64Array): number => {
+      let out: number = -Infinity;
+      for (let i: number = 0; i < s.length; ++i)
+        out = Math.max(
+          out,
+          Math.abs(s[i]! * units[i]!) / HumanFitVariables.reach(variables[i]!),
+        );
+      return out;
+    };
+
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IEvaluation> =
+      HumanSequentialConvex.minimise(
+        problem,
+        HumanFitVariables.vector(variables, props.start ?? posture),
+        {
+          schedule: {
+            eta: ACCEPTED,
+            low: POOR,
+            high: GOOD,
+            shrink: 0.5,
+            expand: 2,
+            boundary: true,
+            widest: 1,
+            trust: 1,
+            least,
+            tries: HALVINGS + 1,
+            improved: (merit: number): number => merit * CONVERGED,
+          },
+          penalties: [PRICE],
+          rounds: ROUNDS,
+          steer: true,
         },
-        penalties: [PRICE],
-        rounds: ROUNDS,
-        steer: true,
-      },
-    );
+      );
     const r: IReading = solved.evaluation.r;
+    const feasible: boolean = merit.holds(solved.evaluation.misses);
     return {
-      posture: HumanFitVariables.written(variables, posture, solved.x),
+      posture: r.written,
       residuals: targets.map(
-        (
-          t: IAutoMovieMotionHumanBodyFitTypes.ITarget,
-          k: number,
-        ): { point: number; turn: number } =>
+        (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): { point: number; turn: number } =>
           HumanBodyFitRows.residual(t, r, k),
       ),
-      angles: angles.map(
-        (target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
-          const [lo, hi]: readonly [number, number] =
-            HumanFitGoals.bounds(target);
-          return (
-            (Math.max(0, lo - r.angles[k]!, r.angles[k]! - hi) * 180) / Math.PI
-          );
-        },
-      ),
+      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
+        const [lo, hi]: readonly [number, number] =
+          HumanFitGoals.bounds(target);
+        return (
+          (Math.max(0, lo - r.angles[k]!, r.angles[k]! - hi) * 180) / Math.PI
+        );
+      }),
       centre:
         props.centre === undefined
           ? 0
@@ -418,27 +472,27 @@ export namespace HumanBodyFit {
           0,
           ...(r.balance?.inside ?? []).map((d: number): number => -d),
         ) * MM,
-      converged: solved.settled && merit.holds(solved.evaluation.misses),
+      feasible,
+      converged: solved.settled && feasible,
       reason: solved.reason,
     };
   }
 
   /** A posture's reading for the fit. */
   type IReading = HumanBodyFitRows.IReading;
-
   /** A row of a step and the reading it linearises. */
   type IRead = HumanBodyFitRows.IRead;
 
   /** An iterate's reading for the loop (`HumanBodyFitMerit`). */
   type IEvaluation = HumanBodyFitMerit.IEvaluation;
 
-  /** The last convex model solved: what a second-order correction re-solves. */
+  /** The selected trial's convex model: what its second-order correction re-solves. */
   interface ILast {
     x: Float64Array;
     at: IReading;
     rows: IRead[];
-    p: Float64Array[];
-    q: Float64Array;
+    /** The model's solve of its own rows at other intervals. */
+    solve: (rows: IAutoMovieMotionHumanQuadraticProgram.IRow[]) => IAutoMovieMotionHumanQuadraticProgram.IState;
     radius: number;
     moved: Float64Array;
   }

@@ -1,4 +1,5 @@
 export * from "./AutoMovieHumanBindingInputs";
+export * from "./AutoMovieHumanCanonicalBind";
 export * from "./AutoMovieHumanCanonicalBody";
 export * from "./AutoMovieHumanCanonicalProfile";
 export * from "./AutoMovieHumanCanonicalSolids";

@@ -5,15 +5,21 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRoll,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -88,13 +94,13 @@ export namespace roll {
    * @returns The plan.
    * @throws {HumanRefusal} When the entry is not standing on both feet.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by placing the root against the ankles the posture puts; the roll places it against the lowest joint centre and carries it by the integral of the turn times its height above that point, the speed of a ball rolling without slipping.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tucked body's table, the three phases, the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused; the travel is integrated, not guessed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `SAMPLES` posture resolves at plan time and one per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver's heading and the entry's feet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table.
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal. Companion heightsOf: States borrowed current raw input, original callback/interval count and full bone-origin rather than collider-height output.
+   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by placing the root against the ankles the posture puts; the roll places it against the lowest joint centre and carries it by the integral of the turn times its height above that point, the speed of a ball rolling without slipping. Companion heightsOf: Keeps every k=0..samples turn, actual current authored posture, complete canonical observation and full FK/minimum over all bone world-Y values; clinical source data are never replaced by an earlier sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tucked body's table, the three phases, the contacts. Companion heightsOf: One bounded native metadata scope serves the same ordered callback, complete-resolution, full-FK and minimum loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused; the travel is integrated, not guessed. Companion heightsOf: No borrowed entry value is frozen or certified from callback purity/JSON equality. No digit/rotation goal is dropped and no collider minimum replaces the all-bone-origin datum; every original sample/read remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All SAMPLES+1 complete current posture resolutions, full FK maps and all-bone minimum readings remain. Only one synchronous exact FK/genuine ROM metadata scope shares native prerequisites; borrowed entry fields are reread for every original sample and runtime posture. Companion heightsOf: Each sample retains its full current nonlinear projection, native fits and full FK. One exact FK/genuine ROM scope shares only immutable metadata and checked numerical prerequisites, with no ineffective template/JSON source machinery or measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable body metadata alone shares across table construction. Each sample's posed callback reads current entry joints/yaw/roll/optional goals in its original order, with no fixed raw template or clinical projection inferred from that borrowed graph. Companion heightsOf: Only the body's immutable rig/ROM metadata and exact dependency checks share; the original current entry joint map, root orientation and optional context are observed anew through posed at each sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases its source/FK/ROM readers before return; the plan retains original numeric height/travel tables and fixed entry geometry, without a sampled pose, source loan or query history. Companion heightsOf: One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoll.IParams>,
@@ -123,44 +129,29 @@ export namespace roll {
       { x: 0, y: 0, z: sign },
     );
 
-    // A posture of the joints blended toward the tuck, turned, at the origin.
-    const joints = (share: number): IAutoMovieMotionHumanPosture["joints"] => {
-      const out: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints };
-      for (const [bone, angles] of Object.entries(TUCK) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]) {
-        const was: readonly [number, number, number] = entry.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        out[bone] = [
-          was[0] + (angles[0] - was[0]) * share,
-          was[1] + (angles[1] - was[1]) * share,
-          was[2] + (angles[2] - was[2]) * share,
-        ];
-      }
-      return out;
-    };
+    // A posture of the joints blended toward the tuck, turned, at the origin:
+    // the entry's joints the tuck leaves alone stay as they are.
+    const joints: (share: number) => IAutoMovieMotionHumanPosture["joints"] = (
+      share: number,
+    ): IAutoMovieMotionHumanPosture["joints"] =>
+      prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK })(share);
     const posed = (
       share: number,
       turn: number,
+      blend: typeof joints = joints,
     ): IAutoMovieMotionHumanPosture => ({
       ...entry,
       root: { x: 0, y: 0, z: 0 },
       pitch: entry.pitch + sign * turn,
-      joints: joints(share),
+      joints: blend(share),
       limbs: {},
     });
-    const centres = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieVector3[] =>
-      [...poseBones(body, resolveHumanPosture(body, posture)).values()].map(
-        (b) => b.worldPosition,
-      );
     const ankleMid = (
       posture: IAutoMovieMotionHumanPosture,
+      observe: (pose: ReturnType<typeof resolveHumanPosture>) => ReturnType<typeof poseBones> = rawAnkles,
     ): IAutoMovieVector3 => {
-      const bones = poseBones(body, resolveHumanPosture(body, posture));
+      const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(body, posture);
+      const bones: ReturnType<typeof poseBones> = observe(pose);
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
       return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
@@ -170,9 +161,11 @@ export namespace roll {
     const crouched = (
       share: number,
       at: IAutoMovieVector3,
+      blend?: typeof joints,
+      observe?: Parameters<typeof ankleMid>[1],
     ): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = posed(share, 0);
-      const local: IAutoMovieVector3 = ankleMid(posture);
+      const posture: IAutoMovieMotionHumanPosture = posed(share, 0, blend);
+      const local: IAutoMovieVector3 = ankleMid(posture, observe);
       return {
         ...posture,
         root: { x: at.x - local.x, y: at.y - local.y, z: at.z - local.z },
@@ -181,15 +174,11 @@ export namespace roll {
 
     // The roll's table: the root's height above the lowest centre and its
     // travel along the floor, both by the turn.
-    const heights: number[] = [];
-    for (let k: number = 0; k <= SAMPLES; k++) {
-      const lowest: number = Math.min(
-        ...centres(posed(1, (360 * k) / SAMPLES)).map(
-          (p: IAutoMovieVector3): number => p.y,
-        ),
-      );
-      heights.push(-lowest);
-    }
+    const heights: number[] = heightsOf(
+      body,
+      (turn: number): IAutoMovieMotionHumanPosture => posed(1, turn),
+      SAMPLES,
+    );
     const travels: number[] = [0];
     const step: number = (2 * Math.PI) / SAMPLES;
     for (let k: number = 1; k <= SAMPLES; k++)
@@ -202,8 +191,11 @@ export namespace roll {
       return values[k]! + (values[k + 1]! - values[k]!) * (at - k);
     };
     const start: IAutoMovieVector3 = crouched(1, ankles).root;
-    const rolled = (turn: number): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = posed(1, turn);
+    const rolled = (
+      turn: number,
+      blend?: typeof joints,
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = posed(1, turn, blend);
       const along: number = table(travels, turn);
       return {
         ...posture,
@@ -224,9 +216,7 @@ export namespace roll {
     const share = (seconds: number): number => seconds / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).flatMap(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow[] => [
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
           {
             part,
             kind: "plant",
@@ -258,7 +248,7 @@ export namespace roll {
         support: { kind: "ground" },
       },
     ];
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "tucked", share: share(CROUCH) },
@@ -269,11 +259,109 @@ export namespace roll {
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= CROUCH) return crouched(minimumJerk(t / CROUCH).s, ankles);
+        if (t <= CROUCH) return crouched(minimumJerk.share(t / CROUCH), ankles);
         if (t <= CROUCH + TURN)
-          return rolled(360 * minimumJerk((t - CROUCH) / TURN).s);
-        return crouched(1 - minimumJerk((t - CROUCH - TURN) / CROUCH).s, end);
+          return rolled(360 * minimumJerk.share((t - CROUCH) / TURN));
+        return crouched(
+          1 - minimumJerk.share((t - CROUCH - TURN) / CROUCH),
+          end,
+        );
       },
     };
+    const observe: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, FEET);
+    let blend: typeof joints;
+    HumanPreparedPlayback.attach(planned, body, {
+      mode: "posture",
+      prepare: (): void => {
+        blend = prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK });
+      },
+      phases: [
+        {
+          from: 0,
+          to: CROUCH,
+          sample: (seconds) => entry.digits === undefined
+            ? { posture: crouched(minimumJerk.share(seconds / CROUCH), ankles, blend, observe) }
+            : undefined,
+        },
+        {
+          from: CROUCH,
+          to: CROUCH + TURN,
+          sample: (seconds) => ({
+            posture: rolled(360 * minimumJerk.share((seconds - CROUCH) / TURN), blend),
+          }),
+        },
+        {
+          from: CROUCH + TURN,
+          to: duration,
+          sample: (seconds) => entry.digits === undefined
+            ? { posture: crouched(1 - minimumJerk.share((seconds - CROUCH - TURN) / CROUCH), end, blend, observe) }
+            : undefined,
+        },
+      ],
+    });
+    return planned;
+
+    /** Measure the raw reader's canonical ankle demand. */
+    function rawAnkles(pose: ReturnType<typeof resolveHumanPosture>): ReturnType<typeof poseBones> {
+      return poseBones(body, pose, undefined, FEET);
+    }
   }
+
+  /** Only the ankles place each crouch on its authored floor points. */
+  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftFoot",
+    "rightFoot",
+  ]);
+}
+
+/**
+ * Read every original roll-table sample from its current authored posture.
+ * The entry graph remains borrowed, so each sample keeps its original live
+ * observation and complete canonical resolution.
+ *
+ * @param body The unchanged body of this construction.
+ * @param posed The original per-sample posture builder, including current entry context.
+ * @param samples The positive original number of equal angular intervals.
+ * @returns One negated minimum per interval boundary, samples+1 total, over every actual bone-origin height in metres.
+ *
+ * States borrowed current raw input, original callback/interval count and full bone-origin rather than collider-height output.
+ * Keeps every k=0..samples turn, actual current authored posture, complete canonical observation and full FK/minimum over all bone world-Y values; clinical source data are never replaced by an earlier sample.
+ * One bounded native metadata scope serves the same ordered callback, complete-resolution, full-FK and minimum loop.
+ * No borrowed entry value is frozen or certified from callback purity/JSON equality. No digit/rotation goal is dropped and no collider minimum replaces the all-bone-origin datum; every original sample/read remains.
+ * Each sample retains its full current nonlinear projection, native fits and full FK. One exact FK/genuine ROM scope shares only immutable metadata and checked numerical prerequisites, with no ineffective template/JSON source machinery or measured speedup claim.
+ * Only the body's immutable rig/ROM metadata and exact dependency checks share; the original current entry joint map, root orientation and optional context are observed anew through posed at each sample.
+ * One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
+ */
+function heightsOf(
+  body: IAutoMovieMotionHumanBody,
+  posed: (turn: number) => IAutoMovieMotionHumanPosture,
+  samples: number,
+): number[] {
+  const prepared: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
+  const projection: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
+  const heights: number[] = [];
+  for (let k: number = 0; k <= samples; k++) {
+    const posture: IAutoMovieMotionHumanPosture = posed((360 * k) / samples);
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      prepared,
+      undefined,
+      projection,
+    ).pose;
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      pose,
+      prepared(),
+    );
+    let lowest: number = Infinity;
+    for (const bone of bones.values())
+      lowest = Math.min(lowest, bone.worldPosition.y);
+    heights.push(-lowest);
+  }
+  return heights;
 }

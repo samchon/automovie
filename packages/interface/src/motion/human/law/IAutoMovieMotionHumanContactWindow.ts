@@ -128,13 +128,12 @@ export namespace IAutoMovieMotionHumanContactWindow {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type Support =
-    | {
-        /** Support discriminant: ground, prop or another person. */
-        kind: "ground";
-      }
+    | IGround
     | {
         /** Support discriminant: ground, prop or another person. */
         kind: "prop";
+        /** Whether this grip transports the whole prop. Defaults to true. */
+        carries?: boolean;
         /** Scene subject id of the supporting prop or person. */
         subject: string;
       }
@@ -154,4 +153,19 @@ export namespace IAutoMovieMotionHumanContactWindow {
         /** Supporting person's bone when the contact is specified by bone rather than region. */
         bone: AutoMovieHumanoidBone;
       };
+
+  /**
+   * A stationary horizontal surface, such as the floor or a stair tread.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Height measures world elevation in metres. An omitted height selects the floor.
+   * @evidence contracts/development/design.md#principled-representation The ground discriminant identifies horizontal stationary support, so elevation alone locates its plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The contact window uses this variant for both floor and tread support. Height distinguishes raised treads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies actual support elevation without encoding a stair number or scene.
+   */
+  export interface IGround {
+    /** Support discriminant. */
+    kind: "ground";
+    /** The surface's world height in metres. Defaults to the world floor. */
+    height?: number;
+  }
 }

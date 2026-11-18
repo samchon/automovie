@@ -1,0 +1,293 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
+import { HumanArmRefine } from "./HumanArmRefine";
+import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+
+/**
+ * An arms' trajectory optimised on few knots and constrained on the whole
+ * frame grid: the change of variables between the two.
+ *
+ * The trajectory played back is the knots' cubic Hermite interpolant
+ * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates:
+ * each grid instant's coordinates are a weighted sum of at most four knots'
+ * (`x_g = sum_j W[g][j] x_j`). So the model is evaluated and linearised at
+ * every grid instant, as a frame-grid trajectory's is, and the resulting
+ * subproblem in the grid's steps is carried onto the knots' by that linear
+ * map: `P_k = W' P W`, `q_k = W' q`, and each row's coefficients times `W`.
+ * The optimiser then moves the knots alone (TrajOpt plans an arm on eleven
+ * timesteps, Schulman et al. 2013, section VI), while every constraint the
+ * film can show is a row of its subproblem, so what it returns as feasible
+ * is feasible on the grid and nothing is refined or solved again.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the interpolant's linearity, the change of variables of the objective and the rows, and what it buys.
+ * @evidence contracts/development/design.md#principled-representation The map is the interpolant's own weights, one row a grid instant, a column a knot, the same for every coordinate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The weights, the interpolated coordinates and the reduced subproblem, read by `HumanArmOptimiser` alone.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No constraint is dropped or thinned: every grid row is carried over; only a row left with no knot to move is omitted.
+ */
+export namespace HumanArmTrajectoryKnots {
+  /**
+   * The interpolant's weights: each grid instant's coordinates as a sum over
+   * the knots.
+   *
+   * @param knots The knots' seconds, ascending.
+   * @param grid The grid instants' seconds over the same span.
+   * @returns For each grid instant, the weight of each knot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States inputs, units and the result's shape.
+   * @evidence contracts/development/implementation.md#principled-implementation The interpolant is linear in its knots, so its value on a knot's unit sequence is that knot's weight; read from `HumanArmRefine.hermite` itself, the weights cannot drift from the played interpolant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the unit sequences of the bracket and its two tangent neighbours.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No weight is assumed: end knots' zero tangents and uneven knot spacing come out of the interpolant's own reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most four scalar Hermite evaluations per grid instant, with one dense output row per instant for the reduced model.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading computed once by its caller.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh table and retains nothing.
+   */
+  export function weights(
+    knots: readonly number[],
+    grid: readonly number[],
+  ): number[][] {
+    return windows(knots, grid).map((window: IWindow): number[] => {
+      const row: number[] = new Array<number>(knots.length).fill(0);
+      for (let j: number = 0; j < window.times.length; ++j) {
+        const unit: number[][] = window.times.map(
+          (_: number, i: number): number[] => [i === j ? 1 : 0],
+        );
+        row[window.first + j] = HumanArmRefine.hermite(window.times, unit, window.at)[0]!;
+      }
+      return row;
+    });
+  }
+
+  /**
+   * Every arm's coordinates at the grid instants, the knots' interpolant.
+   *
+   * @param knots The knots' seconds.
+   * @param grid The grid instants' seconds.
+   * @param x Each arm's coordinates at each knot.
+   * @returns Each arm's coordinates at each grid instant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States inputs and result.
+   * @evidence contracts/development/implementation.md#principled-implementation The played interpolant itself, `HumanArmRefine.hermite`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation an arm and grid instant.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the reading playback makes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms G interpolations an arm.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays and retains nothing.
+   */
+  export function read(
+    knots: readonly number[],
+    grid: readonly number[],
+    x: readonly (readonly (readonly number[])[])[],
+  ): number[][][] {
+    const spans: IWindow[] = windows(knots, grid);
+    return x.map((arm: readonly (readonly number[])[]): number[][] =>
+      spans.map((span: IWindow): number[] =>
+        HumanArmRefine.hermite(span.times, arm.slice(span.first, span.first + span.times.length), span.at),
+      ),
+    );
+  }
+
+  /**
+   * Sample a local repair against the original clock. An interior end inherits
+   * the original curve's central tangent. A true end keeps its rest tangent.
+   * The caller admits the resulting grid after joining it to the outside rows.
+   *
+   * @param times The solved interval's ordered knot seconds.
+   * @param x Each arm's solved coordinates at those knots.
+   * @param grid The whole laid course's frame seconds.
+   * @param laid The original coordinates used to measure each join's tangent.
+   * @param from The first frame of the repair.
+   * @param to The last frame of the repair.
+   * @returns The repair's frame rows, including both unchanged endpoint poses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original clock, interior joins, true ends and the reader that admits the joined rows.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds the cubic Hermite endpoint tangent basis in physical seconds on the adjacent interval using the laid course's original central difference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the regular knot interpolant and adjusts only samples inside an interval touching an interior join.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the input clock, coordinates at every knot, true endpoint conditions and whole-course admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds work linear in the number of coordinates and frame samples of the two boundary intervals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the ordinary knot reader for positions and computes one scalar correction weight per affected sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Updates only fresh sampled rows and returns them without retaining the source course.
+   */
+  export function splice(
+    times: readonly number[],
+    x: readonly (readonly (readonly number[])[])[],
+    grid: readonly number[],
+    laid: readonly (readonly (readonly number[])[])[],
+    from: number,
+    to: number,
+  ): number[][][] {
+    const played: number[][][] = read(times, grid.slice(from, to + 1), x);
+    for (const endpoint of [from, to]) {
+      if (endpoint === 0 || endpoint === grid.length - 1) continue;
+      const start: boolean = endpoint === from;
+
+      const edge: number = start ? times[1]! : times[times.length - 2]!;
+      const width: number = Math.abs(edge - grid[endpoint]!);
+      const dt: number = grid[endpoint + 1]! - grid[endpoint - 1]!;
+      for (let g: number = start ? from + 1 : to - 1;
+        start ? grid[g]! < edge : grid[g]! > edge;
+        g += start ? 1 : -1) {
+        const u: number = (grid[g]! - grid[endpoint]!) / width;
+        const basis: number = width * u * (1 - Math.abs(u)) ** 2;
+        played.forEach((arm: number[][], a: number): void => {
+          const source: readonly (readonly number[])[] = laid[a]!;
+          const row: number[] = arm[g - from]!;
+          for (let d: number = 0; d < row.length; ++d)
+            row[d]! += basis *
+              (source[endpoint + 1]![d]! - source[endpoint - 1]![d]!) / dt;
+        });
+      }
+    }
+    return played;
+  }
+
+  /**
+   * A grid subproblem carried onto the knots' steps.
+   *
+   * @param c The knots' context; the grid's has the same arms and coordinates.
+   * @param w The interpolant's weights (`weights`).
+   * @param model The subproblem in the grid's steps.
+   * @returns The same subproblem in the knots' steps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the contexts, the map and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation With the grid's step `d = W s` for the knots' step `s`: `1/2 d'Pd + q'd = 1/2 s'(W'PW)s + (W'q)'s` and a row `a.d` is `(aW).s`; a knot the problem holds fixed takes no step, so its column is left out. The grid's upper band is read as the symmetric matrix it stores.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The weights of each grid instant's moving knots, then the curvature, the gradient and the rows in turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is carried; one whose coefficients all fall on fixed knots constrains no step and is omitted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each linearisation is carried once.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The upper band is released on return; the returned subproblem is the caller's.
+   */
+  export function reduce(
+    c: M.IContext,
+    w: readonly (readonly number[])[],
+    model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
+    const width: number = c.width;
+    const vars: number = (c.open ? c.n - 1 : c.n - 2) * width;
+
+    // Each grid instant's moving knots and their weights.
+    const spread: [number, number][][] = w.map(
+      (row: readonly number[]): [number, number][] => {
+        const out: [number, number][] = [];
+        row.forEach((weight: number, j: number): void => {
+          if (weight !== 0 && M.inner(c, j)) out.push([j, weight]);
+        });
+        return out;
+      },
+    );
+    // The widest coupling the curvature can write: two grid instants it
+    // couples touch knots between the least and the greatest of theirs.
+    let wide: number = 0;
+    for (let r: number = 0; r < model.n; ++r) {
+      const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
+      const row: Float64Array = model.p[r]!;
+      for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
+        if (row[off] === 0) continue;
+        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        let least: number = Infinity;
+        let most: number = -Infinity;
+        for (const [j] of from) {
+          least = Math.min(least, j);
+          most = Math.max(most, j);
+        }
+        for (const [i] of to) {
+          least = Math.min(least, i);
+          most = Math.max(most, i);
+        }
+        if (most >= least) wide = Math.max(wide, (most - least + 1) * width - 1);
+      }
+    }
+    wide = Math.min(wide, Math.max(0, vars - 1));
+    // The curvature's upper band, `upper[a][b - a]` for `b >= a`: each
+    // product lands in the cell it lands in the symmetric square, in the same
+    // order, and a cell below the diagonal, which the band never reads, is
+    // not written.
+    const upper: Float64Array[] = Array.from(
+      { length: vars },
+      (): Float64Array => new Float64Array(wide + 1),
+    );
+    const q: Float64Array = new Float64Array(vars);
+    for (let r: number = 0; r < model.n; ++r) {
+      const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
+      const slot: number = r % width;
+      for (const [j, weight] of from)
+        q[(j - 1) * width + slot] = q[(j - 1) * width + slot]! + weight * model.q[r]!;
+      const row: Float64Array = model.p[r]!;
+      for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
+        const value: number = row[off]!;
+        if (value === 0) continue;
+        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        const other: number = (r + off) % width;
+        for (const [j, wj] of from)
+          for (const [i, wi] of to) {
+            const a: number = (j - 1) * width + slot;
+            const b: number = (i - 1) * width + other;
+            if (b >= a) upper[a]![b - a] = upper[a]![b - a]! + value * wj * wi;
+            if (off !== 0 && a >= b)
+              upper[b]![a - b] = upper[b]![a - b]! + value * wj * wi;
+          }
+      }
+    }
+    const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
+    for (const row of model.rows) {
+      const sum: Map<number, number> = new Map();
+      row.index.forEach((r: number, at: number): void => {
+        const slot: number = r % width;
+        for (const [j, weight] of spread[Math.floor(r / width) + 1]!) {
+          const a: number = (j - 1) * width + slot;
+          sum.set(a, (sum.get(a) ?? 0) + weight * row.coef[at]!);
+        }
+      });
+      if (sum.size === 0) continue;
+      const index: number[] = [...sum.keys()].sort(
+        (a: number, b: number): number => a - b,
+      );
+      rows.push({
+        ...row,
+        index,
+        coef: index.map((a: number): number => sum.get(a)!),
+      });
+    }
+
+    // The band holds the curvature's farthest entry and every row's span,
+    // since the solver's reduced system couples a row's variables.
+    let band: number = 0;
+    for (let a: number = 0; a < vars; ++a)
+      for (let off: number = wide; off > band; --off)
+        if (upper[a]![off] !== 0) {
+          band = off;
+          break;
+        }
+    for (const row of rows)
+      band = Math.max(band, row.index[row.index.length - 1]! - row.index[0]!);
+    const p: Float64Array[] = Array.from(
+      { length: vars },
+      (_: unknown, a: number): Float64Array => {
+        const row: Float64Array = new Float64Array(band + 1);
+        for (let off: number = 0; off <= band && a + off < vars; ++off)
+          row[off] = off <= wide ? upper[a]![off]! : 0;
+        return row;
+      },
+    );
+    return { n: vars, band, p, q, rows };
+  }
+}
+
+/** Four consecutive knots suffice for the two endpoint values and both centred tangents. */
+interface IWindow {
+  /** Offset into the full knot coordinate array. */
+  first: number;
+  /** The source times of this interval and its tangent neighbours. */
+  times: readonly number[];
+  /** The requested grid second. */
+  at: number;
+}
+
+/** Locate the Hermite support in one forward traversal of the two sorted clocks. */
+function windows(knots: readonly number[], grid: readonly number[]): IWindow[] {
+  let bracket: number = 0;
+  return grid.map((at: number): IWindow => {
+    while (bracket + 2 < knots.length && knots[bracket + 1]! <= at) ++bracket;
+    const first: number = Math.max(0, bracket - 1);
+    return { first, times: knots.slice(first, bracket + 3), at };
+  });
+}

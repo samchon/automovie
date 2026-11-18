@@ -1,7 +1,10 @@
 import type { IAutoMovieMotionHumanLexiconFamilies } from "@automovie/interface";
 
+import { HumanArchery } from "./HumanArchery";
 import { HumanBlade } from "./HumanBlade";
+import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
+import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
@@ -10,16 +13,19 @@ import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
 import { HumanGait } from "./HumanGait";
 import { HumanGestureRows } from "./HumanGestureRows";
+import { HumanGunDrill } from "./HumanGunDrill";
 import { HumanGymnastics } from "./HumanGymnastics";
 import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanLabour } from "./HumanLabour";
 import { HumanManipulate } from "./HumanManipulate";
+import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
 import { HumanPursuit } from "./HumanPursuit";
 import { HumanRegrasp } from "./HumanRegrasp";
 import { HumanRestRows } from "./HumanRestRows";
+import { HumanRevolver } from "./HumanRevolver";
 import { HumanRide } from "./HumanRide";
 import { HumanSelfActionRows } from "./HumanSelfActionRows";
 import { HumanSocial } from "./HumanSocial";
@@ -31,11 +37,13 @@ import { HumanSportThrow } from "./HumanSportThrow";
 import { HumanSportWorkout } from "./HumanSportWorkout";
 import { HumanStageFight } from "./HumanStageFight";
 import { HumanStance } from "./HumanStance";
+import { HumanStrike } from "./HumanStrike";
 import { HumanSupportRows } from "./HumanSupportRows";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
 import { HumanSwordThrust } from "./HumanSwordThrust";
+import { HumanThrownWeapon } from "./HumanThrownWeapon";
 import { HumanToolRows } from "./HumanToolRows";
 import { HumanTouchRows } from "./HumanTouchRows";
 import { HumanTravelCar } from "./HumanTravelCar";
@@ -93,4 +101,12 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   upperFace: [HumanHandToFaceRows],
   upperDress: [HumanDressRows],
   upperTool: [HumanToolRows],
+  strike: [HumanStrike],
+  defence: [HumanDefence],
+  thrownWeapon: [HumanThrownWeapon],
+  gunDrill: [HumanGunDrill],
+  musketDrill: [HumanMusketDrill],
+  boltAction: [HumanBoltAction],
+  revolver: [HumanRevolver],
+  archery: [HumanArchery],
 } as const;

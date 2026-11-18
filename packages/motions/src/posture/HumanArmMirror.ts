@@ -47,7 +47,32 @@ export namespace HumanArmMirror {
                 },
         ),
       },
-      others: base.others.map(reflected),
+      ...mirroredOthers(base),
+    };
+  }
+
+  /** The others reflected, and the rests among them as those same reflections. */
+  function mirroredOthers(
+    base: HumanArmGeometry.IBase,
+  ): Pick<HumanArmGeometry.IBase, "others" | "rests"> {
+    const images: Map<IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanColliders.IPlaced> = new Map(
+      base.others.map(
+        (placed: IAutoMovieMotionHumanColliders.IPlaced): [IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanColliders.IPlaced] =>
+          [placed, reflected(placed)],
+      ),
+    );
+    return {
+      others: base.others.map(
+        (placed: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => images.get(placed)!,
+      ),
+      ...(base.rests === undefined
+        ? {}
+        : {
+            rests: base.rests.map(
+              (placed: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced =>
+                images.get(placed) ?? reflected(placed),
+            ),
+          }),
     };
   }
 

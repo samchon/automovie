@@ -16,6 +16,12 @@ Use these sources for implementation and failure checks. Derive movement targets
 
 [Full Body IK](https://dev.epicgames.com/documentation/en-us/unreal-engine/control-rig-full-body-ik-in-unreal-engine) and [Two Bone IK](https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3/manual/constraints/TwoBoneIKConstraint.html) inform how to pose a body from effector goals with per-goal strength, a bend hint and per-joint limits, keeping the input pose where no goal pulls.
 
+[Flash and Hogan](https://pubmed.ncbi.nlm.nih.gov/4020415/) studied unconstrained horizontal reaches. Use its minimum-jerk model with compatible endpoint conditions. [Putnam](https://pubmed.ncbi.nlm.nih.gov/8505347/) describes the sequencing and interaction of segments in fast actions. Use measurements of the depicted action for timing and contact speed.
+
+## Prepared motion
+
+[OpenUSD splines](https://openusd.org/dev/tut_xforms.html) illustrate time curves that represent changing speed without many linear samples. [Houdini constraints](https://www.sidefx.com/docs/houdini/character/kinefx/animatestateconstraints.html) illustrate linking controls for a defined range. These workflows support the [preparation and sampling design](transitions.md#pose-by-time). Verify the implementation's contact error, solver scope and cost on its own cases.
+
 ## Foot plants and ground
 
 [Footskate Cleanup](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/Cleanup) constrains each plant and blends neighboring frames. Its slight leg stretch is unsuitable for a rigid rig.

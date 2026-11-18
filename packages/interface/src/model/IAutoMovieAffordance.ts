@@ -50,6 +50,14 @@ export interface IAutoMovieAffordance {
   back?: number;
 
   /**
+   * Whether the seat serves a fixed task geometry, such as the thwart
+   * whose height is set by the oarlocks. The sitting law uses the actor's
+   * joint reach for such seats. Ordinary furniture keeps its ergonomic
+   * height range. Other kinds ignore this flag.
+   */
+  workingSeat?: boolean;
+
+  /**
    * Whether a `seat` is sat astride, a leg on either side of it, as a saddle or a motorcycle's seat is. Absent or false, both legs go ahead of the seat. The seat's shape does not say it (a narrow bench is not straddled, and pedals lie either side of a driver's seat too), so a sitting law reads it here to choose how the body gets on and off and where the legs hang. Other kinds ignore it.
    */
   astride?: boolean;

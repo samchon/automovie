@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
@@ -13,119 +14,222 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
+import { getConstraint } from "../rom/getConstraint";
+import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
+import type { prepareChainFit } from "./prepareChainFit";
+import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
 
 /**
- * How far, in degrees, the effector misses a requested rotation once a
- * hinged candidate's mid bone has taken its distal twist share and the
- * effector its swing, each clamped to the rig's range: the split that
- * `splitDistalTwist` and `orientChainEffector` later apply to the chosen
- * candidate, evaluated here for every candidate so the ranking sees the hand
- * the fit will actually show. A distally twisting mid bone's twist is the one
- * `solveDistalTwist` gives from the candidate's own and the effector the
- * pose holds; each joint is clamped through its clinical domain as the fit
- * clamps it. An effector its clamp leaves alone shows the request exactly, so
- * its error is zero, not rounding that would rank swivels and break the
- * mirror; any other error is the geodesic angle from `Quaternion.angle`.
+ * Prepare the actual displayed rotation error, degrees, of hinged candidates.
+ * Each lower candidate takes the same bounded distal-twist choice as the final
+ * fit; its effector then uses the same quaternion projection as orientation.
+ * The world rotation is recomposed through the preparation's entire fixed
+ * lower-to-effector frame, including intermediate bones, before its geodesic
+ * error is read. No small miss or unchanged Euler clamp is replaced by zero.
  *
- * @param props The fit request.
- * @param prepared The chain's preparation.
- * @param axes The mid bone's axes.
- * @param rotation The requested effector rotation.
- * @returns The error of a candidate's bone-local root and mid rotations.
+ * @param props The fit request under unchanged pose, rig and clinical mappings.
+ * @param prepared The matching chain preparation.
+ * @param axes The mid bone's axes, below any skeleton-declared override.
+ * @param rotation Requested model-frame effector rotation.
+ * @param rig Optional lazy workspace rig under the same source, prepared frames and clinical mappings; target results remain scorer-local.
+ * @returns A per-fit scorer of bone-local upper/lower rotations. Keep each candidate unchanged through its synchronous call; scalar edits between calls are reread. Its optional third input is the exact completed (prepared upper world * this upper) * fixed lower frame for the same candidate.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, which split it reads, when it is zero and the unit.
- * @evidence contracts/development/implementation.md#principled-implementation The candidate's twist is the one the fit will give (`solveDistalTwist`), so the ranking sees the shown hand.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One decomposition, one solve and one clamp per candidate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only an effector its clamp leaves alone counts as reached.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per candidate, the mid joint's angles read once per mid rotation; read only for a comparison the ranking's bound cannot decide.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Bases are admitted once per fit by the caller.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines degree-valued displayed error, fixed intermediate frame, shared final split/projection, immutable fit premises and actual residual reporting.
+ * @evidence contracts/development/implementation.md#principled-implementation Prepared FK composes the candidate's exact completed prefix or recomputes it in the original grouping. solveDistalTwist and prepareJointRotationProjection are final display's same owners, and the selected raw effector composition is reused before the original world normalization and angle read.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-fit bases, clamps and projection precede one candidate closure. It reads lower angles once per unchanged scalar quaternion, commits only successful readings, applies the shared split/projection and scores the shown world rotation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Skeleton axes/ROM and the last authored effector match full FK. No forced-zero residual or claim that the five distal candidates globally solve the combined joints replaces actual composition.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Standalone setup is O(B+J); a workspace rig shares fixed lookup/basis/clamp/projector data across its target fits. A non-distal candidate queries once. A distal candidate makes at most five twist-score queries; its winning projection also serves final display whenever the recomputed local demand is component-identical, otherwise one final query runs. Eligible queries score at most nineteen unique actual articulations; generic fallback retains four sweeps and at most 528 recompositions. Chain FK/final world-error work remains, and runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares admitted bases, clamps, held raw/inverse, fixed effector data and projector. This scorer reuses lower clinical/raw/untwisted readings only after all four current components match its private Object.is snapshot, preserving signed zero and mutable caller-record updates. It commits that snapshot only after successful decomposition and non-distal clamp/composition, so a failure cannot identify old data as current. Angle/frame admissions and fresh products remain. Distal projection reuse additionally requires an exactly identical recomputed local demand; final world error still uses the original requested rotation, without an answer crossing scorers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, private four-scalar lower snapshot, latest lower clinical/raw/untwisted readings and standalone held raw/inverse data; each is constant-size and the caller's lower quaternion record is not retained. Shared source-held data/projector remain the workspace's. Paired projection is same-query only, with no global handle or growing result cache.
  */
 export function fitHingedRotationError(
   props: IAutoMovieFitChainToTargetProps,
   prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   rotation: IAutoMovieQuaternion,
-): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {
+  rig?: prepareChainFit.IRig,
+): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, preparedAbove?: IAutoMovieQuaternion) => number {
   const effector: AutoMovieHumanoidBone = props.chain.effector;
-  const rest: IAutoMovieQuaternion =
-    props.skeleton.bones.find((b): boolean => b.bone === effector)?.rest
-      .rotation ?? Quaternion.identity();
-  const effectorAxes: IAutoMovieJointAxes | undefined =
-    props.jointAxes?.[effector];
-  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
-  const effectorBasis: IAutoMovieJointAxes = basisOf(effectorAxes);
-  // Each joint's basis was admitted and normalized above, once for the whole
-  // sweep, so the clamped angles are composed on it directly.
+  const effectorBone: IAutoMovieBone | undefined =
+    rig === undefined
+      ? props.skeleton.bones.find(
+          (bone: IAutoMovieBone): boolean => bone.bone === effector,
+        )
+      : rig.bone(effector);
+  const rest: IAutoMovieQuaternion = prepared.effectorBaseRotation;
+  const lowerBasis: IAutoMovieJointAxes =
+    rig?.basis(props.chain.lower, "decomposeJointRotation axes") ??
+    basisOf(
+      props.skeleton.bones.find(
+        (bone: IAutoMovieBone): boolean => bone.bone === props.chain.lower,
+      )?.axes ?? axes,
+    );
+  const effectorBasis: IAutoMovieJointAxes =
+    rig?.basis(effector, "decomposeJointRotation axes") ??
+    basisOf(effectorBone?.axes ?? props.jointAxes?.[effector]);
   const wanted: IAutoMovieQuaternion = Quaternion.normalize(rotation);
   const lowerFrame: IAutoMovieRestFrame | undefined =
     props.restFrames?.[props.chain.lower];
   const effectorFrame: IAutoMovieRestFrame | undefined =
     props.restFrames?.[effector];
-  // The effector as the pose holds it, from which the mid twist is solved.
-  const held: IAutoMovieJointPose = props.pose.joints.find(
-    (j: IAutoMovieJointPose): boolean => j.bone === effector,
-  ) ?? { bone: effector, flexion: null, abduction: null, twist: null };
-  // Each joint's clamp is resolved once for the whole sweep, as is the
-  // effector's rest's inverse.
+  let held: IAutoMovieJointPose = rig?.held() ?? {
+    bone: effector,
+    flexion: null,
+    abduction: null,
+    twist: null,
+  };
+  if (rig === undefined)
+    for (const joint of props.pose.joints)
+      if (joint.bone === effector) held = joint;
   const clampLower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    rig?.clamp(props.chain.lower) ??
     clampJointToSkeleton.of(props.chain.lower, props.skeleton);
   const clampEffector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
-    clampJointToSkeleton.of(effector, props.skeleton);
-  const restInverse: IAutoMovieQuaternion = Quaternion.inverse(rest);
-  // A sweep's candidates on one bend branch share one mid rotation record,
-  // so its angles are read once per record, and a mid bone that does not
-  // twist distally its clamped local rotation too.
-  let seen: IAutoMovieQuaternion | undefined;
-  let angles: IAutoMovieResolvedJointAngles | undefined;
+    rig?.clamp(effector) ?? clampJointToSkeleton.of(effector, props.skeleton);
+  const project: prepareJointRotationProjection.IProjector =
+    rig?.effectorProjection() ??
+    prepareJointRotationProjection({
+      domain: {
+        bone: effector,
+        constraint: getConstraint(effector, effectorBone?.constraint ?? null),
+      },
+      basis: effectorBasis,
+      frame: effectorFrame,
+      clamp: clampEffector,
+    });
+  const restInverse: IAutoMovieQuaternion =
+    rig?.effectorRestInverse() ?? Quaternion.inverse(rest);
+  const clamps: NonNullable<Parameters<typeof solveDistalTwist>[0]["clamps"]> = {
+    lower: clampLower,
+    effector: clampEffector,
+  };
+
+  // Own the successful scalar snapshot, so reused caller records can change
+  // between queries and a failed conversion cannot mark old data as current.
+  let lowerComponents: readonly [number, number, number, number] | undefined;
+  let lowerJoint: IAutoMovieJointPose | undefined;
   let clamped: IAutoMovieQuaternion | undefined;
-  return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
-    const above: IAutoMovieQuaternion = Quaternion.multiply(
+  let heldRotation: IAutoMovieQuaternion | undefined;
+  let heldInverse: IAutoMovieQuaternion | undefined;
+  let composeLower: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
+  let preparedEffector: solveDistalTwist.IPrepared | undefined;
+
+  /** Share pure lower-axis factors only inside this target's scorer. */
+  const lowerRotation: ReturnType<typeof jointToQuaternionOnBasis.prepare> = (
+    joint: Parameters<ReturnType<typeof jointToQuaternionOnBasis.prepare>>[0],
+  ): IAutoMovieQuaternion => {
+    composeLower ??= jointToQuaternionOnBasis.prepare(lowerBasis, lowerFrame);
+    return composeLower(joint);
+  };
+
+  /** Prepare lazy raw readers once for this immutable lower record. */
+  const prepareLowerReadings: (
+    joint: IAutoMovieJointPose,
+  ) => Pick<Parameters<typeof solveDistalTwist>[0], "readArticulated" | "readUntwisted"> = (
+    joint: IAutoMovieJointPose,
+  ): Pick<Parameters<typeof solveDistalTwist>[0], "readArticulated" | "readUntwisted"> => {
+    let articulated: IAutoMovieQuaternion | undefined;
+    let untwisted: IAutoMovieQuaternion | undefined;
+    return {
+      readArticulated: (): IAutoMovieQuaternion => {
+        if (articulated === undefined) articulated = lowerRotation(joint);
+        return articulated;
+      },
+      readUntwisted: (): IAutoMovieQuaternion => {
+        if (untwisted === undefined) untwisted = lowerRotation(
+          { ...joint, twist: toClinicalAngle(0, lowerFrame?.twist) },
+        );
+        return untwisted;
+      },
+    };
+  };
+  let lowerReadings: ReturnType<typeof prepareLowerReadings> | undefined;
+
+  /** Read source-only held rotation at the solver's original first-use site. */
+  const readHeldRotation: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => {
+    if (rig !== undefined) return rig.heldRotation();
+    if (heldRotation === undefined) heldRotation = Quaternion.multiply(
+      rest, jointToQuaternionOnBasis(held, effectorBasis, effectorFrame),
+    );
+    return heldRotation;
+  };
+
+  /** The actual held raw was read first; share only its unchanged inverse. */
+  const readHeldInverse: (raw: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
+    raw: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion => {
+    if (rig !== undefined) return rig.heldRotationInverse();
+    if (heldInverse === undefined) heldInverse = Quaternion.inverse(raw);
+    return heldInverse;
+  };
+  return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, preparedAbove?: IAutoMovieQuaternion): number => {
+    const above: IAutoMovieQuaternion = preparedAbove ?? Quaternion.multiply(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
       prepared.lowerRotation,
     );
-    // The mid bone's angles, its twist solved as splitDistalTwist solves it.
-    if (seen !== lower || angles === undefined) {
-      seen = lower;
-      angles = decomposeJointRotationOnBasis(
+    const x: number = lower.x;
+    const y: number = lower.y;
+    const z: number = lower.z;
+    const w: number = lower.w;
+    if (lowerJoint === undefined || lowerComponents === undefined ||
+      !Object.is(lowerComponents[0], x) || !Object.is(lowerComponents[1], y) ||
+      !Object.is(lowerComponents[2], z) || !Object.is(lowerComponents[3], w)) {
+      const angles: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
         lower,
         lowerBasis,
         lowerFrame,
         prepared.lowerDomain,
       );
-      clamped =
-        axes.twistPlacement === "distal"
+      const admitted: IAutoMovieJointPose = { bone: props.chain.lower, ...angles };
+      const nextClamped: IAutoMovieQuaternion | undefined =
+        lowerBasis.twistPlacement === "distal"
           ? undefined
-          : jointToQuaternionOnBasis(
-              clampLower({ bone: props.chain.lower, ...angles }),
-              lowerBasis,
-              lowerFrame,
+          : lowerRotation(
+              clampLower({ ...admitted }),
             );
+      lowerJoint = admitted;
+      lowerReadings = undefined;
+      clamped = nextClamped;
+      lowerComponents = [x, y, z, w];
     }
-    const read: IAutoMovieResolvedJointAngles = angles;
-    const joint: IAutoMovieJointPose = { bone: props.chain.lower, ...read };
-    const mid: IAutoMovieQuaternion = Quaternion.multiply(
-      above,
-      clamped ??
-        jointToQuaternionOnBasis(
-          solveDistalTwist({
-            joint,
-            effector: held,
-            above,
-            lowerBasis,
-            lowerFrame,
-            effectorRest: rest,
-            effectorBasis,
-            effectorFrame,
-            rotation,
-            skeleton: props.skeleton,
-            clamps: { lower: clampLower, effector: clampEffector },
-          }),
+    const joint: IAutoMovieJointPose = lowerJoint;
+    let projected: solveDistalTwist.IProjection | undefined;
+    let lowerRotationResult: IAutoMovieQuaternion | undefined = clamped;
+    if (lowerRotationResult === undefined) {
+      const result: solveDistalTwist.IResult =
+        solveDistalTwist.withProjection({
+          joint,
+          effector: held,
+          above,
           lowerBasis,
           lowerFrame,
-        ),
+          effectorRest: rest,
+          effectorRestInverse: restInverse,
+          effectorBasis,
+          effectorFrame,
+          rotation,
+          skeleton: props.skeleton,
+          clamps,
+          projectEffector: project,
+          projectEffectorWithQuaternion: project.withQuaternion,
+          composeLower: lowerRotation,
+          preparedEffector: preparedEffector ??= rig?.distalTwist() ?? solveDistalTwist.prepare({
+              effectorRest: rest,
+              effectorBasis,
+              effectorFrame,
+          }),
+          ...(lowerReadings ??= prepareLowerReadings(joint)),
+          readHeldRotation,
+          readHeldInverse,
+        });
+      lowerRotationResult = lowerRotation(result.joint);
+      projected = result.projection;
+    }
+    const mid: IAutoMovieQuaternion = Quaternion.multiply(
+      above,
+      lowerRotationResult,
     );
     const local: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
@@ -133,32 +237,23 @@ export function fitHingedRotationError(
         Quaternion.multiply(Quaternion.inverse(mid), rotation),
       ),
     );
-    const a: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-      local,
-      effectorBasis,
-      effectorFrame,
-    );
-    const kept: IAutoMovieJointPose = clampEffector({
-      bone: effector,
-      flexion: a.flexion,
-      abduction: a.abduction,
-      twist: a.twist,
-    });
-    if (
-      kept.flexion === a.flexion &&
-      kept.abduction === a.abduction &&
-      Math.abs((a.twist ?? 0) - (kept.twist ?? 0)) <= REACHED
-    )
-      return 0;
+    // The selected distal score already projected this exact demand. The
+    // actual clamped lower joint is recomposed; reuse only component equality,
+    // since it may differ from the raw articulation used by a score.
+    const selected: IAutoMovieQuaternion =
+      projected !== undefined &&
+      Object.is(projected.local.x, local.x) &&
+      Object.is(projected.local.y, local.y) &&
+      Object.is(projected.local.z, local.z) &&
+      Object.is(projected.local.w, local.w)
+        ? projected.quaternion
+        : project.withQuaternion(local).quaternion;
     const shown: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(mid, rest),
-      jointToQuaternionOnBasis(kept, effectorBasis, effectorFrame),
+      selected,
     );
     return (
-      (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI
+      (Quaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI
     );
   };
 }
-
-/** The effector twist, degrees, a clamp may take off an effector still counted as reached: the rounding the closed-form twist solve leaves. */
-const REACHED: number = 1e-9;

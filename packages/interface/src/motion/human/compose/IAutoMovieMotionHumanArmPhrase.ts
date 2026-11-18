@@ -98,8 +98,8 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    *
    * @evidence contracts/development/common.md#meaningful-documentation The phrase.
    * @evidence contracts/development/design.md#principled-representation Closed choices "visit", "stroke", "oscillate" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.PHRASES).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in armPhrase.PHRASES.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.plan, context.params.phrase).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in armPhrase.plan, which branches on each.
    */
   export type Phrase = (readonly ["visit", "stroke", "oscillate"])[number];
 
@@ -216,11 +216,13 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.IPhrase, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanArmTarget.ITarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IStrokeProps = IAutoMovieMotionHumanArmPhrase.IPhrase & {
-    /** Retained synchronous target callback in action-relative seconds. At positive progress each write calls it both at that progress and at zero with the same posture and seconds, regardless of contact or extent; zero-weight writes may call it. Keep captured inputs stable; exceptions propagate. */
+    /** Retained synchronous target callback in action-relative seconds. At positive progress each write calls it both at that progress and at zero with the same posture and seconds, regardless of contact or extent; zero-weight writes may call it. Keep captured inputs stable; exceptions propagate. It may optionally borrow same-body FK and genuine ROM metadata as its fourth/fifth arguments only during that invocation. */
     path: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       progress: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
   };
 

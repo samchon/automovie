@@ -14,6 +14,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -37,7 +38,7 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   standing foot (the issue's balance acceptance for `balance: "none"`);
  * - `stretch-tree`: the raised ankle at least half a shank above the
  *   standing ankle, the palms' skins within 10 mm of each other, and the
- *   centre of mass over the standing foot.
+ *   extrapolated centre of mass (Hof 2005) over the standing foot.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
@@ -88,18 +89,7 @@ export function stretchCases(
           }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const reach: number = TouchVerdicts.event(performance, "a", "reachEnd");
@@ -121,7 +111,7 @@ export function stretchCases(
           release,
         );
         verdicts.push({
-          name: "centre of mass over the standing foot through the hold",
+          name: "extrapolated centre of mass over the standing foot through the hold",
           passed: w.value <= 0,
           detail: `${(w.value * 1000).toFixed(1)} mm outside at ${w.at.toFixed(2)} s`,
         });

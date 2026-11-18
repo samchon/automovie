@@ -99,8 +99,11 @@ export function climbCases(
           held = { value: d, where: `${side} at ${t.toFixed(2)} s` };
       }
     }
-    let fewest: { value: number; at: number } = { value: 4, at: 0 };
     const handsOn: number = FamilyCaseKit.event(performance, "handsOn");
+    let fewest: { value: number; at: number } = {
+      value: Infinity,
+      at: handsOn,
+    };
     for (
       let t: number = handsOn;
       t <= performance.duration + 1e-9;
@@ -119,6 +122,8 @@ export function climbCases(
       }
       if (count < fewest.value) fewest = { value: count, at: t };
     }
+    // No instant read is no limb seen bearing, not all four.
+    if (fewest.value === Infinity) fewest = { value: 0, at: handsOn };
 
     const boxes: NonNullable<IMotionCaptureCase["boxes"]> = [];
     for (let i: number = 1; i <= 3 + 6; i++)

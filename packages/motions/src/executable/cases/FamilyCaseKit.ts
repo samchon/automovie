@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieComposition,
@@ -196,6 +196,30 @@ export namespace FamilyCaseKit {
   }
 
   /**
+   * The case of a performance its laws refused: no figure and one failing
+   * `planned` verdict that names the refusal, so a refused row shows as a
+   * failure rather than vanishing.
+   *
+   * @param name The case's name.
+   * @param error What the performance threw.
+   * @returns The case.
+   */
+  export function refused(name: string, error: unknown): IMotionCaptureCase {
+    return {
+      name,
+      times: [{ seconds: 0, label: "refused" }],
+      performers: [],
+      verdicts: [
+        {
+          name: "planned",
+          passed: false,
+          detail: error instanceof Error ? error.message : String(error),
+        },
+      ],
+    };
+  }
+
+  /**
    * The lowest point of the colliders of the bones a test selects, at a
    * film second.
    *
@@ -213,15 +237,10 @@ export namespace FamilyCaseKit {
     seconds: number,
     of: (bone: string) => boolean,
   ): number {
-    let value: number = Infinity;
-    for (const { bone, pose, shapes } of HumanColliders.placed(
-      body,
-      performance.bones(subject, seconds),
-    ))
-      if (of(bone))
-        for (const shape of shapes)
-          value = Math.min(value, physicalShapeBounds(pose, shape).min.y);
-    return value;
+    // The collider floor minimum's one owner, over the selected bones.
+    return HumanColliders.prepareMinima(body, [
+      new Set([...HumanColliders.bones(body)].filter(of)),
+    ])(performance.bones(subject, seconds))[0]!;
   }
 
   /**

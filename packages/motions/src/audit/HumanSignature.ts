@@ -264,6 +264,7 @@ export namespace HumanSignature {
    * @param seconds Film seconds.
    * @param side The foot.
    * @param floor The floor's height under it, metres; 0 when absent.
+   * @param origin The first instant of a series the caller reads at 120 Hz or a divisor of it (`times(origin, …)`). When `seconds` is an instant of the 120 Hz series from it, the speed is read on that series' own neighbours, the instants the caller reads anyway, in place of `seconds` less and plus a 120th, which binary rounding puts beside them. Absent, the latter.
    * @returns Whether the foot bears.
    */
   export function bears(
@@ -271,6 +272,7 @@ export namespace HumanSignature {
     seconds: number,
     side: "left" | "right",
     floor: number = 0,
+    origin?: number,
   ): boolean {
     const at = (t: number): IAutoMovieVector3[] =>
       HumanFoot.sockets(reader.body, bones(reader, t), side).map(
@@ -286,18 +288,25 @@ export namespace HumanSignature {
     // The same socket a moment either side, so a heel handing the load to
     // the ball does not read as a slide.
     const h: number = 1 / 120;
-    const from: number = Math.max(0, seconds - h);
-    const to: number = Math.min(reader.motion.duration, seconds + h);
+    const k: number = origin === undefined ? NaN : Math.round((seconds - origin) * 120);
+    const on: boolean = origin !== undefined && k >= 1 && origin + k / 120 === seconds;
+    const from: number = Math.max(0, on ? origin! + (k - 1) / 120 : seconds - h);
+    const to: number = Math.min(reader.motion.duration, on ? origin! + (k + 1) / 120 : seconds + h);
     const a: IAutoMovieVector3 = at(from)[low]!;
     const b: IAutoMovieVector3 = at(to)[low]!;
     const span: number = to - from;
     return span <= 0 || Math.hypot(b.x - a.x, b.z - a.z) / span <= SLIDE;
   }
 
-  /** Instants from `from` to `to` at a rate. */
+  /**
+   * Instants from `from` to `to` at a rate, each `from + k / rate` from its
+   * index: two series from one `from` whose rates divide one another share
+   * their common instants bit for bit (`k / 30` is `4k / 120`), where a
+   * running sum's rounding would have a film resolved twice at one instant.
+   */
   export function times(from: number, to: number, rate: number = 60): number[] {
     const out: number[] = [];
-    for (let t: number = from; t <= to + 1e-9; t += 1 / rate) out.push(t);
+    for (let k: number = 0; from + k / rate <= to + 1e-9; k++) out.push(from + k / rate);
     return out;
   }
 
@@ -321,22 +330,22 @@ export namespace HumanSignature {
     let bearing: number = 0;
     for (const side of ["left", "right"] as const) {
       let before: boolean | undefined;
+      let last: number | undefined;
       for (const t of ts) {
-        const now: boolean = bears(reader, t, side);
+        const now: boolean = bears(reader, t, side, 0, from);
         if (now) bearing++;
 
         // A foot strikes once a stride: a contact that flickers within a
         // quarter second of the same foot's last strike (a heel handing the
         // load to the ball) is the same footfall.
-        const mine: IAutoMovieMotionHumanSignature.IGait["strikes"] =
-          strikes.filter((s): boolean => s.side === side);
-        const last: number | undefined = mine[mine.length - 1]?.seconds;
         if (
           before === false &&
           now &&
           (last === undefined || t - last >= STRIDE)
-        )
+        ) {
           strikes.push({ seconds: t, side });
+          last = t;
+        }
         before = now;
       }
     }
@@ -357,7 +366,12 @@ export namespace HumanSignature {
 
   /**
    * The peak speed of a joint centre over a window, metres per second, by
-   * central differences at 240 Hz.
+   * central differences at 240 Hz: at each instant of the 240 Hz series from
+   * the window's start (`times`), the displacement between the series' own
+   * neighbours over the time between them. Neighbouring differences share
+   * their instants, so each instant of the series, and one past either end,
+   * is read once; an instant less and plus a 240th would lie beside the
+   * series by binary rounding and be read apart.
    *
    * @param reader The performer.
    * @param bone The bone whose joint it is.
@@ -371,18 +385,29 @@ export namespace HumanSignature {
     from: number,
     to: number,
   ): number {
-    const h: number = 1 / 240;
+    const rate: number = 240;
+    const start: number = Math.max(1 / rate, from);
+    const count: number = times(
+      start,
+      Math.min(to, reader.motion.duration - 1 / rate),
+      rate,
+    ).length;
+    if (count === 0) return 0;
+
+    // The series' instant k, from -1 to count, inside the motion, each read
+    // once: the difference at k spans k - 1 to k + 1.
+    const at = (k: number): number =>
+      Math.min(reader.motion.duration, Math.max(0, start + k / rate));
+    const points: IAutoMovieVector3[] = [];
+    for (let k: number = -1; k <= count; k++)
+      points.push(joint(reader, at(k), bone));
     let peak: number = 0;
-    for (const t of times(
-      Math.max(h, from),
-      Math.min(to, reader.motion.duration - h),
-      240,
-    )) {
-      const a: IAutoMovieVector3 = joint(reader, t - h, bone);
-      const b: IAutoMovieVector3 = joint(reader, t + h, bone);
+    for (let k: number = 0; k < count; k++) {
+      const a: IAutoMovieVector3 = points[k]!;
+      const b: IAutoMovieVector3 = points[k + 2]!;
       peak = Math.max(
         peak,
-        Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / (2 * h),
+        Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / (at(k + 1) - at(k - 1)),
       );
     }
     return peak;

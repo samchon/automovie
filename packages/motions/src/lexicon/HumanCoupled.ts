@@ -1,9 +1,12 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanCoupled,
   IAutoMovieMotionHumanMutual,
+  IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
+import { supportAssist } from "../actions/supportAssist";
 import { getUp } from "../floor/getUp";
 
 /**
@@ -94,68 +97,54 @@ export namespace HumanCoupled {
    */
   export const helpUp: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IHelpUp,
-    "helper" | "helped"
+    IAutoMovieMotionHumanSupport.AssistRole
   > = {
     name: "helpUp",
     roles: ["helper", "helped"],
     act: (
-      role: "helper" | "helped",
+      role: IAutoMovieMotionHumanSupport.AssistRole,
       params: IAutoMovieMotionHumanCoupled.IHelpUp,
-      cast: Readonly<Record<"helper" | "helped", string>>,
+      cast: Readonly<Record<IAutoMovieMotionHumanSupport.AssistRole, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
-      const side: "left" | "right" = params?.hand ?? "right";
-      const part: "leftHand" | "rightHand" =
-        side === "left" ? "leftHand" : "rightHand";
-      const feet = [
+      const side: AutoMovieHumanSide = params?.hand ?? "right";
+      const part: IAutoMovieMotionHumanSupport.Part = `${side}Hand`;
+      const feet: readonly IAutoMovieMotionHumanSupport.IContact[] = [
         { part: "leftFoot", kind: "bear" },
         { part: "rightFoot", kind: "bear" },
       ] as const;
-      if (role === "helper")
-        return {
-          name: "support",
-          params: {
-            stances: [
-              {
-                contacts: [
-                  ...feet,
-                  {
-                    part,
-                    kind: "grip",
-                    target: {
-                      kind: "person",
-                      subject: cast.helped,
-                      region: side === "left" ? "wristLeft" : "wristRight",
-                    },
-                  },
-                ],
-                // The hand goes down to a wrist on the floor: the fit starts
-                // from the squat, as `getUp` keys it.
-                prefer: getUp.POSES.squat,
-              },
-            ],
-          },
-        };
-      const grip = {
+      const partner: string = cast[role === "helper" ? "helped" : "helper"];
+      const grip: IAutoMovieMotionHumanSupport.IContact = {
         part,
         kind: "grip",
         target: {
           kind: "person",
-          subject: cast.helper,
+          subject: partner,
           region: side === "left" ? "palmLeft" : "palmRight",
         },
-      } as const;
+      };
+      const seconds: number = supportAssist.step();
+      const paramsOf: IAutoMovieMotionHumanSupport.IParams = {
+        assist: { role, partner, side },
+        stances: [
+          {
+            contacts: role === "helped" ? [{ part: "back", kind: "bear" }, grip] : [...feet, grip],
+            ...(role === "helped" ? {} : { prefer: getUp.POSES.squat }),
+            seconds,
+            event: "take",
+          },
+          {
+            contacts: role === "helped" ? [{ part: "seat", kind: "bear" }, ...feet, grip] : [...feet, grip],
+            prefer: role === "helped" ? getUp.POSES.sit : getUp.POSES.squat,
+            seconds,
+            event: "seat",
+          },
+          { contacts: [...feet, grip], prefer: getUp.POSES.squat, seconds, event: "lift" },
+          { contacts: feet, prefer: getUp.POSES.stood, seconds, event: "standing" },
+        ],
+      };
       return {
         name: "support",
-        params: {
-          stances: [
-            {
-              contacts: [{ part: "seat", kind: "bear" }, ...feet, grip],
-              prefer: getUp.POSES.sit,
-            },
-            { contacts: [...feet, grip], prefer: getUp.POSES.squat },
-            { contacts: feet },
-          ],
-        },
+        params: paramsOf,
       };
     },
   };

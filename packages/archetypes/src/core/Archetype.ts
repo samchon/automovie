@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeBody } from "./ArchetypeBody";
 import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
@@ -23,6 +23,7 @@ import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
+import { archetypeAffordance } from "./archetypeAffordance";
 import { poseArchetype } from "./poseArchetype";
 import { reposeArchetype } from "./reposeArchetype";
 
@@ -98,13 +99,10 @@ export class Archetype<
     props: Archetype.IProps<Id, Dimension>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    const travels: Map<string, number> = new Map();
-    for (const id of Object.keys(state) as Id[]) {
-      const travel: number | undefined = state[id];
-      if (travel !== undefined) travels.set(id, travel);
-    }
-
-    const posed: ArchetypeArticulation.IResult = poseArchetype(props, travels);
+    const posed: ArchetypeArticulation.IResult = poseArchetype(
+      props,
+      ArchetypeArticulation.travels(state),
+    );
     this.id = props.id;
     this.name = props.name;
     this.parts = posed.parts;
@@ -243,22 +241,7 @@ export class Archetype<
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public affordance(id: Id): IAutoMovieAffordance {
-    const found: IAutoMovieAffordance | undefined = this.affordances.find(
-      (a: IAutoMovieAffordance): boolean => a.id === id,
-    );
-    if (found !== undefined) return found;
-    throw new ArchetypeRefusal({
-      kind: "affordance",
-      archetype: this.#rest.archetype,
-      axis: "affordance",
-      value: id,
-      feasible: {
-        kind: "alternatives",
-        values: this.affordances.map((a: IAutoMovieAffordance): string => a.id),
-      },
-      reason: `${this.name ?? this.id} has no affordance "${id}"`,
-      fix: "name one of the affordances this archetype declares",
-    });
+    return archetypeAffordance(this, id, this.#rest.archetype);
   }
 
   /**
@@ -323,6 +306,26 @@ export class Archetype<
     return new Archetype<Id, Dimension>(this.#rest, state);
   }
 
+  /**
+   * Prepare selected contact frames for ordinary rigid archetypes; subclasses and flexible spans need the complete pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the rest graph's reader of absolute travels, or undefined when full articulation owns additional behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the unchanged native articulation of a span-free model has no later span or override effects.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A capability check followed by the rest graph reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original rest frames even when the receiver is already posed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The rest index is prepared once per reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same projection as complete articulation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns the rest graph until released.
+   */
+  public static projection(
+    model: Archetype,
+  ): ReturnType<typeof ArchetypeArticulation.prepare> | undefined {
+    if (!(#rest in model)) return undefined;
+    if (Object.getPrototypeOf(model) !== Archetype.prototype) return undefined;
+    if (Object.hasOwn(model, "articulate")) return undefined;
+    if (model.#rest.spans.length) return undefined;
+    return ArchetypeArticulation.prepare(model.#rest.archetype, model.#rest);
+  }
   /**
    * This archetype with its rest parts replaced, keeping identity, materials, dimensions and rest mass properties. A rig may supply current contact frames; omitted frames retain rest contact origins. Declared spans are rebuilt and explicitly held line axes follow their current geometry.
    *
@@ -479,9 +482,7 @@ export class Archetype<
   }
 }
 
-/**
- * Companion types of {@link Archetype}.
- */
+/** Companion types of {@link Archetype}. */
 export namespace Archetype {
   /**
    * What a producer built: the archetype at rest, as {@link IArchetypeProps} records it.

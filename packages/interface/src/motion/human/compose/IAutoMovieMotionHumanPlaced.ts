@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
@@ -65,6 +67,9 @@ export namespace IAutoMovieMotionHumanPlaced {
     /** The action's instants the arm's whole action is planned over, the reach to the place, the hold on it and the return (`AutoMovieMotionHumanArm.carried`'s `span`), in the law's clock instants or as the weight states them (`AutoMovieMotionHumanArm.stated`); the deprecated joint-space carry when absent. */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
 
+    /** A planned arm group when both hands reach the same site together. */
+    together?: IAutoMovieMotionHumanArmPlanned.ITogether;
+
     /**
      * The place at a second.
      *
@@ -72,25 +77,20 @@ export namespace IAutoMovieMotionHumanPlaced {
      * @param seconds Seconds since the action's start.
      * @returns The point in world metres, the unit direction the surface faces (its normal, pointing away from the surface) and, when the hand's fingers must point a given way, that unit direction.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point, the sense of the normal and when the forward direction is given.
+     * @evidence contracts/development/common.md#meaningful-documentation States current posture/relative seconds, world-metre point, outward unit facing and optional forward; optional FK/ROM loans belong only to this same-person invocation and must not be stored.
      * @evidence contracts/development/implementation.md#principled-implementation The place is read on the posture so far, so a place on the performer's own moving body or on a moving object is followed frame by frame.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the three quantities the arm goal needs.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The facing is required, so the hand's orientation is never guessed from the point alone.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm forwards genuine optional current-person FK/ROM loans to the actual callback, which may borrow them only at its existing observations; absent loans preserve native paths.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its original callback, while current-call posture/FK/ROM arguments belong only to this synchronous invocation and must not enter returned places, the plan or query history.
      */
     place(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): {
-      /** Desired hand-surface point in world metres. */
-      point: IAutoMovieVector3;
-      /** Desired hand-surface normal in world coordinates. */
-      facing: IAutoMovieVector3;
-      /** Preferred fingers direction in world coordinates; omitted leaves the default hand-facing construction. */
-      forward?: IAutoMovieVector3;
-    };
+      resolution?: IAutoMoviePoseResolution.ISource,
+      projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+    ): IPlace;
 
     /** The hand surface; the palm when absent. */
     surface?: IAutoMovieMotionHumanHand.Surface;
@@ -103,19 +103,32 @@ export namespace IAutoMovieMotionHumanPlaced {
   }
 
   /**
+   * A hand-surface target placed in world coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The point uses world metres. Facing and optional finger direction orient the hand.
+   * @evidence contracts/development/design.md#principled-representation World position is independent of orientation. The caller supplies usable directions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The hand placer needs the point and facing. Forward constrains finger direction when supplied.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All three quantities reuse the shared vector type without imposing a preset hand pose.
+   */
+  export interface IPlace {
+    /** Desired hand-surface point in world metres. */
+    point: IAutoMovieVector3;
+    /** Desired hand-surface normal in world coordinates. */
+    facing: IAutoMovieVector3;
+    /** Preferred fingers direction; absent uses the default facing construction. */
+    forward?: IAutoMovieVector3;
+  }
+
+  /**
    * Where the wrist stands when a hand surface lies on a place. Input place of AutoMovieMotionHumanPlaced.wrist. The point, the direction the surface faces and where the fingers point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Hand-surface target point in world metres.
-   * @evidence contracts/development/design.md#principled-representation point: Hand-surface target point in world metres.
+   * @evidence contracts/development/common.md#meaningful-documentation Forward supplies the preferred world-space direction of the fingers as a required part of the wrist construction.
+   * @evidence contracts/development/design.md#principled-representation The target point and surface normal come from IPlace. The additional required direction completes the wrist's orientation frame.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.wrist, place).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export type IWristPlace = {
-    /** Hand-surface target point in world metres. */
-    point: IAutoMovieVector3;
-    /** Target surface normal in world coordinates. */
-    facing: IAutoMovieVector3;
+  export interface IWristPlace extends IPlace {
     /** Preferred fingers direction in world coordinates. */
     forward: IAutoMovieVector3;
-  };
+  }
 }

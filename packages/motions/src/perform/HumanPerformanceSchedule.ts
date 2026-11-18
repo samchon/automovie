@@ -1,6 +1,7 @@
 import {
   AutoMovieScheduleError,
   Vector3,
+  bracketedRoot,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
@@ -57,8 +58,10 @@ export namespace HumanPerformanceSchedule {
           intent: IAutoMovieIntent,
           context: IAutoMovieScheduleContext,
         ): IAutoMovieIntentTiming => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere =
-            HumanPerformanceRead.where(self, intent);
+          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
+            self,
+            intent,
+          );
           try {
             return HumanPerformancePlace.place(
               self,
@@ -77,14 +80,18 @@ export namespace HumanPerformanceSchedule {
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
         // A struck subject's hits are a track computed from what is placed.
-        instants: (of: string): readonly IAutoMovieScheduleCue[] | undefined =>
+        instants: (
+          of: string,
+        ): readonly IAutoMovieScheduleCue[] | undefined =>
           HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
             [...self.layered].filter(
-              ([, cues]: [string, readonly IAutoMovieScheduleCue[]]): boolean =>
-                cues.length !== 0,
+              ([, cues]: [
+                string,
+                readonly IAutoMovieScheduleCue[],
+              ]): boolean => cues.length !== 0,
             ),
           ),
         },
@@ -94,8 +101,10 @@ export namespace HumanPerformanceSchedule {
           target: number,
           context: IAutoMovieScheduleAlignment,
         ): number => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere =
-            HumanPerformanceRead.where(self, intent);
+          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
+            self,
+            intent,
+          );
           try {
             return HumanPerformanceSchedule.align(
               self,
@@ -138,27 +147,50 @@ export namespace HumanPerformanceSchedule {
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
     const entries: readonly IAutoMovieScheduleEntry[] = context.entries;
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, intent.subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
     const previous: IAutoMovieMotionHumanSegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
     let start: number = target;
     let lead: number = 0;
-    for (let round: number = 0; round < 3; ++round) {
+
+    // The start is the fixed point of planning at a start and moving it by
+    // the lead that plan gives. It lies between the floor and the target, so
+    // a map that settles at least as fast as a bisection of that span meets
+    // the schedule's resolution (`CUT`) within as many rounds as halvings of
+    // the span down to it; a start still moving by more after them refuses.
+    const rounds: number =
+      Math.ceil(Math.log2(Math.max(1, Math.abs(target - floor) / CUT))) + 1;
+    let moved: number = Infinity;
+    for (let round: number = 0; round < rounds; ++round) {
       // Planning a mutual action records its meeting; a trial must not.
       const meetings: [
         string,
         { subject: string; meeting: IAutoMovieMotionMeeting },
       ][] = [...self.meetings];
-      const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
-        self,
-        intent,
-        Math.max(floor, start),
-        entries,
-        where,
-        true,
-      );
+      const timing: IAutoMovieIntentTiming =
+        HumanPerformancePlace.place(
+          self,
+          intent,
+          Math.max(floor, start),
+          entries,
+          where,
+          true,
+        );
+
+      // The meetings this planning recorded go with its kept plan, for the
+      // placement that takes it (`IAutoMovieMotionHumanPerformanceTrial`).
+      if (self.trial !== undefined)
+        self.trial.meetings = [...self.meetings].filter(
+          ([key, value]: [string, { subject: string; meeting: IAutoMovieMotionMeeting }]): boolean =>
+            !meetings.some(
+              ([before, kept]: [string, { subject: string; meeting: IAutoMovieMotionMeeting }]): boolean =>
+                before === key && kept === value,
+            ),
+        );
       self.meetings.clear();
       for (const [key, value] of meetings) self.meetings.set(key, value);
       const share: number | undefined =
@@ -185,12 +217,29 @@ export namespace HumanPerformanceSchedule {
           fix: "align one of the instants the action has",
         });
       lead = share * timing.duration;
+
+      // A plan is a function of the start it is planned at: a round that
+      // asks for the start it was planned at has settled, and planning it
+      // there again would give the same lead.
+      const planned: number = Math.max(floor, start);
       start = target - lead;
+      moved = Math.abs(Math.max(floor, start) - planned);
+      if (moved === 0) break;
     }
+    if (!(moved <= CUT))
+      throw new HumanRefusal({
+        kind: "cut",
+        axis: "sync",
+        value: target,
+        feasible: null,
+        reason: `${intent.capability}'s time to its ${instant} changes with its start and did not settle: after ${rounds} rounds its start still moved ${moved.toExponential(2)} s`,
+        fix: "sync it to an instant its performer reaches at rest, or give the action before it more time",
+      });
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
       // first one late enough is what the author can sync to instead.
-      const anchor: IAutoMovieScheduleAlignment["anchor"] = context.anchor;
+      const anchor: IAutoMovieScheduleAlignment["anchor"] =
+        context.anchor;
       const same: readonly IAutoMovieScheduleCue[] =
         anchor.event === undefined
           ? []
@@ -252,14 +301,17 @@ export namespace HumanPerformanceSchedule {
           ? { mean: Number(raw.mean), spread: Number(raw.spread) }
           : undefined;
     if (kind === undefined) return 0;
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, intent.subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
     const event: string | undefined = context.anchor.event;
     const index: number = context.anchor.index ?? 0;
     const warned: boolean =
       event !== undefined &&
       context.anchor.instants.filter(
-        (cue: IAutoMovieScheduleCue): boolean => cue.name === `${event}Caution`,
+        (cue: IAutoMovieScheduleCue): boolean =>
+          cue.name === `${event}Caution`,
       ).length > index;
     return HumanResponse.latency(
       person.skill,
@@ -276,7 +328,20 @@ export namespace HumanPerformanceSchedule {
     );
   }
 
-  /** The share of the latest segment's active span at which a proximity cut happens. */
+  /**
+   * The bracket width at which a proximity cut's second is taken, seconds:
+   * the width the search it replaces reached, twenty halvings of a 24 Hz
+   * frame (`1 / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more
+   * coarsely than before.
+   */
+  export const CUT: number = 1 / 24 / 2 ** 20;
+
+  /**
+   * The share of the latest segment's active span at which a proximity cut
+   * happens: the 24 Hz grid is scanned for the first frame within the
+   * distance, and the crossing is found between it and the frame before by
+   * the Illinois false-position search (`bracketedRoot`) to `CUT` seconds.
+   */
   export function proximity(
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
@@ -284,8 +349,10 @@ export namespace HumanPerformanceSchedule {
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, intent.subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
@@ -312,24 +379,37 @@ export namespace HumanPerformanceSchedule {
     const step: number = 1 / 24;
     const end: number = placed.start + placed.duration;
     let previous: number = placed.start;
-    if (gap(previous) <= 0) return 0;
+    let clear: number = gap(previous);
+    if (clear <= 0) return 0;
     // The grid's last sample is the span's own end, so a gap that closes
     // inside the final partial step is still found.
     for (let k: number = 1; previous < end; k++) {
       const t: number = Math.min(end, placed.start + k * step);
-      if (gap(t) <= 0) {
-        let lo: number = previous;
-        let hi: number = t;
-        for (let i: number = 0; i < 20; i++) {
-          const mid: number = (lo + hi) / 2;
-          if (gap(mid) <= 0) hi = mid;
-          else lo = mid;
-        }
+      const reached: number = gap(t);
+      if (reached <= 0) {
+        // The cut is the latest second measured within the distance, the
+        // bracket's near end, so the action is never cut while still short
+        // of it. The two ends are the scan's own readings.
+        const ends: readonly [number, number, number, number] = [previous, clear, t, reached];
+        let within: number = t;
+        bracketedRoot(
+          (seconds: number): number => {
+            if (seconds === ends[0]) return ends[1];
+            if (seconds === ends[2]) return ends[3];
+            const at: number = gap(seconds);
+            if (at <= 0) within = seconds;
+            return at;
+          },
+          ends[0],
+          ends[2],
+          HumanPerformanceSchedule.CUT,
+        );
         return placed.duration === 0
           ? 0
-          : (hi - placed.start) / placed.duration;
+          : (within - placed.start) / placed.duration;
       }
       previous = t;
+      clear = reached;
     }
     return undefined;
   }

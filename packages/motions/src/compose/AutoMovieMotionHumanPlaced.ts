@@ -3,17 +3,20 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
@@ -37,6 +40,9 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
 export namespace AutoMovieMotionHumanPlaced {
   /**
    * The arm and the fingers laid at a place.
+   * The canonical body and configured surface/shape/bend remain unchanged
+   * for the primitive's lifetime; the actual place, facing, forward and
+   * current posture are read independently at every requested second.
    *
    * @param props The arm.
    * @returns The arm's and the hand's primitives.
@@ -45,15 +51,16 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#principled-implementation The surface laid against the place's reversed facing by `AutoMovieMotionHumanTarget.hand`, carried in joint space (Soechting and Lacquaniti 1981).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One carried arm and one hand shape.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped by the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second, plus the bend solve when no preset is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the arm carry, the target's hand goal and the hand form.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed hand surface/options prepare once per arm; each actual goal shares one wrist placement with its default bend and final assembly, while every original bend/carry trajectory/full-posture solve remains. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandTarget owns fixed geometry/dynamic orientation, ArmTarget owns contact assembly and original hand/carry primitives keep composition. Current-person FK/ROM inputs flow synchronously to each actual place callback rather than preparing independent observation contexts there.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Primitives keep props and constant surface/options until release. Optional current-call FK/ROM inputs and each lazy wrist remain synchronous, without retained loans, query pose/time history or solver readers in the plan.
    */
-  export function arm(
-    props: IAutoMovieMotionHumanPlaced.IArm,
-  ): IAutoMovieMotionHumanPrimitive[] {
+  export function arm(props: IAutoMovieMotionHumanPlaced.IArm): IAutoMovieMotionHumanPrimitive[] {
     const surface: IAutoMovieMotionHumanHand.Surface = props.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = props.shape ?? "flat";
+    const target: ReturnType<typeof HumanHandTarget.prepareGoal> = HumanHandTarget.prepareGoal(
+      props.body, props.side, { surface, shape, ...(props.bend === undefined ? {} : { bend: props.bend }) },
+    );
     return [
       AutoMovieMotionHumanArm.carried({
         body: props.body,
@@ -63,27 +70,15 @@ export namespace AutoMovieMotionHumanPlaced {
         rest: props.rest,
         weight: props.weight,
         ...(props.span === undefined ? {} : { span: props.span }),
+        ...(props.together === undefined ? {} : { together: props.together }),
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,
+          resolution?: IFK,
+          projection?: IROM,
         ): IAutoMovieHumanLimbGoal => {
-          const at = props.place(posture, seconds);
-          return AutoMovieMotionHumanArm.goal(
-            props.body,
-            props.side,
-            AutoMovieMotionHumanTarget.hand(
-              props.body,
-              posture,
-              props.side,
-              { point: at.point, normal: Vector3.scale(at.facing, -1) },
-              {
-                surface,
-                shape,
-                ...(at.forward === undefined ? {} : { forward: at.forward }),
-                ...(props.bend === undefined ? {} : { bend: props.bend }),
-              },
-            ),
-          );
+          const at: ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> = props.place(posture, seconds, resolution, projection);
+          return target(posture, { point: at.point, normal: Vector3.scale(at.facing, -1) }, at.forward);
         },
       }),
       AutoMovieMotionHumanHand.shape({
@@ -118,10 +113,7 @@ export namespace AutoMovieMotionHumanPlaced {
    */
   export function grid(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<
-      IAutoMovieMotionHumanPosture,
-      "root" | "yaw" | "pitch" | "roll"
-    >,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
     side: AutoMovieHumanSide,
     grid: IAutoMovieMotionHumanTargetGrid.IGrid,
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
@@ -152,22 +144,25 @@ export namespace AutoMovieMotionHumanPlaced {
    * @param body The body.
    * @param posture The posture, as written so far.
    * @param bone A bone of the trunk, the head or a shoulder girdle, or an upper arm, whose joint the girdle carries.
+   * @param resolution Optional same-person FK source borrowed for this raw observation only.
    * @returns The joint's point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, which bones are valid and the result's frame.
+   * @evidence contracts/development/common.md#meaningful-documentation States valid current trunk/girdle joint inputs and world-metre output; optional same-person FK is borrowed only for the existing raw authored-joint observation.
    * @evidence contracts/development/implementation.md#principled-implementation A place on the performer's own trunk (ahead of the chest, under the shoulders, behind the head) moves with the trunk's pitch, roll and drop, so it is read from the trunk's forward kinematics on the posture written so far.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of one resolve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb bone below the shoulder joint is not placed by a posture and is not offered by the parameter's documentation.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates actual requested output to HumanTrunk.resolve, optionally borrowing this same-person FK source without changing raw admission or adding ROM projection.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function joint(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     bone: AutoMovieHumanoidBone,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
-    return HumanTrunk.resolve(body, posture).get(bone)!.worldPosition;
+    return HumanTrunk.resolve(body, posture, undefined, resolution,
+      new Set<AutoMovieHumanoidBone>([bone])).get(bone)!.worldPosition;
   }
 
   /**
@@ -180,6 +175,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @param standing The posture the point was stated on.
    * @param posture The posture, as written so far.
    * @param point The point on `standing`, world metres.
+   * @param resolution Optional same-person FK loan borrowed only by the current chest observation; the source standing read remains cold.
    * @returns The point on `posture`, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is carried, between which postures, and a use.
@@ -187,27 +183,50 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two resolves and one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chest's frame is read from the trunk's forward kinematics, so every joint below it counts, not one stated angle.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics passes per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call retains its original source and current raw trunk reads; an optional current-person loan shares only current exact FK metadata and never prepares the borrowed standing graph across calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source/current point-transform scratch and the optional FK loan end with this synchronous call. Only the fresh world point escapes, without a retained posture, reader, query history or handle.
    */
   export function carried(
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
     posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
-    const from = HumanTrunk.resolve(body, standing).get("chest")!;
-    const to = HumanTrunk.resolve(body, posture).get("chest")!;
-    return Vector3.add(
-      to.worldPosition,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          to.worldRotation,
-          Quaternion.inverse(from.worldRotation),
-        ),
-        Vector3.subtract(point, from.worldPosition),
-      ),
-    );
+    return carryFrom(body, standing)(posture, resolution)(point);
+  }
+
+  /**
+   * Prepare a fixed chest frame for several points carried with a movement.
+   *
+   * @param body The unchanged body whose trunk carries the points.
+   * @param standing The unchanged posture where each source point was authored.
+   * @returns A current-posture reader; each call reads its chest once and returns a point transform from the original world frame to the current world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable source frame, varying current posture, world-metre points and reader lifetime; optional same-person FK is borrowed only at the current chest read and raw authored-trunk policy remains unchanged.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original current-chest times inverse-source-chest rigid transform; the source inverse and each current relative rotation are independent of the points they carry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Source preparation, one current chest read and a pure point transform expose the two distinct invariant scopes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current posture still performs canonical authored-joint FK with its actual root; no time samples, body size assumptions or fitted motion results are reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded source chest FK per plan and one demanded current chest FK per place evaluation replace two FK calls per carried point; P points then use O(P) rigid transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same unchanged body/source posture share only the source chest; one current call shares its actual chest among its points. An optional same-person FK loan shares original raw chest dependencies while changed current posture still receives its actual read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one source chest frame and inverse; each evaluation owns one current point-transform closure until its points are placed, with no FK reader or current-time history stored in the plan.
+   */
+  export function carryFrom(
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: IFK) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
+    const from: IAutoMovieResolvedBone =
+      HumanTrunk.resolve(body, standing, undefined, undefined, CHEST).get("chest")!;
+    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(from.worldRotation);
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: IFK): (point: IAutoMovieVector3) => IAutoMovieVector3 => {
+      const to: IAutoMovieResolvedBone =
+        HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get("chest")!;
+      const rotation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(to.worldRotation, inverse);
+      return (point: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(
+        to.worldPosition,
+        Quaternion.rotateVector(rotation, Vector3.subtract(point, from.worldPosition)),
+      );
+    };
   }
 
   /**
@@ -215,6 +234,7 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The body.
    * @param posture The posture, as written so far.
+   * @param resolution Optional current-person FK source borrowed for this raw authored-trunk observation.
    * @returns The point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -222,14 +242,16 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read on the displayed trunk, never rebuilt from the measure's heights.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates both actual shoulder outputs to HumanTrunk.resolve, borrowing optional same-person FK without changing authored-joint admission or adding ROM projection.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shoulders(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
-    const bones = HumanTrunk.resolve(body, posture);
+    const bones: ReturnType<typeof HumanTrunk.resolve> =
+      HumanTrunk.resolve(body, posture, undefined, resolution, SHOULDERS);
     return Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
@@ -317,9 +339,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function girdle(
-    body: Pick<IAutoMovieMotionHumanBody, "rest">,
-  ): IAutoMovieVector3 {
+  export function girdle(body: Pick<IAutoMovieMotionHumanBody, "rest">): IAutoMovieVector3 {
     return Vector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
@@ -343,10 +363,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function pitch(
-    body: Pick<IAutoMovieMotionHumanBody, "rest">,
-    rise: number,
-  ): number {
+  export function pitch(body: Pick<IAutoMovieMotionHumanBody, "rest">, rise: number): number {
     const d: IAutoMovieVector3 = Vector3.subtract(
       girdle(body),
       body.rest.get("hips")!,
@@ -360,3 +377,15 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 }
+
+/** Frame demanded by a point carried with the chest. */
+const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
+
+/** Joints whose midpoint places a two-hand target. */
+const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+
+/** Genuine current-person exact FK source borrowed only by actual observations. */
+type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
+
+/** Genuine current-person ROM metadata forwarded without changing raw authored-trunk policy. */
+type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];

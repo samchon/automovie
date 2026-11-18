@@ -9,10 +9,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
+import { AirborneMomentumDefect } from "./AirborneMomentumDefect";
+import { AirborneRotationFlight } from "./AirborneRotationFlight";
+import { AirborneShapeHistory } from "./AirborneShapeHistory";
+import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
+import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
+import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
+import { solveAirborneInvariant } from "./solveAirborneInvariant";
 
 /**
  * The root orientation of a body in flight, from its angular momentum about
@@ -43,77 +52,153 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * Requested momentum variations are integrated alongside it as body-frame
  * rotation tangents: the forward sensitivity equations `s' = f_y s + f_p`
  * (SUNDIALS CVODES, https://sundials.readthedocs.io/en/latest/cvodes/Mathematics_link.html).
+ * Their 3-by-k same-unit matrix uses a Frobenius error block, independently
+ * of the orientation's original three-component RMS. Taking the larger
+ * normalized error keeps the physical orientation budget unchanged. For
+ * zero absolute tolerance this block is invariant under orthogonal body or
+ * parameter-basis changes and a common parameter-unit rescaling. Independent
+ * rescaling of different columns has no such guarantee. The embedded local
+ * estimate does not certify a global Jacobian error or Newton convergence.
+ * An explicit momentumTolerance additionally controls sampled dense angular
+ * momentum directly in kg m²/s, independently of the orientation's RMS.
+ * A constructor-proved constant history may instead use its supported exact
+ * commuting solution. Unsupported controls and derivative requests retain
+ * the numerical integrator, including explicit dense physical admission.
  *
  * @param props The shape's history, the flight and the momentum.
  * @returns The flight's orientation, read by time.
- * @throws {Error} When the interval or the step is not positive, or the shape misses a segment's bone.
+ * @throws {Error} For an invalid failure scope or error budget, a refused trajectory interval or step, or a shape/history reduction failure.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the conservation law, the decomposition into root and relative motion with its sources, where each term comes from, the frames, what is not integrated and why the result is translation and heading invariant.
- * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per fixed step or six new stages per adaptive attempt, each one history read and linear work in the requested variation directions; no separate flight is integrated for a derivative.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum, which depend on the shape alone. Repeated times reuse them across stages and shooting trials; different adaptive meshes generally require new instants.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned trajectory retains accepted-step states and their dense-output coefficients for its lifetime, linear in accepted steps and requested variations. Adaptive step count has no fixed bound. The caller owns the history, whose caches also grow with distinct evaluated times, including rejected attempts.
+ * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, unchanged millisecond central differences/boundary correction, exact I/h and operation-owned numeric mass nodes with O(N*S) retention, and separate raw/prepared-model lifetime; clear releases all transient numeric preparation. rated declares actual same-instant common-frame bone rates and first-node derivative assessment, including stencil neighbors, with numeric-only packets and explicit unavailable fallback.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact dispatch requires the native owner's whole-curve constant proof and the helper's supported commuting class and derivative/control capabilities; explicit dense physical budgets retain the original numerical path. The fallback uses conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia. Unobserved factory tensors use diagonally equilibrated SPD Cholesky solves; public or foreign principals retain their original inverse application. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. Explicit dense control reconstructs R(I omega+h) from the same tensor, retaining anisotropy and cancellation. Companion observe: Delegates to the native observation owner; histories borrow only its private counter storage and never invoke a caller method.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator. Companion observe: One factory forwards observation ownership without an ambient context or altered physical input.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give. Only this operation's matching symbol scope permits enriching a numeric failure; foreign history errors retain their identity, message and metadata, even when they have the same error class. Companion observe: No monkeypatch, callback notification, trusted caller flag or default instrumentation is introduced.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The exact supported branch keeps only completed constant-size numeric data; its eligibility work belongs to the invariant owner. The numerical fallback uses four new right-hand sides per fixed step; adaptive cost follows the owning stepper's trial-stage and dense-probe populations. Each right-hand side reads one history instant and does linear work in requested variation directions, without a separately integrated derivative. Explicit dense physical control adds one history read and fixed-size momentum reconstruction per controller probe. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back. Companion observe: Allocates one fixed-size counter record only on this explicit request; ordinary histories allocate no observation record.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's shape-only inertia and relative momentum across stages and shooting trials. rated forwards actual current bone derivatives to the shared centroidal owner once per numeric-node construction, caching numeric momentum or unavailability independently of first being requested or a stencil neighbor; no second shape callback is needed. Factory-issued unobserved tensors share one factor across physical rate, all tangent columns and dense reconstruction without principal materialization. Observed/changed/foreign instants retain the original principal path and copied Object.is inverse checks. An optional operation partition shares exact time boundaries only; every trial recomputes its current state and error checks. Companion observe: The same explicit handle can accumulate actual history epochs; repeated reads copy totals rather than triggering physical work.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the RHS scope from numeric trajectory/tangent count only; accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse until return/throw. An engine history with N exact queries and S parts owns O(N) I/h/inverses and at most 3N+6 numeric mass nodes, O(N*S), until clear. Raw bones/full poses are released after posing and never enter those maps. Companion observe: The caller owns the small handle; private weak registration retains no observer after callers and histories release it. It contains no body, pose, query log or process.
  */
 export function integrateAirborneRotation(
   props: IAutoMovieIntegrateAirborneRotation.IProps,
 ): IAutoMovieIntegrateAirborneRotation.IFlight {
   const { history, momentum } = props;
+  const requestedScope: symbol | undefined = props.errorScope;
+  if (requestedScope !== undefined && typeof requestedScope !== "symbol")
+    throw new Error("An airborne failure scope must be a symbol");
+  const errorScope: symbol = requestedScope ?? Symbol("airborne trajectory");
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
-  // The integrator averages squared error over all components. Dividing
-  // both tolerances by sqrt(1 + directions) keeps the orientation's old
-  // three-component RMS contribution unchanged when tangent states are added.
-  const errorScale: number = Math.sqrt(1 + variations.length);
+  if (props.momentumTolerance !== undefined && props.tolerance === undefined)
+    throw new Error("Airborne momentum error control requires adaptive integration");
+
+  // Native construction alone is insufficient: the exact solver additionally
+  // requires its history owner's whole-curve constant proof. Unsupported
+  // controls, tangents and physical classes keep the original numeric path.
+  if (AirborneShapeHistory.owned(history)) {
+    const invariant: IAutoMovieIntegrateAirborneRotation.IFlight | undefined = solveAirborneInvariant(props);
+    if (invariant !== undefined) return invariant;
+  }
+
+  /** The previous principal rotation's copied numeric key and inverse. */
+  let previous: {
+    rotation: IAutoMovieQuaternion;
+    back: IAutoMovieQuaternion;
+  } | undefined;
+
+  /** Reuse only exact component values, even when a history mutates a record. */
+  const principalInverse: (
+    rotation: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion = (
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion => {
+    if (
+      previous !== undefined &&
+      Object.is(previous.rotation.x, rotation.x) &&
+      Object.is(previous.rotation.y, rotation.y) &&
+      Object.is(previous.rotation.z, rotation.z) &&
+      Object.is(previous.rotation.w, rotation.w)
+    )
+      return previous.back;
+    if (previous !== undefined) {
+      previous.rotation.x = rotation.x;
+      previous.rotation.y = rotation.y;
+      previous.rotation.z = rotation.z;
+      previous.rotation.w = rotation.w;
+      previous.back = Quaternion.inverse(previous.rotation);
+      return previous.back;
+    }
+    const current: IAutoMovieQuaternion = {
+      x: rotation.x,
+      y: rotation.y,
+      z: rotation.z,
+      w: rotation.w,
+    };
+    const back: IAutoMovieQuaternion = Quaternion.inverse(current);
+    previous = { rotation: current, back };
+    return back;
+  };
+
+  // Sensitivities guide Newton but do not feed the physical orientation.
+  // A same-unit matrix block controls their Frobenius error independently;
+  // the maximum with q's original RMS can never dilute its physical budget.
   const tolerance: IAutoMovieIntegrateMotionTrajectory.ITolerance | undefined =
     props.tolerance === undefined
       ? undefined
       : {
-          relative: props.tolerance.relative / errorScale,
-          absolute: props.tolerance.absolute / errorScale,
+          ...props.tolerance,
+          blocks: variations.length === 0 ? [] : [3 * variations.length],
         };
-  const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+  let trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
+  try {
+    trajectory = integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
         q: IAutoMovieQuaternion | null,
       ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-        const instant: IAutoMovieIntegrateAirborneRotation.IInstant =
-          history(t);
+        const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(t);
         const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
         const carried: IAutoMovieVector3 = Quaternion.rotateVector(
           back,
           momentum,
         );
-        const w: IAutoMovieVector3 = integrateAirborneRotation.rate(
-          instant,
-          carried,
-        );
+
+        // Owned unobserved tensors need no principal axes. A public or foreign
+        // instant keeps its original mutable-principal semantics.
+        const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+        const principalBack: IAutoMovieQuaternion | undefined = factor === undefined
+          ? AirborneShapeHistory.inverse(instant) ?? principalInverse(instant.inertia.rotation)
+          : undefined;
+        const rootMomentum: IAutoMovieVector3 = Vector3.subtract(carried, instant.relative);
+        const w: IAutoMovieVector3 = factor === undefined
+          ? inverse(instant.inertia, rootMomentum, principalBack)
+          : factor.solve(rootMomentum);
 
         // Forward sensitivity, q(L + dL) = q(L) exp(eta / 2): differentiating
         // q' = q w / 2 gives eta' = -w x eta + I^-1((R^T L) x eta + R^T dL).
-        const dx: number[] = variations.flatMap(
-          (direction: IAutoMovieVector3, i: number): number[] => {
-            const eta: IAutoMovieVector3 = {
-              x: x[3 * i]!,
-              y: x[3 * i + 1]!,
-              z: x[3 * i + 2]!,
-            };
-            const changed: IAutoMovieVector3 = inverse(
-              instant.inertia,
-              Vector3.add(
-                Vector3.cross(carried, eta),
-                Quaternion.rotateVector(back, direction),
-              ),
-            );
-            const rate: IAutoMovieVector3 = Vector3.subtract(
-              changed,
-              Vector3.cross(w, eta),
-            );
-            return [rate.x, rate.y, rate.z];
-          },
-        );
+        const dx: number[] = [];
+        for (let i: number = 0; i < variations.length; i++) {
+          if (!(i in variations)) continue;
+          const offset: number = 3 * i;
+          const etaX: number = x[offset]!;
+          const etaY: number = x[offset + 1]!;
+          const etaZ: number = x[offset + 2]!;
+          const forcing: IAutoMovieVector3 = Quaternion.rotateVector(
+            back,
+            variations[i]!,
+          );
+          const tangentMomentum: IAutoMovieVector3 = {
+              x: (carried.y * etaZ - carried.z * etaY) + forcing.x,
+              y: (carried.z * etaX - carried.x * etaZ) + forcing.y,
+              z: (carried.x * etaY - carried.y * etaX) + forcing.z,
+          };
+          const changed: IAutoMovieVector3 = factor === undefined
+            ? inverse(instant.inertia, tangentMomentum, principalBack)
+            : factor.solve(tangentMomentum);
+          dx.push(
+            changed.x - (w.y * etaZ - w.z * etaY),
+            changed.y - (w.z * etaX - w.x * etaZ),
+            changed.z - (w.x * etaY - w.y * etaX),
+          );
+        }
         return { dx, w };
       },
       x0: Array.from({ length: 3 * variations.length }, (): number => 0),
@@ -122,117 +207,162 @@ export function integrateAirborneRotation(
       t1: props.t1,
       h: props.h,
       tolerance,
+      errorScope,
+      partition: props.partition,
+      rotationDefect: props.momentumTolerance === undefined
+        ? undefined
+        : AirborneMomentumDefect(history, momentum, props.momentumTolerance),
     });
-  return {
-    t0: trajectory.t0,
-    t1: trajectory.t1,
-    h: trajectory.h,
-    knots: trajectory.knots,
-    orientation: (seconds: number): IAutoMovieQuaternion =>
-      trajectory.at(seconds).q!,
-    variations: (seconds: number): IAutoMovieVector3[] => {
-      const x: number[] = trajectory.at(seconds).x;
-      return variations.map(
-        (_: IAutoMovieVector3, i: number): IAutoMovieVector3 => ({
-          x: x[3 * i]!,
-          y: x[3 * i + 1]!,
-          z: x[3 * i + 2]!,
-        }),
-      );
-    },
-  };
+  } catch (error) {
+    if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
+      throw AirborneMomentumDefect.failure(error, history, momentum, props.momentumTolerance);
+    throw error;
+  }
+  return AirborneRotationFlight(trajectory, variations.length);
 }
 
 /**
  * Companion types, constants, the shape's history and the rate of
  * {@link integrateAirborneRotation}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and meaning.
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and meaning. rated accepts actual simultaneous common-frame bone-origin metres/second and angular radians/second through the owning history's rate type, preserving stencil fallback and first-node query-order independence. Companion observe: States explicit operation wiring, numeric counters and independent snapshots.
  * @evidence contracts/development/design.md#principled-representation The flight's inputs are the conserved momentum and a shape history in the root's frame; the output is an orientation read by time, as the integrator's.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the flight pass (#3427) and the take-off solver read: the inputs, the history, the read-back and the rate a test checks by closed form.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass model is `resolveAutoMovieCenterOfMass`'s, the tensor and momenta `resolveAutoMovieMomentum`'s and the trajectory `integrateMotionTrajectory`'s, not restated.
  */
 export namespace integrateAirborneRotation {
   /**
+   * Construct a constant root-frame history from the physical owner's copied
+   * fixed rig and fully resolved bones, preserving their actual clinical frames.
+   * The actual constructor admits whole-curve ownership,
+   * zero local kinematic rates and zero relative momentum; unsupported inputs
+   * return undefined so the consumer retains its ordinary shape history.
+   * Snapshots and explicit release belong to that same constructor. This
+   * direct alias shares its exact input/output types and performs no sampling
+   * equality inference or separate numerical implementation.
+   */
+  export const fixed: typeof AirborneConstantShapeHistory = AirborneConstantShapeHistory;
+
+  /**
+   * Create an optional callback-free observer for physical history costs.
+   * Pass it explicitly to history(); read returns independent numeric totals.
+   * Replacing public members cannot install code in physical evaluation.
+   *
+   * @returns A privately issued numeric observation handle.
+   *
+   * States explicit operation wiring, numeric counters and independent snapshots.
+   * Delegates to the native observation owner; histories borrow only its private counter storage and never invoke a caller method.
+   * One factory forwards observation ownership without an ambient context or altered physical input.
+   * No monkeypatch, callback notification, trusted caller flag or default instrumentation is introduced.
+   * Allocates one fixed-size counter record only on this explicit request; ordinary histories allocate no observation record.
+   * The same explicit handle can accumulate actual history epochs; repeated reads copy totals rather than triggering physical work.
+   * The caller owns the small handle; private weak registration retains no observer after callers and histories release it. It contains no body, pose, query log or process.
+   */
+  export function observe(): AirborneShapeStatistics.IObserver {
+    return AirborneShapeStatistics();
+  }
+
+  /**
    * The half-interval of the shape's central difference, seconds: a
-   * millisecond, whose second-order error is a millionth of the shape's third
-   * derivative, far under the integrator's own at its sixtieth-of-a-second
-   * step. The shape is read on `[t0 - DELTA, t1 + DELTA]`.
+   * millisecond. The stencil is second order for a sufficiently smooth shape;
+   * its error depends on that shape's derivatives and is separate from the
+   * orientation integrator's budget. Without a span, the shape is read on
+   * `[t0 - DELTA, t1 + DELTA]`.
    */
   export const DELTA: number = 1e-3;
+
+  
+
+  
+
+  /**
+   * A shape history with an explicitly owned numeric memo.
+   *
+   * It is the same seconds-to-root-frame-instant reader, with a clear operation for its numeric memo.
+   * Extends the history callback with cache lifetime ownership; clear forgets computed values without changing the pure shape or the values a new read computes.
+   * The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
+   * Shares IHistory instead of duplicating the callback contract; exact I/h and numeric mass nodes have no eviction cap or rounded time grid and belong only to this pure history operation.
+   */
+  export type ICachedHistory = IAutoMovieIntegrateAirborneRotation.IHistory & {
+  /** Release all I/h instants, numeric mass nodes and their rated tensor/derivative packets, boundary moments and inverse preparation; a new query recomputes them while completed flights remain valid. */
+    clear(): void;
+  };
+
+  
+
+  
 
   /**
    * A shape's history: at each second, the composite inertia of the posed
    * bones and the relative momentum from the bones `DELTA` either side,
-   * second order in `DELTA`, each instant computed once and kept by its exact
-   * second for the history's lifetime.
+   * second order in `DELTA` for a sufficiently smooth shape. Each query's
+   * inertia and relative
+   * momentum are computed once and kept by its exact second for the
+   * history's lifetime. Each reduction poses the parts once at each distinct
+   * instant, sharing their transformed centres with the mass-weighted centre.
+   * Exact nodes share their sufficient numeric mass parts across all
+   * overlapping stencils, stages and shooting trials of this history. The
+   * first demand reads the actual pure shape; later exact-node demands use
+   * those same numbers without retaining a full pose or raw bone map. The
+   * two fixed boundary stencils separately share their numeric moments.
    *
    * Given the flight's span, the three-point stencil slides up to its
    * boundary and then stays inside it. At a requested instant `t` away
    * from the stencil's centre `s`, its central momentum is corrected by
    * `(t-s)/δ` times the difference of its right and left half-interval
    * momenta: the derivative of a quadratic interpolant, second order in
-   * `δ` (Fornberg 1988, Mathematics of Computation 51:699-706). Its weights
-   * and nodes are continuous when it becomes centred again, so an ODE
-   * reading the history sees no artificial stencil-switch discontinuity.
+   * `δ` for smooth trajectories (Fornberg 1988, Mathematics of Computation
+   * 51:699-706). Its weights and nodes are continuous at the centred switch.
+   * For continuous interval momenta this adds no switch-induced value jump.
+   * An actual shape jump at a boundary can propagate through this stencil.
    *
-   * @param model The body's mass model.
+   * @param model The body's unchanged mass model for this reuse epoch, or an admitted planning-owned snapshot released separately after this history is cleared.
    * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned): the composed shape without the flight's rotation. Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside it at its ends when `span` is given.
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
+   * @param observer Optional native callback-free work counter from observe(); omitted histories allocate no counter record and retain the ordinary physical result/error behavior. Explicit handles accumulate across cache clears.
    * @returns The history.
+   *
+   * States root-frame shape, millisecond central difference, unchanged boundary correction, exact-time memo and separate prepared-model ownership.
+   * AirborneShapeHistory reduces the same physical tensor and two-pose momentum with the unchanged stencil and quadratic boundary correction; only I and h enter the flight ODE.
+   * The public history entry selects the established DELTA and delegates memo, stencil and model reduction to one history owner.
+   * Every first demanded exact mass node reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
+   * A new query uses at most four distinct numeric nodes and O(S) mass work. Each exact node performs shape/IK/FK only on its first demand, even when other queries separate repeated endpoint reads; actual current orbital terms, tensor sums and physical checks remain unchanged.
+   * Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts across this operation. Fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing, and no shooting target or IK answer enters node storage.
+   * For N distinct I/h queries and S fixed model parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two boundary moments. Private moments share 3S numeric fields after exact checks, leaving at most 8S+3 per node; exact unchanged principal quaternions can additionally share their four fields. O(S) last-value references and map keys/object/array overhead depend on runtime. clear releases every node/shared-vector list/map/inverse registration; no raw bone map/full pose is retained. The caller separately releases its borrowed O(S) model.
    */
   export function history(
-    model: IAutoMovieResolveCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
     shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     span?: IAutoMovieIntegrateAirborneRotation.IHistorySpan,
-  ): IAutoMovieIntegrateAirborneRotation.IHistory {
-    type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    const bones: Map<number, Bones> = new Map();
-    const read = (seconds: number): Bones => {
-      const known: Bones | undefined = bones.get(seconds);
-      if (known !== undefined) return known;
-      const posed: Bones = shape(seconds);
-      bones.set(seconds, posed);
-      return posed;
-    };
-    const instants: Map<number, IAutoMovieIntegrateAirborneRotation.IInstant> =
-      new Map();
-    const momentum = (from: number, to: number): IAutoMovieVector3 =>
-      resolveAutoMovieMomentum(model, read(from), read(to), to - from).angular;
-    const relative = (seconds: number): IAutoMovieVector3 => {
-      if (span === undefined) return momentum(seconds - DELTA, seconds + DELTA);
-      const delta: number = Math.min(DELTA, (span.to - span.from) / 2);
-      const centre: number = Math.max(
-        span.from + delta,
-        Math.min(span.to - delta, seconds),
-      );
-      const a: number = Math.max(span.from, centre - delta);
-      const b: number = Math.min(span.to, centre + delta);
-      const central: IAutoMovieVector3 = momentum(a, b);
-      if (centre === seconds) return central;
-      return Vector3.add(
-        central,
-        Vector3.scale(
-          Vector3.subtract(momentum(centre, b), momentum(a, centre)),
-          (2 * (seconds - centre)) / (b - a),
-        ),
-      );
-    };
-    return (seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
-      const known: IAutoMovieIntegrateAirborneRotation.IInstant | undefined =
-        instants.get(seconds);
-      if (known !== undefined) return known;
-      const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
-        inertia: resolveAutoMovieMomentum.principal(
-          resolveAutoMovieMomentum.inertia(model, read(seconds)),
-        ),
-        relative: relative(seconds),
-      };
-      instants.set(seconds, instant);
-      return instant;
-    };
+    observer?: AirborneShapeStatistics.IObserver,
+  ): ICachedHistory {
+    return AirborneShapeHistory(model, shape, DELTA, span, observer);
+  }
+
+  /** Build a history from actual simultaneous bone rates where the explicit producer supplies them; unsupported instants retain the original millisecond stencil and general history callbacks are unchanged. Every first numeric-node construction calls the producer with that actual shape evaluation, including stencil neighbors, and caches only numeric tensor/momentum or unavailability. Revisited nodes never reread shape/rate callbacks, so query order cannot select a different derivative path. The producer must derive rates for the supplied current root-frame bones under unchanged model/curve prerequisites; this data interface creates no constant/smoothness capability. */
+  export function rated(
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+    shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    analytic: AirborneShapeHistory.IRates,
+    span?: IAutoMovieIntegrateAirborneRotation.IHistorySpan,
+    observer?: AirborneShapeStatistics.IObserver,
+  ): ICachedHistory {
+    return AirborneShapeHistory(model, shape, DELTA, span, observer, analytic);
+  }
+
+  /**
+   * Build a history tabulated once on uniform knots no farther apart than `span.step` seconds and interpolated between them (`AirborneTabulatedShapeHistory`): the shape is read at the knots only, inside the span, where `history` reads it up to three times for each new query second. With at least four uniform intervals and a finite `span.turn`, an interval is subdivided whenever a mass part's measured endpoint turn exceeds that bound in radians. Each child is measured again. The inertia and relative momentum are fourth order in the knot spacing for a smooth shape (second order under four intervals). The table is built at the first query; the observer's counters keep their meaning, `uniqueNumericNodes` counting the knots read.
+   */
+  export function tabulated(
+    model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+    shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    span: { from: number; to: number; step: number; turn?: number },
+    observer?: AirborneShapeStatistics.IObserver,
+    uniformCentre?: (index: number, centre: IAutoMovieVector3) => void,
+  ): ICachedHistory {
+    return AirborneTabulatedShapeHistory(model, shape, span, observer, uniformCentre);
   }
 
   /**
@@ -249,25 +379,27 @@ export namespace integrateAirborneRotation {
     instant: IAutoMovieIntegrateAirborneRotation.IInstant,
     momentum: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return inverse(
-      instant.inertia,
-      Vector3.subtract(momentum, instant.relative),
-    );
+    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+    const carried: IAutoMovieVector3 = Vector3.subtract(momentum, instant.relative);
+    return factor === undefined ? inverse(instant.inertia, carried) : factor.solve(carried);
   }
 }
 
-/** Apply the inverse composite tensor through its principal frame. */
+/**
+ * Apply the inverse composite tensor through its principal frame.
+ * The first rotation returns an exclusively owned local vector, so dividing
+ * it in place preserves each component's arithmetic without another record.
+ */
 function inverse(
   frame: IAutoMoviePrincipalTensorFrame,
   vector: IAutoMovieVector3,
+  back: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation),
 ): IAutoMovieVector3 {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    vector,
-  );
-  return Quaternion.rotateVector(frame.rotation, {
-    x: local.x / frame.moments.x,
-    y: local.y / frame.moments.y,
-    z: local.z / frame.moments.z,
-  });
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(back, vector);
+  local.x /= frame.moments.x;
+  local.y /= frame.moments.y;
+  local.z /= frame.moments.z;
+  return Quaternion.rotateVector(frame.rotation, local);
 }
+
+

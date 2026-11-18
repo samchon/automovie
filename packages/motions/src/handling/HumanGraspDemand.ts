@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -52,39 +53,29 @@ export namespace HumanGraspDemand {
    * @returns The grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the grip and how it is read.
-   * @evidence contracts/development/implementation.md#principled-implementation The fingers close on the prop where the hand is shown, so the prop's place in the hand is read from the shown hand, as a held prop's is (`AutoMovieMotionHumanHeld.grasped`).
+   * @evidence contracts/development/implementation.md#principled-implementation The fingers close on the prop where the hand is shown, so the prop's place in the hand is read from the shown hand and the prop's frame at the action's start, as a held prop's is (`AutoMovieMotionHumanHeld.grasped`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One grasp record, read per asked working point.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The grasp record once per candidate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One prop frame read and one grasp record per call; the tool reading runs per asked working point.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The held owner's grasp and the held tool's reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over the grasp record.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over its grasp record.
    */
   export function grip(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
     prop: string,
     side: AutoMovieHumanSide,
     shown: IAutoMovieMotionHumanHand.IWrist,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanActionLaw.IGrip {
     const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
-    const grasped: IAutoMovieMotionHumanHeld.IHeld =
-      AutoMovieMotionHumanHeld.grasped(
-        context.body,
-        side,
-        prop,
-        held.frame(context.start),
-        held.prop.affordances ?? [],
-        shown,
-      );
+    const frame: IAutoMovieRigidTransform = held.frame(context.start);
+    const grasped: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.grasped(
+      context.body, side, prop, frame, held.prop.affordances ?? [], shown,
+    );
     return {
       prop,
       side,
-      tool: (
-        points: IAutoMovieMotionHumanStrikingHeld.IPoints,
-      ): IAutoMovieMotionHumanStrikingHeld.ITool =>
+      tool: (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool =>
         StrikingHeld.read(grasped, points),
       posture,
     };
@@ -109,20 +100,18 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#principled-implementation The key passes exactly when the demanding action would not refuse the pose: the same goal, elbow and arm solution its refusal fits (`StrikingRoll.miss`), the posture's other limbs kept so the coupled fit the pose is shown by is the one judged, the same stray against the same bound; a key fitted on the grasp's solution failed grips that action accepts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrist, the goal, the judge.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The measure and the bound are both metres.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The elbow is the fit's own; the judge reads the fitted bones.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant rigid work; the judge reads the fitted hand bone alone.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The held tool's goal and measure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The judge closes over the demand.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The judge closes over the demand and the hand's grip-point reader.
    */
   export function key(
     body: IAutoMovieMotionHumanBody,
     demand: IAutoMovieMotionHumanActionLaw.IDemand,
   ): IAutoMovieMotionHumanGrasp.IKey {
     const side: AutoMovieHumanSide = demand.tool.side;
-    const socket: IAutoMovieVector3 = HumanHand.offset(
-      body,
-      side,
-      "grip",
-    ).point;
+    const hand: AutoMovieHumanoidBone = `${side}Hand`;
+    const socket: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
+    const point: ReturnType<typeof HumanHand.preparePoint> = HumanHand.preparePoint(body, side, "grip");
     const wrist: IAutoMovieMotionHumanHand.IWrist = {
       point: Vector3.subtract(
         demand.frame.point,
@@ -130,40 +119,20 @@ export namespace HumanGraspDemand {
       ),
       rotation: demand.frame.rotation,
     };
+
     // The hanging arm's elbow, only the fallback of a fit that finds no
     // legal swivel: the goal leaves the elbow to the body.
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      demand.posture,
-      side,
-    );
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, demand.posture, side);
     return {
       posture: demand.posture,
       wrist,
       bend,
-      goal: StrikingHeld.goal(
-        { body },
-        demand.tool,
-        demand.frame,
-        demand.back,
-        bend,
-      ),
+      goal: StrikingHeld.goal({ body }, demand.tool, demand.frame, demand.back, bend),
       reference: false,
-      judge: (
-        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      ): number =>
-        Math.max(
-          demand.least ?? 0,
-          StrikingHeld.strayed(
-            demand.tool,
-            {
-              point: HumanHand.frame(body, bones, side, "grip").point,
-              rotation: bones.get(`${side}Hand`)!.worldRotation,
-            },
-            demand.frame,
-            demand.back,
-          ),
-        ),
+      judge: (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number =>
+        Math.max(demand.least ?? 0, StrikingHeld.strayed(demand.tool, {
+          point: point(bones), rotation: bones.get(hand)!.worldRotation,
+        }, demand.frame, demand.back)),
       bound: demand.bound,
     };
   }

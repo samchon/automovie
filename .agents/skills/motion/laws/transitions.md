@@ -2,7 +2,9 @@
 
 ## Pose by time
 
-Evaluate each pose from its plan and time. Read the solver reference pose at a fixed planned instant. Key caches by exact event times so playback, seeking and captures agree.
+Prepare the path, events, active constraints and required physical response once. Carry resolved entry state through cuts and layers. Sample poses as `f(plan, t)` in any order using time curves, carrier-relative transforms and any direct fit needed at that instant. Share the evaluated pose across consumers.
+
+Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it and resolve it during preparation. Retain event states, curves or solver trajectories that preserve the checked result between events.
 
 ## Transitions
 
@@ -22,13 +24,13 @@ At a cut into a different action, inertialize: carry the difference in pose and 
 
 Derive each channel's pose offset x0 and velocity offset v0 at the cut. Decay both with Bollo's quintic. If their signs differ, limit the decay time to t1 ≤ −5·x0/v0.
 
-After applying offsets, solve planted feet and gripping hands back onto their goals so only free joints retain the decay.
+Prepare the transition so planted feet and gripping hands retain their goals and only the free joints retain the decay. Use the displayed state on each side of the cut for verification.
 
 Blend unwrapped angles on the shortest arc ((b − a + 180) mod 360 − 180), or use quaternions.
 
 ### Changing target within an action
 
-When a reach or strike target moves, add a second minimum-jerk unit from its old target to its new target to the running unit (Flash and Hogan 1985; Flash and Henis 1991). Solve the summed goal.
+When a reach target changes, one studied model adds a minimum-jerk submovement from the old target to the new target (Flash and Hogan 1985; Flash and Henis 1991). Keep the ongoing path and the correction on the same clock, then fit the summed goal within the action's reach and contact rules.
 
 ## Layers
 

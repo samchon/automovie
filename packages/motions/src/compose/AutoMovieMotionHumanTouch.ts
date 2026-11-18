@@ -7,8 +7,10 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
@@ -73,7 +75,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @param target The target.
    * @param seconds Film seconds.
    * @param posture The posture so far.
-   * @param entry The entry pose's resolved bones.
+   * @param entry The entry pose's resolved bones, or a supplier of the bones to read a region off the trunk on, called only for such a region.
    * @returns The point and the outward normal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which pose each kind of region is read on and why.
@@ -89,14 +91,19 @@ export namespace AutoMovieMotionHumanTouch {
     target: IAutoMovieMotionTarget,
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
-    entry: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    entry:
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>),
+    resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     if (target.kind === "self") {
-      const frame = context.body.surfaces.regions[target.region];
-      if (!TRUNK.has(frame.bone)) {
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
+      const frame: IAutoMovieHumanoidSurfaces.IFrame = context.body.surfaces.regions[target.region];
+      if (!AutoMovieMotionHumanTarget.TRUNK.has(frame.bone)) {
+        // The bones are read only here: a caller whose bones cost a pose
+        // lends a supplier, which a region on the trunk never calls.
+        const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
           frame,
-          entry.get(frame.bone)!,
+          (typeof entry === "function" ? entry() : entry).get(frame.bone)!,
         );
         return { point: placed.point, normal: placed.normal };
       }
@@ -107,6 +114,7 @@ export namespace AutoMovieMotionHumanTouch {
       seconds,
       posture,
       AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+      resolution,
     );
   }
 
@@ -134,9 +142,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
-  export function touch(
-    props: IAutoMovieMotionHumanTouch.ITouch,
-  ): IAutoMovieMotionHumanPrimitive[] {
+  export function touch(props: IAutoMovieMotionHumanTouch.ITouch): IAutoMovieMotionHumanPrimitive[] {
     const { body, clock, side } = props;
     const form: IAutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];
@@ -166,6 +172,7 @@ export namespace AutoMovieMotionHumanTouch {
         },
         ...(props.together === undefined ? {} : { together: props.together }),
         ...(props.rests === undefined ? {} : { rests: props.rests }),
+        ...(props.skinDistance === undefined ? {} : { skinDistance: props.skinDistance }),
         ...(props.disc === undefined ? {} : { disc: props.disc }),
         ...(props.on === undefined ? {} : { on: props.on }),
         ...(props.lay !== "upright"
@@ -175,7 +182,7 @@ export namespace AutoMovieMotionHumanTouch {
                 props,
                 // The lean's share shown at a weight: none until the last `TIP`.
                 (weight: number): number =>
-                  minimumJerk(Math.max(0, (weight - (1 - TIP)) / TIP)).s,
+                  minimumJerk.share(Math.max(0, (weight - (1 - TIP)) / TIP)),
               ),
             }),
       },
@@ -229,7 +236,10 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function share(clock: IAutoMovieMotionClock, seconds: number): number {
+  export function share(
+    clock: IAutoMovieMotionClock,
+    seconds: number,
+  ): number {
     return clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   }
 
@@ -253,15 +263,12 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The constants once, then one region read, the offsets and one effector goal per second.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift, the travel and the stand-off are shares of the hand; a count that is not whole throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms One region read per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the laid directions and the form's tangent.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its props and one hint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector, laid direction and tangent owners. One wave of the touch's count, prepared at its first stroke sample, serves every later one. Current FK/genuine ROM metadata is forwarded to region/collider callbacks for that invocation only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function retains props, fixed entry-frame hints and at most one count-bound wave reader until release. Query metadata remains callback arguments and never enters the retained reader or returned goal; no time/result history is stored.
    */
   export function goal(
     props: IAutoMovieMotionHumanTouch.ITouch,
-  ): (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ) => IAutoMovieHumanLimbGoal {
+  ): IAutoMovieMotionHumanArmCarry.ICarry["goal"] {
     HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: IAutoMovieMotionHumanTouchForm.IForm =
@@ -277,11 +284,13 @@ export namespace AutoMovieMotionHumanTouch {
     const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
     const from: IAutoMovieVector3 | undefined =
       props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-    return (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieHumanLimbGoal => {
-      const place = props.region(posture, seconds);
+    let wave: ((seconds: number) => number) | undefined;
+    const oscillation: (seconds: number) => number = (seconds: number): number =>
+      (wave ??= AutoMovieMotionClock.prepareWave(clock, ["strokeStart", "strokeEnd"], props.count))(seconds);
+    return (posture: IAutoMovieMotionHumanPosture, seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[3]): IAutoMovieHumanLimbGoal => {
+      const place: ReturnType<IAutoMovieMotionHumanTouch.ITouch["region"]> = props.region(posture, seconds, resolution, projection);
       const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
       const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
         normal,
@@ -297,12 +306,7 @@ export namespace AutoMovieMotionHumanTouch {
           ? 0
           : form.travel *
             hand *
-            AutoMovieMotionClock.wave(
-              clock,
-              ["strokeStart", "strokeEnd"],
-              props.count,
-              seconds,
-            );
+            oscillation(seconds);
       // The vessel as it is held at the lips: the arm is carried toward the
       // arm that holds it there, the one the drinking search admitted, and
       // the vessel's own tip on the way is the hand's attitude's (`TIP`,
@@ -316,27 +320,27 @@ export namespace AutoMovieMotionHumanTouch {
         origin: posture.root,
         yaw: posture.yaw,
       };
-      const laid: IAutoMovieHumanLimbGoal =
-        AutoMovieMotionHumanTouchEffector.goal(
+      const laid: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
+        body,
+        side,
+        props.effector,
+        at,
+        ...AutoMovieMotionHumanTouchLaid.lie(
           body,
+          posture,
           side,
-          props.effector,
-          at,
-          ...AutoMovieMotionHumanTouchLaid.lie(
-            body,
-            posture,
-            side,
-            props.lay,
-            place.point,
-            normal,
-            along,
-            props.facing,
-            props.elbow,
-            from === undefined ? undefined : HumanFrame.point(frame, from),
-            lean,
-          ),
-          HumanFrame.point(frame, hint),
-        );
+          props.lay,
+          place.point,
+          normal,
+          along,
+          props.facing,
+          props.elbow,
+          from === undefined ? undefined : HumanFrame.point(frame, from),
+          lean,
+        ),
+        HumanFrame.point(frame, hint),
+        props.lay === "reach",
+      );
 
       // A held rotation turns with the heading and leans with the vessel.
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -369,24 +373,8 @@ export namespace AutoMovieMotionHumanTouch {
         ...(props.reference === undefined
           ? {}
           : { reference: props.reference }),
-        ...props.others?.(posture, seconds),
+        ...props.others?.(posture, seconds, resolution, projection),
       };
     };
   }
 }
-
-/** The bones a posture places without solving a limb. */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-    "leftEye",
-    "rightEye",
-    "jaw",
-    "leftShoulder",
-    "rightShoulder",
-  ]);

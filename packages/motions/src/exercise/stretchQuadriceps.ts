@@ -27,8 +27,8 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
  * @evidence contracts/development/implementation.md#principled-implementation The stretch is the knee's flexion with the hip extended; the hand must hold the ankle, so the fold is the least one the arm's length allows, read off the body's own segments.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One fold function and two scans, the knee before the hip.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends are the range table's limits, never stated angles, and an unreachable ankle is returned at the deepest fold instead of beyond a range.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most one evaluation per degree of the two ranges, each constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing computed twice; the limits come from `AutoMovieMotionHumanRange.limit`.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Retains at most one trial per degree of the two ranges; each candidate ankle is evaluated once and the fixed hanging-thigh turn is shared by the knee scan.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged zero-extension thigh vector and arm reach are shared; each candidate still reads its exact flexion/extension, nested segment addition and original reach comparison.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function stretchQuadriceps(props: {
@@ -39,23 +39,35 @@ export function stretchQuadriceps(props: {
   forward: IAutoMovieVector3;
   least: number;
 }): IAutoMovieVector3 {
-  const m = props.body.measure;
+  const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
   // A segment hanging straight down, turned back by an angle.
-  const turned = (length: number, degrees: number): IAutoMovieVector3 => {
+  const turned: (length: number, degrees: number) => IAutoMovieVector3 = (
+    length: number,
+    degrees: number,
+  ): IAutoMovieVector3 => {
     const angle: number = (degrees * Math.PI) / 180;
     return Vector3.add(
       Vector3.scale(props.forward, -Math.sin(angle) * length),
       { x: 0, y: -Math.cos(angle) * length, z: 0 },
     );
   };
-  const ankle = (flexion: number, extension: number): IAutoMovieVector3 =>
+  const hanging: IAutoMovieVector3 = turned(m.thigh, 0);
+  const reach: number = m.upperArm + m.forearm;
+  const ankle: (flexion: number, extension: number) => IAutoMovieVector3 = (
+    flexion: number,
+    extension: number,
+  ): IAutoMovieVector3 =>
     Vector3.add(
-      Vector3.add(props.hip, turned(m.thigh, extension)),
+      Vector3.add(
+        props.hip,
+        extension === 0 ? hanging : turned(m.thigh, extension),
+      ),
       turned(m.shank, extension + flexion),
     );
-  const reached = (point: IAutoMovieVector3): boolean =>
-    Vector3.length(Vector3.subtract(point, props.shoulder)) <=
-    m.upperArm + m.forearm;
+  const reached: (point: IAutoMovieVector3) => boolean = (
+    point: IAutoMovieVector3,
+  ): boolean =>
+    Vector3.length(Vector3.subtract(point, props.shoulder)) <= reach;
   const knee: number = Math.max(
     props.least,
     AutoMovieMotionHumanRange.limit(`${props.side}LowerLeg`, "flexion") ??
@@ -64,9 +76,13 @@ export function stretchQuadriceps(props: {
   const hip: number = Math.abs(
     AutoMovieMotionHumanRange.limit(`${props.side}UpperLeg`, "extension") ?? 0,
   );
-  for (let flexion: number = props.least; flexion <= knee; flexion++)
-    if (reached(ankle(flexion, 0))) return ankle(flexion, 0);
-  for (let extension: number = 1; extension <= hip; extension++)
-    if (reached(ankle(knee, extension))) return ankle(knee, extension);
+  for (let flexion: number = props.least; flexion <= knee; flexion++) {
+    const point: IAutoMovieVector3 = ankle(flexion, 0);
+    if (reached(point)) return point;
+  }
+  for (let extension: number = 1; extension <= hip; extension++) {
+    const point: IAutoMovieVector3 = ankle(knee, extension);
+    if (reached(point)) return point;
+  }
   return ankle(knee, hip);
 }

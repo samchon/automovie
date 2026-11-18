@@ -1,10 +1,10 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -14,9 +14,13 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentSelection } from "./HumanSegmentSelection";
+import { HumanSegmentShown } from "./HumanSegmentShown";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a
@@ -24,9 +28,9 @@ import { HumanSegment } from "./HumanSegment";
  * root on the floor plan, and the refusals for what is missing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the functions return.
- * @evidence contracts/development/design.md#principled-representation Each is a function of the performance's state and film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The readers `HumanPerformance` exposes and the ones its placing and contact work share (#3399).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader writes the state except the grip cache it owns.
+ * @evidence contracts/development/design.md#principled-representation The resolved-state records supply placed poses, raw postures, rigid frames and refusal fields; film seconds and world metres keep their existing owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The readers HumanPerformance, placement, holding, soft props and flights use; selection and grip-list assembly have separate owners, while resolved-person adapters remain private here.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not add a pose/FK cache or bypass availability refusals. Existing grip-cache publication stays with HumanPerformanceGrips and prop-frame seating with HumanPerformanceHold.
  */
 export namespace HumanPerformanceRead {
   /**
@@ -35,15 +39,27 @@ export namespace HumanPerformanceRead {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns The pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States person/exact film second; optional bone demand guarantees those frames and original root, while omission is complete. An optional same-body preparation is lent by the synchronous owner and never retained here.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the actual person and delegates to HumanSegment.displayed, preserving its placement, transition, overlay, contact and clamp policy.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup and one displayed evaluation keep numerical ownership at the existing evaluator.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing persons retain their refusal. Bone observations preserve the root and every demanded frame, never enter the complete-pose cache and conservatively keep full complex composition; public pose queries omit the demand and remain complete.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds one Map lookup to the evaluator's existing cache lookup, selection and fit costs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the evaluator's existing settled pose cache and invalidation without adding a reader-level result cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores no state and returns the evaluator's original pose reference, including its existing cached ownership.
    */
   export function pose(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     return HumanSegment.displayed(
       HumanPerformanceRead.person(self, subject),
       seconds,
+      requested,
+      prepared,
     );
   }
 
@@ -54,22 +70,25 @@ export namespace HumanPerformanceRead {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Reads the active raw posture or initial fallback, optionally demanding channels. Supplying an axis applies the context performer's original unresolved-future refusal first; a lazy axis formats its parameter name only if that refusal occurs.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the last matching placement through HumanSegmentSelection and reads its plan at the same duration-clamped local second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person once and share the private placed-posture reader with root queries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the initial fallback, exact film second, 1e-12 entry allowance and original local-time clamp; adds no layer or displayed-pose substitution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, optional constant availability bookkeeping, at most S reverse entry comparisons and one selected plan read. A supplied lazy error-label callback runs only on the original availability refusal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares availability and placed-posture owners with root; context posture reads check metadata directly instead of evaluating and discarding an additional root posture. Actual authored posture is evaluated once with no cross-query result memo.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the initial posture stays borrowed and an action result keeps that plan's existing ownership.
    */
   export function posture(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    axis?: string | (() => string),
   ): IAutoMovieMotionHumanPosture {
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, subject);
-    let active: IAutoMovieMotionHumanSegment | undefined;
-    for (const s of person.segments)
-      if (s.entryTime <= seconds + 1e-12) active = s;
-    return active === undefined
-      ? person.initial
-      : active.plan.posture(
-          Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
-        );
+    const person: IAutoMovieMotionHumanSegment.IPerson = axis === undefined
+      ? HumanPerformanceRead.person(self, subject) : available(self, subject, seconds, axis);
+    return placedPosture(person, seconds, channels);
   }
 
   /**
@@ -78,18 +97,51 @@ export namespace HumanPerformanceRead {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns Resolved bones by rig bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States person and film second; an optional requested set returns only those world bones, with the ordinary full map when absent.
+   * @evidence contracts/development/implementation.md#principled-implementation The displayed evaluator omits only independently proven observational fits; contact/carry/transition dependencies keep complete evaluation, while unconstrained overlays may preserve the final digit observation. Canonical FK computes requested ancestor dependencies and still admits authored joints in order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup feeds the private fresh-bones adapter also used by hand-frame queries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every call returns a fresh map and transforms. A displayed pose the person keeps is admitted by FK once and its readers take its bones from that reading (`HumanSegmentShown.bones`); a pose evaluated under the bone demand is not kept and is admitted in full by this call. No bone map is stored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation and ordered joint admission plus demanded FK ancestry and output. Full queries keep their existing complete costs; no speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolved participant and one explicit same-body preparation across the actual displayed evaluation and final demanded FK. Different queries retain separate readers and fresh FK results; a kept displayed pose's one FK admission is shared through the person's record of it, and no bone map is kept here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous query owns one lazy rig/FK preparation until return or throw; no returned map or transform retains it. The caller owns the fresh FK map and nested transforms.
    */
   export function bones(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, subject);
-    return poseBones(
-      person.performer.body,
-      HumanPerformanceRead.pose(self, subject, seconds),
-    );
+    return placedBones(HumanPerformanceRead.person(self, subject), seconds, requested);
+  }
+
+  /**
+   * Prepare fixed actor/body and requested names for one synchronous contact scan.
+   * Keep this actor registry entry and body unchanged until releasing the reader;
+   * each queried second still observes current plans, stops and invalidation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed actor/body/name domain, copied demand, eager missing-person refusal and per-query displayed/fresh-FK ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A scan's actor and profile bone names stay fixed while its exact film seconds and stop-dependent displayed poses vary. Only genuine body-bound FK demand preparation is shared; every actual display and authored-joint admission still executes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person and snapshot optional names once, then delegate each second to the same placedBones owner used by ordinary bones/hand reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, time, stop signature, target fit or FK result is stored; contacts, transitions, requested-frame fallback and full-pose cache isolation retain their existing owners. Omitted demand remains full FK.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup, O(K log K) fixed-name preparation and one lazy O(B+D) genuine ROM index replace repetition across Q scan queries. Each query of a pose the person does not keep has complete authored admission, a kept pose's bones come from its one reading, current display fitting and independent demanded FK with fresh maps/frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied names share only static FK-demand and genuine ROM metadata. Each exact second issues a separate empty FK workspace and reads current placement/stop state; edited source names cannot change the copied demand, and poses/results never share between query contexts here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person, at most K names, fixed demand metadata and one lazy genuine ROM mapper until return/throw. Each call releases its independent FK workspace; no returned map or factory retains prior workspaces, query poses, frames or times.
+   */
+  export function prepareBones(self: IAutoMovieMotionHumanPerformanceState, subject: string,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>):
+    (seconds: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const names: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      requested === undefined ? undefined : new Set(requested);
+    const read: Parameters<typeof HumanSegmentShown.bones>[4] = names === undefined ? undefined : {
+      pose: poseBones.prepare(person.performer.body, names),
+      reading: poseBones.prepareRead(person.performer.body, names),
+    };
+    const prepare: ReturnType<typeof prepareHumanSegmentPose.queries> =
+      prepareHumanSegmentPose.queries(person.performer.body);
+    return (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      placedBones(person, seconds, names, read, prepare());
   }
 
   /**
@@ -134,6 +186,14 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @param own The performer reading the prop and their own bones, for a prop they may carry.
    * @returns Its frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States rest, grip, worn/mounted and in-hand frames and the own-body callback used to avoid reading an action through itself.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the existing rigid hold, offset and in-hand composition to HumanPerformanceHold.prop with unchanged subject, second and own-body source.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call keeps grip selection and frame seating at their existing owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves missing-prop refusals, motion providers and the complete own-body callback; no static frame replaces a carried or moving prop.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant wrapper work plus grip assembly/selection, pose/FK and frame composition demanded by the existing hold reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing grip list and seated-offset owners without a new per-time frame cache or callback memo.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains nothing; the delegated frame or motion provider preserves its original result ownership and existing state-cache lifetime.
    */
   export function prop(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -141,7 +201,9 @@ export namespace HumanPerformanceRead {
     seconds: number,
     own?: {
       subject: string;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+      bones: (
+        requested?: ReadonlySet<AutoMovieHumanoidBone>,
+      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): IAutoMovieRigidTransform {
     return HumanPerformanceHold.prop(self, subject, seconds, own);
@@ -152,6 +214,14 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The person.
    * @returns The segments.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States placement-order carrier actions for one person.
+   * @evidence contracts/development/implementation.md#principled-implementation Returns the resolved person's actual carrier array in its authored placement order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One person lookup and one array-field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not sort, clone or merge overlays into the carrier list; a missing person is still refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(1) lookup and reference return, without an output copy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No evaluated work is coordinated; the state already owns the placed records.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Adds no retention and returns the existing borrowed array through a readonly view, without making its records immutable.
    */
   export function segments(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -166,6 +236,14 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The person.
    * @returns The overlays.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States placement-order overlays and their carrier/channel relationship.
+   * @evidence contracts/development/implementation.md#principled-implementation Returns the resolved person's actual overlay records in their placement order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup followed by one field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not sort overlays by time or combine them with carriers; missing participants retain their refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(1) lookup and reference return, with no per-query array allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads existing records without coordinating an evaluation or creating a selection cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no additional state; the readonly result is the state's borrowed array and existing record references.
    */
   export function overlays(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -174,120 +252,56 @@ export namespace HumanPerformanceRead {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
-  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. */
+  /**
+   * Every grip, worn and mounted span on a prop in film order; none for a fixture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the complete grip-list result and fixture exclusion; HumanPerformanceGrips owns collection and its existing cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the unchanged resolved state and subject to the dedicated grip-list owner, preserving window arithmetic and ordering.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call separates grip assembly from public posture and frame reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No span, in-hand callback, cached return or resolving-state policy is altered by this wrapper.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant work to the existing cache lookup or complete ordered collection, worn-span closure and sort.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanPerformanceGrips' per-state completed lists; introduces no second cache or result copy.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; returned cached or newly published arrays keep the grip owner's existing ownership and resolved-state lifetime.
+   */
   export function grips(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
-    const known: IAutoMovieMotionHumanPerformanceState.IGrip[] | undefined =
-      self.gripCache.get(subject);
-    if (known !== undefined) return known;
-    const out: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
-    const worn: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
-    // A fixture bears the hands that grip it and is never carried by them.
-    if (self.props.get(subject)?.fixed === true) {
-      if (!self.resolving) self.gripCache.set(subject, out);
-      return out;
-    }
-    const declared: IAutoMovieMotionHumanProp.IWorn | undefined =
-      self.props.get(subject)?.worn;
-    if (declared !== undefined)
-      worn.push({
-        subject: declared.subject,
-        side: "right",
-        bone: declared.bone,
-        from: -Infinity,
-        to: Infinity,
-        offset: declared.offset,
-      });
-    for (const person of self.people.values()) {
-      for (const segment of [...person.segments, ...person.overlays])
-        for (const w of segment.plan.wears ?? [])
-          if (w.prop === subject) {
-            const from: number = segment.start + w.from * segment.plan.duration;
-            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
-              worn.push({
-                subject: person.performer.subject,
-                side: "right",
-                bone: w.bone,
-                from,
-                to: Infinity,
-              });
-          }
-      // A prop set on another prop's socket rides it like a worn one.
-      for (const segment of [...person.segments, ...person.overlays])
-        for (const m of segment.plan.mounts ?? [])
-          if (m.prop === subject) {
-            const from: number = segment.start + m.from * segment.plan.duration;
-            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
-              worn.push({
-                subject: person.performer.subject,
-                side: "right",
-                mount: { prop: m.onto, point: m.point },
-                from,
-                to: Infinity,
-              });
-          }
-      for (const held of person.holds)
-        if (held.prop === subject)
-          out.push({
-            subject: person.performer.subject,
-            side: held.side,
-            from: held.from,
-            to: held.until,
-          });
-      for (const segment of [...person.segments, ...person.overlays])
-        for (const c of segment.plan.contacts)
-          if (
-            c.kind === "grip" &&
-            c.support.kind === "prop" &&
-            c.support.subject === subject &&
-            (c.part === "leftHand" || c.part === "rightHand")
-          ) {
-            const from: number = Math.max(
-              segment.entryTime,
-              segment.start + c.from * segment.plan.duration,
-            );
-            const to: number = Math.min(
-              segment.end,
-              segment.start + c.to * segment.plan.duration,
-            );
-            if (to >= from)
-              out.push({
-                subject: person.performer.subject,
-                side: c.part === "leftHand" ? "left" : "right",
-                from,
-                to,
-                ...(c.inHand === undefined ? {} : { inHand: c.inHand }),
-              });
-          }
-    }
-    // A worn span lasts until the first grip that starts after it.
-    for (const w of worn) {
-      for (const g of out)
-        if (g.from > w.from + 1e-9 && g.from < w.to) w.to = g.from;
-      out.push(w);
-    }
-    out.sort(
-      (
-        a: IAutoMovieMotionHumanPerformanceState.IGrip,
-        b: IAutoMovieMotionHumanPerformanceState.IGrip,
-      ): number => a.from - b.from,
-    );
-    if (!self.resolving) self.gripCache.set(subject, out);
-    return out;
+    return HumanPerformanceGrips.of(self, subject);
   }
 
-  /** A hand's grip-socket frame: the socket's point with the hand bone's world rotation. */
+  /**
+   * A hand's grip-socket point with the hand bone's world rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the sided hand socket and world-frame result at film seconds.
+   * @evidence contracts/development/implementation.md#principled-implementation Composes the body's actual grip socket with its displayed canonical bones through HumanPropHold.frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup, one private fresh-bones read and one socket-frame composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual grip socket's bone and offset and ordered FK admission; observational resolution preserves that bone's exact displayed frame rather than substituting a wrist origin.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation, the socket bone's FK ancestry and one rigid-frame composition; unrelated FK outputs are not built.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already resolved person and same fresh-bones adapter as bones(); its one query-owned rig/FK preparation reaches displayed fitting and final socket FK, without sharing bone maps across queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous preparation releases on return or throw and no frame retains it; the returned frame keeps HumanPropHold.frame's existing value ownership.
+   */
   export function hand(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieRigidTransform {
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
     return HumanPropHold.frame(
-      HumanPerformanceRead.person(self, subject).performer.body,
-      HumanPerformanceRead.bones(self, subject, seconds),
+      person.performer.body,
+      placedBones(
+        person,
+        seconds,
+        new Set([
+          person.performer.body.surfaces.sockets[
+            side === "left" ? "gripLeft" : "gripRight"
+          ].bone,
+        ]),
+      ),
       { side },
     );
   }
@@ -301,23 +315,37 @@ export namespace HumanPerformanceRead {
    * composition still holds actions of theirs to place, because the answer
    * would change once they are placed; with none left, the person stays
    * where the last action put them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States film-second root/yaw reading, unresolved-future refusal and held terminal posture. The axis may be a fixed parameter name or an error-only lazy formatter, used synchronously only for that refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Checks the same placed endpoint and remaining-intent count before reading the selected raw posture's root and heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person, apply the existing availability refusal, then use the private placed-posture reader once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the 1e-9 availability allowance, refusal fields and feasible-range rounding; no future action or displayed offset is substituted for the raw path.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, constant availability bookkeeping and at most S reverse entry comparisons, followed by the selected plan's root-channel demand; other primitive writers run only when a root contributor declares their dependency.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares raw-posture selection with posture() and keeps the already resolved person instead of looking it up again.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores nothing; the returned wrapper is fresh while its position retains the selected posture's existing vector reference.
    */
   export function root(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string,
+    axis: string | (() => string),
   ): IAutoMovieMotionHumanActionContext.IRoot {
-    const person: IAutoMovieMotionHumanSegment.IPerson =
-      HumanPerformanceRead.person(self, subject);
-    const last: IAutoMovieMotionHumanSegment | undefined =
-      person.segments.at(-1);
+    const person: IAutoMovieMotionHumanSegment.IPerson = available(self, subject, seconds, axis);
+    const posture: IAutoMovieMotionHumanPosture = placedPosture(person, seconds, ["root"]);
+    return { position: posture.root, yaw: posture.yaw };
+  }
+
+  /** Apply the original unresolved-future refusal without evaluating a raw posture. */
+  function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
+    axis: string | (() => string)): IAutoMovieMotionHumanSegment.IPerson {
+    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
-        axis,
+        axis: typeof axis === "function" ? axis() : axis,
         value: subject,
         feasible: {
           kind: "range",
@@ -330,23 +358,27 @@ export namespace HumanPerformanceRead {
             ? "none of their actions is placed"
             : `their placed actions end at ${last.end.toFixed(2)} s with ${last.name}`
         }, and ${left} more of theirs come later in the composition`,
-        fix: `compose ${subject}'s actions before self one: put their chain first in the parallel group, or join both chains with a mutual action`,
+        fix: `compose ${subject}'s actions before this one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
-    const posture: IAutoMovieMotionHumanPosture = HumanPerformanceRead.posture(
-      self,
-      subject,
-      seconds,
-    );
-    return { position: posture.root, yaw: posture.yaw };
+    return person;
   }
 
-  /** A person by subject, or an error naming the performers. */
+  /**
+   * A person by subject, or a refusal listing the available performers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States subject lookup and the actionable alternatives on a miss.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the resolved people Map by the actual subject id and uses the existing missing-participant refusal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one absent branch and the original person return.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A miss never falls back to another performer or a generic body.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(1) on a hit; a miss copies U known subject keys for the refusal and formats their text.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads current state directly without a second participant cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Adds no state on a hit and returns the borrowed person; an error owns its newly collected alternatives array.
+   */
   export function person(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanSegment.IPerson {
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
-      self.people.get(subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(subject);
     if (person === undefined)
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
@@ -354,25 +386,50 @@ export namespace HumanPerformanceRead {
     return person;
   }
 
-  /** The place of an intent in the film: its performer, its action and which occurrence of the action's id this is. */
+  /**
+   * Locate an intent by performer, action and next occurrence of its id.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the performer/action fields and one-based occurrence among matching carrier and overlay ids.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses anchor or capability as the id and counts every matching already placed carrier and overlay before adding this occurrence.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional person lookup and two ordered counting loops precede one result assembly.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves duplicate ids and the initial occurrence of one for an unknown or unplaced person; no array is reordered or record deduplicated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S+L) comparisons for S carriers and L overlays, with O(1) auxiliary space instead of concatenation/filter arrays and repeated Map lookups.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Counts from the same resolved person once without retaining a mutable occurrence index between placements.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a fresh scalar/string location record.
+   */
   export function where(
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
   ): IAutoMovieMotionHumanRefusal.IWhere {
     const id: string = intent.anchor ?? intent.capability;
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(
+      intent.subject,
+    );
+    let instance: number = 1;
+    if (person !== undefined) {
+      for (const segment of person.segments)
+        if (segment.id === id) ++instance;
+      for (const overlay of person.overlays)
+        if (overlay.id === id) ++instance;
+    }
     return {
       performer: intent.subject,
       act: intent.capability,
-      instance:
-        [
-          ...(self.people.get(intent.subject)?.segments ?? []),
-          ...(self.people.get(intent.subject)?.overlays ?? []),
-        ].filter((s: IAutoMovieMotionHumanSegment): boolean => s.id === id)
-          .length + 1,
+      instance,
     };
   }
 
-  /** The refusal of a performer or prop the performance does not hold, listing the ones it does. */
+  /**
+   * Construct the missing-performer or missing-prop refusal with alternatives.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the refused object kind, id, supplied alternatives and optional caller-specific axis.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing HumanRefusal representation so kind, axis, value, alternatives, explanation and repair remain consistent with its formatted message.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One typed refusal construction owns no lookup or numerical evaluation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves prop affordance versus participant kind, the default axis and supplied alternatives; does not invent a fallback result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Record assembly is constant work before HumanRefusal formats the K alternatives and their text.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each failure describes its actual inputs; no mutable Error or alternatives snapshot is memoized.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The new error retains the supplied alternatives reference through its feasible record; this constructor stores no global state or handle.
+   */
   export function missing(
     what: "performer" | "prop",
     subject: string,
@@ -387,5 +444,32 @@ export namespace HumanPerformanceRead {
       reason: `the performance has no ${what} named ${subject}`,
       fix: `name one of the performance's ${what}s, or add ${subject} to them`,
     });
+  }
+
+  /** The raw active posture of an already resolved person, before layers. */
+  function placedPosture(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+  ): IAutoMovieMotionHumanPosture {
+    const active: IAutoMovieMotionHumanSegment | undefined =
+      HumanSegmentSelection.last(person.segments, seconds);
+    return active === undefined
+      ? person.initial
+      : active.plan.posture(
+          Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
+          channels,
+        );
+  }
+
+  /** Fresh demanded bones of an already resolved person's displayed pose (`HumanSegmentShown.bones`); never stores a bone map. */
+  function placedBones(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    bound?: Parameters<typeof HumanSegmentShown.bones>[4],
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return HumanSegmentShown.bones(person, seconds, requested, prepared, bound);
   }
 }

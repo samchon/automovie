@@ -1,4 +1,7 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import {
+  physicalShapeSegmentDistance,
+  preparePoseResolution,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
@@ -21,33 +24,56 @@ import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
  * and each site's touched collider and normal. What a waypoint holds is
  * built once per waypoint, so a refinement of the same arms reads only the
  * waypoints it adds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed arm setup, per-waypoint frames, original allowances, ordinary fresh setup and explicit unchanged-operation setup preparation with borrowed metadata lifetime.
+ * @evidence contracts/development/design.md#principled-representation Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One problem record and one numerical builder serve ordinary contexts and a prepared static-setup reader used by actual following/refinement work; no caller-supplied setup verdict is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
  */
 export namespace HumanArmTrajectoryContext {
-  /** What the context is built from: the trajectory's problem, or a still configuration of it. */
+  /** What the context is built from: the trajectory's problem, or a still configuration of it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines body, seconds, original base frames, arm contact inputs and the still flag; coordinate and contact meanings remain with the geometry/model owners.
+   * @evidence contracts/development/design.md#principled-representation Ordered per-arm sites and per-second bases describe the same deterministic trajectory whose coordinates are optimized.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every input is read by the setup, waypoint, rest or allowed-pair construction.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Borrows the original body, poses and declarations without replacing unmet contacts or widening joint ranges; parallel time/base/site lengths remain caller premises.
+   */
   export interface IProblem {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
+
     /** The waypoints' seconds. */
     times: readonly number[];
+
     /** What every arm is read against at each waypoint. */
     bases: readonly G.IBase[];
+    /** Native body geometry for the authored hand support, when present. */
+    material?: M.IMaterialSource;
+
     /** The arms. */
     arms: readonly {
       /** The arm. */
       side: "left" | "right";
+
       /** The arm at the first waypoint, and the arm the allowances are read from at every waypoint but a fixed last one. */
       rest: IAutoMovieMotionHumanArmClearance.IArm;
+
       /** The arm at the last waypoint, which the allowances there are read from when the waypoint is fixed; `rest` when absent. */
       back?: IAutoMovieMotionHumanArmClearance.IArm;
+
       /** Its site at each waypoint, on the hold. */
       sites: readonly (M.ISite | undefined)[];
+
       /** Its segments' declared rests over the hold. */
       rests?: readonly M.IRest[];
+
       /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
       grasp?: readonly M.Segment[];
+
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
       anchor?: IAutoMovieMotionHumanArmClearance.IArm;
     }[];
+
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
   }
@@ -58,14 +84,45 @@ export namespace HumanArmTrajectoryContext {
    * @param problem The problem.
    * @param previous The context of the same arms on other waypoints, an earlier reading of the trajectory a refinement splits: a waypoint at a second it read, on the same base and with the same sites, keeps what was built there (its frames, the arm resting there placed, each probe's allowances, each site's touched collider and normal), so only the new waypoints are read.
    * @returns The context.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies original problem inputs, continued-waypoint reuse and returned fixed context.
+   * @evidence contracts/development/implementation.md#principled-implementation Prepares actual arm charts, hard intervals and contact geometry; exact same-base FK dependencies may share completed math across arms while every pose still receives full ordered admission and fresh outputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map and is created only when an actual frame miss requests it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps arm/time order, original reference depths, bidirectional declared rests, grasp exemptions, still/open endpoints and hard-box rounding behavior; the shared FK reader is never retained in a context or reused at another second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. An all-hit frame map allocates no resolution reader or FK maps. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
    */
   export function of(problem: IProblem, previous?: M.IContext): M.IContext {
+    return built(problem, previous);
+  }
+
+  /**
+   * Bind genuine arm setup metadata for one unchanged-body trajectory operation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Copies fixed side order, prepares actual native setups and returns current-problem readers; body/rig/ROM mappings and returned borrowed setup metadata stay unchanged until release.
+   * @evidence contracts/development/implementation.md#principled-implementation Arm charts, effective ROM, rest and mobile-axis metadata depend on fixed body/side rather than waypoint poses/sites, so only those invariants are prepared once; each current frame/allowance still builds normally.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed native setup producer feeds the same private builder as ordinary of; changed body/side domains select its original fresh setup path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller-provided setup/index/verdict is accepted, and no pose, waypoint, physical query, box bound or candidate is dropped; ordinary of retains current-input preparation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q contexts, fixed setup axes/ROM preparation costs O(A*B) once for A arms/B rig bones instead of Q repetitions; every dynamic frame/contact/allowance query and output remains actual, with unmeasured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged body/canonical mappings and copied ordered sides establish only static setup equivalence. Current problem frames, sites, rests and previous-waypoint matching retain their owning builder.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns A native setups and copied sides until release; the reader stores no current problem/context, pose, FK reader or queried time. Returned contexts borrow fixed setups under the same unchanged-operation contract.
+   */
+  export function prepare(body: IAutoMovieMotionHumanBody, sides: readonly ("left" | "right")[]):
+    (problem: IProblem, previous?: M.IContext) => M.IContext {
+    const names: readonly ("left" | "right")[] = [...sides];
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = names.map((side: "left" | "right"): IAutoMovieMotionHumanArmGeometry.ISetup => G.prepare(body, side));
+    return (problem: IProblem, previous?: M.IContext): M.IContext => built(problem, previous,
+      problem.body === body && problem.arms.length === names.length &&
+      names.every((side: "left" | "right", index: number): boolean => problem.arms[index]!.side === side) ? setups : undefined);
+  }
+
+  /** Share only explicitly fixed native setups; all current waypoint geometry remains actual. */
+  function built(problem: IProblem, previous?: M.IContext, prepared?: IAutoMovieMotionHumanArmGeometry.ISetup[]): M.IContext {
     const n: number = problem.times.length;
     const alone: boolean = problem.arms.length === 1;
-    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = problem.arms.map(
-      (
-        arm: IProblem["arms"][number],
-      ): IAutoMovieMotionHumanArmGeometry.ISetup =>
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = prepared ?? problem.arms.map(
+      (arm: IProblem["arms"][number]): IAutoMovieMotionHumanArmGeometry.ISetup =>
         G.prepare(problem.body, arm.side),
     );
     const rest: number[][] = problem.arms.map(
@@ -76,14 +133,12 @@ export namespace HumanArmTrajectoryContext {
       (arm: IProblem["arms"][number], a: number): number[] =>
         G.encode(setups[a]!, arm.back ?? arm.rest),
     );
-    const free: number[][] = setups.map(
-      (setup: IAutoMovieMotionHumanArmGeometry.ISetup): number[] => {
-        const out: number[] = [];
-        for (let d: number = 0; d < G.DIMENSIONS; ++d)
-          if (setup.free[d]!) out.push(d);
-        return out;
-      },
-    );
+    const free: number[][] = setups.map((setup: IAutoMovieMotionHumanArmGeometry.ISetup): number[] => {
+      const out: number[] = [];
+      for (let d: number = 0; d < G.DIMENSIONS; ++d)
+        if (setup.free[d]!) out.push(d);
+      return out;
+    });
     const offset: number[] = [];
     let width: number = 0;
     for (const f of free) {
@@ -111,11 +166,16 @@ export namespace HumanArmTrajectoryContext {
       (previous === undefined ? undefined : STORES.get(previous)) ?? new Map();
     const points: W.IWaypoint[] = problem.times.map(
       (t: number, k: number): W.IWaypoint => {
+        let reader: ReturnType<typeof preparePoseResolution> | undefined;
+        const prepared: (() => ReturnType<typeof preparePoseResolution>) | undefined = setups.length > 1
+          ? (): ReturnType<typeof preparePoseResolution> => {
+              if (reader === undefined) reader = preparePoseResolution();
+              return reader;
+            }
+          : undefined;
         const frames: IAutoMovieMotionHumanArmGeometry.IFrame[] = setups.map(
-          (
-            setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-          ): IAutoMovieMotionHumanArmGeometry.IFrame =>
-            HumanArmFrame.of(setup, problem.bases[k]!, alone),
+          (setup: IAutoMovieMotionHumanArmGeometry.ISetup): IAutoMovieMotionHumanArmGeometry.IFrame =>
+            HumanArmFrame.of(setup, problem.bases[k]!, alone, prepared),
         );
         const sites: (M.ISite | undefined)[] = problem.arms.map(
           (arm: IProblem["arms"][number]): M.ISite | undefined => arm.sites[k],
@@ -124,8 +184,7 @@ export namespace HumanArmTrajectoryContext {
         if (
           known !== undefined &&
           known.frames.every(
-            (f: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): boolean =>
-              f === frames[a],
+            (f: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): boolean => f === frames[a],
           ) &&
           known.sites.every(
             (s: M.ISite | undefined, a: number): boolean => s === sites[a],
@@ -144,20 +203,11 @@ export namespace HumanArmTrajectoryContext {
       },
     );
     const frames: IAutoMovieMotionHumanArmGeometry.IFrame[][] = setups.map(
-      (
-        _: IAutoMovieMotionHumanArmGeometry.ISetup,
-        a: number,
-      ): IAutoMovieMotionHumanArmGeometry.IFrame[] =>
-        points.map(
-          (p: W.IWaypoint): IAutoMovieMotionHumanArmGeometry.IFrame =>
-            p.frames[a]!,
-        ),
+      (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): IAutoMovieMotionHumanArmGeometry.IFrame[] =>
+        points.map((p: W.IWaypoint): IAutoMovieMotionHumanArmGeometry.IFrame => p.frames[a]!),
     );
     const sites: (M.ISite | undefined)[][] = setups.map(
-      (
-        _: IAutoMovieMotionHumanArmGeometry.ISetup,
-        a: number,
-      ): (M.ISite | undefined)[] =>
+      (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): (M.ISite | undefined)[] =>
         points.map((p: W.IWaypoint): M.ISite | undefined => p.sites[a]),
     );
 
@@ -165,7 +215,7 @@ export namespace HumanArmTrajectoryContext {
     // contact is one pair whichever way it is read, so a rest an arm
     // declares on the other arm's segment admits that segment's probes in
     // the first arm too, as the audit reads the deeper of the two.
-    const declared = (
+    const declared: M.IContext["rested"] = (
       a: number,
       k: number,
       probe: number,
@@ -202,32 +252,34 @@ export namespace HumanArmTrajectoryContext {
     // that segment; an external collider has no own-body reference. An axis
     // sphere keeps the depth the arm resting at the waypoint has
     // (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
-    const give = (rested: boolean): number => (rested ? 0 : T.DEPTH);
-    const corner = (
+    const give: (rested: boolean) => number = (rested: boolean): number =>
+      rested ? 0 : T.DEPTH;
+    const corner: (
       a: number,
       k: number,
       probe: number,
       part: number,
-    ): number =>
+    ) => number = (a: number, k: number, probe: number, part: number): number =>
       AutoMovieMotionHumanAuditTangleModel.reference(
         model,
         frames[a]![k]!.segments[probe - G.SURFACE]!,
         part,
       )[frames[a]![k]!.corners[probe - G.SURFACE]!]!;
 
-    // Each memo is the waypoint's own, one map per arm keyed by the pair's
+    // Each memo is the waypoint's own, one array per arm indexed by the pair's
     // two indices as one number, since the pair readings ask it for every
     // probe and shape at every iterate.
-    const allowed = (
+    const allowed: M.IContext["allowed"] = (
       a: number,
       k: number,
       probe: number,
       shape: number,
     ): number => {
       const point: W.IWaypoint = points[k]!;
+      const memo: Float64Array = (point.allowed[a] ??= W.memo(point.frames[a]!, point.frames[a]!.shapes.length));
       const key: number = probe * point.frames[a]!.shapes.length + shape;
-      let v: number | undefined = point.allowed[a]!.get(key);
-      if (v === undefined) {
+      let v: number = key < memo.length ? memo[key]! : NaN;
+      if (Number.isNaN(v)) {
         const frame: IAutoMovieMotionHumanArmGeometry.IFrame = point.frames[a]!;
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         const rested: number = give(declared(a, k, probe, s.bone));
@@ -241,13 +293,13 @@ export namespace HumanArmTrajectoryContext {
             point.placed[a]!.probes[probe]!;
           v = Math.min(0, S.gap(frame, shape, p, p) - r) - rested;
         }
-        point.allowed[a]!.set(key, v);
+        if (key < memo.length) memo[key] = v;
       }
       return v;
     };
 
     // A probe of one arm against a collider of the other, both at rest.
-    const between = (
+    const between: M.IContext["between"] = (
       a: number,
       k: number,
       probe: number,
@@ -255,11 +307,11 @@ export namespace HumanArmTrajectoryContext {
       bone: string,
     ): number => {
       const point: W.IWaypoint = points[k]!;
+      const memo: Float64Array = (point.between[a] ??= W.memo(point.frames[a]!, point.colliders[1 - a]!.length));
       const key: number = probe * point.colliders[1 - a]!.length + shape;
-      let v: number | undefined = point.between[a]!.get(key);
-      if (v === undefined) {
-        const s: IAutoMovieMotionHumanArmGeometry.IShape =
-          point.colliders[1 - a]![shape]!;
+      let v: number = key < memo.length ? memo[key]! : NaN;
+      if (Number.isNaN(v)) {
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = point.colliders[1 - a]![shape]!;
         const rested: number = give(declared(a, k, probe, bone));
         if (probe >= G.SURFACE) v = -corner(a, k, probe, s.part) - rested;
         else {
@@ -271,7 +323,7 @@ export namespace HumanArmTrajectoryContext {
               physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r,
             ) - rested;
         }
-        point.between[a]!.set(key, v);
+        if (key < memo.length) memo[key] = v;
       }
       return v;
     };
@@ -280,7 +332,7 @@ export namespace HumanArmTrajectoryContext {
     // every pair both ways, so own-body corners keep their reference depth
     // in the arm's segments as the arm's keep theirs in the body. External
     // frame parts lie beyond the body's model and keep no reference depth.
-    const lying = (
+    const lying: M.IContext["lying"] = (
       a: number,
       k: number,
       own: "upperArm" | "lowerArm" | "hand",
@@ -290,30 +342,28 @@ export namespace HumanArmTrajectoryContext {
       (problem.arms[a]!.rests ?? []).some(
         (r: M.IRest): boolean => r.part === own && r.on === bone,
       );
-    const collider = (
+    const collider: (
+      a: number,
+      k: number,
+      shape: number,
+    ) => IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] = (
       a: number,
       k: number,
       shape: number,
     ): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] => {
       const point: W.IWaypoint = points[k]!;
       let list:
-        | IAutoMovieMotionHumanArmGeometry.IFrame["colliders"]
-        | undefined = point.flat[a];
+        | IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] | undefined = point.flat[a];
       if (list === undefined) {
         list = point.frames[a]!.colliders.flatMap(
-          (
-            col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number],
-          ): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] =>
-            col.shapes.map(
-              (): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] =>
-                col,
-            ),
+          (col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number]): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] =>
+            col.shapes.map((): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] => col),
         );
         point.flat[a] = list;
       }
       return list[shape]!;
     };
-    const inside = (
+    const inside: M.IContext["inside"] = (
       a: number,
       k: number,
       corner: number,
@@ -323,10 +373,8 @@ export namespace HumanArmTrajectoryContext {
       const key: number = shape * point.frames[a]!.body.length + corner;
       let v: number | undefined = point.inside[a]!.get(key);
       if (v === undefined) {
-        const body: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number] =
-          point.frames[a]!.body[corner]!;
-        const col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] =
-          collider(a, k, shape);
+        const body: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number] = point.frames[a]!.body[corner]!;
+        const col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] = collider(a, k, shape);
         const own: "upperArm" | "lowerArm" | "hand" =
           col.owner === "upper"
             ? "upperArm"
@@ -347,19 +395,38 @@ export namespace HumanArmTrajectoryContext {
     };
 
     const context: M.IContext = {
+      ...(problem.material === undefined ? {} : {
+        material: {
+          parts: problem.material.bones.map((bone) => model.parts.findIndex((part) => part.bone === bone)),
+          frame: (a: number, seconds: number): IAutoMovieMotionHumanArmGeometry.IFrame =>
+            HumanArmFrame.of(setups[a]!, problem.material!.at(seconds), alone),
+        },
+      }),
       n,
       still: problem.still === true,
       open,
-      ...(problem.arms.some((arm): boolean => arm.anchor !== undefined)
+      ...(problem.arms.some(
+        (arm: IProblem["arms"][number]): boolean => arm.anchor !== undefined,
+      )
         ? {
-            anchor: problem.arms.map((arm, a: number): number[] | undefined =>
-              arm.anchor === undefined
-                ? undefined
-                : G.encode(setups[a]!, arm.anchor),
+            anchor: problem.arms.map(
+              (
+                arm: IProblem["arms"][number],
+                a: number,
+              ): number[] | undefined =>
+                arm.anchor === undefined
+                  ? undefined
+                  : G.encode(setups[a]!, arm.anchor),
             ),
           }
         : {}),
       times: problem.times,
+      // The law's pace the laid course sets (`HumanArmTrajectoryLaid`), kept
+      // by a refinement of the same arms; none read yet bounds nothing.
+      speed: previous?.speed ?? ((): number => Infinity),
+      // A stretch's course beyond its ends, kept by the contexts of the same
+      // stretch.
+      ...(previous?.beyond === undefined ? {} : { beyond: previous.beyond }),
       setups,
       frames,
       sites,
@@ -369,10 +436,8 @@ export namespace HumanArmTrajectoryContext {
       offset,
       width,
       bounds: setups.map(
-        (
-          setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-          a: number,
-        ): ([number, number] | null)[] => boxes(setup, rest[a]!, back[a]!),
+        (setup: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): ([number, number] | null)[] =>
+          boxes(setup, rest[a]!, back[a]!),
       ),
       allowed,
       between,
@@ -391,17 +456,16 @@ export namespace HumanArmTrajectoryContext {
       inside,
       lying,
       normals: setups.map(
-        (
-          _: IAutoMovieMotionHumanArmGeometry.ISetup,
-          a: number,
-        ): (IAutoMovieVector3 | undefined)[] =>
+        (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): (IAutoMovieVector3 | undefined)[] =>
           points.map(
             (p: W.IWaypoint): IAutoMovieVector3 | undefined => p.normals[a],
           ),
       ),
-      touched: setups.map(
-        (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[] =>
-          points.map((p: W.IWaypoint): number => p.touched[a]!),
+      touched: setups.map((_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[] =>
+        points.map((p: W.IWaypoint): number => p.touched[a]!),
+      ),
+      reachable: setups.map((_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[][] =>
+        points.map((p: W.IWaypoint): number[] => p.reachable[a]!),
       ),
       rested: declared,
     };

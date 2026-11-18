@@ -32,6 +32,7 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surface and shape unions and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanArm {
+
   /** {@link AutoMovieMotionHumanArmTarget.origin}. */
   export const origin: typeof AutoMovieMotionHumanArmTarget.origin =
     AutoMovieMotionHumanArmTarget.origin;
@@ -43,6 +44,10 @@ export namespace AutoMovieMotionHumanArm {
   /** {@link AutoMovieMotionHumanArmTarget.goal}. */
   export const goal: typeof AutoMovieMotionHumanArmTarget.goal =
     AutoMovieMotionHumanArmTarget.goal;
+
+  /** Fixed-geometry goal producer owned by AutoMovieMotionHumanArmTarget.prepareGoal. */
+  export const prepareGoal: typeof AutoMovieMotionHumanArmTarget.prepareGoal =
+    AutoMovieMotionHumanArmTarget.prepareGoal;
 
   /** {@link AutoMovieMotionHumanArmAngles.angles}. */
   export const angles: typeof AutoMovieMotionHumanArmAngles.angles =

@@ -52,10 +52,7 @@ export namespace HumanGraspWorn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
    */
   export function key(props: {
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "start"
-    >;
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "start">;
     held: IAutoMovieMotionHumanPropReader;
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;
@@ -66,7 +63,7 @@ export namespace HumanGraspWorn {
     round?: boolean;
     clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
   }): IAutoMovieMotionHumanGrasp.IKey {
-    const { context, held, tip, at, site } = props;
+    const { context, held, tip, at, site }: typeof props = props;
     const world: IAutoMovieRigidTransform = held.frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
@@ -89,7 +86,7 @@ export namespace HumanGraspWorn {
         props.wrist.point,
       ),
     );
-    const keyed = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
+    const keyed: (degrees: number) => IAutoMovieMotionHumanHand.IWrist = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
       const worn: IAutoMovieRigidTransform = HumanWorn.frame(
         context.body,
         context.entry.posture,
@@ -122,7 +119,7 @@ export namespace HumanGraspWorn {
     // would lie inside the body there, added as a cost. Each turn is
     // fitted once, however often the search comes back to it.
     const fitted: Map<number, number> = new Map();
-    const missed = (degrees: number): number => {
+    const missed: (degrees: number) => number = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
       const wrist: IAutoMovieMotionHumanHand.IWrist = keyed(degrees);
@@ -137,6 +134,8 @@ export namespace HumanGraspWorn {
       const hand: IAutoMovieResolvedBone = poseBones(
         context.body,
         resolveHumanPosture(context.body, { ...posture, limbs }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
       ).get(`${props.side}Hand`)!;
       const kept: number =
         props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));
@@ -156,22 +155,26 @@ export namespace HumanGraspWorn {
     // A round thing's turn about the region is a wrapped freedom of the
     // shared chooser, tried every `ROUND` degrees round, nearest facing
     // the body's way first; any other is worn facing it.
-    const seeds: number[] = [0];
-    if (props.round === true)
-      for (let k: number = ROUND; k <= 180; k += ROUND)
-        seeds.push(...(k < 180 ? [k, -k] : [k]));
+    const seeds: number[] =
+      props.round === true ? HumanFreedomChoice.turns(ROUND, props.side) : [0];
     const turned: number = HumanFreedomChoice.chosen({
       tried: seeds.map((degrees: number): number[] => [degrees]),
       freedoms: [
         {
           kind: "wrapped",
-          step: props.round === true ? ROUND : 0,
+          step:
+            props.round === true
+              ? props.side === "left"
+                ? -ROUND
+                : ROUND
+              : 0,
           period: 360,
         },
       ],
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
     const chosen: IAutoMovieMotionHumanHand.IWrist = keyed(turned);
+    fitted.clear();
     return {
       posture: context.entry.posture,
       wrist: chosen,

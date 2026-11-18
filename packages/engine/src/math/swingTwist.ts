@@ -36,23 +36,51 @@ export function swingTwist(
   rotation: IAutoMovieQuaternion,
   axis: IAutoMovieVector3,
 ): IAutoMovieSwingTwist.IResult {
-  const unit: IAutoMovieVector3 = Vector3.normalize(axis);
-  const along: number =
-    rotation.x * unit.x + rotation.y * unit.y + rotation.z * unit.z;
-  const length: number = Math.hypot(along, rotation.w);
+  const twist: IAutoMovieQuaternion | null = swingTwist.twist(rotation, axis);
   // A half turn about a perpendicular axis projects to nothing: no twist is defined.
-  if (length < 1e-12)
+  if (twist === null)
     return { swing: { ...rotation }, twist: Quaternion.identity() };
-  const twist: IAutoMovieQuaternion = {
-    x: (unit.x * along) / length,
-    y: (unit.y * along) / length,
-    z: (unit.z * along) / length,
-    w: rotation.w / length,
-  };
   return {
     swing: Quaternion.normalize(
       Quaternion.multiply(rotation, Quaternion.inverse(twist)),
     ),
     twist,
   };
+}
+
+/**
+ * The twist part alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the one companion reader and who reads it.
+ * @evidence contracts/development/design.md#principled-representation The twist is the same quaternion `swingTwist` returns; null stands for its undefined case.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, shared by `swingTwist` and the swing-twist range's reading.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No second projection: `swingTwist` takes its twist from this reader.
+ */
+export namespace swingTwist {
+  /**
+   * The twist of `swingTwist` alone, for a reader that discards the swing
+   * (a swing-twist range reads the swing from where the axis goes): the same
+   * projection and renormalisation, or null where the projection vanishes
+   * and `swingTwist` returns the identity twist.
+   *
+   * @param rotation A unit quaternion.
+   * @param axis The twist axis; need not be unit length.
+   * @returns The twist, or null where it is undefined.
+   */
+  export function twist(
+    rotation: IAutoMovieQuaternion,
+    axis: IAutoMovieVector3,
+  ): IAutoMovieQuaternion | null {
+    const unit: IAutoMovieVector3 = Vector3.normalize(axis);
+    const along: number =
+      rotation.x * unit.x + rotation.y * unit.y + rotation.z * unit.z;
+    const length: number = Math.hypot(along, rotation.w);
+    if (length < 1e-12) return null;
+    return {
+      x: (unit.x * along) / length,
+      y: (unit.y * along) / length,
+      z: (unit.z * along) / length,
+      w: rotation.w / length,
+    };
+  }
 }

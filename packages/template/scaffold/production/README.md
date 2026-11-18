@@ -1,6 +1,6 @@
 # {{name}}
 
-Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible motion hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion.
+Use an LLM to author a complete screenplay and program its motion, staging and camera in 3D. Assemble the result as a reproducible motion hint or finish it as a direct 3D or generated film. Start with the polygon man prepared by the installed Human package and [coarse forms]({{skills}}/development/entities.md#coarse-first) for the other subjects.
 
 ## First run
 
@@ -46,15 +46,11 @@ With `pnpm run dev` running, `pnpm run review --url <inspector-address> --second
 
 ## Physical performance
 
-[Physical feedback]({{skills}}/motion/physical-feedback.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits.
+[Physical feedback]({{skills}}/motion/physical-feedback.md) defines when to simulate. Read the installed Engine's README and types for its simulation and playback APIs.
 
 `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, 256 MiB at most by default. Keep the archive as a [stage cache]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the Engine's physical playback, which checks it against the current input's identity.
 
 Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProduction.ts` hands it to the inspection in every host, and `marks=joint,bone,contact` draws its skeleton and contact forces. The starter's empty scene supplies none.
-
-## Make a motion hint
-
-Follow the [production workflow]({{skills}}/production/workflow.md) for the requested output and its delivery checks.
 
 ## Commands
 

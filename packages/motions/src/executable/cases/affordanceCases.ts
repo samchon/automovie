@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -154,9 +155,16 @@ export function affordanceCases(
           Vector3.length(travel) < 1e-6
             ? 180
             : (Math.acos(
-                Math.min(
-                  1,
-                  Vector3.dot(Vector3.normalize(travel), { x: 0, y: 0, z: 1 }),
+                Math.max(
+                  -1,
+                  Math.min(
+                    1,
+                    Vector3.dot(Vector3.normalize(travel), {
+                      x: 0,
+                      y: 0,
+                      z: 1,
+                    }),
+                  ),
                 ),
               ) *
                 180) /
@@ -173,10 +181,15 @@ export function affordanceCases(
       if (mechanism.kind === "knob") {
         const turn = (t: number) =>
           performance.bones("a", t).get("rightHand")!.worldRotation;
-        const delta = Quaternion.multiply(
+        // The shorter of the two quaternions of one rotation (w >= 0), so a
+        // turn reads within a half circle either way and not as its
+        // complement past it.
+        const raw: IAutoMovieQuaternion = Quaternion.multiply(
           turn(end),
           Quaternion.inverse(turn(start)),
         );
+        const delta: IAutoMovieQuaternion =
+          raw.w < 0 ? { x: -raw.x, y: -raw.y, z: -raw.z, w: -raw.w } : raw;
         const twist: number =
           (2 *
             Math.atan2(

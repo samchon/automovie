@@ -21,6 +21,6 @@ export interface IAutoMovieMotionHumanFlightTurns {
   /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
   frame?: IAutoMovieQuaternion;
 
-  /** The largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot (`HumanPerformanceFlight`). */
+  /** Under physical policy, the largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot. Staged rotation makes no impulse or conservation claim and does not use this physical ceiling. */
   maximum?: number;
 }

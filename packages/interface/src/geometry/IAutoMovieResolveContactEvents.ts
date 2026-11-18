@@ -5,7 +5,7 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
  *
  * @evidence contracts/development/common.md#meaningful-documentation World-metre sphere/capsule and body queries share a seconds clock and weapon-ID stop map. Departure uses a discriminated certificate union; optional tail, axis and taper combinations still need compatible caller-supplied geometry.
  * @evidence contracts/development/design.md#principled-representation World-metre sphere/capsule and body queries share a seconds clock and weapon-ID stop map.
- * @evidence contracts/development/design.md#minimal-and-owned-surface resolveAutoMovieContactEvents consumes caller-owned geometric readers and emits weapon/body contact seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface resolveAutoMovieContactEvents consumes caller-owned geometric readers and emits weapon/body contact seconds. A search's grid and the speed bound on it let each side state its own certified bound per search.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Departure uses a discriminated certificate union; optional tail, axis and taper combinations still need compatible caller-supplied geometry.
  */
 export namespace IAutoMovieResolveContactEvents {
@@ -26,6 +26,22 @@ export namespace IAutoMovieResolveContactEvents {
    * @evidence contracts/development/design.md#principled-representation One initial pair carries its nonpositive metre gap, seconds search span, current stops and ungated gap reader.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The resolver passes this state to the body's optional departure certifier before first-impact search.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The at reader reports actual pair geometry; a departure certificate cannot be inferred from sparse distance samples alone.
+   */
+  export interface IWeaponFrame {
+    /** Sphere centre or capsule axis's first end, world metres. */
+    position: IAutoMovieVector3;
+
+    /** Capsule axis's other end, world metres; absent exactly when the declared weapon has no tail. */
+    tail?: IAutoMovieVector3;
+  }
+
+  /**
+   * Actual initial pair state, with an ungated reader of its signed gap.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IInitialContact: Actual initial pair state, with an ungated reader of its signed gap.
+   * @evidence contracts/development/design.md#principled-representation One record of weapon, from, to, stops, gap, at.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieResolveContactEvents contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
    */
   export interface IInitialContact {
     /** The sphere or capsule whose already-present contact is being classified. */
@@ -79,6 +95,46 @@ export namespace IAutoMovieResolveContactEvents {
       };
 
   /**
+   * The seconds one search reads: `from + k * step` for k = 0, 1, 2, ...,
+   * the last of them clipped to `to`. A search after a contact starts its
+   * grid at that contact's second, so each search has its own.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the grid's seconds, the clipped last step and that each search after a contact has its own grid.
+   * @evidence contracts/development/design.md#principled-representation A first second, a span end and a positive step are exactly what determines the seconds a search reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The resolver hands it to a weapon's and a body's speed readers, which prepare their bound for that search.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second is cached; a positive finite step remains the resolver's admission.
+   */
+  export interface IGrid {
+    /** The search's first second. */
+    from: number;
+
+    /** The span's end, where the last step is clipped. */
+    to: number;
+
+    /** The step, seconds; positive. */
+    step: number;
+  }
+
+  /**
+   * A bound on a search's grid, metres a second, between two of its seconds
+   * `from` and `to`: for any two grid seconds a < b in [from, to], no point
+   * of the weapon's sphere or capsule, or of the body's surface, moves more
+   * than the bound times b - a from a to b. Finite and not negative, or
+   * undefined where none is certified. Only the grid's seconds are bound,
+   * because the scan reads no other second where it advances.
+   *
+   * @param from A grid second.
+   * @param to A later second.
+   * @returns The bound, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both seconds, the metre-a-second bound over grid seconds only and the undefined uncertified case.
+   * @evidence contracts/development/design.md#principled-representation A reader of one interval's bound, so a side that holds still only for a while can state a tighter bound there.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `IWeapon.speed` and `IBody.speed`; the first-impact scan reads it where it advances.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a certified bound may be returned; undefined keeps every grid step read.
+   */
+  export type Speed = (from: number, to: number) => number | undefined;
+
+  /**
    * One moving weapon.
    *
    * @evidence contracts/development/common.md#meaningful-documentation A world-metre centre and optional tail describe a sphere or capsule with a finite seconds live span. Tail and tailRadius remain optional to preserve existing sphere, uniform-capsule and tapered-capsule uses; compatible combinations need runtime/caller admission.
@@ -104,11 +160,50 @@ export namespace IAutoMovieResolveContactEvents {
      */
     tailRadius?: number;
 
+    /**
+     * The weapon's speed bound on one search's grid (`Speed`), prepared once
+     * a search under that search's stops. With it, and a body's own, the gap
+     * between the two closes on the grid no faster than the two bounds
+     * together, so a clear gap rules out a contact at the grid seconds
+     * within that gap over that rate, and the scan reads none of them. The
+     * scan asks it from a grid second it read over a window that doubles
+     * from one grid step, at most to the weapon's live end (with the
+     * body's over the same window), so it is read no farther than twice
+     * what it certifies. A
+     * bound that a point exceeds lets a contact be missed, so only a
+     * certified one is stated; absent, every grid step is read.
+     *
+     * @param grid The search's grid.
+     * @param stops The stops of the search.
+     * @returns The bound's reader.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the caller's physical-model readers own the certified bound under the documented grid premise.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; the caller's physical-model readers own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; an uncertified bound stays undefined by contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; the caller's physical-model readers own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; the reader is prepared once a search by the caller.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; the returned reader lives for its search.
+     */
+    speed?(
+      grid: IAutoMovieResolveContactEvents.IGrid,
+      stops: IAutoMovieResolveContactEvents.IStops,
+    ): IAutoMovieResolveContactEvents.Speed;
+
     /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
     from?: number;
 
     /** When it stops being live, seconds, finite and not before `from`; it meets nothing after, whatever its path says. The span's end when absent. */
     to?: number;
+
+    /**
+     * The rigid part this weapon is one capsule of, such as the three
+     * capsules of one striking arm: when any weapon of a group stops, the
+     * part stops as a whole, so the group's other weapons meet nothing after
+     * that second and produce no event of their own. Absent, the weapon stops
+     * alone.
+     */
+    group?: string;
 
     /**
      * The sphere's centre on its free path at a second, world metres.
@@ -151,6 +246,22 @@ export namespace IAutoMovieResolveContactEvents {
       seconds: number,
       stops: IAutoMovieResolveContactEvents.IStops,
     ): IAutoMovieVector3;
+
+    /**
+     * Produce the actual endpoints together for this exact second and current
+     * stops. When present, replaces position and tail calls for a geometry
+     * query; tail presence must agree with the weapon's declared kind. The
+     * resolver retains no sample across queries or changes to stops.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IWeapon.sample: Produce the actual endpoints together for this exact second and current stops.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies sample and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
+    sample?(seconds: number, stops: IStops): IWeaponFrame;
   }
 
   /**
@@ -164,6 +275,32 @@ export namespace IAutoMovieResolveContactEvents {
   export interface IBody {
     /** Its id, matching the `owner` of the weapons it carries. */
     id: string;
+
+    /**
+     * The body's speed bound on one search's grid (`Speed`), prepared once a
+     * search under that search's stops and read with a weapon's own
+     * (`IWeapon.speed`), over the same doubling window from a grid second
+     * the scan read and before the weapon's, so a body that holds still
+     * only for a while is still bound there and one that cannot be bound
+     * costs the weapon no read; absent, every
+     * grid step is read against this body.
+     *
+     * @param grid The search's grid.
+     * @param stops The stops of the search.
+     * @returns The bound's reader.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the caller's physical-model readers own the certified bound under the documented grid premise.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; the caller's physical-model readers own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; an uncertified bound stays undefined by contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; the caller's physical-model readers own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; the reader is prepared once a search by the caller.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; the returned reader lives for its search.
+     */
+    speed?(
+      grid: IAutoMovieResolveContactEvents.IGrid,
+      stops: IAutoMovieResolveContactEvents.IStops,
+    ): IAutoMovieResolveContactEvents.Speed;
 
     /**
      * Certify departure of an already-present pair only when its physical

@@ -101,7 +101,7 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States every residual's unit and the convergence outcome.
    * @evidence contracts/development/design.md#principled-representation Residuals are measured after the fitted variables are written, not taken from a linear subproblem.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Posture, convergence reason and each requested constraint family's residuals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Posture, feasibility, convergence reason and each requested constraint family's residuals.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Unmet constraints remain visible even when the numerical loop stops.
    */
   export interface IResult {
@@ -118,6 +118,9 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
 
     /** How far the centre of mass lies outside the base of support, millimetres; nought when inside or unasked. */
     balance: number;
+
+    /** Whether every requested physical constraint holds at the returned posture to the fit's existing row tolerance. */
+    feasible: boolean;
 
     /** Whether the loop settled (its model's own accuracy or a step under the least) at a posture meeting every row to the tolerance. */
     converged: boolean;

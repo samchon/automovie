@@ -4,6 +4,7 @@ import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { IAutoMovieSkeletonTopology } from "../pose/IAutoMovieSkeletonTopology";
 import type { IAutoMovieSwivelNear } from "../pose/IAutoMovieSwivelNear";
+import type { IAutoMovieSwivelSeed } from "../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
@@ -14,7 +15,7 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * The current pose retains its non-chain joints; a prior pose only ranks
  * equally accurate bend choices. The solver owns no replacement rig limits.
  *
- * @evidence contracts/development/design.md#principled-representation Supplies a reachable descendant two-bone chain, current pose and target in the same resolved model-metre frame; fitChainToTarget scores clamped FK residual under the rig's effective ROM and uses a prior pose only to rank equivalent residual buckets.
+ * @evidence contracts/development/design.md#principled-representation The optional placed field distinguishes a previously selected legal pole from an uncommitted direction hint. Supplies a reachable descendant two-bone chain, current pose and target in the same resolved model-metre frame; fitChainToTarget scores clamped FK residual under the rig's effective ROM and uses a prior pose only to rank equivalent residual buckets.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One input groups the rig, its pre-indexed topology and the shared clinical mappings so IK inversion, ROM and residual FK use the same semantics.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No replacement constraint or target offset is embedded in this input; missing or degenerate chain preparation leaves the current pose unchanged rather than synthesizing a rig.
  * @evidence contracts/development/common.md#meaningful-documentation States target frame, unchanged non-chain joints, no-improvement identity and continuity-only prior-pose meaning; the topology must belong to the unchanged supplied skeleton.
@@ -104,6 +105,18 @@ export interface IAutoMovieFitChainToTargetProps {
   ) => number;
 
   /**
+   * Whether `bend` is the mid joint's place a completed elbow search chose
+   * for this target (`AutoMovieMotionHumanBend.solve`), not merely a side to
+   * bend toward: the fit then starts its local search at the swivel that puts
+   * the mid joint there (the pole) and returns its legal result, sweeping only
+   * where that is not legal, so the place is searched once. Absent, a hinted
+   * fit with a requested rotation accepts its local start only where the
+   * rotation is met and sweeps otherwise.
+   *
+   */
+  placed?: boolean;
+
+  /**
    * The effector's model-frame rotation, as `resolvePose` reports world
    * rotations; omitted, the effector keeps the pose's own angles.
    */
@@ -136,4 +149,13 @@ export interface IAutoMovieFitChainToTargetProps {
    * a seed from `fitSeededChainToTarget`.
    */
   near?: IAutoMovieSwivelNear;
+
+  /**
+   * A seed a caller holds for a swept (not continued) fit, the branch and
+   * swivel it chose for a nearby target: never the answer by itself, only a
+   * legal candidate whose exact score starts the bounded sweep's stop, kept
+   * only where the sweep's own choice is legal and no worse than it, so the
+   * answer is the sweep's either way. Ignored with `near`.
+   */
+  incumbent?: IAutoMovieSwivelSeed;
 }

@@ -37,10 +37,10 @@ export namespace IAutoMovieMotionHumanFlinch {
   /**
    * Parameters.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the threat's target and the intensity's range and default.
-   * @evidence contracts/development/design.md#principled-representation The threat is the interface's motion-target union and the intensity a share in (0, 1], checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state the threat target/default, intensity range/default and shared manner's explicit intensity precedence.
+   * @evidence contracts/development/design.md#principled-representation The threat is the existing target union; optional intensity and shared manner feed the original modifier admission rather than another reaction-specific parameter record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Plan reads all three inputs: threat, optional top-level intensity and optional shared manner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and shared manner contract without a performer-specific threat or replacement intensity rule.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */

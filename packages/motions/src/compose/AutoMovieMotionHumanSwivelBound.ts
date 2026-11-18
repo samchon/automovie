@@ -1,4 +1,4 @@
-import { Vector3, swivelArcs } from "@automovie/engine";
+import { Vector3, hingedArmSwivel, swivelArcs } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -41,18 +42,25 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidence contracts/development/implementation.md#principled-implementation The posed trunk carries the shoulder; the lengths are the rig's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve and three reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and `poseBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual limb-free canonical solve keeps direct joint admission and only proven requested-goal selection, followed by shoulder/elbow/wrist FK ancestry/output.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit local reader shares exact canonical/FK prerequisites; the posture and FK numerical owners retain every required actual operation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The three-name demand, pose/map and local lazy reader end on return/throw; only original shoulder/length values escape.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanSwivelBound.IArm {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+    ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      posture,
+      resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined,
+        resolution, requested).pose,
+      resolution(),
+      requested,
     );
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)!.worldPosition;
@@ -68,10 +76,68 @@ export namespace AutoMovieMotionHumanSwivelBound {
   }
 
   /**
+   * Whether an arm can place its wrist with the elbow inside half-plane
+   * bounds: the wrist within the arm's reach, and some swivel on the circle
+   * it leaves the elbow outside every bound's refused arc. An exact
+   * necessary condition of any fit that reaches the wrist with its elbow in
+   * the bounds, so a search may drop a candidate it refuses before fitting.
+   *
+   * @param of The arm.
+   * @param point The wrist's place, world metres.
+   * @param bounds The half-planes.
+   * @returns Whether a reaching elbow in the bounds exists.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two conditions and what a search may conclude.
+   * @evidence contracts/development/implementation.md#principled-implementation The same circle and exact refused arcs as `bounded` (`swivelArcs`): the union covering every swivel, or no circle at all, leaves no reaching elbow in the bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The reach, the circle, one sinusoid per bound, their union.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots; the reach is `bounded`'s, a wrist on its edge or beyond leaving no circle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bound, no fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The circle and the sinusoid arcs `bounded` builds, through the engine's fit, arcs and union (`swivelArcs`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function admits(
+    of: IAutoMovieMotionHumanSwivelBound.IArm,
+    point: IAutoMovieVector3,
+    bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
+  ): boolean {
+    const { shoulder, upper, lower } = of;
+    const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
+    const distance: number = Vector3.length(reach);
+    if (!(distance > 1e-9) || distance >= upper + lower || distance <= Math.abs(upper - lower))
+      return false;
+    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const foot: number = (upper * upper - lower * lower + distance * distance) / (2 * distance);
+    const radius: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
+
+    // Any direction across the line serves as the swivel's zero: the union
+    // covering every swivel does not depend on where the turn starts.
+    const across: IAutoMovieVector3 = Vector3.cross(line,
+      Math.abs(line.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 });
+    const u: IAutoMovieVector3 = Vector3.normalize(across);
+    const v: IAutoMovieVector3 = Vector3.cross(line, u);
+    const at: (swivel: number) => IAutoMovieVector3 = (swivel: number): IAutoMovieVector3 => {
+      const r: number = (swivel * Math.PI) / 180;
+      return Vector3.add(Vector3.scale(line, foot),
+        Vector3.scale(Vector3.add(Vector3.scale(u, Math.cos(r)), Vector3.scale(v, Math.sin(r))), radius));
+    };
+    const refused: IAutoMovieSwivelArcs.IArc[] = [];
+    for (const bound of bounds) {
+      const past: (elbow: IAutoMovieVector3) => number = (elbow: IAutoMovieVector3): number =>
+        -(Vector3.dot(bound.normal, Vector3.subtract(elbow, Vector3.subtract(bound.point, shoulder))) - bound.margin);
+      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+        swivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))), 0);
+      if (arc === "all") return false;
+      if (arc !== null) refused.push(arc);
+    }
+    return swivelArcs.union(refused) !== "all";
+  }
+
+  /**
    * An elbow hint kept inside half-plane bounds: the hint itself when its
    * swivel meets them all, else the place on its circle at the nearest
-   * swivel that does. The hint is kept when no swivel meets them all, or the
-   * wrist leaves no circle.
+   * swivel that does, stood the swivel's resolution
+   * (`hingedArmSwivel.RESOLUTION`) inside that end. The hint is kept when no
+   * swivel meets them all, or the wrist leaves no circle.
    *
    * @param of The arm.
    * @param point The wrist's place, world metres.
@@ -79,8 +145,8 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @param bounds The half-planes.
    * @returns The hint, world metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the choice and the cases that keep the hint.
-   * @evidence contracts/development/implementation.md#principled-implementation Each bound is an exact sinusoid of the swivel, its refused arc between its roots; the nearest swivel outside their union is the least move that meets them all.
+   * @evidence contracts/development/common.md#meaningful-documentation States the choice, the step inside and the cases that keep the hint.
+   * @evidence contracts/development/implementation.md#principled-implementation Each bound is an exact sinusoid of the swivel, its refused arc between its roots; the nearest swivel outside their union is the least move that meets them all. That end lies on a bound, and a fit keeps a hint's swivel only to its own resolution, so a hint at the end left the fitted elbow on either side of the bound (a drink refused at a flexion of 67.50 against at most 67.5); the hint stands that resolution inside, unless that enters another refused arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circle, one sinusoid per bound, their union and its nearest swivel.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep and no sampling beyond the exact three-point fit.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bound.
@@ -134,10 +200,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
     ];
     // How far past a bound an elbow lies, from its offset from the
     // shoulder, refused where positive.
-    const past = (
-      bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane,
-      at: IAutoMovieVector3,
-    ): number =>
+    const past = (bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane, at: IAutoMovieVector3): number =>
       -(
         Vector3.dot(
           bound.normal,
@@ -157,19 +220,20 @@ export namespace AutoMovieMotionHumanSwivelBound {
       if (arc === "all") return hint;
       if (arc !== null) refused.push(arc);
     }
-    const swivel: number | null = swivelArcs.nearest(
-      swivelArcs.union(refused),
-      0,
-    );
-    return swivel === null || swivel === 0
-      ? hint
-      : Vector3.add(shoulder, offset(swivel));
+    const merged: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union(refused);
+    const end: number | null = swivelArcs.nearest(merged, 0);
+    if (end === null || end === 0) return hint;
+
+    // The nearest end lies on a bound, where a fit that keeps the hint's
+    // swivel to its own resolution (`hingedArmSwivel.RESOLUTION`) lands on
+    // either side of it; the hint stands that resolution inside, away from
+    // the refused arc, unless that enters another.
+    const inside: number =
+      end + Math.sign(end) * hingedArmSwivel.RESOLUTION;
+    const swivel: number = swivelArcs.covers(merged, inside, inside)
+      ? end
+      : inside;
+    return Vector3.add(shoulder, offset(swivel));
   }
 
-  /** The posture's bones with no limb fitted. */
-  const trunk = (
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-    poseBones(body, resolveHumanPosture(body, { ...posture, limbs: {} }));
 }

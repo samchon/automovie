@@ -6,6 +6,7 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePose } from "./IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
+import type { IAutoMovieSkeletonPoseResolution } from "./IAutoMovieSkeletonPoseResolution";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 
 /**
@@ -49,6 +50,9 @@ export namespace IAutoMovieCurlChainUntilContact {
 
     /** Topology of the same skeleton, reused across evaluations. */
     topology?: IAutoMovieSkeletonTopology;
+
+    /** Explicit immutable rig of this same skeleton/axes/frames/topology. The synchronous curl fixes root and non-current-chain records; each chain prepares its actual first trial then admits complete current-chain edits. Absent, raw full-walk resolution preserves live-input behavior. */
+    resolution?: IAutoMovieSkeletonPoseResolution.IRig;
   }
 
   /**

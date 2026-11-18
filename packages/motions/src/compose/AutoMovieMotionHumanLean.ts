@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -23,7 +24,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a lean tips, about what, why the hips move back and what the legs do.
  * @evidence contracts/development/design.md#principled-representation A lean is a pitch about the hip joint with a horizontal hip shift that keeps the centre of mass over the base of support, the counter-movement of standing balance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), and the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The tipped posture (`tip`), the balanced lean (`bow`), the small tilt about the root that needs no balance (`tilt`), the tilt about the hips (`pivot`) with the sway over planted feet built on it (`sway`), and the tilt about any world point (`about`), which the ankle tips of a broken base and a resisted pull read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hip shift is solved by the balance owner on the body and never stated as a constant.
  */
 export namespace AutoMovieMotionHumanLean {
@@ -43,17 +44,13 @@ export namespace AutoMovieMotionHumanLean {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function tilt(
-    props: IAutoMovieMotionHumanLean.ITilt,
-  ): IAutoMovieMotionHumanPrimitive {
+  export function tilt(props: IAutoMovieMotionHumanLean.ITilt): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["trunk"],
+      reads: ["trunk"],
       from: props.from,
       to: props.to,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const more: IAutoMovieMotionHumanLean.IAngles = props.angles(seconds);
         return {
           ...posture,
@@ -109,6 +106,48 @@ export namespace AutoMovieMotionHumanLean {
   }
 
   /**
+   * A posture turned rigidly about a world point: the pitch and the roll are
+   * added and the root is moved so the point keeps its place in the body's
+   * own frame. A body tipped about its ankles (a broken base, a lean against
+   * a pull) turns so, its planted legs then solved again at the ankles.
+   *
+   * @param posture The posture.
+   * @param point The point turned about, world metres.
+   * @param more The pitch and the roll added, degrees.
+   * @returns The turned posture; the posture's own root and heading when nothing is added.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is added, what stays in place and the frame and unit of each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The point is read in the posture's root frame by the inverse of its heading; the new root is the point less that offset turned by the tilted heading, a rotation of the whole body about the point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inverse-rotated offset, one rotated offset and one subtraction, as `pivot` does about the hips.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset is read from the posture's own root and heading, so a posture that already leans, bends or sways keeps its root where no tilt is added.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture.heading`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function about(
+    posture: IAutoMovieMotionHumanPosture,
+    point: IAutoMovieVector3,
+    more: IAutoMovieMotionHumanLean.IAngles,
+  ): IAutoMovieMotionHumanPosture {
+    const own: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(resolveHumanPosture.heading(posture)),
+      Vector3.subtract(point, posture.root),
+    );
+    const tilted: IAutoMovieMotionHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + more.pitch,
+      roll: posture.roll + more.roll,
+    };
+    return {
+      ...tilted,
+      root: Vector3.subtract(
+        point,
+        Quaternion.rotateVector(resolveHumanPosture.heading(tilted), own),
+      ),
+    };
+  }
+
+  /**
    * The body swayed over its feet: tilted about the hips, the hips carried
    * over the floor, and the root lowered until both planted legs reach their
    * feet. This is the lean of a body that keeps its feet where they are (a
@@ -122,20 +161,18 @@ export namespace AutoMovieMotionHumanLean {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `pivot`, one floor-frame translation and one `resolveHumanPosture.lower`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The travel's height is discarded and the written posture keeps its own limbs: the legs given are read for the height only.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `pivot`, `HumanFrame.point` and `resolveHumanPosture.lower`, the owner of a planted leg's reach.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses pivot/floor transforms and lower's original planted-leg rule. The actual write borrows its host FK source only through the current two-hip observation; declared inputs retain root/trunk and both leg goals while independent head/arm writers can be omitted from a demanded prefix.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function sway(
-    props: IAutoMovieMotionHumanLean.ISway,
-  ): IAutoMovieMotionHumanPrimitive {
+  export function sway(props: IAutoMovieMotionHumanLean.ISway): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root", "trunk"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: props.from,
       to: props.to,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<typeof resolveHumanPosture.lower>[3]): IAutoMovieMotionHumanPosture => {
         const tilted: IAutoMovieMotionHumanPosture = pivot(
           props.body,
           posture,
@@ -149,13 +186,10 @@ export namespace AutoMovieMotionHumanLean {
           ...tilted,
           root: Vector3.add(tilted.root, travel),
         };
-        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-          props.body,
-          {
-            ...moved,
-            limbs: { ...moved.limbs, ...props.legs?.(seconds) },
-          },
-        );
+        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(props.body, {
+          ...moved,
+          limbs: { ...moved.limbs, ...props.legs?.(seconds) },
+        }, undefined, resolution);
         return { ...moved, root: lowered.root };
       },
     };
@@ -185,19 +219,13 @@ export namespace AutoMovieMotionHumanLean {
     back: number,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const frame: IAutoMovieMotionHumanFrame = {
-      origin: posture.root,
-      yaw: posture.yaw,
-    };
+    const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
     const target: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y,
       z: hips.z - back,
     });
-    const tipped: IAutoMovieMotionHumanPosture = {
-      ...posture,
-      pitch: posture.pitch + pitch,
-    };
+    const tipped: IAutoMovieMotionHumanPosture = { ...posture, pitch: posture.pitch + pitch };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(tipped),
       hips,
@@ -206,7 +234,8 @@ export namespace AutoMovieMotionHumanLean {
   }
 
   /**
-   * A bow: the trunk pitched by a share of a peak, the hips moved back by the
+   * A bow: the trunk pitched by a share of a peak, and with the balance option
+   * (`IAutoMovieMotionHumanBalance`, off by default) the hips moved back by the
    * balance shift solved once at the peak ({@link HumanBalance.shift}) and
    * scaled between by the pitch's sine, the lever of the trunk's weight ahead
    * of the hips.
@@ -225,27 +254,34 @@ export namespace AutoMovieMotionHumanLean {
    */
   export function bow(
     props: IAutoMovieMotionHumanLean.IBow,
+    window: HumanPhysics.Window = HumanPhysics.prepare(
+      props, { balance: { by: "hips" } }, 0, { duration: props.to, events: [] },
+    ),
   ): IAutoMovieMotionHumanPrimitive {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
+    if (window?.by === "trunk")
+      HumanPhysics.unsupported(window.by, "the bow prescribes the trunk pitch and counterbalances with the hips");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
-    const lean: number =
-      HumanBalance.shift(
-        props.body,
-        (back: number): IAutoMovieMotionHumanPosture =>
-          tip(props.body, props.standing, props.peak, back),
-      ) / sine(props.peak);
+    // Without the balance option the hips stay where they stand: no centre
+    // of mass is read.
+    let lean: number | undefined;
     return {
       channels: ["root", "trunk"],
+      reads: ["root", "trunk"],
       from: props.from,
       to: props.to,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const pitch: number =
           props.peak * Math.min(1, Math.max(0, props.weight(seconds)));
-        return tip(props.body, posture, pitch, lean * sine(pitch));
+        const weight: number = HumanPhysics.weightAt(window, seconds);
+        if (weight === 0 || pitch === 0) return tip(props.body, posture, pitch, 0);
+        lean ??= HumanBalance.shift(
+          props.body,
+          (back: number): IAutoMovieMotionHumanPosture =>
+            tip(props.body, props.standing, props.peak, back),
+        ) / sine(props.peak);
+        return tip(props.body, posture, pitch, lean * sine(pitch) * weight);
       },
     };
   }

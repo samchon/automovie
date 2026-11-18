@@ -2,7 +2,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
-  IAutoMovieBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -16,6 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -56,15 +56,12 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame (inverse(hand) times prop), the offset the performance itself keeps while the grip holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The fact of holding, then one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop that is not in the hand is refused instead of being carried from where it lies.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the entry pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK admits all authored joints and computes only HumanHand.frameBones' actual grip-frame dependencies; unrelated world frames are omitted.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
     side: "left" | "right",
     prop: string,
   ): IAutoMovieMotionHumanHeld.IHeld {
@@ -91,18 +88,14 @@ export namespace AutoMovieMotionHumanHeld {
           kind: "alternatives",
           values: (["left", "right"] as const).filter(
             (other: "left" | "right"): boolean =>
-              context.body.skeleton.bones.some(
-                (bone: IAutoMovieBone): boolean => bone.bone === `${other}Hand`,
-              ),
+              readHumanBone(context.body, `${other}Hand`) !== undefined,
           ),
         },
         reason: `the body has no ${side}Hand bone to hold ${prop} in`,
         fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
       });
     if (
-      !context.body.skeleton.bones.some(
-        (bone: IAutoMovieBone): boolean => bone.bone === `${side}Hand`,
-      )
+      readHumanBone(context.body, `${side}Hand`) === undefined
     )
       throw handless();
     const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
@@ -110,6 +103,8 @@ export namespace AutoMovieMotionHumanHeld {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      HumanHand.frameBones(context.body, side, "grip"),
     );
     const rotation: IAutoMovieQuaternion | undefined = bones.get(
       `${side}Hand`,
@@ -253,9 +248,7 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grip(
-    held: IAutoMovieMotionHumanHeld.IHeld,
-  ): IAutoMovieMotionHumanContactWindow {
+  export function grip(held: IAutoMovieMotionHumanHeld.IHeld): IAutoMovieMotionHumanContactWindow {
     return {
       part: `${held.side}Hand`,
       kind: "grip",
@@ -267,7 +260,8 @@ export namespace AutoMovieMotionHumanHeld {
 
   /**
    * The hold the prop is left in when the action ends, with the fingers the
-   * hand had closed on it at the entry.
+   * hand had closed on it at the entry and the use that grip was chosen for,
+   * since the grip is the same one.
    *
    * @param context The action's context.
    * @param held The held prop.
@@ -285,11 +279,13 @@ export namespace AutoMovieMotionHumanHeld {
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     held: IAutoMovieMotionHumanHeld.IHeld,
   ): IAutoMovieMotionPropHold {
+    const use: IAutoMovieMotionPropHold["use"] = context.entry.uses[held.side];
     return {
       side: held.side,
       prop: held.prop,
       from: 0,
       fingers: HumanGrip.fingers(context.entry.pose, held.side),
+      ...(use === undefined ? {} : { use }),
     };
   }
 }

@@ -149,7 +149,6 @@ export function test_construction_conic_projective(): void {
   if (red.length === 0)
     failures.push("a made0.01 slope error passed the projective reader");
   rawReuse(failures, work);
-  console.log({ conicReuseWork: work });
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} conic projective findings:\n${failures.join("\n")}`,

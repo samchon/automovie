@@ -1,18 +1,18 @@
 # Contacts and supports
 
-A contact is a touch point held against slip.
+A contact can be a touch event or a constraint held over a window.
 
 ## Windows and support frames
 
-Declare each contact's window and support frame. Measure slip and penetration in that frame.
+Declare which surfaces may touch and when, including approach, first touch and release where they matter. Anchor a retained contact to the body or carrier that owns the surface so it follows that surface in motion. Measure slip and penetration in its frame from the displayed transforms.
 
 Transfer weight to the next support before releasing the current one.
 
 ## Feet
 
-Plant the foot at its actual contact points: ball, heel or both.
+Plant the foot at the contact points the phase uses, such as ball, heel or both.
 
-A heel lift rotates the foot about the metatarsophalangeal axis with the ball fixed in the world, the forefoot rocker of Perry's Gait Analysis. Measure swing clearance at the lowest point of the toe and sole, not at the ankle.
+A heel lift rotates the foot about the metatarsophalangeal axis with the ball fixed in the support frame, the forefoot rocker of Perry's Gait Analysis. Measure swing clearance at the lowest point of the toe and sole.
 
 Plan travel in whole steps. Use about 0.41 of stature for a normal step (Murray, Drought and Kory 1964; Grieve and Gear 1966). Shorten the first and last steps.
 
@@ -34,7 +34,7 @@ At a handover, the object stays held throughout:
 
 Compute one shared contact target from both bodies' reach and give it to both performers.
 
-Judge contact at each performer's displayed pose. When a stop changes a displayed pose, recompute contacts against it or solve both performers together at each instant.
+Resolve contact stops against both performers' displayed paths during preparation. A stop that changes a path changes all subsequent contact candidates involving that path.
 
 Preserve action duration, events and decisive instant when applying a contact stop. Resolve stops in time order so each sees earlier ones.
 

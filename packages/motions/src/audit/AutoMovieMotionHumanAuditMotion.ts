@@ -2,6 +2,14 @@ import type { IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMoti
 
 /** Contact-window and sample-grid readers for the canonical motion-audit contract. */
 export namespace AutoMovieMotionHumanAuditMotion {
+  /** Random access to the audit lattice including its optional final endpoint. */
+  export interface IGrid {
+    /** Number of sampled instants. */
+    length: number;
+    /** Film second at a zero-based index in this grid. */
+    at(index: number): number;
+  }
+
   /**
    * Every declared contact window of a person in film seconds: a window's
    * shares are of its action's own duration from the action's start, and the
@@ -44,12 +52,31 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * @throws {Error} When the rate is not positive or the span is reversed.
    */
   export function grid(from: number, to: number, rate: number): number[] {
+    const indexed: IGrid = lattice(from, to, rate);
+    const out: number[] = [];
+    for (let i: number = 0; i < indexed.length; ++i) out.push(indexed.at(i));
+    return out;
+  }
+
+  /**
+   * Index the same audit grid without visiting any of its samples.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Same lattice and endpoint rule as grid.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes the count of regular ticks and preserves the optional endpoint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each query is one indexed regular tick or the final endpoint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Same origin and tolerance as the materialized grid.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup and indexed access with no materialized array.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both whole-grid and sparse consumers use identical sample clocks.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only numeric terms.
+   */
+  export function lattice(from: number, to: number, rate: number): IGrid {
     if (!(rate > 0)) throw new Error("An audit grid needs a positive rate");
     if (!(to >= from)) throw new Error("An audit grid needs from <= to");
-    const out: number[] = [];
     const count: number = Math.floor((to - from) * rate + 1e-9);
-    for (let i: number = 0; i <= count; i++) out.push(from + i / rate);
-    if (to - out[out.length - 1]! > 1e-9) out.push(to);
-    return out;
+    const endsBetweenTicks: boolean = to - (from + count / rate) > 1e-9;
+    return {
+      length: count + (endsBetweenTicks ? 2 : 1),
+      at: (index: number): number => (index <= count ? from + index / rate : to),
+    };
   }
 }

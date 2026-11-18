@@ -73,11 +73,6 @@ export function test_construction_source_binding_equality(): void {
           reads: number;
           allowed: number;
         }[] = work(chains);
-        console.log({
-          sourceBindingNumericReads: readings,
-          scope:
-            "observable ordered leaf access only; internal arithmetic complexity remains a static review obligation",
-        });
         for (const reading of readings)
           if (reading.reads !== reading.allowed)
             failures.push(

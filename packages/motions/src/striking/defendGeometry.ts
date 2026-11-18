@@ -1,9 +1,16 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanFoot,
@@ -14,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { StrikingBody } from "./StrikingBody";
+import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -85,8 +93,19 @@ export namespace defendGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and contact window types.
    */
   export interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IAutoMovieMotionHumanPosture;
+    /**
+     * The complete posture at action-relative seconds, borrowing only this
+     * synchronous body's optional FK/ROM sources.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative time, unchanged-body query loans, full output and preserved complete posture despite optional channel demand.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual build producer evaluates its original movement envelope, root/trunk evasion, fixed stance feet, guard and selected limb defence on the current posed trunk.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One share drives the base and original limb blends; one current trunk map serves guard and defence goals.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every actual posture projection, original limb/rival fit, contact window, guard and selected defence; channel demand does not omit physical goals.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot hints/contacts and demanded rig names prepare once, while each actual query evaluates its full current posture, FK and original blend loop; no speedup is measured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows genuine query-scoped exact FK/ROM sources without storing them; fixed body/feet/support geometry belongs to the built defence, and every changing root/joint value still reaches native resolution.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry retains fixed stance/sight metadata until plan settle/release; each call returns fresh authored goals and releases its borrowed source/projector and current bone map.
+     */
+    posture: IAutoMovieMotionHumanActionPlan["posture"];
 
     /** The feet's contact windows. */
     contacts: IAutoMovieMotionHumanContactWindow[];
@@ -103,9 +122,9 @@ export namespace defendGeometry {
    * @evidence contracts/development/implementation.md#principled-implementation The weapon is the attacker's limb moving most toward the struck region at the read second; the evasion and the goals follow from the line it comes in on.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The sight, the evasion's displacement, the base posture, then the limbs blended from the guard to the goals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing about contact is decided here; the displacement shares are documented provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two reads of the attacker's bones at the build and constant work per posture beyond the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sight and the displacement are computed once and shared by every posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the sight and the entry's feet for the plan's lifetime only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original two attacker observations remain. Fixed requested-bone metadata and authored foot hints/MTP contacts prepare once; each posture evaluates its envelope once, one actual native trunk and the original guard/limb blends. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed sight, displacement, entry feet and checking support selection belong to this built defence. Only their authored geometry is shared; query-scoped exact FK/ROM loans reach the native current trunk, and no changing pose, fit, actor observation or time answer is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its original sight/feet and fixed demanded-rig/foot-geometry readers until plan settle/release. Every query returns independent authored goals and releases its current map and optional borrowed FK/ROM sources on return or failure.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -115,6 +134,7 @@ export namespace defendGeometry {
     const body = context.body;
     const m = body.measure;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
@@ -122,22 +142,26 @@ export namespace defendGeometry {
 
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
-    const own = StrikingBody.trunk(body, entry);
+    const own = StrikingBody.trunk(body, entry, undefined, new Set<AutoMovieHumanoidBone>([body.surfaces.regions[timing.region].bone]));
     // The point within the region is the strike's own, so the defence goes
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
-    const regionAt = StrikingBody.region(body, own, timing.region, aimed);
+    const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, timing.region, aimed);
+    const regionAt: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+      resolveAutoMovieHumanoidSurfaces.place(frame, own.get(frame.bone)!);
     const attacker: IAutoMovieMotionHumanPerformerReader = context.performer(
       timing.attack.subject,
     );
-    const now = attacker.bones(timing.read);
-    const before = attacker.bones(timing.read - 1 / 24);
+
     const limbs: AutoMovieHumanoidBone[] =
       timing.attack.family === "punch"
         ? ["leftHand", "rightHand"]
         : timing.attack.family === "kick"
           ? ["leftFoot", "rightFoot"]
           : ["leftLowerLeg", "rightLowerLeg"];
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(limbs);
+    const now: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = attacker.bones(timing.read, requested);
+    const before: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = attacker.bones(timing.read - 1 / 24, requested);
     let weapon: IAutoMovieVector3 = now.get(limbs[0]!)!.worldPosition;
     let best: number = -Infinity;
     for (const bone of limbs) {
@@ -176,15 +200,20 @@ export namespace defendGeometry {
 
     // The movement's share in, and out again after the strike has passed.
     const w = (t: number): number =>
-      minimumJerk((t - timing.begin) / timing.movement).s -
-      minimumJerk((t - timing.hold) / timing.recovery).s;
+      minimumJerk.share((t - timing.begin) / timing.movement) -
+      minimumJerk.share((t - timing.hold) / timing.recovery);
 
     // Whole-body evasions: the head's displacement in the trunk's lean and
     // the root's dip and shift.
     const trunkLength: number = m.eyeHeight - m.hipHeight;
     const clear: number = m.headRadius + fist + 0.04;
-    const tilt = (lateral: number): number =>
-      (Math.asin(Math.min(0.9, lateral / trunkLength)) * 180) / Math.PI;
+    // The lean that moves the eyes `lateral` off the hips' vertical; a
+    // displacement past the trunk's own length is no lean at all.
+    const tilt = (lateral: number): number => {
+      if (!(lateral < trunkLength))
+        throw new Error(`A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunkLength.toFixed(3)} m`);
+      return (Math.asin(lateral / trunkLength) * 180) / Math.PI;
+    };
     let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let roll: number = 0;
     let pitch: number = 0;
@@ -216,59 +245,59 @@ export namespace defendGeometry {
     // The stance legs, with the checking leg's foot leaving the floor.
     const checking: "left" | "right" | undefined =
       p.kind === "check" ? attackedSide : undefined;
-    const base = (t: number): IAutoMovieMotionHumanPosture => {
-      const k: number = w(t);
-      const support: IAutoMovieVector3 | undefined =
-        checking === undefined
-          ? undefined
-          : feet[checking === "left" ? "right" : "left"].ankle;
-      const over: IAutoMovieVector3 =
-        support === undefined
-          ? { x: 0, y: 0, z: 0 }
-          : Vector3.scale(
-              {
-                x: support.x - entry.root.x,
-                y: 0,
-                z: support.z - entry.root.z,
-              },
-              0.6,
-            );
+    const support: IAutoMovieVector3 | undefined = checking === undefined
+      ? undefined : feet[checking === "left" ? "right" : "left"].ankle;
+    const over: IAutoMovieVector3 = support === undefined ? { x: 0, y: 0, z: 0 }
+      : Vector3.scale({ x: support.x - entry.root.x, y: 0, z: support.z - entry.root.z }, 0.6);
+    const movement: IAutoMovieVector3 = Vector3.add(shift, over);
+    const shownBones: Set<AutoMovieHumanoidBone> = new Set(StrikingGuardBones(body));
+    shownBones.add(frame.bone);
+
+    if (p.kind === "highBlock") shownBones.add(body.surfaces.regions[attackedSide === "left" ? "templeLeft" : "templeRight"].bone);
+    if (p.kind === "check") shownBones.add(`${attackedSide}UpperLeg`);
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, shownBones);
+    const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet, {
+      left: checking !== "left", right: checking !== "right",
+    });
+    const base: (k: number) => IAutoMovieMotionHumanPosture = (k: number): IAutoMovieMotionHumanPosture => {
       return {
         root: Vector3.add(
           entry.root,
-          Vector3.scale(Vector3.add(shift, over), k),
+          Vector3.scale(movement, k),
         ),
         yaw: entry.yaw,
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
-        joints: { ...entry.joints, ...StrikingStance.joints() },
-        limbs: StrikingStance.legs(body, feet, {
-          left: checking !== "left",
-          right: checking !== "right",
-        }),
+        joints: { ...joints },
+        limbs: legs(),
       };
     };
     return {
       contacts: windows(checking, timing),
-      posture: (t: number): IAutoMovieMotionHumanPosture => {
+      posture: (
+        t: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const k: number = w(t);
-        const posture: IAutoMovieMotionHumanPosture = base(t);
-        const guard = StrikingStance.guard(body, posture, { lead });
+        const posture: IAutoMovieMotionHumanPosture = base(k);
+        const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture, resolution, projection);
+        const guard: ReturnType<typeof StrikingStance.guard> =
+          StrikingStance.guard(body, posture, { lead }, {}, bones);
 
         // Arms and the checking leg as goals on the defender's own body.
-        const target: Partial<IAutoMovieMotionHumanPosture["limbs"]> =
-          defendGoals.at({
-            body,
-            posture,
-            kind: p.kind,
-            region: timing.region,
-            aimed,
-            sight,
-          });
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-          ...posture.limbs,
-          ...guard,
-        };
+        const target: Partial<IAutoMovieMotionHumanPosture["limbs"]> = defendGoals.at({
+          body,
+          posture,
+          kind: p.kind,
+          region: timing.region,
+          aimed,
+          sight,
+          bones,
+          frame,
+        });
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs, ...guard };
         for (const limb of [
           "leftArm",
           "rightArm",

@@ -1,149 +1,171 @@
-import type {
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanBody,
-} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HUMAN_LEXICON_SCHEMAS,
-  HumanChain,
-  HumanPerformance,
+  HumanPerformanceParams,
   HumanRefusal,
 } from "@automovie/motions";
 
 import { LexiconRowNet } from "./LexiconRowNet";
-import { motionHumanBody } from "./motionHumanBody";
+
+/** Families whose positive tests cover defaults by staging the row or verifying its exact dispatch to a tested law. */
+const BARE_FIXTURES: readonly string[] = [
+  "blade",
+  "carried",
+  "drill",
+  "emblem",
+  "firearm",
+  "floorFall",
+  "floorRoll",
+  "gait",
+  "gymnastics",
+  "habit",
+  "labour",
+  "pose",
+  "pursuit",
+  "social",
+  "sport",
+  "sportCarry",
+  "sportGym",
+  "sportSwing",
+  "sportThrow",
+  "sportWorkout",
+  "stageFight",
+  "stance",
+  "sword",
+  "weaponFirearm",
+  "weaponMelee",
+];
+
+/** A region no humanoid declares. */
+const NOWHERE: string = "chest";
 
 /**
- * The net cast over every lexicon row with what an author may leave out or
- * get wrong: each row planned alone with no parameters at all, and each row
- * the lexicon's net gives a region planned with a region no body has
- * (`chest`). A row may plan or refuse; it may never fail as a program does.
- * A refusal must be the grammar's own (`HumanRefusal`), naming its axis,
- * and must not name `undefined` for a value the author did not give.
- * Every row is listed in `HUMAN_LEXICON_SCHEMAS`, whose entry the row's
- * parameters are checked against at its entry.
+ * Missing and invalid-region inputs to the lexicon, verified at the seam
+ * that actually observes each fault.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two casts, what passes and what a refusal must carry.
- * @evidence contracts/development/design.md#principled-representation One walk over the lexicon's rows in a stated order, cut into parts by position, so each part is its own test under the time bound.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cast and its parts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is exempt: rows the lexicon's net stages elsewhere are cast too, since they must refuse without their staging.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two authoring failures and the seam that judges each.
+ * @evidence contracts/development/design.md#principled-representation Parameter admission and law planning are distinct calls, so a refusal of an input shape does not require a prepared performer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One cast for absent input and one for a wrong region on a valid scene.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every row reaches schema admission. A schema refusal ends a probe. Bare rows already covered by positive placement tests or by their default resolver and underlying law are not staged here.
  */
 export namespace LexiconAbsentNet {
-  /** A region no humanoid declares. */
-  export const NOWHERE: string = "chest";
-
-  /** The average man, prepared at the first cast and kept for the test process. */
-  let body: IAutoMovieMotionHumanBody | undefined;
-
-  /** Every row of the lexicon, in family order. */
-  const rows = (): IAutoMovieMotionHumanActionLaw<never>[] =>
-    Object.values(HUMAN_LEXICON).flat();
-
-  /** A value with every `region` in it replaced by {@link NOWHERE}; null when it holds none. */
-  const misplaced = (value: unknown): unknown => {
-    if (Array.isArray(value)) {
-      let found: boolean = false;
-      const out: unknown[] = value.map((item: unknown): unknown => {
-        const replaced: unknown = misplaced(item);
-        if (replaced === null) return item;
-        found = true;
-        return replaced;
-      });
-      return found ? out : null;
-    }
-    if (typeof value !== "object" || value === null) return null;
-    let found: boolean = false;
-    const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
-      if (key === "region" && typeof item === "string") {
-        out[key] = NOWHERE;
-        found = true;
-        continue;
-      }
-      const replaced: unknown = misplaced(item);
-      out[key] = replaced === null ? item : replaced;
-      found ||= replaced !== null;
-    }
-    return found ? out : null;
-  };
-
-  /** Why an outcome is not the grammar's own, or null when it is. */
-  const judge = (caught: unknown): string | null => {
-    if (caught === null) return null;
-    if (!(caught instanceof HumanRefusal))
-      return `${caught instanceof Error ? caught.name : typeof caught}: ${caught instanceof Error ? caught.message : String(caught)}`;
-    if (caught.axis.length === 0)
-      return `a refusal on no axis: ${caught.message}`;
-    if (/\bundefined\b/.test(`${caught.reason} ${caught.fix}`))
-      return `a refusal that names undefined: ${caught.message}`;
-    return null;
-  };
-
   /**
-   * Cast the net over one part of the lexicon's rows.
+   * Exercise absent input for every row, including the rows with no usable
+   * bare-parameter planning case in the positive row tests.
    *
-   * @param part Which rows, as `[index, parts]`: those whose position in the lexicon leaves `index` when divided by `parts`.
-   * @returns One complaint per row and cast that failed as a program or refused without naming what was missing; none when every row plans or refuses as the grammar does.
+   * @returns One complaint per missing schema or invalid refusal.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, how a part is chosen and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each row is built alone on the average man after a short stand with no parameters, and, when the lexicon's net gives it a region, in that net's own scene with every region replaced; the build is the public input, so the refusal read is what an author would see.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the part, two casts per row, one judge.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A part with no row is itself a complaint.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One performance per row and cast.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The average man is prepared once per process, and the region cast reuses the lexicon net's scenes.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each performance is dropped after it is built.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is omitted and what a complaint means.
+   * @evidence contracts/development/implementation.md#principled-implementation A schema refusal ends parameter admission before a law runs. For admitted inputs, positive tests cover the default placement or the resolved sport alias and its underlying action. Other admitted rows are planned alone with the omitted parameters.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over families and rows, with one schema probe and at most one plan per row.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The branch that omits planning is restricted to a refusal before planning or a matching positive case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms No performer or performance is created for rows a schema refuses. Other skipped plans have an identical positive counterpart.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Positive row cases cover default placements or the default parameter mapping to a tested sport law.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each probe holds its outcome only to build its complaint.
    */
-  export function cast(part: readonly [number, number]): string[] {
+  export function bare(): string[] {
     const complaints: string[] = [];
-    const chosen: IAutoMovieMotionHumanActionLaw<never>[] = rows().filter(
-      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
-        index % part[1] === part[0],
-    );
-    if (chosen.length === 0)
-      complaints.push(`part ${part[0]} of ${part[1]} holds no row`);
-
-    // A row the schema file does not list would be planned unchecked.
-    for (const law of chosen)
-      if (HUMAN_LEXICON_SCHEMAS.rows[law.name] === undefined)
-        complaints.push(
-          `${law.name} has no entry in HUMAN_LEXICON_SCHEMAS, so its parameters are not checked at its entry`,
-        );
-    body ??= motionHumanBody("m-average");
-    const laws: IAutoMovieMotionHumanActionLaw<never>[] = rows();
-    for (const law of chosen) {
-      let caught: unknown = null;
-      try {
-        new HumanPerformance({
-          seed: "absent",
-          laws,
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .registered(law.name, {}).node,
-        });
-      } catch (error) {
-        caught = error;
+    for (const [family, rows] of Object.entries(HUMAN_LEXICON)) {
+      for (const law of rows) {
+        const row: string = law.name;
+        if (HUMAN_LEXICON_SCHEMAS.rows[row] === undefined)
+          complaints.push(`${row} has no parameter schema`);
+        const rejected: unknown = admission(row, {});
+        const covered: boolean =
+          BARE_FIXTURES.includes(family) &&
+          !LexiconRowNet.STAGED.includes(row) &&
+          LexiconRowNet.given(row) === undefined;
+        const result: unknown =
+          rejected === null && !covered
+            ? LexiconRowNet.attempt(row, {}, false)
+            : rejected;
+        const defect: string | null = judge(result);
+        if (defect !== null)
+          complaints.push(`${row} with no parameters: ${defect}`);
       }
-      const bare: string | null = judge(caught);
-      if (bare !== null)
-        complaints.push(`${law.name} with no parameters: ${bare}`);
-      const given: object | undefined = LexiconRowNet.given(law.name);
-      const wrong: unknown = given === undefined ? null : misplaced(given);
-      if (wrong === null) continue;
-      const placed: string | null = judge(
-        LexiconRowNet.attempt(law.name, wrong as object),
-      );
-      if (placed !== null)
-        complaints.push(`${law.name} on the region ${NOWHERE}: ${placed}`);
     }
     return complaints;
   }
+
+  /**
+   * Substitute an unknown region wherever the authored positive fixture
+   * supplies a region. Run the actual law if the shape check admits it.
+   *
+   * @returns One complaint per invalid refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the mutation, when a plan runs and what a complaint means.
+   * @evidence contracts/development/implementation.md#principled-implementation Changes only the region strings in the valid scene, using the same partner where there is one. A refused shape and a law's refusal both pass through the same diagnostic check.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One mutation, one admission probe and at most one plan per targeted row.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Skips only rows whose authored fixture supplies no region or whose parameter admission already refuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One walk over fixture inputs and no plan for an already refused shape.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the positive fixture's parameter record and performer staging.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only local copies and diagnostic strings survive their probe.
+   */
+  export function regions(): string[] {
+    const complaints: string[] = [];
+    for (const law of Object.values(HUMAN_LEXICON).flat()) {
+      const row: string = law.name;
+      const given: object | undefined = LexiconRowNet.given(row);
+      const wrong: object | null = misplaced(given);
+      if (wrong === null) continue;
+      const rejected: unknown = admission(row, wrong);
+      const outcome: unknown =
+        rejected === null ? LexiconRowNet.attempt(row, wrong) : rejected;
+      const defect: string | null = judge(outcome);
+      if (defect !== null)
+        complaints.push(`${row} on the region ${NOWHERE}: ${defect}`);
+    }
+    return complaints;
+  }
+}
+
+/** The shape admission used in performance placement, or its thrown refusal. */
+function admission(row: string, given: object): unknown {
+  try {
+    HumanPerformanceParams.check(row, given);
+    return null;
+  } catch (error) {
+    return error;
+  }
+}
+
+/** A copy with authored regions replaced, or null if the value supplies none. */
+function misplaced(value: unknown): object | null {
+  if (typeof value !== "object" || value === null) return null;
+  if (Array.isArray(value)) {
+    const replacements: (object | null)[] = value.map(misplaced);
+    return replacements.some((item: object | null): boolean => item !== null)
+      ? replacements.map(
+          (item: object | null, index: number): unknown => item ?? value[index],
+        )
+      : null;
+  }
+  const replacement: Record<string, unknown> = {};
+  let found: boolean = false;
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "region" && typeof item === "string") {
+      replacement[key] = NOWHERE;
+      found = true;
+    } else {
+      const nested: object | null = misplaced(item);
+      replacement[key] = nested ?? item;
+      found ||= nested !== null;
+    }
+  }
+  return found ? replacement : null;
+}
+
+/** A program error or an incomplete refusal is a defect even for bad input. */
+function judge(thrown: unknown): string | null {
+  if (thrown === null) return null;
+  if (!(thrown instanceof HumanRefusal))
+    return thrown instanceof Error
+      ? `${thrown.name}: ${thrown.message}`
+      : String(thrown);
+  if (
+    thrown.axis.length === 0 ||
+    /\bundefined\b/.test(`${thrown.reason} ${thrown.fix}`)
+  )
+    return thrown.message;
+  return null;
 }

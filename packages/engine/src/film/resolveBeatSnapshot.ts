@@ -244,7 +244,7 @@ function actorAt(
     pose:
       motion === undefined
         ? node.pose
-        : sampleMotion(motion.motion, localTime).pose,
+        : sampleMotion.pose(motion.motion, localTime),
     mount: context.mountByNode.get(node.id) ?? null,
     plants: context.plantsByNode.get(node.id),
     world,

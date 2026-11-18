@@ -114,36 +114,6 @@ export default async function MotionFamilyPage(
                 className="am-panel am-stack"
               >
                 <h2 className="am-mono">{row.name}</h2>
-                {row.parameters === null ? null : row.parameters.length ===
-                  0 ? (
-                  <p className="am-muted">It takes no parameter.</p>
-                ) : (
-                  <div className="am-table-wrap">
-                    <table className="am-table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Parameter</th>
-                          <th scope="col">Type</th>
-                          <th scope="col">Meaning</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {row.parameters.map(
-                          (p: IMotionReference.IParameter): ReactElement => (
-                            <tr key={p.name}>
-                              <td className="am-mono">
-                                {p.name}
-                                {p.required ? "" : "?"}
-                              </td>
-                              <td className="am-mono am-small">{p.type}</td>
-                              <td>{p.description}</td>
-                            </tr>
-                          ),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
                 <p>
                   {use.scenes.length === 0 ? (
                     <span className="am-muted">No scene uses it yet.</span>
@@ -174,6 +144,37 @@ export default async function MotionFamilyPage(
                     </Link>
                   )}
                 </p>
+                {row.parameters === null ? null : row.parameters.length ===
+                  0 ? (
+                  <p className="am-muted">It takes no parameter.</p>
+                ) : (
+                  <details className="am-table-wrap">
+                    <summary>Parameters ({row.parameters.length})</summary>
+                    <table className="am-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Parameter</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Meaning</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {row.parameters.map(
+                          (p: IMotionReference.IParameter): ReactElement => (
+                            <tr key={p.name}>
+                              <td className="am-mono">
+                                {p.name}
+                                {p.required ? "" : "?"}
+                              </td>
+                              <td className="am-mono am-small">{p.type}</td>
+                              <td>{p.description}</td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </details>
+                )}
               </section>
             );
           })}

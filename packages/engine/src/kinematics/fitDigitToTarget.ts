@@ -2,9 +2,11 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieFitDigitDescent,
   IAutoMovieFitDigitToTarget,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieSkeletonTopology,
@@ -16,9 +18,12 @@ import { Vector3 } from "../math/Vector3";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
-import { fitDigitDescent } from "./fitDigitDescent";
+import { descendDigitTasks } from "./descendDigitTasks";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
+import { preparePoseResolution } from "./preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
+import { swingTwistRange } from "./swingTwistRange";
 
 /**
  * Put a point of a digit (its tip or its pad, a frame on its distal phalanx)
@@ -87,9 +92,9 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed. Optional exponential soft IK eases only the target's radial distance in a band derived from the full-extension curvature.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two residual functions over the digit's variables, one continued descent and a restart only when it cannot reach.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the fit ends at the joint-angle resolution and reports distance from the original target, including any reach soft IK trades away. The width is derived from the chain lengths and `rate`; it does not penalise departure from an arbitrary seed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints) and the active set's probe one clamp per variable; a step solves two small systems of the free variables; a restart, run only for a target the continued fit cannot reach, doubles the work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; a caller keeps the result by its own plan.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned joints belong to the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With an explicit rig and rate, first soft-target FK admits/snapshots the full source once and shares that workspace with every complete digit overlay, removing a second O(J) non-digit admission/setup and unused prefix filter/copy. Without rate, first candidate prepares only non-digit records; raw callers retain full live FK/unrelated-rest admission. Each descent returns its actual final primary residual/Jacobian, removing a duplicate final residual and two FK probes per variable from the unchanged restart test. Only unreached continuation restarts; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A rate's actual source FK supplies unchanged soft-target frames and admitted baseline. Complete edits overwrite every original digit bone with identical last-record precedence; no digit is newly admitted without rate. FK grouping/admission keep their owner. Adjacent tasks share exact coordinates/clamped joints. Final residual/Jacobian belong to the same accepted variables and feasible-probe owner, so restart does not recompute a different boundary derivative. Targets, restart ranking, primary tolerance formula and joint resolution stay unchanged; no answer crosses fits.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One candidate snapshot, an optional fixed-pose workspace with O(J+D) source/ancestor state and any local ordinary reader end with the fit. A borrowed static rig/ordinary reader remain their caller's. No workspace or input history enters the fresh caller-owned result.
  */
 export function fitDigitToTarget(
   input: IAutoMovieFitDigitToTarget.IInput,
@@ -103,40 +108,83 @@ export function fitDigitToTarget(
     throw new Error("A digit fit's rate must be finite and positive");
   const topology: IAutoMovieSkeletonTopology =
     input.topology ?? indexSkeletonTopology(input.skeleton);
-  const coupling: number | null = input.coupling ?? null;
-  const target: IAutoMovieVector3 = softTarget(input, topology);
+  const prepared: ReturnType<typeof preparePoseResolution> = input.prepared ?? preparePoseResolution();
+  let fixedPose: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    input.effector.bone,
+  ]);
 
-  // The digit's free axes, in the order of its joints.
+  // A rate's first source FK also owns the later probe baseline. Complete
+  // candidate edits override every claimed bone by the same last-record law.
+  const readBones: (
+    pose: IAutoMoviePose,
+    demand: ReadonlySet<AutoMovieHumanoidBone>,
+  ) => IAutoMovieResolvedBone[] = (
+    pose: IAutoMoviePose,
+    demand: ReadonlySet<AutoMovieHumanoidBone>,
+  ): IAutoMovieResolvedBone[] =>
+    input.rig === undefined
+      ? resolvePose(
+          pose,
+          input.skeleton,
+          input.jointAxes,
+          input.restFrames,
+          topology,
+          prepared,
+        )
+      : pose !== input.pose ? input.rig.resolve(pose, prepared, demand)
+        : (fixedPose ??= input.rig.preparePose(pose, requested, prepared)).resolve([], demand);
+  const coupling: number | null = input.coupling ?? null;
+  const target: IAutoMovieVector3 = softTarget(input, readBones);
+
+  // The digit's bones in the rig, the first record of each name, found in
+  // one pass over the rig instead of one scan a bone for the free axes and
+  // another for the clamp.
+  const records: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
+  for (const record of input.skeleton.bones)
+    if (!records.has(record.bone) && input.bones.includes(record.bone))
+      records.set(record.bone, record);
+
+  // The digit's free axes, in the order of its joints, and each joint's
+  // clamp under the same record (`clampJointToSkeleton.of`'s own
+  // preparation, given the record it would scan for).
   const variables: IVariable[] = [];
+  const clamps: Map<
+    AutoMovieHumanoidBone,
+    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
+  > = new Map();
   for (const bone of input.bones) {
+    const found: IAutoMovieBone | undefined = records.get(bone);
     const constraint: IAutoMovieJointConstraint | null = getConstraint(
       bone,
-      input.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-        ?.constraint ?? null,
+      found?.constraint ?? null,
     );
     for (const axis of AXES)
       if (constraint === null || constraint[axis] !== null)
         variables.push({ bone, axis, range: constraint?.[axis] ?? null });
+    clamps.set(
+      bone,
+      clampJointToSkeleton.resolved(
+        bone,
+        found,
+        (): IAutoMovieJointRotationFrame | undefined =>
+          constraint === null ||
+          constraint.swingTwist === undefined ||
+          constraint.swingTwist === null
+            ? undefined
+            : swingTwistRange.of(bone, input.skeleton),
+      ),
+    );
   }
-  const clamps: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
-  > = new Map(
-    input.bones.map(
-      (
-        bone: AutoMovieHumanoidBone,
-      ): [
-        AutoMovieHumanoidBone,
-        (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
-      ] => [bone, clampJointToSkeleton.of(bone, input.skeleton)],
-    ),
-  );
-  const others: IAutoMovieJointPose[] = input.pose.joints.filter(
-    (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
-  );
+
+  // A full-source baseline needs no second non-digit prefix.
+  const others: IAutoMovieJointPose[] = fixedPose === undefined
+    ? input.pose.joints.filter(
+        (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
+      ) : [];
 
   // The digit's joints for a vector of variables, projected into the range.
-  const joints = (x: readonly number[]): IAutoMovieJointPose[] =>
+  const joints: (x: readonly number[]) => IAutoMovieJointPose[] = (x: readonly number[]): IAutoMovieJointPose[] =>
     input.bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
       const joint: IAutoMovieJointPose = {
         bone,
@@ -149,7 +197,7 @@ export function fitDigitToTarget(
       });
       return clamps.get(bone)!(joint);
     });
-  const read = (list: readonly IAutoMovieJointPose[]): number[] =>
+  const read: (list: readonly IAutoMovieJointPose[]) => number[] = (list: readonly IAutoMovieJointPose[]): number[] =>
     variables.map((v: IVariable): number => {
       const joint: IAutoMovieJointPose | undefined = list.find(
         (j: IAutoMovieJointPose): boolean => j.bone === v.bone,
@@ -158,19 +206,14 @@ export function fitDigitToTarget(
     });
 
   // The effector's world frame under the digit's joints.
-  const place = (
+  const place: (list: readonly IAutoMovieJointPose[]) => IFrame = (
     list: readonly IAutoMovieJointPose[],
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-    const pose: IAutoMoviePose = {
-      ...input.pose,
-      joints: [...others, ...list],
-    };
-    const resolved: IAutoMovieResolvedBone | undefined = resolvePose(
-      pose,
-      input.skeleton,
-      input.jointAxes,
-      input.restFrames,
-      topology,
+  ): IFrame => {
+    const resolved: IAutoMovieResolvedBone | undefined = (
+      input.rig === undefined
+        ? readBones({ ...input.pose, joints: [...others, ...list] }, requested)
+        : (fixedPose ??= input.rig.preparePose({ ...input.pose, joints: others }, requested, prepared))
+            .resolve(list)
     ).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === input.effector.bone,
     );
@@ -188,25 +231,41 @@ export function fitDigitToTarget(
     };
   };
 
+  // Both tasks read one exact candidate before the next finite-difference
+  // probe. Copy its scalars so even a reused input array cannot go stale.
+  let previous: IReading | undefined;
+  const reading: (x: readonly number[]) => IReading = (x: readonly number[]): IReading => {
+    if (previous !== undefined && previous.values.length === x.length &&
+      previous.values.every((value: number, index: number): boolean => Object.is(value, x[index])))
+      return previous;
+    const list: IAutoMovieJointPose[] = joints(x);
+    const frame: IFrame = previous !== undefined && sameJoints(previous.joints, list)
+      ? previous.frame : place(list);
+    previous = { values: [...x], joints: list, frame };
+    return previous;
+  };
+
   // The primary residual, metres: where the effector is less the target.
   // The secondary, metres: the normal's misalignment and the coupling, each
   // as an arc length on the distal phalanx.
   const length: number = Vector3.length(input.effector.point);
-  const primary = (x: readonly number[]): number[] => {
-    const at = place(joints(x));
+  const primary: (x: readonly number[]) => number[] = (x: readonly number[]): number[] => {
+    const at: IFrame = reading(x).frame;
     return [
       at.point.x - target.x,
       at.point.y - target.y,
       at.point.z - target.z,
     ];
   };
-  const secondary = (x: readonly number[]): number[] => {
-    const list: IAutoMovieJointPose[] = joints(x);
+  let targetNormal: IAutoMovieVector3 | undefined;
+  const secondary: (x: readonly number[]) => number[] = (x: readonly number[]): number[] => {
+    const candidate: IReading = reading(x);
+    const list: IAutoMovieJointPose[] = candidate.joints;
     const r: number[] = [];
     if (input.normal !== undefined) {
       const miss: IAutoMovieVector3 = Vector3.cross(
-        place(list).normal,
-        Vector3.normalize(input.normal),
+        candidate.frame.normal,
+        targetNormal ??= Vector3.normalize(input.normal),
       );
       r.push(miss.x * length, miss.y * length, miss.z * length);
     }
@@ -220,7 +279,7 @@ export function fitDigitToTarget(
 
   // The effector's motion for one resolution step of every joint: the
   // nearest the point can be put, so the primary counts as met within it.
-  const tolerance = (
+  const tolerance: IAutoMovieFitDigitDescent.IProps["tolerance"] = (
     _x: readonly number[],
     J1: readonly (readonly number[])[],
   ): number =>
@@ -229,20 +288,9 @@ export function fitDigitToTarget(
         sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * ROM_TOLERANCE,
       0,
     );
-  const jacobian = (x: readonly number[]): number[][] =>
-    [0, 1, 2].map((k: number): number[] =>
-      x.map((_v: number, i: number): number => {
-        const up: number[] = [...x];
-        const down: number[] = [...x];
-        up[i] = up[i]! + ROM_TOLERANCE;
-        down[i] = down[i]! - ROM_TOLERANCE;
-        return (primary(up)[k]! - primary(down)[k]!) / (2 * ROM_TOLERANCE);
-      }),
-    );
-
   const seed: number[] = read(input.pose.joints);
-  const descend = (start: readonly number[]): number[] =>
-    fitDigitDescent({
+  const descend: (start: readonly number[]) => descendDigitTasks.IResult = (start: readonly number[]): descendDigitTasks.IResult =>
+    descendDigitTasks({
       start,
       primary,
       secondary,
@@ -257,20 +305,21 @@ export function fitDigitToTarget(
   // point farther than `tolerance`) restarts from the middle of every range,
   // where a digit folded the wrong way round its target is not trapped, and
   // keeps that fit only when it comes nearer.
-  const reach = (x: readonly number[]): number => Math.hypot(...primary(x));
-  const continued: number[] = descend(seed);
-  let x: number[] = continued;
-  if (reach(continued) > tolerance(continued, jacobian(continued))) {
-    const restarted: number[] = descend(
+  const continued: descendDigitTasks.IResult = descend(seed);
+  const continuedReach: number = Math.hypot(...continued.primary);
+  let x: number[] = continued.values;
+  if (continuedReach > tolerance(continued.values, continued.primaryJacobian)) {
+    const restarted: descendDigitTasks.IResult = descend(
       variables.map((v: IVariable): number =>
         v.range === null ? 0 : (v.range.min + v.range.max) / 2,
       ),
     );
-    if (reach(restarted) < reach(continued)) x = restarted;
+    if (Math.hypot(...restarted.primary) < continuedReach) x = restarted.values;
   }
 
-  const fitted: IAutoMovieJointPose[] = joints(x);
-  const at = place(fitted);
+  const selected: IReading = reading(x);
+  const fitted: IAutoMovieJointPose[] = selected.joints;
+  const at: IFrame = selected.frame;
   return {
     joints: fitted,
     point: at.point,
@@ -278,6 +327,9 @@ export function fitDigitToTarget(
     residual: Vector3.length(Vector3.subtract(at.point, input.target)),
   };
 }
+
+/**
+
 
 /**
  * Exponential soft IK in the radial coordinate: identity below L-s and
@@ -292,17 +344,17 @@ export function fitDigitToTarget(
  * internal hinge has no full-extension fold to soften. Link lengths are
  * invariant under the pose; only the base's world place follows it.
  */
-const softTarget = (
+const softTarget: (
   input: IAutoMovieFitDigitToTarget.IInput,
-  topology: IAutoMovieSkeletonTopology,
+  read: (pose: IAutoMoviePose, requested: ReadonlySet<AutoMovieHumanoidBone>) => IAutoMovieResolvedBone[],
+) => IAutoMovieVector3 = (
+  input: IAutoMovieFitDigitToTarget.IInput,
+  read: (pose: IAutoMoviePose, requested: ReadonlySet<AutoMovieHumanoidBone>) => IAutoMovieResolvedBone[],
 ): IAutoMovieVector3 => {
   if (input.rate === undefined) return input.target;
-  const posed: IAutoMovieResolvedBone[] = resolvePose(
+  const posed: IAutoMovieResolvedBone[] = read(
     input.pose,
-    input.skeleton,
-    input.jointAxes,
-    input.restFrames,
-    topology,
+    new Set(input.bones),
   );
   const points: IAutoMovieVector3[] = input.bones.map(
     (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
@@ -354,5 +406,23 @@ interface IVariable {
   range: IAutoMovieAngleRange | null;
 }
 
+/** A private effector reading, world metres and a world normal. */
+interface IFrame { point: IAutoMovieVector3; normal: IAutoMovieVector3; }
+
+/** Different trial vectors may project to the exact same admitted digit pose. */
+function sameJoints(left: readonly IAutoMovieJointPose[], right: readonly IAutoMovieJointPose[]): boolean {
+  if (left.length !== right.length) return false;
+  for (let index: number = 0; index < left.length; ++index) {
+    const a: IAutoMovieJointPose = left[index]!;
+    const b: IAutoMovieJointPose = right[index]!;
+    if (a.bone !== b.bone || !Object.is(a.flexion, b.flexion) ||
+      !Object.is(a.abduction, b.abduction) || !Object.is(a.twist, b.twist)) return false;
+  }
+  return true;
+}
+
+/** One exact candidate's private projected joints and effector reading. */
+interface IReading { values: readonly number[]; joints: IAutoMovieJointPose[]; frame: IFrame; }
+
 /** The clinical axes of a joint, in the order variables are read. */
-const AXES = ["flexion", "abduction", "twist"] as const;
+const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"];

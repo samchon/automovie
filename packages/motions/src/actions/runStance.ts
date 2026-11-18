@@ -41,6 +41,9 @@ export namespace runStance {
   /** The knee's flexion at mid-stance, degrees (provisional, Novacheck 1998: about 40 to 45). */
   export const MIDDLE: number = 45;
 
+  /** The knee flexion at the mid-stance search's deep end, degrees: well past `MIDDLE` and inside the knee's range. */
+  const BRACKET: number = 120;
+
   /** A cruising stance's oscillation and push. */
   export interface IStance {
     /** The pelvis's oscillation about standing, hip heights: its mean and its amplitude, lowest at mid-stance. */
@@ -64,8 +67,8 @@ export namespace runStance {
    * @evidence contracts/development/implementation.md#principled-implementation The leg's length at a knee flexion is the law of cosines over the thigh and the shank; the heights are that length over the horizontal reach; the push is found by bisection on the ankle's distance from the hip, which falls as the heel rises about the ball.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two heights, one cosine fit and two bisections.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stance whose landing would leave the hip no higher than at mid-stance is given no oscillation rather than one rising at mid-stance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twice forty halvings, once per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the foot's points from `HumanFoot.offset`, the strike pitch from `walkFoot.STRIKE` and the heel's rise from `walkLeg.heelRise`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains both forty-halving searches and each mid-stance trial's bounded rocker search; the fixed ball contact and rigid-pivot/rocker geometry prepare once before the height trials.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanFoot.offset owns sole points and walkFoot.STRIKE the landing pitch; HumanFoot.preparePivot and walkLeg.prepareHeelRise share this solve's unchanged ball/heading geometry across all trial hips.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function plan(
@@ -83,27 +86,30 @@ export namespace runStance {
     const ankle: IAutoMovieVector3 = body.rest.get("leftFoot")!;
     const thigh: number = distance(hip, knee);
     const shank: number = distance(knee, ankle);
-    const leg = (flexion: number): number =>
+    const thighSquared: number = thigh * thigh;
+    const shankSquared: number = shank * shank;
+    const twiceProduct: number = 2 * thigh * shank;
+    const leg: (flexion: number) => number = (flexion: number): number =>
       Math.sqrt(
-        thigh * thigh +
-          shank * shank +
-          2 * thigh * shank * Math.cos((flexion * Math.PI) / 180),
+        thighSquared + shankSquared + twiceProduct * Math.cos((flexion * Math.PI) / 180),
       );
     const heel: IAutoMovieVector3 = HumanFoot.offset(body, "left", "heel");
     const mtp: IAutoMovieVector3 = HumanFoot.offset(body, "left", "mtp");
 
     // The ankle about a point fixed on the floor, the foot pitched toes-up by
     // `degrees`: its height over the floor and how far ahead of the point.
-    const about = (
+    const about: (point: IAutoMovieVector3, degrees: number) => { z: number; y: number } = (
       point: IAutoMovieVector3,
       degrees: number,
     ): { z: number; y: number } => {
       const r: number = (degrees * Math.PI) / 180;
       const z: number = -point.z;
       const y: number = -point.y;
+      const cosine: number = Math.cos(r);
+      const sine: number = Math.sin(r);
       return {
-        z: z * Math.cos(r) - y * Math.sin(r),
-        y: point.y - heel.y + (z * Math.sin(r) + y * Math.cos(r)),
+        z: z * cosine - y * sine,
+        y: point.y - heel.y + (z * sine + y * cosine),
       };
     };
     const above: number = -heel.y;
@@ -122,26 +128,18 @@ export namespace runStance {
     // Mid-stance: the hip over the middle of the contact, the foot on its
     // footprint with its heel risen as far as the ankle's dorsal room asks
     // (`walkLeg.heelRise`), at the height that bends the knee `MIDDLE`.
-    const bent = (height: number): number => {
+    const flat: IAutoMovieVector3 = { x: ankle.x, y: above, z: ankle.z - props.lead };
+    const ball: IAutoMovieVector3 = Vector3.add(flat, mtp);
+    const rocker: ReturnType<typeof walkLeg.prepareHeelRise> =
+      walkLeg.prepareHeelRise(body, "left", ball, 0, walkLeg.ROCKER);
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> =
+      HumanFoot.preparePivot(body, "left", "mtp", ball, 0);
+    const bent: (height: number) => number = (height: number): number => {
       const at: IAutoMovieVector3 = { x: hip.x, y: height, z: ankle.z };
-      const flat: IAutoMovieVector3 = {
-        x: ankle.x,
-        y: above,
-        z: ankle.z - props.lead,
-      };
-      const ball: IAutoMovieVector3 = Vector3.add(flat, mtp);
-      const pitch: number = walkLeg.heelRise(
-        body,
-        "left",
-        at,
-        ball,
-        0,
-        -props.heels,
-        walkLeg.ROCKER,
-      );
+      const pitch: number = rocker(at, -props.heels);
       const d: number = distance(
         at,
-        HumanFoot.pivot(body, "left", "mtp", ball, 0, pitch).ankle,
+        pivot(pitch).ankle,
       );
       return (
         (Math.acos(
@@ -149,7 +147,7 @@ export namespace runStance {
             -1,
             Math.min(
               1,
-              (d * d - thigh * thigh - shank * shank) / (2 * thigh * shank),
+              (d * d - thighSquared - shankSquared) / twiceProduct,
             ),
           ),
         ) *
@@ -157,7 +155,9 @@ export namespace runStance {
         Math.PI
       );
     };
-    let deep: number = above + leg(120);
+    // The bracket's low end bends the knee far past any running stance's
+    // (`MIDDLE`), so the height sought lies inside it.
+    let deep: number = above + leg(BRACKET);
     let tall: number = above + thigh + shank;
     for (let i: number = 0; i < 40; i++) {
       const mid: number = (deep + tall) / 2;
@@ -175,7 +175,7 @@ export namespace runStance {
     // Toe-off: the pelvis as high as at the landing, the ankle trailing by the
     // stance after the pelvis passed it, the heel raised about the ball.
     const trail: number = (2 - props.share - props.front) * props.stride;
-    const reach = (push: number): number => {
+    const reach: (push: number) => number = (push: number): number => {
       const at: { z: number; y: number } = about(mtp, -push);
       const z: number = -trail + mtp.z + at.z;
       const y: number = landing - at.y;
@@ -217,7 +217,7 @@ export namespace runStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function airborne(ends: readonly [number, number], u: number): number {
-    const s: number = minimumJerk(Math.min(1, Math.max(0, u))).s;
+    const s: number = minimumJerk.share(Math.min(1, Math.max(0, u)));
     return ends[0] + (ends[1] - ends[0]) * s;
   }
 

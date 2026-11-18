@@ -22,6 +22,7 @@ export type { IAutoMovieMotionHumanInteractionMesh } from "./IAutoMovieMotionHum
 export type { IAutoMovieMotionHumanJacobian } from "./IAutoMovieMotionHumanJacobian";
 export type { IAutoMovieMotionHumanLegChain } from "./IAutoMovieMotionHumanLegChain";
 export type { IAutoMovieMotionHumanLimbFitFrame } from "./IAutoMovieMotionHumanLimbFitFrame";
+export type { IAutoMovieMotionHumanLimbReads } from "./IAutoMovieMotionHumanLimbReads";
 export type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 export type { IAutoMovieMotionHumanQuadraticProgram } from "./IAutoMovieMotionHumanQuadraticProgram";
 export type { IAutoMovieMotionHumanResolveHumanPosture } from "./IAutoMovieMotionHumanResolveHumanPosture";

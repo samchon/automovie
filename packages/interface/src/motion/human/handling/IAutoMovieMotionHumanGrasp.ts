@@ -35,7 +35,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  *
  * @evidence contracts/development/common.md#meaningful-documentation point: The grip point, world metres. width: The grasped width, metres. bend: The elbow hint at the key, world metres.
  * @evidence contracts/development/design.md#principled-representation point: The grip point, world metres. width: The grasped width, metres. bend: The elbow hint at the key, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanGrasp.ts (HumanGrasp.reachable, stroke); handling/HumanGraspDemand.ts (HumanGraspDemand.key, return); handling/HumanGraspReach.ts (HumanGraspReach.reachable, stroke); handling/HumanGraspReach.ts (HumanGraspReach.reachable.fit, key); handling/HumanGraspUse.ts (HumanGraspUse.presented, return).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanGrasp.ts (HumanGrasp.reachable, stroke); handling/HumanGraspDemand.ts (HumanGraspDemand.key, return); handling/HumanGraspSearch.ts (HumanGraspSearch, stroke); handling/HumanGraspSearch.ts (HumanGraspSearch.fit, key); handling/HumanGraspUse.ts (HumanGraspUse.presented, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieGripKind, IAutoMovieCurlChainUntilContact.ICollider, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanHand.IWrist identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGrasp {
@@ -72,7 +72,7 @@ export namespace IAutoMovieMotionHumanGrasp {
    *
    * @evidence contracts/development/common.md#meaningful-documentation bend: The elbow hint at the key, world metres. judge: How far what the key places strays from its place once the arm is fitted to the key within its ranges, metres: a held tool's working point off where its use asks it, a worn thing's socket off its region. Absent, the key places nothing but the hand. bound: The most the judgement may be, metres: the bound the action that asks the key holds the pose to. The caller's own bound when absent.
    * @evidence contracts/development/design.md#principled-representation bend: The elbow hint at the key, world metres. judge: How far what the key places strays from its place once the arm is fitted to the key within its ranges, metres: a held tool's working point off where its use asks it, a worn thing's socket off its region. Absent, the key places nothing but the hand. bound: The most the judgement may be, metres: the bound the action that asks the key holds the pose to. The caller's own bound when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanGrasp.ts (HumanGrasp.reachable, stroke); handling/HumanGraspDemand.ts (HumanGraspDemand.key, return); handling/HumanGraspReach.ts (HumanGraspReach.reachable, stroke); handling/HumanGraspReach.ts (HumanGraspReach.reachable.fit, key); handling/HumanGraspUse.ts (HumanGraspUse.presented, return).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanGrasp.ts (HumanGrasp.reachable, stroke); handling/HumanGraspDemand.ts (HumanGraspDemand.key, return); handling/HumanGraspSearch.ts (HumanGraspSearch, stroke); handling/HumanGraspSearch.ts (HumanGraspSearch.fit, key); handling/HumanGraspUse.ts (HumanGraspUse.presented, return).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanHand.IWrist, IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IKey {
@@ -96,7 +96,7 @@ export namespace IAutoMovieMotionHumanGrasp {
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which unit and when it is absent.
      * @evidence contracts/development/implementation.md#principled-implementation The placed thing is read off the fitted hand, so the arm's ranges count, as `StrikingRoll.miss` reads a held tool.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `HumanGraspReach.reachable` for each fitted key.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `HumanGraspSearch` for each fitted key.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller judges the key in the unit of what it places, never in a mix of degrees and millimetres.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.

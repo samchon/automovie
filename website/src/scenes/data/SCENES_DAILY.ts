@@ -14,6 +14,25 @@ const DESK_TOP: number = 0.74;
 export const SCENES_DAILY: readonly IScene[] = [
   scene(
     {
+      id: "balance-rehearsal",
+      title: "Balance rehearsal",
+      summary:
+        "A performer rehearses a passenger anticipating a jolt, lowering into a wide stance before standing and stepping clear of the rehearsal mark.",
+      setting: "everyday",
+      roles: { passenger: "passenger" },
+      needs: [],
+    },
+    "balance-rehearsal",
+    [
+      person("passenger", "m1", 0, 0, 0, [
+        act("braceImpact"),
+        act("stand"),
+        act("standClear", { to: to(1, 0) }),
+      ]),
+    ],
+  ),
+  scene(
+    {
       id: "cafe",
       title: "Café",
       summary:

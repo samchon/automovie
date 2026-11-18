@@ -159,9 +159,9 @@ export namespace crawlChain {
    * @evidence contracts/development/implementation.md#principled-implementation The trunk, its lean and the thigh's rest angle are read off the rig's joints in the relaxed upright pose and the balls off the standing feet, so every length is the body's; the fold is held inside the hip's flexion range, and the fold and the plank are solved by bisection on the same chain.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A leg by its elevation, the shoulders over the wrists, the hips by one scan and a bisection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan comes down from the hips high, so the place kept is the upper one, and the shoulders go no further than the plank, where the two places meet; where the heel's lift leaves the arc a hair short of the shoulders, the nearest elevation is kept, never the scan's floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per plan; each shape is a few hundred closed-form evaluations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `crawlFrame` for the wrists and the upright pose and `HumanFoot` for the feet.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds the body's few lengths and places only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One upright FK requests only measured shoulders/hips/knees. Fixed floor/inverse yaw transforms prepare once; every original scan/bisection still observes actual foot geometry, while hip-only residuals omit unused ankle/whole-leg records and final shapes retain their full fresh representation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged floor frame and zero-origin heading share their native inverse coefficients. Body/heading/pivot define each integer scan elevation; only its actual translation changes with mu, applied in original arithmetic order. Noninteger candidate geometry remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds bounded frame coefficients, body lengths/places and at most 116 integer-elevation foot records from LOWEST through 120 until release; no noninteger bisection or queried shape is retained.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -177,9 +177,14 @@ export namespace crawlChain {
         ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
         root: standing.root,
       }),
+      undefined,
+      MEASURED,
     );
-    const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      HumanFrame.local(frame, upright.get(bone)!.worldPosition);
+    const floor: ReturnType<typeof HumanFrame.prepare> =
+      HumanFrame.prepare(frame);
+    const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieVector3 => floor.local(upright.get(bone)!.worldPosition);
     const chest: IAutoMovieVector3 = Vector3.subtract(
       Vector3.lerp(at("leftUpperArm"), at("rightUpperArm"), 0.5),
       Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
@@ -194,8 +199,7 @@ export namespace crawlChain {
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
     const ball = (side: "left" | "right"): IAutoMovieVector3 => {
       const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
-      return HumanFrame.local(
-        frame,
+      return floor.local(
         HumanFoot.point(body, side, "mtp", {
           ankle: from.point,
           rotation: from.rotation ?? HumanFrame.turn(yaw),
@@ -224,22 +228,59 @@ export namespace crawlChain {
 
     // The leg at an elevation over the foot pivoted on its ball, the heel
     // lifted as far as the shank leans forward.
-    const legAt = (mu: number, lam: number): ILeg => {
-      const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
-      const ankle: IAutoMovieVector3 = HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        HumanFoot.pivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw, -heel)
-          .ankle,
-      );
-      const a: IPlanar = { u: mu + ankle.z, v: ballY + ankle.y };
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> =
+      HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
+    const unturned: ReturnType<typeof HumanFrame.prepare> = HumanFrame.prepare({
+      origin: { x: 0, y: 0, z: 0 },
+      yaw,
+    });
+    /** Fixed foot and leg offsets for one exact elevation, before current translation. */
+    interface IGeometry {
+      /** Degrees of heel lift. */
+      heel: number;
+      /** Current native pivot's ankle offset, heading-local metres. */
+      ankle: IAutoMovieVector3;
+      /** Hip offset forward from the ankle, metres. */
+      along: number;
+      /** Hip offset above the ankle, metres. */
+      up: number;
+    }
+    const scan: Map<number, IGeometry> = new Map();
+    const geometryAt: (lam: number) => IGeometry = (lam: number): IGeometry => {
+      let geometry: IGeometry | undefined = scan.get(lam);
+      if (geometry === undefined) {
+        const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
+        const ankle: IAutoMovieVector3 = unturned.local(pivot(-heel).ankle);
+        geometry = {
+          heel,
+          ankle,
+          along: l * Math.cos(lam / DEG),
+          up: l * Math.sin(lam / DEG),
+        };
+        if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120)
+          scan.set(lam, geometry);
+      }
+      return geometry;
+    };
+    const upper: (u: number, v: number, geometry: IGeometry) => IPlanar = (
+      u: number,
+      v: number,
+      geometry: IGeometry,
+    ): IPlanar => ({ u: u + geometry.along, v: v + geometry.up });
+    const legAt: (mu: number, lam: number) => ILeg = (
+      mu: number,
+      lam: number,
+    ): ILeg => {
+      const geometry: IGeometry = geometryAt(lam);
+      const a: IPlanar = {
+        u: mu + geometry.ankle.z,
+        v: ballY + geometry.ankle.y,
+      };
       return {
         lam,
-        heel,
+        heel: geometry.heel,
         ankle: a,
-        hips: {
-          u: a.u + l * Math.cos(lam / DEG),
-          v: a.v + l * Math.sin(lam / DEG),
-        },
+        hips: upper(a.u, a.v, geometry),
       };
     };
     const planar = (p: IAutoMovieVector3): IPlanar => ({ u: p.z, v: p.y });
@@ -287,7 +328,13 @@ export namespace crawlChain {
     let hi: number = 90;
     for (let i: number = 0; i < 40; i++) {
       const mid: number = (lo + hi) / 2;
-      if (legAt(0, mid).hips.v + t * Math.sin(mid / DEG) > wv + r) hi = mid;
+      const geometry: IGeometry = geometryAt(mid);
+      const hips: IPlanar = upper(
+        0 + geometry.ankle.z,
+        ballY + geometry.ankle.y,
+        geometry,
+      );
+      if (hips.v + t * Math.sin(mid / DEG) > wv + r) hi = mid;
       else lo = mid;
     }
     const straight: ILeg = legAt(0, (lo + hi) / 2);
@@ -303,7 +350,12 @@ export namespace crawlChain {
       const leg: ILeg = legAt(
         mu,
         descend((lam: number): number => {
-          const hips: IPlanar = legAt(mu, lam).hips;
+          const geometry: IGeometry = geometryAt(lam);
+          const hips: IPlanar = upper(
+            mu + geometry.ankle.z,
+            ballY + geometry.ankle.y,
+            geometry,
+          );
           return Math.hypot(shoulders.u - hips.u, shoulders.v - hips.v) - t;
         }, 120),
       );
@@ -365,4 +417,14 @@ export namespace crawlChain {
       balls,
     };
   }
+
+  /** Upright lengths and lateral places read by this chain's preparation. */
+  const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+  ]);
 }

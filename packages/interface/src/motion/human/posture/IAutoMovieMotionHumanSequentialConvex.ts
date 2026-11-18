@@ -15,7 +15,7 @@
  *
  * @evidence contracts/development/common.md#meaningful-documentation accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried. from: The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent.
  * @evidence contracts/development/design.md#principled-representation accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried. from: The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, problem); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, problem); actions/walkStanceSolve.ts (walkStanceSolve.optimise.problem, return); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, problem); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, problem); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Caller-owned iterates and evaluations remain generic because the same algorithm solves arm trajectories, stance courses and static body fits; no SDK object is hidden by these parameters.
  */
 export namespace IAutoMovieMotionHumanSequentialConvex {
@@ -40,11 +40,11 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    *
    * @evidence contracts/development/common.md#meaningful-documentation accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent.
    * @evidence contracts/development/design.md#principled-representation accuracy: The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkStanceSolve.ts (walkStanceSolve.optimise.problem, return); actions/walkStanceSolve.ts (walkStanceSolve.optimise.problem, step); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, _step); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, _step); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts trial preserves the caller's iterate type, predicted is model merit decrease and length is in trust-region units; none is relabelled as a physical residual.
    */
   export interface IStep<X> {
-    /** The iterate the step reaches, projected onto any hard set the caller keeps. */
+    /** The iterate reached, projected onto the caller's hard set; may be lazy and select its proposal-local correction metadata. Steering reads only diagnostics; the outer loop reads the chosen trial before its evaluation and correction. */
     trial: X;
 
     /** The model's decrease of the merit from the iterate to the step, `m(0) - m(p)`. */
@@ -64,6 +64,9 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
 
     /** The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. */
     accuracy?: number;
+
+    /** Whether the subproblem's solver could not solve the model, after its own recovery: no step is proposed, and the solve stops failed (`Reason`), as TrajOpt's does where its convex solver fails (sco's OPT_FAILED); a step otherwise. */
+    failed?: boolean;
   }
 
   /**
@@ -71,7 +74,7 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    *
    * @evidence contracts/development/common.md#meaningful-documentation solve: The model's step within a region. taken: Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
    * @evidence contracts/development/design.md#principled-representation solve: The model's step within a region. taken: Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkStanceSolve.ts (walkStanceSolve.optimise.problem, return); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt.problem, return); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, first).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.solved, return); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise.problem, return); posture/HumanBodyFit.ts (HumanBodyFit.fit.problem, return); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt.problem, return); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, first).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSequentialConvex.IStep identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IModel<X> {
@@ -103,6 +106,41 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     taken?(): void;
+
+    /**
+     * Reprice this same fixed linearization for steering, without rebuilding
+     * its geometry or matrices. Absent, convexify rebuilds the model.
+     *
+     * @param penalty The new exact l1 penalty, at the same iterate/objective and row domain.
+     * @returns A fresh model shell with the original cold/keyed-dual initialization; fixed numeric preparation may be shared sequentially.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation Changes only the exact l1 row prices of one unchanged linearization, the same model that convexify would build at this penalty; producers with penalty-dependent geometry or curvature omit this method.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its weight formula and fixed numeric data; steering selects this factory when available and otherwise invokes its existing convexify callback.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires the same x/objective/domain and original weight calculation, preserves cold/keyed-dual initialization in each new shell, and never substitutes an old step, radius or convergence decision.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(1) coordinator selection; the stance producer reprices O(m) rows instead of repeating geometric linearization and matrix preparation for m rows, then performs the actual current QP solve.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer proves fixed P/q/A and row order while current prices change; immutable preparation and bounded scratch may be shared, but every new model resets its local warm state and recomputes each step.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Repriced shells share only their current linearization's owned data, with no linked model history; the loop releases them when it advances or finishes and each producer owns its bounded preparation/scratch lifetime.
+     * @evidence contracts/development/common.md#meaningful-documentation States optional fallback, exact dependency premises, changed penalty, fresh warm-state shell and shared-data ownership.
+     */
+    reprice?(penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
+
+    /**
+     * This same linearisation at this same penalty without the objective,
+     * the model of the steering's step of the violation alone (their
+     * (5.10)), for a producer whose rows do not depend on the objective.
+     * Absent, the steering asks `IProblem.convexify` for it.
+     *
+     * @returns The model of the violation alone, with its own cold start.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation The violation's model is the merit's model less the objective's terms; a producer that built the rows once states that by giving the model itself.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its rows; the steering selects this member when given and its convexify callback otherwise.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same iterate, penalty, rows and region; only the objective's curvature and gradient are left out, and no step or decision is carried over.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(1) selection here; the producer skips a second linearisation of the same iterate.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The linearisation is the producer's value, handed on by the model that holds it, not found again by comparing iterates.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model shares only its linearisation's data and is released with the round.
+     * @evidence contracts/development/common.md#meaningful-documentation States what the model is, when it may be given and the fallback.
+     */
+    feasibility?(): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
   }
 
   /**
@@ -110,7 +148,7 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    *
    * @evidence contracts/development/common.md#meaningful-documentation correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried.
    * @evidence contracts/development/design.md#principled-representation correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, problem); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, problem); actions/walkStanceSolve.ts (walkStanceSolve.optimise); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise); posture/HumanBodyFit.ts (HumanBodyFit.fit); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, problem); posture/HumanSequentialConvex.ts (HumanSequentialConvex.steering, problem); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise); posture/HumanBodyFit.ts (HumanBodyFit.fit); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSequentialConvex.IEvaluation, IAutoMovieMotionHumanSequentialConvex.IModel, IAutoMovieMotionHumanSequentialConvex.IStep identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IProblem<
@@ -217,14 +255,17 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    * iterate (numerical no progress, not a stationarity certificate);
    * `collapsed`, no step taken, the region fallen under
    * `ISchedule.least` or the tries spent; `rounds`, the convexifications ran
-   * out (`IOptions.rounds`) with steps still being taken.
+   * out (`IOptions.rounds`) with steps still being taken; `infeasible`, a
+   * steered iterate at which the step of the violation alone, inside its
+   * region, reduces the violation by no more than `IOptions.stationary`
+   * while it still violates by more: a stationary point of the violation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds" distinguish the admitted cases.
+   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken; `infeasible`, a steered iterate whose step of the violation alone, inside its region, reduces the violation by no more than `IOptions.stationary` while it violates by more; `failed`, a subproblem its solver could not solve (`IStep.failed`).
+   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds", "infeasible", "failed" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSequentialConvex.minimise.
    */
-  export type Reason = "model" | "step" | "collapsed" | "rounds";
+  export type Reason = "model" | "step" | "collapsed" | "rounds" | "infeasible" | "failed";
 
   /**
    * How the region moves: a step is taken where the ratio of the actual to
@@ -237,8 +278,8 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    *
    * @evidence contracts/development/common.md#meaningful-documentation eta: The ratio a step must exceed to be taken. low: The ratio below which a step taken shrinks the region. high: The ratio above which a step taken grows the region.
    * @evidence contracts/development/design.md#principled-representation eta: The ratio a step must exceed to be taken. low: The ratio below which a step taken shrinks the region. high: The ratio above which a step taken grows the region.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkStanceTerms.ts (walkStanceTerms.schedule, return); posture/HumanArmOptimiser.ts (SCHEDULE); posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in walkStanceTerms.schedule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmOptimiser.ts (SCHEDULE); posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanSequentialConvex.minimise.
    */
   export interface ISchedule {
     /** The ratio a step must exceed to be taken. */
@@ -331,6 +372,21 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * first penalty and `from` a continued one. False when absent.
      */
     steer?: boolean;
+
+    /** The greatest penalty the steering may reach: a growth that would pass it is not made, and the round goes on with the step at the penalty reached, as it does when `STEERING.increases` are spent. Unbounded when absent; read only with `steer`. */
+    ceiling?: number;
+
+    /**
+     * The least reduction of the violation the caller can tell, in the
+     * violation's units: its own feasibility tolerance. Where the steering's
+     * step of the violation alone lies inside its region (not at its edge),
+     * it is the linearised violation's own least; reducing the violation by
+     * no more than this while the iterate violates by more, it shows the
+     * iterate a first-order stationary point of the violation, an infeasible
+     * one that no later round leaves, and the solve stops there with reason
+     * `infeasible`. Absent, a solve runs its rounds; read only with `steer`.
+     */
+    stationary?: number;
   }
 
   /**
@@ -338,7 +394,7 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    *
    * @evidence contracts/development/common.md#meaningful-documentation x: The last iterate taken. evaluation: Its reading. penalty: The penalty it was reached at.
    * @evidence contracts/development/design.md#principled-representation x: The last iterate taken. evaluation: Its reading. penalty: The penalty it was reached at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, return); actions/walkStanceSolve.ts (walkStanceSolve.optimise); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise); posture/HumanBodyFit.ts (HumanBodyFit.fit); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise, return); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit); posture/HumanArmOptimiser.ts (HumanArmOptimiser.optimise); posture/HumanBodyFit.ts (HumanBodyFit.fit); posture/HumanInteractionMesh.ts (HumanInteractionMesh.adapt).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSequentialConvex.Reason identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IResult<X, E> {

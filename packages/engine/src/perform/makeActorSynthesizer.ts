@@ -22,7 +22,6 @@ import type {
 
 import { aimYawPitch } from "../kinematics/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";
-import { reachPose } from "../kinematics/reachPose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
@@ -35,13 +34,10 @@ import { timeScaleMotion } from "../motion/timeScaleMotion";
 import { actorAimPoints } from "./actorAimPoints";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";
-import { createActorExtendClip } from "./createActorExtendClip";
-import { createActorJabClip } from "./createActorJabClip";
-import { createDynamicActorExtendClip } from "./createDynamicActorExtendClip";
-import { createDynamicActorJabClip } from "./createDynamicActorJabClip";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 import { resolveTargetPoint } from "./resolveTargetPoint";
 import { resumeActorSynthesisRuntime } from "./resumeActorSynthesisRuntime";
+import { synthesizeActorReach } from "./synthesizeActorReach";
 
 const GAIT_SAMPLES: number = 8 as const;
 
@@ -138,12 +134,12 @@ const seedRestArticulation: (
  * Create the reference actor action callback from borrowed contexts and placements. It supports gait locomotion, hold, gaze, expression, reference gestures, analytic arm targets and ROM-bounded reactions; unknown actors or unsupported/unresolvable content return null. Duplicate gait names throw at construction.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Uses resumed verified beat facts, shared rigid actor-frame conversion and the existing gait/IK primitives; explicit locomotion durations scale the clock, positional destinations preserve full displacement with ground-speed cadence, and live targets are sampled at 24 Hz.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Verb dispatch remains here while shared frame/continuation, static and dynamic envelopes own their isolated responsibilities; both frame readers use one staged conversion.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Verb dispatch remains here while synthesizeActorReach owns point/strike/reach target bakes; shared frame/continuation and existing envelopes retain their original responsibilities and staged conversion.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reference constants 8 gait samples, 24 Hz live targets, 40% jab peaks and 32 degree maximum reaction are declared choreography policies, not measured physical guarantees; no guessed rig geometry or hidden ROM clamp is introduced for reaches.
  * @evidence contracts/development/common.md#meaningful-documentation States supported verbs, geometry requirements, rigid model/world frames, eye-height gaze lifting, prior-beat ownership, callback failure and null outcomes; returned clips still require downstream gates and live-target interpolation is approximate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Construction checks gait names linearly; each action rebuilds O(A+N+P) resumed maps for contexts, nodes and prior actors, plus verb-specific gait lookup, keyframe copies, analytic IK or 24 Hz target sampling. Different actions may observe mutable inputs, so snapshots are not cached.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A resumed snapshot and static frame serve the action, static targets solve once, repeat consumers reuse the resulting clip, and dynamic sampling evaluates each distinct time once; mutable host maps and callbacks prevent unjustified cross-action caching.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The host owns captured context/placement maps for the callback lifetime; invocation-local snapshots and intermediate poses are released on success/null/throw, returned clips belong to callers, and no process or renderer handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Construction checks gait names linearly; each action rebuilds O(A+N+P) resumed maps plus its original gait/keyframe/IK or 24 Hz sampling work. Native moving arm bakes retain every original full source admission, sample and candidate search because callbacks may edit borrowed rig/mapping values.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A resumed snapshot/static frame serve each action; static targets solve once and dynamic callbacks retain every original time. Borrowed mutable rig/mapping values remain live at each arm sample, with no identity-based source reuse or cross-action answer cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The host owns captured context/placement maps for this callback's lifetime. Invocation snapshots and intermediate poses end on success/null/throw; only numeric clips escape, with no retained source reader, process or renderer handle.
  */
 export const makeActorSynthesizer: (
   contexts: Map<string, IAutoMovieActorContext>,
@@ -366,90 +362,17 @@ export const makeActorSynthesizer: (
       const duration: number = action.duration === "auto" ? 1 : action.duration;
 
       if (action.kind === "point" && ctx.rig !== undefined) {
-        const world: IAutoMovieVector3 | null =
-          action.at === undefined
-            ? null
-            : resolveTarget(action.at, nodes, action.start);
-        if (world === null) return null;
-        if (
-          action.at?.kind === "bone" ||
-          (actorFrameAt?.(actor, action.start) ?? null) !== null
-        )
-          return createDynamicActorExtendClip({
-            id: `${actor}:point`,
-            skeleton: ctx.skeleton,
-            duration,
-            poseAt: (time: number): IAutoMoviePose | null => {
-              const point: IAutoMovieVector3 | null = resolveTarget(
-                action.at!,
-                nodes,
-                action.start + time,
-              );
-              return point === null
-                ? null
-                : reachPose(
-                    ctx.rig!,
-                    "right",
-                    actorPointInModelSpace(point, frameAt(action.start + time)),
-                    ctx.restFrames,
-                  );
-            },
-          });
-        const pose: IAutoMoviePose | null = reachPose(
-          ctx.rig,
-          "right",
-          actorPointInModelSpace(world, staticFrame),
-          ctx.restFrames,
-        );
-        return pose === null
-          ? null
-          : createActorExtendClip(
-              `${actor}:point`,
-              ctx.skeleton,
-              pose,
-              duration,
-            );
+        return synthesizeActorReach({
+          kind: "point", action, duration, actor, ctx, nodes, staticFrame,
+          frameAt, actorFrameAt, resolveTarget,
+        });
       }
 
       if (action.kind === "strike" && ctx.rig !== undefined) {
-        const world: IAutoMovieVector3 | null =
-          action.at === undefined
-            ? null
-            : resolveTarget(action.at, nodes, action.start);
-        if (world === null) return null;
-        if (
-          action.at?.kind === "bone" ||
-          (actorFrameAt?.(actor, action.start) ?? null) !== null
-        )
-          return createDynamicActorJabClip({
-            id: `${actor}:strike`,
-            skeleton: ctx.skeleton,
-            duration,
-            poseAt: (time: number): IAutoMoviePose | null => {
-              const point: IAutoMovieVector3 | null = resolveTarget(
-                action.at!,
-                nodes,
-                action.start + time,
-              );
-              return point === null
-                ? null
-                : reachPose(
-                    ctx.rig!,
-                    "right",
-                    actorPointInModelSpace(point, frameAt(action.start + time)),
-                    ctx.restFrames,
-                  );
-            },
-          });
-        const pose: IAutoMoviePose | null = reachPose(
-          ctx.rig,
-          "right",
-          actorPointInModelSpace(world, staticFrame),
-          ctx.restFrames,
-        );
-        return pose === null
-          ? null
-          : createActorJabClip(`${actor}:strike`, ctx.skeleton, pose, duration);
+        return synthesizeActorReach({
+          kind: "strike", action, duration, actor, ctx, nodes, staticFrame,
+          frameAt, actorFrameAt, resolveTarget,
+        });
       }
 
       return gestureMotion(
@@ -460,52 +383,10 @@ export const makeActorSynthesizer: (
       );
     }
     if (action.verb === "reach") {
-      if (ctx.rig === undefined) return null;
-      const world: IAutoMovieVector3 | null = resolveTarget(
-        action.to,
-        nodes,
-        action.start,
-      );
-      if (world === null) return null; // relative target: no point to reach
-      const duration: number =
-        action.duration === "auto" ? 0.6 : action.duration;
-      if (
-        action.to.kind === "bone" ||
-        (actorFrameAt?.(actor, action.start) ?? null) !== null
-      )
-        return createDynamicActorExtendClip({
-          id: `${actor}:reach`,
-          skeleton: ctx.skeleton,
-          duration,
-          poseAt: (time: number): IAutoMoviePose | null => {
-            const point: IAutoMovieVector3 | null = resolveTarget(
-              action.to,
-              nodes,
-              action.start + time,
-            );
-            return point === null
-              ? null
-              : reachPose(
-                  ctx.rig!,
-                  action.hand,
-                  actorPointInModelSpace(point, frameAt(action.start + time)),
-                  ctx.restFrames,
-                );
-          },
-        });
-      const reach: IAutoMoviePose | null = reachPose(
-        ctx.rig,
-        action.hand,
-        actorPointInModelSpace(world, staticFrame),
-        ctx.restFrames,
-      );
-      if (reach === null) return null;
-      return createActorExtendClip(
-        `${actor}:reach`,
-        ctx.skeleton,
-        reach,
-        duration,
-      );
+      return synthesizeActorReach({
+        kind: "reach", action, actor, ctx, nodes, staticFrame,
+        frameAt, actorFrameAt, resolveTarget,
+      });
     }
     if (action.verb === "react") {
       if (ctx.rig === undefined) return null;

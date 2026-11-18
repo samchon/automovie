@@ -2,6 +2,7 @@ import type {
   IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanPerformanceAim,
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
 
@@ -23,7 +24,7 @@ import { HumanPerformanceParams } from "./HumanPerformanceParams";
  * composition's walk order, that names the prop: one of its parameters is
  * the prop's subject id. An action between them that names it not (a walk
  * with the prop in hand) leaves the grip as it is; the first one that names
- * it decides, and one that asks nothing (a put down) ends the question.
+ * it decides, and one that asks nothing (a free put down) ends the question.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which action is asked, from which posture and at which second.
  * @evidence contracts/development/design.md#principled-representation The composition's own order of a performer's actions and the parameters their laws resolve, read as data.
@@ -41,6 +42,8 @@ export namespace HumanPerformanceAhead {
    * from the posture the grip leaves the body in, read at the earlier
    * action's start. An action whose parameters its schema refuses asks
    * nothing here; it is refused where it is placed.
+   * The caller keeps the body and candidate posture unchanged during this
+   * synchronous demand call; retained aiming callbacks may read later changes.
    *
    * @param self The performance being placed.
    * @param context The earlier action's context.
@@ -48,12 +51,12 @@ export namespace HumanPerformanceAhead {
    * @returns The reader.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each grip is asked with and the refused case.
-   * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The action found once per prop, then asked per grip.
+   * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand. Sharing successful FK requires the body and candidate posture to remain unchanged during the synchronous demand call; their types do not enforce that premise.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The action found once per prop, then asked per grip with a lazy aiming frame and lazy candidate bones.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a `HumanRefusal` of the parameters is taken as asking nothing; any other error propagates.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop; each demands query constructs at most one successful scalar aiming frame and shares one successful candidate resolve and FK when own bones are requested. Failed constructions are not memoized. Query-local closures add constant allocation even when no own-body target is read; speed improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it; repeated aiming reads within one candidate query share the body's unchanged measures, candidate root and heading, and resolved bones. Target- and second-dependent aiming still runs on every call and its return ownership is unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context. A finally block releases candidate bones and the scalar frame on return or throw; an aim callback retained by a law reads both fresh after that invocation, so neither memo persists on the reader, grip or performance.
    */
   export function reader(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -66,7 +69,9 @@ export namespace HumanPerformanceAhead {
     grip: IAutoMovieMotionHumanActionLaw.IGrip,
   ) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
     const found: Map<string, INext | null> = new Map();
-    const next = (prop: string): INext | null => {
+    const next: (prop: string) => INext | null = (
+      prop: string,
+    ): INext | null => {
       if (!found.has(prop))
         found.set(prop, find(self, context.subject, ordinal, prop));
       return found.get(prop)!;
@@ -76,31 +81,55 @@ export namespace HumanPerformanceAhead {
     ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
       const asked: INext | null = next(grip.prop);
       if (asked === null || asked.law.demands === undefined) return [];
-      return asked.law.demands({
-        subject: context.subject,
-        body: context.body,
-        params: asked.params as never,
-        skill: context.skill,
-        prop: context.prop,
-        aim: (target, seconds) =>
-          HumanPerformanceAim.aim(
-            self,
-            target,
-            seconds,
-            HumanPerformanceAim.frame(
-              context.body,
-              grip.posture,
-              () =>
-                poseBones(
-                  context.body,
-                  resolveHumanPosture(context.body, grip.posture),
-                ),
-              context.subject,
-            ),
-          ),
-        start: context.start,
-        grip,
-      });
+
+      // Every aim in this demand reads the same candidate posture. Resolve
+      // its bones lazily here, so another grip question starts independently.
+      let querying: boolean = true;
+      let bones: ReturnType<typeof poseBones> | undefined;
+      let frame: IAutoMovieMotionHumanPerformanceAim.IFrame | undefined;
+      const freshBones: () => ReturnType<typeof poseBones> = (): ReturnType<
+        typeof poseBones
+      > =>
+        poseBones(
+          context.body,
+          resolveHumanPosture(context.body, grip.posture),
+        );
+      const ownBones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"] = (): ReturnType<
+        typeof poseBones
+      > => (querying ? (bones ??= freshBones()) : freshBones());
+      try {
+        return asked.law.demands({
+          subject: context.subject,
+          body: context.body,
+          params: asked.params as never,
+          skill: context.skill,
+          prop: context.prop,
+          aim: (
+            target: Parameters<IAutoMovieMotionHumanActionContext["aim"]>[0],
+            seconds: number,
+          ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> => {
+            const current: IAutoMovieMotionHumanPerformanceAim.IFrame =
+              querying && frame !== undefined
+                ? frame
+                : HumanPerformanceAim.frame(
+                    context.body,
+                    grip.posture,
+                    ownBones,
+                    context.subject,
+                  );
+            if (querying) frame = current;
+            return HumanPerformanceAim.aim(self, target, seconds, current);
+          },
+          start: context.start,
+          grip,
+        });
+      } finally {
+        // A law may retain its existing aim callback. Outside this query
+        // it must keep the original fresh-read behavior and retain no FK.
+        querying = false;
+        bones = undefined;
+        frame = undefined;
+      }
     };
   }
 

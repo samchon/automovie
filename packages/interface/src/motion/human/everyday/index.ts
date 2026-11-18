@@ -1,6 +1,5 @@
 export type { IAutoMovieMotionHumanAffect } from "./IAutoMovieMotionHumanAffect";
 export type { IAutoMovieMotionHumanApproach } from "./IAutoMovieMotionHumanApproach";
-export type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 export type { IAutoMovieMotionHumanBend } from "./IAutoMovieMotionHumanBend";
 export type { IAutoMovieMotionHumanBendLower } from "./IAutoMovieMotionHumanBendLower";
 export type { IAutoMovieMotionHumanBrace } from "./IAutoMovieMotionHumanBrace";

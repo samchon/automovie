@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, RigidCarrierSample, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
@@ -79,8 +79,8 @@ export namespace HumanObject {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the affordances.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the object's own when it gives them, and absent otherwise.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the object's affordances and colliders for as long as the prop is held.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An exact native model and callback pair can pass its existing stationary domains to the prop reader without invoking either callback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop owns its affordances, colliders and any issued carrier domain metadata for its lifetime.
    */
   export function prop(
     subject: string,
@@ -98,7 +98,7 @@ export namespace HumanObject {
       ),
     );
     const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
-    return {
+    const prop: IAutoMovieMotionHumanProp = {
       subject,
       frame: frame(placement),
       points: Object.fromEntries(
@@ -151,13 +151,12 @@ export namespace HumanObject {
             point: (
               id: string,
               seconds: number,
-            ):
-              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-              | undefined => {
+            ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined => {
               if (!ids.has(id)) return undefined;
               const at: IAutoMovieTransform = contact(id, seconds);
               return {
                 point: at.translation,
+                rotation: at.rotation,
                 normal: Quaternion.rotateVector(at.rotation, {
                   x: 0,
                   y: 1,
@@ -167,6 +166,8 @@ export namespace HumanObject {
             },
           }),
     };
+    RigidCarrierSample.adapt(prop, model, motion, contact);
+    return prop;
   }
 
   /**
@@ -238,6 +239,9 @@ export namespace HumanObject {
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
+      ...(found.workingSeat === undefined
+        ? {}
+        : { workingSeat: found.workingSeat }),
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
       ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),

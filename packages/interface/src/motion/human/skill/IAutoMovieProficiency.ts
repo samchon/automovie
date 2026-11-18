@@ -2,8 +2,10 @@
  * How skilled a performer is, from clumsy to expert: a named level or a
  * continuous `p` in [0, 1], with optional per-axis overrides in [0, 1].
  *
- * The named levels are `novice` 0, `amateur` 0.35, `trained` 0.7 and `elite`
- * 1. An axis names one dimension motor-learning studies measure separately:
+ * The named levels are `novice` 0, `amateur` 1/3, `trained` 2/3 and `elite`
+ * 1, Fitts and Posner's three learning stages laid end to end in equal
+ * thirds (`HumanSkill.LEVELS`). An axis names one dimension motor-learning
+ * studies measure separately:
  * `timing` (rhythm variability), `path` (trajectory smoothness and wobble),
  * `balance` (postural sway), `guard` (protective posture kept), `power`,
  * `speed` (peak distal speed), `recovery` (time back to readiness),

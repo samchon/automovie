@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSquatVault,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
@@ -24,6 +23,7 @@ import type {
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { supportKey } from "../actions/supportKey";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -64,9 +64,11 @@ export namespace squatVault {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "squatVault";
 
-  /** Cancel table: a vault in the air cannot be cut; standing again once it has landed. */
+  /** Cancel table: a vault in the air cannot be cut; standing again once it has landed, from its `touchdown` on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0.9, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+    ],
   };
 
   /**
@@ -80,9 +82,9 @@ export namespace squatVault {
    * @evidence contracts/development/implementation.md#principled-implementation The support planner's keys to the push-off, then a ballistic root under gravity on the least-speed arc to the landing, then the quiet stance beyond the far edge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The box's edges, the support plan, the landing, the flight, one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The push's speed and angle follow from the heights and the run in closed form; a landing not ahead is refused, never given a made-up flight.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The support keys are solved once; a flight posture is one blend and a closed-form root.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the support planner, its key blend, the workout's support reading, the engine's gravity and the stand law's posture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the support plan and the landing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual support-frame/primary lookup supplies top, rotation and depth. Solved keys and ordered joint pairs prepare once; complete pairs use genuine fixed endpoint quaternion/chart preparation and missing pairs retain the generic path. Every share still performs original interpolation/root parabola; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing support/standing/gravity owners remain. prepareBlended delegates fixed endpoint pairs to the genuine range-aware owner; missing zeros/current shares retain original semantics. settle forwards interval memo invalidation; the captured end key is support's w=1 identity, independent of that memo. FK/projector loans stay synchronous, without a time/result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains support/landing geometry and bounded fixed-pair quaternion/chart preparations. Temporary fallback metadata and query outputs release normally; optional parent FK/projector loans stay synchronous and never enter retained plans, outputs or interpolation preparation.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSquatVault.IParams>,
@@ -94,18 +96,14 @@ export namespace squatVault {
 
     // The box's top and its two edges along its own depth; the far one is
     // the one farther along the heading.
-    const top: IAutoMovieVector3 = WorkoutSupport.at(context, {
+    const surface: ReturnType<typeof WorkoutSupport.placed> = WorkoutSupport.placed(context, {
       prop: context.params.on,
       affordance: "surface",
     });
-    const read: IAutoMovieMotionHumanPropReader = context.prop(
-      context.params.on,
-    );
-    const rotation: IAutoMovieQuaternion = read.frame(context.start).rotation;
-    const declared: IAutoMovieAffordance | undefined = (
-      read.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "surface");
-    const half: number = (declared?.depth ?? 0) / 2;
+    const top: IAutoMovieVector3 = surface.point;
+    const rotation: IAutoMovieQuaternion = surface.frame.rotation;
+    const declared: IAutoMovieAffordance = surface.affordance;
+    const half: number = (declared.depth ?? 0) / 2;
     const ends: IAutoMovieVector3[] = [-1, 1].map(
       (sign: number): IAutoMovieVector3 =>
         Vector3.add(
@@ -113,8 +111,8 @@ export namespace squatVault {
           Quaternion.rotateVector(rotation, { x: 0, y: 0, z: sign * half }),
         ),
     );
-    const along = (p: IAutoMovieVector3): number => Vector3.dot(p, heading);
-    const [near, far] = (
+    const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => Vector3.dot(p, heading);
+    const [near, far]: [IAutoMovieVector3, IAutoMovieVector3] = (
       along(ends[0]!) <= along(ends[1]!) ? ends : [ends[1]!, ends[0]!]
     ) as [IAutoMovieVector3, IAutoMovieVector3];
 
@@ -123,9 +121,7 @@ export namespace squatVault {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const palm = (
-      side: "left" | "right",
-    ): IAutoMovieMotionHumanSupport.IContact => ({
+    const palm: (side: "left" | "right") => IAutoMovieMotionHumanSupport.IContact = (side: "left" | "right"): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "bear",
       target: {
@@ -170,11 +166,7 @@ export namespace squatVault {
       { ...far, y: 0 },
       Vector3.scale(heading, heel + body.measure.footLength),
     );
-    const landing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      ground,
-      yaw,
-    );
+    const landing: IAutoMovieMotionHumanPosture = stand.posture(body, ground, yaw);
     // The landing by its joints alone, its legs' goals resolved, which the
     // flight's blend reaches (`getUp.quiet`).
     const landed: IAutoMovieMotionHumanPosture = {
@@ -182,6 +174,7 @@ export namespace squatVault {
       joints: { ...landing.joints, ...getUp.quiet(body).joints },
       limbs: {},
     };
+    const flyingShape: ReturnType<typeof supportKey.prepareBlended> = supportKey.prepareBlended(body, tucked, landed);
 
     // The flight: the least-speed ballistic arc from the tucked root to the
     // landing's, the push that reaches it with the least effort. For a rise
@@ -210,16 +203,14 @@ export namespace squatVault {
     const hold: number = context.params.seconds ?? 0.5;
     const touchdown: number = push + flight;
     const duration: number = touchdown + hold;
-    const share = (s: number): number => (s * push) / duration;
+    const share: (s: number) => number = (s: number): number => (s * push) / duration;
     return {
       duration,
+      settle: (): void => held.settle?.(),
       base: { kind: "standing" },
       events: [
         ...held.events.map(
-          (e: {
-            name: string;
-            share: number;
-          }): { name: string; share: number } => ({
+          (e: { name: string; share: number; }): { name: string; share: number } => ({
             name: e.name,
             share: share(e.share),
           }),
@@ -228,18 +219,14 @@ export namespace squatVault {
       ],
       contacts: [
         ...held.contacts.map(
-          (
-            w: IAutoMovieMotionHumanContactWindow,
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (w: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
             ...w,
             from: share(w.from),
             to: share(w.to),
           }),
         ),
         ...(["leftFoot", "rightFoot"] as const).map(
-          (
-            part: "leftFoot" | "rightFoot",
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
             part,
             kind: "plant",
             from: touchdown / duration,
@@ -253,17 +240,12 @@ export namespace squatVault {
         to: touchdown / duration,
         momentum: { kind: "turns", somersault: 0, twist: 0 },
       },
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= push) return held.posture(t);
+        if (t <= push) return held.posture(t, channels, resolution, projection);
         if (t >= touchdown) return landing;
         const u: number = t - push;
-        const shaped: IAutoMovieMotionHumanPosture = supportKey.blended(
-          body,
-          tucked,
-          landed,
-          minimumJerk(u / flight).s,
-        );
+        const shaped: IAutoMovieMotionHumanPosture = flyingShape(minimumJerk.share(u / flight));
         return {
           ...shaped,
           root: {

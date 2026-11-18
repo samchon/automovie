@@ -1,17 +1,21 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRest,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 
@@ -35,127 +39,187 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/implementation.md#principled-implementation Each arm's goal lies on the other arm's surface, so both upper arms are fixed first and the one free width is solved for the forearm's length.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one palm goal and one bisection of the width.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible width keeps the nearest feasible one, as stated; the least flexion is named provisional.
- * @evidence contracts/development/implementation.md#efficient-algorithms A 30-step bisection of closed-form goals after one posture solve; run once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.region` for the sternum and `HumanHand` for the palm's place and turn.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A 30-step width bisection retains every closed-form goal query. One observational posture solve demands only the actual shoulder-parent frames, falling back to full fitting when dependencies require it; shoulder frames, lengths, directions and elbow forward/down geometry are prepared once per plan. Native scalar distance and addScaled owners preserve the original read/arithmetic order while omitting discarded separation/scaled-offset records in every actual width trial.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A same-operation exact FK reader serves the admitted shoulder solve, shoulder frames and raw sternum. Bisection trials share fixed body geometry, lazy actual palm offsets and clamped shoulder origins; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restCrossedArms(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
 ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
-  const frame: IAutoMovieMotionHumanFrame = {
-    origin: posture.root,
-    yaw: posture.yaw,
-  };
-  const turn = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-    HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, local);
-  const bones = poseBones(body, resolveHumanPosture(body, posture));
-  const length = (
+  const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: posture.root, yaw: posture.yaw });
+  const turn: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+    frame.direction(local);
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    "leftUpperArm", "rightUpperArm",
+  ]);
+
+  // A joint's origin depends on its parent's frame, not its own rotation.
+  // The shared selector keeps full fitting when any dependency is uncertain.
+  const parents: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    [...requested].map((bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone =>
+      readHumanBone(body, bone)?.parent ?? bone,
+    ),
+  );
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+    body, posture, undefined, {}, resolution, parents,
+  ).pose;
+  const bones: ReturnType<typeof poseBones> = poseBones(body, pose, resolution(), requested);
+  const length: (
+    side: AutoMovieHumanSide,
+    from: "UpperArm" | "LowerArm",
+    to: "LowerArm" | "Hand",
+  ) => number = (
     side: AutoMovieHumanSide,
     from: "UpperArm" | "LowerArm",
     to: "LowerArm" | "Hand",
   ): number =>
-    Vector3.length(
-      Vector3.subtract(
-        body.rest.get(`${side}${to}`)!,
-        body.rest.get(`${side}${from}`)!,
-      ),
+    Vector3.distance(
+      body.rest.get(`${side}${to}`)!, body.rest.get(`${side}${from}`)!,
     );
-  const shoulder = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-    HumanFrame.local(frame, bones.get(`${side}UpperArm`)!.worldPosition);
-  const sternum: IAutoMovieVector3 = HumanFrame.local(
-    frame,
-    HumanTrunk.region(body, posture, "sternum").point,
+  const sternum: IAutoMovieVector3 = frame.local(
+    HumanTrunk.region(body, posture, "sternum", resolution).point,
   );
-  const elbowAt = (
+  const geometry: Record<AutoMovieHumanSide, IArm> = {
+    left: prepare("left"), right: prepare("right"),
+  };
+  const ahead: IAutoMovieVector3 = turn({ x: 0, y: 0, z: 1 });
+  const palms: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+  const elbowAt: (side: AutoMovieHumanSide, inward: number) => IAutoMovieVector3 = (
     side: AutoMovieHumanSide,
     inward: number,
   ): IAutoMovieVector3 => {
-    const s: IAutoMovieVector3 = shoulder(side);
-    const upper: number = length(side, "UpperArm", "LowerArm");
-    const ahead: number = Math.min(
-      0.9 * upper,
-      Math.max(
-        upper * Math.sin((restCrossedArms.FLEXION * Math.PI) / 180),
-        sternum.z + body.measure.forearmRadius - s.z,
-      ),
-    );
-    const across: number = Math.min(
-      inward,
-      Math.sqrt(upper * upper - ahead * ahead),
-    );
+    const arm: IArm = geometry[side];
+    const s: IAutoMovieVector3 = arm.shoulder;
+    const across: number = Math.min(inward, arm.across);
     const down: number = Math.sqrt(
-      Math.max(0, upper * upper - ahead * ahead - across * across),
+      Math.max(0, arm.downSquared - across * across),
     );
-    return HumanFrame.point(frame, {
+    return frame.point({
       x: s.x - (side === "left" ? 1 : -1) * across,
       y: s.y - down,
-      z: s.z + ahead,
+      z: s.z + arm.forward,
     });
   };
-  const goal = (
+  const goal: (
     side: AutoMovieHumanSide,
-    inward: number,
+    elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+  ) => { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } = (
+    side: AutoMovieHumanSide,
+    elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } => {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const from: IAutoMovieVector3 = HumanFrame.point(frame, shoulder(other));
+    const from: IAutoMovieVector3 = geometry[other].world;
     const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(elbowAt(other, inward), from),
+      Vector3.subtract(elbows[other], from),
     );
-    const ahead: IAutoMovieVector3 = turn({ x: 0, y: 0, z: 1 });
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
     );
-    const point: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
-        from,
-        Vector3.scale(axis, 0.75 * length(other, "UpperArm", "LowerArm")),
-      ),
-      Vector3.scale(front, body.measure.upperArmRadius),
+    // With level elbows the distance of the forearm axes at their crossing
+    // is half their wrist-height difference. Place one wrist above and one
+    // below the nominal bearing by a forearm diameter, along the upper arm.
+    const span: number = geometry[other].upper;
+    const shift: number = axis.y === 0 ? 0 : 2 * body.measure.forearmRadius / Math.abs(axis.y);
+    const along: number = Math.max(0, Math.min(span, ALONG * span + (side === "left" ? shift : -shift)));
+    const point: IAutoMovieVector3 = Vector3.addScaled(
+      Vector3.addScaled(from, axis, along),
+      front, body.measure.upperArmRadius,
     );
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-      fingers: turn({ x: other === "left" ? 1 : -1, y: 0, z: 0 }),
+      fingers: geometry[other].outward,
       palm: Vector3.scale(front, -1),
     });
-    const elbow: IAutoMovieVector3 = elbowAt(side, inward);
-    const wrist: IAutoMovieVector3 = HumanHand.place(
-      body,
-      side,
-      "palm",
-      point,
-      rotation,
-      "relaxed",
-    ).point;
+    const elbow: IAutoMovieVector3 = elbows[side];
+    const palm: IAutoMovieVector3 = palms[side] ??= HumanHand.offset(body, side, "palm", "relaxed").point;
+    const wrist: IAutoMovieVector3 = placeHumanHandSurface(palm, point, rotation).point;
     return {
       goal: { surface: "palm", shape: "relaxed", point, rotation, elbow },
       excess:
-        Vector3.length(Vector3.subtract(wrist, elbow)) -
-        length(side, "LowerArm", "Hand"),
+        Vector3.distance(wrist, elbow) -
+        geometry[side].lower,
     };
   };
-  const excess = (inward: number): number =>
-    (goal("left", inward).excess + goal("right", inward).excess) / 2;
+  const elbowsAt: (inward: number) => Record<AutoMovieHumanSide, IAutoMovieVector3> =
+    (inward: number): Record<AutoMovieHumanSide, IAutoMovieVector3> => ({
+      left: elbowAt("left", inward), right: elbowAt("right", inward),
+    });
+  const excess: (inward: number) => number = (inward: number): number => {
+    const elbows: Record<AutoMovieHumanSide, IAutoMovieVector3> = elbowsAt(inward);
+    return (goal("left", elbows).excess + goal("right", elbows).excess) / 2;
+  };
   let lo: number = 0;
-  let hi: number = Math.abs(shoulder("left").x - shoulder("right").x) / 2;
+  let hi: number = Math.abs(geometry.left.shoulder.x - geometry.right.shoulder.x) / 2;
   if (excess(lo) <= 0) hi = lo;
   else if (excess(hi) > 0) lo = hi;
+  // Halve until the width is known to 10 um, far finer than the arms'
+  // surfaces; a half-breadth under 0.25 m reaches that in 15 halvings, so the
+  // cap of thirty only guards the loop.
   for (let i: number = 0; i < 30 && hi - lo > 1e-5; i++) {
     const mid: number = (lo + hi) / 2;
     if (excess(mid) > 0) lo = mid;
     else hi = mid;
   }
-  return { left: goal("left", hi).goal, right: goal("right", hi).goal };
+  const elbows: Record<AutoMovieHumanSide, IAutoMovieVector3> = elbowsAt(hi);
+  return { left: goal("left", elbows).goal, right: goal("right", elbows).goal };
+
+  /** Prepare fixed anatomical values used by every width trial. */
+  function prepare(side: AutoMovieHumanSide): IArm {
+    const shoulder: IAutoMovieVector3 = frame.local(
+      bones.get(`${side}UpperArm`)!.worldPosition,
+    );
+    const upper: number = length(side, "UpperArm", "LowerArm");
+    const forward: number = Math.min(AHEAD * upper, Math.max(
+      upper * Math.sin((FLEXION * Math.PI) / 180),
+      sternum.z + body.measure.forearmRadius - shoulder.z,
+    ));
+    const downSquared: number = upper * upper - forward * forward;
+    return {
+      shoulder,
+      world: frame.point(shoulder),
+      upper,
+      lower: length(side, "LowerArm", "Hand"),
+      outward: turn({ x: side === "left" ? 1 : -1, y: 0, z: 0 }),
+      forward,
+      downSquared,
+      across: Math.sqrt(downSquared),
+    };
+  }
 }
 
-/**
- * Companion values of {@link restCrossedArms}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the constant's unit and that it is provisional.
- * @evidence contracts/development/design.md#principled-representation One named angle in clinical degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one value the function reads and a caller may cite.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A named constant, not a literal inside the solve.
- */
-export namespace restCrossedArms {
-  /** The least forward hang of each upper arm when the arms are crossed, degrees (provisional). */
-  export const FLEXION: number = 20;
+/** Immutable arm geometry read by the crossed-arm width search. */
+interface IArm {
+  /** Shoulder in the performer's floor frame. */
+  shoulder: IAutoMovieVector3;
+
+  /** The shoulder transformed back exactly as the original goal used it. */
+  world: IAutoMovieVector3;
+
+  /** Measured upper-arm length, metres. */
+  upper: number;
+
+  /** Measured forearm length, metres. */
+  lower: number;
+
+  /** The arm side's outward world direction. */
+  outward: IAutoMovieVector3;
+
+  /** Fixed elbow distance ahead of the shoulder, metres. */
+  forward: number;
+
+  /** Squared upper-arm length available for down and inward displacement. */
+  downSquared: number;
+
+  /** Greatest inward displacement from that same length, metres. */
+  across: number;
 }
+
+/** The least forward hang of each upper arm when the arms are crossed, degrees (provisional). */
+const FLEXION: number = 20;
+
+/** The farthest an elbow hangs ahead of its shoulder, as a share of the upper arm: short of a level arm, so it still hangs (provisional). */
+const AHEAD: number = 0.9;
+
+/** Where on the other upper arm a palm lies, as a share of the way from the shoulder to the elbow (the namespace's three quarters). */
+const ALONG: number = 0.75;

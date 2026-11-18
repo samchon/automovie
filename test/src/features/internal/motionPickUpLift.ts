@@ -11,8 +11,6 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -40,9 +38,11 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
-export function motionPickUpLift(name: motionHumanBody.Name): void {
+export function motionPickUpLift(
+  name: motionHumanBody.Name,
+  complaints: string[],
+): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
@@ -111,10 +111,4 @@ export function motionPickUpLift(name: motionHumanBody.Name): void {
     complaints.push(
       `${name}: lifted 1.2 m: expected a reach refusal on lift that names a smaller lift, got ${said(thrown)}`,
     );
-
-  TestValidator.equals(
-    `a pick up lifts what it is asked or refuses (${name})`,
-    complaints,
-    [],
-  );
 }

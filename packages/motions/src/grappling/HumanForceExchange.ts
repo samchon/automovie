@@ -13,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanForceDrawn } from "./HumanForceDrawn";
+
 /**
  * The mechanics of a force exchanged through grips (#3439): a pull that
  * draws a partner off balance (kuzushi), the counter-lean that resists it,
@@ -118,9 +120,7 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function breaking(
-    props: IAutoMovieMotionHumanForceExchange.IBreakingProps,
-  ): number {
+  export function breaking(props: IAutoMovieMotionHumanForceExchange.IBreakingProps ): number {
     const { mass, frequency, edge, seconds } = props;
     if (!(mass > 0 && frequency > 0 && edge > 0 && seconds > 0))
       throw new Error(
@@ -145,9 +145,7 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function broken(
-    props: IAutoMovieMotionHumanForceExchange.IBrokenProps,
-  ): number {
+  export function broken(props: IAutoMovieMotionHumanForceExchange.IBrokenProps ): number {
     const { mass, frequency, edge, force } = props;
     if (!(force > 0)) return Number.POSITIVE_INFINITY;
     return (
@@ -164,21 +162,14 @@ export namespace HumanForceExchange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three outputs and their units.
    * @evidence contracts/development/implementation.md#principled-implementation `x = (F / M ω²)(cosh ωt - 1)`, `x' = (F / M ω) sinh ωt`, `ξ = x + x' / ω`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three closed forms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Seconds before the pull read the rest state.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One full-sample facade shares HumanForceDrawn's coefficient, position and complete-state owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original Math.max(0,seconds), arithmetic order and nonfinite propagation, with no added input repair or changed physical bound.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One cosh, one sinh and constant scalar work produce one fresh three-field record without constructing a prepared factory; runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The complete one-shot and actual fixed-pull response readers share one analytic owner. Response requests offset only per yield frame and consumes a paired complete break-state once; this facade reads every supplied input anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh complete state and retains no props, clock, body, prepared factory, pose or numerical history.
    */
-  export function drawn(
-    props: IAutoMovieMotionHumanForceExchange.IDrawnProps,
-  ): IAutoMovieMotionHumanForceExchange.IDrawnResult {
-    const t: number = Math.max(0, props.seconds);
-    const w: number = props.frequency;
-    const a: number = props.force / (props.mass * w * w);
-    const offset: number = a * (Math.cosh(w * t) - 1);
-    const speed: number = a * w * Math.sinh(w * t);
-    return { offset, speed, extrapolated: offset + speed / w };
+  export function drawn(props: IAutoMovieMotionHumanForceExchange.IDrawnProps ): IAutoMovieMotionHumanForceExchange.IDrawnResult {
+    return HumanForceDrawn.sample(props);
   }
 
   /**
@@ -205,21 +196,20 @@ export namespace HumanForceExchange {
     const shift: number = (props.force * props.height) / (props.mass * gravity);
     return shift <= props.edge ? shift : null;
   }
-
   /**
    * A throw's swing about the fulcrum, from the momentum the pull left to
    * the release where the centre comes level with the fulcrum.
    *
    * @param props The partner's mass, inertia about its centre on the swing's axis, the centre's distance from the fulcrum, its starting angle and rate.
    * @param gravity Gravitational acceleration; standard when absent.
-   * @returns The swing, or null when the rate falls to none before the vertical.
+   * @returns The swing, or null when, the pull's drive ended, the rate falls to none before the release.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the law, the start, the release rule and the null.
-   * @evidence contracts/development/implementation.md#principled-implementation `(I_c + M r²) φ'' = M g r sin φ + τ`, with the pull's moment `τ` while it lasts, integrated by the engine's fixed-step fourth-order integrator, in spans of the free swing's own time scale `sqrt(I / M g r)` until the angle passes `π / 2` or the rate stops; the release is found by bisection on the integrated angle to the step squared, finer than the step at which the motion is read.
+   * @evidence contracts/development/implementation.md#principled-implementation `(I_c + M r²) φ'' = M g r sin φ + τ`, with the pull's moment `τ` while it lasts, integrated by the engine's fixed-step fourth-order integrator, in spans of the free swing's own time scale `sqrt(I / M g r)` until the angle passes `π / 2` or, once the drive has ended, the rate stops (a rate the drive is still reversing is not a stop); the release is found by bisection on the integrated angle to the step squared, finer than the step at which the motion is read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Integrate span by span, detect, bisect, read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops short is null, never a scripted push over the fulcrum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per integrator step over the swing's few spans; the bisection reads the stored trajectory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrator is `integrateMotionTrajectory` and the root search `bracketedBisection`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original four right-hand sides per integrator step, span extension and release bisection remain. Fixed torque/moment and drive cutoff are prepared once, and one rate closure serves every span; every actual time/state still evaluates the pendulum sine and original drive condition. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical integrator and bracketedBisection remain. This synchronous swing fixes mass, radius, moment, torque and cutoff, so their scalar drive geometry is prepared once; no trajectory sample, numerical state or different-time answer is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The swing holds its spans' trajectories for as long as its plan.
    */
   export function swing(
@@ -230,22 +220,18 @@ export namespace HumanForceExchange {
     const moment: number = props.inertia + mass * radius * radius;
     const k: number = (mass * gravity * radius) / moment;
     const span: number = 1 / Math.sqrt(k);
+    const until: number = props.until ?? 0;
+    const drive: number = (props.torque ?? 0) / moment;
+    const rate = (t: number, x: readonly number[]): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+      dx: [x[1]!, k * Math.sin(x[0]!) + (t < until ? drive : 0)],
+    });
     const spans: IAutoMovieIntegrateMotionTrajectory.ITrajectory[] = [];
     let state: readonly number[] = [props.angle, props.rate];
     let t0: number = 0;
     for (;;) {
       const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
-          f: (
-            t: number,
-            x: readonly number[],
-          ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
-            dx: [
-              x[1]!,
-              k * Math.sin(x[0]!) +
-                (t < (props.until ?? 0) ? (props.torque ?? 0) / moment : 0),
-            ],
-          }),
+          f: rate,
           x0: state,
           t0,
           t1: t0 + span,
@@ -254,7 +240,10 @@ export namespace HumanForceExchange {
       spans.push(trajectory);
       const end: readonly number[] = trajectory.at(t0 + span).x;
       if (end[0]! >= Math.PI / 2) break;
-      if (!(end[1]! > 0)) return null;
+      // While the pull still drives it, a body carried the other way by the
+      // momentum it broke with is turned back; with the pull gone, a rate
+      // fallen to none is a swing that has stopped.
+      if (!(end[1]! > 0) && t0 + span >= until) return null;
       state = end;
       t0 += span;
     }
@@ -277,6 +266,10 @@ export namespace HumanForceExchange {
       release,
       angle: (seconds: number): number => at(Math.min(release, seconds))[0]!,
       rate: (seconds: number): number => at(Math.min(release, seconds))[1]!,
+      sample: (seconds: number): { angle: number; rate: number } => {
+        const state: readonly number[] = at(Math.min(release, seconds));
+        return { angle: state[0]!, rate: state[1]! };
+      },
     };
   }
 
@@ -295,9 +288,7 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pull(
-    props: IAutoMovieMotionHumanForceExchange.IPullProps,
-  ): IAutoMovieMotionHumanSustainedForce[] {
+  export function pull(props: IAutoMovieMotionHumanForceExchange.IPullProps ): IAutoMovieMotionHumanSustainedForce[] {
     const each: number =
       props.sites.length === 0 ? 0 : props.force / props.sites.length;
     return props.sites.map(

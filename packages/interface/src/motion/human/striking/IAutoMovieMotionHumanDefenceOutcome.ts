@@ -26,12 +26,12 @@ import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanS
  * solves `t_start`, and splits it into a reaction time and a lead, each in its
  * range. When the bands do not meet, the attacker's strike duration is
  * stretched or shortened within its own allowed factor first; if no factor
- * suffices, the nearest plausible margin is used and a warning names the
- * shortfall. An implausible reaction time is never used.
+ * suffices, the forced outcome is refused with the outcomes plausible timing
+ * reaches. An implausible reaction time is never used.
  *
  * @evidence contracts/development/common.md#meaningful-documentation launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
  * @evidence contracts/development/design.md#principled-representation launch: The strike's launch, film seconds. hit: The strike's contact, film seconds; after the launch. movement: The defence's movement time, seconds; positive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/DefenceOutcome.ts (DefenceOutcome.classify, return); striking/DefenceOutcome.ts (DefenceOutcome.band, outcome); striking/DefenceOutcome.ts (DefenceOutcome.decide, forced); striking/DefenceOutcome.ts (DefenceOutcome.decide, input); striking/DefenceOutcome.ts (DefenceOutcome.decide, return); striking/defend.ts (defend.decision, return).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/DefenceOutcome.ts (DefenceOutcome.classify, return); striking/DefenceOutcome.ts (DefenceOutcome.band, outcome); striking/DefenceOutcome.ts (DefenceOutcome.decide, forced); striking/DefenceOutcome.ts (DefenceOutcome.decide, input); striking/DefenceOutcome.ts (DefenceOutcome.decide, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSkill identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanDefenceOutcome {
@@ -77,7 +77,7 @@ export namespace IAutoMovieMotionHumanDefenceOutcome {
    * A decided defence.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and band.
-   * @evidence contracts/development/design.md#principled-representation The outcome with the realised start, reaction, lead and margin in seconds, the attack's stretch and contact, and the warnings of an unmet forced outcome.
+   * @evidence contracts/development/design.md#principled-representation The outcome with the realised start, reaction, lead and margin in seconds, the attack's stretch and contact; an unmet forced outcome is refused, so no decision carries one.
    * @evidence contracts/development/design.md#minimal-and-owned-surface What the defence law schedules and what audits and tests read.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
    */
@@ -102,8 +102,5 @@ export namespace IAutoMovieMotionHumanDefenceOutcome {
 
     /** The contact second after the stretch. */
     hit: number;
-
-    /** Why a forced outcome could not be met with plausible timing; empty when it was. */
-    warnings: string[];
   }
 }

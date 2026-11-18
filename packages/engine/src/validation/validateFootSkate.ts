@@ -196,7 +196,7 @@ const sampleWindow: (
   windowSampleTimes(contact.start, contact.end, sampleRate).map(
     (time: number): { time: number; position: IAutoMovieVector3 } => {
       const resolved: IAutoMovieResolvedBone | undefined = resolvePose(
-        sampleMotion(motion, time).pose,
+        sampleMotion.pose(motion, time),
         skeleton,
         jointAxes,
         restFrames,

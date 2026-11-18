@@ -4,14 +4,9 @@ import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
  *
- * The step period is the pace's own, the time its longest step takes at the
- * asked speed, whatever the distance: a distance that is not a whole number
- * of longest steps is walked in shorter steps at the same cadence, and so a
- * little slower, as a walker regulates the last steps to a target by their
- * length (Lee, Lishman and Thomson 1982, J Exp Psychol Hum Percept Perform
- * 8:448). A period shrunk with the step instead would quicken the cadence
- * by a fifth on a 3 m walk of five steps where four fall just short, and
- * without bound on a short one.
+ * With a cruising walking step between departure and arrival, the first
+ * accelerating steps absorb the part of the distance left by the whole
+ * cruising steps. The cruise can retain both its step and its cadence.
  *
  * The pelvis gathers its speed over a ramp, cruises one step per period and
  * sheds the speed over a second ramp, each ramp a smooth step of the speed
@@ -47,8 +42,23 @@ export class WalkPace {
   /** The delay of the first toe-off, seconds: a provisional gait initiation (anticipatory postural adjustments take a few tenths of a second, Brenière, Do and Bouisset 1987). */
   public static readonly FIRST: number = 0.25;
 
-  /** The longest a way set from outside is searched for its end, seconds: ten minutes, which no shot reaches. */
+  /** The longest a walk is planned for, seconds: ten minutes, which no shot reaches; a way set from outside is searched no further for its end, and no step count is sought past it. */
   public static readonly LONGEST: number = 600;
+
+  /** A numeric floor on the step, metres, and on the front and trail shares, steps: it keeps the period and the shares positive and finite for a vanishing step, and lies under any value a gait produces (a walk's front is half a step, a step tens of centimetres). */
+  public static readonly FLOOR: number = 0.05;
+
+  /** A numeric floor on the ramp up's formula, seconds, keeping it positive where the gait's first swing would end before its first heel strike's lead; a millisecond, under a film frame. */
+  public static readonly SHORTEST_RAMP: number = 1e-3;
+
+  /** The most passes of the period's fixed point: at a contraction of a quarter or less each, 64 passes leave 2^-128 of the first error. */
+  public static readonly PASSES: number = 64;
+
+  /** The period change, seconds, under which the period's fixed point is settled: a nanosecond, far under a film frame. */
+  public static readonly SETTLED: number = 1e-9;
+
+  /** The most doublings of the ramp's bracket: 2^20 times the formula's ramp, past any ramp a plan of `LONGEST` holds. */
+  public static readonly DOUBLINGS: number = 20;
 
   /** The number of steps to the closing pair. */
   public readonly steps: number;
@@ -96,42 +106,54 @@ export class WalkPace {
   ) {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
-    const base: number = props.period(
-      Math.max(props.longest, 0.05) / props.speed,
-    );
+    const floor: number = WalkPace.FLOOR;
+    const base: number = props.period(Math.max(props.longest, floor) / props.speed);
     const front: number =
       props.share > 1
         ? Math.max(
-            0.05,
+            floor,
             1 -
               props.share / 2 -
-              (props.lead ?? 0) / Math.max(props.distance / n, 0.05),
+              (props.lead ?? 0) / Math.max(props.distance / n, floor),
           )
         : Math.min(0.5, 1 - props.share / 2);
 
     // The time a cruising stance carries the pelvis past its footprint, in
     // periods: from `front` periods after the heel strike to the toe-off.
-    const trail: number = Math.max(0.05, 2 - props.share - front);
+    const trail: number = Math.max(floor, 2 - props.share - front);
+
+    // The ramp up and the period depend on each other: the period lengthens
+    // by the ramp's excess over its formula, shared over the 2n half-ramps
+    // of cruising, and the excess is read at that period. The excess grows
+    // with the period at about the ramp's own rate, so one pass shrinks a
+    // period error by about 1 / (2n), a quarter at two steps; the passes run
+    // until the period moves by less than `SETTLED`, `PASSES` bounding them.
+    // A fixed-cadence way or an unchanged base period has no next iterate.
+    const fixedCadence: boolean = props.travel !== undefined;
     let T: number = base;
     let accel: number = 0;
     let excess: number = 0;
-    for (let k: number = 0; k < 8; k++) {
+    for (let k: number = 0; k < WalkPace.PASSES; k++) {
       // A way set from outside keeps the asked period: its pelvis does not ramp by itself.
-      T = base + (props.travel === undefined ? excess / (2 * n) : 0);
+      const was: number = T;
+      T = base + (fixedCadence ? 0 : excess / (2 * n));
       const formula: number = Math.max(
-        1e-3,
+        WalkPace.SHORTEST_RAMP,
         2 * (first + props.share * T - (1 - front) * T),
       );
 
       // The pelvis's way by the second toe-off, in seconds of cruising.
       const lifts: number = first + T;
-      const gone = (a: number): number =>
+      const gone: (a: number) => number = (a: number): number =>
         a * WalkPace.integral(Math.min(1, lifts / a)) + Math.max(0, lifts - a);
       accel = formula;
       if (gone(formula) > trail * T) {
+        // `gone` falls as the ramp lengthens: double the ramp until it no
+        // longer carries the pelvis past the trail, then bisect, 40 halvings
+        // leaving 2^-40 of the bracket.
         let low: number = formula;
         let high: number = formula * 2;
-        for (let i: number = 0; i < 20 && gone(high) > trail * T; i++)
+        for (let i: number = 0; i < WalkPace.DOUBLINGS && gone(high) > trail * T; i++)
           high *= 2;
         for (let i: number = 0; i < 40; i++) {
           const middle: number = (low + high) / 2;
@@ -141,6 +163,12 @@ export class WalkPace {
         accel = high;
       }
       excess = accel - formula;
+      if (
+        fixedCadence ||
+        (T === base && excess === 0) ||
+        (k > 0 && Math.abs(T - was) < WalkPace.SETTLED)
+      )
+        break;
     }
     this.steps = n;
     this.period = T;
@@ -149,6 +177,11 @@ export class WalkPace {
     this.last = first + this.swing + n * T;
 
     const decel: number = 2 * (1 - front) * T;
+    // Both speed ramps integrate to half their duration. Solve the
+    // remaining departure duration from D = v (last - (accel + decel)/2)
+    // with v = step/T, respecting the opening leg's existing reach bound.
+    if (!fixedCadence && props.share < 1 && props.distance > floor && n > 2)
+      accel = Math.max(accel, 2 * (this.last - props.distance * T / props.longest) - decel);
     const ramps: number = Math.min(1, this.last / (accel + decel));
     this.accel = ramps * accel;
     this.decel = ramps * decel;
@@ -180,15 +213,23 @@ export class WalkPace {
       props.distance < 1e-6 ? 1 : 2,
       Math.ceil(props.distance / longest - 1e-9),
     );
+
+    // The cruising step is `D / (n - E)`, `E` the steps the ramps' excess
+    // over their formula costs (`excess / 2T`), which settles as `n` grows;
+    // each added step lowers it until it is no longer than the longest. A
+    // plan that would take longer than `LONGEST` to get there is refused.
     let pace: WalkPace = new WalkPace({ ...props, steps: least, longest });
     for (
-      let extra: number = 1;
-      extra <= 4 &&
-      props.distance >= 1e-6 &&
-      pace.stride > longest * (1 + 1e-6);
-      extra++
-    )
-      pace = new WalkPace({ ...props, steps: least + extra, longest });
+      let steps: number = least + 1;
+      props.distance >= 1e-6 && pace.stride > longest * (1 + 1e-6);
+      steps++
+    ) {
+      if (pace.last > WalkPace.LONGEST)
+        throw new Error(
+          `A walk of ${props.distance.toFixed(3)} m finds no step count whose cruising step is at most ${longest.toFixed(3)} m within ${WalkPace.LONGEST} s`,
+        );
+      pace = new WalkPace({ ...props, steps, longest });
+    }
     return pace;
   }
 
@@ -223,14 +264,20 @@ export class WalkPace {
    * The timing of a way set from outside: the asked period, and the fewest
    * steps, at least two, whose closing heel strike comes once the whole way
    * is gone. The second the way is gone is found by bisection on the share,
-   * which never falls.
+   * which never falls: 50 halvings of a bracket of at most `LONGEST` leave
+   * under a nanosecond.
+   *
+   * @param props The distance, the asked speed, the swing and the period law.
+   * @param travel The share of the way gone at a second of the plan.
+   * @param longest The longest step, metres.
+   * @returns The timing.
    */
   private static travelled(
     props: IAutoMovieMotionHumanWalkPace.IProps,
     travel: (seconds: number) => number,
     longest: number,
   ): WalkPace {
-    const T: number = props.period(Math.max(longest, 0.05) / props.speed);
+    const T: number = props.period(Math.max(longest, WalkPace.FLOOR) / props.speed);
     let low: number = 0;
     let high: number = 1;
     while (travel(high) < 1 - 1e-9 && high < WalkPace.LONGEST) high *= 2;

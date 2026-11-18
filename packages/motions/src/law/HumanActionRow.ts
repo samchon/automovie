@@ -56,6 +56,8 @@ export namespace HumanActionRow {
       ...(law.accepts === undefined ? {} : { accepts: law.accepts }),
       ...(law.yields === undefined ? {} : { yields: law.yields }),
       ...(law.overlay === undefined ? {} : { overlay: law.overlay }),
+      ...(law.physical === undefined ? {} : { physical: law.physical }),
+      ...(law.balance === undefined ? {} : { balance: law.balance }),
       plan: (
         context: IAutoMovieMotionHumanActionContext<Omit<P, Fixed>>,
       ): IAutoMovieMotionHumanActionPlan =>

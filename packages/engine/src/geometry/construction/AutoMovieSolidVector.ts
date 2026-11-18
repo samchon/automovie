@@ -1,5 +1,7 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
+import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+
 /**
  * The vector algebra the solid operators share: world vectors in millimetres
  * as fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps
@@ -34,10 +36,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A componentwise sum has no shared preparation or coordinated effects.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh tuple; neither input is changed or retained.
    */
-  export function add(
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple {
+  export function add(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
@@ -56,10 +55,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No interval, phase or request preparation is coordinated here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new tuple and keeps no reference to either operand.
    */
-  export function sub(
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple {
+  export function sub(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -78,10 +74,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This scalar operation owns no reusable phase or request state.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned tuple escapes; the supplied vector is read-only.
    */
-  export function scale(
-    a: Readonly<AutoMovieVector3Tuple>,
-    k: number,
-  ): AutoMovieVector3Tuple {
+  export function scale(a: Readonly<AutoMovieVector3Tuple>, k: number): AutoMovieVector3Tuple {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
@@ -126,10 +119,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No reusable preparation belongs to this scalar inner product.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number without retaining state or inputs.
    */
-  export function dot(
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-  ): number {
+  export function dot(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
@@ -148,10 +138,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single cross product coordinates no repeated operation or shared cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh three-number tuple and holds no operand references.
    */
-  export function cross(
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple {
+  export function cross(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -194,9 +181,7 @@ export namespace AutoMovieSolidVector {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes the norm once for all three component divisions.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Null or a caller-owned new triple escapes; no state survives the call.
    */
-  export function unit(
-    a: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple | null {
+  export function unit(a: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple | null {
     const l: number = norm(a);
     return l > 0 ? [a[0] / l, a[1] / l, a[2] / l] : null;
   }
@@ -280,41 +265,17 @@ export namespace AutoMovieSolidVector {
    *   entry of the matrix (the rows nearly dependent).
    *
    * @evidence contracts/development/implementation.md#principled-implementation Partial-pivot Gaussian elimination solves a finite square system with matching right-hand-side length; the fixed relative pivot threshold is an admission test, not a condition-number bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One copied augmented matrix contains elimination and back-substitution state while preserving caller inputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareLinearSystem owns the shared partial-pivot elimination/back substitution used by both this ordinary augmented solve and repeated digit task-priority columns.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pivot not greater than 1e-14 times the largest original entry returns null; there is no retry, regularization or hidden fallback system.
    * @evidence contracts/development/common.md#meaningful-documentation Gives square row layout, nonmutation, current four-variable workload and the pivot rejection rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and O(N^2) copied storage use the standard dense method for the operators' small systems; no sparse or large-system optimality is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each accepted pivot row eliminates every lower row in place, and back substitution reuses the resulting triangular matrix.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The augmented matrix and pivot temporaries are call-local on success or early null; only the O(N) solution array escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and one O(N^2) augmented matrix retain the ordinary small-system path without prepared-factor rows, pivot arrays or a solver closure. No sparse or large-system optimality is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary and repeated matrix consumers share one pivot/elimination owner, but this one-shot entry updates its actual augmented column directly rather than retaining factors or caching a solution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The augmented matrix and scalar pivot temporaries are call-local on success or early null; only the O(N) solution array escapes.
    */
   export function solve(
     rows: readonly (readonly number[])[],
     b: readonly number[],
   ): number[] | null {
-    const n: number = rows.length;
-    const m: number[][] = rows.map(
-      (r: readonly number[], i: number): number[] => [...r, b[i]!],
-    );
-    let largest: number = 0;
-    for (const r of rows)
-      for (const x of r) largest = Math.max(largest, Math.abs(x));
-    for (let c: number = 0; c < n; c++) {
-      let p: number = c;
-      for (let r: number = c + 1; r < n; r++)
-        if (Math.abs(m[r]![c]!) > Math.abs(m[p]![c]!)) p = r;
-      if (!(Math.abs(m[p]![c]!) > 1e-14 * largest)) return null;
-      [m[c], m[p]] = [m[p]!, m[c]!];
-      for (let r: number = c + 1; r < n; r++) {
-        const f: number = m[r]![c]! / m[c]![c]!;
-        for (let k: number = c; k <= n; k++) m[r]![k]! -= f * m[c]![k]!;
-      }
-    }
-    const x: number[] = new Array<number>(n).fill(0);
-    for (let r: number = n - 1; r >= 0; r--) {
-      let sum: number = m[r]![n]!;
-      for (let k: number = r + 1; k < n; k++) sum -= m[r]![k]! * x[k]!;
-      x[r] = sum / m[r]![r]!;
-    }
-    return x;
+    return prepareLinearSystem.solve(rows, b);
   }
 }

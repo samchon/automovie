@@ -16,6 +16,8 @@ Are the complete forms correctly proportioned, oriented and attached beside the 
 
 Do preparation, support, body movement, contact and recovery connect into the intended action, including the counterpart's response? Deliberate stillness remains valid.
 
+At an interruption or exchange, inspect load transfer, the displayed contact surfaces and what each person carries into the next action. Check selected frames around the resolved event as well as its exact time through [frame evaluation](frame-evaluation.md).
+
 ### Staging
 
 Do blocking and camera preserve the required geography, participants, contacts and reactions through the action and its joins? [The view](staging.md#the-view) lists what each shot must show.
