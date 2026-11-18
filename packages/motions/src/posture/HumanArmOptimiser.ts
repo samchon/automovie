@@ -34,23 +34,28 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * refuse. A solve continued from another's result on refined waypoints
  * starts at that result's penalty, the continuation of a penalty method, in
  * place of the first.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the trust region, step acceptance, penalty limits and continuation from an earlier solve.
+ * @evidence contracts/development/design.md#principled-representation The solver works on each arm's waypoint coordinates in the context's units and clock. The context establishes which endpoint coordinates are fixed. The caller admits the returned evaluation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Holds the trajectory-specific setup and exposes one optimisation entry point to the trajectory planner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the same trust-region and penalty model for a still configuration, a frame-grid solve and a knot solve.
  */
 export namespace HumanArmOptimiser {
   /**
    * Optimise from an iterate.
    *
    * @param context The problem's context.
-   * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
+   * @param start Each arm's coordinates at each waypoint. The first is fixed, and the last is fixed for a closed trajectory.
    * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
    * @param fine The context at the frame grid's instants over the same span. When it holds more instants than `context`, the waypoints are knots: every evaluation and linearisation is the grid's, on the knots' interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`), the rounds reading the clearance pairs at the knots' instants alone and the motion terms and the sweeps on every instant; absent, or for a still configuration, the waypoints are read themselves.
    * @returns The last iterate at the waypoints, its evaluation (the grid's in full where a grid was read) and the penalty it was reached at.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
+   * @evidence contracts/development/common.md#meaningful-documentation States which endpoints are fixed, how to continue from an earlier penalty and what the final evaluation covers.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method, by the operator splitting where that leaves it unsolved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
    * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. On a grid the rounds read the clearance pairs, the costliest readings, at the knots alone, TrajOpt's discrete collision terms at its timesteps with swept volumes between them (Schulman et al. 2014, section IV-C), and the converged path once in full; a pair that the full reading finds between knots is the caller's to refine (`HumanArmTrajectory.solve`). Measured on a tai chi push's row on f-small, two 87-knot reaches on a 361-instant grid: 52 s to 36-42 s.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and ordered knot support are built once per solve. Each model's trust rows are built once and reused across region retries. The solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
   export function optimise(
@@ -66,8 +71,8 @@ export namespace HumanArmOptimiser {
     const grid: M.IContext | undefined =
       fine !== undefined && !context.still && fine.n > context.n ? fine : undefined;
     const read: M.IContext = grid ?? context;
-    const weights: number[][] | undefined =
-      grid === undefined ? undefined : Knots.weights(context.times, grid.times);
+    const weights: ReturnType<typeof Knots.weights> | undefined =
+      grid === undefined ? undefined : Knots.weights(context, grid.times);
     const spread = (x: number[][][]): number[][][] =>
       grid === undefined ? x : Knots.read(context.times, grid.times, x);
 
