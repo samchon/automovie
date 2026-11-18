@@ -1,4 +1,9 @@
-import { Quaternion } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  integrateAirborneRotation,
+  resolveAutoMovieMomentum,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -15,12 +20,13 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A forward somersault completes one signed winding and lands upright.
+ * An explicitly physical forward pike completes one signed winding, lands upright and conserves angular momentum.
  *
  * Scenarios:
  * 1. Accumulate the displayed long axis between the declared takeoff and touchdown of a single gymnast.
+ * 2. Read angular momentum from FK at quarter, half and three-quarter flight using symmetric time differences.
  *
- * @evidence contracts/development/testing.md#behavioral-verification A forward somersault completes one signed winding and lands upright.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the long axis in the takeoff frame, the landing basis and the physical body's angular momentum from its actual displayed bones.
  * @evidence contracts/development/testing.md#independent-expectations A complete forward rotation winds positive two pi in the vertical/forward plane; its final basis matches its initial basis within 0.02 revolution.
  * @evidence contracts/development/testing.md#distinguishing-cases A stationary root and an extra full turn have upright endpoints but different winding.
  * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
@@ -30,6 +36,7 @@ export function test_motion_dynamics_signed_flight_rotation(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "airborne",
+    flight: "physical",
     performers: [
       {
         subject: "a",
@@ -99,4 +106,23 @@ export function test_motion_dynamics_signed_flight_rotation(): void {
     "one forward winding",
     Math.abs(winding / (2 * Math.PI) - 1) <= 0.02,
   );
+  const delta: number = integrateAirborneRotation.DELTA;
+  const momentum = (share: number): IAutoMovieVector3 => {
+    const t: number = start + share * (end - start);
+    return resolveAutoMovieMomentum(
+      body.massModel,
+      film.bones("a", t - delta),
+      film.bones("a", t + delta),
+      2 * delta,
+    ).angular;
+  };
+  const reference: IAutoMovieVector3 = momentum(0.25);
+  for (const share of [0.5, 0.75]) {
+    const relativeDrift: number =
+      Vector3.distance(momentum(share), reference) / Vector3.length(reference);
+    TestValidator.predicate(
+      `displayed physical momentum drift ${relativeDrift} at ${share}`,
+      relativeDrift <= 0.01,
+    );
+  }
 }
