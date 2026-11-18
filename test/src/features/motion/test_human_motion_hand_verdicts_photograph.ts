@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -14,7 +13,6 @@ import {
   HumanHabit,
   HumanPerformance,
   HumanRefusal,
-  HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,9 +32,8 @@ import { photographScene } from "../internal/photographScene";
  * frames (a 20.7 mm step); the grasp chosen for the use asks only what the
  * grip was taken for. The camera is the device archetype's compact camera,
  * which declares the grip, the far end the left hand takes and the back.
- * The whole verdict report took a quarter of an hour on this row, so the
- * test reads the two bounds the row has broken, on one body and a short
- * hold of 0.3 s.
+ * The original 0.3 s hold probes the arm fit and the camera's displayed
+ * motion from the same staged scene.
  *
  * Scenarios, on the average man:
  * 1. At the middle of the hold the two wrists are at least half a hand's
@@ -47,12 +44,15 @@ import { photographScene } from "../internal/photographScene";
  *    report's own continuity bound).
  * 3. Without a camera in hand the row is refused, a `parameter` refusal on
  *    `grasp` that names the `grip` handle and the `screen`.
+ * 4. On the original 120 Hz grid, the camera's position departs from the
+ *    midpoint of its neighbours by at most 5 mm. The left hand steadies
+ *    it as its grasp closes and opens, while the camera rides the right.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Picks the camera up and performs the row through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm step is the verdict report's bound for any human motion; the half hand is a compact camera's width, provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke and the row without its camera; the camera's own path is 	est_human_motion_hand_verdicts_photograph_camera's, the other rows' full reports are its siblings'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and reads one short film; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera, why the reading is cut to two bounds, one body and a short hold, and the 3 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the hand separation, continuity and missing-grasp checks on the original camera scene.
  */
 export function test_human_motion_hand_verdicts_photograph(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -66,22 +66,12 @@ export function test_human_motion_hand_verdicts_photograph(): void {
     (placed.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       placed.plan.duration;
   const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-    performance,
+  const hands: ReturnType<typeof performance.bones> = performance.bones(
     "a",
-    body,
-    0,
-  );
-  const left: IAutoMovieVector3 = HumanSignature.joint(
-    reader,
     held,
-    "leftHand",
   );
-  const right: IAutoMovieVector3 = HumanSignature.joint(
-    reader,
-    held,
-    "rightHand",
-  );
+  const left: IAutoMovieVector3 = hands.get("leftHand")!.worldPosition;
+  const right: IAutoMovieVector3 = hands.get("rightHand")!.worldPosition;
   const apart: number =
     Math.hypot(left.x - right.x, left.y - right.y, left.z - right.z) /
     body.measure.hand;
@@ -214,5 +204,38 @@ export function test_human_motion_hand_verdicts_photograph(): void {
     complaints.push(
       `the row without a camera: ${refused}, a parameter refusal on grasp naming the grip and the screen expected`,
     );
-  TestValidator.equals("a photograph's two hands", complaints, []);
+  // 4. The camera stays with the original hand when the other joins it.
+  // Read each 120 Hz position once, keeping the three-point stencil.
+  const step: number = 1 / 120;
+  const frames: number = Math.floor(performance.duration / step) + 1;
+  let worst: number = 0;
+  let at: number = 0;
+  let before: IAutoMovieVector3 = performance.prop("camera", 0).position;
+  let now: IAutoMovieVector3 = performance.prop("camera", step).position;
+  for (let k: number = 1; k + 1 < frames; k++) {
+    const after: IAutoMovieVector3 = performance.prop(
+      "camera",
+      (k + 1) * step,
+    ).position;
+    const deviation: number = Math.hypot(
+      now.x - before.x - (after.x - before.x) / 2,
+      now.y - before.y - (after.y - before.y) / 2,
+      now.z - before.z - (after.z - before.z) / 2,
+    );
+    if (deviation > worst) {
+      worst = deviation;
+      at = k * step;
+    }
+    before = now;
+    now = after;
+  }
+  if (!(worst <= 0.005))
+    complaints.push(
+      `the camera departs ${(worst * 1000).toFixed(1)} mm from its neighbouring positions at ${at.toFixed(3)} s, within 5 mm expected`,
+    );
+  TestValidator.equals(
+    "the two hands carry a photograph's camera",
+    complaints,
+    [],
+  );
 }
