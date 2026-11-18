@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -102,8 +101,8 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one ordered current-joint scan per free arm precede its bisection in the pose earlier arms produced; the same continuous room crossing determines least abduction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps all original fits/room/bisection readings and fresh outputs. Default first room reads still request no clearance workspace; an explicit parent loan is consumed immediately and later reads share exact FK. The stance solves once per body/arm, using one placement for both clearance readers.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete seeded pose/stance fits may borrow one same-operation FK workspace and genuine ROM projector; every joint still projects and each candidate remains fully admitted. Only checked unchanged FK dependencies and the existing fixed stance geometry are shared, never candidate answers.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps all current arm fits, clearance and bisection readings and fresh outputs. In a call that needs both quiet-stance allowances, both read the same stance fit and collider placement. When all needed allowances already exist, it prepares no quiet stance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete seeded pose and stance fits may borrow one same-operation FK workspace and genuine ROM projector. Each candidate remains fully admitted. A quiet-stance allowance reads the bones and shapes of the same unchanged modeled stance on either side.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak stance map retains two scalars per body/arm only. Local/parent FK and ROM loans end with the synchronous operation; neither returned posture nor stance cache stores a reader, projector, current pose or callback.
    */
   export function of(
@@ -121,6 +120,26 @@ export namespace HumanArmSwing {
     // The pose's bones and placed segments, read once and shared by the
     // next arm's search where the arm before it was written back as it was.
     let read: prepareHumanArmRoom.IRead | undefined;
+    let quiet: prepareHumanArmRoom.IRead | undefined;
+    const standing = (): prepareHumanArmRoom.IRead => {
+      if (quiet !== undefined) return quiet;
+      const base: IAutoMoviePose = resolveHumanPosture.seeded(
+        body,
+        stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+        undefined,
+        {},
+        resolution,
+        undefined,
+        projection,
+      ).pose;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+        body,
+        base,
+        resolution(),
+      );
+      quiet = { bones, placed: HumanColliders.placed(body, bones) };
+      return quiet;
+    };
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
       const arm: IAutoMovieMotionHumanArmClearance.IArm = readArm(pose, side);
@@ -128,7 +147,11 @@ export namespace HumanArmSwing {
       // The least added abduction that keeps the arm's room within its
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
-      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(body, side, resolution, projection);
+      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
+        body,
+        side,
+        standing,
+      );
       const out: (a: number) => IAutoMovieMotionHumanArmClearance.IArm = (a: number): IAutoMovieMotionHumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
@@ -258,29 +281,18 @@ export namespace HumanArmSwing {
     return { ...posture, joints };
   }
 
-  /** Each reading of an arm's room in the body's quiet stance, degrees, solved once per body and arm. */
+  /** Each arm's room in the body's quiet stance, degrees. */
   function stance(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    resolution: ReturnType<typeof prepareHumanPoseResolution>,
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    read: () => prepareHumanArmRoom.IRead,
   ): IAutoMovieMotionHumanArmClearance.IBaseline {
     const known: Partial<
       Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
     > = STANCE.get(body) ?? {};
     const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined = known[side];
     if (have !== undefined) return have;
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-      body,
-      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-      undefined, {}, resolution, undefined, projection,
-    ).pose;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      pose,
-      resolution(),
-    );
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const { bones, placed }: prepareHumanArmRoom.IRead = read();
     const value: IAutoMovieMotionHumanArmClearance.IBaseline = {
       forearm: HumanArmClearance.overshoot(
         body,
