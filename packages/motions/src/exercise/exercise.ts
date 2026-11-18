@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { exerciseLunge } from "./exerciseLunge";
 
@@ -276,6 +277,11 @@ export namespace exercise {
       }),
     });
 
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      p, {}, context.start, { duration: clock.duration, events: clock.events() }, context.instant,
+    );
+    if (window !== null && p.kind !== "squat")
+      HumanPhysics.unsupported(window.by, "only the squat exercise has a planted hip counterbalance");
     switch (p.kind) {
       case "squat": {
         const depth: IAutoMovieMotionHumanExercise.Depth = p.depth ?? "parallel";
@@ -289,7 +295,7 @@ export namespace exercise {
               fall: [`concentricStart${i}`, `top${i}`],
               depth: drop(m, depth) * modifiers.extent,
               pitch: PITCH[depth] * modifiers.extent,
-            }),
+            }, window),
           );
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
@@ -457,10 +463,11 @@ export namespace exercise {
         break;
       }
     }
-    return composeAutoMovieMotionHumanAction({
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
       clock,
       primitives,
     });
+    return { ...plan, balanceWindow: window };
   }
 }

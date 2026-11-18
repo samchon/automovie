@@ -26,7 +26,9 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { prepareGroundedBalance } from "../everyday/prepareGroundedBalance";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -226,12 +228,23 @@ export namespace wipe {
       }),
       modifiers,
     );
-    return composeAutoMovieMotionHumanAction({
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params, {}, context.start, { duration: clock.duration, events: clock.events() }, context.instant,
+    );
+    const adjust: ReturnType<typeof prepareGroundedBalance> = prepareGroundedBalance(body, window);
+    const reachLean: ReturnType<typeof lean.primitive> = lean.primitive(clock);
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       contact: "stroke",
       primitives: [
-        lean.primitive(clock),
+        window === null ? reachLean : {
+          ...reachLean,
+          write: (posture, seconds, before, resolution, projection) => adjust(
+            reachLean.write(posture, seconds, before, resolution, projection),
+            seconds, before, resolution, projection,
+          ),
+        },
         AutoMovieMotionHumanArm.stroke({
           body,
           clock,
@@ -249,6 +262,7 @@ export namespace wipe {
         }),
       ],
     });
+    return { ...plan, balanceWindow: window };
   }
 }
 

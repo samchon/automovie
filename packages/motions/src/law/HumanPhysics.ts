@@ -91,6 +91,24 @@ export namespace HumanPhysics {
   /** The prepared window, or null when a correction cannot contribute. */
   export type Window = IAutoMovieMotionHumanBalance.Window;
 
+  /** Name the requested part when the action cannot balance it on its actual supports. */
+  export function unsupported(part: IAutoMovieMotionHumanBalance.Part, reason: string): never {
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "balance.by",
+      value: part,
+      feasible: null,
+      reason,
+      fix: "choose a supported balancing part or omit balance",
+    });
+  }
+
+  /** Admit absent and zero-weight requests on a planner whose contact constraints own all movable parts. */
+  export function fixed(params: IBalanced, reason: string): void {
+    const request: Shift = shift(params);
+    if (request !== null && request.weight > 0) unsupported(request.by, reason);
+  }
+
   /** A candidate interval of a placed span, in film seconds. */
   export interface IJudgedInterval {
     /** First candidate second. */
@@ -340,7 +358,7 @@ export namespace HumanPhysics {
       return local === undefined
         ? window !== null
         : weightAt(window, local) > 0;
-    return balanced(span.params, span.law);
+    return false;
   }
 
   /**
@@ -360,8 +378,7 @@ export namespace HumanPhysics {
       span.law?.physical === true ? span.plan.physicalWindow : null;
     const balance: Window | undefined = span.plan.balanceWindow;
     if (span.physical === false) return [];
-    if (span.physical === true || physical === undefined ||
-        (balance === undefined && balanced(span.params, span.law)))
+    if (span.physical === true || physical === undefined)
       return [{ from: span.entryTime, to: span.end }];
     const result: IJudgedInterval[] = [];
     for (const local of [physical, balance]) {

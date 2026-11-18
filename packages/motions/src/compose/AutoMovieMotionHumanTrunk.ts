@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
   IAutoMovieMotionHumanTrunk,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -263,9 +264,15 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk`, the solve to `HumanBalance.shift` and the leg goals to `AutoMovieMotionHumanLeg.goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments and the bounded prepareCrouch writer: two feet, at most two fixed goal readers and one solved shift, without sampled posture results.
    */
-  export function crouch(props: IAutoMovieMotionHumanTrunk.ICrouch): IAutoMovieMotionHumanPrimitive {
-    const lower: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture =
-      prepareCrouch(props);
+  export function crouch(
+    props: IAutoMovieMotionHumanTrunk.ICrouch,
+    window: HumanPhysics.Window = HumanPhysics.prepare(props, {}, 0, {
+      duration: props.clock.duration, events: props.balance === undefined ? [] : props.clock.events(),
+    }),
+  ): IAutoMovieMotionHumanPrimitive {
+    if (window?.by === "trunk")
+      HumanPhysics.unsupported(window.by, "the crouch prescribes the trunk pitch and moves the hips under it");
+    const lower: ReturnType<typeof prepareCrouch> = prepareCrouch(props, window);
     const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
     return {
       channels: [
@@ -278,7 +285,7 @@ export namespace AutoMovieMotionHumanTrunk {
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
       write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
-        lower(posture, props.clock.envelope(props.rise, props.fall, seconds)),
+        lower(posture, props.clock.envelope(props.rise, props.fall, seconds), HumanPhysics.weightAt(window, seconds)),
     };
   }
 
@@ -301,8 +308,9 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns two foot frames, at most two bounded fixed-goal readers and one solved shift until its action ends. The search's trial readings do not survive preparation and no time-indexed history is kept.
    */
   export function prepareCrouch(
-    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs" | "balance">,
-  ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
+    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
+    window: HumanPhysics.Window = null,
+  ): (posture: IAutoMovieMotionHumanPosture, share: number, weight?: number) => IAutoMovieMotionHumanPosture {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
     const legs: readonly AutoMovieHumanSide[] = props.legs ?? [
@@ -332,14 +340,12 @@ export namespace AutoMovieMotionHumanTrunk {
       );
     // Without the balance option the hips sink where they stand: no centre
     // of mass is read.
-    const back: number = !HumanPhysics.balanced(props)
-      ? 0
-      : HumanBalance.shift(
-          props.body,
-          (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b),
-        );
-    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
-      low(posture, share, back * share);
+    let back: number | undefined;
+    return (posture: IAutoMovieMotionHumanPosture, share: number, weight: number = 0): IAutoMovieMotionHumanPosture => {
+      if (window === null || weight === 0 || share === 0) return low(posture, share, 0);
+      back ??= HumanBalance.shift(props.body, (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b));
+      return low(posture, share, back * share * weight);
+    };
   }
 
   /**
@@ -375,7 +381,12 @@ export namespace AutoMovieMotionHumanTrunk {
   ): IAutoMovieMotionHumanPrimitive {
     // Without the balance option the hips stay where the action puts them:
     // no centre of mass is read and nothing is shifted.
-    if (!HumanPhysics.balanced({ balance }))
+    const window: HumanPhysics.Window = HumanPhysics.prepare({ balance }, {}, 0, {
+      duration: clock.duration, events: balance === undefined ? [] : clock.events(),
+    });
+    if (window?.by === "trunk")
+      HumanPhysics.unsupported(window.by, "the counterbalance primitive moves the root under the extended limb");
+    if (window === null)
       return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
         point: { x: 0, y: 0, z: 0 },
         yaw: 0,
@@ -407,9 +418,13 @@ export namespace AutoMovieMotionHumanTrunk {
         fix: "pitch the trunk less, hold the limbs nearer, or give the body a support or a step",
       });
     }
-    return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
-      point: { x: 0, y: 0, z: -back },
-      yaw: 0,
+    return AutoMovieMotionHumanRoot.travel({
+      from: clock.at(rise[0]),
+      to: clock.at(fall[1]),
+      offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset => ({
+        point: { x: 0, y: 0, z: -back * clock.envelope(rise, fall, seconds) * HumanPhysics.weightAt(window, seconds) },
+        yaw: 0,
+      }),
     });
   }
 }

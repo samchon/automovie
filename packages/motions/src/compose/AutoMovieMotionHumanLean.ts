@@ -252,19 +252,20 @@ export namespace AutoMovieMotionHumanLean {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanBalance.shift` and `tip`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps one number beside its props.
    */
-  export function bow(props: IAutoMovieMotionHumanLean.IBow): IAutoMovieMotionHumanPrimitive {
+  export function bow(
+    props: IAutoMovieMotionHumanLean.IBow,
+    window: HumanPhysics.Window = HumanPhysics.prepare(
+      props, {}, 0, { duration: props.to, events: [] },
+    ),
+  ): IAutoMovieMotionHumanPrimitive {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
+    if (window?.by === "trunk")
+      HumanPhysics.unsupported(window.by, "the bow prescribes the trunk pitch and counterbalances with the hips");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
     // Without the balance option the hips stay where they stand: no centre
     // of mass is read.
-    const lean: number = !HumanPhysics.balanced(props)
-      ? 0
-      : HumanBalance.shift(
-          props.body,
-          (back: number): IAutoMovieMotionHumanPosture =>
-            tip(props.body, props.standing, props.peak, back),
-        ) / sine(props.peak);
+    let lean: number | undefined;
     return {
       channels: ["root", "trunk"],
       reads: ["root", "trunk"],
@@ -273,7 +274,14 @@ export namespace AutoMovieMotionHumanLean {
       write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
         const pitch: number =
           props.peak * Math.min(1, Math.max(0, props.weight(seconds)));
-        return tip(props.body, posture, pitch, lean * sine(pitch));
+        const weight: number = HumanPhysics.weightAt(window, seconds);
+        if (weight === 0 || pitch === 0) return tip(props.body, posture, pitch, 0);
+        lean ??= HumanBalance.shift(
+          props.body,
+          (back: number): IAutoMovieMotionHumanPosture =>
+            tip(props.body, props.standing, props.peak, back),
+        ) / sine(props.peak);
+        return tip(props.body, posture, pitch, lean * sine(pitch) * weight);
       },
     };
   }
