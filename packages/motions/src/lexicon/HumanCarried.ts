@@ -124,6 +124,7 @@ export namespace HumanCarried {
       turn: 0,
       pitch: 20,
       legs: [70, 80, 25],
+      straddles: true,
       clings: ["shoulderLeft", "shoulderRight"],
       holds: [
         { region: "hipLeft", offset: { out: 0.15, up: 0, forward: -0.1 } },

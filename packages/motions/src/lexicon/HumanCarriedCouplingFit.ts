@@ -5,27 +5,48 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAngleRange,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingFit,
+  IAutoMovieMotionHumanCarriedCouplingPose,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieResolvedBone,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
-import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
+import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
+
+/** A borne region a hand holds, or no grip for that hand. */
+type HeldRegion = AutoMovieHumanoidRegion | null;
+
+/** The borne regions held by the bearer's left and right hands. */
+type Grip = readonly [HeldRegion, HeldRegion];
+
+/** The upper-leg coordinates used to vary the borne key pose. */
+type LegAxis = "flexion" | "abduction";
+
+/** A clinical coordinate whose limits bound the key-pose fit. */
+type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
+
+/** A complete kinematic reading before carrying either body. */
+type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+/** The current gap for one bearing arm at a known surface. */
+type Gap = (bones: Bones, place: IAutoMovieMotionHumanCarriedCouplingPose.IHold) => number;
+
+/** Grip indices follow the carry row's left-to-right order. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
  * The key pose of a coupled carry placed on its bearer (#3437): the
@@ -41,16 +62,59 @@ import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
  */
 export namespace HumanCarriedCouplingFit {
   /**
-   * The key pose placed on its bearer. The bearer's stance (its trunk's
-   * inclination and its knees' lowering, `HumanCarriedCouplingPose.stance`)
-   * and the borne legs are the upright bearer and the carry's own legs
-   * changed least, each angle weighed by its range, such that every held
-   * region's palm-facing wrist goal lies within the arm that holds it, from
-   * the shoulder joint to the wrist: upright and the carry's own where they reach. On that stance the
-   * resting region lies exactly on the bearer's (raised by the row's
-   * `rise`), and the turn about that point is the one that best brings each
-   * held region to where the bearer's hand holds it by the row (its region
-   * and offset in arm lengths).
+   * The successful registration and the same two bone maps it used to judge reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which frames the bone maps hold and why the fit and maps belong together.
+   * @evidence contracts/development/design.md#principled-representation A rigid placement plus the untranslated bones it maps between. The placement carries the borne key pose onto the bearer.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The coupling consumes both existing maps for anchor, contact and mass placement; `fit` exposes only the placement to callers that need no maps.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No re-fit or near-match can stand in for the final winning registration.
+   */
+  export interface IRead {
+    /** The placement from the borne key pose to the bearer's stance. */
+    fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
+
+    /** The borne bones at the origin in the key pose, before placement. */
+    mine: Bones;
+
+    /** The bearer bones at the origin in the fitted stance. */
+    theirs: Bones;
+  }
+
+  /**
+   * Place the borne body's key pose on the bearer while keeping the grips reachable.
+   *
+   * @param bearer The bearer's body.
+   * @param borne The borne body.
+   * @param row The carry's key and hold geometry.
+   * @param held The borne region each bearer hand holds, left then right.
+   * @param bends Whether the bearer may leave upright to reach the grips.
+   * @param grips An optional pair of actual grips, left then right, when the row's nominal regions cannot be reached.
+   * @returns The placement within the bearer's origin frame.
+   * @throws {HumanRefusal} When no stance within the ranges reaches the grips.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reach premise, optional nearer grips and placement frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same fixed-contact registration and reach test as `read`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the solver, then reads its placement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Delegates the complete check to `read` with every supplied input.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The shared solver owns the work; the caller keeps only the placement.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses `read` for both the reachable key and the fallback.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No bone map leaves this wrapper.
+   */
+  export function fit(
+    bearer: IAutoMovieMotionHumanBody,
+    borne: IAutoMovieMotionHumanBody,
+    row: IAutoMovieMotionHumanCarried.IRow,
+    held: Grip,
+    bends: boolean,
+    grips: Grip = held,
+  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
+    return read(bearer, borne, row, held, bends, grips).fit;
+  }
+
+  /**
+   * Register the carried region on the bearer at the authored key. If any
+   * wrist cannot reach its grip, find the least change to the bearer's stance
+   * and borne legs that preserves the resting contact and reaches every grip.
    *
    * @param bearer The bearer's body.
    * @param borne The borne body.
@@ -58,31 +122,25 @@ export namespace HumanCarriedCouplingFit {
    * @param held The borne region each bearer hand holds, left then right.
    * @param bends Whether the bearer may leave upright: not when a second helper shares the body, whose contacts a bend of the first would carry away.
    * @param grips The borne region each hand grips where the bearer takes a nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left then right: the arms must reach these, while the turn stays fitted to the described holds, so a grip never turns the borne body; the described holds when absent.
-   * @returns The placement.
+   * @returns The placement with the bones used to judge its reach.
    * @throws {HumanRefusal} A `reach` refusal on `carry` when no stance and legs within their ranges bring every held region within its arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, what is held exactly, the inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ranges, gaps, one minimisation, the placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the authored key first; prepare the trust-region search only if the key violates a reach or angle constraint.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The resting contact is kept exact and every angle stays within its range: the legs within the range table, the trunk within full forward bending, the lowering within a squat; a hold still beyond its arm is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Where upright and the carry's own legs reach, one registration; otherwise each linearisation costs at most eleven (two per angle and the point itself), each reading the held regions on the bones its registration resolved, and the bearer's stance is resolved once per distinct stance tried. A penalty change reprices the model's rows without new geometry, and a trial point is built only when the step is taken.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The curvature is built once per objective flag. Within one linearisation the slopes, the rows and the quadratic program's preparation do not depend on the penalty, so every penalty shares them while starting its own warm state; the trust-region retries of one penalty continue from its last solve.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit holds the bearer's bones for each distinct stance tried, two curvatures and the current linearisation, all released on return; the returned placement closes over two points and a turn.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A reachable key takes one registration and one reach check per grip. Fallback linearises at most five angles using two points each, and resolves the bearer's stance once per distinct stance tried. Penalty changes reprice the model without new geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fallback starts with the measured key and returns its winning reading. The curvature is built once per objective flag and costs from one linearisation share slopes and solver preparation across penalties.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit holds the bearer's bones for each distinct stance tried, two curvatures and the current linearisation until it returns or throws. Only the winning placement and two maps leave the fit.
    */
-  export function fit(
+  export function read(
     bearer: IAutoMovieMotionHumanBody,
     borne: IAutoMovieMotionHumanBody,
     row: IAutoMovieMotionHumanCarried.IRow,
-    held: readonly [
-      AutoMovieHumanoidRegion | null,
-      AutoMovieHumanoidRegion | null,
-    ],
+    held: Grip,
     bends: boolean,
-    grips: readonly [
-      AutoMovieHumanoidRegion | null,
-      AutoMovieHumanoidRegion | null,
-    ] = held,
-  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
+    grips: Grip = held,
+  ): IRead {
     // The five angles: the borne hip flexion, knee flexion and hip
     // abduction, the bearer's trunk inclination and lowering; each one's
     // bounds, and the span its change is weighed by.
@@ -94,7 +152,7 @@ export namespace HumanCarriedCouplingFit {
       ] as const
     ).map(
       (
-        [bone, axis]: readonly [AutoMovieHumanoidBone, "flexion" | "abduction"],
+        [bone, axis]: LegCoordinate,
         k: number,
       ): IAutoMovieAngleRange =>
         getConstraint(
@@ -102,59 +160,21 @@ export namespace HumanCarriedCouplingFit {
           readHumanBone(borne, bone)?.constraint ?? null,
         )?.[axis] ?? { min: row.legs[k]!, max: row.legs[k]! },
     );
-    const spans: number[] = [
-      ...legRanges.map((r: IAutoMovieAngleRange): number => r.max - r.min),
-      BENT,
-      1,
-    ];
-    // The trust region bounds each angle's step by its share of the widest
-    // span, so it is one region over angles of unlike ranges.
-    const widest: number = Math.max(...spans);
-    const ranges: IAutoMovieAngleRange[] = [
-      ...legRanges,
-      { min: 0, max: bends ? BENT : 0 },
-      { min: 0, max: bends ? 1 : 0 },
-    ];
     const start: number[] = [...row.legs, 0, 0];
-    const weight: number[] = spans.map((s: number): number =>
-      s > 0 ? 1 / s ** 2 : 0,
-    );
-    const n: number = start.length;
-
-    // The bearer's arm from the shoulder joint to the wrist, the scale of
-    // the gaps' accuracy.
-    const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    const curvatures: readonly Float64Array[][] = [false, true].map(
-      (objective: boolean): Float64Array[] => weight.map((w: number): Float64Array => {
-        const diagonal: Float64Array = new Float64Array(n);
-        diagonal[0] = objective ? w : 0;
-        return diagonal;
-      }),
-    );
-    const all: number[] = Array.from(
-      { length: n },
-      (_: unknown, k: number): number => k,
-    );
-    const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (_: "left" | "right", k: number): boolean =>
+    const sides: AutoMovieHumanSide[] = SIDES.filter(
+      (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
+    const reach = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side));
 
     // The bearer's bones by stance, so a change of the legs alone reads
     // them once.
-    const stances: Map<
-      string,
-      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    > = new Map();
-    const stood = (
-      x: readonly number[],
-    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    const stances: Map<string, Bones> = new Map();
+    const stood = (x: readonly number[]): Bones => {
       const key: string = `${x[3]}|${x[4]}`;
-      const found:
-        | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-        | undefined = stances.get(key);
+      const found: Bones | undefined = stances.get(key);
       if (found !== undefined) return found;
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      const bones: Bones =
         HumanCarriedCouplingPose.stood(bearer, {
           incline: x[3]!,
           depth: x[4]!,
@@ -162,45 +182,78 @@ export namespace HumanCarriedCouplingFit {
       stances.set(key, bones);
       return bones;
     };
-    const legsOf = (
-      x: readonly number[],
-    ): readonly [number, number, number] => [x[0]!, x[1]!, x[2]!];
-    const gaps = (x: readonly number[]): number[] => {
-      const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        stood(x);
+    const at = (x: readonly number[]): IRead => {
+      const theirs: Bones = stood(x);
       const registration: HumanCarriedCouplingRigid.IRead = HumanCarriedCouplingRigid.read(
         bearer,
         theirs,
         borne,
         row,
         held,
-        legsOf(x),
+        [x[0]!, x[1]!, x[2]!],
         {
           incline: x[3]!,
           depth: x[4]!,
         },
       );
-      const placed: IAutoMovieMotionHumanCarriedCouplingFit.IFit = registration.fit;
-      const mine: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = registration.bones;
-      return sides.map((side: "left" | "right"): number => {
+      return { fit: registration.fit, mine: registration.bones, theirs };
+    };
+    const gaps = (reading: IRead): number[] => {
+      const { fit, mine, theirs }: IRead = reading;
+      const gaps: number[] = sides.map((side: AutoMovieHumanSide, index: number): number => {
         const k: number = side === "left" ? 0 : 1;
         const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
           borne.surfaces.regions[grips[k]!];
-        const local: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+        const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
           resolveAutoMovieHumanoidSurfaces.place(
             surface,
             mine.get(surface.bone)!,
           );
-        return gap(bearer, theirs, side, {
-          point: placed.place(local.point),
-          normal: Quaternion.rotateVector(placed.turn, local.normal),
+        return reach[index]!(theirs, {
+          point: fit.place(local.point),
+          normal: Quaternion.rotateVector(fit.turn, local.normal),
         });
       });
+      return row.straddles === true ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)] : gaps;
     };
+    const keyed: IRead = at(start);
+    const keyGaps: number[] = gaps(keyed);
+    if (keyGaps.every((g: number): boolean => g <= 0) && legRanges.every(
+      (range: IAutoMovieAngleRange, k: number): boolean =>
+        start[k]! >= range.min && start[k]! <= range.max,
+    )) return keyed;
+
+    // Only an inadmissible key needs to vary the legs or the bearer's stance.
+    const spans: number[] = [
+      ...legRanges.map((r: IAutoMovieAngleRange): number => r.max - r.min),
+      BENT,
+      1,
+    ];
+    // Share the widest range's trust region among all five coordinates.
+    const widest: number = Math.max(...spans);
+    const ranges: IAutoMovieAngleRange[] = [
+      ...legRanges,
+      { min: 0, max: bends ? BENT : 0 },
+      { min: 0, max: bends ? 1 : 0 },
+    ];
+    const weight: number[] = spans.map((s: number): number => s > 0 ? 1 / s ** 2 : 0);
+    const n: number = start.length;
+    const curvatures: readonly Float64Array[][] = [false, true].map(
+      (objective: boolean): Float64Array[] => weight.map((w: number): Float64Array => {
+        const diagonal: Float64Array = new Float64Array(n);
+        diagonal[0] = objective ? w : 0;
+        return diagonal;
+      }),
+    );
+    const all: number[] = Array.from({ length: n }, (_: unknown, k: number): number => k);
+    const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     const accuracy: number = arm * Number.EPSILON ** 0.5;
+    const origin: Float64Array = Float64Array.from(start);
     const evaluate = (x: Float64Array): IReading => {
-      const g: number[] = gaps([...x]);
+      const read: IRead = x === origin ? keyed : at([...x]);
+      const g: number[] = x === origin ? keyGaps : gaps(read);
       return {
+        read,
         objective: all.reduce(
           (s: number, k: number): number =>
             s + (weight[k]! * (x[k]! - start[k]!) ** 2) / 2,
@@ -235,8 +288,8 @@ export namespace HumanCarriedCouplingFit {
             up[k] = Math.min(ranges[k]!.max, x[k]! + h);
             down[k] = Math.max(ranges[k]!.min, x[k]! - h);
             if (!(up[k]! > down[k]!)) return e.gaps.map((): number => 0);
-            const a: number[] = gaps(up);
-            const b: number[] = gaps(down);
+            const a: number[] = gaps(at(up));
+            const b: number[] = gaps(at(down));
             return a.map(
               (v: number, i: number): number =>
                 (v - b[i]!) / (up[k]! - down[k]!),
@@ -338,7 +391,7 @@ export namespace HumanCarriedCouplingFit {
           return priced(mu);
         },
       },
-      Float64Array.from(start),
+      origin,
       {
         schedule: {
           eta: ACCEPTED,
@@ -361,12 +414,16 @@ export namespace HumanCarriedCouplingFit {
         steer: true,
       },
     );
-    if (!(solved.evaluation.worst <= accuracy))
+    const met = solved.evaluation;
+    const clear = met.worst <= accuracy || (row.straddles === true &&
+      sides.every((_, index: number): boolean => met.gaps[index]! <= accuracy) &&
+      HumanCarriedStraddle.clear(bearer, met.read));
+    if (!clear)
       throw new HumanRefusal({
         kind: "reach",
         axis: "carry",
         value: solved.evaluation.worst,
-        reason: `a held region's wrist goal lies ${solved.evaluation.worst.toFixed(3)} m beyond the bearer's arm; the local fit stopped on ${solved.reason} at leg angles ${[
+        reason: `the carry's reach or straddling clearance misses by ${solved.evaluation.worst.toFixed(3)} m; the local fit stopped on ${solved.reason} at leg angles ${[
           ...solved.x,
         ]
           .slice(0, 3)
@@ -376,64 +433,27 @@ export namespace HumanCarriedCouplingFit {
           )} degrees and bearer inclination ${solved.x[3]!.toFixed(2)} degrees, squat depth ${solved.x[4]!.toFixed(4)}`,
         fix: "choose a carry whose holds lie within the bearer's arms, or a bearer of a longer reach",
       });
-    const x: number[] = [...solved.x];
-    return HumanCarriedCouplingRigid.read(
-      bearer,
-      stood(x),
-      borne,
-      row,
-      held,
-      legsOf(x),
-      {
-        incline: x[3]!,
-        depth: x[4]!,
-      },
-    ).fit;
+    return solved.evaluation.read;
   }
 
-  /**
-   * How far a held place lies beyond the arm that holds it: the distance
-   * from the shoulder joint to the wrist goal of a palm laid on the place,
-   * facing it, less the arm from the shoulder joint to the wrist; none or
-   * negative within reach.
-   *
-   * @param bearer The bearer's body.
-   * @param bones The bearer's bones, standing at the origin facing +Z.
-   * @param side The holding hand's side.
-   * @param place The held surface point and its outward normal, in the bones' frame.
-   * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured distance, its two ends and its sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A palm's farthest reach would assume it continues the forearm; the bearing palm instead faces the carried surface, so the surface normal fixes the palm's offset and the very wrist goal the hand takes is judged against the arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist goal and one distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the arm target's own (`AutoMovieMotionHumanArmTarget.goal`), not a stand-in offset.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance fit's gaps and a second helper's grip choice read this one measure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
-   */
+  /** Distance in metres beyond the bearing arm's real wrist reach, or at most zero within reach. */
   export function gap(
     bearer: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+    bones: Bones,
+    side: AutoMovieHumanSide,
+    place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
   ): number {
-    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
-      bearer,
-      side,
-      AutoMovieMotionHumanTarget.hand(
-        bearer,
-        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
-        side,
-        place,
-        { surface: "palm", shape: "relaxed", bend: "hang" },
-      ),
-    );
-    return (
-      Vector3.length(
-        Vector3.subtract(goal.point, bones.get(`${side}UpperArm`)!.worldPosition),
-      ) -
-      (bearer.measure.upperArm + bearer.measure.forearm)
-    );
+    return prepareGap(bearer, side)(bones, place);
+  }
+
+  /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
+  function prepareGap(bearer: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): Gap {
+    const palm = HumanHandTarget.prepareMoving(bearer, side).wrist;
+    const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
+    return (bones, place): number => Vector3.length(Vector3.subtract(
+      palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place).point,
+      bones.get(`${side}UpperArm`)!.worldPosition,
+    )) - arm;
   }
 
   /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */
@@ -456,6 +476,7 @@ export namespace HumanCarriedCouplingFit {
 
   /** A stance and legs' reading: the change, the summed and the worst gap past the arms, and each gap, metres. */
   interface IReading extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
+    read: IRead;
     worst: number;
     gaps: number[];
   }

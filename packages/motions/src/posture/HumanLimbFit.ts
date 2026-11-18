@@ -134,11 +134,22 @@ export namespace HumanLimbFit {
         frame.worldPosition,
         Quaternion.rotateVector(frame.worldRotation, p),
       );
-    const { on: _attached, ...rest }: IAutoMovieHumanLimbGoal = goal;
+    const { on: _attached, clearanceOn, ...rest }: IAutoMovieHumanLimbGoal = goal;
+    const collider = (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => ({
+      ...segment,
+      pose: {
+        position: place(segment.pose.position),
+        rotation: Quaternion.normalize(Quaternion.multiply(frame.worldRotation, segment.pose.rotation)),
+      },
+    });
     return {
       ...rest,
       point: place(goal.point),
       bend: place(goal.bend),
+      ...(clearanceOn === undefined ? {} : {
+        clear: [...(rest.clear ?? []), ...clearanceOn.clear.map(collider)],
+        rests: [...(rest.rests ?? []), ...clearanceOn.rests.map(collider)],
+      }),
       ...(goal.rotation === undefined
         ? {}
         : {

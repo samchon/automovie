@@ -109,6 +109,9 @@ export namespace IAutoMovieMotionHumanCarried {
     /** The carried body's hip and knee flexion and hip abduction, degrees. */
     legs: readonly [number, number, number];
 
+    /** The borne knees wrap outside the bearer's two sides. */
+    straddles?: boolean;
+
     /** The carrier's regions the carried person's left and right wrists go to; null for an arm that hangs. */
     clings: readonly [
       AutoMovieHumanoidRegion | null,

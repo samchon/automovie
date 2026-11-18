@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingPose,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -21,6 +22,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -219,8 +221,8 @@ export namespace HumanCarriedCouplingPose {
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution of the key pose per call, then one contact lookup and one point-and-normal placement per hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The key pose is `key`'s and the surface placement the engine's `pointNormal`; nothing is cached between calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key read places the rigid torso and occupied palms' bearing bones. Both grips share the collider placement and there is no key read when both hands are free.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual contact point already belongs to the coupling when it supplies `at`. Each grip shares the key heading and the inverse of a further bearer's anchor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function holds(
@@ -230,36 +232,58 @@ export namespace HumanCarriedCouplingPose {
     role: string = coupling.bearer,
   ): IAutoMovieMotionHumanCarriedCouplingPose.IHoldsResult {
     // A further bearer reads the places in its own anchor frame.
-    const frame:
-      | {
-          position: IAutoMovieVector3;
-          rotation: IAutoMovieQuaternion;
-          anchor: AutoMovieHumanoidBone;
-        }
-      | undefined =
+    const frame: BearerFrame | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
+    const contactFor = (palm: AutoMovieHumanoidRegion): IAutoMovieMotionCoupling.IContact | undefined =>
+      coupling.contacts.find(
+        (c: IAutoMovieMotionCoupling.IContact): boolean =>
+          c.kind === "bear" && c.on.role === role && c.on.region === palm,
+      );
+    const left: ReturnType<typeof contactFor> = contactFor("palmLeft");
+    const right: ReturnType<typeof contactFor> = contactFor("palmRight");
+    const anchor: AutoMovieHumanoidBone = frame?.anchor ?? coupling.anchor;
+    if (left === undefined && right === undefined) return { anchor, places: [null, null] };
+
     const keyed: IAutoMovieMotionHumanPosture = key(row, coupling.key.legs);
+    const wanted: Set<AutoMovieHumanoidBone> = new Set(["hips", "spine", "chest", "upperChest"]);
+    if (left !== undefined) wanted.add(borne.surfaces.regions[left.region].bone);
+    if (right !== undefined) wanted.add(borne.surfaces.regions[right.region].bone);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(borne, keyed);
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+      HumanTrunk.resolve(borne, keyed, undefined, undefined, wanted);
+    const back: IAutoMovieQuaternion = Quaternion.inverse(resolveHumanPosture.heading(keyed));
+    const inverse: IAutoMovieQuaternion | undefined = frame === undefined ? undefined : Quaternion.inverse(frame.rotation);
+    // Compose the borne key into this bearer's anchor once. The torso and
+    // fitted leg joints keep this transform throughout the hold.
+    const turn: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(coupling.key.rotation, back),
+    );
+    const ownTurn: IAutoMovieQuaternion = inverse === undefined
+      ? turn
+      : Quaternion.normalize(Quaternion.multiply(inverse, turn));
+    const origin: IAutoMovieVector3 = frame === undefined || inverse === undefined
+      ? coupling.key.position
+      : Quaternion.rotateVector(inverse, Vector3.subtract(coupling.key.position, frame.position));
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(borne, mine).map(
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => ({
+        ...segment,
+        pose: {
+          position: Vector3.add(origin, Quaternion.rotateVector(ownTurn, segment.pose.position)),
+          rotation: Quaternion.normalize(Quaternion.multiply(ownTurn, segment.pose.rotation)),
+        },
+      }),
+    );
     const at = (
-      palm: AutoMovieHumanoidRegion,
-    ): IAutoMovieMotionHumanCarriedCouplingPose.IHold | null => {
-      const contact: IAutoMovieMotionCoupling.IContact | undefined =
-        coupling.contacts.find(
-          (c: IAutoMovieMotionCoupling.IContact): boolean =>
-            c.kind === "bear" && c.on.role === role && c.on.region === palm,
-        );
+      contact: ReturnType<typeof contactFor>,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null => {
       if (contact === undefined) return null;
       const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         borne.surfaces.regions[contact.region];
-      const placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+      const placed: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
         resolveAutoMovieHumanoidSurfaces.pointNormal(
           surface,
           mine.get(surface.bone)!,
         );
-      const back: IAutoMovieQuaternion = Quaternion.inverse(heading);
-      const point: IAutoMovieVector3 = Vector3.add(
+      const point: IAutoMovieVector3 = contact.at ?? Vector3.add(
         coupling.key.position,
         Quaternion.rotateVector(
           coupling.key.rotation,
@@ -270,19 +294,20 @@ export namespace HumanCarriedCouplingPose {
         coupling.key.rotation,
         Quaternion.rotateVector(back, placed.normal),
       );
-      if (frame === undefined) return { point, normal };
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
       return {
-        point: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(point, frame.position),
+        point: frame === undefined || inverse === undefined ? point : Quaternion.rotateVector(
+          inverse, Vector3.subtract(point, frame.position),
         ),
-        normal: Quaternion.rotateVector(inverse, normal),
+        normal: inverse === undefined ? normal : Quaternion.rotateVector(inverse, normal),
+        clearance: {
+          clear: shapes.filter((segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => segment.bone !== surface.bone),
+          rests: shapes.filter((segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => segment.bone === surface.bone),
+        },
       };
     };
     return {
-      anchor: frame?.anchor ?? coupling.anchor,
-      places: [at("palmLeft"), at("palmRight")],
+      anchor,
+      places: [at(left), at(right)],
     };
   }
 
@@ -414,3 +439,6 @@ export namespace HumanCarriedCouplingPose {
     return resolveAutoMovieHumanoidSurfaces.point(frame, bone);
   }
 }
+
+/** A further bearer's anchor in the shared coupling frame. */
+type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];

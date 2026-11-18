@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 
 /**
  * The borne body of a coupled carry placed on its bearer (#3437): the carry's
@@ -30,6 +31,12 @@ export namespace IAutoMovieMotionHumanCarriedCouplingPose {
 
     /** Unit, out of the borne body. */
     normal: IAutoMovieVector3;
+  }
+
+  /** A bearing hand's hold and the carried segments in the same anchor frame. */
+  export interface IGrip extends IHold {
+    /** The carried body the bearing arm clears or rests its hand on. */
+    clearance: IAutoMovieHumanLimbGoal.IClearance;
   }
 
   /**
@@ -61,8 +68,8 @@ export namespace IAutoMovieMotionHumanCarriedCouplingPose {
     anchor: AutoMovieHumanoidBone;
     /** Left and right hand holds in that order; null for a hand that does not hold. */
     places: readonly [
-      IAutoMovieMotionHumanCarriedCouplingPose.IHold | null,
-      IAutoMovieMotionHumanCarriedCouplingPose.IHold | null,
+      IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null,
+      IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null,
     ];
   };
 

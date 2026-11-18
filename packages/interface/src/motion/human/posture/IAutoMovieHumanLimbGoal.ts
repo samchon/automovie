@@ -101,6 +101,9 @@ export interface IAutoMovieHumanLimbGoal {
    * (`HumanArmClearance`). Ignored on a leg.
    */
   rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+  /** Collider frames of a rigidly carried partner in this goal's `on` frame. */
+  clearanceOn?: IAutoMovieHumanLimbGoal.IClearance;
 }
 
 /**
@@ -108,6 +111,15 @@ export interface IAutoMovieHumanLimbGoal {
  *
  */
 export namespace IAutoMovieHumanLimbGoal {
+  /** Clear and resting segments expressed in the goal's attachment frame. */
+  export interface IClearance {
+    /** Segments the arm clears throughout its fit. */
+    clear: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+    /** Segments the hand is placed on, with the same allowances as `rests`. */
+    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+  }
+
   /**
    * How an arm's elbow is decided (`IAutoMovieHumanLimbGoal.elbow`): by its
    * own sweep's least strain, or at the place the law's elbow search chose.

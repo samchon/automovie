@@ -40,6 +40,7 @@ export namespace HumanCarriedCouplingLoad {
    * @param bearer The bearer's body.
    * @param coupling The coupling.
    * @param role The bearer's role; the coupling's first bearer when absent.
+   * @param bones The actual key bones already resolved for this bearer and coupling, when available.
    * @returns The load: the share of the borne mass this bearer's contacts carry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read and the frame of the distance.
@@ -47,15 +48,16 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
    * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance is `HumanCarriedCouplingPose.stood`, the resolution the coupling's frames were stated on, and the mass model `IHumanBody.massModel`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the registered key bones when given by the same coupling solve. Other callers resolve the equivalent stance and reuse the body's fixed mass model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function load(
     bearer: IAutoMovieMotionHumanBody,
     coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
+    bones?: Bones,
   ): IAutoMovieMotionHumanLoad.ILeanProps {
-    const at: IStanding = standing(bearer, coupling, role);
+    const at: IStanding = standing(bearer, coupling, role, bones);
     return {
       mass: at.mass,
       height: at.own.y,
@@ -118,6 +120,7 @@ export namespace HumanCarriedCouplingLoad {
     bearer: IAutoMovieMotionHumanBody,
     coupling: IAutoMovieMotionCoupling,
     role: string,
+    key?: Bones,
   ): IStanding => {
     // This bearer's share of the borne weight, and where it presses: each
     // contact's share at the contact (the reactions the bearer bears), which
@@ -169,8 +172,7 @@ export namespace HumanCarriedCouplingLoad {
     // further one stands upright. Both are read on the same fitted stance
     // `HumanCarriedCoupling.couple` stated the coupling's frames on, so the
     // anchor, the centre and the feet are one posture's.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanCarriedCouplingPose.stood(
+    const bones: Bones = key ?? HumanCarriedCouplingPose.stood(
         bearer,
         frame === undefined ? coupling.key.stance : { incline: 0, depth: 0 },
       );
@@ -185,13 +187,15 @@ export namespace HumanCarriedCouplingLoad {
         anchor.worldPosition,
         Quaternion.rotateVector(anchor.worldRotation, centre),
       ),
-      pivot: Vector3.scale(
-        Vector3.add(
-          bones.get("leftFoot")!.worldPosition,
-          bones.get("rightFoot")!.worldPosition,
-        ),
-        0.5,
-      ),
+      get pivot(): IAutoMovieVector3 {
+        return Vector3.scale(
+          Vector3.add(
+            bones.get("leftFoot")!.worldPosition,
+            bones.get("rightFoot")!.worldPosition,
+          ),
+          0.5,
+        );
+      },
     };
   };
 
@@ -201,6 +205,7 @@ export namespace HumanCarriedCouplingLoad {
    * @param bearer The bearer's body.
    * @param coupling The coupling.
    * @param role The bearer's role; the coupling's first bearer when absent.
+   * @param bones The actual fitted key bones for this bearer and coupling, when available.
    * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the bound and the refusal.
@@ -215,11 +220,13 @@ export namespace HumanCarriedCouplingLoad {
     bearer: IAutoMovieMotionHumanBody,
     coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
+    bones?: Bones,
   ): void {
     const props: IAutoMovieMotionHumanLoad.ILeanProps = load(
       bearer,
       coupling,
       role,
+      bones,
     );
     if (HumanLoad.lean(props) !== null) return;
     // The bound is on this bearer's share; the feasible borne mass is that
@@ -336,3 +343,6 @@ export namespace HumanCarriedCouplingLoad {
     );
   };
 }
+
+/** The attachment and mass-placement frames from the actual bearer key. */
+type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
