@@ -164,6 +164,13 @@ export namespace supportKey {
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
     if (swings.length > 0 && misses(result))
       result = fitted(holding);
+    // The preceding support can leave a limb against its range boundary.
+    // The authored stance supplies its own articulation on the other side
+    // of that boundary, even when its initial aggregate error is larger.
+    if (start !== preferred && misses(result)) {
+      const statedFit: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, preferred);
+      if (!misses(statedFit)) result = statedFit;
+    }
     // A three-support predecessor may be closer in aggregate while its
     // fourth limb is on the wrong side of a joint limit. A fully bilateral
     // support has a second physical branch from the already placed side.
