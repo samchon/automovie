@@ -30,7 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Bounds: the pelvis within 10 mm of where sitting left it (#3361's seated
  * base); at the clasp the right wrists within the pair's mean hand length
- * (the mutual join's bound, as `test_human_motion_recompose_mutual` reads
+ * (the mutual join's bound, as `motionRecomposeMutual` reads
  * it); the room within the hip's flexion range of the default rig (120
  * degrees, the engine's range table).
  *
