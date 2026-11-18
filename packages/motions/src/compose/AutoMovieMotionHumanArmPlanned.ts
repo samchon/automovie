@@ -100,9 +100,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * plan starts, never at a later second.
    *
    * The waypoints: the reach and the return spaced by the arc their blend
-   * covers (`SPACING` of the farthest probe's travel, between a sixth and a
-   * thirtieth of a second), the hold at the least spacing (`LEAST`, six a
-   * second); the solve then splits every interval that does not bound its
+   * covers (`SPACING` of the farthest probe's travel, between `1 / LEAST`
+   * and a frame), the hold at the least spacing (`LEAST` a second, the rate
+   * a site at a daily reach's peak speed moves `SPACING` at); the solve then splits every interval that does not bound its
    * site's path or its probes' clearance (`HumanArmRefine`), down to the
    * frame grid at the finest, so a still hold keeps few waypoints and a
    * stroke as many as its motion needs. On the hold each arm's site is its
@@ -413,14 +413,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
   export const moved: typeof AutoMovieMotionHumanArmObservation.moved = AutoMovieMotionHumanArmObservation.moved;
 }
 
-/** The spacing of the trajectory's waypoints, seconds at most: the frame grid, a thirtieth of a second. */
-const STEP: number = 1 / 30;
+/** The spacing of the trajectory's waypoints, seconds at most: the frame grid (`AutoMovieMotionHumanArmCourse.STEP`). */
+const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-/** The least waypoints a second of a reach, a return or a hold, the swept clearance's spacing. */
-const LEAST: number = 6;
+/** The farthest probe's travel between two waypoints of a reach, metres: the audit's travel bound over one of its twenty-fourth-second steps (`HumanArmTrajectoryModel.SPEED_LIMIT`). */
+const SPACING: number = HumanArmTrajectoryModel.SPEED_LIMIT / 24;
 
-/** The farthest probe's travel between two waypoints of a reach, metres. */
-const SPACING: number = 0.08;
+/** A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006 3:18). */
+const PEAK: number = 0.55;
+
+/** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
+const LEAST: number = Math.ceil(PEAK / SPACING);
 
 /** The intervals a reach or a return is first cut into at most, by its arc: TrajOpt plans an arm's whole path on eleven timesteps, ten intervals (Schulman et al. 2013, section VI); the solve adds knots where the played trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`). */
 const TRANSPORT: number = 10;

@@ -16,6 +16,7 @@ import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext"
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
@@ -254,8 +255,15 @@ export namespace AutoMovieMotionHumanArmFollow {
   }
 }
 
-/** The correction's grid, seconds: the frame grid the planner's hold is sampled on. */
-const STEP: number = 1 / 30;
+/** The correction's grid, seconds: the frame grid the planner's hold is sampled on (`AutoMovieMotionHumanArmCourse.STEP`). */
+const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-/** Halvings of a step that would take the arm deeper past the skin, before it is not taken. */
-const HALVINGS: number = 4;
+/**
+ * Halvings of a step that would take the arm deeper past the skin, before
+ * it is not taken: a step moves a probe at most the audit's speed bound
+ * over a frame, and halving it further than below the model's tolerance (a
+ * millimetre, the depth it is compared at) changes no reading.
+ */
+const HALVINGS: number = Math.ceil(
+  Math.log2((HumanArmTrajectoryModel.SPEED_LIMIT * STEP * 1000) / HumanArmTrajectoryModel.TOLERANCE),
+);
