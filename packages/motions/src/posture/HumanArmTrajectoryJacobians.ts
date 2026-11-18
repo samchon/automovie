@@ -92,7 +92,7 @@ export namespace HumanArmTrajectoryJacobians {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies current iterate inputs, free-column ordering and which waypoints return empty derivatives.
    * @evidence contracts/development/implementation.md#principled-implementation The shared arm-column owner gives segment-origin twists; each attached point moves by v_origin plus omega cross its current displacement from that origin, scaled to millimetres. Orientation residuals retain turned's original two-sided logarithm reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate's columns feed probe, contact and orientation rows and then the original movement bound; private offsets are initialized at their first original use, and one point-motion owner completes each fresh cross-product result.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate's columns feed probe, contact and orientation rows and then the original movement bound; each probe reads its relative position once, and one point-motion owner completes each fresh cross-product result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all columns, probe/site order, exact pad placement, 1000 scaling and cross/add grouping, HAIR and movement-bound reductions; no tolerance, target or chart derivative is changed.
    * @evidence contracts/development/implementation.md#efficient-algorithms For F free coordinates and P probes the required derivative output remains O(FP); each probe-origin displacement and contact placement is computed once per candidate rather than F times, with O(P) temporary offsets. Each output completes its fresh cross vector in place, avoiding the unobserved scale and add vectors.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous candidate's probe points, origins, hand frame and site contact stay fixed while its columns vary. Lazy offsets reuse those exact completed differences only within this candidate; all angular differences remain separate actual readings.
@@ -128,9 +128,9 @@ export namespace HumanArmTrajectoryJacobians {
    * @evidence contracts/development/implementation.md#principled-implementation The rigid-body point motion `of` states: each column's segment twist moves an attached point by v_origin plus omega cross its displacement, scaled to millimetres; the rotation's columns are the residual's central differences.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure `of` is this entry mapped over every arm and waypoint, so a reader of one waypoint (a laid course's detour) and the convex subproblem read one owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every column, probe order, contact placement, HAIR and movement bound as `of` made them; an entry depends on the arm's coordinates and placement at its own waypoint alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(F P) numbers for F free coordinates and P probes at the one waypoint, written into one numeric row a probe with the movement bound summed as they are made; a probe's vectors are made only when a row reads it (IJacobian.probe), where every probe's F vectors were made before.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(F P) numbers for F free coordinates and P probes at the one waypoint, written consecutively into one buffer per waypoint with each movement bound summed in column order; a probe's vectors are made only when a row reads it (IJacobian.probe), where every probe's F vectors were made before.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The waypoint's probe points, origins, hand frame and contact are read once and shared by its columns; nothing crosses waypoints.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh vectors; offsets live until return.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The entry owns one derivative buffer and releases it with its lazily materialised vectors.
    */
   export function waypoint(
     c: M.IContext,
@@ -143,21 +143,24 @@ export namespace HumanArmTrajectoryJacobians {
 
     // Each probe's columns as numbers, three a free coordinate, made into
     // vectors only for the probes a row reads (`probe`).
-    let rows: Float64Array[] = [];
-    let columns: number = 0;
+    const inner: boolean = M.inner(c, k);
+    const columns: number = c.free[a]!.length;
+    const rows: Float64Array | undefined = inner
+      ? new Float64Array(at.placed[a]![k]!.probes.length * columns * 3)
+      : undefined;
     const made: (IAutoMovieVector3[] | undefined)[] = [];
     const entry: IJacobian = {
       probe: (probe: number): IAutoMovieVector3[] => {
         const known: IAutoMovieVector3[] | undefined = made[probe];
         if (known !== undefined) return known;
-        const row: Float64Array | undefined = rows[probe];
+        const start: number = 3 * columns * probe;
         const out: IAutoMovieVector3[] = [];
-        if (row !== undefined)
+        if (rows !== undefined && start >= 0 && start < rows.length)
           for (let f: number = 0; f < columns; ++f)
             out.push({
-              x: row[3 * f]!,
-              y: row[3 * f + 1]!,
-              z: row[3 * f + 2]!,
+              x: rows[start + 3 * f]!,
+              y: rows[start + 3 * f + 1]!,
+              z: rows[start + 3 * f + 2]!,
             });
         made[probe] = out;
         return out;
@@ -167,33 +170,10 @@ export namespace HumanArmTrajectoryJacobians {
       move: 0,
       segments: [],
     };
-    if (!M.inner(c, k)) return entry;
+    if (rows === undefined) return entry;
     const site: M.ISite | undefined = c.sites[a]![k];
     const here: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-    const free: number = c.free[a]!.length;
-    rows = here.probes.map((): Float64Array => new Float64Array(3 * free));
-    const sums: Float64Array = new Float64Array(here.probes.length);
-    const scratch: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
-      upper: here.shoulder,
-      lower: here.elbow,
-      hand: here.wrist,
-    };
-    const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
-      (
-        _probe: readonly [IAutoMovieVector3, number],
-        i: number,
-      ): "upper" | "lower" | "hand" => {
-        const segment: M.Segment = S.segment(frame, i);
-        return segment === "upperArm"
-          ? "upper"
-          : segment === "lowerArm"
-            ? "lower"
-            : "hand";
-      },
-    );
-    const offsets: IAutoMovieVector3[] = [];
     let contact: IAutoMovieVector3 | undefined;
     let target: IAutoMovieQuaternion | undefined;
     for (const column of HumanArmJacobian.columns(
@@ -209,32 +189,6 @@ export namespace HumanArmTrajectoryJacobians {
         hand: motion(column.hand),
       };
       entry.segments.push(frames);
-      const f: number = columns++;
-      here.probes.forEach(
-        ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
-          const owner: "upper" | "lower" | "hand" = owners[i]!;
-          const offset: IAutoMovieVector3 =
-            offsets[i] ?? (offsets[i] = Vector3.subtract(p, origins[owner]));
-
-          // `pointMotion`'s expressions on numbers: the turn's cross
-          // product with the offset, scaled and added to the origin's
-          // motion; its length summed in column order, as the movement
-          // bound below reads it.
-          const motion: IMotion = frames[owner];
-          const o: IAutoMovieVector3 = motion.omega;
-          scratch.x =
-            motion.origin.x + (o.y * offset.z - o.z * offset.y) * 1000;
-          scratch.y =
-            motion.origin.y + (o.z * offset.x - o.x * offset.z) * 1000;
-          scratch.z =
-            motion.origin.z + (o.x * offset.y - o.y * offset.x) * 1000;
-          const row: Float64Array = rows[i]!;
-          row[3 * f] = scratch.x;
-          row[3 * f + 1] = scratch.y;
-          row[3 * f + 2] = scratch.z;
-          sums[i] = sums[i]! + Vector3.length(scratch);
-        },
-      );
       if (site !== undefined) {
         contact ??= Vector3.subtract(P.pad(here, site.contact), here.wrist);
         entry.pad.push(pointMotion(frames.hand, contact));
@@ -252,8 +206,32 @@ export namespace HumanArmTrajectoryJacobians {
           );
       }
     }
-    for (let i: number = 0; i < sums.length; ++i)
-      entry.move = Math.max(entry.move, sums[i]!);
+    const scratch: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    for (let i: number = 0; i < here.probes.length; ++i) {
+      const segment: M.Segment = S.segment(frame, i);
+      const owner: keyof typeof entry.segments[number] = segment === "upperArm"
+        ? "upper" : segment === "lowerArm" ? "lower" : "hand";
+      const origin: IAutoMovieVector3 = owner === "upper"
+        ? here.shoulder : owner === "lower" ? here.elbow : here.wrist;
+      const point: IAutoMovieVector3 = here.probes[i]![0];
+      const x: number = point.x - origin.x;
+      const y: number = point.y - origin.y;
+      const z: number = point.z - origin.z;
+      let offset: number = 3 * i * columns;
+      let sum: number = 0;
+      for (const column of entry.segments) {
+        const twist: IMotion = column[owner];
+        const o: IAutoMovieVector3 = twist.omega;
+        scratch.x = twist.origin.x + (o.y * z - o.z * y) * 1000;
+        scratch.y = twist.origin.y + (o.z * x - o.x * z) * 1000;
+        scratch.z = twist.origin.z + (o.x * y - o.y * x) * 1000;
+        rows[offset++] = scratch.x;
+        rows[offset++] = scratch.y;
+        rows[offset++] = scratch.z;
+        sum += Vector3.length(scratch);
+      }
+      entry.move = Math.max(entry.move, sum);
+    }
     return entry;
   }
 
