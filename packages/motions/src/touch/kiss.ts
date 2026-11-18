@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -39,9 +39,10 @@ import { kissPose } from "./kissPose";
  * The lean and the neck's flexion are solved at plan time so the mouth
  * region of the leaned posture lands on the target as it stands at the
  * kiss's start: a grid of pitch and flexion at 5 degree steps, then 1 degree
- * steps about the best, then a lean of up to 10 degrees to the side the
- * target lies on, and, when the mouth is still short, a rise onto the toes
- * of up to 35 degrees of heel (both provisional). The head turns 30 degrees
+ * steps about the best, then a lean to the side the target lies on, as far
+ * as the hips' range lets a body on planted feet lean (`ROLL`), and, when
+ * the mouth is still short, a rise onto the toes of up to 35 degrees of
+ * heel (provisional). The head turns 30 degrees
  * for a cheek or the lips (provisional), to the right unless `side` says
  * otherwise; Guntürkün 2003 observed a two-to-one rightward bias, which
  * Sedgewick et al. 2019 did not find, so the side is a parameter. The
@@ -81,8 +82,11 @@ export namespace kiss {
   /** The kiss's hold, seconds (provisional). */
   export const HOLD: number = 0.6;
 
-  /** The most the body leans to a side, degrees (provisional). */
-  export const ROLL: number = 10;
+  /** The most the body leans to a side, degrees: with both feet planted a side lean from the hips turns one hip into adduction and the other into abduction by the lean, so it is the lesser of the hip's adduction and abduction ranges (`DEFAULT_HUMANOID_ROM`, the upper leg's abduction). */
+  export const ROLL: number = Math.min(
+    -(DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.min ?? 0),
+    DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.max ?? 0,
+  );
 
   /** The most the heels rise, degrees (provisional). */
   export const RAISE: number = 35;
