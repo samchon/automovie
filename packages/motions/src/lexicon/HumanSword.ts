@@ -19,6 +19,7 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAdvance } from "../striking/StrikingAdvance";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingQuality } from "../striking/StrikingQuality";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanSwordLanding } from "./HumanSwordLanding";
@@ -45,8 +46,9 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * it. The outcome is the author's, never the geometry's.
  *
  * First pass: the target is read once, at the start; a body does not stop
- * the blade; binds, winds and redirection are not planned; every pose
- * constant is provisional, from the treatises' figures.
+ * the blade; binds, winds and redirection are not planned; the chambers and
+ * the stand-in target are the body's own measures, and `SWING`, `CONE`,
+ * `REACH`, `STOPPED` and the cut's speed are provisional.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the blade is given, the vocabulary with its source, how a parried attack is declared and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the stroke planner; the lines a cut comes from are a closed union with a table of directions.
@@ -139,7 +141,13 @@ export namespace HumanSword {
       support:
         (p.hands ?? (twoHanded ? 2 : 1)) === 2
           ? {
-              offset: { x: -0.6 * context.body.measure.hand, y: 0, z: 0 },
+              // The two hands side by side on the grip, one hand's breadth
+              // apart (`StrikingQuality.fist`).
+              offset: {
+                x: -2 * StrikingQuality.fist(context.body.measure.hand),
+                y: 0,
+                z: 0,
+              },
               handle: "axis",
             }
           : null,
@@ -177,11 +185,10 @@ export namespace HumanSword {
     ],
   });
 
-  /** Read an attack's target, line and advance: the target named or a place at the blade's reach, and with no advance named the least that reaches. */
+  /** Read an attack's target, line and advance: the target named, or with none a stand-in opponent of the performer's own measure whose sternum lies straight ahead at the arm's `REACH` and the landing part's span from the shoulder, the centre of the fencing target; and with no advance named the least that reaches. */
   export const aim = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
     s: IAutoMovieMotionHumanSword.ISetup,
-    place: IAutoMovieMotionHumanSword.IParts,
     span: number,
   ): IAutoMovieMotionHumanSword.IAim => {
     const p: IAutoMovieMotionHumanSword.IAttack = context.params;
@@ -249,6 +256,10 @@ export namespace HumanSword {
       line,
       travel,
     );
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      context.body.measure;
+    const drop: number = m.chestHeight - m.shoulderHeight;
+    const far: number = REACH * s.arm + span;
     return {
       target:
         given ??
@@ -256,9 +267,9 @@ export namespace HumanSword {
           reach,
           s.world(
             {
-              out: place.out * s.arm,
-              up: place.up * s.arm,
-              forward: place.forward * s.arm + s.tool.length,
+              out: 0,
+              up: drop,
+              forward: Math.sqrt(Math.max(0, far * far - drop * drop)),
             },
             yaw,
           ),
@@ -315,7 +326,7 @@ export namespace HumanSword {
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc. A cut is not arrested: the edge passes the target at the peak speed of one minimum-jerk unit, its middle (Flash and Hogan 1985), so the follow-through lasts as long as the attack and carries the edge past the target as far and through as wide a turn as it came.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING`, the leans and turns of the blade at contact and the chamber's place are provisional values named in code and documentation; an unreachable target is refused, never shortened.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING` and the leans and turns of the blade at contact are provisional values named in code and documentation, the chamber is the arm's own segments; an unreachable target is refused, never shortened.
    * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
@@ -338,7 +349,6 @@ export namespace HumanSword {
         const a: IAutoMovieMotionHumanSword.IAim = aim(
           context,
           s,
-          { out: 0, up: -0.1, forward: 0.6 },
           s.tool.length - back,
         );
         const [out, up]: readonly [number, number] =
@@ -370,14 +380,13 @@ export namespace HumanSword {
         const about: IAutoMovieVector3 = Vector3.normalize(
           Vector3.cross(axis, travel),
         );
+        // The chamber: the upper arm along the line of attack and the forearm
+        // square to it, raised toward where the cut comes from.
         const chamber: IAutoMovieVector3 = Vector3.add(
           s.shoulder,
-          Vector3.scale(
-            Vector3.add(
-              Vector3.scale(origin, 0.35),
-              Vector3.scale(a.line, 0.25),
-            ),
-            s.arm,
+          Vector3.add(
+            Vector3.scale(a.line, context.body.measure.upperArm),
+            Vector3.scale(origin, context.body.measure.forearm),
           ),
         );
         const path = (

@@ -44,9 +44,9 @@ export namespace HumanSwordThrust {
    * Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or so near that the hand would land within `NEAR` of the arm from the shoulder in a pose the arm cannot hold, is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, the advance and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back beside the lower ribs with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
+   * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back by the side, the upper arm hanging and the forearm square to it with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the landed pose, the chamber, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chamber's place is provisional; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chamber is the arm's own segments; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan; each posture costs the stroke planner's elbow searches and, in an advance, one root lowering.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
@@ -62,7 +62,6 @@ export namespace HumanSwordThrust {
         const a: IAutoMovieMotionHumanSword.IAim = HumanSword.aim(
           context,
           s,
-          { out: 0, up: -0.15, forward: 0.85 },
           s.tool.length,
         );
 
@@ -115,13 +114,18 @@ export namespace HumanSwordThrust {
             });
           }
 
-        // The chamber: the hilt drawn back beside the lower ribs, the point
-        // already on the line to the target.
+        // The chamber: the hilt drawn back by the side, the upper arm hanging
+        // and the forearm square to it toward the target, the point already
+        // on the line to the target.
         const hilt: IAutoMovieVector3 = Vector3.add(
           s.shoulder,
-          Vector3.scale(
-            s.world({ out: 0.05, up: -0.45, forward: 0.3 }, a.yaw),
-            s.arm,
+          s.world(
+            {
+              out: 0,
+              up: -context.body.measure.upperArm,
+              forward: context.body.measure.forearm,
+            },
+            a.yaw,
           ),
         );
 

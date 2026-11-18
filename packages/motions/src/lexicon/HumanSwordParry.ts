@@ -62,8 +62,16 @@ export namespace HumanSwordParry {
     HumanSword.THIRDS[1],
   ];
 
-  /** How far a parrying blade may lean from the line square to the attacker's, degrees, and it turns freely about its own line, so the hand that holds it as it took it can close the parry (provisional). */
-  export const LEAN: number = 30;
+  /**
+   * How far a parrying blade may lean from the line square to the
+   * attacker's, degrees, and it turns freely about its own line, so the hand
+   * that holds it as it took it can close the parry: the friction angle of
+   * steel sliding on steel, `atan 0.57` (Serway and Jewett, Physics for
+   * Scientists and Engineers, the table of coefficients of friction), so
+   * the attacking blade pressing on the parrying one does not slide along it
+   * toward the hand.
+   */
+  export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
 
   /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, the seconds from the start to the attack's decisive instant and the seconds the stopped attack stays there before it turns back (null and 0 for a drill). */
   interface IMeet {
@@ -84,20 +92,31 @@ export namespace HumanSwordParry {
     const p: IAutoMovieMotionHumanSwordParry.IParry = context.params;
     const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
     if (p.against === undefined) {
+      // A drilled parry closes its line as the fencing masters teach it: the
+      // lines are the target's quarters about the sword hand in guard (the
+      // upper arm hanging, the forearm square to it toward the opponent), so
+      // the hand keeps the guard's height and distance and carries the blade
+      // sideways to the edge of the trunk on the line's side, point up for a
+      // high line and down for a low one, meeting the attacking blade on its
+      // forte.
       const line: IAutoMovieMotionHumanSwordParry.Opening =
         p.line ?? "highOutside";
       const high: boolean = line.startsWith("high");
-      const out: number = line.endsWith("Outside") ? 0.2 : -0.45;
+      const outside: number = line.endsWith("Outside") ? 1 : -1;
+      const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+        context.body.measure;
+      const point: IAutoMovieVector3 = { x: 0, y: high ? 1 : -1, z: 0 };
+      const edge: number = (outside * m.chestBreadth) / 2 - m.shoulderHalfWidth;
       return {
         at: Vector3.add(
-          s.shoulder,
-          Vector3.scale(
-            s.world({ out, up: high ? 0.1 : -0.45, forward: 0.55 }),
-            s.arm,
+          Vector3.add(
+            s.shoulder,
+            s.world({ out: edge, up: -m.upperArm, forward: m.forearm }),
           ),
+          Vector3.scale(point, HumanSword.LANDS.parry * s.tool.length),
         ),
-        point: { x: 0, y: high ? 1 : -1, z: 0 },
-        edge: s.world({ out: Math.sign(out), up: 0, forward: 0 }),
+        point,
+        edge: s.world({ out: outside, up: 0, forward: 0 }),
         lead: null,
         stays: 0,
       };
@@ -195,7 +214,7 @@ export namespace HumanSwordParry {
    * @evidence contracts/development/common.md#meaningful-documentation States what meets what, the instant and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The attacker's displayed blade at the attack's decisive instant gives the meeting point (`WEAK` of its length back from its point, the strong of the parrying blade on the weak of the attacking one); the parrying blade crosses it, upright for a high line and point down for a low one, offset to the defender's side by `HumanSword.GAP`. The parry waits in its entry hold so that its own travel ends on that instant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Where the blades meet, the closed pose, the timing, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting and receiving places are the blades' thirds, the hold is the stopped attack's own stay and every travel one minimum-jerk unit at the cited peak speed; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill; the drill's lines and `LEAN` are provisional.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting and receiving places are the blades' thirds, the hold is the stopped attack's own stay and every travel one minimum-jerk unit at the cited peak speed; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill; a drill's meeting is the guard's hand carried to the trunk's edge and `LEAN` the friction angle of steel on steel.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read of the attacker's prop frame per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
