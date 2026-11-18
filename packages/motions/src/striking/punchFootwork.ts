@@ -35,12 +35,18 @@ import type { punchGeometry } from "./punchGeometry";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the step, the drag, the pivot and the shared trunk turn with their source.
  * @evidence contracts/development/design.md#principled-representation One footwork built from the punch's timing and its contact solution, read as a posture per second and as contact windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the heel raise, the drag's share, the footwork and its inputs, which the punch's contact solution and geometry read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the heel raise, the trunk turn's shares, the drag's share, the footwork and its inputs, which the punch's contact solution and geometry read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, foot placement and contact window types; every length comes from the punching body's measure.
  */
 export namespace punchFootwork {
   /** Rear heel raise of a rear-hand punch's ball pivot at contact, degrees (provisional reading of the IBA cross drawing's released heel). */
   export const HEEL_RAISE: number = 15;
+
+  /** The pelvis's share of the trunk's turn: two fifths, the heading turns by it. */
+  export const PELVIS_SHARE: number = 0.4;
+
+  /** Each of the lumbar and the thoracic spine's share of the trunk's turn: three tenths. */
+  export const SPINE_SHARE: number = 0.3;
 
   /** The least step along the line the feet take, metres: a launch plan's step no longer than this keeps both feet planted (provisional, a rounding-sized step). */
   export const STEP: number = 0.02;
@@ -305,13 +311,13 @@ export namespace punchFootwork {
             { ...entry.root, y: entry.root.y - dip * turning },
             Vector3.scale(line, 0.5 * (moved + followed)),
           ),
-          yaw: entry.yaw + 0.4 * turn * turning,
+          yaw: entry.yaw + PELVIS_SHARE * turn * turning,
           pitch: entry.pitch,
           roll: entry.roll,
           joints: StrikingStance.facing(
             {
               ...joints,
-              ...StrikingTwist.trunk(entry.joints, 0.3 * turn * turning),
+              ...StrikingTwist.trunk(entry.joints, SPINE_SHARE * turn * turning),
             },
             turn * turning,
           ),
@@ -323,7 +329,7 @@ export namespace punchFootwork {
               : { left: rearDown, right: leadDown },
           ),
         },
-        5,
+        resolveHumanPosture.KNEE,
         resolution,
       );
     };

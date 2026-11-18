@@ -185,7 +185,7 @@ export namespace KickCarriage {
           { left: side !== "left", right: side !== "right" },
         ),
       },
-      5,
+      resolveHumanPosture.KNEE,
       read,
     );
   }

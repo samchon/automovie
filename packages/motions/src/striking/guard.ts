@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -207,7 +207,7 @@ export namespace guard {
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
     const faced: number = -Math.max(
       -StrikingStance.FACING,
-      Math.min(StrikingStance.FACING, 0.5 * angle(heading - line)),
+      Math.min(StrikingStance.FACING, 0.5 * wrapDegrees(heading - line)),
     );
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
@@ -302,7 +302,7 @@ export namespace guard {
             y: entry.root.y + (sunk - entry.root.y) * s - hop,
             z: entry.root.z + (rootAt.z - entry.root.z) * s,
           },
-          yaw: entry.yaw + angle(heading - entry.yaw) * s,
+          yaw: entry.yaw + wrapDegrees(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
           joints: {
@@ -328,7 +328,7 @@ export namespace guard {
         const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           { ...posture, limbs: legs },
-          5,
+          resolveHumanPosture.KNEE,
           resolution,
         );
         const hands: ReturnType<typeof StrikingStance.guard> = guardAt(lowered, resolution, projection);
@@ -363,11 +363,6 @@ export namespace guard {
             };
     }
     return out;
-  }
-
-  /** A heading difference wrapped into (-180, 180]. */
-  function angle(degrees: number): number {
-    return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }
 
   /** The horizontal forward of a heading. */

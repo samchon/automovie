@@ -221,7 +221,7 @@ export namespace step {
             joints: { ...joints },
             limbs: StrikingStance.legs(body, placed, down),
           },
-          5,
+          resolveHumanPosture.KNEE,
         );
         return {
           ...posture,

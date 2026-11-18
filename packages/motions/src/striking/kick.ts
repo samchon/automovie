@@ -16,7 +16,6 @@ import type {
 
 import { HumanSkill } from "../skill/HumanSkill";
 import { KickClear } from "./KickClear";
-import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";
 import { KickLaunch } from "./KickLaunch";
 import { KickRedirect } from "./KickRedirect";
@@ -62,7 +61,7 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  * A round kick may be redirected before its chamber key into another round
  * kick ({@link KickRedirect}).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; {@link KickForm} states which values are provisional.
+ * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; `KickForm` states which values are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table admitting only the redirect, parameters with closed technique and leg unions, and a pure plan of postures in world metres and seconds with capsule weapons.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan type, the leg resolution and the plan the law table, the knee and the defence read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the kicking body's measure.
@@ -161,7 +160,7 @@ export namespace kick {
       limb,
       radii: StrikingWeapon.legRadii(context.body),
       from: Math.max(context.start, t0 + timing.prep),
-      to: t0 + timing.impact + KickForm.WEAPON_TAIL,
+      to: t0 + timing.impact + StrikingWeapon.TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,

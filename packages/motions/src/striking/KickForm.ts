@@ -140,17 +140,8 @@ export namespace KickForm {
   /** How far the knee's bend hint sits from the solved knee, as a share of the thigh (provisional). */
   export const HINT_SHARE: number = 0.25;
 
-  /** How long past the planned contact a striking limb stays a weapon, seconds, the kick's and the knee's leg and the punch's arm alike (provisional: the through-travel's settling). */
-  export const WEAPON_TAIL: number = 0.1;
-
   /** The foot capsule's radius as a share of the ankle height (provisional: half the foot's depth). */
   export const FOOT_RADIUS_SHARE: number = 0.5;
-
-  /** The aim tracker's observation step, seconds: one film frame at 24 frames a second, as the punch reads its target. */
-  export const TRACK_STEP: number = 1 / 24;
-
-  /** The aim tracker's shortest correction unit, seconds, as the punch's. */
-  export const TRACK_SHORTEST: number = 0.04;
 
   /** Share of the recoil over which the foot returns from its contact rotation to its chamber rotation, the first of the stroke's two return units ({@link StrikingStroke}). */
   export const RECHAMBER_SHARE: number = 0.45;

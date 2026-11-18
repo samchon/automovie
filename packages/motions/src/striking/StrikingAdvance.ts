@@ -192,7 +192,7 @@ export namespace StrikingAdvance {
           } as Record<"left" | "right", boolean>),
         },
       },
-      5,
+      resolveHumanPosture.KNEE,
       resolution,
     );
   };

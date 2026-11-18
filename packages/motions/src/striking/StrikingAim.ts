@@ -32,10 +32,16 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the observation, prediction and correction model with its sources, the cutoff and the exact cases.
  * @evidence contracts/development/design.md#principled-representation Tracking as film-second timing, a planned goal in world metres and superposed correction units, evaluated causally.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The timing, the tracker and the three functions the punch and kick laws and the tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The observation step and shortest correction every strike tracks with, the timing, the tracker and the three functions the punch and kick laws and the tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's minimum-jerk unit and the interface vector.
  */
 export namespace StrikingAim {
+  /** The observation step, seconds: one film frame at 24 frames a second, every strike's alike. */
+  export const STEP: number = 1 / 24;
+
+  /** The shortest correction unit a strike still starts before its contact, seconds, every strike's alike (provisional). */
+  export const SHORTEST: number = 0.04;
+
   /**
    * The observation seconds of a strike: from the launch, one per step, up to
    * the last one whose correction still lasts its shortest duration.

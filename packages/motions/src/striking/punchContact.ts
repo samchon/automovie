@@ -272,8 +272,8 @@ export namespace punchContact {
         launch: t0 - StrikingTarget.LOOK,
         impact: t0 + delivery,
         latency: StrikingSkill.CORRECTION_LATENCY,
-        step: 1 / 24,
-        shortest: 0.04,
+        step: StrikingAim.STEP,
+        shortest: StrikingAim.SHORTEST,
       },
       offset,
     );

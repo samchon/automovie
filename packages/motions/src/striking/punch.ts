@@ -19,7 +19,6 @@ import type {
 
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { HumanSkill } from "../skill/HumanSkill";
-import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
@@ -225,7 +224,7 @@ export namespace punch {
       limb,
       radii: StrikingWeapon.armRadii(context.body),
       from: context.start,
-      to: context.start + shown + KickForm.WEAPON_TAIL,
+      to: context.start + shown + StrikingWeapon.TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.arm(
           context.body,

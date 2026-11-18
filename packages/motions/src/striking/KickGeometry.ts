@@ -19,7 +19,6 @@ import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
 import { KickContact } from "./KickContact";
-import { KickForm } from "./KickForm";
 import { KickLaunch } from "./KickLaunch";
 import { KickPlans } from "./KickPlans";
 import { KickSwing } from "./KickSwing";
@@ -90,8 +89,8 @@ export namespace KickGeometry {
         launch: t0 - StrikingTarget.LOOK,
         impact: t0 + timing.impact,
         latency: StrikingSkill.CORRECTION_LATENCY,
-        step: KickForm.TRACK_STEP,
-        shortest: KickForm.TRACK_SHORTEST,
+        step: StrikingAim.STEP,
+        shortest: StrikingAim.SHORTEST,
       },
       offset,
     );

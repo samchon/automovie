@@ -35,10 +35,13 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States free-course ownership, capsule coverage, world-frame sampling and tapered girths.
  * @evidence contracts/development/design.md#principled-representation Uses the existing plan weapons, canonical body and vector types; a chain's capsules share its per-second posing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Provides actual fitted limb axes, capsule construction, girths, first-contact selection and synchronous complete-axis sampling to the performance consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Provides the weapon's tail past its contact, actual fitted limb axes, capsule construction, girths, first-contact selection and synchronous complete-axis sampling to the performance consumers.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose/time answer is stored; chain metadata preserves the existing body/course owner and all physical fits remain with resolveHumanPosture.
  */
 export namespace StrikingWeapon {
+  /** How long past the planned contact a striking limb stays a weapon and its stop is looked for, seconds, every strike's limb alike (provisional: the through-travel's settling). */
+  export const TAIL: number = 0.1;
+
   /**
    * The striking action's free course: its posture at a film second before
    * any committed stop moves it.

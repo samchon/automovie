@@ -231,7 +231,7 @@ export namespace KickLaunch {
         aim,
         t0 - StrikingTarget.LOOK,
         t0 + impact,
-        KickForm.TRACK_STEP,
+        StrikingAim.STEP,
       ),
       offset,
     );
