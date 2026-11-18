@@ -58,27 +58,33 @@ export namespace AutoMovieMotionClockNative {
     const envelope: IClock["envelope"] = (rise: readonly [string, string],
       fall: readonly [string, string], seconds: number): number =>
       Math.max(0, progress(rise[0], rise[1], seconds) - progress(fall[0], fall[1], seconds));
-    return {
+    return new NativeClock({
       duration, instants: sorted, at, linear, progress, envelope,
       events: (): IAutoMovieMotionEvent[] => sorted.map((i: IInstant): IAutoMovieMotionEvent => ({
         name: i.name, share: i.seconds / duration,
       })),
-    };
+    });
   }
 
   /**
    * A fixed window's uniform and minimum-jerk readers, its two instants
-   * resolved at the first sample and kept for the rest.
+   * resolved at the first native sample and kept for the rest. A custom
+   * clock's requested callback owns each read.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed names, the action-local seconds read and that an unknown name throws at the first sample.
    * @evidence contracts/development/implementation.md#principled-implementation A clock's named times are fixed for its life, so the window's two seconds read once give every later sample the same interval the clock's own linear and progress compute.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy interval feeds both readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every sample still runs the interval arithmetic and the profile; no sample value is kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once, then constant arithmetic per sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy interval feeds both native readers. Each custom reader calls its matching clock method with the clock as receiver.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every native sample still runs the interval arithmetic and the profile. Custom samples keep current callbacks and do not probe unrelated clock methods.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once on a native clock, then constant arithmetic per sample. Custom reads add one callback invocation to their clock's own work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the window's two seconds are shared, a constant of the clock.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, two names and at most one two-number interval until release.
    */
   export function prepare(clock: IClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
+    if (!NativeClock.owns(clock))
+      return {
+        linear: (seconds: number): number => clock.linear(from, to, seconds),
+        progress: (seconds: number): number => clock.progress(from, to, seconds),
+      };
     let ready: AutoMovieMotionInterval.IPrepared | undefined;
     const interval = (): AutoMovieMotionInterval.IPrepared =>
       (ready ??= AutoMovieMotionInterval.prepare(clock, from, to));
@@ -90,13 +96,14 @@ export namespace AutoMovieMotionClockNative {
 
   /**
    * A fixed rise and fall's envelope, each window's instants resolved at
-   * its first use and kept for the rest.
+   * its first native use and kept for the rest. A custom clock receives its
+   * own two name tuples at every requested sample.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Copies the four names and states that the rise is resolved before the fall, at the first sample, as the clock's own envelope reads them.
    * @evidence contracts/development/implementation.md#principled-implementation The clock's envelope is the rise's progress less the fall's, clamped at zero; both windows' seconds are constants of the clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lazy intervals and one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp, the easing and the rise-before-fall order of the clock's envelope are kept.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four name lookups once, then two progress evaluations per sample with no tuple allocated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Native evaluation uses two lazy intervals and one clamp. A custom read invokes only its current envelope callback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native reads keep their clamp, easing and rise-before-fall order. A custom read keeps its receiver and its result, and retained callback tuples cannot change the prepared names.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four name lookups once on a native clock, then two progress evaluations per sample without tuples. Each custom read makes the two distinct tuples its callback receives.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the two windows' seconds are shared.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, four names and at most two intervals until release.
    */
@@ -106,6 +113,9 @@ export namespace AutoMovieMotionClockNative {
     const riseTo: string = rise[1];
     const fallFrom: string = fall[0];
     const fallTo: string = fall[1];
+    if (!NativeClock.owns(clock))
+      return (seconds: number): number =>
+        clock.envelope([riseFrom, riseTo], [fallFrom, fallTo], seconds);
     let rising: AutoMovieMotionInterval.IPrepared | undefined;
     let falling: AutoMovieMotionInterval.IPrepared | undefined;
     return (seconds: number): number => {
@@ -119,6 +129,31 @@ export namespace AutoMovieMotionClockNative {
 
 /** The clock record, the interface's. */
 type IClock = IAutoMovieMotionClock;
+
+/** Distinguishes factory clocks without probing a custom clock or retaining a registry. */
+class NativeClock {
+  /** The factory's private brand. */
+  readonly #native: boolean = true;
+
+  /** Duration and public readers are assigned as own properties by the constructor. */
+  declare duration: IClock["duration"];
+  declare instants: IClock["instants"];
+  declare at: IClock["at"];
+  declare linear: IClock["linear"];
+  declare progress: IClock["progress"];
+  declare envelope: IClock["envelope"];
+  declare events: IClock["events"];
+
+  /** Move the factory's public fields and closures onto the branded record. */
+  public constructor(clock: IClock) {
+    Object.assign(this, clock);
+  }
+
+  /** Admit only the actual clock constructed by this factory. */
+  public static owns(clock: IClock): boolean {
+    return #native in clock;
+  }
+}
 
 /** A named instant, the interface's. */
 type IInstant = IAutoMovieMotionClockInstant;
