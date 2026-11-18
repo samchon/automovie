@@ -49,18 +49,6 @@ export namespace HumanSegmentShown {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): { pose: IAutoMoviePose; kept?: HumanSegment.IShown } {
-    // Under an overlay's own read (`laid`) the pose lacks the person's later
-    // overlays: evaluated for it alone, never taken from or kept in a record.
-    if (LAID.has(person)) {
-      const active: IAutoMovieMotionHumanSegment | undefined =
-        HumanSegmentSelection.last(person.segments, seconds);
-      return {
-        pose:
-          active === undefined
-            ? HumanSegmentPose.initial(person, requested, prepared)
-            : HumanSegmentPose.of(person, active, seconds, prepared, requested),
-      };
-    }
     const cached: HumanSegment.IShown | undefined = person.resolving
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
@@ -132,11 +120,11 @@ export namespace HumanSegmentShown {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which overlays the read sees and why.
    * @evidence contracts/development/implementation.md#principled-implementation The person's overlays are those placed before the reading overlay for the read's synchronous span, the state its planning saw; every display term (carrier, earlier overlays, carries, fits) is evaluated as usual.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped swap of the overlay list, restored in finally, and one mark `of` reads.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pose read under the scope is never taken from or kept in the person's records, which hold the whole display.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose evaluation per demanded read, of the demanded bones.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ordinary display evaluation; nested scopes restore the enclosing one.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the read: the list and the mark are restored on return or throw.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped swap of the person's own overlay list and pose records, restored in finally.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pose read under the scope is kept only in the scope's own fresh records, never in the person's, which hold the whole display.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Nothing is swapped when no overlay is left out (a read while the overlay is planned); otherwise one pose evaluation per second the read demands, shared within the scope.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ordinary display evaluation and its records, scoped to the laid state; nested scopes restore the enclosing one.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scope's records are released on return or throw, when the person's list and records are restored.
    */
   export function laid<T>(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -144,14 +132,19 @@ export namespace HumanSegmentShown {
     read: () => T,
   ): T {
     const all: IAutoMovieMotionHumanSegment.IOverlay[] = person.overlays;
-    const enclosing: boolean = LAID.has(person);
+    if (count >= all.length) return read();
+    const cache: IAutoMovieMotionHumanSegment.IPerson["cache"] = person.cache;
+    const planning: IAutoMovieMotionHumanSegment.IPerson["planning"] =
+      person.planning;
     person.overlays = all.slice(0, count);
-    LAID.add(person);
+    person.cache = new Map();
+    if (planning !== undefined) person.planning = new Map();
     try {
       return read();
     } finally {
       person.overlays = all;
-      if (!enclosing) LAID.delete(person);
+      person.cache = cache;
+      if (planning !== undefined) person.planning = planning;
     }
   }
 
@@ -224,6 +217,3 @@ export namespace HumanSegmentShown {
       : bound.reading(reading);
   }
 }
-
-/** The people read under an overlay's own scope (`HumanSegmentShown.laid`), whose poses are neither taken from nor kept in their records. */
-const LAID: WeakSet<IAutoMovieMotionHumanSegment.IPerson> = new WeakSet();
