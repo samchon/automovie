@@ -28,6 +28,7 @@ import type {
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanColliders } from "./HumanColliders";
 import { HumanPosture } from "./HumanPosture";
+import { HumanShapeFraming } from "./HumanShapeFraming";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
@@ -278,19 +279,10 @@ const nearBody: (
     .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
       p.shapes
         .filter((shape: IAutoMoviePhysicalShape): boolean => {
-          const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
-          const centre: IAutoMovieVector3 = Vector3.add(
-            p.pose.position,
-            Quaternion.rotateVector(
-              p.pose.rotation,
-              Vector3.add(
-                shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
-              ),
-            ),
-          );
+          const ball: { centre: IAutoMovieVector3; radius: number } =
+            HumanShapeFraming.sphere(p.pose, shape);
           return (
-            Vector3.length(Vector3.subtract(centre, hand)) <
+            Vector3.length(Vector3.subtract(ball.centre, hand)) <
             ball.radius + body.measure.hand
           );
         })

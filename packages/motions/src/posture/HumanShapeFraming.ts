@@ -6,6 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanColliderBound } from "./HumanColliderBound";
+
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face
  * planes in its own frame: the bounds a clearance reading tests a point
@@ -193,31 +195,18 @@ export namespace HumanShapeFraming {
    * meets the surface within the sphere.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each shape kind's sphere and why it bounds the signed distance.
-   * @evidence contracts/development/implementation.md#principled-implementation A hull's own bounding sphere, a sphere itself, a capsule's about its middle and a box's about its centre, placed by the shape's and the segment's frames.
+   * @evidence contracts/development/implementation.md#principled-implementation The shape's own containing sphere (`HumanColliderBound`), placed by the shape's and the segment's frames.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One local sphere and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is padded.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape, a hull's own sphere aside.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing and the trajectory's shapes. Non-hull shapes share only a private fixed local origin, avoiding a temporary centre/radius wrapper; hull geometry still comes from physicalHullFaces and every world placement is recomputed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private origin is constant metadata, not a shape or pose cache. Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing, the trajectory's shapes, the body's distance screen and the digits' near colliders; the local sphere is HumanColliderBound's and every world placement is recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
    */
   export function sphere(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
-    let centre: IAutoMovieVector3;
-    let radius: number;
-    if (shape.kind === "hull") {
-      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
-      centre = hull.centre;
-      radius = hull.radius;
-    } else {
-      centre = ORIGIN;
-      radius = shape.kind === "sphere"
-        ? shape.radius
-        : shape.kind === "capsule"
-          ? shape.halfLength + shape.radius
-          : Vector3.length(shape.halfExtents);
-    }
+    const local: IAutoMovieMotionHumanColliders.IBall = HumanColliderBound(shape);
     return {
       centre: Vector3.add(
         pose.position,
@@ -225,17 +214,14 @@ export namespace HumanShapeFraming {
           pose.rotation,
           Vector3.add(
             shape.transform.position,
-            Quaternion.rotateVector(shape.transform.rotation, centre),
+            Quaternion.rotateVector(shape.transform.rotation, local.centre),
           ),
         ),
       ),
-      radius,
+      radius: local.radius,
     };
   }
 }
-
-/** Fixed centre of a sphere, capsule or box in its own local frame; only read by fresh vector operations. */
-const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** Each hull's packed face planes in its own frame, by its points, kept while the points live (`planes`). */
 const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap();

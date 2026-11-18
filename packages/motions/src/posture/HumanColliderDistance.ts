@@ -1,6 +1,4 @@
 import {
-  Quaternion,
-  Vector3,
   closestPointsBetweenSegments,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
@@ -9,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliderBound } from "./HumanColliderBound";
+import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
  * Ordered signed-distance reduction over one actual collider placement.
@@ -44,17 +42,7 @@ export function HumanColliderDistance(
       if (best !== undefined) {
         let ball: IWorldBall | undefined = bounds?.[slot];
         if (ball === undefined) {
-          ball = HumanColliderBound(shape);
-          ball.centre = Vector3.add(
-            pose.position,
-            Quaternion.rotateVector(
-              pose.rotation,
-              Vector3.add(
-                shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
-              ),
-            ),
-          );
+          ball = HumanShapeFraming.sphere(pose, shape);
           if (bounds !== undefined) bounds[slot] = ball;
         }
         if (
