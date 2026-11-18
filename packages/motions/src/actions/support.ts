@@ -49,8 +49,10 @@ const BLEND: number = 0.3;
  * contact, the part over the middle of its step lifted a stepping limb's
  * rise (`crawl.LIFT`) clear of the higher end and bearing on nothing, then
  * the transition key with it set down, so a contact is broken before it is
- * made again. The joint-space course currently pins one common contact;
- * it does not yet enforce all of the other held contacts between keys.
+ * made again. Along the joint-space course the root keeps the first common
+ * contact on its point, and every held hand and foot is then fitted by its
+ * own two-bone chain to where the two keys hold it (`prepareSupportInterval`);
+ * a held knee or trunk contact rides the root pin and the floor bound alone.
  * A contact no key
  * posture reaches is refused with the contact, its stance and the miss.
  *
@@ -428,10 +430,10 @@ export namespace support {
         if (w === 0) return k === 0 ? entry : a.posture;
         if (w === 1) return b.posture;
 
-        // Between keys one common effector is pinned. Floor contacts rest
+        // Between keys the root pins one common contact and each held hand
+        // and foot is fitted to where the keys hold it. Floor contacts rest
         // on their colliders; raised contacts keep their world height,
-        // bounded by floor nonpenetration. This single pivot does not
-        // constrain every other held contact along the course.
+        // bounded by floor nonpenetration.
         return intervals[k]!.write(w, resolution, projection);
       },
     };
