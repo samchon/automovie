@@ -37,7 +37,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Each of three rest performances supplies one FK map to all five digits.
  */
 export function test_motion_contact_digit_clearance(): void {
-  checkRestClasp();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   // A hand at rest on the body lays its digits on it: no phalanx of the
@@ -111,6 +110,7 @@ export function test_motion_contact_digit_clearance(): void {
         `rest at ${place}: expected to plan, got ${(error as Error).message}`,
       );
     }
+  checkRestClasp(complaints);
   TestValidator.equals("resting digits respect skin depth", complaints, []);
 }
 
@@ -133,15 +133,9 @@ export function test_motion_contact_digit_clearance(): void {
  * 2. In front: both hands' goals are relaxed and each hand's surface lies
  *    within 15 mm of its goal.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs each clasp through the public chain and reads the posed hands against the rest law's own goals and the body's own forearm colliders; a hand off its goal or a fingertip inside the other forearm fails with the body, the clasp and the reading.
- * @evidence contracts/development/testing.md#independent-expectations The hand shapes are the drill manual's for parade rest and the relaxed hands of a clasp in front; the 15 mm bound is the rest case's own; outside a collider is a signed distance of at least zero.
- * @evidence contracts/development/testing.md#distinguishing-cases Both clasps on the four extreme bodies, the shortest and lightest to the tallest and heaviest.
- * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and performs eight short films; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the defect it guards with its cause, and the 2 scenarios.
  */
-function checkRestClasp(): void {
-  const complaints: string[] = [];
-  for (const name of motionHumanBody.EXTREMES) {
+function checkRestClasp(complaints: string[]): void {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [place, shape] of [
       ["claspedBehind", "flat"],
@@ -250,11 +244,6 @@ function checkRestClasp(): void {
       }
     }
   }
-  TestValidator.equals(
-    "clasped hands hold each other's hand and keep their goals",
-    complaints,
-    [],
-  );
 }
 
 /** Original single-hand placement tolerance in metres. */

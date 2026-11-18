@@ -326,11 +326,6 @@ interface IGoalFrame {
  * 3. A leg-only world goal remains correctly observed when independent
  *    omission is legal; the full raw goal record is retained for its caller.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States canonical Human provenance, actual metre targets, reference/rival-arm dependency boundary, requested-field/full-fallback distinction and existing contact/skin bounds in three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Runs public seeded with requested foot/left hand/right hand beside ordinary full resolution, reads actual full FK wrist/foot contacts and forearm clearance, and compares complete cold clinical outputs only in contexts promised to retain the full solve.
- * @evidence contracts/development/testing.md#independent-expectations Small upward/forward goals are literal world offsets from the canonical resting joints and remain within the limbs' reachable shells. Each actual endpoint must meet its requested point within0.001m. Two forearm capsules require the body's own two radii less HumanVerdicts.SKIN; cold parity supplements these physical checks rather than supplying their target or clearance bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a requested leg with unsupported reference-bearing rival-arm context, either requested arm with both goals present, unchanged all-joint fallback, actual capsule separation and the adjacent legal leg-only selection. Attached/normal/digit contexts have their existing owners; this test adds no new tolerance.
- * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit borrows the unchanged canonical Human fixture and owns all raw goals/poses. It invokes only real public resolver/FK/distance APIs, starts no host/compiler and replaces no foreign operation or global.
  */
 function checkSelectedFallback(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");

@@ -160,11 +160,6 @@ export function test_motion_contact_target_surface(): void {
  * 5. The left cheek is the right cheek mirrored in the head's median plane
  *    within 1 mm, and its normal the mirrored normal within 0.01.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Places the shipped regions on a standing polygon man's displayed bones; a cheek on the jaw, the ear or the nose, or facing elsewhere, fails with its numbers.
- * @evidence contracts/development/testing.md#independent-expectations The bounds are the face's landmarks on the same head (nose, nose bridge, mouth, jaw, ear) and the body's mirror symmetry, not the region's own definition.
- * @evidence contracts/development/testing.md#distinguishing-cases Both sides on two bodies of different size.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads one instant each; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the landmark, the stage and the 5 scenarios with their bounds.
  */
 function checkCheekNormals(): void {
   const complaints: string[] = [];
@@ -253,11 +248,6 @@ function checkCheekNormals(): void {
  *    the 10 mm floor.
  * 3. A region and its mirror have the same extent.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the bodies' resolved regions and asserts each scenario's relation over every region pair.
- * @evidence contracts/development/testing.md#independent-expectations The relations are the definition's own geometry, read from the regions' rest places, not from the extents' code.
- * @evidence contracts/development/testing.md#distinguishing-cases A disc that reaches past its neighbour fails 2, a lopsided pair fails 3, a zero extent fails 1.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads their rest pose in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios.
  */
 function checkAnatomicalExtents(): void {
   const findings: string[] = [];
