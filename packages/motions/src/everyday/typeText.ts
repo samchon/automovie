@@ -50,10 +50,12 @@ import { typeTextPresses } from "./typeTextPresses";
  *
  * Time between presses comes from typing skill: skilled typists strike
  * about every 0.15 to 0.2 s and novices far slower (Salthouse 1986, Psychol
- * Bull 99:303), so the interval runs from 0.5 s for a novice to 0.15 s for
- * an elite on the `speed` axis, with the cross-task timing variability of
- * `HumanSkill.jitter` (interval values provisional inside Salthouse's
- * range). Each press takes the first 40 % of its interval to reach the key,
+ * Bull 99:303). Everyday typists, two-finger and touch alike, type 34 to
+ * 79 words a minute (Feit, Weir and Oulasvirta 2016, CHI '16, How We Type),
+ * five characters a word, so the interval runs from 60 / (34 x 5) s, about
+ * 0.35 s, for a novice to 60 / (79 x 5) s, about 0.15 s, for an elite on the
+ * `speed` axis, with the cross-task timing variability of
+ * `HumanSkill.jitter`. Each press takes the first 40 % of its interval to reach the key,
  * moving from 15 mm above it, and the rest to lift; the key travels 4 mm
  * (inside the 1.5 to 6 mm of ergonomic keyboard standards). The keyboard
  * should sit near elbow height with the elbows near 90 degrees (ANSI/HFES
@@ -180,6 +182,12 @@ export namespace typeText {
 
   /** How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s share (provisional). */
   const OUT: number = 0.1;
+
+  /** The slowest and fastest everyday typists' words a minute (Feit, Weir and Oulasvirta 2016, CHI '16, How We Type, figure 3). */
+  const WPM: Readonly<Record<"slowest" | "fastest", number>> = { slowest: 34, fastest: 79 };
+
+  /** Characters a word in a words-a-minute rate, the typing-test convention Feit et al. 2016 count by. */
+  const CHARACTERS: number = 5;
 
   /** The shoulder joints the fit checks read. */
   const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
@@ -325,8 +333,8 @@ export namespace typeText {
     const interval: number = HumanSkill.quantity(
       context.skill,
       "speed",
-      0.5,
-      0.15,
+      60 / (WPM.slowest * CHARACTERS),
+      60 / (WPM.fastest * CHARACTERS),
     );
     const times: number[] = [];
     let clock: number = LEAD;
