@@ -2,6 +2,7 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
+  ROM_TOLERANCE,
   Vector3,
   fitDigitToTarget,
   physicalShapeSegmentDistance,
@@ -20,6 +21,8 @@ import type {
   IAutoMovieMotionHumanGrip,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -214,6 +217,95 @@ export namespace HumanDigitFit {
   }
 
   /**
+   * Prepare the digit/body penetration predicate for a stance whose two complete arms
+   * rotate rigidly about their shoulders. Digit capsule endpoints and each hull stay in
+   * their original frames. Only the relative transform between a hand and another
+   * shoulder or a static collider changes. A numerically ambiguous contact asks its
+   * caller for the original world-space predicate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Uses the two actual shoulder frames, original world-metre phalanges and collider placements, and returns the strict signed-depth verdict or undefined at a rounding boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation Rigid transformation preserves segment-to-shape distance. Both original hand reach filtering and positive-depth decisions use their original geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare links and shape spheres once and transform only each eligible collider into the hand's original world frame at a candidate angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original segment distance and digit radii. Refuses unsupported arm membership and rounding-sensitive separations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms No per-angle phalanx FK, capsule endpoint generation, or shape sphere reconstruction. Every nearby eligible shape still receives the original exact narrow phase.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance's actual phalanges, spheres and carried-shape membership are immutable during its shoulder-angle search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous bisection owns the two small hand lists and collider metadata until its standing pose is determined. No query or pose history is kept.
+   */
+  export function hanging(
+    body: IAutoMovieMotionHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+    left: ReadonlySet<AutoMovieHumanoidBone>,
+    right: ReadonlySet<AutoMovieHumanoidBone>,
+  ): ((shoulders: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => boolean | undefined) | undefined {
+    const hands: IHangingHand[] = [];
+    for (const side of ["left", "right"] as const) {
+      const carried: ReadonlySet<AutoMovieHumanoidBone> = side === "left" ? left : right;
+      const joint: AutoMovieHumanoidBone = `${side}UpperArm`;
+      if (!carried.has(`${side}Hand`)) return undefined;
+      const digits: IHangingDigit[] = [];
+      for (const digit of DIGIT_NAMES) {
+        const chain: IAutoMovieCurlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
+        if (!chain.bones.every((bone: AutoMovieHumanoidBone): boolean => carried.has(bone))) return undefined;
+        digits.push({ points: phalanges(bones, chain), radius: chain.radius });
+      }
+      const shapes: IHangingShape[] = [];
+      for (const collider of placed) {
+        if (collider.bone.startsWith(side) && (OWN.test(collider.bone.slice(side.length)) || collider.bone === `${side}LowerArm`)) continue;
+        for (const shape of collider.shapes) {
+          const sphere: ReturnType<typeof HumanShapeFraming.sphere> = HumanShapeFraming.sphere(collider.pose, shape);
+          shapes.push({ shape, pose: collider.pose, sphere, carrier: left.has(collider.bone) ? 0 : right.has(collider.bone) ? 1 : -1 });
+        }
+      }
+      hands.push({ shoulder: bones.get(joint)!, hand: bones.get(`${side}Hand`)!.worldPosition, digits, shapes });
+    }
+    return (shoulders: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): boolean | undefined => {
+      for (const hand of hands) {
+        const before: IAutoMovieVector3 = hand.shoulder.worldPosition;
+        const after: IAutoMovieVector3 | undefined = shoulders.get(hand.shoulder.bone)?.worldPosition;
+        if (after === undefined || !Object.is(before.x, after.x) || !Object.is(before.y, after.y) || !Object.is(before.z, after.z)) return undefined;
+      }
+      const turns: IAutoMovieQuaternion[] = hands.map((hand: IHangingHand): IAutoMovieQuaternion => Quaternion.multiply(
+        shoulders.get(hand.shoulder.bone)!.worldRotation, Quaternion.inverse(hand.shoulder.worldRotation),
+      ));
+      for (const [index, hand] of hands.entries()) {
+        const back: IAutoMovieQuaternion = Quaternion.inverse(turns[index]!);
+        const origin: IAutoMovieVector3 = hand.shoulder.worldPosition;
+        for (const item of hand.shapes) {
+          const point: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => {
+            if (item.carrier === index) return p;
+            const moved: IAutoMovieVector3 = item.carrier < 0 ? p : about(p, hands[item.carrier]!.shoulder.worldPosition, turns[item.carrier]!);
+            return about(moved, origin, back);
+          };
+          const centre: IAutoMovieVector3 = point(item.sphere.centre);
+          const distance: number = Vector3.distance(centre, hand.hand);
+          const reach: number = item.sphere.radius + body.measure.hand;
+          // A shoulder bin of the original bisection moves a point at radius r
+          // by at most 2 r sin(bin/2). Resolve that entire contact neighbourhood
+          // with the original world predicate, including frames too distant to
+          // represent one such displacement at the running world coordinates.
+          const radius: number = Vector3.distance(hand.hand, origin) + body.measure.hand;
+          const roundoff: number = 2 * radius * Math.sin(ROM_TOLERANCE * Math.PI / 360);
+          if (!(roundoff > Number.EPSILON * Math.max(Vector3.length(origin), Vector3.length(centre)))) return undefined;
+          if (Math.abs(distance - reach) <= roundoff) return undefined;
+          if (distance >= reach) continue;
+          const pose: IAutoMovieRigidTransform = item.carrier === index ? item.pose : {
+            position: point(item.pose.position),
+            rotation: Quaternion.multiply(back, item.carrier < 0 ? item.pose.rotation : Quaternion.multiply(turns[item.carrier]!, item.pose.rotation)),
+          };
+          const segmentDistance: ReturnType<typeof physicalShapeSegmentDistance.prepare> = physicalShapeSegmentDistance.prepare(pose, item.shape);
+          for (const digit of hand.digits)
+            for (let i: number = 1; i < digit.points.length; ++i) {
+              const depth: number = digit.radius - segmentDistance(digit.points[i - 1]!, digit.points[i]!);
+              if (!Number.isFinite(depth) || Math.abs(depth) <= roundoff) return undefined;
+              if (depth > 0) return true;
+            }
+        }
+      }
+      return false;
+    };
+  }
+  /**
    * The joints of a digit, proximal to distal.
    *
    * @param side The hand.
@@ -377,3 +469,30 @@ const carried: (
         }),
   };
 };
+
+/** A hand and its original posed digit capsules under the standing shoulder. */
+interface IHangingHand {
+  shoulder: IAutoMovieResolvedBone;
+  hand: IAutoMovieVector3;
+  digits: IHangingDigit[];
+  shapes: IHangingShape[];
+}
+
+/** World-metre centres of successive phalanges and their capsule radius. */
+interface IHangingDigit {
+  points: readonly IAutoMovieVector3[];
+  radius: number;
+}
+
+/** A body's placed shape and its carrying shoulder index, or -1 for the fixed trunk. */
+interface IHangingShape {
+  shape: IAutoMoviePhysicalShape;
+  pose: IAutoMovieRigidTransform;
+  sphere: ReturnType<typeof HumanShapeFraming.sphere>;
+  carrier: number;
+}
+
+/** Rotate a world point about an unchanged world origin. */
+function about(point: IAutoMovieVector3, origin: IAutoMovieVector3, turn: IAutoMovieQuaternion): IAutoMovieVector3 {
+  return Vector3.add(origin, Quaternion.rotateVector(turn, Vector3.subtract(point, origin)));
+}

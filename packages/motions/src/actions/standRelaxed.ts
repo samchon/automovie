@@ -36,7 +36,7 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#principled-implementation Bisects the abduction range on the digit capsules' signed penetration in the quiet stance. It assumes that swinging the hanging arm outward clears its digits; the model's shoulder range is the bracket.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Shape, signed-depth predicate, range bracket, bisection, cached answer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the existing hand shape, shoulder range, quiet stance, digit depth and angle resolution; no body-specific angle is chosen.
- * @evidence contracts/development/implementation.md#efficient-algorithms The stance is resolved once, at the first candidate. Every later bisection step clamps the two upper arms' records, reads the frames of the bones those arms carry and places their colliders alone, the rest of the body's colliders standing as first placed; the bracket tests, precision and steps are the original ones. A stance that asks an arm or digit goal or sets an upper arm keeps one whole resolve a step.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For a rigid hanging arm, each abduction resolves the two shoulder frames and tests the fixed phalanges against relative collider frames. Unsupported or contact-boundary cases perform the original carried-bone FK and physical distance checks.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate's pose is the first one's with the two upper-arm records clamped anew: assembly clamps each direct joint on its own, the stance's leg fits read no arm and it asks no arm or digit goal, so nothing else of the resolve depends on the abduction. The colliders of bones no upper arm carries are the same in every candidate. The weak body cache owns only the final relaxed record.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local FK reader, bounded ROM metadata projector and one fixed authored two-foot stance end with this synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record keep its weak body ownership, and solved candidates do not escape.
  */
@@ -88,6 +88,8 @@ export function standRelaxed(
     | { pose: IAutoMoviePose; still: readonly IAutoMovieMotionHumanColliders.IPlaced[] }
     | undefined;
   let carried: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+  let clearance: ReturnType<typeof HumanDigitFit.hanging>;
+  const shoulders: Set<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
   let placeCarried:
     | ReturnType<typeof HumanColliders.preparePlaced>
     | undefined;
@@ -128,6 +130,10 @@ export function standRelaxed(
               : j,
         ),
       };
+      if (clearance !== undefined) {
+        const status: boolean | undefined = clearance(poseBones(body, turned, prepared(), shoulders));
+        if (status !== undefined) return status;
+      }
       const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, turned, prepared(), carried);
       return (
@@ -176,7 +182,9 @@ export function standRelaxed(
         pose: shaped,
         still: HumanColliders.preparePlaced(body, fixed)(bones),
       };
-      return HumanDigitFit.penetrates(body, bones, [...first.still, ...placeCarried(bones)]);
+      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = [...first.still, ...placeCarried(bones)];
+      clearance = HumanDigitFit.hanging(body, bones, placed, below(body, ["leftUpperArm"]), below(body, ["rightUpperArm"]));
+      return HumanDigitFit.penetrates(body, bones, placed);
     }
     return HumanDigitFit.penetrates(body, bones);
   };
