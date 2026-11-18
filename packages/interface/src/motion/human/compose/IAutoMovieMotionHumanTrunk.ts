@@ -39,7 +39,14 @@ export namespace IAutoMovieMotionHumanTrunk {
 
   }
 
-  /** Fixed stance, planted limbs and geometric demand shared by repetitions of one crouch. */
+  /**
+   * Fixed stance, planted limbs and geometric demand shared by repetitions of one crouch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Depth measures hip descent in metres and pitch measures inclination in degrees. The standing pose supplies the plants.
+   * @evidence contracts/development/design.md#principled-representation prepareCrouch checks depth and pitch are nonnegative and derives foot placement from the body and standing pose.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Repeated crouches share this shape. The caller can reserve a leg for another goal and supply an optional balance request.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shape stores geometry and selected legs without storing sampled keyframes or an assumed shift.
+   */
   export interface IShape {
     /** The body. */
     body: IAutoMovieMotionHumanBody;

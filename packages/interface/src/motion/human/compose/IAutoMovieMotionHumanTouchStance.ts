@@ -54,10 +54,30 @@ export namespace IAutoMovieMotionHumanTouchStance {
     /** The wrist uses one anchored target for all stroke progress and the lean is keyed from the reached stance. */
     fixed?: boolean;
 
-    /** The current ankle frames when the base's adjustment step moves them during the stroke. */
+    /**
+     * The current ankle frames when the base's adjustment step moves them during the stroke.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads both ankle points and rotations from the current posture during heel lift.
+     * @evidence contracts/development/implementation.md#principled-implementation The stepping base may have moved either ankle. Rise rotates the feet from those current frames.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The step owns ankle placement and the stance asks for it when the heel angle is nonzero.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each absent limb component falls back to that same foot's entry frame.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Two ankle lookups and two frame records suffice regardless of stroke duration.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Current leg goals and unchanged entry feet supply all components. A different pose requires new placements.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the entry frames. Reading a posture returns one pair and retains no sampled feet.
+     */
     placements?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanRise.Stance;
 
-    /** The heel rise's share when a step has to finish before its foot rolls onto the toes. */
+    /**
+     * The heel rise's share when a step has to finish before its foot rolls onto the toes.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Takes action-local seconds and returns the dimensionless share multiplying the rise angle.
+     * @evidence contracts/development/implementation.md#principled-implementation Heel lift eases from stride landing to ready and releases from relax to reverse takeoff.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The step supplies the timing share. The stance scales its prepared rise angle.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bounds follow the actual stride landing fraction and named action events.
+     * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of clock lookups and two minimum-jerk evaluations determine a sample.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The callback uses the prepared stride fraction and the clock passed to this write.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The step plan holds one landing fraction. No sequence of timing samples is retained.
+     */
     heels?: (clock: IAutoMovieMotionClock, seconds: number) => number;
 
     /** The working hand. */
@@ -150,7 +170,14 @@ export namespace IAutoMovieMotionHumanTouchStance {
     ) => IAutoMovieMotionHumanPrimitive[];
   }
 
-  /** An admitted balance correction written after the stance and before the reaching arm. */
+  /**
+   * An admitted balance correction written after the stance and before the reaching arm.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The stance declares the channel and runs the writer on its current posture before the arm reaches.
+   * @evidence contracts/development/design.md#principled-representation The channel identifies the changed component. The writer accepts the existing primitive time and posture arguments.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The touch prepares the correction and the stance incorporates it in its writer. The arm reads the resulting pose.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical primitive writer signature preserves resolution inputs without retaining sampled poses.
+   */
   export interface ICorrection {
     /** The body channel the correction changes. */
     channel: AutoMovieMotionHumanChannel;

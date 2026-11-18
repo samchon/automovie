@@ -154,7 +154,14 @@ export namespace IAutoMovieMotionHumanContactWindow {
         bone: AutoMovieHumanoidBone;
       };
 
-  /** A stationary horizontal surface, such as the floor or a stair tread. */
+  /**
+   * A stationary horizontal surface, such as the floor or a stair tread.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Height measures world elevation in metres. An omitted height selects the floor.
+   * @evidence contracts/development/design.md#principled-representation The ground discriminant identifies horizontal stationary support, so elevation alone locates its plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The contact window uses this variant for both floor and tread support. Height distinguishes raised treads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies actual support elevation without encoding a stair number or scene.
+   */
   export interface IGround {
     /** Support discriminant. */
     kind: "ground";

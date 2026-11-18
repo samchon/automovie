@@ -102,7 +102,14 @@ export namespace IAutoMovieMotionHumanPlaced {
     bend?: IAutoMovieMotionHumanBend.Arm;
   }
 
-  /** A hand-surface target placed in world coordinates. */
+  /**
+   * A hand-surface target placed in world coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The point uses world metres. Facing and optional finger direction orient the hand.
+   * @evidence contracts/development/design.md#principled-representation World position is independent of orientation. The caller supplies usable directions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The hand placer needs the point and facing. Forward constrains finger direction when supplied.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All three quantities reuse the shared vector type without imposing a preset hand pose.
+   */
   export interface IPlace {
     /** Desired hand-surface point in world metres. */
     point: IAutoMovieVector3;

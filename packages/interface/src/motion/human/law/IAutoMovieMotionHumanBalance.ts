@@ -4,14 +4,15 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * A balancing shift an action computes only when given; absent on the
  * params, none is computed. Each field absent takes the law's
  * recommendation (`IAutoMovieMotionHumanActionLaw.balance`). Without a
- * recommendation, the weight is 1 and the bounds are applied immediately.
+ * recommendation, the weight is 1 and the ramp durations are zero.
  * A missing part or bound is refused by field name.
  *
  * Absent, nothing physical is computed: no balance shift, no centre-of-mass
  * loop, no balance solve and no integration, and the posture is the law's
  * own kinematic one; a law's studied compensation lives in its key poses.
- * Given, the shift is one closed-form evaluation of the part it moves,
- * scaled by its weight between its two instants, never iterated: animation
+ * Given, the law computes a correction for the chosen part on its eligible
+ * support phase. A constrained contact can require a numerical fit. The
+ * prepared weight scales the correction between the two instants. Animation
  * tools keep such terms off a posed character until asked, Houdini's
  * full-body IK taking its centre-of-mass target only as an optional record
  * with its weight inside it (`hou.ik.solvePhysFBIK`), and a simulation pays
@@ -23,7 +24,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States when it is computed, how each field defaults, what absent computes, how a shift applies and why its bounds are events.
  * @evidence contracts/development/design.md#principled-representation One record names the part moved, its weight, its two event-named instants and easing durations in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These are the author inputs read by HumanPhysics for the closed-form shift and its active weight.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPhysics resolves the author's part, bounds, weight and ramp. The receiving law supplies the supported correction for that part.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Balance is opt-in. The caller or law must supply the part and both event bounds, and the weight and ramp have explicit defaults.
  */
 export interface IAutoMovieMotionHumanBalance {
@@ -71,7 +72,14 @@ export namespace IAutoMovieMotionHumanBalance {
     ramp: IRamp;
   }
 
-  /** A closed interval in seconds on the prepared action clock. */
+  /**
+   * A closed interval in seconds on the prepared action clock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Both endpoints use seconds since the action began and belong to the interval.
+   * @evidence contracts/development/design.md#principled-representation Numeric endpoints distinguish a time from a duration. HumanPhysics checks ordering when resolving authored bounds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared window and its eligible support phase share endpoints so pose and audit use the same clock.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The interval carries resolved times without assuming a frame rate or retaining schedule events.
+   */
   export interface IInterval {
     /** First action second. */
     from: number;

@@ -61,7 +61,17 @@ export interface IAutoMovieMotionMeetingKind {
     roles: readonly IAutoMovieMotionMeetingRole[],
   ): Record<string, IAutoMovieVector3>;
 
-  /** Place oriented anatomical contacts once from the complete pair, giving their world points and outward normals. */
+  /**
+   * Place oriented anatomical contacts once from the complete pair, giving their world points and outward normals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Takes the roles in declared order and returns named world positions in metres with outward world normals.
+   * @evidence contracts/development/implementation.md#principled-implementation A solid meeting has all roles present. Its kind can fit the anatomical surfaces before either role selects timing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The kind fits the surfaces. AutoMovieMotionMeeting copies points and rotates their normals into its shared frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Placement uses the participants' actual bodies and entry poses. Incomplete meetings use the existing geometric fallback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The meeting calls placement once and visits each returned contact once. The kind's fitting cost depends on its candidates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both participants use the same returned geometry. A change of body or entry pose requires a new fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kind returns one entry per named contact. The meeting owns its derived points and normals.
+   */
   surfaces?(roles: readonly IAutoMovieMotionMeetingRole[]): Record<string, IAutoMovieMotionMeetingKind.ISurface>;
   /**
    * The coupling of a kind in which one role bears another (#3437): the
@@ -88,6 +98,13 @@ export interface IAutoMovieMotionMeetingKind {
 }
 
 export namespace IAutoMovieMotionMeetingKind {
-  /** A contact's world point and outward normal before the meeting grants solid contact. */
+  /**
+   * A contact's world point and outward normal before the meeting grants solid contact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The world point measures metres. The outward world normal defines facing.
+   * @evidence contracts/development/design.md#principled-representation The two fields reuse target geometry. The declaring kind supplies a usable direction because the vector type cannot constrain length.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The kind supplies the contact and the meeting converts its facing into the shared frame for both roles.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Picking the existing target fields preserves their definitions without duplicating the geometry format.
+   */
   export type ISurface = Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
 }
