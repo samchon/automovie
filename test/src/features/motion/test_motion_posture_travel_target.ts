@@ -61,9 +61,7 @@ export function test_motion_posture_travel_target(): void {
   for (const names of [["m-average", "f-small"]] as const) {
     const bodies: readonly [
       IAutoMovieMotionHumanBody,
-      IAutoMovieMotionObstacleAperture,
       IAutoMovieMotionHumanBody,
-      IAutoMovieMotionObstacleAperture,
     ] = [motionHumanBody(names[0]), motionHumanBody(names[1])];
     const label: string = `${names[0]} heading off ${names[1]}`;
     const walking: IAutoMovieMotionHumanChain = HumanChain.subject("b")
