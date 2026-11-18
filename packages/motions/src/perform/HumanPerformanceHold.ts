@@ -47,7 +47,7 @@ export namespace HumanPerformanceHold {
    * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the prop's grips per read; the offset is memoized on the grip record.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the prop's grips selects the holding windows and the last closure that can supersede a launch. The seated offset belongs to its grip record.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Seated offsets are kept on the grip records the grip cache holds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the offsets on the grip records, released with the performance.
    */
@@ -71,9 +71,12 @@ export namespace HumanPerformanceHold {
     let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let since: number = -Infinity;
     for (const g of grips) {
       // A grip carries from after it closes; at its closing the prop is where it was.
-      if (g.from >= seconds) continue;
+      const from: number = g.from;
+      if (from >= seconds) continue;
+      if (from < seconds) since = Math.max(since, from);
       if (seconds <= g.to) {
         // A performer's other hand on a prop that performer already holds
         // steadies it and does not take it over: a camera's far end held
@@ -96,11 +99,6 @@ export namespace HumanPerformanceHold {
     // A launch after the latest grip's start sets the prop flying, and it
     // flies until a later grip takes it (#3479: a grip, then a worn bone,
     // then a flight or its rest).
-    const since: number = grips.reduce(
-      (latest: number, g: IAutoMovieMotionHumanPerformanceState.IGrip): number => (
-        g.from < seconds ? Math.max(latest, g.from) : latest),
-      -Infinity,
-    );
     const flown: IAutoMovieRigidTransform | undefined = HumanPropFlight.frame(
       self,
       subject,
