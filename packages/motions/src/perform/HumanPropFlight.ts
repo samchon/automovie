@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
   IAutoMovieProjectileState,
@@ -13,8 +12,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
@@ -55,78 +52,6 @@ import { HumanPropSweep } from "./HumanPropSweep";
  */
 export namespace HumanPropFlight {
   /**
-   * Build finite published flights after placement, stops and the film clock settle.
-   * A performance with externally supplied paths or action/layer writers keeps
-   * its demand-driven flight lookup, including the timing of those callbacks.
-   *
-   * @param self The placed performance with its final duration in film seconds.
-   * @evidence contracts/development/common.md#meaningful-documentation States the final placement requirement, callback boundary and finite flight work.
-   * @evidence contracts/development/implementation.md#principled-implementation Selects launch subjects from surviving action windows, once all collision inputs have been placed, and calls the same launch and continuous collision owner used by the readers.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single scan admits the known action laws and collects launch subjects. Existing flight construction owns each subject's order, projectile and continuation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The eligibility checks read declarations only. External action, layer, prop or obstacle providers keep their original lazy timing. A failed build leaves the flight unpublished for the original reader to report. The sweep still uses real collision geometry and the film horizon.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A performance with no launches pays one segment scan. Published subjects each run their existing flight build once; the geometry and continuous search dominate that cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing per-performance flight records supply both display and hit readings. Admission uses the installed law identities, final segment clocks and unchanged inputs of the placed performance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local launch-subject set is released on return. Only the existing performance flight records retain projectile/contact data.
-   */
-  export function prepare(self: IAutoMovieMotionHumanPerformanceState): void {
-    if (self.resolving || !Number.isFinite(self.duration)) return;
-    const subjects: Set<string> = new Set();
-    const articulation: Set<string> = new Set();
-    for (const person of self.people.values()) {
-      if (person.layers.length !== 0) return;
-      for (const segment of [...person.segments, ...person.overlays]) {
-        if (
-          HUMAN_ACTIONS[segment.name as keyof typeof HUMAN_ACTIONS] !==
-          segment.law
-        )
-          return;
-        for (const launch of segment.plan.launches ?? [])
-          if (inWindow(segment, segment.start + launch.seconds))
-            subjects.add(launch.prop);
-
-        // Native drive targets and mounted socket readers can call the
-        // prop's articulation provider. Other posed points use rest data
-        // when there is no writer, even on an articulable model.
-        for (const drive of segment.plan.drives ?? [])
-          articulation.add(drive.prop);
-        for (const mount of segment.plan.mounts ?? [])
-          articulation.add(mount.onto);
-      }
-    }
-    if (
-      subjects.size === 0 ||
-      self.obstacles.some((o): boolean => o.motion !== undefined) ||
-      self.performers.some((p): boolean => !createHumanBody.owns(p.body))
-    )
-      return;
-    for (const prop of self.props.values())
-      if (
-        prop.motion !== undefined ||
-        prop.point !== undefined ||
-        (prop.articulate !== undefined && articulation.has(prop.subject)) ||
-        (prop.tracks?.length ?? 0) !== 0
-      )
-        return;
-    for (const subject of subjects)
-      try {
-        build(self, subject, true);
-      } catch {
-        // Flight admission errors still belong to the reader that requests
-        // the flight. Construction has no public flight result to report.
-      }
-  }
-
-  /** Whether a launch survives placement clipping, in film seconds. */
-  function inWindow(
-    segment: IAutoMovieMotionHumanSegment,
-    seconds: number,
-  ): boolean {
-    return !(
-      seconds < segment.entryTime - 1e-9 || seconds > segment.end + 1e-9
-    );
-  }
-
-  /**
    * A prop's flights in film order, found once the performance is placed.
    *
    * @param self The performance.
@@ -144,15 +69,6 @@ export namespace HumanPropFlight {
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
-    return build(self, subject, false);
-  }
-
-  /** Build once from the placed launches, or borrow the existing flight records. */
-  function build(
-    self: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-    prepared: boolean,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
       self.flights.get(subject);
@@ -172,7 +88,11 @@ export namespace HumanPropFlight {
         for (const launch of segment.plan.launches ?? []) {
           if (launch.prop !== subject) continue;
           const seconds: number = segment.start + launch.seconds;
-          if (!inWindow(segment, seconds)) continue;
+          if (
+            seconds < segment.entryTime - 1e-9 ||
+            seconds > segment.end + 1e-9
+          )
+            continue;
           launches.push({
             seconds,
             source: { ...segment, subject: person.performer.subject },
@@ -185,7 +105,7 @@ export namespace HumanPropFlight {
     self.flying.set(subject, out);
     try {
       for (const { seconds, source, launch } of launches)
-        out.push(fly(self, prop, seconds, source, launch, prepared));
+        out.push(fly(self, prop, seconds, source, launch));
     } finally {
       self.flying.delete(subject);
     }
@@ -262,7 +182,6 @@ export namespace HumanPropFlight {
     seconds: number,
     source: IAutoMovieMotionHumanPropFlight.IFlight["source"],
     launch: IAutoMovieMotionPropLaunch,
-    prepared: boolean,
   ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
@@ -270,13 +189,14 @@ export namespace HumanPropFlight {
       (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
         g.from < seconds && g.to >= seconds - 1e-6,
     );
-    const shown: IAutoMovieRigidTransform | undefined =
-      held || !prepared
-        ? HumanPerformanceRead.prop(self, prop.subject, seconds)
-        : undefined;
-    const origin: IAutoMovieVector3 = held ? shown!.position : launch.point;
+    const shown: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
+      self,
+      prop.subject,
+      seconds,
+    );
+    const origin: IAutoMovieVector3 = held ? shown.position : launch.point;
     const rotation: IAutoMovieQuaternion =
-      launch.rotation ?? (held ? shown!.rotation : prop.frame.rotation);
+      launch.rotation ?? (held ? shown.rotation : prop.frame.rotation);
     const drag: IAutoMovieProjectile.IDrag | undefined =
       HumanPropOutcome.drag(prop);
     const projectile: IAutoMovieProjectile = {
@@ -316,7 +236,6 @@ export namespace HumanPropFlight {
         horizon - base,
         leave,
         departing,
-        prepared,
       );
     const settle = (
       m: IAutoMovieMotionHumanPropOutcome.IMeeting,

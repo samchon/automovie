@@ -16,6 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * Letting go (#3479's `release`): a held prop leaves the opening hand with
@@ -34,11 +35,11 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. Release the mug and compare its free-flight trajectory and landing with independently measured initial conditions.
- * 2. An externally moving collider stays demand-driven. Reading the flight observes the provider and the same ground contact.
+ * 2. Construct the release scene and seek the walking target in both directions before requesting a flight. The collider provider is first observed on flight demand.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Releases a real mug through the public chain and reads its flight and displayed frame; a prop left in the air, one that falls too fast or too slow, or an empty hand released silently fails.
  * @evidence contracts/development/testing.md#independent-expectations The fall time is free fall's, written here with the engine's standard gravity; the 2 ms and 1 mm are #3479's bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases A held prop with and without a distant opaque collider, and an empty hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases A held prop with and without a distant opaque collider, reverse pose seeks before flight demand, and an empty hand.
  * @evidence contracts/development/testing.md#execution-ownership Builds three performances in memory. The opaque collider counts its own frame calls.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
@@ -94,11 +95,21 @@ export function test_motion_contact_prop_trajectory(): void {
             yaw: 0,
             proficiency: { level: "trained" },
           },
+          {
+            subject: "walker",
+            body,
+            at: { x: 1.4, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "mug", handle: "handle" })
           .stand({ seconds: 3 })
-          .over((u) => u.release({ hand: "right" })).node,
+          .over((u) => u.release({ hand: "right" }))
+          .with(
+            HumanChain.subject("walker").walk({ to: { x: 1.4, y: 0, z: 2 } }),
+          ).node,
       });
     } catch (error) {
       TestValidator.predicate(
@@ -110,6 +121,20 @@ export function test_motion_contact_prop_trajectory(): void {
     if (opaque)
       TestValidator.equals(
         "an opaque collider is unread during placement",
+        observed,
+        0,
+      );
+    const walker = (t: number) =>
+      performance.bones("walker", t).get("hips")!.worldPosition;
+    const early = walker(0.1);
+    const late = walker(1.6);
+    TestValidator.predicate(
+      "the walking target moves and can be read back at its earlier pose",
+      late.z > early.z + 0.2 && vclose(walker(0.1), early, 1e-6),
+    );
+    if (opaque)
+      TestValidator.equals(
+        "reading the target never requests the flight",
         observed,
         0,
       );
