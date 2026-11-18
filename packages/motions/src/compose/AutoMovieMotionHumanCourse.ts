@@ -59,7 +59,7 @@ export namespace AutoMovieMotionHumanCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot starts from the previous place and the centre's step. Unchanged body, profile and rig fix the mass demand and ROM metadata; the posture builder may borrow the synchronous FK source for its hip observation, while every joint, limb and digit fit and mass placement is evaluated.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases its FK, name and ROM sources and posed maps on return or throw. The returned cubic retains one scalar per knot, the count, the step and the start second; no posture callback, body or solved pose enters it.
    */
-  export function solve(props: IAutoMovieMotionHumanCourse.IProps): (seconds: number) => number {
+  export function solve(props: IAutoMovieMotionHumanCourse.IProps, through: number = props.to): (seconds: number) => number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
       { x: 0, y: 0, z: 1 },
@@ -97,7 +97,12 @@ export namespace AutoMovieMotionHumanCourse {
         const decay: number = Math.exp(-omega * dt);
         const knots: number[] = [props.start];
         let c: number = centre(props.from, props.start);
-        for (let i: number = 1; i <= count; i++) {
+        // Preserve the full grid spacing and every predecessor in the
+        // recurrence. The cubic on interval i reads through knot i+2.
+        const end: number = dt === 0 ? count : Math.min(count,
+          Math.max(0, Math.floor((through - from) / dt)) + 2,
+        );
+        for (let i: number = 1; i <= end; i++) {
           const t: number = props.from + i * dt;
           const target: number = props.target(t - dt / 2);
           const next: number = target + (c - target) * decay;
@@ -109,7 +114,8 @@ export namespace AutoMovieMotionHumanCourse {
         }
         return { knots, count, dt };
       })();
-    return interpolate(knots, count, dt, from);
+    const at: (seconds: number) => number = interpolate(knots, count, dt, from);
+    return through >= props.to ? at : (seconds: number): number => at(Math.min(seconds, through));
   }
 
   /**

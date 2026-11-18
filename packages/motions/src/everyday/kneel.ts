@@ -20,7 +20,6 @@ import { stand } from "../actions/stand";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
@@ -30,12 +29,11 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
+import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
@@ -49,7 +47,7 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * so they trail the foot and arrive after it lands; with the balance option
  * (`IAutoMovieMotionHumanBalance`) they run instead a course that
  * keeps the extrapolated centre of mass between the feet
- * ({@link AutoMovieMotionHumanCourse}; Hof, Gazendam and Sinke 2005), going
+ * (the extrapolated-centre course; Hof, Gazendam and Sinke 2005), going
  * to the middle between the two feet. Through the
  * step the hips ride as high as the less extended leg reaches its foot, the
  * reach going from the standing leg's to `REACH` of its length, a reverse
@@ -358,21 +356,6 @@ export namespace kneel {
       );
     };
 
-    // How far along the step the course stands at a second: going down it
-    // goes from where the body stands to the step's end as the foot travels;
-    // coming up it is back over the standing foot while the knee leaves the
-    // floor, before the foot behind lifts.
-    const share: (seconds: number) => number = (seconds: number): number => {
-      const { phase, u }: ReturnType<typeof at> = at(seconds);
-      return phase.from < phase.to
-        ? phase.from === 0
-          ? u
-          : 1
-        : phase.from === 2
-          ? 1 - u
-          : 0;
-    };
-
     // The courses. Without the balance option the hips travel the step's own
     // key line, from where they stand to where the step key puts them, on
     // that share (`IAutoMovieMotionHumanBalance`: no centre of mass is read).
@@ -401,57 +384,11 @@ export namespace kneel {
     const downEnd: number = display.at(phases[2]!.name);
     const upStart: number = off === undefined ? Infinity : display.at(off.name);
     if (window !== null && (window.from < downEnd || window.to > upStart)) {
-      const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
-        posture: IAutoMovieMotionHumanPosture,
-      ): number =>
-        Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
-      const stood: number = centre(standing);
-      const middle: number =
-        (["left", "right"] as const)
-          .map((side: "left" | "right"): number => {
-            const foot: kneelKeys.IFoot = keys[1]!.feet[side];
-            return Vector3.dot(
-              HumanFoot.point(
-                body,
-                side,
-                "sole",
-                HumanFoot.pivot(
-                  body,
-                  side,
-                  "mtp",
-                  foot.at,
-                  foot.heading,
-                  foot.pitch,
-                ),
-                foot.toes,
-              ),
-              solved.forward,
-            );
-          })
-          .reduce((x: number, y: number): number => x + y, 0) / 2;
-      const course: (from: number, to: number, start: number) => (seconds: number) => number = (
-        from: number,
-        to: number,
-        start: number,
-      ): ((seconds: number) => number) =>
-        AutoMovieMotionHumanCourse.solve({
-          body,
-          yaw,
-          posture: (
-            seconds: number,
-            along: number,
-            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-          ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
-          target: (seconds: number): number => stood + (middle - stood) * share(seconds),
-          from,
-          to,
-          start,
-        });
-      landedBalance = write(
-        standing,
-        landing,
-        course(0, landing, 0)(landing),
-      ).root.y;
+      const course: ReturnType<typeof prepareKneelBalance> = prepareKneelBalance({
+        body, standing, forward: solved.forward, feet: keys[1]!.feet, yaw, at, write,
+      });
+      if (window.to > landing)
+        landedBalance = write(standing, landing, course(0, landing, 0, landing)(landing)).root.y;
       const blend: (keyed: Course, balanced: Course) => Course = (keyed: Course, balanced: Course): Course =>
         (second: number): number => {
           const key: number = keyed(second);
@@ -459,9 +396,9 @@ export namespace kneel {
           return weight === 0 ? key : key + weight * (balanced(second) - key);
         };
       if (window.from < downEnd)
-        courses[0] = blend(courses[0]!, course(0, clock.at(phases[2]!.name), 0));
+        courses[0] = blend(courses[0]!, course(0, clock.at(phases[2]!.name), 0, movingSecond(window.to)));
       if (off !== undefined && window.to > upStart)
-        courses[1] = blend(courses[1]!, course(clock.at(off.name), duration, kneeling));
+        courses[1] = blend(courses[1]!, course(clock.at(off.name), duration, kneeling, movingSecond(window.to)));
     }
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
