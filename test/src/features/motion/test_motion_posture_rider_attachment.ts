@@ -1,10 +1,19 @@
-import { createCar, createHorse, rideHorse } from "@automovie/archetypes";
+import {
+  createBicycle,
+  createCar,
+  createHorse,
+  rideBicycle,
+  rideHorse,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanRide,
   IAutoMovieMotionHumanSeated,
   IAutoMovieRigidTransform,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -35,6 +44,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_rider_attachment(): void {
   const findings: string[] = [];
+  checkGripAndLanding(findings);
   const driver = motionHumanBody("m-average"),
     car = createCar({ kind: "sedan" });
   const travel = 4;
@@ -229,4 +239,224 @@ export function test_motion_posture_rider_attachment(): void {
   )
     findings.push("Pelvis failed to lift and return over one actual stride.");
   TestValidator.equals("rider attachment", findings, []);
+}
+
+interface IAttachment {
+  label: string;
+  name: motionHumanBody.Name;
+  model: IAutoMovieMotionHumanObject.IModel;
+  duration: number;
+  at: (t: number) => IAutoMovieTransform;
+  part: (id: string, t: number) => IAutoMovieTransform;
+  holds: Record<AutoMovieHumanSide, string>;
+  ride: Pick<IAutoMovieMotionHumanRide.IParams, "feet" | "seat">;
+}
+function checkGripAndLanding(findings: string[]): void {
+  const WAIT: number = 6;
+  const bicycle: ReturnType<typeof createBicycle> = createBicycle({});
+  const horse: ReturnType<typeof createHorse> = createHorse({});
+  const cycling: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, {
+    start: { x: 0, z: 0, heading: 0 },
+    legs: [
+      { kind: "straight", length: 8 },
+      { kind: "turn", radius: 8, angle: 90 },
+    ],
+    cruise: 4,
+    acceleration: 1.5,
+    deceleration: 2,
+  });
+  const trotting: ReturnType<typeof rideHorse> = rideHorse(
+    horse,
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [{ kind: "straight", length: 10 }],
+      cruise: 3.5,
+      acceleration: 1.5,
+      deceleration: 1.5,
+    },
+    "trot",
+  );
+  const rides: readonly IAttachment[] = [
+    {
+      label: "the bicycle's grips",
+      name: "m-average",
+      model: bicycle,
+      duration: cycling.duration,
+      at: (seconds: number): IAutoMovieTransform =>
+        cycling.at(seconds).placement,
+      part: (id: string, seconds: number): IAutoMovieTransform =>
+        cycling.frame(id as Parameters<typeof cycling.frame>[0], seconds),
+      holds: { left: "leftGrip", right: "rightGrip" },
+      ride: { feet: { left: "leftPedal", right: "rightPedal" } },
+    },
+    {
+      label: "the horse's reins",
+      name: "f-small",
+      model: horse,
+      duration: trotting.duration,
+      at: (seconds: number): IAutoMovieTransform =>
+        trotting.at(seconds).placement,
+      part: (id: string, seconds: number): IAutoMovieTransform =>
+        trotting.frame(id as Parameters<typeof trotting.frame>[0], seconds),
+      holds: { left: "leftRein", right: "rightRein" },
+      ride: {
+        seat: "seat",
+        feet: { left: "leftStirrup", right: "rightStirrup" },
+      },
+    },
+  ];
+  for (const m of rides) {
+    const body = motionHumanBody(m.name);
+    const place = (t: number) => {
+      const p = m.at(Math.max(0, t - WAIT));
+      return { position: p.translation, rotation: p.rotation };
+    };
+    const part = (id: string, t: number) => m.part(id, Math.max(0, t - WAIT));
+    const seat = HumanObject.seat(m.model, place(0));
+    const actor = HumanChain.subject("a");
+    const perform = (x: number, chain: IAutoMovieMotionHumanChain) =>
+      new HumanPerformance({
+        seed: "mounts",
+        laws: [HumanRide.ride],
+        props: [HumanObject.prop("mount", m.model, place(0), place, part)],
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: HumanFrame.point(
+              { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
+              { x, y: 0, z: -0.2 },
+            ),
+            yaw: seat.yaw,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: chain.node,
+      });
+    const sit = actor.sit({ seat, seconds: 0.5 });
+    const params = { on: "mount", seconds: WAIT + m.duration, ...m.ride };
+    if (m.ride.seat) {
+      let error: unknown;
+      try {
+        perform(-0.6, sit);
+      } catch (caught) {
+        error = caught;
+      }
+      if (
+        !(
+          error instanceof HumanRefusal &&
+          error.kind === "base" &&
+          error.axis === "seat" &&
+          error.feasible?.kind === "alternatives" &&
+          error.feasible.values.includes("left")
+        )
+      )
+        findings.push(
+          "The mount must refuse a right-side entry and offer the left.",
+        );
+    }
+    const held = perform(
+      0.6,
+      sit
+        .registered("ride", { ...params, hands: m.holds })
+        .rise({ to: "left" }),
+    );
+    const reader = HumanSignature.of(held, "a", body, 0),
+      span = held.segments("a")[1]!;
+    // With the hands on the handlebars the torso reaches forward. Measure
+    // passive carriage on the unoccupied upper body and grip geometry on the held ride.
+    const passive = perform(
+      0.6,
+      sit.registered("ride", params).rise({ to: "left" }),
+    );
+    const seatedReader = HumanSignature.of(passive, "a", body, 0);
+    const saddleAt = (t: number) => {
+      if (!m.ride.seat) return place(t);
+      const f = part(m.ride.seat, t);
+      return { position: f.translation, rotation: f.rotation };
+    };
+    const local = (
+      p: ReturnType<typeof HumanSignature.region>,
+      frame: IAutoMovieRigidTransform,
+    ) =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(p, frame.position),
+      );
+    const from = span.entryTime + 0.3,
+      to = span.end - 0.05;
+    let bank = 0,
+      low = Infinity,
+      high = -Infinity;
+    for (const region of ["seat", "sternum"] as const) {
+      const first = local(
+        HumanSignature.region(seatedReader, region, from),
+        saddleAt(from),
+      );
+      for (let k = 0; k <= 8; k++) {
+        const t = from + ((to - from) * k) / 8,
+          saddle = saddleAt(t);
+        const relative = local(
+          HumanSignature.region(seatedReader, region, t),
+          saddle,
+        );
+        if (Vector3.distance(relative, first) > 0.01)
+          findings.push(
+            m.label + " " + region + " moves relative to its saddle at " + t,
+          );
+        high = Math.max(high, saddle.position.y);
+        low = Math.min(low, saddle.position.y);
+        const up = Quaternion.rotateVector(place(t).rotation, {
+          x: 0,
+          y: 1,
+          z: 0,
+        });
+        bank = Math.max(
+          bank,
+          (Math.acos(Math.min(1, Math.max(-1, up.y))) * 180) / Math.PI,
+        );
+      }
+    }
+    if (m.ride.seat ? high - low < 0.02 : bank < 8)
+      findings.push(m.label + " failed to produce saddle motion.");
+    for (const side of ["left", "right"] as const) {
+      const grip = m.holds[side],
+        start = WAIT + 0.3 * m.duration;
+      const relative = (t: number) =>
+        local(HumanSignature.joint(reader, t, `${side}Hand`), {
+          position: part(grip, t).translation,
+          rotation: place(t).rotation,
+        });
+      const first = relative(start);
+      for (let k = 0; k <= 6; k++) {
+        const t = WAIT + (0.3 + 0.1 * k) * m.duration,
+          p = relative(t);
+        if (
+          Vector3.length(p) > 0.7 * body.measure.hand ||
+          Vector3.distance(first, p) > 0.01
+        )
+          findings.push(m.label + " " + side + " wrist lost its grip at " + t);
+      }
+      const t = WAIT + 0.6 * m.duration,
+        wrist = HumanSignature.joint(reader, t, `${side}Hand`),
+        knuckle = HumanSignature.joint(reader, t, `${side}MiddleProximal`),
+        tip = HumanSignature.joint(reader, t, `${side}MiddleDistal`);
+      if (
+        Vector3.distance(wrist, tip) >= Vector3.distance(wrist, knuckle) ||
+        Vector3.distance(knuckle, part(grip, t).translation) >
+          0.5 * body.measure.hand
+      )
+        findings.push(
+          m.label + " " + side + " finger did not close on the grip",
+        );
+      if (!HumanSignature.bears(reader, held.segments("a")[2]!.end, side))
+        findings.push(m.label + " failed to dismount on both feet.");
+    }
+    const free = perform(
+      0.6,
+      sit.registered("ride", params).over((p) => p.gesture({ kind: "wave" })),
+    );
+    if (free.overlays("a").length !== 1)
+      findings.push("A free arm could not wave during the ride.");
+  }
 }
