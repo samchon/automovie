@@ -46,7 +46,7 @@ import { qunit } from "../internal/qunit";
  * 1. The unchanged one-somersault Human input must produce a real flight.
  * 2. Actual displayed frames wind once, land inside the original angular
  *    bound and retain the original momentum drift and impulse limits.
- * 3. The same twenty conservation observations, with the measured roots
+ * 3. The nineteen distinct interior twentieths of flight, with the measured roots
  *    carrying unturned canonical joints, locate a shape versus root/history
  *    discrepancy (`motionHumanFlightDiagnostic`) without replacing the
  *    one-percent assertion.
@@ -188,31 +188,28 @@ export function test_human_motion_core_flight_sample(): void {
     resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const delta: number = integrateAirborneRotation.DELTA;
   const observations: motionHumanFlightDiagnostic.IObservation[] = [];
-  const momentum: (seconds: number) => IAutoMovieVector3 = (
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    const angular: IAutoMovieVector3 = resolveAutoMovieMomentum(
+  const divisions: number = 20;
+  for (let k: number = 1; k < divisions; k++) {
+    const seconds: number = from + ((to - from) * k) / divisions;
+    const displayed: IAutoMovieVector3 = resolveAutoMovieMomentum(
       model,
       film.bones("a", seconds - delta),
       film.bones("a", seconds + delta),
       2 * delta,
     ).angular;
-    if (observations.length < 20)
-      observations.push({
-        role:
-          observations.length === 0 ? "reference" : `${observations.length}/20`,
-        seconds,
-        displayed: { ...angular },
-        before: structuredClone(film.pose("a", seconds - delta)),
-        after: structuredClone(film.pose("a", seconds + delta)),
-      });
-    return angular;
-  };
-  const reference: IAutoMovieVector3 = momentum(from + 0.05 * (to - from));
+    observations.push({
+      role: k === 1 ? "reference" : `${k}/${divisions}`,
+      seconds,
+      displayed,
+      before: structuredClone(film.pose("a", seconds - delta)),
+      after: structuredClone(film.pose("a", seconds + delta)),
+    });
+  }
+  const reference: IAutoMovieVector3 = observations[0]!.displayed;
   const magnitude: number = Vector3.length(reference);
-  for (let k: number = 1; k < 20; k++) {
+  for (const observation of observations) {
     const difference: number = Vector3.length(
-      Vector3.subtract(momentum(from + ((to - from) * k) / 20), reference),
+      Vector3.subtract(observation.displayed, reference),
     );
     if (
       !(
@@ -222,7 +219,7 @@ export function test_human_motion_core_flight_sample(): void {
       )
     )
       complaints.push(
-        `displayed momentum changes ${difference} from ${magnitude} at ${k}/20`,
+        `displayed momentum changes ${difference} from ${magnitude} at ${observation.role}`,
       );
   }
   const one: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
@@ -242,7 +239,7 @@ export function test_human_motion_core_flight_sample(): void {
     model.mass *
     speed *
     resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight);
-  const held: number = Vector3.length(momentum((from + to) / 2));
+  const held: number = Vector3.length(observations[divisions / 2 - 1]!.displayed);
   if (!(Number.isFinite(held) && Number.isFinite(ceiling) && held <= ceiling))
     complaints.push(`momentum ${held} exceeds impulse ceiling ${ceiling}`);
   complaints.push(

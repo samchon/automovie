@@ -132,7 +132,7 @@ export function motionHumanFlightDiagnostic(props: {
   /** Unchanged positive central-difference half-interval, in seconds. */
   delta: number;
 
-  /** The twenty original conservation reads and their owned actual poses. */
+  /** The nineteen interior twentieths of flight and their owned actual poses. */
   observations: readonly motionHumanFlightDiagnostic.IObservation[];
 }): {
   /** Failed momentum-row premises/readings, without masking later rows. */
@@ -210,9 +210,9 @@ export function motionHumanFlightDiagnostic(props: {
     )
   )
     problems.push("flight diagnostic does not admit held or stopped weapons");
-  if (!(Number.isFinite(delta) && delta > 0 && observations.length === 20))
+  if (!(Number.isFinite(delta) && delta > 0 && observations.length === 19 && observations.every((row: motionHumanFlightDiagnostic.IObservation, i: number): boolean => row.seconds === from + ((to - from) * (i + 1)) / 20)))
     problems.push(
-      "flight diagnostic needs all twenty original conservation reads and positive DELTA",
+      "flight diagnostic needs one observation at each of the nineteen interior twentieths and positive DELTA",
     );
   for (const observation of observations) {
     const row: IRow = {
@@ -399,7 +399,7 @@ export function motionHumanFlightDiagnostic(props: {
  * @evidence contracts/development/common.md#meaningful-documentation Documents the observed world momentum, midpoint time and owned endpoint poses. Private result rows document their unavailable values and joint differences separately.
  * @evidence contracts/development/design.md#principled-representation Existing canonical pose and SI vector types carry actual world state; the observation distinguishes the midpoint from both finite-difference endpoint poses, with validity checked by the diagnostic.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The representative records this one input type for the diagnostic after original measurements. Returned rows remain private to this module's calculation and completion log.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Captured poses and vectors are measured evidence, never target physics or solver expectations. The twenty-read premise remains a checked property of this specific diagnostic rather than an altered motion contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Captured poses and vectors are measured evidence, never target physics or solver expectations. The interior sample grid remains a checked property of this specific diagnostic rather than an altered motion contract.
  */
 export namespace motionHumanFlightDiagnostic {
   /**
