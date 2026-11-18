@@ -4,8 +4,8 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
+import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -45,8 +45,21 @@ export namespace IAutoMovieMotionHumanTouchStance {
     /** The posture the body stands in before it rises or leans. */
     standing: IAutoMovieMotionHumanPosture;
 
-    /** Additional shoulder-girdle motion during a coupled reach, at its clock share. */
-    girdles?: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture;
+    /**
+     * Adds shoulder-girdle assistance to the input posture before the stance lifts the working shoulder or raises the heels. The reach envelope supplies `share` in [0, 1], and stance preparation uses full assistance at 1. When absent, the stance uses the input posture directly.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the input posture, the dimensionless share, the order of application and the default when absent.
+     * @evidence contracts/development/implementation.md#principled-implementation For crossed support, the callback interpolates shoulder flexion and abduction in degrees from the input pose toward opposite joint limits for the underarm and overarm passages. It preserves shoulder twist.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The crossed-touch planner selects the joint limits. The stance supplies the current posture and timing share before applying its own lift.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Shoulder limits come from the body's rig constraints. Each sample uses the current shoulder angles and the existing reach envelope.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each crossed-touch sample interpolates two shoulders in constant time and copies the joint map to preserve the input posture. Time and allocation scale with the number of entries in that map.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The callback prepares both sets of limits once for the body's constraints and the primary side. Each call interpolates with the supplied posture and share.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance plan holds the callback for its lifetime. The crossed-touch callback retains two fixed-size limit tuples and holds no sampled postures between calls.
+     */
+    girdles?: (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ) => IAutoMovieMotionHumanPosture;
 
     /** Both feet as they stand flat, when the body stands on them alone and may rise onto its toes; no rise when absent. */
     feet?: IAutoMovieMotionHumanRise.Stance;
@@ -68,7 +81,9 @@ export namespace IAutoMovieMotionHumanTouchStance {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Current leg goals and unchanged entry feet supply all components. A different pose requires new placements.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the entry frames. Reading a posture returns one pair and retains no sampled feet.
      */
-    placements?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanRise.Stance;
+    placements?: (
+      posture: IAutoMovieMotionHumanPosture,
+    ) => IAutoMovieMotionHumanRise.Stance;
 
     /**
      * The heel rise's share when a step has to finish before its foot rolls onto the toes.
