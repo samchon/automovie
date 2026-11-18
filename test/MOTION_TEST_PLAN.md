@@ -1,6 +1,22 @@
 # Motion test architecture for PR 3564
 
-## Decision and accounting
+## Scope for the final retirement
+
+Every original scenario whose public contract exercises motion must retire. Move necessary assertions to the smallest owning unit and combine cases that exercise the same decision. A filename or export change alone does not complete a migration.
+
+The earlier proposal retained 40 scenarios in other features. Inspection found 39 actual motion or cross-feature motion scenarios among them, which are now assigned in the inventory as cross-package retirements. The architecture observation-promotion case matches the runner's substring filter because of the word promotion. Its assertions concern architecture evidence and remain with that feature.
+
+| Writer | Additional source ownership | Original scenarios |
+| --- | --- | --- |
+| Catalogue | Animal locomotion, film motion, ingestion, validation and viewer | 28 |
+| Dynamics | Engine node tracks, trajectories and timed audio sampling | 7 |
+| Posture | Inspection paths and physics checks | 3 |
+| Contact | Shot event receipt admission | 1 |
+
+Confirm the final scenario identities and package-level coverage against both retirement records before enabling the full motion run. Treat focused assertion results and missing coverage as separate observations.
+
+
+## Initial decision and accounting
 
 The frozen selection contains 722 unique exported test names. The historical ownership map contains exactly those names. The new selection contains 222 public specifications: 182 newly named motion specifications replace the 682 selected motion-domain exports, and 40 existing specifications remain with their external feature owners. The 182 include 43 separately named primitive-declaration specifications and four common runtime witnesses. Test count means discoverable named exports. A body, a seed, a lexicon row and a sampled frame are inputs. This plan commissions zero films.
 
@@ -8,7 +24,7 @@ The histogram of completed historical results is 628 pass and 61 fail. The other
 
 ## Ownership and file operations
 
-Each specification row in inventory.csv names exactly one destination file and one writer. The count by writer is 58 posture, 56 contact, 48 dynamics, 16 catalogue and four common specifications owned by root. For historical input files use source_owner for retirement or for preserving the 40 external tests. For new files use spec_owner. Each owner reads relevant cross-owner historical rows without writing their input files. No worker edits shared fixtures without a separately assigned single owner. The historical root ledger also gets a registry binding witness. An untracked draft is input evidence, never authority for a file deletion or an extra public export. Verify the provenance of temporary probes before any cleanup.
+Each specification row in inventory.csv names exactly one destination file and one writer. The count by writer is 58 posture, 56 contact, 48 dynamics, 16 catalogue and four common specifications owned by root. For historical input files use source_owner for retirement. The final retirement section supersedes the initial external-feature counts. For new files use spec_owner. Each owner reads relevant cross-owner historical rows without writing their input files. No worker edits shared fixtures without a separately assigned single owner. The historical root ledger also gets a registry binding witness. An untracked draft is input evidence, never authority for a file deletion or an extra public export. Verify the provenance of temporary probes before any cleanup.
 
 ## Evidence and implementation
 
@@ -26,7 +42,7 @@ Failures that collapse to the same function still need their distinct witnesses.
 
 ## Verification after authorization
 
-Workers implement only their assigned destination files and retire only their historical ownership rows. Root compiles the full feature selection, enumerates actual exports and compares them by name with the inventory plus the 40 external retains. Check both missing and unexpected exports. Run every named specification after implementation and record observed passes, failed assertions, process failures and unexecuted cases separately. Group failures by actual cause and apply one batch of fixes. A previously failing input is closed only by a measured independent assertion on the original semantic branch. This plan performed no test run.
+Workers implement only their assigned destination files and retire only their historical ownership rows. Root enumerates actual exports, compares them by name with the inventory and confirms every old motion identity is absent before the full run. Check both missing and unexpected exports. Run every named specification after implementation and record observed passes, failed assertions, process failures and unexecuted cases separately. Group failures by actual cause and apply one batch of fixes. A previously failing input is closed only by a measured independent assertion on the original semantic branch. This plan performed no test run.
 
 ## Specification index
 
