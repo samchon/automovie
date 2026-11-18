@@ -46,16 +46,13 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * round with the body and are not lifted over the sill, and the door's leaf
  * is taken as open.
  *
- * Crown metadata is prepared once for the entry. Each sampled headroom
- * search owns a lazy exact-FK workspace across that sample's flexion
- * bisection and its actual sitting query. Runtime sitting observations
- * borrow their synchronous parent's FK/ROM sources. The workspace and posed readings end with the search or current query; refusal
- * diagnostics reuse its measured maximum-duck excess.
- * Positive flexion trials share one private raw joint-map construction
- * within that sample, changing only its owned spine triple before every
- * actual authored-joint admission and crown FK; no solved pose is reused.
+ * The crown is read by one reader prepared for the entry
+ * (`HumanTrunk.preparePoint`). Each sampled instant's search resolves the
+ * sitting posture there once and bisects the flexion on one
+ * forward-kinematics reader, each trial changing the spine's flexion alone;
+ * a refusal reports the excess the full duck leaves.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with fixed crown metadata, synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
+ * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search and how it reads the crown, refusals and first-pass limits.
  * @evidence contracts/development/design.md#principled-representation A law record over `sit`: the seat and the opening are the affordances the car declares (`HumanObject.seat`, `HumanObstacle.apertures`).
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No car is special-cased; the headroom is the opening's own and the duck is solved against it for each body.
@@ -79,12 +76,7 @@ export namespace HumanTravelCar {
   /** Instants of the entry at which the duck is solved; each holds its duck until the next, so the crown keeps `CLEAR` between them up to how far it moves in one interval. */
   export const SAMPLES: number = 48;
 
-  /**
-   * Get into a car seat through its door. Each headroom sample owns a lazy
-   * exact-FK workspace across its unchanged flexion bisection; neither that
-   * reader nor a posed result enters the returned time evaluator. Refusal
-   * diagnostics reuse the measured excess of the same maximum-duck trial.
-   */
+  /** Get into a car seat through its door: sit sideways, swing in, the head ducked under the opening's top. */
   export const getIn: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelCar.IParams> = {
     name: "getIn",
     interrupts: {},

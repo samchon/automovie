@@ -89,7 +89,7 @@ export namespace HumanMountOn {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse, time the climb, place the feet's ends, find when each foot leaves and bears, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rest out of the seated leg's reach is not clamped onto: the foot hangs, as the seat's `footrests` doc declares. The timing shares and the constants of `HumanMount` are provisional and named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance. Each current posture lends optional parent FK/ROM metadata through seated.arms to actual thigh/wrist observations, with all current joint admission and relevant fits retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance; each posture passes its caller's forward-kinematics reader and range-of-motion projector to the hands' fit (`seated.arms`).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(

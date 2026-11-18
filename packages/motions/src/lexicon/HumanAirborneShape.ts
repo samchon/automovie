@@ -4,7 +4,6 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanAirborneShape,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
@@ -106,11 +105,11 @@ export namespace HumanAirborneShape {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the layer and what it claims.
    * @evidence contracts/development/implementation.md#principled-implementation The shape's joints are set over the posture's; a claimed limb's held goal is moved to the end joint the resolver poses for those joints, before the whole-body turn the goals are stated under, bending toward the middle joint's side of the limb's line (or as the goal bent, for a limb straight to rounding), so the layer's weight carries the goal continuously; a claimed limb with no goal is posed by the joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed per-chain/union demands once; each application collects held goals, selects their actual source frames and resolves through the original canonical owner. The same fresh shaped limb map receives point/pole requests while every other original goal field stays present, then its already owned posture is returned.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims only the table's limbs and preserves held goal rotation, reference, contact, planting and external constraints. An achieved point alone never certifies the later complete IK objective, and no fade, authored angle, sample or acceptance bound changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms K held goals demand exactly 3K chain frames/ancestry for K in {1,2}, with complete direct-joint admission. Per-chain/union sets and genuine fixed-name readers prepare membership/lookup/sorting once per unchanged body. The original dependency selector retains digit/attachment/reference/unsupported full fallback; K=0 requests no source solve/FK. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed shape/chain demand is shared; each actual body owns only its genuine static name readers. Explicit parent FK/projector loans share exact FK prerequisites/static ROM metadata across actual source resolution, fresh requested frames and parent consumers; every changed joint/dependency still resolves normally. Each chain frame supplies its point/pole construction once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains one table entry, two limbs and three fixed sets naming six distinct bones. A weak body key owns at most three bounded static demand readers, with no raw pose, query time, result or workspace. Local getter/source pose/fresh frames release on return/throw; FK/projector loans stay synchronous and K=0 demands neither lazy loan.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The claimed limbs' bone sets are built once per layer; each application sets the joints, resolves the shaped posture once for the held limbs' chains and moves each held goal's point and bend there, every other field of the goal kept.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims only the table's limbs and keeps a held goal's rotation, contact, planting and attachment; the angles are the table's provisional ones.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With no claimed limb holding a goal, no resolution; otherwise one posture resolution limited to the held chains' three bones each and their ancestors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone sets depend on the shape alone and are shared by every application; the caller's forward-kinematics reader and range-of-motion projector serve the resolution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer holds one table entry, its claimed limbs and three bone sets of at most six names; each application's resolution ends with it.
    */
   export function layer(shape: IAutoMovieMotionHumanAirborneShape.Shape): IAutoMovieMotionHumanLayer {
     const joints: Partial<
@@ -129,7 +128,6 @@ export namespace HumanAirborneShape {
       demands[limb] = chain;
       for (const bone of chain) requested.add(bone);
     }
-    const readers: WeakMap<IAutoMovieMotionHumanBody, Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>>> = new WeakMap();
     return {
       name: shape,
       channels: [...claimed],
@@ -164,20 +162,10 @@ export namespace HumanAirborneShape {
           context.body, still, undefined, undefined, resolution, observed,
           context.projection?.(),
         ).pose;
-        let byDemand: Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>> | undefined = readers.get(context.body);
-        if (byDemand === undefined) {
-          byDemand = new Map();
-          readers.set(context.body, byDemand);
-        }
-        let readBones: ReturnType<typeof poseBones.prepare> | undefined = byDemand.get(observed);
-        if (readBones === undefined) {
-          readBones = poseBones.prepare(context.body, observed);
-          byDemand.set(observed, readBones);
-        }
         const bones: ReadonlyMap<
           AutoMovieHumanoidBone,
           IAutoMovieResolvedBone
-        > = readBones(pose, resolution());
+        > = poseBones(context.body, pose, resolution(), observed);
         const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
           bones.get(bone)!.worldPosition;
         for (const limb of held) {

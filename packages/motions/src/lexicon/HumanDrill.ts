@@ -10,10 +10,13 @@ import { HumanActionRow } from "../law/HumanActionRow";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
 import { punch } from "../striking/punch";
+import { HumanStrike } from "./HumanStrike";
 
 /**
  * Fighting and training rows, each a row of a shipped action; a strike's
  * row leaves its target to the composition. Register the ones a film uses.
+ * `jab`, `cross` and `roundKick` are `HumanStrike`'s rows themselves, so a
+ * name registered from either family is one row.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (HumanActionRow), so it is data over a law that already fits the body, refuses and is checked.
@@ -24,18 +27,12 @@ export namespace HumanDrill {
   /** A jab: the lead straight. */
   export const jab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["jab"]
-  > = HumanActionRow.of("jab", punch, {
-    technique: "straight",
-    hand: "lead",
-  });
+  > = HumanStrike.jab;
 
   /** A cross: the rear straight. */
   export const cross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["cross"]
-  > = HumanActionRow.of("cross", punch, {
-    technique: "straight",
-    hand: "rear",
-  });
+  > = HumanStrike.cross;
 
   /** A lead hook. */
   export const hook: IAutoMovieMotionHumanActionLaw<
@@ -64,10 +61,7 @@ export namespace HumanDrill {
   /** A rear round kick. */
   export const roundKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["roundKick"]
-  > = HumanActionRow.of("roundKick", kick, {
-    technique: "round",
-    leg: "rear",
-  });
+  > = HumanStrike.roundKick;
 
   /** A southpaw guard. */
   export const southpaw: IAutoMovieMotionHumanActionLaw<

@@ -66,9 +66,9 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The ball, the turn as a function of an angle, the distance, the search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original endpoint/sign trials and twenty-four bisections remain. A genuine fixed-axis quaternion reader prepares unchanged axis length/scaling once; distance-only probes construct current placement fields without repeatedly spreading unobserved goal metadata.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this invocation's immutable foot-local contact, world ball/lateral axis and original rotation are shared. Every candidate angle still computes its actual quaternion and ankle point, and the final goal uses that same placement owner without a sampled result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis reader and trial placements end on return or throw. Only the original goal or a fresh final goal/rotation/point returns, retaining no reader, query history or prepared angle answer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; it returns the goal given or a new one.
    */
   export function ankled(
     body: IAutoMovieMotionHumanBody,
@@ -166,9 +166,9 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A partial hold retains the complete canonical current joint/goal solve before final FK requests only its hand ancestry; fully holding needs no pose/FK observation. Closed-finger interpolation remains linear in the supplied joints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied synchronous FK reader serves the complete canonical resolve and final hand frame; a genuine same-body projector shares only ROM metadata while every current joint/goal still resolves. Fixed relaxed shape tables serve only scalar finger interpolation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed FK/ROM loans end on return or throw and are never stored in goals or plans. Two immutable side-only relaxed shapes are bounded module data; current maps and targets do not persist.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold resolves the posture without its arms once and reads the hand's frame with forward kinematics limited to the hand and its ancestors. The fingers blend linearly over the closed joints given.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's forward-kinematics reader and range-of-motion projector serve the resolution; the relaxed hand is `HumanHand.shape`'s table.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and the projector are used only during the call; the returned goal and joints hold numbers alone.
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
@@ -236,11 +236,10 @@ export namespace HumanMountRider {
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
-    let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined = RELAXED[side];
-    if (relaxed === undefined) {
-      relaxed = HumanHand.shape(side, "relaxed");
-      RELAXED[side] = relaxed;
-    }
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
     const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
       const from: readonly [number, number, number] = relaxed[bone] ?? [
@@ -387,6 +386,3 @@ export namespace HumanMountRider {
       : HumanMountReach.reach(body, seated, sides)(points);
   }
 }
-
-/** At most two lazily acquired canonical finger maps; hold emits fresh tuples from their numbers. */
-const RELAXED: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {};

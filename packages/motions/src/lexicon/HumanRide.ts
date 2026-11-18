@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -81,30 +82,17 @@ export namespace HumanRide {
       ): IAutoMovieMotionHumanActionPlan => {
         const { on, seconds }: IAutoMovieMotionHumanRide.IParams =
           context.params;
-        if (!(seconds > 0))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "seconds",
-            value: seconds,
-            feasible: {
-              kind: "range",
-              minimum: 0,
-              maximum: null,
-              unit: "s",
-              open: "minimum",
-            },
-            reason: "a ride lasts a positive time",
-            fix: "give the seconds ridden",
-          });
+        HumanBound.above("seconds", seconds, 0, "s");
 
         // Any seated entry rides: straight from sitting down, from another ride, or from an act taken seated, which keeps the seated base.
-        if (context.entry.base.kind !== "seated")
+        const entered: IAutoMovieMotionHumanBase = context.entry.base;
+        if (entered.kind !== "seated")
           throw new HumanRefusal({
             kind: "base",
             axis: "base",
-            value: context.entry.base.kind,
+            value: entered.kind,
             feasible: { kind: "alternatives", values: ["sit", "ride"] },
-            reason: `a ride is entered seated on its support, and the performer is ${context.entry.base.kind}`,
+            reason: `a ride is entered seated on its support, and the performer is ${entered.kind}`,
             fix: "sit on the support's seat first, then ride it",
           });
         const support: IAutoMovieMotionHumanPropReader = context.prop(on);
@@ -265,10 +253,7 @@ export namespace HumanRide {
           contacts,
 
           // The seat sat on is passed on, so getting off after the ride still knows it.
-          base:
-            context.entry.base.kind === "seated"
-              ? context.entry.base
-              : { kind: "seated" },
+          base: entered,
           posture: (at: number): IAutoMovieMotionHumanPosture => {
             const now: IAutoMovieRigidTransform = support.frame(
               context.start + Math.min(seconds, Math.max(0, at)),

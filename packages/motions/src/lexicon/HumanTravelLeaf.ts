@@ -50,7 +50,7 @@ import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
  * a `reach` refusal on `handle` naming the largest swing followed. First
  * pass: the closure is the one at the instant the hand arrives.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, timing, refusal and closure limitation; the law comment states construction-only FK/ROM scope and separate actual support-selection and hold-verification passes.
+ * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, timing, refusal and closure limitation; the law comment states how the hold is checked and which readers the checks share.
  * @evidence contracts/development/design.md#principled-representation A law record over the stand, with one arm's goal on a prop's moving point.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased: the handle, its frame, its width and the leaf's colliders are the prop's own.
@@ -66,17 +66,13 @@ export namespace HumanTravelLeaf {
   export const REACH: number = 0.97;
 
   /**
-   * Open a door by its handle, standing or following its leaf. Synchronous
-   * construction shares one lazy exact-FK reader through base, hold fitting
-   * and displayed wrist reads, plus genuine ROM metadata after the original
-   * first standing shoulder observation. Every distinct hold check performs its
-   * actual fit; fixed hand-name demand prepares after the first successful
-   * wrist observation. None of these readers enters the returned plan.
-   * Support selection and subsequent hold verification each retain their
-   * original actual sample fits; no completed pass verdict replaces later
-   * checks, and no handle sample or fitted wrist is replayed.
-   * Each playback observation lazily owns or borrows one FK getter through
-   * its displayed base and hold, releasing it on return or throw.
+   * Open a door by its handle, standing or following its leaf. The plan
+   * checks the hold at every 24th of a second from `TAKE` with the arm's own
+   * fit: standing first, and only where standing loses the handle, walking
+   * with the leaf; a swing still lost is refused. The checks share one
+   * forward-kinematics reader and one range-of-motion projector, which end
+   * with the plan's construction; each posture of the plan reads the base and
+   * the hold through the reader its caller gives, or one of its own.
    */
   export const openDoor: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelLeaf.IParams> = {
     name: "openDoor",
@@ -253,7 +249,6 @@ export namespace HumanTravelLeaf {
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
       const handBone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-      let handRead: ReturnType<typeof poseBones.prepare> | undefined;
       const holds: (posture: IAutoMovieMotionHumanPosture, t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection: ReturnType<typeof prepareHumanPostureProjection>) => boolean = (posture: IAutoMovieMotionHumanPosture, t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection: ReturnType<typeof prepareHumanPostureProjection>): boolean => {
         const goal: IAutoMovieHumanLimbGoal = HumanMountRider.hold(
           body,
@@ -267,10 +262,12 @@ export namespace HumanTravelLeaf {
           body, { ...posture, limbs: { [`${side}Arm`]: goal } },
           undefined, {}, resolution, handBone, projection,
         ).pose;
-        const wrist: IAutoMovieVector3 = (handRead === undefined
-          ? poseBones(body, pose, resolution(), handBone)
-          : handRead(pose, resolution())).get(`${side}Hand`)!.worldPosition;
-        if (handRead === undefined) handRead = poseBones.prepare(body, handBone);
+        const wrist: IAutoMovieVector3 = poseBones(
+          body,
+          pose,
+          resolution(),
+          handBone,
+        ).get(`${side}Hand`)!.worldPosition;
         return Vector3.length(Vector3.subtract(wrist, goal.point)) <= HOLD;
       };
       const readings: number[] = [];
@@ -279,10 +276,10 @@ export namespace HumanTravelLeaf {
 
       // Standing while the arm holds the handle from there throughout;
       // otherwise walking with the leaf (`HumanTravelLeafWalk`).
-      const holdsStanding: boolean = readings.every(
-        (t: number): boolean => holds(base(t, undefined, validation, projector), t, validation, projector),
+      const lostStanding: number | undefined = readings.find(
+        (t: number): boolean => !holds(base(t, undefined, validation, projector), t, validation, projector),
       );
-      const walked: IAutoMovieMotionHumanActionPlan | null = holdsStanding
+      const walked: IAutoMovieMotionHumanActionPlan | null = lostStanding === undefined
         ? null
         : HumanTravelLeafWalk.plan({
             context,
@@ -308,7 +305,8 @@ export namespace HumanTravelLeaf {
           : lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)), resolution, projection);
       };
 
-      // A swing the walk cannot follow is refused with the largest followed.
+      // A swing the walk cannot follow is refused with the largest followed;
+      // with no walk the standing check above already found where it lost.
       const heading: (v: IAutoMovieVector3) => number = (v: IAutoMovieVector3): number =>
         (Math.atan2(v.x, v.z) * 180) / Math.PI;
       const takenHeading: number = heading(taken.normal);
@@ -321,9 +319,12 @@ export namespace HumanTravelLeaf {
             360) -
             180,
         );
-      const lost: number | undefined = readings.find(
-        (t: number): boolean => !holds(shown(t, undefined, validation, projector), t, validation, projector),
-      );
+      const lost: number | undefined =
+        walked === null
+          ? lostStanding
+          : readings.find(
+              (t: number): boolean => !holds(shown(t, undefined, validation, projector), t, validation, projector),
+            );
       if (lost !== undefined) {
         const followed: number = swing(Math.max(TAKE, lost - 1 / 24));
         throw new HumanRefusal({

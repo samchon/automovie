@@ -52,9 +52,9 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#principled-implementation A rotation about a fixed axis moves a point on a circle, so the distance to a fixed point is an exact sinusoid in the angle and its threshold crossing is an arccos root; the circle's vectors are solved from three exact forward-kinematics readings.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circles once, then one root per hand per point set.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward that carries most of a rower's or a cyclist's tilt (Agius et al. 2023, Bioengineering 10:774, section 4.1) is not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three FK trials request only shoulder positions, with the first also requesting elbows/wrists to measure reach; the remaining per-instant root calculation is unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous sample helper owns exact FK, genuine ROM metadata and two fixed output-name readers while all three actual poses are projected; shoulders share Cramer rows/denominator while point-dependent determinants remain fresh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample helper releases all FK/name readers and bounded ROM metadata on return or throw; the evaluator keeps only one circle of three vectors and one reach scalar per hand, without a reader or query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three posture resolutions when the reader is built, each reading only the shoulders (the first also the elbows and wrists, for the reach); each call then costs one arccos per hand and no forward kinematics.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three resolutions share one forward-kinematics reader and one range-of-motion projector, and both shoulders share the circle's matrix and its determinant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and the projector end with construction; the returned function holds one circle and one reach per hand.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -134,7 +134,7 @@ export namespace HumanMountReach {
     };
   }
 
-  /** Own the exact FK workspace only while the three actual trial poses are read. */
+  /** The bones of the seated posture leant by each angle: the first resolution reads the shoulders, elbows and wrists, the others the shoulders alone, all through one forward-kinematics reader and one range-of-motion projector. */
   function readSamples(
     body: IAutoMovieMotionHumanBody,
     seated: IAutoMovieMotionHumanPosture,
