@@ -1,6 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
@@ -11,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -32,7 +32,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the problem, the two answers and which bases get which.
  * @evidence contracts/development/design.md#principled-representation The base axis decides the start (`HumanBase`): the laws plan from the entry state (the motion skill's laws rule), and the bases they have no route from are refused, as the transitions rule asks of an impossible change of plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the start, the displayed entry, the way down, the transition and its per-joint blend, read by `crawl`, `crawlDown`, `crawlFrame`, `crawlInchworm`, `getUp` and `lieDown`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the start, the displayed entry, the way down, and the transition, read by `crawl`, `crawlDown`, `crawlFrame`, `crawlInchworm`, `getUp` and `lieDown`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is named here; each passes its own name to the gate.
  */
 export namespace floorEntry {
@@ -270,7 +270,7 @@ export namespace floorEntry {
    * clearances are measured on the first interior query and kept with it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States endpoint immutability, progress, lazy endpoint-measurement lifetime and optional nonescaping synchronous FK/ROM sources on each returned read.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the same joint interpolation, shortest yaw and hip-carried root as blend, raising only the blend's floor penetration beyond the endpoints' interpolated penetration.
+   * @evidence contracts/development/implementation.md#principled-implementation Interpolates the joints linearly through the one joint-map blend owner (`prepareHumanShapeBlend`), the yaw along the shortest arc and the root with the hips, raising only the blend's floor penetration beyond the endpoints' interpolated penetration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared joint interpolation and one lazy endpoint record feed each independent progress query.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact endpoint queries return the supplied postures; the floor clearance and its bounds are unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms Endpoint clearances cost two floor readings once, first actual floor demand prepares native collider selection once and endpoint hips prepare one native fixed vector interpolation. Each interior query retains changing hip interpolation, actual floor placement/bounds and O(J) joints.
@@ -286,7 +286,7 @@ export namespace floorEntry {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture {
-    const interpolate: (weight: number) => IAutoMovieMotionHumanPosture["joints"] = jointBlend(
+    const interpolate: (weight: number) => IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
       from.joints,
       to.joints,
     );
@@ -351,73 +351,6 @@ export namespace floorEntry {
       return rise === 0
         ? carried
         : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
-    };
-  }
-
-  /**
-   * Two postures' joints blended angle by angle: each joint that either holds
-   * goes from its first triple to its second by the weight, a joint only
-   * one holds from or to clinical zero.
-   *
-   * @param from The joints at weight 0.
-   * @param to The joints at weight 1.
-   * @param weight The weight.
-   * @returns The blended joints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend, a missing joint and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint-space interpolation of clinical angles, the way between two postures a free movement takes (Soechting and Lacquaniti 1981).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the joints either holds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing joint reads clinical zero, as the resolver reads it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one per-joint blend of the floor laws, read by `blend`, the crawl's way down and its arms.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function blended(
-    from: IAutoMovieMotionHumanPosture["joints"],
-    to: IAutoMovieMotionHumanPosture["joints"],
-    weight: number,
-  ): IAutoMovieMotionHumanPosture["joints"] {
-    return jointBlend(from, to)(weight);
-  }
-
-  /**
-   * Prepare the ordered union of two fixed clinical-joint maps; absent
-   * joints retain their original clinical-zero endpoint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, order and missing-joint semantics.
-   * @evidence contracts/development/implementation.md#principled-implementation Each output uses the original linear clinical-angle expression with the original endpoint values.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one ordered bone/pair list, then write fresh triples per query.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No endpoint shortcut, angle wrapping or zero-joint omission changes the emitted map.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) preparation removes per-query key-array and Set reconstruction; each query remains O(J) for its required fresh map.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed endpoint triples and their ordered union are shared; each query has independent output arrays.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains one pair per union bone and ends with the owning transition; no query results or history survive.
-   */
-  export function jointBlend(
-    from: IAutoMovieMotionHumanPosture["joints"],
-    to: IAutoMovieMotionHumanPosture["joints"],
-  ): (weight: number) => IAutoMovieMotionHumanPosture["joints"] {
-    const pairs: [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-      readonly [number, number, number],
-    ][] = [];
-    for (const bone of new Set([
-      ...Object.keys(from),
-      ...Object.keys(to),
-    ]) as Set<AutoMovieHumanoidBone>) {
-      const a: readonly [number, number, number] = from[bone] ?? [0, 0, 0];
-      const b: readonly [number, number, number] = to[bone] ?? [0, 0, 0];
-      pairs.push([bone, a, b]);
-    }
-    return (weight: number): IAutoMovieMotionHumanPosture["joints"] => {
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const [bone, a, b] of pairs)
-        joints[bone] = [
-          a[0] + (b[0] - a[0]) * weight,
-          a[1] + (b[1] - a[1]) * weight,
-          a[2] + (b[2] - a[2]) * weight,
-        ];
-      return joints;
     };
   }
 

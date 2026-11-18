@@ -14,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -183,29 +184,14 @@ export namespace dive {
       ],
     );
     const prepareShape: (from: IAutoMovieMotionHumanPosture["joints"]) => ShapeReader = (from: IAutoMovieMotionHumanPosture["joints"]): ShapeReader => {
-      const tracks: ShapeTrack[] = [];
-      for (const [mirrored, angles] of targets) {
-        const was: readonly [number, number, number] = from[mirrored] ?? [
-          0, 0, 0,
-        ];
-        tracks.push({
-          bone: mirrored,
-          from: [was[0], was[1], was[2]],
-          delta: [angles[0] - was[0], angles[1] - was[1], angles[2] - was[2]],
-        });
-      }
+      // The joints the shape leaves alone stay as `from` holds them.
+      const blend: (share: number) => IAutoMovieMotionHumanPosture["joints"] =
+        prepareHumanShapeBlend(from, { ...from, ...Object.fromEntries(targets) });
       return (share: number, turn: number): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...from };
-        for (const track of tracks)
-          joints[track.bone] = [
-            track.from[0] + track.delta[0] * share,
-            track.from[1] + track.delta[1] * share,
-            track.from[2] + track.delta[2] * share,
-          ];
         return {
           ...entry,
           root: { x: 0, y: 0, z: 0 },
-          joints,
+          joints: blend(share),
           limbs: {},
           ...(kind === "dive"
             ? { roll: entry.roll - toLeft * turn }
@@ -353,14 +339,4 @@ export namespace dive {
 
   /** One changing share/turn of a fixed entered or solved-launch articulation. */
   type ShapeReader = (share: number, turn: number) => IAutoMovieMotionHumanPosture;
-
-  /** One mirrored target's fixed clinical start and difference, both in degrees. */
-  interface ShapeTrack {
-    /** The actual mirrored rig joint. */
-    bone: AutoMovieHumanoidBone;
-    /** The source clinical triple. */
-    from: readonly [number, number, number];
-    /** Target minus source, with the original subtraction grouping. */
-    delta: readonly [number, number, number];
-  }
 }

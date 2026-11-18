@@ -11,6 +11,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -18,7 +19,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlDownTiming } from "./crawlDownTiming";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
-import { floorEntry } from "./floorEntry";
 import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
 
 /**
@@ -406,7 +406,7 @@ export namespace crawlDown {
       const lerp = (a: number, b: number): number => a + (b - a) * u;
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...base.joints,
-        ...floorEntry.blended(S.joints, to.joints, u),
+        ...prepareHumanShapeBlend(S.joints, to.joints)(u),
       };
       const tilted: IAutoMovieMotionHumanPosture = {
         ...to,

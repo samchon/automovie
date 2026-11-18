@@ -10,12 +10,12 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { floorEntry } from "./floorEntry";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
 /**
@@ -313,7 +313,7 @@ export namespace crawlFrame {
           from.fingers?.[bone] ?? posture.joints[bone];
         if (held !== undefined) was[bone] = held;
       }
-      Object.assign(joints, floorEntry.blended(was, flat, share));
+      Object.assign(joints, prepareHumanShapeBlend(was, flat)(share));
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };

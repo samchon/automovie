@@ -229,7 +229,7 @@ export namespace WorkoutEquipment {
       anchor: "bar",
       pin: ["rightFoot"],
       rise: (body: IAutoMovieMotionHumanBody): number => body.measure.ankleHeight,
-      supports: [{ part: "rightFoot", kind: "plant" }],
+      supports: [{ part: "rightFoot", kind: "plant", prop: true }],
       enter: 1,
       reps: 5,
       route: (body: IAutoMovieMotionHumanBody, support?: number): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
@@ -287,8 +287,8 @@ export namespace WorkoutEquipment {
       pin: ["leftHand", "rightHand"],
       rise: GymnasticsWheel.laid,
       supports: [
-        { part: "leftHand", kind: "plant" },
-        { part: "rightHand", kind: "plant" },
+        { part: "leftHand", kind: "plant", prop: true },
+        { part: "rightHand", kind: "plant", prop: true },
       ],
       enter: 1.5,
       reps: 5,
@@ -328,8 +328,8 @@ export namespace WorkoutEquipment {
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },
-        { part: "leftFoot", kind: "plant" },
-        { part: "rightFoot", kind: "plant" },
+        { part: "leftFoot", kind: "plant", prop: true },
+        { part: "rightFoot", kind: "plant", prop: true },
       ],
       enter: 1.5,
       reps: 5,
@@ -366,7 +366,7 @@ export namespace WorkoutEquipment {
       pin: BACK,
       rise: backed,
       supports: [
-        { part: "back", kind: "lie" },
+        { part: "back", kind: "lie", prop: true },
         { part: "leftFoot", kind: "plant" },
         { part: "rightFoot", kind: "plant" },
       ],

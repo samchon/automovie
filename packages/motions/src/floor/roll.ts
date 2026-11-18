@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -127,26 +128,12 @@ export namespace roll {
       { x: 0, y: 0, z: sign },
     );
 
-    // A posture of the joints blended toward the tuck, turned, at the origin.
-    const tuck: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(TUCK) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
-    const joints = (share: number): IAutoMovieMotionHumanPosture["joints"] => {
-      const out: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints };
-      for (const [bone, angles] of tuck) {
-        const was: readonly [number, number, number] = entry.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        out[bone] = [
-          was[0] + (angles[0] - was[0]) * share,
-          was[1] + (angles[1] - was[1]) * share,
-          was[2] + (angles[2] - was[2]) * share,
-        ];
-      }
-      return out;
-    };
+    // A posture of the joints blended toward the tuck, turned, at the origin:
+    // the entry's joints the tuck leaves alone stay as they are.
+    const joints: (share: number) => IAutoMovieMotionHumanPosture["joints"] = (
+      share: number,
+    ): IAutoMovieMotionHumanPosture["joints"] =>
+      prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK })(share);
     const posed = (share: number, turn: number): IAutoMovieMotionHumanPosture => ({
       ...entry,
       root: { x: 0, y: 0, z: 0 },

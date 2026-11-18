@@ -1,4 +1,3 @@
-import { physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -127,8 +126,8 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms All neutral collider-entry metadata prepare once for the unchanged twenty trials; each retains the original complete FK map, actual ordered placements/bounds and per-shape selector calls. No public RegExp callback is invoked as a preparation predicate, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/profile entry selection and genuine same-search FK/ROM metadata share. Each actual key callback precedes its complete canonical observation and all original per-shape test calls; neither global/sticky flags nor replaceable test/exec methods are inspected to infer purity.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The two collider groups (the bearing bones the pattern names, and the feet) and their neutral entries are prepared once for the twenty trials; each trial resolves its key and reads both groups' exact minima in one pass (`HumanColliders.prepareMinima`).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The collider floor minimum is the colliders' owner's; only the unchanged body's group membership and same-search FK/ROM metadata share, and each key is observed in full.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed native collider-entry metadata, exact FK reader and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a selector observation, trial map or workspace retained.
    */
   export function rolled(
@@ -138,21 +137,17 @@ export namespace WorkoutFloor {
   ): IAutoMovieMotionHumanExerciseKey.IKey {
     const read: ReturnType<typeof prepareWorkoutKeyFrames> =
       prepareWorkoutKeyFrames(body);
-    const place: ReturnType<typeof HumanColliders.preparePlaced> =
-      HumanColliders.preparePlaced(body, HumanColliders.bones(body));
-    // How far the bearing bones' lowest point lies above the feet's.
-    const above = (roll: number): number => {
-      const current: ReturnType<ReturnType<typeof prepareWorkoutKeyFrames>> =
-        read(key(roll));
-      let bearing: number = Infinity;
-      let feet: number = Infinity;
-      for (const segment of place(current.bones))
-        for (const shape of segment.shapes) {
-          const low: number = physicalShapeBounds(segment.pose, shape).min.y;
-          if (on.test(segment.bone)) bearing = Math.min(bearing, low);
-          if (/(Foot|Toes)$/.test(segment.bone)) feet = Math.min(feet, low);
-        }
-      return bearing - feet;
+    // How far the bearing bones' lowest point lies above the feet's, read by
+    // the collider floor minimum's one owner over the two groups.
+    const colliders: AutoMovieHumanoidBone[] = [...HumanColliders.bones(body)];
+    const minima: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body, [
+        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => on.test(bone))),
+        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => /(Foot|Toes)$/.test(bone))),
+      ]);
+    const above: (roll: number) => number = (roll: number): number => {
+      const [bearing, feet]: number[] = minima(read(key(roll)).bones);
+      return bearing! - feet!;
     };
     let upright: number = 0;
     let side: number = -90;

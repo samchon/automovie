@@ -1,6 +1,5 @@
 import { carriedRate, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGymnasticsMat,
   IAutoMovieMotionHumanLieDown,
@@ -10,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { lieDown } from "../floor/lieDown";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { GymnasticsFlight } from "./GymnasticsFlight";
@@ -54,9 +54,9 @@ export namespace GymnasticsMat {
    * @evidence contracts/development/implementation.md#principled-implementation Joint space blended on minimum-jerk progress, the tip to the nearest supine tip, the root height from the shapes' rest and the root's floor place from the centre carried by the engine's `carriedRate`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one centre and one rest per instant; the query's fresh frame posture receives its final root Y before ownership transfers to the caller.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J start/difference triples, exact u=1 arithmetic and the literal HOLD progress/carried-time coefficients once. That phase copies raw triples without repeating the scalar kernels. Each query keeps actual ROM/FK/COM/floor evaluation and transfers its fresh posture/root directly, omitting two discarded shallow copies. No bound or phase time changes; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the private joint union/start/delta and original scalar kernels at clipped t=SETTLE. Fresh triples isolate output mutations; current velocity/root requests and every actual body/ROM/profile/context reading remain evaluated. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original inputs and O(J) copied tracks. Query frame, bone map and floor reader release on return/throw; optional FK/projector loans stay with the synchronous parent and neither enters the returned posture, frame floor callback or retained landing closure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The joint-map blend (`prepareHumanShapeBlend`) prepares J start/difference triples once, and the settled progress and carried-time coefficients are read once. Each query keeps actual ROM/FK/COM/floor evaluation and transfers its fresh posture/root directly, omitting two discarded shallow copies. No bound or phase time changes; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the shared joint blend's union/start/difference and the scalar kernels at clipped t=SETTLE. Fresh triples isolate output mutations; current velocity/root requests and every actual body/ROM/profile/context reading remain evaluated. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original inputs and one O(J) joint blend reader (`prepareHumanShapeBlend`). Query frame, bone map and floor reader release on return/throw; optional FK/projector loans stay with the synchronous parent and neither enters the returned posture, frame floor callback or retained landing closure.
    */
   export function lie(props: IAutoMovieMotionHumanGymnasticsMat.ILieProps ): (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanPosture {
     const body: IAutoMovieMotionHumanBody = props.body;
@@ -75,33 +75,15 @@ export namespace GymnasticsMat {
       model,
       from,
     );
-    const tracks: JointTrack[] = [];
-    for (const bone of new Set([
-      ...Object.keys(from.joints),
-      ...Object.keys(lain.joints),
-    ]) as Set<AutoMovieHumanoidBone>) {
-      const a: readonly [number, number, number] = from.joints[bone] ?? [0, 0, 0];
-      const b: readonly [number, number, number] = lain.joints[bone] ?? [0, 0, 0];
-      const source: readonly [number, number, number] = [a[0], a[1], a[2]];
-      const delta: readonly [number, number, number] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-      tracks.push({ bone, from: source, delta, settled: [source[0] + delta[0] * 1, source[1] + delta[1] * 1, source[2] + delta[2] * 1] });
-    }
+    const blend: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
+      prepareHumanShapeBlend(from.joints, lain.joints);
     const settledProgress: number = minimumJerk.share(1);
     const settledCarry: number = carriedRate(SETTLE, SETTLE);
     return (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const resting: boolean = t === SETTLE;
       const u: number = resting ? settledProgress : minimumJerk.share(t / SETTLE);
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-      for (const track of tracks) {
-        joints[track.bone] = resting
-          ? [track.settled[0], track.settled[1], track.settled[2]]
-          : [
-              track.from[0] + track.delta[0] * u,
-              track.from[1] + track.delta[1] * u,
-              track.from[2] + track.delta[2] * u,
-            ];
-      }
+      const joints: IAutoMovieMotionHumanPosture["joints"] = blend(resting ? 1 : u);
       const posed: IAutoMovieMotionHumanPosture = {
         ...from,
         pitch: from.pitch + (tip - from.pitch) * u,
@@ -125,17 +107,3 @@ export namespace GymnasticsMat {
   }
 }
 
-/** A landing's copied clinical start and difference, both degree triples for one bone. */
-interface JointTrack {
-  /** The clinical joint being interpolated. */
-  bone: AutoMovieHumanoidBone;
-
-  /** The touchdown-side value, degrees. */
-  from: readonly [number, number, number];
-
-  /** The landing value minus the initial value, degrees. */
-  delta: readonly [number, number, number];
-
-  /** Original interpolation at literal u=1, preserving endpoint rounding rather than substituting target angles. */
-  settled: readonly [number, number, number];
-}

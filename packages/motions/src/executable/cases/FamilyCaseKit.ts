@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieComposition,
@@ -213,15 +213,10 @@ export namespace FamilyCaseKit {
     seconds: number,
     of: (bone: string) => boolean,
   ): number {
-    let value: number = Infinity;
-    for (const { bone, pose, shapes } of HumanColliders.placed(
-      body,
-      performance.bones(subject, seconds),
-    ))
-      if (of(bone))
-        for (const shape of shapes)
-          value = Math.min(value, physicalShapeBounds(pose, shape).min.y);
-    return value;
+    // The collider floor minimum's one owner, over the selected bones.
+    return HumanColliders.prepareMinima(body, [
+      new Set([...HumanColliders.bones(body)].filter(of)),
+    ])(performance.bones(subject, seconds))[0]!;
   }
 
   /**

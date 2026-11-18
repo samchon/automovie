@@ -423,7 +423,10 @@ export namespace workout {
         kind: support.kind,
         from,
         to,
-        support: { kind: "ground" },
+        support:
+          support.prop === true && p.on !== undefined
+            ? { kind: "prop", subject: p.on.prop }
+            : { kind: "ground" },
       }),
     );
     const posed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({

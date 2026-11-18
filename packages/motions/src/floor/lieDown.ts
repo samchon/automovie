@@ -21,6 +21,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -233,7 +234,7 @@ export namespace lieDown {
           key: IAutoMovieMotionHumanLieDown.IPose,
           i: number,
         ): ((weight: number) => IAutoMovieMotionHumanPosture["joints"]) =>
-          floorEntry.jointBlend(keys[i]!.joints, key.joints),
+          prepareHumanShapeBlend(keys[i]!.joints, key.joints),
       );
     const phases: IAutoMovieMotionClockPhase[] = [
       { name: "getDown", seconds: PHASE },
