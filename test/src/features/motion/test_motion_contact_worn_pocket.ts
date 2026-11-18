@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -101,10 +102,21 @@ export function test_motion_contact_worn_pocket(): void {
         seed: "catch",
         laws: [],
         props: [
-          HumanObject.prop("ball", ball, {
-            at: { x: 0, y: 0, z: 0.3 },
-            yaw: 0,
-          }),
+          // The opening grip preserves the ball centre from its initial frame.
+          {
+            ...HumanObject.prop("ball", ball, {
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+            }),
+            worn: {
+              subject: "a",
+              bone: "rightHand",
+              offset: {
+                position: HumanHand.offset(thrower, "right", "grip").point,
+                rotation: { x: 0, y: 0, z: 0, w: 1 },
+              },
+            },
+          },
           {
             ...HumanObject.prop("glove", glove, {
               at: { x: 0, y: 0, z: 0 },
