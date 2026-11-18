@@ -7,15 +7,12 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
@@ -26,6 +23,10 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 type Seeded = IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
 type Reader = Plan["posture"];
+const OWNER: unique symbol = Symbol("native working seat reader");
+interface NativeReader extends Reader {
+  readonly [OWNER]?: WorkingSeatRidePlan;
+}
 type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
 type Publish<T> = (posture: Posture, solved?: Seeded) => T;
 type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
@@ -85,8 +86,6 @@ export class WorkingSeatRidePlan implements Plan {
   /** The native ride reader; a direct observation owns a fresh, mutable posture. */
   readonly posture: Reader;
   readonly #reader: Reader;
-  #located?: Reader;
-  #where?: IAutoMovieMotionHumanRefusal.IWhere;
   readonly #body: IAutoMovieMotionHumanBody;
   readonly #design: Design;
   readonly #frame: Frame;
@@ -100,22 +99,10 @@ export class WorkingSeatRidePlan implements Plan {
     this.#design = design;
     this.#frame = frame;
     this.#reader = (...args: Parameters<Reader>): Posture => this.#sample(WorkingSeatRidePlan.postureOnly, ...args);
-
+    Object.defineProperty(this.#reader, OWNER, { value: this });
     this.posture = this.#reader;
   }
 
-  /**
-   * Locate the original native dispatch and its same-call fit at the same film action.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both the public raw read and private solved read use the native dispatcher with its actual placement refusal location. The leaf checks the current reader by identity before borrowing a fit.
-   */
-  static located(plan: Plan, where: IAutoMovieMotionHumanRefusal.IWhere): Reader | undefined {
-    if (!(plan instanceof WorkingSeatRidePlan) || !(#reader in plan) || plan.posture !== plan.#reader)
-      return undefined;
-    plan.#where = where;
-    plan.#located = (...args: Parameters<Reader>): Posture =>
-      plan.#at(WorkingSeatRidePlan.postureOnly, ...args);
-    return plan.#located;
-  }
   /** A wrapped or replaced law reader no longer owns this transfer. */
   static owns(plan: Plan): boolean {
     return WorkingSeatRidePlan.#owner(plan) !== undefined;
@@ -125,7 +112,7 @@ export class WorkingSeatRidePlan implements Plan {
   static read(plan: Plan, ...args: Parameters<Reader>): OptionalSample {
     const owner: WorkingSeatRidePlan | undefined = WorkingSeatRidePlan.#owner(plan);
     if (owner === undefined) return undefined;
-    return owner.#at((pose: Posture, solved?: Seeded): Sample => {
+    return owner.#sample((pose: Posture, solved?: Seeded): Sample => {
       if (solved !== undefined) immutable(pose);
       return new Sample(pose, owner.#body, args[0], solved);
     }, ...args);
@@ -140,17 +127,11 @@ export class WorkingSeatRidePlan implements Plan {
   }
 
   static #owner(plan: Plan): WorkingSeatRidePlan | undefined {
-    return plan instanceof WorkingSeatRidePlan && #reader in plan &&
-      (plan.posture === plan.#reader || plan.posture === plan.#located) ? plan : undefined;
+    const reader: NativeReader = plan.posture;
+    const owner: WorkingSeatRidePlan | undefined = reader[OWNER];
+    return owner instanceof WorkingSeatRidePlan && #reader in owner && reader === owner.#reader ? owner : undefined;
   }
 
-  #at<T>(publish: Publish<T>, ...args: Parameters<Reader>): T {
-    try {
-      return this.#sample(publish, ...args);
-    } catch (error) {
-      throw error instanceof HumanRefusal && this.#where !== undefined ? error.locate(this.#where) : error;
-    }
-  }
   #sample<T>(publish: Publish<T>, ...args: Parameters<Reader>): T {
     const local: number = args[0];
     const written: WorkingSeatRidePlan.IWritten = this.#frame(local);
@@ -162,7 +143,7 @@ export class WorkingSeatRidePlan implements Plan {
     for (;;) {
       const next: ReturnType<typeof choices.next> = choices.next(feedback);
       if (next.done && best === undefined) return publish(raw);
-      const candidate: Posture = next.done ? best! : next.value;
+      const candidate: Posture = next.done ? best! : structuredClone(next.value);
       let violation: number = Infinity;
       let neck: boolean = false;
       const assembled: resolveHumanPostureSource.IAssembled =
@@ -183,9 +164,9 @@ export class WorkingSeatRidePlan implements Plan {
           },
         },
       );
-      if (violation <= HumanArmTrajectoryModel.TOLERANCE && this.#grounded(candidate, fit, args[2])) {
+      if (violation <= HumanArmTrajectoryModel.TOLERANCE && this.#grounded(candidate, fit)) {
 
-        return publish(structuredClone(candidate), fit);
+        return publish(candidate, fit);
       }
       if (next.done) return publish(raw);
       if (violation < least) {
@@ -197,9 +178,9 @@ export class WorkingSeatRidePlan implements Plan {
   }
 
   /** Check ankle and material sole at the angular resolution of this rig. */
-  #grounded(raw: Posture, solved: Seeded, resolution: Parameters<Reader>[2]): boolean {
+  #grounded(raw: Posture, solved: Seeded): boolean {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(this.#body, solved.pose, prepareHumanPoseResolution.isNativeSource(resolution) ? prepareHumanPoseResolution.read(resolution) : undefined, FEET);
+      poseBones(this.#body, solved.pose, undefined, FEET);
     for (const side of SIDES) {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];
       if (!goal?.planted || !goal.contact || !goal.rotation) return false;

@@ -18,7 +18,6 @@ import type {
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
-import { HumanArmPairSwivel } from "./HumanArmPairSwivel";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -383,20 +382,17 @@ function solved(
     }
   }
 
-  // A world wrist at a planted, oriented grip can swivel around its own
-  // shoulder-to-wrist axis. Start only after the native single-arm fits
-  // failed and the actual obstruction is a probe or the other arm.
-  const wrists: boolean = sides.every((side: AutoMovieHumanSide): boolean =>
-    goals[side].planted === true && goals[side].on === undefined &&
-    goals[side].contact === undefined && goals[side].rotation !== undefined);
-  const swivel: ReturnType<typeof HumanArmPairSwivel> =
-    wrists && (initial.worst.term === "crossing" || initial.worst.term === "probe")
-      ? HumanArmPairSwivel(context, start, initial) : undefined;
-  if (swivel === undefined && assess?.analytic) {
+  // A speculative posture which no ordinary direct branch admits is a
+  // rejected proposal. Only the selected candidate needs the general solve.
+  if (assess?.analytic) {
     assess.inspect(initial);
     return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
   }
-  const result = swivel ?? HumanArmOptimiser.optimise(context, start);
+
+  const result: ReturnType<typeof HumanArmOptimiser.optimise> = HumanArmOptimiser.optimise(
+    context,
+    start,
+  );
   assess?.inspect(result.evaluation);
   let out: IAutoMoviePose = pose;
   sides.forEach((side: "left" | "right", a: number): void => {

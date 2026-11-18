@@ -27,7 +27,6 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -474,7 +473,7 @@ export namespace HumanPerformancePlace {
     // out beyond reach at some second), long after it was placed; that
     // refusal is located here, where the action's place in the film is known.
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = plan.posture;
-    plan.posture = WorkingSeatRidePlan.located(plan, where) ?? prepareJumpPosture.located(posture, where);
+    plan.posture = prepareJumpPosture.located(posture, where);
     if (over && previous !== undefined)
       return HumanPerformanceOverlays.place(
         self,
