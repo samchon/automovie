@@ -1,6 +1,9 @@
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionTarget,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
@@ -23,25 +26,21 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * of stances: every new support bears before an old one lets go, and a
  * contact no key posture reaches is refused with the contact named.
  *
- * The sequence is a hands-down landing from standing and back: standing on
- * both feet, the palms laid on the floor beside the feet (no place given,
- * so the fit lays them where the body reaches with the centre of mass over
- * the bearing parts), and standing again. The release rule is Escande,
+ * The release rule follows Escande,
  * Kheddar and Miossec 2013's transition configuration, a stance's new
  * contacts placed while the old still bear; the refusal is the planner's own
  * contract, a hand target farther from feet held in place than the body
  * laid out reaches.
  *
  * Scenarios, on the average man:
- * 1. The landing plans. Standing, the right hand set on the floor as the
+ * 1. Standing, the right hand set on the floor as the
  *    right foot lifts: the hand's window opens no later than the foot's
  *    closes, and the foot's closes before the end, a support the next
  *    stance adds bearing before one it lacks lets go. The right foot
  *    handing its support to its own knee: the foot's window closes no
  *    later than the knee's (the lower leg's) opens, since a leg bears in
  *    one place at a time.
- * 2. Each palm's window opens after the move starts and closes before it
- *    ends: the palms bear only while the hands-down stance holds.
+ * 2. The separate whole-transfer audit checks when both hands bear together.
  * 3. A palm sent to a floor point the body's stature, its arm's span and
  *    half a metre ahead of its toes (past the body laid flat from the
  *    toes with the arm overhead), the feet held where the quiet stance has
@@ -75,16 +74,12 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_support_sequence(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
-  const body = motionHumanBody("m-average");
-  const feet = [
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const feet: readonly IAutoMovieMotionHumanSupport.IContact[] = [
     { part: "leftFoot", kind: "bear" },
     { part: "rightFoot", kind: "bear" },
   ] as const;
-  const hands = [
-    { part: "leftHand", kind: "bear" },
-    { part: "rightHand", kind: "bear" },
-  ] as const;
-  const perform = (stances: unknown): IAutoMovieMotionHumanPerformance =>
+  const perform = (stances: readonly IAutoMovieMotionHumanSupport.IStance[]): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "support",
       performers: [
@@ -96,38 +91,9 @@ export function test_human_motion_support_sequence(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").act("support", { stances } as never)
+      composition: HumanChain.subject("a").support({ stances })
         .node,
     });
-
-  // 1. and 2. The landing and the order of its windows.
-  const landing: IAutoMovieMotionHumanPerformance = perform([
-    { contacts: feet },
-    { contacts: [...feet, ...hands] },
-    { contacts: feet },
-  ]);
-  const plan = landing.segments("a")[0]!.plan;
-  const windows: readonly IAutoMovieMotionHumanContactWindow[] = plan.contacts;
-  const palm = windows.filter(
-    (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Hand"),
-  );
-  all.check(`two palm windows, read ${palm.length}`, palm.length === 2);
-  for (const w of palm)
-    all.check(
-      `the ${w.part} bears inside the move, ${w.from.toFixed(3)} to ${w.to.toFixed(3)}`,
-      w.from > 0 && w.to < 1 && w.to > w.from,
-    );
-  const feetWindows = windows.filter(
-    (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Foot"),
-  );
-  all.check(
-    `each foot bears throughout, read ${feetWindows.map((w) => `${w.part} ${w.from}-${w.to}`).join(", ")}`,
-    feetWindows.length === 2 &&
-      feetWindows.every(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.from === 0 && w.to === 1,
-      ),
-  );
 
   // 1. A move that adds one support and drops another. Between limbs, the
   // right hand set on the floor as the right foot lifts: the hand bears
@@ -135,7 +101,7 @@ export function test_human_motion_support_sequence(): void {
   // support to its own knee: a leg bears in one place at a time, so the
   // foot lets go before the knee bears.
   const windowsOf = (
-    stances: unknown,
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[],
   ): readonly IAutoMovieMotionHumanContactWindow[] | null => {
     try {
       return perform(stances).segments("a")[0]!.plan.contacts;
@@ -206,12 +172,12 @@ export function test_human_motion_support_sequence(): void {
   const stance = motionHumanStance(body);
   const toes = (side: "left" | "right") =>
     stance.get(`${side}Toes`)!.worldPosition;
-  const on = (x: number, z: number): object => ({
+  const on = (x: number, z: number): IAutoMovieMotionTarget => ({
     kind: "point",
     at: { x, y: 0, z },
     frame: "world",
   });
-  const planted = (["left", "right"] as const).map((side) => ({
+  const planted: IAutoMovieMotionHumanSupport.IContact[] = (["left", "right"] as const).map((side) => ({
     part: `${side}Foot`,
     kind: "bear",
     target: on(toes(side).x, toes(side).z),
@@ -256,7 +222,7 @@ export function test_human_motion_support_sequence(): void {
 
   // 4 to 8. A step: the left foot one foot length ahead, the right bearing.
   const ahead: number = toes("left").z + body.measure.footLength;
-  const right = {
+  const right: IAutoMovieMotionHumanSupport.IContact = {
     part: "rightFoot",
     kind: "bear",
     target: on(toes("right").x, toes("right").z),
