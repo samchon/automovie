@@ -10,7 +10,8 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * found in that bracket by `bracketedRoot` to `RESOLUTION` seconds. The
  * second reported is the bracket's touching end, the latest second measured
  * at or inside the surface, so it is never a clear one. While the clear end
- * measures no gap (a weapon not yet live there) the bracket is halved instead.
+ * measures no gap (a weapon not yet live there) the bracket is halved instead,
+ * down to the resolution or to two adjacent doubles, whichever is wider.
  * A gap that jumps across zero is still bracketed, but the false-position
  * search's order of convergence is stated for a smooth gap only; its limit
  * of evaluations then decides how narrow the bracket gets.
@@ -91,6 +92,7 @@ export namespace firstAutoMovieContactImpact {
    * @param stops The stops so far, unchanged during the scan.
    * @param from The search's start, seconds.
    * @returns The scan.
+   * @throws {RangeError} When the search's start or span end is not finite, the step is not positive and finite, or the grid's step count from the start to the end is not a safe integer.
    */
   export function scan(
     weapon: IAutoMovieResolveContactEvents.IWeapon,
@@ -98,6 +100,17 @@ export namespace firstAutoMovieContactImpact {
     stops: IAutoMovieResolveContactEvents.IStops,
     from: number,
   ): IScan {
+    // The grid's steps are counted by a whole-number index `next`: a span or
+    // step that is not finite, or a count past 2^53 where `next + 1` stops
+    // moving, gives a scan that never reaches the span's end.
+    if (
+      !(Number.isFinite(from) && Number.isFinite(input.to)) ||
+      !(Number.isFinite(input.step) && input.step > 0) ||
+      !Number.isSafeInteger(Math.max(0, Math.ceil((input.to - from) / input.step)))
+    )
+      throw new RangeError(
+        `A contact scan needs a finite span and a positive finite step with a safe-integer count, got ${from} to ${input.to} by ${input.step}`,
+      );
     const live: number = weapon.from ?? -Infinity;
     const until: number = Math.min(input.to, weapon.to ?? Infinity);
     let departures:
@@ -341,6 +354,11 @@ export namespace firstAutoMovieContactImpact {
           let clear: number = cleared ?? measure(lo);
           while (!Number.isFinite(clear) && inside - lo > RESOLUTION) {
             const mid: number = (lo + inside) / 2;
+
+            // Past 2^23 s adjacent doubles lie farther apart than the
+            // resolution; a midpoint rounding onto an end would repeat the
+            // same bracket forever, so the bracket ends there unmeasured.
+            if (!(mid > lo && mid < inside)) break;
             const d: number = measure(mid);
             if (d > 0) {
               lo = mid;
