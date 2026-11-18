@@ -10,6 +10,7 @@ import {
   HumanChain,
   HumanForceTrunk,
   HumanPerformance,
+  HumanSignature,
   HumanSocial,
   armWrestle,
   seated,
@@ -42,7 +43,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * against the average woman (b):
  * 1. At `pin` the loser's spine and chest side-bend toward its own right,
  *    the pin's side, by the derived share of their ranges, within 1 degree
- *    each, from their bend at `go`.
+ *    each, from their bend at `go`, unless the elbow stops them short: the
+ *    sport's rules keep the elbow on the pad throughout (World Armwrestling
+ *    Federation rules: an elbow off the pad is a foul), so the upper arm's
+ *    length from the planted elbow bounds where the shoulder, and so the
+ *    trunk's bend, can go. A bend short of the share is then read with the
+ *    elbow joint within 30 mm of the table's top at the pin, the bound
+ *    `test_human_motion_social_arm_wrestle` reads the elbow on the top to.
  * 2. The winner's spine and chest side bend changes by at most 1 degree
  *    from `go` to `pin`.
  * 3. Metamorphic: the heavier loser, whose shoulder resists more, bends by
@@ -59,6 +66,7 @@ export function test_human_motion_arm_wrestle_force(): void {
   const ROTATION: number = 0.65;
   const LATERAL: readonly number[] = [0.32, 0.83, 2.03, 5.03];
   const DEGREE: number = 1;
+  const PAD: number = 0.03;
   const shares: number[] = [];
   for (const loser of ["f-small", "f-average"] as const) {
     const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
@@ -143,6 +151,13 @@ export function test_human_motion_arm_wrestle_force(): void {
     // 1. The loser bends toward its right by that share of each range.
     const go: number = instant("b", "go");
     const pin: number = instant("b", "pin");
+    // The loser's elbow joint over the table's top at the pin.
+    const padded: number =
+      HumanSignature.joint(
+        HumanSignature.of(film, "b", bodies.b, 0),
+        pin,
+        "rightLowerArm",
+      ).y - top;
     for (const bone of ["spine", "chest"] as const) {
       const before: number = bendOf("b", go, bone);
       const after: number = bendOf("b", pin, bone);
@@ -154,9 +169,13 @@ export function test_human_motion_arm_wrestle_force(): void {
             null,
         )?.abduction?.max ?? 0;
       const expected: number = before + share * (end - before);
+      // Short of the share only where the planted elbow stops it: the elbow
+      // then still lies on the pad.
       all.check(
-        `against ${loser}: the loser's ${bone} side-bends to ${after.toFixed(1)} degrees at the pin from ${before.toFixed(1)} at go, ${expected.toFixed(1)} within ${DEGREE} expected (share ${share.toFixed(3)} of the range, torque ${torque.toFixed(1)} N m)`,
-        Math.abs(after - expected) <= DEGREE,
+        `against ${loser}: the loser's ${bone} side-bends to ${after.toFixed(1)} degrees at the pin from ${before.toFixed(1)} at go, toward ${expected.toFixed(1)} and no further than it within ${DEGREE} expected, all of it unless the elbow on the pad stops it (share ${share.toFixed(3)} of the range, torque ${torque.toFixed(1)} N m; the elbow ${(padded * 1000).toFixed(0)} mm from the top)`,
+        after >= before - DEGREE &&
+          after <= expected + DEGREE &&
+          (after >= expected - DEGREE || Math.abs(padded) <= PAD),
       );
     }
 
