@@ -3,36 +3,21 @@ import type {
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
 /** The original plan's own reader and the exact location wrapper placement gave it. */
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Reader = Plan["posture"];
-type Build = (clock: IAutoMovieMotionClock) => Plan;
+type Build = (clock: IAutoMovieMotionClock, prepared: boolean) => Plan;
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>;
-const OWNER: unique symbol = Symbol("static stretch plan");
-interface IOwned extends Plan {
-  [OWNER]?: IHold;
-}
-interface IHold {
-  original: Reader;
-  located?: Reader;
-  read: Reader;
-  displayed?: Reader;
-  body: IAutoMovieMotionHumanBody;
-}
-
 /**
  * A standing stretch holds one material pose between the two movement phases.
  * Preserve the original grid cells straddling arrival and release. Only complete
@@ -41,7 +26,7 @@ interface IHold {
  * @evidence contracts/development/common.md#meaningful-documentation Names the physical hold, its two boundaries and the native grid.
  * @evidence contracts/development/design.md#principled-representation The exposed plan owns film time, contact windows and interruptions. A second clock evaluates only the native bare stretch's internal writers.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law issues its private reader, placement binds its refusal location, and the isolated display may read it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A private symbol on one plan identifies only its own original reader and exact location wrapper. No global result history or user-set validity flag is used.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Native playback verifies this plan's original reader and exact location wrapper. No global result history or user-set validity flag is used.
  */
 export namespace stretchHoldClock {
   /** Issue an ordinary plan and its bounded internal phase clock for a bare standing stretch. */
@@ -50,7 +35,7 @@ export namespace stretchHoldClock {
     clock: IAutoMovieMotionClock,
     build: Build,
   ): Plan {
-    const original: Plan = build(clock);
+    const original: Plan = build(clock, false);
     const step: number = AutoMovieMotionHumanArmCourse.STEP;
     const begin: number = Math.ceil(clock.at("reachEnd") / step);
     const end: number = Math.floor(clock.at("release") / step);
@@ -75,7 +60,7 @@ export namespace stretchHoldClock {
         }),
       ),
     );
-    const compact: Plan = build(compressed);
+    const compact: Plan = build(compressed, true);
     const actual: Reader = original.posture;
     const hold: Reader = (seconds, channels, resolution, projection) =>
       !prepareHumanPoseResolution.isNativeSource(resolution) ||
@@ -91,13 +76,21 @@ export namespace stretchHoldClock {
         ? hold(seconds, channels)
         : actual(seconds, channels, resolution, projection);
     original.posture = raw;
-    const owner: IHold = { original: raw, read: hold, body: context.body };
-    Object.defineProperty(original, OWNER, { value: owner });
+    HumanPreparedPlayback.attach(original, context.body, {
+      mode: "bare-posture",
+      phases: [{
+        from: 0,
+        to: clock.duration,
+        sample: (...args: Parameters<Reader>): HumanPreparedPlayback.ISample => ({
+          posture: hold(...args),
+        }),
+      }],
+    });
     const window: readonly [number, number] = [first, last];
     Object.defineProperty(original, "still", {
       configurable: true,
       get: (): readonly [number, number] | undefined =>
-        (original.posture === raw || original.posture === owner.located) &&
+        HumanPreparedPlayback.owns(original, original.posture) &&
         unchanged()
           ? window
           : undefined,
@@ -111,34 +104,5 @@ export namespace stretchHoldClock {
       },
     });
     return original;
-  }
-
-  /** Keep the exact native placement wrapper and locate its material-hold refusals alike. */
-  export function located(
-    plan: IOwned,
-    source: Reader,
-    wrapper: Reader,
-    where: IAutoMovieMotionHumanRefusal.IWhere,
-  ): Reader {
-    const owner: IHold | undefined = plan[OWNER];
-    if (owner !== undefined && source === owner.original) {
-      owner.located = wrapper;
-      owner.displayed = prepareJumpPosture.located(owner.read, where);
-    }
-    return wrapper;
-  }
-
-  /** Read the bare displayed actor only while its original located reader remains installed. */
-  export function read(
-    plan: IOwned,
-    body: IAutoMovieMotionHumanBody,
-    ...args: Parameters<Reader>
-  ): IAutoMovieMotionHumanPosture | undefined {
-    const owner: IHold | undefined = plan[OWNER];
-    return owner !== undefined &&
-      owner.body === body &&
-      plan.posture === owner.located
-      ? owner.displayed?.(...args)
-      : undefined;
   }
 }

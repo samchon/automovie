@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
@@ -27,6 +26,7 @@ import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
+import type { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
@@ -118,7 +118,7 @@ export namespace HumanSegmentOverlay {
     prepared?: prepareHumanSegmentPose.IPrepared,
     carrier?: IAutoMovieMotionHumanSegment,
     direct?: resolveHumanPostureSource.IAssembled,
-    working?: WorkingSeatRidePlan.ISample,
+    sample?: HumanPreparedPlayback.ISample,
   ): IOverlaid {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const projection: Parameters<typeof resolveHumanPosture.seeded>[6] = prepared?.clamp;
@@ -179,7 +179,12 @@ export namespace HumanSegmentOverlay {
           near === undefined && observed === undefined, (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
             const seedsForLeaf: ReturnType<typeof continuations> = continuations(posture.limbs, near, tag);
             const demand: ReturnType<typeof unplantedHumanObservation> = unplantedHumanObservation(posture.limbs, observed);
-            const taken = working && WorkingSeatRidePlan.take(working, body, posture, carrier, seconds, demand === undefined && (seedsForLeaf === undefined || Object.keys(seedsForLeaf).length === 0));
+            const taken: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined =
+              sample?.posture === posture &&
+              demand === undefined &&
+              (seedsForLeaf === undefined || Object.keys(seedsForLeaf).length === 0)
+                ? sample.takeFit?.()
+                : undefined;
             if (taken !== undefined) return taken;
             if (direct?.posture === posture) {
               const assembly: resolveHumanPostureSource.IAssembled = direct;

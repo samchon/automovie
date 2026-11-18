@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -186,11 +187,15 @@ export namespace HumanSegment {
   export function forget(person: IAutoMovieMotionHumanSegment.IPerson): void {
     for (const segment of person.segments) {
       segment.plan.settle?.();
+      HumanPreparedPlayback.forget(segment.plan);
       if (segment.transition !== undefined) delete segment.transition.offset;
       delete segment.incumbents;
       delete segment.legs;
     }
-    for (const overlay of person.overlays) overlay.plan.settle?.();
+    for (const overlay of person.overlays) {
+      overlay.plan.settle?.();
+      HumanPreparedPlayback.forget(overlay.plan);
+    }
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
   }

@@ -45,6 +45,7 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -398,6 +399,12 @@ export class HumanPerformanceState {
     // Every action ends where it is placed, so the props' drives are known.
     HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
+    for (const person of this.people.values()) {
+      for (const segment of person.segments)
+        HumanPreparedPlayback.prepare(segment.plan);
+      for (const overlay of person.overlays)
+        HumanPreparedPlayback.prepare(overlay.plan);
+    }
   }
 }
 /**

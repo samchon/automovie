@@ -6,15 +6,13 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
-import { prepareJumpPosture } from "../actions/prepareJumpPosture";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
@@ -25,16 +23,9 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 type Seeded = IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
 type Reader = Plan["posture"];
-const OWNER: unique symbol = Symbol("native working seat reader");
-interface NativeReader extends Reader {
-  readonly [OWNER]?: WorkingSeatRidePlan;
-}
 type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
 type Publish<T> = (posture: Posture, solved?: Seeded) => T;
 type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
-type OptionalSample = WorkingSeatRidePlan.ISample | undefined;
-type OptionalSeeded = Seeded | undefined;
-type Location = Parameters<HumanRefusal["locate"]>[0];
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 /** Freeze a native structured clone before its source and display borrow the same raw graph. */
 function immutable(value: unknown): void {
@@ -44,29 +35,6 @@ function immutable(value: unknown): void {
 }
 
 const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
-
-/** A private, synchronous handoff. Its ordinary raw posture and fitted records belong to one sampled law call. */
-class Sample implements WorkingSeatRidePlan.ISample {
-  readonly posture: Posture;
-  readonly #body: IAutoMovieMotionHumanBody;
-  readonly #local: number;
-  #solved: OptionalSeeded;
-
-  constructor(posture: Posture, body: IAutoMovieMotionHumanBody, local: number, solved?: Seeded) {
-    this.posture = posture;
-    this.#body = body;
-    this.#local = local;
-    this.#solved = solved;
-  }
-
-  /** Consume the fit once and only at its original, unmodified bare leaf. */
-  take(body: IAutoMovieMotionHumanBody, posture: Posture, local: number): OptionalSeeded {
-    if (body !== this.#body || posture !== this.posture || local !== this.#local) return undefined;
-    const solved: OptionalSeeded = this.#solved;
-    this.#solved = undefined;
-    return solved;
-  }
-}
 
 /**
  * The native working-seat ride. It proposes torso articulation only when
@@ -88,12 +56,9 @@ export class WorkingSeatRidePlan implements Plan {
   readonly base?: Plan["base"];
   /** The native ride reader; a direct observation owns a fresh, mutable posture. */
   readonly posture: Reader;
-  readonly #reader: Reader;
   readonly #body: IAutoMovieMotionHumanBody;
   readonly #design: Design;
   readonly #frame: Frame;
-  #located?: Reader;
-  #where?: Location;
 
   constructor(plan: Plan, body: IAutoMovieMotionHumanBody, design: Design, frame: Frame) {
     this.duration = plan.duration;
@@ -103,55 +68,28 @@ export class WorkingSeatRidePlan implements Plan {
     this.#body = body;
     this.#design = design;
     this.#frame = frame;
-    this.#reader = (...args: Parameters<Reader>): Posture => this.#sample(WorkingSeatRidePlan.postureOnly, ...args);
-    Object.defineProperty(this.#reader, OWNER, { value: this });
-    this.posture = this.#reader;
-  }
-
-  /** A wrapped or replaced law reader no longer owns this transfer. */
-  static owns(plan: Plan): boolean {
-    return WorkingSeatRidePlan.#owner(plan) !== undefined;
-  }
-
-  /** Placement wraps ordinary posture refusals and binds the same location to private fit reads. */
-  static located(plan: Plan, original: Reader, where: Location): Reader {
-    const located: Reader = prepareJumpPosture.located(original, where);
-    if (#reader in plan && original === plan.#reader) {
-      Object.defineProperty(located, OWNER, { value: plan });
-      plan.#located = located;
-      plan.#where = where;
-    }
-    return located;
-  }
-
-  /** Read the actual native provider without exposing its solve to author callbacks. */
-  static read(plan: Plan, ...args: Parameters<Reader>): OptionalSample {
-    const owner: WorkingSeatRidePlan | undefined = WorkingSeatRidePlan.#owner(plan);
-    if (owner === undefined) return undefined;
-    try {
-      return owner.#sample((pose: Posture, solved?: Seeded): Sample => {
-        if (solved !== undefined) immutable(pose);
-        return new Sample(pose, owner.#body, args[0], solved);
-      }, ...args);
-    } catch (error) {
-      if (plan.posture === owner.#located && owner.#where && error instanceof HumanRefusal)
-        throw error.locate(owner.#where);
-      throw error;
-    }
-  }
-
-  /** The one-cell transfer is private to this owner and ends at the first consumption. */
-  static take(sample: OptionalSample, body: IAutoMovieMotionHumanBody, posture: Posture,
-    carrier: IAutoMovieMotionHumanSegment | undefined, seconds: number, bare: boolean): OptionalSeeded {
-    if (!bare || carrier === undefined || sample === undefined) return undefined;
-    const local: number = Math.min(carrier.plan.duration, Math.max(0, seconds - carrier.start));
-    return sample instanceof Sample ? sample.take(body, posture, local) : undefined;
-  }
-
-  static #owner(plan: Plan): WorkingSeatRidePlan | undefined {
-    const reader: NativeReader = plan.posture;
-    const owner: WorkingSeatRidePlan | undefined = reader[OWNER];
-    return owner instanceof WorkingSeatRidePlan && #reader in owner && (reader === owner.#reader || reader === owner.#located) ? owner : undefined;
+    this.posture = (...args: Parameters<Reader>): Posture =>
+      this.#sample(WorkingSeatRidePlan.postureOnly, ...args);
+    HumanPreparedPlayback.attach(this, body, {
+      mode: "fitted",
+      phases: [{
+        from: 0,
+        to: plan.duration,
+        sample: (...args: Parameters<Reader>): HumanPreparedPlayback.ISample =>
+          this.#sample((posture: Posture, solved?: Seeded): HumanPreparedPlayback.ISample => {
+            if (solved === undefined) return { posture };
+            immutable(posture);
+            return {
+              posture,
+              takeFit: (): Seeded | undefined => {
+                const fit: Seeded | undefined = solved;
+                solved = undefined;
+                return fit;
+              },
+            };
+          }, ...args),
+      }],
+    });
   }
 
   #sample<T>(publish: Publish<T>, ...args: Parameters<Reader>): T {
@@ -235,11 +173,5 @@ export namespace WorkingSeatRidePlan {
   /** A working ride's alternative borrows the carrier frame read by its author. */
   export function withFrame(posture: Posture, frame: IAutoMovieRigidTransform): IWritten {
     return { posture, frame };
-  }
-
-  /** The visible authoring is always a normal posture. The private result has no public access. */
-  export interface ISample {
-    /** The raw demands actually selected for this instant. */
-    readonly posture: Posture;
   }
 }

@@ -5,11 +5,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { stretchHoldClock } from "../exercise/stretchHoldClock";
-import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
-import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
@@ -31,50 +28,26 @@ export function readHumanSegmentLeaf(
     segment.plan.duration,
     Math.max(0, t - segment.start),
   );
-  let working: ReturnType<typeof WorkingSeatRidePlan.read>;
-  if (
-    fits === undefined &&
-    observed === undefined &&
+  const bare: boolean =
     person.layers.length === 0 &&
     person.overlays.length === 0 &&
     person.holds.length === 0 &&
-    person.stops.size === 0 &&
-    prepareHumanPoseResolution.isNativeSource(prepared.resolution) &&
-    WorkingSeatRidePlan.owns(segment.plan)
-  ) {
-    const sample = (): ReturnType<typeof WorkingSeatRidePlan.read> =>
-      WorkingSeatRidePlan.read(
-        segment.plan,
-        localSeconds,
-        undefined,
-        prepared.resolution,
-        prepared.clamp,
-      );
-    working =
-      segment.incumbents === undefined
-        ? sample()
-        : HumanLimbIncumbent.within(
-            { body: person.performer.body, seeds: segment.incumbents },
-            sample,
-          );
-  }
-  const held: IAutoMovieMotionHumanPosture | undefined =
-    person.layers.length === 0 &&
-    person.overlays.length === 0 &&
-    person.holds.length === 0 &&
-    person.stops.size === 0
-      ? stretchHoldClock.read(
-          segment.plan,
-          person.performer.body,
-          localSeconds,
-          undefined,
-          prepared.resolution,
-          prepared.clamp,
-        )
-      : undefined;
+    person.stops.size === 0;
+  const sample: HumanPreparedPlayback.ISample | undefined =
+    HumanPreparedPlayback.read(
+      segment.plan,
+      person.performer.body,
+      reader,
+      bare,
+      fits === undefined && observed === undefined,
+      segment.incumbents,
+      localSeconds,
+      undefined,
+      prepared.resolution,
+      prepared.clamp,
+    );
   const raw: IAutoMovieMotionHumanPosture =
-    working?.posture ??
-    held ??
+    sample?.posture ??
     Reflect.apply(reader, segment.plan, [
       localSeconds,
       undefined,
@@ -122,7 +95,7 @@ export function readHumanSegmentLeaf(
     prepared,
     segment,
     direct,
-    working,
+    sample,
   );
   return {
     posture: {

@@ -27,9 +27,8 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { stretchHoldClock } from "../exercise/stretchHoldClock";
+import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -44,6 +43,7 @@ import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
@@ -536,12 +536,10 @@ export namespace HumanPerformancePlace {
     // out beyond reach at some second), long after it was placed; that
     // refusal is located here, where the action's place in the film is known.
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = plan.posture;
-    plan.posture = stretchHoldClock.located(
-      plan,
-      posture,
-      WorkingSeatRidePlan.located(plan, posture, where),
-      where,
-    );
+    const installed: IAutoMovieMotionHumanActionPlan["posture"] =
+      prepareJumpPosture.located(posture, where);
+    plan.posture = installed;
+    HumanPreparedPlayback.locate(plan, posture, installed, where);
     if (over && previous !== undefined)
       return HumanPerformanceOverlays.place(
         self,
