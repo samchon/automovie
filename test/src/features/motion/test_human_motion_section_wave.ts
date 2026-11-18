@@ -25,12 +25,13 @@ import { throwsError } from "../internal/throwsError";
  * 2. Shifting the origin and scaling distances with speed preserves delays.
  *    Authored times or coincident marks cue distinct sections together.
  * 3. Reject empty, nonfinite, negative or descending values, an invalid
- *    speed or origin, overlapping input modes and
- *    propagation that cannot represent a finite, distinct film second.
+ *    speed or origin, overlapping input modes, and propagation that
+ *    overflows or rounds back to the previous film second.
+ * 4. Admit a positive delay that rounds upward to a distinct finite second.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the timing rule, the fixture values and the refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public cue producer and resolver and checks each resolved section's start by subject.
- * @evidence contracts/development/testing.md#independent-expectations The example uses hand-computed arrivals and separately authored seconds. Distance divided by speed is invariant to a common scale, and adding to the origin shifts all film times equally.
+ * @evidence contracts/development/testing.md#independent-expectations The example uses hand-computed arrivals and separately authored seconds. Distance divided by speed is invariant to a common scale, and adding to the origin shifts all film times equally. At 2^53, a half-second advance rounds back to the origin, but at 2^53 minus one it rounds up to 2^53.
  * @evidence contracts/development/testing.md#distinguishing-cases Uneven distances separate travel time from a fixed index interval. An authored tie distinguishes intentional unison from indistinguishable propagated arrivals.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory test of public scheduling with fixed one-second actions and no host dependencies.
  */
@@ -117,14 +118,6 @@ export function test_human_motion_section_wave(): void {
     [{ distances: [0], from: 1, speed: Infinity }, "positive speed"],
     [{ distances: [0], from: 1, speed: 0 }, "positive speed"],
     [{ distances: [0], from: -1, speed: 2 }, "origin second"],
-    [
-      { distances: [0, Number.MAX_VALUE], from: 1, speed: 0.5 },
-      "advancing film second",
-    ],
-    [
-      { distances: [0, 1], from: Number.MAX_SAFE_INTEGER, speed: 2 },
-      "advancing film second",
-    ],
   ];
   for (const [wave, message] of invalid)
     TestValidator.predicate(
@@ -134,6 +127,38 @@ export function test_human_motion_section_wave(): void {
         message,
       ),
     );
+
+  TestValidator.predicate(
+    "a delay that overflows is refused at the second section",
+    throwsError(
+      (): IAutoMovieScheduleCue[] =>
+        HumanCue.sectionWave({
+          distances: [0, Number.MAX_VALUE],
+          from: 1,
+          speed: 0.5,
+        }),
+      ["Section 1", "advancing film second"],
+    ),
+  );
+  const boundary: number = 2 ** 53;
+  TestValidator.predicate(
+    "a half-second delay rounded back to the origin is refused",
+    throwsError(
+      (): IAutoMovieScheduleCue[] =>
+        HumanCue.sectionWave({ distances: [0, 1], from: boundary, speed: 2 }),
+      ["Section 1", "advancing film second"],
+    ),
+  );
+  const advanced: IAutoMovieScheduleCue[] = HumanCue.sectionWave({
+    distances: [0, 1],
+    from: boundary - 1,
+    speed: 2,
+  });
+  TestValidator.predicate(
+    "a half-second delay rounded up to a distinct second is admitted",
+    nclose(advanced[0]!.seconds, boundary - 1, 0) &&
+      nclose(advanced[1]!.seconds, boundary, 0),
+  );
 
   const conflicting = {
     seconds: [2],
