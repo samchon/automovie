@@ -49,7 +49,11 @@ export function createCat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts There is no invented morphological variation or anatomical control.
  */
 export namespace createCat {
-  /** Optional independently authored instance data. */
+  /**
+   * Optional independently authored instance data.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the stage model identity and the optional mass override in kilograms.
+   */
   export interface IParams {
     /** Model id used by ordinary staging and motion APIs. */
     id?: string;

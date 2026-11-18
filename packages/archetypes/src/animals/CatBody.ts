@@ -81,7 +81,12 @@ export function CatBody(): QuadrupedBody.IBody {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Fixed source means are never sampled independently or represented as correlated individual measurements.
  */
 export namespace CatBody {
-  /** Withers height in metres from Poradowski et al.; tape girth in metres and mass in kilograms from Madrigal-Valverde et al. */
+  /**
+   * Withers height in metres from Poradowski et al. Tape girth in metres and
+   * mass in kilograms come from Madrigal-Valverde et al.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the two measured cohorts and the units used to size and weigh the reference body.
+   */
   export const REFERENCE: Readonly<{
     withers: number;
     girth: number;
