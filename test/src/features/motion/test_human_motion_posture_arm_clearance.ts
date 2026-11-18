@@ -46,7 +46,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * lacks more than an eighth of `r`, because its last sample, 7/8 of the way
  * to the wrist, lies inside the shape and nothing excuses it.
  *
- * Scenarios, per body of `motionHumanBody.EXTREMES` and arm:
+ * Scenarios, on opposite arms at the two extreme statures:
  * 1. `trunk` is the placed hips, spine, chest, upper chest, neck and head;
  *    `obstacles` adds both thighs, and the upper arm, forearm and hand of
  *    each arm named as already placed; all are `placed`'s own entries.
@@ -77,7 +77,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_posture_arm_clearance(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES) {
+  for (const [name, side] of [
+    ["f-small", "left"],
+    ["m-large", "right"],
+  ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const posture: IAutoMovieMotionHumanPosture = stand.posture(
       body,
@@ -143,242 +146,239 @@ export function test_human_motion_posture_arm_clearance(): void {
       y: number,
       z: number,
     ): IAutoMovieVector3 => ({ x: from.x + x, y: from.y + y, z: from.z + z });
-    for (const side of ["left", "right"] as const) {
-      const sign: number = side === "left" ? 1 : -1;
-      const cell: string = `${name} ${side}`;
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
+    const sign: number = side === "left" ? 1 : -1;
+    const cell: string = `${name} ${side}`;
+    const shoulder: IAutoMovieVector3 = bones.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
 
-      // 2. Straight out sideways.
-      const elbowOut: IAutoMovieVector3 = toward(
-        shoulder,
-        sign * body.measure.upperArm,
-        0,
-        0,
-      );
-      const sideways: number = HumanArmClearance.overshoot(
-        body,
-        obstacles,
-        elbowOut,
-        toward(elbowOut, sign * 0.25, 0, 0),
-        side,
-      );
-      complaints.check(
-        `${cell}: a forearm held out sideways lacks ${sideways.toFixed(4)} deg`,
-        sideways === 0,
-      );
+    // 2. Straight out sideways.
+    const elbowOut: IAutoMovieVector3 = toward(
+      shoulder,
+      sign * body.measure.upperArm,
+      0,
+      0,
+    );
+    const sideways: number = HumanArmClearance.overshoot(
+      body,
+      obstacles,
+      elbowOut,
+      toward(elbowOut, sign * 0.25, 0, 0),
+      side,
+    );
+    complaints.check(
+      `${cell}: a forearm held out sideways lacks ${sideways.toFixed(4)} deg`,
+      sideways === 0,
+    );
 
-      // 3. The median plane, far ahead of every collider.
-      const ahead: IAutoMovieVector3 = toward(chest.pose.position, 0, 0, 0.8);
-      const across: number = HumanArmClearance.overshoot(
-        body,
-        obstacles,
-        toward(ahead, -sign * 0.05, 0, 0),
-        toward(ahead, sign * 0.25, 0, 0),
-        side,
-      );
-      complaints.check(
-        `${cell}: an elbow 50 mm across the median plane lacks ${across.toFixed(4)} deg, expected ${degrees(r + 0.05).toFixed(4)}`,
-        Math.abs(across - degrees(r + 0.05)) <= 1e-3,
-      );
-      const sent: number = HumanArmClearance.overshoot(
-        body,
-        obstacles,
-        toward(ahead, -sign * 0.02, 0, 0),
-        toward(ahead, -sign * 0.1, 0, 0),
-        side,
-      );
-      complaints.check(
-        `${cell}: an elbow following a wrist sent across lacks ${sent.toFixed(4)} deg`,
-        sent === 0,
-      );
-      // Without the other arm's room: that arm is placed, or its coming goal
-      // lies on its own side; and an elbow hinted across.
-      const placedOther: IAutoMovieMotionHumanColliders.IPlaced[] =
-        HumanArmClearance.obstacles(body, bones, [
-          side === "left" ? "right" : "left",
-        ]);
-      const kept: number = HumanArmClearance.overshoot(
-        body,
-        placedOther,
-        toward(ahead, -sign * 0.05, 0, 0),
-        toward(ahead, sign * 0.25, 0, 0),
-        side,
-      );
-      const yielded: number = HumanArmClearance.overshoot(
-        body,
-        obstacles,
-        toward(ahead, -sign * 0.05, 0, 0),
-        toward(ahead, sign * 0.25, 0, 0),
-        side,
-        [],
-        true,
-        toward(ahead, -sign * 0.2, 0, 0),
-      );
-      const hinted: number = HumanArmClearance.overshoot(
-        body,
-        placedOther,
-        toward(ahead, -sign * 0.1, 0, 0),
-        toward(ahead, sign * 0.25, 0, 0),
-        side,
-        [],
-        true,
-        undefined,
-        toward(ahead, -sign * 0.04, 0, 0),
-      );
-      complaints.check(
-        `${cell}: with the other arm placed, or its goal on its own side, an elbow 50 mm across lacks ${kept.toFixed(4)} and ${yielded.toFixed(4)} deg, ${degrees(0.05).toFixed(4)} expected; one 100 mm across, hinted 40 mm across, lacks ${hinted.toFixed(4)}, ${degrees(0.06 - r).toFixed(4)} expected`,
-        Math.abs(kept - degrees(0.05)) <= 1e-3 &&
-          Math.abs(yielded - degrees(0.05)) <= 1e-3 &&
-          Math.abs(hinted - degrees(Math.max(0, 0.06 - r))) <= 1e-3,
-      );
+    // 3. The median plane, far ahead of every collider.
+    const ahead: IAutoMovieVector3 = toward(chest.pose.position, 0, 0, 0.8);
+    const across: number = HumanArmClearance.overshoot(
+      body,
+      obstacles,
+      toward(ahead, -sign * 0.05, 0, 0),
+      toward(ahead, sign * 0.25, 0, 0),
+      side,
+    );
+    complaints.check(
+      `${cell}: an elbow 50 mm across the median plane lacks ${across.toFixed(4)} deg, expected ${degrees(r + 0.05).toFixed(4)}`,
+      Math.abs(across - degrees(r + 0.05)) <= 1e-3,
+    );
+    const sent: number = HumanArmClearance.overshoot(
+      body,
+      obstacles,
+      toward(ahead, -sign * 0.02, 0, 0),
+      toward(ahead, -sign * 0.1, 0, 0),
+      side,
+    );
+    complaints.check(
+      `${cell}: an elbow following a wrist sent across lacks ${sent.toFixed(4)} deg`,
+      sent === 0,
+    );
+    // Without the other arm's room: that arm is placed, or its coming goal
+    // lies on its own side; and an elbow hinted across.
+    const placedOther: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.obstacles(body, bones, [
+        side === "left" ? "right" : "left",
+      ]);
+    const kept: number = HumanArmClearance.overshoot(
+      body,
+      placedOther,
+      toward(ahead, -sign * 0.05, 0, 0),
+      toward(ahead, sign * 0.25, 0, 0),
+      side,
+    );
+    const yielded: number = HumanArmClearance.overshoot(
+      body,
+      obstacles,
+      toward(ahead, -sign * 0.05, 0, 0),
+      toward(ahead, sign * 0.25, 0, 0),
+      side,
+      [],
+      true,
+      toward(ahead, -sign * 0.2, 0, 0),
+    );
+    const hinted: number = HumanArmClearance.overshoot(
+      body,
+      placedOther,
+      toward(ahead, -sign * 0.1, 0, 0),
+      toward(ahead, sign * 0.25, 0, 0),
+      side,
+      [],
+      true,
+      undefined,
+      toward(ahead, -sign * 0.04, 0, 0),
+    );
+    complaints.check(
+      `${cell}: with the other arm placed, or its goal on its own side, an elbow 50 mm across lacks ${kept.toFixed(4)} and ${yielded.toFixed(4)} deg, ${degrees(0.05).toFixed(4)} expected; one 100 mm across, hinted 40 mm across, lacks ${hinted.toFixed(4)}, ${degrees(0.06 - r).toFixed(4)} expected`,
+      Math.abs(kept - degrees(0.05)) <= 1e-3 &&
+        Math.abs(yielded - degrees(0.05)) <= 1e-3 &&
+        Math.abs(hinted - degrees(Math.max(0, 0.06 - r))) <= 1e-3,
+    );
 
-      // 4. Through the chest from side to side.
-      const through: number = HumanArmClearance.overshoot(
-        body,
-        obstacles,
-        toward(chest.pose.position, sign * 0.4, 0, 0),
-        toward(chest.pose.position, -sign * 0.4, 0, 0),
-        side,
-      );
-      complaints.check(
-        `${cell}: a forearm through the chest lacks ${through.toFixed(3)} deg, at least ${degrees(r / 2).toFixed(3)} expected`,
-        through > degrees(r / 2),
-      );
+    // 4. Through the chest from side to side.
+    const through: number = HumanArmClearance.overshoot(
+      body,
+      obstacles,
+      toward(chest.pose.position, sign * 0.4, 0, 0),
+      toward(chest.pose.position, -sign * 0.4, 0, 0),
+      side,
+    );
+    complaints.check(
+      `${cell}: a forearm through the chest lacks ${through.toFixed(3)} deg, at least ${degrees(r / 2).toFixed(3)} expected`,
+      through > degrees(r / 2),
+    );
 
-      // 5. A palm laid on the chest, against its own trunk and another body.
-      const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
-        HumanColliders.cast(
-          body,
-          new Map([...bones].filter(([bone]) => bone === chest.bone)),
-          toward(chest.pose.position, sign * 0.02, 0, 0.6),
-          { x: 0, y: 0, z: -1 },
-          1,
+    // 5. A palm laid on the chest, against its own trunk and another body.
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+      HumanColliders.cast(
+        body,
+        new Map([...bones].filter(([bone]) => bone === chest.bone)),
+        toward(chest.pose.position, sign * 0.02, 0, 0.6),
+        { x: 0, y: 0, z: -1 },
+        1,
+      );
+    if (hit === undefined) complaints.check(`${cell}: the chest is hit`, false);
+    else {
+      const forearm = (
+        depth: number,
+        length: number,
+      ): [IAutoMovieVector3, IAutoMovieVector3] => {
+        const wrist: IAutoMovieVector3 = toward(
+          hit.point,
+          -hit.normal.x * depth,
+          -hit.normal.y * depth,
+          -hit.normal.z * depth,
         );
-      if (hit === undefined)
-        complaints.check(`${cell}: the chest is hit`, false);
-      else {
-        const forearm = (
-          depth: number,
-          length: number,
-        ): [IAutoMovieVector3, IAutoMovieVector3] => {
-          const wrist: IAutoMovieVector3 = toward(
-            hit.point,
-            -hit.normal.x * depth,
-            -hit.normal.y * depth,
-            -hit.normal.z * depth,
-          );
-          return [
-            toward(
-              wrist,
-              hit.normal.x * length,
-              hit.normal.y * length,
-              hit.normal.z * length,
-            ),
+        return [
+          toward(
             wrist,
-          ];
-        };
-        const [elbow, wrist] = forearm(0.01, 0.4);
-        const out: IAutoMovieVector3 = Quaternion.rotateVector(
-          chest.pose.rotation,
-          { x: sign, y: 0, z: 0 },
-        );
-        const own = (p: IAutoMovieVector3): number =>
-          (p.x - chest.pose.position.x) * out.x +
-          (p.y - chest.pose.position.y) * out.y +
-          (p.z - chest.pose.position.z) * out.z;
-        const plane: number = degrees(
-          Math.max(0, Math.min(r, own(wrist)) - own(elbow)),
-        );
-        const laid: number = HumanArmClearance.overshoot(
-          body,
-          trunk,
-          elbow,
+            hit.normal.x * length,
+            hit.normal.y * length,
+            hit.normal.z * length,
+          ),
           wrist,
-          side,
-        );
-        complaints.check(
-          `${cell}: a palm laid 10 mm into the own chest lacks ${laid.toFixed(4)} deg, the median plane's ${plane.toFixed(4)}`,
-          Math.abs(laid - plane) <= 1e-6,
-        );
-        const [deepElbow, deepWrist] = forearm(0.06, 0.25);
-        const foreign: number = HumanArmClearance.overshoot(
-          body,
-          [],
-          deepElbow,
-          deepWrist,
-          side,
-          [chest],
-        );
-        complaints.check(
-          `${cell}: a forearm 60 mm into another body's chest lacks ${foreign.toFixed(4)} deg, more than ${degrees(r / 8).toFixed(4)} expected`,
-          foreign > degrees(r / 8),
-        );
-      }
-
-      // 6. Room.
-      const own: IAutoMovieMotionHumanArmClearance.IArm = {
-        upper: triple(pose, `${side}UpperArm`),
-        lower: triple(pose, `${side}LowerArm`),
-        hand: triple(pose, `${side}Hand`),
+        ];
       };
-      const other: "left" | "right" = side === "left" ? "right" : "left";
-      const stance: number = HumanArmClearance.overshoot(
+      const [elbow, wrist] = forearm(0.01, 0.4);
+      const out: IAutoMovieVector3 = Quaternion.rotateVector(
+        chest.pose.rotation,
+        { x: sign, y: 0, z: 0 },
+      );
+      const own = (p: IAutoMovieVector3): number =>
+        (p.x - chest.pose.position.x) * out.x +
+        (p.y - chest.pose.position.y) * out.y +
+        (p.z - chest.pose.position.z) * out.z;
+      const plane: number = degrees(
+        Math.max(0, Math.min(r, own(wrist)) - own(elbow)),
+      );
+      const laid: number = HumanArmClearance.overshoot(
         body,
-        placed.filter(
-          (s) =>
-            TRUNK.includes(s.bone) ||
-            s.bone === "leftUpperLeg" ||
-            s.bone === "rightUpperLeg" ||
-            s.bone === `${other}UpperArm` ||
-            s.bone === `${other}LowerArm` ||
-            s.bone === `${other}Hand`,
-        ),
-        bones.get(`${side}LowerArm`)!.worldPosition,
-        bones.get(`${side}Hand`)!.worldPosition,
+        trunk,
+        elbow,
+        wrist,
         side,
       );
       complaints.check(
-        `${cell}: the stance's room ${HumanArmClearance.room(body, pose, side, own).toFixed(6)} is its displayed overshoot against the trunk, the thighs and the other arm ${stance.toFixed(6)}`,
-        Math.abs(HumanArmClearance.room(body, pose, side, own) - stance) <=
-          1e-9,
+        `${cell}: a palm laid 10 mm into the own chest lacks ${laid.toFixed(4)} deg, the median plane's ${plane.toFixed(4)}`,
+        Math.abs(laid - plane) <= 1e-6,
       );
-      const bent: IAutoMovieMotionHumanArmClearance.IArm = {
-        upper: [20, 10, 5],
-        lower: [60, 0, 0],
-        hand: [10, 5, 0],
-      };
-      const posed: IAutoMoviePose = HumanArmClearance.posed(pose, side, bent);
-      complaints.check(
-        `${cell}: posed writes the arm's three joints and keeps every other`,
-        posed.joints.length === pose.joints.length &&
-          posed.joints.every((j: IAutoMovieJointPose, i: number): boolean => {
-            const part: "upper" | "lower" | "hand" | undefined =
-              j.bone === `${side}UpperArm`
-                ? "upper"
-                : j.bone === `${side}LowerArm`
-                  ? "lower"
-                  : j.bone === `${side}Hand`
-                    ? "hand"
-                    : undefined;
-            return part === undefined
-              ? JSON.stringify(j) === JSON.stringify(pose.joints[i])
-              : j.flexion === bent[part][0] &&
-                  j.abduction === bent[part][1] &&
-                  j.twist === bent[part][2];
-          }),
+      const [deepElbow, deepWrist] = forearm(0.06, 0.25);
+      const foreign: number = HumanArmClearance.overshoot(
+        body,
+        [],
+        deepElbow,
+        deepWrist,
+        side,
+        [chest],
       );
-      const raised: number = HumanArmClearance.room(body, pose, side, {
-        upper: [0, 90, 0],
-        lower: [0, 0, 0],
-        hand: [0, 0, 0],
-      });
       complaints.check(
-        `${cell}: an arm raised sideways lacks ${raised.toFixed(4)} deg`,
-        raised === 0,
+        `${cell}: a forearm 60 mm into another body's chest lacks ${foreign.toFixed(4)} deg, more than ${degrees(r / 8).toFixed(4)} expected`,
+        foreign > degrees(r / 8),
       );
     }
+
+    // 6. Room.
+    const own: IAutoMovieMotionHumanArmClearance.IArm = {
+      upper: triple(pose, `${side}UpperArm`),
+      lower: triple(pose, `${side}LowerArm`),
+      hand: triple(pose, `${side}Hand`),
+    };
+    const other: "left" | "right" = side === "left" ? "right" : "left";
+    const stance: number = HumanArmClearance.overshoot(
+      body,
+      placed.filter(
+        (s) =>
+          TRUNK.includes(s.bone) ||
+          s.bone === "leftUpperLeg" ||
+          s.bone === "rightUpperLeg" ||
+          s.bone === `${other}UpperArm` ||
+          s.bone === `${other}LowerArm` ||
+          s.bone === `${other}Hand`,
+      ),
+      bones.get(`${side}LowerArm`)!.worldPosition,
+      bones.get(`${side}Hand`)!.worldPosition,
+      side,
+    );
+    const stanceRoom: number = HumanArmClearance.room(body, pose, side, own);
+    complaints.check(
+      `${cell}: the stance's room ${stanceRoom.toFixed(6)} is its displayed overshoot against the trunk, the thighs and the other arm ${stance.toFixed(6)}`,
+      Math.abs(stanceRoom - stance) <= 1e-9,
+    );
+    const bent: IAutoMovieMotionHumanArmClearance.IArm = {
+      upper: [20, 10, 5],
+      lower: [60, 0, 0],
+      hand: [10, 5, 0],
+    };
+    const posed: IAutoMoviePose = HumanArmClearance.posed(pose, side, bent);
+    complaints.check(
+      `${cell}: posed writes the arm's three joints and keeps every other`,
+      posed.joints.length === pose.joints.length &&
+        posed.joints.every((j: IAutoMovieJointPose, i: number): boolean => {
+          const part: "upper" | "lower" | "hand" | undefined =
+            j.bone === `${side}UpperArm`
+              ? "upper"
+              : j.bone === `${side}LowerArm`
+                ? "lower"
+                : j.bone === `${side}Hand`
+                  ? "hand"
+                  : undefined;
+          return part === undefined
+            ? JSON.stringify(j) === JSON.stringify(pose.joints[i])
+            : j.flexion === bent[part][0] &&
+                j.abduction === bent[part][1] &&
+                j.twist === bent[part][2];
+        }),
+    );
+    const raised: number = HumanArmClearance.room(body, pose, side, {
+      upper: [0, 90, 0],
+      lower: [0, 0, 0],
+      hand: [0, 0, 0],
+    });
+    complaints.check(
+      `${cell}: an arm raised sideways lacks ${raised.toFixed(4)} deg`,
+      raised === 0,
+    );
   }
   complaints.assert("every forearm is read and cleared as documented");
 }

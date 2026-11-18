@@ -75,28 +75,45 @@ export function test_human_motion_core_arm_jacobian(): void {
     if (read.columns.length === 0 || read.columns.length !== read.free.length)
       return Infinity;
     let worst: number = 0;
-    read.columns.forEach(
-      (column: IAutoMovieMotionHumanArmJacobian.IColumn, i: number): void => {
-        const d: number = read.free[i]!;
-        const up: number[] = [...read.c];
-        const down: number[] = [...read.c];
-        up[d] = up[d]! + H;
-        down[d] = down[d]! - H;
-        const a: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(down);
-        const b: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(up);
-        for (const [analytic, numeric] of [
-          [column.upper.angular, scale(turn(a.upper, b.upper), 1 / (2 * H))],
-          [column.lower.angular, scale(turn(a.lower, b.lower), 1 / (2 * H))],
-          [column.hand.angular, scale(turn(a.hand, b.hand), 1 / (2 * H))],
-          [column.lower.linear, scale(minus(b.elbow, a.elbow), 1 / (2 * H))],
-          [column.hand.linear, scale(minus(b.wrist, a.wrist), 1 / (2 * H))],
-        ] as const)
-          worst = Math.max(
-            worst,
-            length(minus(analytic, numeric)) / (1e-3 + length(numeric)),
-          );
-      },
-    );
+    const stationary: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    // A missing free coordinate must also have zero numerical motion.
+    // Iterating the returned column list alone could not detect its omission.
+    for (let d: number = 0; d < read.c.length; ++d) {
+      const column: IAutoMovieMotionHumanArmJacobian.IColumn | undefined =
+        read.columns[read.free.indexOf(d)];
+      const up: number[] = [...read.c];
+      const down: number[] = [...read.c];
+      up[d] = up[d]! + H;
+      down[d] = down[d]! - H;
+      const a: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(down);
+      const b: IAutoMovieMotionHumanArmJacobian.IChain = read.chain(up);
+      for (const [analytic, numeric] of [
+        [
+          column?.upper.angular ?? stationary,
+          scale(turn(a.upper, b.upper), 1 / (2 * H)),
+        ],
+        [
+          column?.lower.angular ?? stationary,
+          scale(turn(a.lower, b.lower), 1 / (2 * H)),
+        ],
+        [
+          column?.hand.angular ?? stationary,
+          scale(turn(a.hand, b.hand), 1 / (2 * H)),
+        ],
+        [
+          column?.lower.linear ?? stationary,
+          scale(minus(b.elbow, a.elbow), 1 / (2 * H)),
+        ],
+        [
+          column?.hand.linear ?? stationary,
+          scale(minus(b.wrist, a.wrist), 1 / (2 * H)),
+        ],
+      ] as const)
+        worst = Math.max(
+          worst,
+          length(minus(analytic, numeric)) / (1e-3 + length(numeric)),
+        );
+    }
     return worst;
   };
 
@@ -126,7 +143,16 @@ export function test_human_motion_core_arm_jacobian(): void {
       (s: number, t): number => s + length(t.angular) + length(t.linear),
       0,
     );
-    return moved === 0 && miss(read) <= 1e-6;
+    const down: number[] = [...read.c];
+    const up: number[] = [...read.c];
+    down[d] = down[d]! - H;
+    up[d] = up[d]! + H;
+    // Outside either range the same clamped angle is used on both sides,
+    // so every displayed transform is identical.
+    return (
+      moved === 0 &&
+      JSON.stringify(read.chain(down)) === JSON.stringify(read.chain(up))
+    );
   };
   TestValidator.predicate(
     "an elbow and a wrist past their ranges move nothing",

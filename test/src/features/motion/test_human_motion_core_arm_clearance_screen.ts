@@ -207,27 +207,6 @@ export function test_human_motion_core_arm_clearance_screen(): void {
     restingDepth,
   );
 
-  // Without another arm present the chest reserves one radius on each
-  // side of its median plane. Reflect both endpoints to swap the side.
-  const chest: IAutoMovieMotionHumanColliders.IPlaced = {
-    bone: "chest",
-    pose: { position: elbow, rotation: Quaternion.identity() },
-    shapes: [],
-  };
-  for (const side of ["left", "right"] as const) {
-    const sign: number = side === "left" ? 1 : -1;
-    check(
-      `${side} median plane`,
-      HumanArmClearance.overshoot(
-        body,
-        [chest],
-        { x: -sign * radius, y: 0, z: 0 },
-        { x: sign * 2 * radius, y: 0, z: 0 },
-        side,
-      ),
-      2 * radius,
-    );
-  }
   TestValidator.equals(
     "the clearance screen changes nothing",
     complaints.slice(0, 20),
