@@ -1,19 +1,26 @@
 import { createSeat } from "@automovie/archetypes";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanFrame,
+  HumanMutual,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  HumanSeatedReach,
   HumanSignature,
+  seated,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -69,6 +76,7 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
 export function test_motion_posture_seat_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   checkHighSeat(complaints.list);
+  checkSeatedHandshake(complaints);
   const audited: Map<string, M.IStaged> = new Map();
   complaints.list.push(
     ...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
@@ -300,4 +308,131 @@ function checkHighSeat(complaints: string[]): void {
     "base",
     "base",
   );
+}
+
+type SeatedActor = "a" | "b";
+function checkSeatedHandshake(all: motionComplaints.IGatherer): void {
+  const APART: number = 0.7;
+  const SEAT: number = 0.01;
+  const RANGE: number = 120;
+  const bodies: Record<SeatedActor, IAutoMovieMotionHumanBody> = {
+    a: motionHumanBody("m-average"),
+    b: motionHumanBody("f-small"),
+  };
+  const sit = (who: SeatedActor): IAutoMovieMotionHumanChain => {
+    const body: IAutoMovieMotionHumanBody = bodies[who];
+    const seat: IAutoMovieMotionHumanSeated.ISeat = {
+      at: {
+        x: 0,
+        y: seated.popliteal(body),
+        z:
+          who === "a"
+            ? body.rest.get("leftFoot")!.z - 0.1
+            : APART - body.rest.get("leftFoot")!.z + 0.1,
+      },
+      yaw: who === "a" ? 0 : 180,
+      depth: 0.45,
+    };
+    return HumanChain.subject(who).sit({ seat });
+  };
+  try {
+    const p = new HumanPerformance({
+      seed: "seated-reach",
+      performers: (["a", "b"] as const).map((subject: SeatedActor) => ({
+        subject,
+        body: bodies[subject],
+        at: { x: 0, y: 0, z: subject === "a" ? 0 : APART },
+        yaw: subject === "a" ? 0 : 180,
+        proficiency: { level: "trained" as const },
+      })),
+      composition: HumanChain.mutual(HumanMutual.handshake, {
+        one: sit("a"),
+        other: sit("b"),
+      }).node,
+    });
+    for (const who of ["a", "b"] as const) {
+      const segments: readonly IAutoMovieMotionHumanSegment[] = p.segments(who);
+      const last: IAutoMovieMotionHumanSegment = segments[0]!;
+      const seats: IAutoMovieMotionHumanContactWindow[] =
+        last.plan.contacts.filter(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "seat",
+        );
+      all.check(
+        `${who}: the sit's seat windows are ${seats.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ") || "none"}, one open at its end expected`,
+        seats.some(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.to === 1,
+        ),
+      );
+      const end: number = last.start + last.plan.duration;
+      const rooms: IAutoMovieMotionHumanSeatedReach.IJoint[] =
+        HumanSeatedReach.rooms({
+          body: bodies[who],
+          posture: last.plan.posture(last.plan.duration),
+          bones: p.bones(who, end),
+          seated: true,
+        });
+      const hips: number =
+        rooms.find(
+          (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean =>
+            j.bone === "hips",
+        )?.room ?? 0;
+      all.check(
+        `${who}: seated, the hips have ${hips.toFixed(1)} degrees of room, more than none and at most ${RANGE} expected (joints ${rooms.map((j) => `${j.bone} ${j.room.toFixed(1)}`).join(", ")})`,
+        hips > 0 && hips <= RANGE,
+      );
+      const standing: IAutoMovieMotionHumanSeatedReach.IJoint[] =
+        HumanSeatedReach.rooms({
+          body: bodies[who],
+          posture: segments[0]!.plan.posture(0),
+          bones: p.bones(who, 0),
+          seated: false,
+        });
+      all.check(
+        `${who}: standing, the trunk has ${standing.length} joints with room, none expected`,
+        standing.length === 0,
+      );
+    }
+
+    const shake: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
+    const clasp: number =
+      shake.start +
+      shake.plan.events.find(
+        (e: { name: string }): boolean => e.name === "clasp",
+      )!.share *
+        shake.plan.duration;
+    const hands: number = (bodies.a.measure.hand + bodies.b.measure.hand) / 2;
+    const wrists: number = Vector3.length(
+      Vector3.subtract(
+        p.bones("a", clasp).get("rightHand")!.worldPosition,
+        p.bones("b", clasp).get("rightHand")!.worldPosition,
+      ),
+    );
+    all.check(
+      `seated handshake: at the clasp the wrists are ${(wrists * 1000).toFixed(0)} mm apart, ${(hands * 1000).toFixed(0)} mm at most expected`,
+      wrists <= hands,
+    );
+    for (const who of ["a", "b"] as const) {
+      const segment: IAutoMovieMotionHumanSegment = p.segments(who)[1]!;
+      const settled: IAutoMovieVector3 = p
+        .bones(who, segment.entryTime)
+        .get("hips")!.worldPosition;
+      let moved: number = 0;
+      for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 24)
+        moved = Math.max(
+          moved,
+          Vector3.length(
+            Vector3.subtract(
+              p.bones(who, t).get("hips")!.worldPosition,
+              settled,
+            ),
+          ),
+        );
+      all.check(
+        `seated handshake: ${who}'s pelvis moves up to ${(moved * 1000).toFixed(1)} mm, ${SEAT * 1000} mm at most expected`,
+        moved <= SEAT,
+      );
+    }
+  } catch (error) {
+    all.list.push(String(error));
+  }
 }
