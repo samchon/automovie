@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanColliders,
   HumanPerformance,
   stepVaultSupport,
 } from "@automovie/motions";
@@ -101,6 +102,7 @@ export function test_human_motion_step_vault_support(): void {
     segment.plan.events.find(
       (event: IAutoMovieMotionEvent): boolean => event.name === name,
     )!.share;
+  const depart: number = share("stepBearing");
   const lift: number = share("lift2");
   const land: number = share("bear2");
   const tolerance: number = 0.01;
@@ -113,12 +115,13 @@ export function test_human_motion_step_vault_support(): void {
         contact.part === part,
     );
 
-  // 1. The through foot keeps its entry plant until lift, then bears at exit.
+  // 1. The entry plant ends at the departure key, before the elevated lift.
   const right: IAutoMovieMotionHumanContactWindow[] = contacts("rightFoot");
   TestValidator.predicate(
     "the through foot releases and lands in distinct windows",
     right.length === 2 &&
-      right[0]!.to === lift &&
+      right[0]!.to === depart &&
+      depart < lift &&
       lift < land &&
       right[1]!.from === land &&
       right[1]!.to === 1,
@@ -146,10 +149,24 @@ export function test_human_motion_step_vault_support(): void {
     Math.hypot(at.x - target.x, at.z - target.z);
   const lifted: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     performance.bones("a", segment.start + lift * segment.plan.duration);
+  const handBone: IAutoMovieResolvedBone = lifted.get("rightHand")!;
   TestValidator.predicate(
     "the supporting wrist and opposite toe stay over their floor targets at lift",
-    miss(lifted.get("rightHand")!.worldPosition, palm) <= tolerance &&
+    miss(handBone.worldPosition, palm) <= tolerance &&
       miss(lifted.get("leftToes")!.worldPosition, step) <= tolerance,
+  );
+  const [handFloor]: number[] = HumanColliders.prepareMinima(body, [
+    new Set<AutoMovieHumanoidBone>(
+      [...lifted.keys()].filter((bone: AutoMovieHumanoidBone): boolean =>
+        /^right(Hand|Thumb|Index|Middle|Ring|Little)/.test(bone),
+      ),
+    ),
+  ])(lifted);
+  TestValidator.predicate(
+    "the bearing hand and finger colliders reach the floor at lift (" +
+      (1000 * handFloor!).toFixed(1) +
+      " mm)",
+    Math.abs(handFloor!) <= tolerance,
   );
   TestValidator.predicate(
     "the through toe clears the floor at lift",

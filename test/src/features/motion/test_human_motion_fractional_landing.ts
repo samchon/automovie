@@ -27,6 +27,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
@@ -55,6 +56,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One portable unit uses two existing canonical bodies, three finite jumps, a fixed box fixture and three refused plans. It reads only public performance outputs.
  */
 export function test_human_motion_fractional_landing(): void {
+  const all: motionComplaints.IGatherer = motionComplaints();
   const average: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const small: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -110,17 +112,17 @@ export function test_human_motion_fractional_landing(): void {
         Math.cos(current - previous),
       );
       previous = current;
-      upright(label, root, heading + winding * share);
-      legalRom(label, pose);
+      upright(all, label, root, heading + winding * share);
+      legalRom(all, label, pose);
     }
-    TestValidator.predicate(
+    all.check(
       `${label}: the complete signed winding survives`,
       Math.abs(sum - winding) <= 1e-6,
     );
 
     const beforeRoot: NonNullable<IAutoMoviePose["root"]> = beforePose.root!;
     const afterRoot: NonNullable<IAutoMoviePose["root"]> = afterPose.root!;
-    TestValidator.predicate(
+    all.check(
       `${label}: the root enters absorption without a position jump`,
       close(beforeRoot.translation, afterRoot.translation),
     );
@@ -133,14 +135,20 @@ export function test_human_motion_fractional_landing(): void {
       afterPose,
     );
     const recovery: ReturnType<HumanPerformance["bones"]>[] = [];
-    for (const seconds of [(touchdown + settled) / 2, settled, film.duration]) {
+    const sampleTimes: readonly number[] = [
+      (touchdown + settled) / 2,
+      settled,
+      film.duration,
+    ];
+    for (const seconds of sampleTimes) {
       const pose: IAutoMoviePose = film.pose("a", seconds);
       upright(
+        all,
         `${label}: planted at ${seconds} s`,
         pose.root!.rotation,
         heading + winding,
       );
-      legalRom(`${label}: planted at ${seconds} s`, pose);
+      legalRom(all, `${label}: planted at ${seconds} s`, pose);
       recovery.push(poseBones(body, pose));
     }
     for (const side of ["left", "right"] as const) {
@@ -153,44 +161,50 @@ export function test_human_motion_fractional_landing(): void {
         y: body.measure.ankleHeight,
         z: to.z - lateral * Math.sin(landed),
       };
-      TestValidator.predicate(
+      all.check(
         `${label}: ${foot} uses the turned target`,
         close(contact.worldPosition, expected),
       );
-      TestValidator.predicate(
+      all.check(
         `${label}: ${foot} enters the plant without a jump`,
         close(beforeBones.get(foot)!.worldPosition, contact.worldPosition),
       );
       const footYaw: number =
         landed + ((side === "left" ? 1 : -1) * stand.TOE_OUT * Math.PI) / 180;
-      for (const point of ["heel", "mtp", "toe"] as const) {
-        /** Place a sole landmark using the displayed foot frame. */
-        const sole = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
-          HumanFoot.point(body, side, point, {
-            ankle: bone.worldPosition,
-            rotation: bone.worldRotation,
-          });
-        const planted: IAutoMovieVector3 = sole(contact);
+      const plantedSole: ReturnType<typeof HumanFoot.sockets> =
+        HumanFoot.sockets(body, plantBones, side);
+      const airborneSole: ReturnType<typeof HumanFoot.sockets> =
+        HumanFoot.sockets(body, beforeBones, side);
+      const recoveredSoles: ReturnType<typeof HumanFoot.sockets>[] =
+        recovery.map(
+          (bones): ReturnType<typeof HumanFoot.sockets> =>
+            HumanFoot.sockets(body, bones, side),
+        );
+      for (let i: number = 0; i < plantedSole.length; i++) {
+        const { socket: point, point: planted } = plantedSole[i]!;
         const target: IAutoMovieVector3 = HumanFoot.point(body, side, point, {
           ankle: expected,
           rotation: yawRotation(footYaw),
         });
-        TestValidator.predicate(
+        all.check(
           `${label}: ${foot} ${point} uses the turned footprint frame`,
           close(planted, target),
         );
-        TestValidator.predicate(
+        all.check(
           `${label}: ${foot} ${point} enters the plant without a jump`,
-          close(sole(beforeBones.get(foot)!), planted),
+          close(airborneSole[i]!.point, planted),
         );
-        TestValidator.predicate(
+        all.check(
           `${label}: ${foot} ${point} lies on the floor`,
           nclose(planted.y, 0, 0.005),
         );
-        for (const bones of recovery) {
-          const recovered: IAutoMovieVector3 = sole(bones.get(foot)!);
-          TestValidator.predicate(
-            `${label}: ${foot} ${point} stays planted throughout recovery`,
+        for (let j: number = 0; j < recoveredSoles.length; j++) {
+          const recovered: IAutoMovieVector3 = recoveredSoles[j]![i]!.point;
+          const drift: number = Vector3.length(
+            Vector3.subtract(recovered, planted),
+          );
+          all.check(
+            `${label}: ${foot} ${point} at ${sampleTimes[j]!.toFixed(3)} s drifts ${(1000 * drift).toFixed(3)} mm and is ${(1000 * recovered.y).toFixed(3)} mm above the floor`,
             close(recovered, planted) && nclose(recovered.y, 0, 0.005),
           );
         }
@@ -242,6 +256,9 @@ export function test_human_motion_fractional_landing(): void {
     (): HumanPerformance =>
       perform(average, origin, 0, raised, { twist: 0.25 }, platform),
   );
+  all.assert(
+    "fractional twist keeps the ballistic winding and the turned floor stance",
+  );
 }
 
 /** Build the public authored jump without replacing any producer. */
@@ -284,14 +301,12 @@ function event(film: HumanPerformance, name: string): number {
 
 /** Compare the displayed attitude with pure yaw about world up. */
 function upright(
+  all: motionComplaints.IGatherer,
   label: string,
   rotation: IAutoMovieQuaternion,
   heading: number,
 ): void {
-  TestValidator.predicate(
-    label,
-    Quaternion.angle(rotation, yawRotation(heading)) <= 1e-6,
-  );
+  all.check(label, Quaternion.angle(rotation, yawRotation(heading)) <= 1e-6);
 }
 
 /** Express the expected yaw about world +Y from an angle in radians. */
@@ -300,7 +315,11 @@ function yawRotation(heading: number): IAutoMovieQuaternion {
 }
 
 /** Scan the displayed anatomical channels against the clinical limits. */
-function legalRom(label: string, pose: IAutoMoviePose): void {
+function legalRom(
+  all: motionComplaints.IGatherer,
+  label: string,
+  pose: IAutoMoviePose,
+): void {
   for (const joint of pose.joints) {
     const constraint: IAutoMovieJointConstraint | undefined =
       DEFAULT_HUMANOID_ROM[joint.bone];
@@ -309,8 +328,9 @@ function legalRom(label: string, pose: IAutoMoviePose): void {
         joint,
         constraint,
         (part: IAutoMovieScanJointRom.Part): void => {
-          throw new Error(
+          all.check(
             `${label}: ${joint.bone} ${part} exceeds the clinical range`,
+            false,
           );
         },
       );

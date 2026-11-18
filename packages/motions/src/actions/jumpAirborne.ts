@@ -10,6 +10,7 @@ import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanJumpAirborne,
   IAutoMovieMotionHumanPosture,
@@ -388,6 +389,26 @@ export namespace jumpAirborne {
   }
 
   /**
+   * Identify the actual flight request whose ground phase owns a turned landing.
+   *
+   * @param flight The plan's original flight request.
+   * @returns Whether its constructor installed a returned-touchdown check.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the identity prerequisite and what the originating jump verifies.
+   * @evidence contracts/development/implementation.md#principled-implementation Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup on the original request.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies, flags and arbitrary action requests cannot claim a turned landing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak-set membership test.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the original flight record already held by the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak membership retains neither the flight nor its phase callback.
+   */
+  export function hasTurnedLanding(
+    flight: IAutoMovieMotionHumanFlight,
+  ): boolean {
+    return TURNED_LANDINGS.has(flight);
+  }
+
+  /**
    * A flight's turns as plan members: the somersault signed by its way, a
    * side salto's somersault frame turned a quarter about the long axis,
    * and the rotation kept once the pass hands it back.
@@ -455,6 +476,9 @@ export namespace jumpAirborne {
               offset = STILL;
             },
           };
+    if (admitTouchdown !== undefined && declared.flight !== undefined)
+      TURNED_LANDINGS.add(declared.flight);
+
     // Every reader reconstructs seconds from the public shares. Use those
     // same representable boundaries for both phase selection and handback.
     const from: number =
@@ -557,6 +581,9 @@ export namespace jumpAirborne {
     };
   }
 }
+
+/** Originating jump requests with a touchdown check on their turned stance. */
+const TURNED_LANDINGS: WeakSet<IAutoMovieMotionHumanFlight> = new WeakSet();
 
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";

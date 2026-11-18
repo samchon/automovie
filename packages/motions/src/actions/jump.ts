@@ -30,6 +30,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { fitJumpAbsorption } from "./fitJumpAbsorption";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpEndpoints } from "./jumpEndpoints";
 import { jumpFlight } from "./jumpFlight";
@@ -104,7 +105,7 @@ const TUCK_AHEAD: number = 0.1;
  * box's top, a step; the flight's default apex then also clears that rise,
  * and an apex that does not is refused), at the body's rest
  * separation, turned out by the stance angle; the root lands 0.03 hip
- * heights low with the flight's velocity, absorbs to 0.12 hip heights low on
+ * heights low with the flight's velocity, absorbs toward 0.12 hip heights low on
  * a quintic path that brings that velocity to rest over `ABSORB` seconds,
  * then rises to the upright stand ({@link standUpright}) over `RISE` seconds,
  * both scaled by the manner's tempo as the push is.
@@ -113,7 +114,8 @@ const TUCK_AHEAD: number = 0.1;
  * and the paths by `jumpPath`.
  * A fractional twist may finish upright on level floor with both footprints
  * facing the terminal heading. The signed winding still belongs to flight,
- * which must hand back a touchdown inside the continuity budget.
+ * which must hand back a touchdown inside the continuity budget. The turned
+ * absorption follows the measured depth available to both planted feet.
  *
  * The phase boundaries separate ground propulsion, airborne shape and
  * impact. [Bobbert and van Ingen Schenau (1988)](https://pubmed.ncbi.nlm.nih.gov/3379084/)
@@ -242,6 +244,7 @@ export namespace jump {
       landingHeading,
       rise,
       upright.lean,
+      headingChange !== 0,
     );
     const landing: Record<
       "left" | "right",
@@ -257,7 +260,6 @@ export namespace jump {
     };
     const rootL: IAutoMovieVector3 = landed.touched;
     const rootS: IAutoMovieVector3 = landed.stood;
-    const rootA: IAutoMovieVector3 = landed.absorbed;
 
     // Body-frame placements at take-off and touchdown, for the flight.
     const tuck: IAutoMovieVector3 = {
@@ -392,25 +394,6 @@ export namespace jump {
       P,
       entry.acceleration,
     );
-    const absorbRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
-      rootL,
-      land,
-      rootA,
-      { x: 0, y: 0, z: 0 },
-      absorb,
-    );
-    const riseRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
-      rootA,
-      { x: 0, y: 0, z: 0 },
-      rootS,
-      { x: 0, y: 0, z: 0 },
-      rising,
-    );
-    const rootAt: (t: number) => IAutoMovieVector3 = (
-      t: number,
-    ): IAutoMovieVector3 =>
-      t <= settled ? absorbRoot(t - touchdown) : riseRoot(t - settled);
-
     // The push-off: the pelvis, the heading, the take-off foot's rocker and
     // the reaching leg, each from the entry's own value and rate.
     const pushProps: jumpPush.IProps = {
@@ -443,14 +426,15 @@ export namespace jump {
       end: endState,
     };
     /** The actual current landing demands before swing clearance. */
-    const landingAt: (
+    const landingAtRoot: (
+      root: IAutoMovieVector3,
       t: number,
       read: ReturnType<typeof prepareHumanPoseResolution>,
     ) => IAutoMovieMotionHumanPosture = (
+      root: IAutoMovieVector3,
       t: number,
       read: ReturnType<typeof prepareHumanPoseResolution>,
     ): IAutoMovieMotionHumanPosture => {
-      const root: IAutoMovieVector3 = rootAt(t);
       const arms: number =
         jumpJoints.LANDING *
         (1 - minimumJerk.share((t - touchdown) / (absorb + rising)));
@@ -472,6 +456,37 @@ export namespace jump {
         read,
       );
     };
+    const rootA: IAutoMovieVector3 =
+      headingChange === 0
+        ? landed.absorbed
+        : fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
+            landingAtRoot(root, touchdown + elapsed, read),
+          );
+    const absorbRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
+      rootL,
+      land,
+      rootA,
+      { x: 0, y: 0, z: 0 },
+      absorb,
+    );
+    const riseRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
+      rootA,
+      { x: 0, y: 0, z: 0 },
+      rootS,
+      { x: 0, y: 0, z: 0 },
+      rising,
+    );
+    const rootAt: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 =>
+      t <= settled ? absorbRoot(t - touchdown) : riseRoot(t - settled);
+
+    /** Read the current ground posture on the settled landing path. */
+    const landingAt = (
+      seconds: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+    ): IAutoMovieMotionHumanPosture =>
+      landingAtRoot(rootAt(seconds), seconds, read);
     const ground: prepareJumpPosture.IGround = {
       before: (seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =

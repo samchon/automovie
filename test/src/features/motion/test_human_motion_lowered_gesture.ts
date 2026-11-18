@@ -17,7 +17,7 @@ import { vclose } from "../internal/vclose";
  * kneel while the original posture carries the body (#3575).
  *
  * Scenarios:
- * 1. A count and head-only look start at the low hold in a full crouch,
+ * 1. A wave or stop signal and head-only look start at the low hold in a full crouch,
  *    a half-kneel with one foot flat, and a sit-back kneel cut from a stand.
  *    At mid-stroke the wrist rises and the head turns while the carrier
  *    keeps its pose and contacts.
@@ -25,7 +25,7 @@ import { vclose } from "../internal/vclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the low carriers, entry paths, free parts and refused trunk claim.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a local gesture and gaze at the hold, checks the displayed wrist and head against the unlayered posture, and reads the typed refusal for a whole-body gesture.
- * @evidence contracts/development/testing.md#independent-expectations The unlayered carrier gives the expected invariant bone transforms and contact windows. A stop signal lifts the wrist and a head-only look rotates the head at the sampled stroke midpoint.
+ * @evidence contracts/development/testing.md#independent-expectations The unlayered carrier gives the expected invariant bone transforms and contact windows. The selected one-hand signal lifts the wrist and a head-only look rotates the head at the sampled stroke midpoint.
  * @evidence contracts/development/testing.md#distinguishing-cases The full crouch uses standing contacts. The two kneels differ in bearing posture and entry path. The crouch-depth spec owns depth geometry and the support-overlay spec owns bearing-hand refusals.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory unit. Each carrier uses two performances and one displayed pose per performance.
  */
@@ -54,7 +54,11 @@ export function test_human_motion_lowered_gesture(): void {
           .over(
             (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               upper
-                .gesture({ kind: "stopPalm", side: "right", count: 1 })
+                .gesture({
+                  kind: kind === "full" ? "wave" : "stopPalm",
+                  side: "right",
+                  count: 1,
+                })
                 .sync({ of: "low", event }),
           )
           .over(
@@ -118,7 +122,7 @@ export function test_human_motion_lowered_gesture(): void {
         const actual: IAutoMovieResolvedBone = posed.get(bone)!;
         const original: IAutoMovieResolvedBone = alone.get(bone)!;
         all.check(
-          `${name} ${kind}: ${bone} stays with the carrier through the count`,
+          `${name} ${kind}: ${bone} stays with the carrier through the gesture`,
           vclose(actual.worldPosition, original.worldPosition) &&
             qclose(actual.worldRotation, original.worldRotation),
         );

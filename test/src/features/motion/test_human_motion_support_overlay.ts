@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSupport,
   IAutoMovieResolvedBone,
@@ -21,7 +22,7 @@ import { vclose } from "../internal/vclose";
  * by the support action.
  *
  * Scenarios, on the average man:
- * 1. The left hand signals after the right palm is placed on the floor.
+ * 1. The left hand signals after the right palm is placed on a raised rest.
  *    The bearing wrist is in the same world pose at the stroke midpoint
  *    as in the support sequence alone.
  * 2. The same signal performed by the right hand at that event is refused
@@ -53,12 +54,30 @@ export function test_human_motion_support_overlay(): void {
   };
   const braced: IAutoMovieMotionHumanChain = HumanChain.subject(
     "person",
-  ).support(bracedContacts, "braced");
+  ).support(
+    {
+      stances: [
+        bracedContacts.stances[0]!,
+        {
+          contacts: [
+            ...bracedContacts.stances[0]!.contacts,
+            {
+              part: "rightHand",
+              kind: "bear",
+              target: { kind: "prop", subject: "rest", point: "top" },
+            },
+          ],
+          seconds: 5,
+        },
+      ],
+    },
+    "braced",
+  );
   const onBrace = (side: "left" | "right"): IAutoMovieMotionHumanChain =>
     braced.over(
       (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         upper
-          .gesture({ kind: "stopPalm", side })
+          .gesture({ kind: "wave", side })
           .sync({ of: "braced", event: "bear1" }),
     );
 
@@ -81,7 +100,8 @@ export function test_human_motion_support_overlay(): void {
         (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === "rightHand" &&
           c.kind === "plant" &&
-          c.support.kind === "ground" &&
+          c.support.kind === "prop" &&
+          c.support.subject === "rest" &&
           c.from <= share &&
           share <= c.to,
       ),
@@ -155,7 +175,24 @@ function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
+  const wristRest: IAutoMovieMotionHumanProp = {
+    subject: "rest",
+    fixed: true,
+    frame: {
+      position: {
+        x: -body.measure.shoulderHalfWidth,
+        y: body.measure.hipHeight,
+        z: 0.2,
+      },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    },
+    points: {
+      top: { point: { x: 0, y: 0.02, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
+    },
+    shapes: [],
+  };
   return new HumanPerformance({
+    props: [wristRest],
     seed: "support-overlay",
     performers: [
       {
