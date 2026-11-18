@@ -8,7 +8,6 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
@@ -286,22 +285,6 @@ export function HumanArmTrajectoryEvaluate(
         );
         if (pair.rested) objective += T.LIFT * pair.short * pair.short;
       }
-    }
-    if (!c.still) {
-      for (let k: number = 0; k + 1 < n; ++k) {
-        if (same(k) && same(k + 1)) continue;
-        const material: HumanArmTrajectorySweep.ISwept[] = HumanArmTrajectoryMaterialSweep(
-          c, a, k, placed[a]![k]!, placed[a]![k + 1]!, pairs[a]!,
-        );
-        here = k;
-        interval = true;
-        for (const sweep of material) {
-          swept[a]![k]!.push(sweep);
-          const short: number = 1000 * (sweep.lower - sweep.clear);
-          note(short, "swept", () => `probe ${sweep.probe} swept ${short.toFixed(1)} mm inside shape ${sweep.shape} after ${times[k]!.toFixed(3)} s`);
-        }
-      }
-      interval = false;
     }
   });
   if (x.length === 2)
