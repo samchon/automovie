@@ -68,7 +68,7 @@ export namespace HumanCarriedCouplingLoad {
 
   /**
    * The tip of a bearer standing still in the coupling's stance that brings its own centre and its
-   * share of the borne centre, the borne body riding it, over the midpoint
+   * share of the borne load over the midpoint
    * of its feet.
    *
    * @param bearer The bearer's body.
@@ -89,7 +89,24 @@ export namespace HumanCarriedCouplingLoad {
     coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
   ): IAutoMovieMotionHumanCarriedCouplingLoad.ILeanResult {
-    const at: IStanding = standing(bearer, coupling, role);
+    // For one bearer the borne mass centre sets the gravitational moment
+    // of the pair about the floor. Shared loads act at their support contacts.
+    const sole: boolean =
+      coupling.contacts.some(
+        (contact: IAutoMovieMotionCoupling.IContact): boolean =>
+          contact.load > 0,
+      ) &&
+      coupling.contacts.every(
+        (contact: IAutoMovieMotionCoupling.IContact): boolean =>
+          contact.load === 0 || contact.on.role === role,
+      );
+    const at: IStanding = standing(
+      bearer,
+      coupling,
+      role,
+      undefined,
+      sole ? coupling.centre : undefined,
+    );
     const pair: IAutoMovieVector3 = Vector3.subtract(
       Vector3.scale(
         Vector3.add(
@@ -101,7 +118,7 @@ export namespace HumanCarriedCouplingLoad {
       at.pivot,
     );
     return {
-      pitch: (-Math.atan2(pair.z, pair.y) * 180) / Math.PI,
+      pitch: (-Math.atan2(pair.z, Math.hypot(pair.x, pair.y)) * 180) / Math.PI,
       roll: (Math.atan2(pair.x, pair.y) * 180) / Math.PI,
     };
   }
@@ -121,6 +138,7 @@ export namespace HumanCarriedCouplingLoad {
     coupling: IAutoMovieMotionCoupling,
     role: string,
     key?: Bones,
+    massCentre?: IAutoMovieVector3,
   ): IStanding => {
     // This bearer's share of the borne weight, and where it presses: each
     // contact's share at the contact (the reactions the bearer bears), which
@@ -133,7 +151,8 @@ export namespace HumanCarriedCouplingLoad {
       0,
     );
     const pressed: IAutoMovieVector3 =
-      share > 0 &&
+      massCentre ??
+      (share > 0 &&
       own.every(
         (c: IAutoMovieMotionCoupling.IContact): boolean =>
           c.load === 0 || c.at !== undefined,
@@ -149,7 +168,7 @@ export namespace HumanCarriedCouplingLoad {
             ),
             1 / share,
           )
-        : coupling.centre;
+        : coupling.centre);
     const frame:
       | {
           position: IAutoMovieVector3;
@@ -165,14 +184,15 @@ export namespace HumanCarriedCouplingLoad {
             Quaternion.inverse(frame.rotation),
             Vector3.subtract(pressed, frame.position),
           );
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      bearer.massModel;
+    const model: IAutoMovieResolveCenterOfMass.IModel = bearer.massModel;
 
     // The first bearer stands in the stance the key pose was placed on; a
     // further one stands upright. Both are read on the same fitted stance
     // `HumanCarriedCoupling.couple` stated the coupling's frames on, so the
     // anchor, the centre and the feet are one posture's.
-    const bones: Bones = key ?? HumanCarriedCouplingPose.stood(
+    const bones: Bones =
+      key ??
+      HumanCarriedCouplingPose.stood(
         bearer,
         frame === undefined ? coupling.key.stance : { incline: 0, depth: 0 },
       );
