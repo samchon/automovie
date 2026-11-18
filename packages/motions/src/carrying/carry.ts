@@ -4,6 +4,7 @@ import type {
   AutoMovieMotionHumanChannelClaim,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -20,7 +21,9 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -110,6 +113,20 @@ export namespace carry {
   export const RAMP: number = 0.4;
 
   /**
+   * The one-hand load's hanging arm, clinical `[flexion, abduction, twist]`
+   * degrees: the elbow all but straight under the load and the upper arm
+   * abducted just enough that the hand and its bag clear the thigh
+   * (provisional: no located study measures the carrying arm's angles).
+   */
+  export const HANG: Readonly<{
+    upper: readonly [number, number, number];
+    lower: readonly [number, number, number];
+  }> = {
+    upper: [0, 8, 0],
+    lower: [3, 0, 0],
+  };
+
+  /**
    * A hand's hold place in the performer's moving floor frame.
    *
    * @param body The body.
@@ -126,15 +143,21 @@ export namespace carry {
     side: AutoMovieHumanSide,
     loaded: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanCarry.IPlaceResult {
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const out: number = side === "left" ? 1 : -1;
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };
-    const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+    const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
+    // The places are shares of the body's own measures (provisional: no
+    // located study gives them): a box 0.8 of the shoulders wide a third of
+    // the arm before the root at the waist; a handle at the elbow's height
+    // (the shoulder less the upper arm, Hoozemans et al. 1998) 0.6 of the
+    // arm ahead; a child's seat 5 cm below the hip joint a fifth of the arm
+    // before that hip.
     switch (how) {
       case "twoHands":
         return {
@@ -184,6 +207,7 @@ export namespace carry {
     const p: IAutoMovieMotionHumanCarry.IParams = context.params;
     const how: IAutoMovieMotionHumanCarry.How = p.how;
     const loaded: AutoMovieHumanSide = p.side ?? "right";
+    // A tenth of the body's mass when the author names none (provisional).
     const load: number = p.load ?? 0.1;
     HumanBound.within("load", load, 0, 0.25, "of the body's mass");
     const base: IAutoMovieMotionHumanActionPlan = walk.plan({
@@ -197,9 +221,14 @@ export namespace carry {
     const duration: number = base.duration;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
-      base.events.map((e) => ({ name: e.name, seconds: e.share * duration })),
+      base.events.map(
+        (e: IAutoMovieMotionHumanActionPlan["events"][number]): { name: string; seconds: number } => ({
+          name: e.name,
+          seconds: e.share * duration,
+        }),
+      ),
     );
-    const ramp = (seconds: number): number =>
+    const ramp: (seconds: number) => number = (seconds: number): number =>
       Math.min(1, Math.max(0, seconds / RAMP));
 
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
@@ -207,7 +236,7 @@ export namespace carry {
     const degrees: number = LEAN[how] * load;
     // A positive lateral bend of the trunk leans it to the body's right.
     const away: number = loaded === "left" ? 1 : -1;
-    const lean = (share: number): readonly [number, number, number] =>
+    const lean: (share: number) => readonly [number, number, number] = (share: number): readonly [number, number, number] =>
       how === "oneHand" || how === "hip"
         ? [0, away * degrees * share * 0.5, 0]
         : how === "twoHands"
@@ -221,8 +250,8 @@ export namespace carry {
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => {
-        const add = lean(ramp(seconds));
-        const sum = (
+        const add: readonly [number, number, number] = lean(ramp(seconds));
+        const sum: (held: readonly [number, number, number] | undefined) => readonly [number, number, number] = (
           held: readonly [number, number, number] | undefined,
         ): readonly [number, number, number] => [
           (held?.[0] ?? 0) + add[0],
@@ -246,6 +275,14 @@ export namespace carry {
     for (const side of ["left", "right"] as const) {
       if (how === "oneHand") {
         if (side !== loaded) continue;
+
+        // The arm and the fingers move from the entry's own angles to the
+        // hanging hold over the ramp, so the carry starts where the entry
+        // left the arm and the hand closes on the handle continuously.
+        const rest: IAutoMovieMotionHumanArmAngles.IAngles =
+          AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+        const close: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
+          prepareHumanShapeBlend(rest.fingers ?? {}, HumanHand.shape(side, "fist"));
         arms.push({
           channels: [`${side}Arm`, `${side}Hand`],
           from: 0,
@@ -259,10 +296,10 @@ export namespace carry {
               ...posture,
               joints: {
                 ...posture.joints,
-                ...HumanHand.shape(side, s > 0.5 ? "fist" : "relaxed"),
-                [`${side}UpperArm`]: [0, 8 * s, 0],
-                [`${side}LowerArm`]: [12 * (1 - s) + 3 * s, 0, 0],
-                [`${side}Hand`]: [0, 0, 0],
+                ...close(s),
+                [`${side}UpperArm`]: blendHumanJoint(body, `${side}UpperArm`, rest.upper, HANG.upper, s),
+                [`${side}LowerArm`]: blendHumanJoint(body, `${side}LowerArm`, rest.lower, HANG.lower, s),
+                [`${side}Hand`]: blendHumanJoint(body, `${side}Hand`, rest.hand, [0, 0, 0], s),
               },
             };
           },
@@ -282,7 +319,7 @@ export namespace carry {
           goal: (
             posture: IAutoMovieMotionHumanPosture,
           ): IAutoMovieHumanLimbGoal => {
-            const at = place(body, posture, how, side, loaded)!;
+            const at: NonNullable<IAutoMovieMotionHumanCarry.IPlaceResult> = place(body, posture, how, side, loaded)!;
             return AutoMovieMotionHumanArm.goal(
               body,
               side,
