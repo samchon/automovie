@@ -47,20 +47,20 @@ export namespace HumanPropHold {
    * @returns The prop's world frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hand's grip socket in the prop's frame from its offset; the hands' two implied turns blended halfway; the least turn laying the prop's line between the sockets on the world's; the middles matched.
+   * @evidence contracts/development/implementation.md#principled-implementation Each hand's grip socket in the prop's frame from its offset; the hands' two implied turns blended halfway; the least turn laying the prop's line between the sockets on the world's, a half turn about the axis across the line that keeps the blended up where the line points opposite (the swing of a swing-twist split, whose axis is free only then); the middles matched.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two points, one blend, one alignment, one translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two sockets at one point leave the blend alone, never dividing by nothing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two sockets at one point, or a prop line already along theirs, leave the blend alone, never dividing by nothing; a line pointing opposite is turned, never left reversed.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fit(a: IHand, b: IHand): IAutoMovieRigidTransform {
-    const turn = (h: IHand): IAutoMovieQuaternion =>
+    const turn: (h: IHand) => IAutoMovieQuaternion = (h: IHand): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(h.hand.rotation, h.offset.rotation),
       );
     // Where each socket is on the prop: the hand's origin in the prop's frame.
-    const local = (h: IHand): IAutoMovieVector3 =>
+    const local: (h: IHand) => IAutoMovieVector3 = (h: IHand): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         Quaternion.inverse(h.offset.rotation),
         Vector3.scale(h.offset.position, -1),
@@ -82,14 +82,16 @@ export namespace HumanPropHold {
     const sine: number = Vector3.length(axis);
     const cosine: number = Vector3.dot(along, between);
     const rotation: IAutoMovieQuaternion =
-      sine < 1e-9 || Vector3.length(along) < 1e-9
+      Vector3.length(along) < 1e-9 || Vector3.length(between) < 1e-9 || (sine < 1e-9 && cosine > 0)
         ? blended
         : Quaternion.normalize(
             Quaternion.multiply(
-              Quaternion.fromAxisAngle(
-                Vector3.scale(axis, 1 / sine),
-                (Math.atan2(sine, cosine) * 180) / Math.PI,
-              ),
+              sine < 1e-9
+                ? Quaternion.fromAxisAngle(across(blended, along), 180)
+                : Quaternion.fromAxisAngle(
+                    Vector3.scale(axis, 1 / sine),
+                    (Math.atan2(sine, cosine) * 180) / Math.PI,
+                  ),
               blended,
             ),
           );
@@ -104,6 +106,22 @@ export namespace HumanPropHold {
       ),
       rotation,
     };
+  }
+
+  /**
+   * The axis a prop whose line points opposite the sockets' turns half a
+   * turn about: across the line, along the prop's up as the hands turn it
+   * (its `+Y`, or its `+X` where the up lies on the line), so the half turn
+   * keeps that up and the roll the two hands share.
+   */
+  function across(blended: IAutoMovieQuaternion, along: IAutoMovieVector3): IAutoMovieVector3 {
+    const unit: IAutoMovieVector3 = Vector3.normalize(along);
+    const off: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 => {
+      const v: IAutoMovieVector3 = Quaternion.rotateVector(blended, local);
+      return Vector3.subtract(v, Vector3.scale(unit, Vector3.dot(v, unit)));
+    };
+    const up: IAutoMovieVector3 = off({ x: 0, y: 1, z: 0 });
+    return Vector3.normalize(Vector3.length(up) < 1e-9 ? off({ x: 1, y: 0, z: 0 }) : up);
   }
 
   /**
