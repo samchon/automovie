@@ -1,7 +1,8 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
-  type Archetype,
+  Archetype,
+  ArchetypeArticulation,
   ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRefusal,
@@ -10,6 +11,12 @@ import {
 } from "../core";
 import { BoatOars } from "./BoatOars";
 import type { createBoat } from "./createBoat";
+
+/** Complete rowboat state at a film second. */
+type Sample = ArchetypeRide.ISample<
+  createBoat.Affordance,
+  createBoat.Dimension
+>;
 
 /**
  * A rowboat rowed along a course: its root on the path, its oars swept through the stroke cycle and lifted out of the water on the recovery, at a stroke rate the speed sets, on still water or a seeded sea.
@@ -72,9 +79,19 @@ export function rowBoat(
   }
 
   const ease = (q: number): number => (1 - Math.cos(Math.PI * q)) / 2;
-  const at = (
+  const project: ReturnType<typeof Archetype.projection> =
+    Archetype.projection(boat);
+  const sea: ArchetypeSea.ISea | undefined =
+    options.sea === undefined ? undefined : ArchetypeSea.of(options.sea);
+  function sample(seconds: number): Sample;
+  function sample(
     seconds: number,
-  ): ArchetypeRide.ISample<createBoat.Affordance, createBoat.Dimension> => {
+    id: createBoat.Affordance,
+  ): IAutoMovieTransform;
+  function sample(
+    seconds: number,
+    ...socket: [] | [createBoat.Affordance]
+  ): Sample | IAutoMovieTransform {
     const state: ArchetypeCourse.IState = plan.at(seconds);
     const turns: number = state.distance / rowBoat.STROKE;
     const p: number = turns - Math.floor(turns);
@@ -94,17 +111,39 @@ export function rowBoat(
         (BoatOars.ARC.catch + BoatOars.ARC.finish) * ease(q);
       lift = g.touch + (g.clear - g.touch) * Math.sin(Math.PI * q);
     }
-    return {
-      archetype: boat.articulate({
-        leftOarlock: sweep,
-        rightOarlock: sweep,
-        leftOar: lift,
-        rightOar: lift,
-      }),
-      placement: state.placement,
-      course: state,
+    const travels: Partial<Record<createBoat.Affordance, number>> = {
+      leftOarlock: sweep,
+      rightOarlock: sweep,
+      leftOar: lift,
+      rightOar: lift,
     };
-  };
+    const selected: ReturnType<NonNullable<typeof project>> | undefined =
+      project?.(ArchetypeArticulation.travels(travels));
+    let model: typeof boat | undefined =
+      selected === undefined ? boat.articulate(travels) : undefined;
+    const placement: IAutoMovieTransform =
+      sea === undefined
+        ? state.placement
+        : ArchetypeSea.floated(sea, state.placement, seconds);
+    if (socket.length === 1) {
+      const [id] = socket;
+      const local: IAutoMovieTransform =
+        selected?.frame(id) ??
+        (model ?? boat.articulate(travels)).affordance(id).frame;
+      return ArchetypeFrame.compose(placement, local);
+    }
+    return {
+      get archetype(): typeof boat {
+        model ??= boat.articulate(travels);
+        return model;
+      },
+      set archetype(value: typeof boat) {
+        model = value;
+      },
+      placement,
+      course: sea === undefined ? state : { ...state, placement },
+    };
+  }
   const ride: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
     {
       plan,
@@ -113,24 +152,13 @@ export function rowBoat(
         (a: { seconds: number }, b: { seconds: number }): number =>
           a.seconds - b.seconds,
       ),
-      at,
+      at: (seconds: number): Sample => sample(seconds),
       frame: (
         id: createBoat.Affordance,
         seconds: number,
-      ): IAutoMovieTransform => {
-        const sample: ArchetypeRide.ISample<
-          createBoat.Affordance,
-          createBoat.Dimension
-        > = at(seconds);
-        return ArchetypeFrame.compose(
-          sample.placement,
-          sample.archetype.affordance(id).frame,
-        );
-      },
+      ): IAutoMovieTransform => sample(seconds, id),
     };
-  return options.sea === undefined
-    ? ride
-    : ArchetypeSea.float(ride, ArchetypeSea.of(options.sea));
+  return ride;
 }
 
 /**
