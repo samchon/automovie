@@ -95,7 +95,8 @@ export function test_film_perform_shot_attach_offset(): void {
   };
 
   const legacy: IAutoMoviePerformedShot = perform([first]);
-  if (legacy.success !== true) throw new Error("legacy attachment must perform");
+  if (legacy.success !== true)
+    throw new Error("legacy attachment must perform");
   TestValidator.predicate(
     "an omitted offset uses the posed bone frame",
     keyMatches(
@@ -107,7 +108,12 @@ export function test_film_perform_shot_attach_offset(): void {
 
   const half: number = Math.SQRT1_2;
   const expectedPosition: IAutoMovieVector3 = { x: 1, y: 1, z: 0 };
-  const expectedRotation: IAutoMovieQuaternion = { x: half, y: 0, z: 0, w: half };
+  const expectedRotation: IAutoMovieQuaternion = {
+    x: half,
+    y: 0,
+    z: 0,
+    w: half,
+  };
   const outgoing: IAutoMovieAttachAction = {
     ...first,
     offset: { position: { x: 1, y: 0, z: 0 }, rotation: expectedRotation },
@@ -150,7 +156,8 @@ export function test_film_perform_shot_attach_offset(): void {
       },
     },
   ]);
-  if (changed.success !== true) throw new Error("the changed offset must perform");
+  if (changed.success !== true)
+    throw new Error("the changed offset must perform");
   TestValidator.predicate(
     "the receiving offset determines the world frame at the first key",
     keyMatches(
@@ -184,8 +191,9 @@ export function test_film_perform_shot_attach_offset(): void {
   ])
     TestValidator.predicate(
       `a violation identifies ${suffix}`,
-      rejected.violations.some((issue: IAutoMovieConstraintViolation): boolean =>
-        issue.path.endsWith(suffix),
+      rejected.violations.some(
+        (issue: IAutoMovieConstraintViolation): boolean =>
+          issue.path.endsWith(suffix),
       ),
     );
 }

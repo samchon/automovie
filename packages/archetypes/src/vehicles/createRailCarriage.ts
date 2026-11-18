@@ -48,23 +48,50 @@ export function createRailCarriage(
   const foot: number = ArchetypeUnits.FOOT;
   const half: number = createRailCarriage.REFERENCE.width / 2;
   const floor: number = createRailCarriage.REFERENCE.floor;
-  const end: number = 75 * foot / 2 - ESTIMATES.coupler;
+  const end: number = (75 * foot) / 2 - ESTIMATES.coupler;
   const pitch: number = 25 * foot;
   const leaf: number = 27 * inch;
   const ceiling: number = floor + 86 * inch;
   const roof: number = 130 * inch;
-  const { doorHeight, wall, threshold, seatHeight, seatDepth, seatBack }: typeof ESTIMATES = ESTIMATES;
+  const {
+    doorHeight,
+    wall,
+    threshold,
+    seatHeight,
+    seatDepth,
+    seatBack,
+  }: typeof ESTIMATES = ESTIMATES;
   const seatWidth: number = 22 * inch;
   const aisle: number = 2 * (half - wall - 2 * seatWidth);
 
-  builder.box("cabin-floor", v(2 * (half - threshold), 0.18, 2 * end), v(0, floor - 0.09, 0), DARK);
-  builder.box("roof", v(2 * half, roof - ceiling, 2 * end), v(0, (ceiling + roof) / 2, 0), STEEL);
+  builder.box(
+    "cabin-floor",
+    v(2 * (half - threshold), 0.18, 2 * end),
+    v(0, floor - 0.09, 0),
+    DARK,
+  );
+  builder.box(
+    "roof",
+    v(2 * half, roof - ceiling, 2 * end),
+    v(0, (ceiling + roof) / 2, 0),
+    STEEL,
+  );
   for (const side of [-1, 1] as const) {
     const bank: readonly DoorPair[] = side === 1 ? DOORS.platform : DOORS.far;
     const sideName: string = side === 1 ? "platform" : "far";
     const skin: number = side * (half - wall / 2);
-    builder.box("floor-edge-" + sideName, v(threshold, 0.18, 2 * end), v(side * (half - threshold / 2), floor - 0.09, 0), STEEL);
-    builder.box("header-" + sideName, v(wall, ceiling - floor - doorHeight, 2 * end), v(skin, (ceiling + floor + doorHeight) / 2, 0), STEEL);
+    builder.box(
+      "floor-edge-" + sideName,
+      v(threshold, 0.18, 2 * end),
+      v(side * (half - threshold / 2), floor - 0.09, 0),
+      STEEL,
+    );
+    builder.box(
+      "header-" + sideName,
+      v(wall, ceiling - floor - doorHeight, 2 * end),
+      v(skin, (ceiling + floor + doorHeight) / 2, 0),
+      STEEL,
+    );
 
     // The leaves retract between the body skin and the inboard pocket liner.
     const doorX: number = side * (half - 0.075);
@@ -77,33 +104,77 @@ export function createRailCarriage(
       const mid: number = (start + stop) / 2;
       const bay: string = sideName + "-" + i;
       const glazing: number = doorHeight - 1.08;
-      builder.box("sill-" + bay, v(wall, 0.96, run), v(skin, floor + 0.48, mid), STEEL);
+      builder.box(
+        "sill-" + bay,
+        v(wall, 0.96, run),
+        v(skin, floor + 0.48, mid),
+        STEEL,
+      );
       const bays: number = Math.ceil(run / 1.5);
       const pane: number = run / bays;
       const windowY: number = floor + 0.96 + glazing / 2;
       for (let j: number = 0; j < bays; j++) {
         const windowZ: number = start + j * pane;
-        builder.box("window-post-" + bay + "-" + j, v(wall, glazing, 0.1), v(skin, windowY, windowZ + 0.05), STEEL);
-        builder.box("window-" + bay + "-" + j, v(wall, glazing, pane - 0.1), v(skin, windowY, windowZ + (pane + 0.1) / 2), GLASS);
+        builder.box(
+          "window-post-" + bay + "-" + j,
+          v(wall, glazing, 0.1),
+          v(skin, windowY, windowZ + 0.05),
+          STEEL,
+        );
+        builder.box(
+          "window-" + bay + "-" + j,
+          v(wall, glazing, pane - 0.1),
+          v(skin, windowY, windowZ + (pane + 0.1) / 2),
+          GLASS,
+        );
       }
-      builder.box("lintel-" + bay, v(wall, 0.12, run), v(skin, floor + doorHeight - 0.06, mid), STEEL);
+      builder.box(
+        "lintel-" + bay,
+        v(wall, 0.12, run),
+        v(skin, floor + doorHeight - 0.06, mid),
+        STEEL,
+      );
       const pair: DoorPair | undefined = bank[i];
       if (pair === undefined) break;
 
       for (const direction of [-1, 1] as const) {
         const slider: DoorId = direction === 1 ? pair[0] : pair[1];
-        const centre: number = station + direction * leaf / 2;
+        const centre: number = station + (direction * leaf) / 2;
         const lower: string = slider + "-lower";
         const glass: string = slider + "-glass";
         const cap: string = slider + "-cap";
-        builder.box(lower, v(0.03, 1.04, leaf), v(doorX, floor + 0.52, centre), STEEL);
-        builder.box(glass, v(0.03, doorHeight - 1.19, leaf), v(doorX, floor + (doorHeight + 0.89) / 2, centre), GLASS);
-        builder.box(cap, v(0.03, 0.15, leaf), v(doorX, floor + doorHeight - 0.075, centre), STEEL);
-        builder.box(slider + "-liner", v(0.025, 1.04, leaf), v(liner, floor + 0.52, station + direction * 1.5 * leaf), STEEL);
+        builder.box(
+          lower,
+          v(0.03, 1.04, leaf),
+          v(doorX, floor + 0.52, centre),
+          STEEL,
+        );
+        builder.box(
+          glass,
+          v(0.03, doorHeight - 1.19, leaf),
+          v(doorX, floor + (doorHeight + 0.89) / 2, centre),
+          GLASS,
+        );
+        builder.box(
+          cap,
+          v(0.03, 0.15, leaf),
+          v(doorX, floor + doorHeight - 0.075, centre),
+          STEEL,
+        );
+        builder.box(
+          slider + "-liner",
+          v(0.025, 1.04, leaf),
+          v(liner, floor + 0.52, station + direction * 1.5 * leaf),
+          STEEL,
+        );
         builder.affordance({
           id: slider,
           kind: "slider",
-          frame: ArchetypeFrame.facing(v(doorX, floor, centre), v(0, 1, 0), v(0, 0, direction)),
+          frame: ArchetypeFrame.facing(
+            v(doorX, floor, centre),
+            v(0, 1, 0),
+            v(0, 0, direction),
+          ),
           extent: null,
           travel: leaf,
           parts: [lower, glass, cap],
@@ -125,7 +196,12 @@ export function createRailCarriage(
         STEEL,
       );
     const coupler: number = ESTIMATES.coupler;
-    builder.box("coupler-" + sign, v(0.36, 0.18, coupler), v(0, 0.73, sign * (end + coupler / 2)), DARK);
+    builder.box(
+      "coupler-" + sign,
+      v(0.36, 0.18, coupler),
+      v(0, 0.73, sign * (end + coupler / 2)),
+      DARK,
+    );
 
     // §II.C.5 permits 30-inch wheels and a 7 ft 6 in truck wheelbase.
     const bogie: number = sign * 26 * foot;
@@ -134,13 +210,30 @@ export function createRailCarriage(
     builder.box("truck-" + sign, v(gauge, 0.23, 2.6), v(0, 0.58, bogie), DARK);
     const frameTop: number = 0.58 + 0.23 / 2;
     const floorBottom: number = floor - 0.18;
-    builder.box("bolster-" + sign, v(gauge, floorBottom - frameTop, 0.44), v(0, (floorBottom + frameTop) / 2, bogie), DARK);
+    builder.box(
+      "bolster-" + sign,
+      v(gauge, floorBottom - frameTop, 0.44),
+      v(0, (floorBottom + frameTop) / 2, bogie),
+      DARK,
+    );
     for (const axle of [-1, 1] as const) {
       const z: number = bogie + axle * 45 * inch;
-      builder.rod("axle-" + sign + "-" + axle, 0.07, v(-gauge / 2, radius, z), v(gauge / 2, radius, z), DARK);
+      builder.rod(
+        "axle-" + sign + "-" + axle,
+        0.07,
+        v(-gauge / 2, radius, z),
+        v(gauge / 2, radius, z),
+        DARK,
+      );
       for (const side of [-1, 1] as const) {
-        const x: number = side * gauge / 2;
-        builder.rod("wheel-" + sign + "-" + axle + "-" + side, radius, v(x - 0.065, radius, z), v(x + 0.065, radius, z), DARK);
+        const x: number = (side * gauge) / 2;
+        builder.rod(
+          "wheel-" + sign + "-" + axle + "-" + side,
+          radius,
+          v(x - 0.065, radius, z),
+          v(x + 0.065, radius, z),
+          DARK,
+        );
       }
     }
   }
@@ -157,9 +250,24 @@ export function createRailCarriage(
         const key: string = (bay === 0 ? "front-" : "rear-") + row + "-" + side;
         const x: number = side * seatX;
         const base: number = seatHeight - 0.07;
-        builder.box("seat-base-" + key, v(2 * seatWidth, base, seatDepth), v(x, floor + base / 2, (front + back) / 2), DARK);
-        builder.box("seat-back-" + key, v(2 * seatWidth, seatBack, 0.08), v(x, seatY + seatBack / 2, back - 0.04), SEAT);
-        builder.box("seat-pad-" + key, v(2 * seatWidth, 0.07, seatDepth), v(x, seatY - 0.035, (front + back) / 2), SEAT);
+        builder.box(
+          "seat-base-" + key,
+          v(2 * seatWidth, base, seatDepth),
+          v(x, floor + base / 2, (front + back) / 2),
+          DARK,
+        );
+        builder.box(
+          "seat-back-" + key,
+          v(2 * seatWidth, seatBack, 0.08),
+          v(x, seatY + seatBack / 2, back - 0.04),
+          SEAT,
+        );
+        builder.box(
+          "seat-pad-" + key,
+          v(2 * seatWidth, 0.07, seatDepth),
+          v(x, seatY - 0.035, (front + back) / 2),
+          SEAT,
+        );
       }
     }
   builder.affordance({
@@ -190,7 +298,11 @@ export function createRailCarriage(
     id: "grabRail",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(railX, (floor + ceiling) / 2, railZ), v(-1, 0, 0), v(0, 1, 0)),
+    frame: ArchetypeFrame.facing(
+      v(railX, (floor + ceiling) / 2, railZ),
+      v(-1, 0, 0),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: bar,
@@ -261,7 +373,13 @@ export namespace createRailCarriage {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only names implemented by the model.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No arbitrary string fallback for contacts.
    */
-  export type Affordance = "threshold" | "doorway" | "aisle" | "seat" | "grabRail" | DoorId;
+  export type Affordance =
+    | "threshold"
+    | "doorway"
+    | "aisle"
+    | "seat"
+    | "grabRail"
+    | DoorId;
 
   /**
    * Outside width and floor height above rail in metres, reference §II.C.3.

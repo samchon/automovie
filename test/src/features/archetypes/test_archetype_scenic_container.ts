@@ -34,7 +34,9 @@ function near(actual: number, expected: number): boolean {
 export function test_archetype_scenic_container(): void {
   const cases: readonly {
     params: createScenicContainer.IParams &
-      Required<Pick<createScenicContainer.IParams, "width" | "depth" | "height">>;
+      Required<
+        Pick<createScenicContainer.IParams, "width" | "depth" | "height">
+      >;
     surface: createScenicContainer.Affordance;
     part: string;
   }[] = [
@@ -44,7 +46,12 @@ export function test_archetype_scenic_container(): void {
       part: "lid",
     },
     {
-      params: { kind: "woodenFishBasket", width: 0.5, depth: 0.41, height: 0.47 },
+      params: {
+        kind: "woodenFishBasket",
+        width: 0.5,
+        depth: 0.41,
+        height: 0.47,
+      },
       surface: "inside",
       part: "floor",
     },
@@ -66,11 +73,18 @@ export function test_archetype_scenic_container(): void {
   ];
   for (const scenario of cases) {
     const { kind, width, depth, height } = scenario.params;
-    const params: createScenicContainer.IParams = { ...scenario.params, id: kind };
+    const params: createScenicContainer.IParams = {
+      ...scenario.params,
+      id: kind,
+    };
     const model: ReturnType<typeof createScenicContainer> =
       createScenicContainer(params, "scenery");
-    const vertical: ReturnType<typeof archetypeExtent> = archetypeExtent(model, "y");
-    TestValidator.predicate(`${kind} is centered and grounded at its fixed dimensions`,
+    const vertical: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      model,
+      "y",
+    );
+    TestValidator.predicate(
+      `${kind} is centered and grounded at its fixed dimensions`,
       (): boolean =>
         model.id === kind &&
         near(archetypeExtent(model, "x").low, -width / 2) &&
@@ -80,30 +94,46 @@ export function test_archetype_scenic_container(): void {
         near(vertical.low, 0) &&
         near(vertical.high, height),
     );
-    TestValidator.equals(`${kind} repeats a seeded build`,
+    TestValidator.equals(
+      `${kind} repeats a seeded build`,
       JSON.stringify(model),
       JSON.stringify(createScenicContainer(params, "scenery")),
     );
 
-    const placement: ReturnType<typeof model.affordance> = model.affordance(scenario.surface);
-    TestValidator.predicate(`${kind} has one support surface`,
-      (): boolean => placement.kind === "stack-top" && model.affordances.length === 1,
+    const placement: ReturnType<typeof model.affordance> = model.affordance(
+      scenario.surface,
+    );
+    TestValidator.predicate(
+      `${kind} has one support surface`,
+      (): boolean =>
+        placement.kind === "stack-top" && model.affordances.length === 1,
     );
     if (placement.kind !== "stack-top" || placement.extent === null)
       throw new Error(`${kind} has no stacking footprint`);
     const corners: readonly IAutoMovieVector3[] = placement.extent;
     const footprintWidth: number =
-      2 * Math.max(...corners.map((point: IAutoMovieVector3): number => Math.abs(point.x)));
+      2 *
+      Math.max(
+        ...corners.map((point: IAutoMovieVector3): number => Math.abs(point.x)),
+      );
     const footprintDepth: number =
-      2 * Math.max(...corners.map((point: IAutoMovieVector3): number => Math.abs(point.z)));
+      2 *
+      Math.max(
+        ...corners.map((point: IAutoMovieVector3): number => Math.abs(point.z)),
+      );
     const up: IAutoMovieVector3 = Quaternion.rotateVector(
       placement.frame.rotation,
       Vector3.create(0, 1, 0),
     );
     const top: number = archetypeExtent(model, "y", [scenario.part]).high;
-    const floorWidth: number = archetypeExtent(model, "x", [scenario.part]).size;
-    const floorDepth: number = archetypeExtent(model, "z", [scenario.part]).size;
-    TestValidator.predicate(`${kind} supports a centered upward footprint`,
+    const floorWidth: number = archetypeExtent(model, "x", [
+      scenario.part,
+    ]).size;
+    const floorDepth: number = archetypeExtent(model, "z", [
+      scenario.part,
+    ]).size;
+    TestValidator.predicate(
+      `${kind} supports a centered upward footprint`,
       (): boolean =>
         near(placement.frame.translation.x, 0) &&
         near(placement.frame.translation.y, top) &&
@@ -115,17 +145,33 @@ export function test_archetype_scenic_container(): void {
         footprintDepth <= floorDepth + TOLERANCE,
     );
     if (scenario.surface === "inside") {
-      TestValidator.predicate(`${kind} leaves the interior center open`,
+      TestValidator.predicate(
+        `${kind} leaves the interior center open`,
         (): boolean =>
           top < vertical.high &&
-          model.shapes().filter((shape: IAutoMoviePhysicalShape): boolean => shape.id !== scenario.part).every((shape: IAutoMoviePhysicalShape): boolean => {
-            const x: ReturnType<typeof archetypeExtent> = archetypeExtent(model, "x", [shape.id]);
-            const z: ReturnType<typeof archetypeExtent> = archetypeExtent(model, "z", [shape.id]);
-            return x.low > 0 || x.high < 0 || z.low > 0 || z.high < 0;
-          }),
+          model
+            .shapes()
+            .filter(
+              (shape: IAutoMoviePhysicalShape): boolean =>
+                shape.id !== scenario.part,
+            )
+            .every((shape: IAutoMoviePhysicalShape): boolean => {
+              const x: ReturnType<typeof archetypeExtent> = archetypeExtent(
+                model,
+                "x",
+                [shape.id],
+              );
+              const z: ReturnType<typeof archetypeExtent> = archetypeExtent(
+                model,
+                "z",
+                [shape.id],
+              );
+              return x.low > 0 || x.high < 0 || z.low > 0 || z.high < 0;
+            }),
       );
     } else {
-      TestValidator.predicate(`${kind} has a top on its lid or cap`,
+      TestValidator.predicate(
+        `${kind} has a top on its lid or cap`,
         (): boolean =>
           near(top, vertical.high) &&
           (kind === "plankCoffer"
@@ -139,12 +185,21 @@ export function test_archetype_scenic_container(): void {
     (seed: number): ReturnType<typeof createScenicContainer> =>
       createScenicContainer({ kind: "moldedCrate", width: 0.34 }, seed),
   );
-  TestValidator.predicate("seeding varies free crate sizes while preserving its fixed width",
+  TestValidator.predicate(
+    "seeding varies free crate sizes while preserving its fixed width",
     (): boolean =>
-      variety.every((item: ReturnType<typeof createScenicContainer>): boolean => near(archetypeExtent(item, "x").size, 0.34)) &&
-      new Set(variety.map((item: ReturnType<typeof createScenicContainer>): number => archetypeExtent(item, "y").size)).size > 1,
+      variety.every((item: ReturnType<typeof createScenicContainer>): boolean =>
+        near(archetypeExtent(item, "x").size, 0.34),
+      ) &&
+      new Set(
+        variety.map(
+          (item: ReturnType<typeof createScenicContainer>): number =>
+            archetypeExtent(item, "y").size,
+        ),
+      ).size > 1,
   );
-  TestValidator.error("a scenic crate refuses an oversized fixed width",
+  TestValidator.error(
+    "a scenic crate refuses an oversized fixed width",
     (): unknown => createScenicContainer({ kind: "moldedCrate", width: 1 }),
   );
 }

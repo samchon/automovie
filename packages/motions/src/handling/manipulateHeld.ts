@@ -141,9 +141,10 @@ export function manipulateHeld(
     (bone: IAutoMovieBone): boolean =>
       bone.bone === hand || bones.includes(bone.bone),
   );
-  const tip: IAutoMovieHumanoidSurfaces.IFrame = context.body.surfaces.regions[
-    side === "left" ? "thumbTipLeft" : "thumbTipRight"
-  ];
+  const tip: IAutoMovieHumanoidSurfaces.IFrame =
+    context.body.surfaces.regions[
+      side === "left" ? "thumbTipLeft" : "thumbTipRight"
+    ];
   if (chain.length !== bones.length + 1 || tip === undefined)
     throw new HumanRefusal({
       kind: "participant",
@@ -173,7 +174,11 @@ export function manipulateHeld(
   const rest: IKnot["angles"] = anglesOf(bones, entry);
   const pressTimes: number[] = [];
   const knots: IKnot[] = [{ time: 0, angles: rest }];
-  let seed: IAutoMoviePose = { skeleton: skeleton.id, root: null, joints: entry };
+  let seed: IAutoMoviePose = {
+    skeleton: skeleton.id,
+    root: null,
+    joints: entry,
+  };
   let next: number = HumanSegment.FADE + TAP_INTERVAL;
 
   for (const [index, contact] of contacts.entries()) {
@@ -188,7 +193,8 @@ export function manipulateHeld(
         kind: "parameter",
         axis: "contacts.at",
         value: time,
-        reason: "press times must follow the entrance fade and increase strictly",
+        reason:
+          "press times must follow the entrance fade and increase strictly",
         fix: "use increasing times or use the seeded tap interval",
       });
     if (
@@ -205,7 +211,8 @@ export function manipulateHeld(
     const site: IAutoMovieMotionHumanHeld.IPointResult =
       AutoMovieMotionHumanHeld.point(held, contact.site);
     const affordance: IAutoMovieAffordance = held.affordances.find(
-      (candidate: IAutoMovieAffordance): boolean => candidate.id === contact.site,
+      (candidate: IAutoMovieAffordance): boolean =>
+        candidate.id === contact.site,
     )!;
     if (
       prop.point !== undefined ||

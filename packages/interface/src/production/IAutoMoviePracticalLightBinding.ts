@@ -8,8 +8,10 @@ import type { IAutoMovieCompilePracticalLightMotion } from "./IAutoMovieCompileP
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The registered prop model supplies the affordance frame, and the final shot object clips determine motion. No model coordinates or second trajectory are supplied here.
  * @evidence contracts/development/common.md#meaningful-documentation Names the scene/model scopes, fixed emitter premise and the shared timing contract.
  */
-export interface IAutoMoviePracticalLightBinding
-  extends Pick<IAutoMovieCompilePracticalLightMotion, "id" | "sampleTimes" | "on"> {
+export interface IAutoMoviePracticalLightBinding extends Pick<
+  IAutoMovieCompilePracticalLightMotion,
+  "id" | "sampleTimes" | "on"
+> {
   /** Id of a point or spot light staged in this shot. */
   light: string;
 

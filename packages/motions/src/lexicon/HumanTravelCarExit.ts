@@ -21,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { carExitAnkleAt } from "./carExitAnkleAt";
 
 /** A quiet placement of both feet. */
 type Feet = IAutoMovieMotionHumanEntryState["feet"];
@@ -68,18 +69,47 @@ export namespace HumanTravelCarExit {
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelCarExit.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
         const { body, entry, params }: typeof context = context;
-        const { bench, through, width, floor, clearance: gap, landingDistance, duckDegrees, turnSeconds, stagger, liftShare }: typeof params = params;
+        const {
+          bench,
+          through,
+          width,
+          floor,
+          clearance: gap,
+          landingDistance,
+          duckDegrees,
+          turnSeconds,
+          stagger,
+          liftShare,
+        }: typeof params = params;
         if (
-          ![width, bench.depth, floor, gap, landingDistance, duckDegrees, turnSeconds, stagger, liftShare].every(Number.isFinite) ||
-          width <= 0 || gap < 0 || bench.depth <= 2 * gap ||
-          landingDistance <= 0 || duckDegrees < 0 || turnSeconds <= 0 ||
-          stagger < 0 || stagger >= 1 || liftShare <= 0 || liftShare >= 0.5
+          ![
+            width,
+            bench.depth,
+            floor,
+            gap,
+            landingDistance,
+            duckDegrees,
+            turnSeconds,
+            stagger,
+            liftShare,
+          ].every(Number.isFinite) ||
+          width <= 0 ||
+          gap < 0 ||
+          bench.depth <= 2 * gap ||
+          landingDistance <= 0 ||
+          duckDegrees < 0 ||
+          turnSeconds <= 0 ||
+          stagger < 0 ||
+          stagger >= 1 ||
+          liftShare <= 0 ||
+          liftShare >= 0.5
         )
           throw new HumanRefusal({
             kind: "parameter",
             axis: "getOut",
             value: params,
-            reason: "the seated turn requires valid dimensions, flexion and phase controls",
+            reason:
+              "the seated turn requires valid dimensions, flexion and phase controls",
             fix: "use the authored bounds for the bench and turn controls",
           });
         const start: IAutoMovieVector3 = seated.socket(body, entry.posture);
@@ -90,7 +120,10 @@ export namespace HumanTravelCarExit {
         const inset: number = body.measure.thighRadius;
         if (
           entry.base.kind !== "seated" ||
-          !entry.supports.some((s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat") ||
+          !entry.supports.some(
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.kind === "seat",
+          ) ||
           Math.abs(local.y) > gap ||
           Math.abs(local.x) > width / 2 ||
           local.z < -bench.depth ||
@@ -106,14 +139,15 @@ export namespace HumanTravelCarExit {
 
         const across: IAutoMovieVector3 = through.across;
         const normal: IAutoMovieVector3 = { x: across.z, y: 0, z: -across.x };
-        const out: IAutoMovieVector3 = Vector3.dot(Vector3.subtract(start, through.at), normal) > 0
-          ? Vector3.scale(normal, -1)
-          : normal;
+        const out: IAutoMovieVector3 =
+          Vector3.dot(Vector3.subtract(start, through.at), normal) > 0
+            ? Vector3.scale(normal, -1)
+            : normal;
         const outward = (point: IAutoMovieVector3): number =>
           Vector3.dot(Vector3.subtract(point, through.at), out);
         const along = (point: IAutoMovieVector3): number =>
           Vector3.dot(Vector3.subtract(point, through.at), across);
-        const targetYaw: number = Math.atan2(out.x, out.z) * 180 / Math.PI;
+        const targetYaw: number = (Math.atan2(out.x, out.z) * 180) / Math.PI;
         const delta: number = targetYaw - entry.posture.yaw;
         const turn: number = delta - 360 * Math.round(delta / 360);
         const yaw: number = entry.posture.yaw + turn;
@@ -123,13 +157,21 @@ export namespace HumanTravelCarExit {
             kind: "reach",
             axis: "aperture",
             value: through.width,
-            feasible: { kind: "range", unit: "m", minimum: clearance, maximum: null },
+            feasible: {
+              kind: "range",
+              unit: "m",
+              minimum: clearance,
+              maximum: null,
+            },
             reason: "the door and the bench must accommodate the seated turn",
             fix: "use a wider door or bench",
           });
 
         // Set the seat socket along the door centerline as far as the cushion permits.
-        const frame: { origin: IAutoMovieVector3; yaw: number } = { origin: bench.at, yaw: bench.yaw };
+        const frame: { origin: IAutoMovieVector3; yaw: number } = {
+          origin: bench.at,
+          yaw: bench.yaw,
+        };
         const opening: IAutoMovieVector3 = HumanFrame.local(frame, through.at);
         const edge: IAutoMovieVector3 = HumanFrame.point(frame, {
           x: Math.sign(opening.x) * (width / 2 - inset),
@@ -142,28 +184,47 @@ export namespace HumanTravelCarExit {
             kind: "reach",
             axis: "aperture",
             value: through.width,
-            feasible: { kind: "range", unit: "m", minimum: needed, maximum: null },
-            reason: "the supported seat position does not align with the usable opening",
+            feasible: {
+              kind: "range",
+              unit: "m",
+              minimum: needed,
+              maximum: null,
+            },
+            reason:
+              "the supported seat position does not align with the usable opening",
             fix: "use a wider adjacent opening",
           });
 
         const ankleY: number = floor + body.measure.ankleHeight;
         const stance: IAutoMovieVector3 = {
-          ...Vector3.add(edge, Vector3.scale(out, -outward(edge) + landingDistance)),
+          ...Vector3.add(
+            edge,
+            Vector3.scale(out, -outward(edge) + landingDistance),
+          ),
           y: ankleY,
         };
         const level = (side: "left" | "right"): IAutoMovieVector3 =>
-          HumanFrame.point({ origin: stance, yaw }, {
-            x: body.rest.get(`${side}Foot`)!.x,
-            y: 0,
-            z: 0,
-          });
+          HumanFrame.point(
+            { origin: stance, yaw },
+            {
+              x: body.rest.get(`${side}Foot`)!.x,
+              y: 0,
+              z: 0,
+            },
+          );
         const ankles: Ankles = { left: level("left"), right: level("right") };
         const support: IAutoMovieMotionHumanContactWindow.Support =
-          entry.supports.find((s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat")!.support;
+          entry.supports.find(
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.kind === "seat",
+          )!.support;
         const poseAtEdge: IAutoMovieMotionHumanPosture = {
           ...entry.posture,
-          root: seated.root(body, edge, { yaw, pitch: entry.posture.pitch, roll: entry.posture.roll }),
+          root: seated.root(body, edge, {
+            yaw,
+            pitch: entry.posture.pitch,
+            roll: entry.posture.roll,
+          }),
           yaw,
           limbs: {},
         };
@@ -174,7 +235,8 @@ export namespace HumanTravelCarExit {
           rotation: poseAtEdge.limbs[`${side}Leg`]!.rotation!,
           planted: true,
         });
-        const { from: _previous, ...atBench }: IAutoMovieMotionHumanEntryState = entry;
+        const { from: _previous, ...atBench }: IAutoMovieMotionHumanEntryState =
+          entry;
         const up: IAutoMovieMotionHumanActionPlan = rise.plan({
           ...context,
           params: {},
@@ -210,8 +272,13 @@ export namespace HumanTravelCarExit {
         const acrossSill = (side: "left" | "right"): IAutoMovieVector3 => {
           const ankle: IAutoMovieVector3 = starts[side].ankle;
           const inside: number = -outward(ankle);
-          const landing: IAutoMovieVector3 = riseEntry.limbs[`${side}Leg`]!.point;
-          return Vector3.lerp(ankle, landing, inside / (inside + outward(landing)));
+          const landing: IAutoMovieVector3 =
+            riseEntry.limbs[`${side}Leg`]!.point;
+          return Vector3.lerp(
+            ankle,
+            landing,
+            inside / (inside + outward(landing)),
+          );
         };
         if (outward(starts.left.ankle) >= 0 || outward(starts.right.ankle) >= 0)
           throw new HumanRefusal({
@@ -232,28 +299,54 @@ export namespace HumanTravelCarExit {
             reason: "both landing feet must be outside before rising",
             fix: "use a freer exterior stance",
           });
-        const sill: Ankles = { left: acrossSill("left"), right: acrossSill("right") };
-        const footRoom: number = 2 * (gap + Math.max(Math.abs(along(sill.left)), Math.abs(along(sill.right))));
+        const sill: Ankles = {
+          left: acrossSill("left"),
+          right: acrossSill("right"),
+        };
+        const footRoom: number =
+          2 *
+          (gap +
+            Math.max(Math.abs(along(sill.left)), Math.abs(along(sill.right))));
         if (footRoom > through.width)
           throw new HumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.width,
-            feasible: { kind: "range", unit: "m", minimum: footRoom, maximum: null },
+            feasible: {
+              kind: "range",
+              unit: "m",
+              minimum: footRoom,
+              maximum: null,
+            },
             reason: "an ankle waypoint lies too near a door jamb",
             fix: "author the seated entry nearer the center of the rear opening",
           });
 
-        const seatOff: number = up.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "seatOff")!.share * up.duration;
-        const ducked = (p: IAutoMovieMotionHumanPosture, amount: number): IAutoMovieMotionHumanPosture => {
-          const spine: readonly [number, number, number] = p.joints.spine ?? [0, 0, 0];
-          return { ...p, joints: { ...p.joints, spine: [spine[0] + amount, spine[1], spine[2]] } };
+        const seatOff: number =
+          up.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === "seatOff",
+          )!.share * up.duration;
+        const ducked = (
+          p: IAutoMovieMotionHumanPosture,
+          amount: number,
+        ): IAutoMovieMotionHumanPosture => {
+          const spine: readonly [number, number, number] = p.joints.spine ?? [
+            0, 0, 0,
+          ];
+          return {
+            ...p,
+            joints: {
+              ...p.joints,
+              spine: [spine[0] + amount, spine[1], spine[2]],
+            },
+          };
         };
         const posture = (time: number): IAutoMovieMotionHumanPosture => {
           if (time <= 0) return entry.posture;
           if (time >= prepare) {
             const elapsed: number = Math.min(up.duration, time - prepare);
-            const held: number = 1 - minimumJerk((elapsed - seatOff) / (up.duration - seatOff)).s;
+            const held: number =
+              1 - minimumJerk((elapsed - seatOff) / (up.duration - seatOff)).s;
             return ducked(up.posture(elapsed), duckDegrees * held);
           }
           const u: number = time / prepare;
@@ -262,12 +355,19 @@ export namespace HumanTravelCarExit {
           const root: IAutoMovieVector3 = seated.root(
             body,
             Vector3.lerp(start, edge, share),
-            { yaw: heading, pitch: entry.posture.pitch, roll: entry.posture.roll },
+            {
+              yaw: heading,
+              pitch: entry.posture.pitch,
+              roll: entry.posture.roll,
+            },
           );
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
           for (const side of ["left", "right"] as const) {
             const [from, to]: readonly [number, number] = timing[side];
-            const phase: number = Math.min(1, Math.max(0, (u - from) / (to - from)));
+            const phase: number = Math.min(
+              1,
+              Math.max(0, (u - from) / (to - from)),
+            );
             const initial: HumanMount.IFoot = starts[side];
             const part: "leftLeg" | "rightLeg" = `${side}Leg`;
             const landed: IAutoMovieHumanLimbGoal = riseEntry.limbs[part]!;
@@ -276,7 +376,8 @@ export namespace HumanTravelCarExit {
               continue;
             }
             if (u <= from && entry.feet[side].planted) {
-              const contact: IAutoMovieVector3 | undefined = entry.posture.limbs[part]?.contact;
+              const contact: IAutoMovieVector3 | undefined =
+                entry.posture.limbs[part]?.contact;
               limbs[part] = {
                 point: initial.ankle,
                 bend: initial.bend,
@@ -287,34 +388,49 @@ export namespace HumanTravelCarExit {
               continue;
             }
 
-            // Lift inside, traverse above the sill, then lower on its exterior.
-            const at: IAutoMovieVector3 = phase <= 0.5
-              ? Vector3.lerp(initial.ankle, sill[side], minimumJerk((phase - liftShare) / (0.5 - liftShare)).s)
-              : Vector3.lerp(sill[side], landed.point, minimumJerk((phase - 0.5) / (0.5 - liftShare)).s);
-            const high: number = Math.max(initial.ankle.y, landed.point.y, through.at.y + body.measure.ankleHeight + gap);
-            const height: number = phase < 0.5
-              ? initial.ankle.y + (high - initial.ankle.y) * minimumJerk(phase / liftShare).s
-              : landed.point.y + (high - landed.point.y) * minimumJerk((1 - phase) / liftShare).s;
             const flight: number = minimumJerk(phase).s;
             limbs[part] = {
-              point: { ...at, y: height },
+              point: carExitAnkleAt(
+                initial.ankle,
+                sill[side],
+                landed.point,
+                through.at.y + body.measure.ankleHeight + gap,
+                phase,
+                liftShare,
+              ),
               bend: Vector3.lerp(initial.bend, landed.bend, flight),
-              rotation: Quaternion.slerp(entry.feet[side].rotation, landed.rotation!, flight),
+              rotation: Quaternion.slerp(
+                entry.feet[side].rotation,
+                landed.rotation!,
+                flight,
+              ),
               planted: false,
             };
           }
-          return ducked({ ...entry.posture, root, yaw: heading, limbs }, duckDegrees * share);
+          return ducked(
+            { ...entry.posture, root, yaw: heading, limbs },
+            duckDegrees * share,
+          );
         };
 
         // The transfer puts the crown near the header while the hips leave the bench.
-        const crown: IAutoMovieVector3 = HumanTrunk.region(body, posture(prepare + seatOff), "crown").point;
+        const crown: IAutoMovieVector3 = HumanTrunk.region(
+          body,
+          posture(prepare + seatOff),
+          "crown",
+        ).point;
         const excess: number = crown.y - (through.at.y + through.height);
         if (Math.abs(outward(crown)) <= body.measure.thighRadius && excess > 0)
           throw new HumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.height,
-            feasible: { kind: "range", unit: "m", minimum: through.height + excess, maximum: null },
+            feasible: {
+              kind: "range",
+              unit: "m",
+              minimum: through.height + excess,
+              maximum: null,
+            },
             reason: "the crown is above the header at seat-off",
             fix: "author more flexion or use a higher rear opening",
           });
@@ -333,9 +449,12 @@ export namespace HumanTravelCarExit {
             fix: "use a bench nearer the opening or an exit with a freer exterior stance",
           });
 
-        const share = (p: number): number => (prepare + p * up.duration) / duration;
+        const share = (p: number): number =>
+          (prepare + p * up.duration) / duration;
         const contacts: IAutoMovieMotionHumanContactWindow[] = up.contacts.map(
-          (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+          (
+            c: IAutoMovieMotionHumanContactWindow,
+          ): IAutoMovieMotionHumanContactWindow => ({
             ...c,
             from: c.part === "seat" ? 0 : share(c.from),
             to: share(c.to),
@@ -349,21 +468,30 @@ export namespace HumanTravelCarExit {
               part,
               kind: "plant",
               from: 0,
-              to: from * prepare / duration,
+              to: (from * prepare) / duration,
               support: HumanSupportFrame.contact(context, part),
             });
           const landing: IAutoMovieMotionHumanContactWindow | undefined =
-            contacts.find((c: IAutoMovieMotionHumanContactWindow): boolean => c.part === part && c.from === share(0));
-          if (landing !== undefined) landing.from = to * prepare / duration;
+            contacts.find(
+              (c: IAutoMovieMotionHumanContactWindow): boolean =>
+                c.part === part && c.from === share(0),
+            );
+          if (landing !== undefined) landing.from = (to * prepare) / duration;
         }
         const events: IAutoMovieMotionEvent[] = up.events.map(
-          (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({ ...e, share: share(e.share) }),
+          (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
+            ...e,
+            share: share(e.share),
+          }),
         );
         const cross = (side: "left" | "right"): number =>
-          ((timing[side][0] + timing[side][1]) / 2) * prepare / duration;
+          (((timing[side][0] + timing[side][1]) / 2) * prepare) / duration;
         events.unshift(
           { name: "leadSill", share: cross(lead) },
-          { name: "trailSill", share: cross(lead === "left" ? "right" : "left") },
+          {
+            name: "trailSill",
+            share: cross(lead === "left" ? "right" : "left"),
+          },
           { name: "feetOutside", share: prepare / duration },
         );
         return { duration, events, contacts, base: up.base, posture };

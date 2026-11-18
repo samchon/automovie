@@ -38,12 +38,24 @@ export function createLoadingTower(
   seed?: number | string,
 ): Archetype<createLoadingTower.Affordance, createLoadingTower.Dimension> {
   const draw: ArchetypeDrawSession<createLoadingTower.Dimension> =
-    new ArchetypeDrawSession("loading tower", createLoadingTower.UNITS, seed, params);
+    new ArchetypeDrawSession(
+      "loading tower",
+      createLoadingTower.UNITS,
+      seed,
+      params,
+    );
   const d: Record<createLoadingTower.Dimension, number> = draw.dimensions(
     createLoadingTower.BANDS,
   );
-  const builder: ArchetypeBuilder<createLoadingTower.Affordance, createLoadingTower.Dimension> =
-    new ArchetypeBuilder({ id: params.id, name: "loading tower", material: "composite", draw });
+  const builder: ArchetypeBuilder<
+    createLoadingTower.Affordance,
+    createLoadingTower.Dimension
+  > = new ArchetypeBuilder({
+    id: params.id,
+    name: "loading tower",
+    material: "composite",
+    draw,
+  });
   const timber: string = "#71503a";
   const floor: string = "#906b4a";
   const trim: string = "#4b3930";
@@ -79,7 +91,13 @@ export function createLoadingTower(
   };
   slab("boarding", openingWidth, 0.85, boardingY, -front - 0.85 / 2);
   slab("platform", d.width - 2 * thickness, d.depth, d.platformHeight, 0);
-  slab("gangway", openingWidth, d.gangwayDepth, d.platformHeight, front + d.gangwayDepth / 2);
+  slab(
+    "gangway",
+    openingWidth,
+    d.gangwayDepth,
+    d.platformHeight,
+    front + d.gangwayDepth / 2,
+  );
 
   builder.box(
     "lower-floor",
@@ -104,13 +122,21 @@ export function createLoadingTower(
     builder.box(
       `rear-jamb-${suffix}`,
       Vector3.create(rearJambWidth, lowerHeight, thickness),
-      Vector3.create(side * jambX, boardingY + lowerHeight / 2, -front + thickness / 2),
+      Vector3.create(
+        side * jambX,
+        boardingY + lowerHeight / 2,
+        -front + thickness / 2,
+      ),
       { color: trim },
     );
     builder.box(
       `front-jamb-${suffix}`,
       Vector3.create(rearJambWidth, upperHeight, thickness),
-      Vector3.create(side * jambX, d.platformHeight + upperHeight / 2, front - thickness / 2),
+      Vector3.create(
+        side * jambX,
+        d.platformHeight + upperHeight / 2,
+        front - thickness / 2,
+      ),
       { color: timber },
     );
     builder.box(
@@ -125,9 +151,15 @@ export function createLoadingTower(
       const wheel: string = `wheel-${suffix}-${end < 0 ? "rear" : "front"}`;
       const y: number = 0.44;
       const z: number = (end * d.depth) / 4;
-      const inner: number = side * d.width / 2;
+      const inner: number = (side * d.width) / 2;
       const outer: number = inner + side * 0.16;
-      builder.rod(wheel, y, Vector3.create(inner, y, z), Vector3.create(outer, y, z), { color: trim });
+      builder.rod(
+        wheel,
+        y,
+        Vector3.create(inner, y, z),
+        Vector3.create(outer, y, z),
+        { color: trim },
+      );
       builder.rod(
         `${wheel}-hub`,
         y * 0.24,
@@ -146,7 +178,11 @@ export function createLoadingTower(
   builder.box(
     "door-lintel",
     Vector3.create(openingWidth, thickness, thickness),
-    Vector3.create(0, d.platformHeight + openingHeight + thickness / 2, front - thickness / 2),
+    Vector3.create(
+      0,
+      d.platformHeight + openingHeight + thickness / 2,
+      front - thickness / 2,
+    ),
     { color: trim },
   );
   builder.affordance({
@@ -181,7 +217,12 @@ export namespace createLoadingTower {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines axes and measurement origins.
    */
-  export type Dimension = "width" | "depth" | "platformHeight" | "gangwayDepth" | "mass";
+  export type Dimension =
+    | "width"
+    | "depth"
+    | "platformHeight"
+    | "gangwayDepth"
+    | "mass";
 
   /**
    * Author-fixed dimensions within the scene bands and an optional model id.
@@ -212,10 +253,28 @@ export namespace createLoadingTower {
    * @evidence contracts/development/common.md#meaningful-documentation The bands give the authorable range of each scene dimension.
    */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of("m", 1.8, 2.6, `Fictional scene footprint. Finish reference: ${OAK_AND_IRON}`, true),
+    width: ArchetypeBand.of(
+      "m",
+      1.8,
+      2.6,
+      `Fictional scene footprint. Finish reference: ${OAK_AND_IRON}`,
+      true,
+    ),
     depth: ArchetypeBand.of("m", 1.9, 2.7, "Fictional scene footprint", true),
-    platformHeight: ArchetypeBand.of("m", 2.3, 3.1, "Fictional upper staging level", true),
-    gangwayDepth: ArchetypeBand.of("m", 0.7, 1.2, "Fictional gangway staging area", true),
+    platformHeight: ArchetypeBand.of(
+      "m",
+      2.3,
+      3.1,
+      "Fictional upper staging level",
+      true,
+    ),
+    gangwayDepth: ArchetypeBand.of(
+      "m",
+      0.7,
+      1.2,
+      "Fictional gangway staging area",
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 160, 240, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

@@ -108,10 +108,13 @@ export function test_human_motion_stage_catch(): void {
     };
   /** Compose the same release with the full or shortened catch. */
   const take = (cut: boolean): HumanPerformance => {
-    const catcher: IAutoMovieMotionHumanChain = HumanChain.subject("catcher").registered(
-      "stageCatch",
-      { from: "foam-release", ball: launch.prop, hands: "one" },
-    );
+    const catcher: IAutoMovieMotionHumanChain = HumanChain.subject(
+      "catcher",
+    ).registered("stageCatch", {
+      from: "foam-release",
+      ball: launch.prop,
+      hands: "one",
+    });
     if (cut) catcher.until({ event: "prepare" });
     return new HumanPerformance({
       seed: "staged-foam-catch",
@@ -145,17 +148,21 @@ export function test_human_motion_stage_catch(): void {
   };
   const performance: HumanPerformance = take(false);
   const tolerance: number = 1e-6;
-  const flight: IAutoMovieMotionHumanPropFlight.IFlight =
-    performance.flights(launch.prop)[0]!;
+  const flight: IAutoMovieMotionHumanPropFlight.IFlight = performance.flights(
+    launch.prop,
+  )[0]!;
   const captured: number = flight.capturedAt ?? Infinity;
   const unended: string[] | undefined = HumanVerdicts.of(performance).unended;
   TestValidator.predicate(
     "the anchored launch is captured at the independent intercept",
     Math.abs(captured - intercept) <= tolerance &&
       flight.contact === undefined &&
-      performance.hits().every(
-        (hit: IAutoMovieInteractionEvent): boolean => hit.object !== launch.prop,
-      ) &&
+      performance
+        .hits()
+        .every(
+          (hit: IAutoMovieInteractionEvent): boolean =>
+            hit.object !== launch.prop,
+        ) &&
       unended?.every(
         (entry: string): boolean => !entry.startsWith(`${launch.prop}@`),
       ) === true,
@@ -176,7 +183,8 @@ export function test_human_motion_stage_catch(): void {
       Vector3.length(Vector3.subtract(boundary, received)) <= tolerance,
   );
 
-  const palm: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions.palmRight;
+  const palm: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.palmRight;
   const hand: IAutoMovieResolvedBone = performance
     .bones("catcher", after)
     .get(palm.bone)!;
@@ -204,7 +212,10 @@ export function test_human_motion_stage_catch(): void {
       Vector3.subtract(centre, frame.worldPosition),
     );
   const later: number = captured + 0.15; // The base catch's giving span.
-  const carried: IAutoMovieVector3 = performance.prop(launch.prop, later).position;
+  const carried: IAutoMovieVector3 = performance.prop(
+    launch.prop,
+    later,
+  ).position;
   const carryingHand: IAutoMovieResolvedBone = performance
     .bones("catcher", later)
     .get(palm.bone)!;
@@ -228,8 +239,11 @@ export function test_human_motion_stage_catch(): void {
       cutFlight !== undefined &&
       cutFlight.capturedAt === undefined &&
       cutFlight.supersededAt === undefined &&
-      cut.hits().some(
-        (hit: IAutoMovieInteractionEvent): boolean => hit.object === launch.prop,
-      ),
+      cut
+        .hits()
+        .some(
+          (hit: IAutoMovieInteractionEvent): boolean =>
+            hit.object === launch.prop,
+        ),
   );
 }

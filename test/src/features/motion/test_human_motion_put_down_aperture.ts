@@ -129,8 +129,8 @@ export function test_human_motion_put_down_aperture(): void {
       points: {},
     };
     const stage = (aperture?: string): HumanPerformance => {
-      const chain: ReturnType<typeof Chain.subject> = Chain.subject("actor")
-        .registered("holdParcel");
+      const chain: ReturnType<typeof Chain.subject> =
+        Chain.subject("actor").registered("holdParcel");
       const placed: IAutoMovieMotionHumanChain =
         aperture === undefined
           ? chain.putDown({ prop: "parcel", at: seat })
@@ -159,8 +159,9 @@ export function test_human_motion_put_down_aperture(): void {
     const event = (name: string): number =>
       segment.start +
       segment.plan.duration *
-        (segment.plan.events.find((item: IAutoMovieMotionEvent): boolean => item.name === name)
-          ?.share ?? NaN);
+        (segment.plan.events.find(
+          (item: IAutoMovieMotionEvent): boolean => item.name === name,
+        )?.share ?? NaN);
     const aperture: number = event("aperture");
     const placed: number = event("placed");
     const release: number = event("release");
@@ -184,19 +185,24 @@ export function test_human_motion_put_down_aperture(): void {
     const axis: IAutoMovieVector3 = Vector3.normalize(path);
     for (let step: number = 1; step <= 8; ++step) {
       const t: number = aperture + ((placed - aperture) * step) / 8;
-      const delta: IAutoMovieVector3 = Vector3.subtract(frame(t).position, mouth);
+      const delta: IAutoMovieVector3 = Vector3.subtract(
+        frame(t).position,
+        mouth,
+      );
       const depth: number = Vector3.dot(delta, axis);
       TestValidator.predicate(
         name + " insertion along the authored corridor " + step,
         depth >= -0.015 &&
           depth <= Vector3.length(path) + 0.015 &&
-          Vector3.length(Vector3.subtract(delta, Vector3.scale(axis, depth))) <= 0.015,
+          Vector3.length(Vector3.subtract(delta, Vector3.scale(axis, depth))) <=
+            0.015,
       );
     }
     for (const time of [aperture, placed])
       TestValidator.predicate(
         name + " crosses without a position jump at " + time,
-        distance(frame(time - 1e-4).position, frame(time + 1e-4).position) <= 0.001,
+        distance(frame(time - 1e-4).position, frame(time + 1e-4).position) <=
+          0.001,
       );
     TestValidator.predicate(
       name + " stays seated through opening the hand and moves with the case",
@@ -230,9 +236,9 @@ export function test_human_motion_put_down_aperture(): void {
       }
       TestValidator.equals(
         "ordinary placement retains its events",
-        stage().segments("actor")[1]!.plan.events.map(
-          (item: IAutoMovieMotionEvent): string => item.name,
-        ),
+        stage()
+          .segments("actor")[1]!
+          .plan.events.map((item: IAutoMovieMotionEvent): string => item.name),
         ["placed", "release"],
       );
     }

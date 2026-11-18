@@ -151,7 +151,8 @@ export function test_human_motion_operate_paper(): void {
         wrist.x - expected.x,
         wrist.y - expected.y,
         wrist.z - expected.z,
-      ) <= 0.7 * body.measure.hand,
+      ) <=
+        0.7 * body.measure.hand,
     );
   }
 }

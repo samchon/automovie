@@ -299,10 +299,13 @@ export namespace HumanPerformanceSoft {
       domain,
       state.duration,
     );
-    const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined = prop?.softSpan;
-    const { seed, spans }: ReturnType<
-      typeof HumanPerformanceSoftBoundary.seed
-    > = HumanPerformanceSoftBoundary.seed(state, domain, span, count);
+    const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined =
+      prop?.softSpan;
+    const {
+      seed,
+      spans,
+    }: ReturnType<typeof HumanPerformanceSoftBoundary.seed> =
+      HumanPerformanceSoftBoundary.seed(state, domain, span, count);
 
     // The displayed bones of every person the domain or a grip names, read
     // once per step.

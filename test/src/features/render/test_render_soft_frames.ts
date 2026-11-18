@@ -55,8 +55,9 @@ export async function test_render_soft_frames(): Promise<void> {
         },
       },
       (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] => {
-        TestValidator.predicate("scene placement precedes surface read", () =>
-          placedAt === seconds,
+        TestValidator.predicate(
+          "scene placement precedes surface read",
+          () => placedAt === seconds,
         );
         readAt.push(seconds);
         return [panel(seconds)];

@@ -40,7 +40,9 @@ export function readHumanBladeExchangeCues(
     else if (entry.intent.anchor === replyAnchor) reply = entry;
   }
   if (opening === undefined || block === undefined)
-    throw new Error(`The film has no complete staged blade exchange named ${cue}`);
+    throw new Error(
+      `The film has no complete staged blade exchange named ${cue}`,
+    );
 
   const track: IAutoMovieScheduleCue[] = [];
   if (opening.contact !== undefined)

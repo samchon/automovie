@@ -1,13 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanWallClimb,
-  IAutoMovieMotionEvent,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -180,7 +180,8 @@ export function test_human_motion_wall_climb_support(): void {
       );
       TestValidator.predicate(
         `${side} grip socket reaches its hold at share ${transfer}`,
-        Vector3.length(Vector3.subtract(grip, wall.points[point]!.point)) <= 0.01,
+        Vector3.length(Vector3.subtract(grip, wall.points[point]!.point)) <=
+          0.01,
       );
     }
     TestValidator.predicate(

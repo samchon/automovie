@@ -67,7 +67,11 @@ export function test_human_motion_water_relative_stroke(): void {
                 worldPosition: {
                   x:
                     bone.worldPosition.x +
-                    (bone.bone === wet ? -shift : bone.bone === dry ? shift : 0),
+                    (bone.bone === wet
+                      ? -shift
+                      : bone.bone === dry
+                        ? shift
+                        : 0),
                   y: bone.bone === wet ? -10 : 10,
                   z: bone.worldPosition.z,
                 },
@@ -103,8 +107,12 @@ export function test_human_motion_water_relative_stroke(): void {
   const acceleration: number =
     (forward.at(middle + h).x[1]! - forward.at(middle - h).x[1]!) / (2 * h);
   const expected: number =
-    (-0.5 * density * resolveHydrodynamicForce.DRAG * area *
-      Math.abs(relative) * relative) /
+    (-0.5 *
+      density *
+      resolveHydrodynamicForce.DRAG *
+      area *
+      Math.abs(relative) *
+      relative) /
     body.profile.mass;
   TestValidator.predicate(
     "the wet segment's relative velocity supplies the longitudinal acceleration",

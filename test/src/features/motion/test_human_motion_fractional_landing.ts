@@ -64,15 +64,15 @@ export function test_human_motion_fractional_landing(): void {
     [small, shifted, 37, -2.25],
   ] as const) {
     const to: IAutoMovieVector3 = {
-      x: at.x + Math.sin(yaw * Math.PI / 180),
+      x: at.x + Math.sin((yaw * Math.PI) / 180),
       y: 0,
-      z: at.z + Math.cos(yaw * Math.PI / 180),
+      z: at.z + Math.cos((yaw * Math.PI) / 180),
     };
     const film: HumanPerformance = perform(body, at, yaw, to, { twist });
     const takeoff: number = event(film, "takeoff");
     const touchdown: number = event(film, "touchdown");
     const settled: number = event(film, "settled");
-    const heading: number = yaw * Math.PI / 180;
+    const heading: number = (yaw * Math.PI) / 180;
     const winding: number = 2 * Math.PI * twist;
     const label: string = `${twist} turns from ${yaw} degrees`;
 
@@ -90,10 +90,15 @@ export function test_human_motion_fractional_landing(): void {
           : film.pose("a", takeoff + (touchdown - takeoff) * u);
       const root: IAutoMovieQuaternion = pose.root!.rotation;
       const forward: IAutoMovieVector3 = Quaternion.rotateVector(root, {
-        x: 0, y: 0, z: 1,
+        x: 0,
+        y: 0,
+        z: 1,
       });
       const current: number = Math.atan2(forward.x, forward.z);
-      sum += Math.atan2(Math.sin(current - previous), Math.cos(current - previous));
+      sum += Math.atan2(
+        Math.sin(current - previous),
+        Math.cos(current - previous),
+      );
       previous = current;
       upright(label, root, heading + winding * u);
       legalRom(label, pose);
@@ -105,19 +110,25 @@ export function test_human_motion_fractional_landing(): void {
 
     const before: number = touchdown - 1e-6;
     const beforeAngle: number =
-      heading + winding * (before - takeoff) / (touchdown - takeoff);
-    const beforeRoot: NonNullable<IAutoMoviePose["root"]> =
-      film.pose("a", before).root!;
+      heading + (winding * (before - takeoff)) / (touchdown - takeoff);
+    const beforeRoot: NonNullable<IAutoMoviePose["root"]> = film.pose(
+      "a",
+      before,
+    ).root!;
     const afterRoot: NonNullable<IAutoMoviePose["root"]> = afterPose.root!;
     upright(`${label}: airborne left limit`, beforeRoot.rotation, beforeAngle);
     TestValidator.predicate(
       `${label}: the root enters absorption without a position jump`,
       close(beforeRoot.translation, afterRoot.translation),
     );
-    const beforeBones: ReturnType<HumanPerformance["bones"]> =
-      film.bones("a", before);
-    const plantBones: ReturnType<HumanPerformance["bones"]> =
-      film.bones("a", after);
+    const beforeBones: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "a",
+      before,
+    );
+    const plantBones: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "a",
+      after,
+    );
     const recovery: ReturnType<HumanPerformance["bones"]>[] = [];
     for (const seconds of [(touchdown + settled) / 2, settled, film.duration]) {
       const pose: IAutoMoviePose = film.pose("a", seconds);
@@ -148,7 +159,7 @@ export function test_human_motion_fractional_landing(): void {
         close(beforeBones.get(foot)!.worldPosition, contact.worldPosition),
       );
       const footYaw: number =
-        landed + (side === "left" ? 1 : -1) * stand.TOE_OUT * Math.PI / 180;
+        landed + ((side === "left" ? 1 : -1) * stand.TOE_OUT * Math.PI) / 180;
       for (const point of ["heel", "mtp", "toe"] as const) {
         /** Place a sole landmark using the displayed foot frame. */
         const sole = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
@@ -184,12 +195,18 @@ export function test_human_motion_fractional_landing(): void {
     }
   }
 
-  refuse("parameter", "turns", (): HumanPerformance =>
-    perform(average, origin, 0, { x: 0, y: 0, z: 1 }, { somersault: 0.5 }),
+  refuse(
+    "parameter",
+    "turns",
+    (): HumanPerformance =>
+      perform(average, origin, 0, { x: 0, y: 0, z: 1 }, { somersault: 0.5 }),
   );
   const raised: IAutoMovieVector3 = { x: 0, y: 0.2, z: 1 };
-  refuse("affordance", "to", (): HumanPerformance =>
-    perform(average, origin, 0, raised, { twist: 0.25 }),
+  refuse(
+    "affordance",
+    "to",
+    (): HumanPerformance =>
+      perform(average, origin, 0, raised, { twist: 0.25 }),
   );
 
   // The box's top coincides with the authored destination.
@@ -216,8 +233,11 @@ export function test_human_motion_fractional_landing(): void {
       },
     ],
   };
-  refuse("affordance", "on", (): HumanPerformance =>
-    perform(average, origin, 0, raised, { twist: 0.25 }, platform),
+  refuse(
+    "affordance",
+    "on",
+    (): HumanPerformance =>
+      perform(average, origin, 0, raised, { twist: 0.25 }, platform),
   );
 }
 
@@ -232,7 +252,9 @@ function perform(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "fractional-landing",
-    performers: [{ subject: "a", body, at, yaw, proficiency: { level: "trained" } }],
+    performers: [
+      { subject: "a", body, at, yaw, proficiency: { level: "trained" } },
+    ],
     ...(platform === undefined ? {} : { props: [platform] }),
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3 })
@@ -244,8 +266,7 @@ function perform(
           ...(platform === undefined ? {} : { on: platform.subject }),
         },
         "turn",
-      )
-      .node,
+      ).node,
   });
 }
 
@@ -259,7 +280,11 @@ function event(film: HumanPerformance, name: string): number {
 }
 
 /** Compare the displayed attitude with pure yaw about world up. */
-function upright(label: string, rotation: IAutoMovieQuaternion, heading: number): void {
+function upright(
+  label: string,
+  rotation: IAutoMovieQuaternion,
+  heading: number,
+): void {
   TestValidator.predicate(
     label,
     Quaternion.angle(rotation, yawRotation(heading)) <= 1e-6,
@@ -277,14 +302,23 @@ function legalRom(label: string, pose: IAutoMoviePose): void {
     const constraint: IAutoMovieJointConstraint | undefined =
       DEFAULT_HUMANOID_ROM[joint.bone];
     if (constraint !== undefined)
-      scanJointRom(joint, constraint, (part: IAutoMovieScanJointRom.Part): void => {
-        throw new Error(`${label}: ${joint.bone} ${part} exceeds the clinical range`);
-      });
+      scanJointRom(
+        joint,
+        constraint,
+        (part: IAutoMovieScanJointRom.Part): void => {
+          throw new Error(
+            `${label}: ${joint.bone} ${part} exceeds the clinical range`,
+          );
+        },
+      );
   }
 }
 
 /** The existing 5 mm continuity and contact bound, measured in world metres. */
-function close(actual: IAutoMovieVector3, expected: IAutoMovieVector3): boolean {
+function close(
+  actual: IAutoMovieVector3,
+  expected: IAutoMovieVector3,
+): boolean {
   return Vector3.length(Vector3.subtract(actual, expected)) <= 0.005;
 }
 

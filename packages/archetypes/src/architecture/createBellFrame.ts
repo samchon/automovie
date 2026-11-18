@@ -43,7 +43,12 @@ export function createBellFrame(
     createBellFrame.BANDS,
   );
   const builder: ArchetypeBuilder<"step", createBellFrame.Dimension> =
-    new ArchetypeBuilder({ id: params.id, name: "bell frame", material: "composite", draw });
+    new ArchetypeBuilder({
+      id: params.id,
+      name: "bell frame",
+      material: "composite",
+      draw,
+    });
   const wood: string = "#674d3a";
   const bronze: string = "#7c6546";
   const lip: string = "#4f4636";
@@ -63,7 +68,9 @@ export function createBellFrame(
   builder.affordance({
     id: "step",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, plinthHeight, halfDepth + stepDepth / 2)),
+    frame: ArchetypeFrame.upright(
+      Vector3.create(0, plinthHeight, halfDepth + stepDepth / 2),
+    ),
     extent: null,
     width: d.width,
     depth: stepDepth,
@@ -118,12 +125,22 @@ export function createBellFrame(
       return Vector3.create(r * Math.cos(angle), y, r * Math.sin(angle));
     });
   const waistRing: IAutoMovieVector3[] = ring(waist, radius * 0.62);
-  builder.convex("bell-shoulder", [...waistRing, ...ring(crown, radius * 0.37)], undefined, {
-    color: bronze,
-  });
-  builder.convex("bell-flare", [...ring(mouth, radius), ...waistRing], undefined, {
-    color: bronze,
-  });
+  builder.convex(
+    "bell-shoulder",
+    [...waistRing, ...ring(crown, radius * 0.37)],
+    undefined,
+    {
+      color: bronze,
+    },
+  );
+  builder.convex(
+    "bell-flare",
+    [...ring(mouth, radius), ...waistRing],
+    undefined,
+    {
+      color: bronze,
+    },
+  );
   builder.rod(
     "bell-lip",
     radius * 1.03,
@@ -131,9 +148,14 @@ export function createBellFrame(
     Vector3.create(0, mouth, 0),
     { color: lip },
   );
-  builder.ball("clapper", radius * 0.12, Vector3.create(0, mouth - radius * 0.13, 0), {
-    color: lip,
-  });
+  builder.ball(
+    "clapper",
+    radius * 0.12,
+    Vector3.create(0, mouth - radius * 0.13, 0),
+    {
+      color: lip,
+    },
+  );
   return builder.build(d.mass);
 }
 
@@ -181,7 +203,13 @@ export namespace createBellFrame {
    * @evidence contracts/development/common.md#meaningful-documentation Each sizing interval names its scene reference.
    */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of("m", 1.3, 1.8, `Fictional frame width. Bell outline reference: ${BELL}`, true),
+    width: ArchetypeBand.of(
+      "m",
+      1.3,
+      1.8,
+      `Fictional frame width. Bell outline reference: ${BELL}`,
+      true,
+    ),
     depth: ArchetypeBand.of("m", 1.1, 1.5, "Fictional frame depth", true),
     height: ArchetypeBand.of("m", 2.45, 3.1, "Fictional ridge height", true),
     mass: ArchetypeBand.of("kg", 120, 190, ArchetypeBand.TYPICAL_MASS, true),

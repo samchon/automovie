@@ -1,7 +1,4 @@
-import {
-  ArchetypeRefusal,
-  createSpacecraft,
-} from "@automovie/archetypes";
+import { ArchetypeRefusal, createSpacecraft } from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -50,19 +47,42 @@ export function test_archetype_spacecraft(): void {
     if (!condition) failures.push(label);
   };
 
-  const first: ReturnType<typeof createSpacecraft> = createSpacecraft({}, "dock");
-  const replay: ReturnType<typeof createSpacecraft> = createSpacecraft({}, "dock");
-  const variant: ReturnType<typeof createSpacecraft> = createSpacecraft({}, "cabin");
-  TestValidator.equals("seeded spacecraft dimensions", first.dimensions, replay.dimensions);
+  const first: ReturnType<typeof createSpacecraft> = createSpacecraft(
+    {},
+    "dock",
+  );
+  const replay: ReturnType<typeof createSpacecraft> = createSpacecraft(
+    {},
+    "dock",
+  );
+  const variant: ReturnType<typeof createSpacecraft> = createSpacecraft(
+    {},
+    "cabin",
+  );
+  TestValidator.equals(
+    "seeded spacecraft dimensions",
+    first.dimensions,
+    replay.dimensions,
+  );
   TestValidator.equals("seeded spacecraft geometry", first.parts, replay.parts);
-  TestValidator.equals("seeded spacecraft contacts", first.affordances, replay.affordances);
-  expect("distinct seeds vary at least one set dimension", first.dimensions.length !== variant.dimensions.length || first.dimensions.width !== variant.dimensions.width);
+  TestValidator.equals(
+    "seeded spacecraft contacts",
+    first.affordances,
+    replay.affordances,
+  );
+  expect(
+    "distinct seeds vary at least one set dimension",
+    first.dimensions.length !== variant.dimensions.length ||
+      first.dimensions.width !== variant.dimensions.width,
+  );
 
   expect("fixed set is admitted", validateModel({ model: set }).success);
   expect("set keeps its authored id", set.id === "civilian-transport");
   try {
     createSpacecraft({ hatchWidth: 0.4 }, 19);
-    failures.push("accepted a non-walkable hatch width below the authored band");
+    failures.push(
+      "accepted a non-walkable hatch width below the authored band",
+    );
   } catch (error) {
     expect(
       "hatch-width refusal names its field",
@@ -73,76 +93,229 @@ export function test_archetype_spacecraft(): void {
   const aperture: IAutoMovieAffordance = set.affordance("boardingOpening");
   const walkway: IAutoMovieAffordance = set.affordance("boardingWalkway");
   const floor: IAutoMovieAffordance = set.affordance("cabinFloor");
-  const pivot: IAutoMovieVector3 = set.affordance("boardingHatch").frame.translation;
-  expect("boarding uses an aperture and two supporting surfaces", aperture.kind === "aperture" && walkway.kind === "surface" && floor.kind === "surface");
-  near("hatch is at the rear end of the hull", aperture.frame.translation.z, -4);
+  const pivot: IAutoMovieVector3 =
+    set.affordance("boardingHatch").frame.translation;
+  expect(
+    "boarding uses an aperture and two supporting surfaces",
+    aperture.kind === "aperture" &&
+      walkway.kind === "surface" &&
+      floor.kind === "surface",
+  );
+  near(
+    "hatch is at the rear end of the hull",
+    aperture.frame.translation.z,
+    -4,
+  );
   near("aperture width", aperture.width!, 1.4);
   near("aperture height", aperture.height!, 2.1);
-  near("rear port jamb inner edge", archetypeExtent(set, "x", ["rear-port"]).low, 0.7);
-  near("rear starboard jamb inner edge", archetypeExtent(set, "x", ["rear-starboard"]).high, -0.7);
-  near("lintel clears an upright performer", archetypeExtent(set, "y", ["rear-lintel"]).low, 2.1);
-  near("walkway ends at the aperture plane", archetypeExtent(set, "z", ["walkway"]).high, -4);
-  near("walkway spans the authored run", archetypeExtent(set, "z", ["walkway"]).size, 3);
-  near("interior deck starts at the aperture plane", archetypeExtent(set, "z", ["cabin-deck"]).low, -4);
-  near("walkway contact matches walkway top", walkway.frame.translation.y, archetypeExtent(set, "y", ["walkway"]).high);
-  near("deck contact matches deck top", floor.frame.translation.y, archetypeExtent(set, "y", ["cabin-deck"]).high);
-  near("walkway and deck meet flush", walkway.frame.translation.y, floor.frame.translation.y);
-  near("threshold meets deck at floor height", aperture.frame.translation.y, floor.frame.translation.y);
+  near(
+    "rear port jamb inner edge",
+    archetypeExtent(set, "x", ["rear-port"]).low,
+    0.7,
+  );
+  near(
+    "rear starboard jamb inner edge",
+    archetypeExtent(set, "x", ["rear-starboard"]).high,
+    -0.7,
+  );
+  near(
+    "lintel clears an upright performer",
+    archetypeExtent(set, "y", ["rear-lintel"]).low,
+    2.1,
+  );
+  near(
+    "walkway ends at the aperture plane",
+    archetypeExtent(set, "z", ["walkway"]).high,
+    -4,
+  );
+  near(
+    "walkway spans the authored run",
+    archetypeExtent(set, "z", ["walkway"]).size,
+    3,
+  );
+  near(
+    "interior deck starts at the aperture plane",
+    archetypeExtent(set, "z", ["cabin-deck"]).low,
+    -4,
+  );
+  near(
+    "walkway contact matches walkway top",
+    walkway.frame.translation.y,
+    archetypeExtent(set, "y", ["walkway"]).high,
+  );
+  near(
+    "deck contact matches deck top",
+    floor.frame.translation.y,
+    archetypeExtent(set, "y", ["cabin-deck"]).high,
+  );
+  near(
+    "walkway and deck meet flush",
+    walkway.frame.translation.y,
+    floor.frame.translation.y,
+  );
+  near(
+    "threshold meets deck at floor height",
+    aperture.frame.translation.y,
+    floor.frame.translation.y,
+  );
 
   const outerSide: number = archetypeExtent(set, "x", ["cabin-port"]).high;
   const frontFace: number = archetypeExtent(set, "x", ["windscreen"]).high;
   near("cabin reaches half the authored width", outerSide, 2);
-  expect("forward windscreen is narrower than the cabin", frontFace < outerSide - 0.5);
-  near("nose ends half the authored length ahead", archetypeExtent(set, "z", ["windscreen"]).high, 4);
-  near("roof preserves the authored headroom", archetypeExtent(set, "y", ["cabin-roof"]).low, 2.75);
-  expect("side wall leaves room at the cabin center", archetypeExtent(set, "x", ["cabin-port"]).low > 1.7 && archetypeExtent(set, "x", ["cabin-starboard"]).high < -1.7);
+  expect(
+    "forward windscreen is narrower than the cabin",
+    frontFace < outerSide - 0.5,
+  );
+  near(
+    "nose ends half the authored length ahead",
+    archetypeExtent(set, "z", ["windscreen"]).high,
+    4,
+  );
+  near(
+    "roof preserves the authored headroom",
+    archetypeExtent(set, "y", ["cabin-roof"]).low,
+    2.75,
+  );
+  expect(
+    "side wall leaves room at the cabin center",
+    archetypeExtent(set, "x", ["cabin-port"]).low > 1.7 &&
+      archetypeExtent(set, "x", ["cabin-starboard"]).high < -1.7,
+  );
 
-  const closedHandle: IAutoMovieVector3 = set.affordance("boardingHandle").frame.translation;
-  const open: ReturnType<typeof createSpacecraft> = set.articulate({ boardingHatch: 90 });
-  const openHandle: IAutoMovieVector3 = open.affordance("boardingHandle").frame.translation;
-  near("shut leaf spans the aperture", archetypeExtent(set, "x", ["hatch-leaf"]).size, 1.4);
-  near("open leaf stays outside the clear width", archetypeExtent(open, "x", ["hatch-leaf"]).high, -0.7);
-  near("open leaf swings outward by the opening width", archetypeExtent(open, "z", ["hatch-leaf"]).low, -5.4);
-  near("right-angle grip X", openHandle.x, pivot.x - (pivot.z - closedHandle.z));
+  const closedHandle: IAutoMovieVector3 =
+    set.affordance("boardingHandle").frame.translation;
+  const open: ReturnType<typeof createSpacecraft> = set.articulate({
+    boardingHatch: 90,
+  });
+  const openHandle: IAutoMovieVector3 =
+    open.affordance("boardingHandle").frame.translation;
+  near(
+    "shut leaf spans the aperture",
+    archetypeExtent(set, "x", ["hatch-leaf"]).size,
+    1.4,
+  );
+  near(
+    "open leaf stays outside the clear width",
+    archetypeExtent(open, "x", ["hatch-leaf"]).high,
+    -0.7,
+  );
+  near(
+    "open leaf swings outward by the opening width",
+    archetypeExtent(open, "z", ["hatch-leaf"]).low,
+    -5.4,
+  );
+  near(
+    "right-angle grip X",
+    openHandle.x,
+    pivot.x - (pivot.z - closedHandle.z),
+  );
   near("right-angle grip Y", openHandle.y, closedHandle.y);
-  near("right-angle grip Z", openHandle.z, pivot.z - (closedHandle.x - pivot.x));
-  near("open handle remains on its rod", openHandle.x, (archetypeExtent(open, "x", ["hatch-grip"]).low + archetypeExtent(open, "x", ["hatch-grip"]).high) / 2);
-  near("hatch articulation leaves the deck fixed", archetypeExtent(open, "z", ["walkway"]).high, -4);
+  near(
+    "right-angle grip Z",
+    openHandle.z,
+    pivot.z - (closedHandle.x - pivot.x),
+  );
+  near(
+    "open handle remains on its rod",
+    openHandle.x,
+    (archetypeExtent(open, "x", ["hatch-grip"]).low +
+      archetypeExtent(open, "x", ["hatch-grip"]).high) /
+      2,
+  );
+  near(
+    "hatch articulation leaves the deck fixed",
+    archetypeExtent(open, "z", ["walkway"]).high,
+    -4,
+  );
 
-  for (const [id, station] of [["aftHandrail", -2.8], ["forwardHandrail", -0.4]] as const) {
+  for (const [id, station] of [
+    ["aftHandrail", -2.8],
+    ["forwardHandrail", -0.4],
+  ] as const) {
     const rail: IAutoMovieAffordance = set.affordance(id);
     const grip: IAutoMovieVector3 = rail.frame.translation;
-    const { x, y, z }: IAutoMovieVector3 = open.affordance(id).frame.translation;
-    expect(`${id} is a fixed power grip`, rail.kind === "bar" && rail.grip === "power" && rail.rides === undefined);
+    const { x, y, z }: IAutoMovieVector3 =
+      open.affordance(id).frame.translation;
+    expect(
+      `${id} is a fixed power grip`,
+      rail.kind === "bar" && rail.grip === "power" && rail.rides === undefined,
+    );
     near(`${id} grip station`, grip.z, station);
     near(`${id} grip above the cabin deck`, grip.y, 1.63);
-    near(`${id} grip stays fixed as the hatch opens`, Math.hypot(x - grip.x, y - grip.y, z - grip.z), 0);
+    near(
+      `${id} grip stays fixed as the hatch opens`,
+      Math.hypot(x - grip.x, y - grip.y, z - grip.z),
+      0,
+    );
     near(`${id} grip diameter`, rail.aperture!, 0.032);
-    near(`${id} declared length spans the solid bar`, rail.length!, archetypeExtent(set, "z", [id]).size);
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(rail.frame.rotation, { x: 0, y: 1, z: 0 });
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(rail.frame.rotation, { x: 1, y: 0, z: 0 });
+    near(
+      `${id} declared length spans the solid bar`,
+      rail.length!,
+      archetypeExtent(set, "z", [id]).size,
+    );
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      rail.frame.rotation,
+      { x: 0, y: 1, z: 0 },
+    );
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+      rail.frame.rotation,
+      { x: 1, y: 0, z: 0 },
+    );
     near(`${id} faces into the cabin`, normal.x, 1);
     near(`${id} runs along the cabin`, along.z, 1);
-    const cabinWall: number = archetypeExtent(set, "x", ["cabin-starboard"]).high;
-    expect(`${id} leaves grip clearance from the cabin wall`, archetypeExtent(set, "x", [id]).low - cabinWall > 0.08);
-    near(`${id} brackets start at the cabin wall`, archetypeExtent(set, "x", [`${id}-aft-bracket`, `${id}-forward-bracket`]).low, cabinWall);
+    const cabinWall: number = archetypeExtent(set, "x", [
+      "cabin-starboard",
+    ]).high;
+    expect(
+      `${id} leaves grip clearance from the cabin wall`,
+      archetypeExtent(set, "x", [id]).low - cabinWall > 0.08,
+    );
+    near(
+      `${id} brackets start at the cabin wall`,
+      archetypeExtent(set, "x", [`${id}-aft-bracket`, `${id}-forward-bracket`])
+        .low,
+      cabinWall,
+    );
   }
 
-  const tight: ReturnType<typeof createSpacecraft> = createSpacecraft({
-    width: 3.4,
-    length: 6,
-    cabinHeight: 2.45,
-    hatchWidth: 1.6,
-    hatchHeight: 2.2,
-  }, 20);
+  const tight: ReturnType<typeof createSpacecraft> = createSpacecraft(
+    {
+      width: 3.4,
+      length: 6,
+      cabinHeight: 2.45,
+      hatchWidth: 1.6,
+      hatchHeight: 2.2,
+    },
+    20,
+  );
   const seat: IAutoMovieAffordance = tight.affordance("crewSeat");
   const consoleTop: IAutoMovieAffordance = tight.affordance("controlConsole");
   expect("tight cabin is admitted", validateModel({ model: tight }).success);
-  expect("crew station is a seat facing its console surface", seat.kind === "seat" && consoleTop.kind === "surface" && seat.frame.translation.z < consoleTop.frame.translation.z);
-  near("seat contact is on the front edge of the pan", seat.frame.translation.z, archetypeExtent(tight, "z", ["seat-pan"]).high);
-  near("seat stands on its pan", seat.frame.translation.y, archetypeExtent(tight, "y", ["seat-pan"]).high);
-  near("console contact is on the console top", consoleTop.frame.translation.y, archetypeExtent(tight, "y", ["console-top"]).high);
-  expect("seat does not narrow the boarding lane", archetypeExtent(tight, "x", ["seat-pan"]).low > 0.8);
+  expect(
+    "crew station is a seat facing its console surface",
+    seat.kind === "seat" &&
+      consoleTop.kind === "surface" &&
+      seat.frame.translation.z < consoleTop.frame.translation.z,
+  );
+  near(
+    "seat contact is on the front edge of the pan",
+    seat.frame.translation.z,
+    archetypeExtent(tight, "z", ["seat-pan"]).high,
+  );
+  near(
+    "seat stands on its pan",
+    seat.frame.translation.y,
+    archetypeExtent(tight, "y", ["seat-pan"]).high,
+  );
+  near(
+    "console contact is on the console top",
+    consoleTop.frame.translation.y,
+    archetypeExtent(tight, "y", ["console-top"]).high,
+  );
+  expect(
+    "seat does not narrow the boarding lane",
+    archetypeExtent(tight, "x", ["seat-pan"]).low > 0.8,
+  );
 
   TestValidator.equals("spacecraft staging discrepancies", failures, []);
 }

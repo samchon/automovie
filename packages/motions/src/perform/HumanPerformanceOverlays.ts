@@ -163,9 +163,7 @@ export namespace HumanPerformanceOverlays {
   export function validate(person: IAutoMovieMotionHumanSegment.IPerson): void {
     const overlays: IAutoMovieMotionHumanSegment.IOverlay[] = [
       ...person.overlays,
-    ].sort(
-      (a, b): number => a.entryTime - b.entryTime || a.entry - b.entry,
-    );
+    ].sort((a, b): number => a.entryTime - b.entryTime || a.entry - b.entry);
     const active: Set<IAutoMovieMotionHumanSegment.IOverlay> = new Set();
     let cursor: number = 0;
     for (const [index, carrier] of person.segments.entries()) {
@@ -174,7 +172,8 @@ export namespace HumanPerformanceOverlays {
         continue;
 
       while (cursor < overlays.length && overlays[cursor]!.entryTime < next) {
-        const overlay: IAutoMovieMotionHumanSegment.IOverlay = overlays[cursor++]!;
+        const overlay: IAutoMovieMotionHumanSegment.IOverlay =
+          overlays[cursor++]!;
         if (overlay.end > carrier.entryTime + 1e-9) active.add(overlay);
       }
       for (const overlay of active) {

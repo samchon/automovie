@@ -13,8 +13,8 @@ import type {
   IAutoMovieCompilePracticalLightMotion,
   IAutoMovieConstraintViolation,
   IAutoMovieLight,
-  IAutoMoviePerformedShot,
   IAutoMoviePerformShotProps,
+  IAutoMoviePerformedShot,
   IAutoMoviePracticalLightBinding,
   IAutoMovieQuaternion,
   IAutoMovieSampledChannel,
@@ -184,8 +184,7 @@ export function test_film_practical_light_motion(): void {
       x: 3 + diagonal,
       y: 2 + diagonal,
       z: 3,
-    }) &&
-      vclose(aim(at(0.75)), { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 }),
+    }) && vclose(aim(at(0.75)), { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 }),
   );
   TestValidator.predicate(
     "emitter placement keeps following the prop after switch-off",
@@ -233,10 +232,11 @@ export function test_film_practical_light_motion(): void {
     z: turn[2]!,
     w: turn[3]!,
   };
-  const carriedBeam: IAutoMovieVector3 = Quaternion.rotateVector(
-    orientation,
-    { x: 0, y: 1, z: 0 },
-  );
+  const carriedBeam: IAutoMovieVector3 = Quaternion.rotateVector(orientation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
   const carriedLight: IAutoMovieLight = resolveShotLighting({
     lights: staged.scene.lights,
     clips: carried.shot.lightMotions ?? [],
@@ -311,10 +311,12 @@ export function test_film_practical_light_motion(): void {
     "bad emitter and missing motion samples identify their authored bindings",
     !invalid.success &&
       invalid.violations.some(
-        (item: IAutoMovieConstraintViolation): boolean => item.path === "$input.practicalLights[0].emitter",
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.practicalLights[0].emitter",
       ) &&
       invalid.violations.some(
-        (item: IAutoMovieConstraintViolation): boolean => item.path === "$input.practicalLights[1]" &&
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.practicalLights[1]" &&
           item.expected.includes("sample times are required"),
       ),
   );
@@ -326,7 +328,8 @@ export function test_film_practical_light_motion(): void {
     "a manual light clip cannot also own a channel the practical binding writes",
     !conflicting.success &&
       conflicting.violations.some(
-        (item: IAutoMovieConstraintViolation): boolean => item.path.startsWith("$input.practicalLights[0].tracks") &&
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path.startsWith("$input.practicalLights[0].tracks") &&
           item.expected.includes("must be unique"),
       ),
   );

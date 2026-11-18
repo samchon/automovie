@@ -6,7 +6,11 @@ import {
   createRailPlatform,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -43,12 +47,26 @@ export function test_archetype_rail_carriage(): void {
     car: ArchetypeAssembly.IMember<createRailCarriage.Affordance, never>;
     station: ArchetypeAssembly.IMember<"platform" | "platformEdge", never>;
   };
-  const assembled: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>("parked", "parked metro car", {
-    car: { archetype: open, placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }) },
-    station: { archetype: platform, placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }) },
-  });
-  TestValidator.predicate("car, platform and parked assembly are admitted", () =>
-    [car, open, platform, assembled].every((model: IAutoMovieModel): boolean => validateModel({ model }).success),
+  const assembled: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>(
+    "parked",
+    "parked metro car",
+    {
+      car: {
+        archetype: open,
+        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      },
+      station: {
+        archetype: platform,
+        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      },
+    },
+  );
+  TestValidator.predicate(
+    "car, platform and parked assembly are admitted",
+    () =>
+      [car, open, platform, assembled].every(
+        (model: IAutoMovieModel): boolean => validateModel({ model }).success,
+      ),
   );
 
   // The free interval is between the physical inner edges of the two leaves.
@@ -56,12 +74,15 @@ export function test_archetype_rail_carriage(): void {
     const pose: typeof car = car.articulate({ door: travel });
     const positive: number = leafEdge(pose, "door-lower", -1);
     const negative: number = leafEdge(pose, "doorFollower-lower", 1);
-    TestValidator.predicate("paired leaves split the opening evenly", () =>
-      nclose(positive, travel) && nclose(negative, -travel),
+    TestValidator.predicate(
+      "paired leaves split the opening evenly",
+      () => nclose(positive, travel) && nclose(negative, -travel),
     );
-    TestValidator.predicate("opposite-side pair stays closed", () =>
-      nclose(leafEdge(pose, "farDoor1-lower", -1), 0) &&
-      nclose(leafEdge(pose, "farDoor1Follower-lower", 1), 0),
+    TestValidator.predicate(
+      "opposite-side pair stays closed",
+      () =>
+        nclose(leafEdge(pose, "farDoor1-lower", -1), 0) &&
+        nclose(leafEdge(pose, "farDoor1Follower-lower", 1), 0),
     );
   }
 
@@ -70,34 +91,49 @@ export function test_archetype_rail_carriage(): void {
   const aisle: IAutoMovieAffordance = assembled.affordance("car/aisle");
   const seat: IAutoMovieAffordance = assembled.affordance("car/seat");
   const rail: IAutoMovieAffordance = assembled.affordance("car/grabRail");
-  const edge: IAutoMovieAffordance = assembled.affordance("station/platformEdge");
+  const edge: IAutoMovieAffordance = assembled.affordance(
+    "station/platformEdge",
+  );
   const top: IAutoMovieAffordance = assembled.affordance("station/platform");
   const gap: number = edge.frame.translation.x - bodyHalfWidth;
-  TestValidator.predicate("door is 54 inches wide and sill ends at the car side", () =>
-    doorway.kind === "aperture" &&
-    nclose(doorway.width!, 54 * 0.0254) &&
-    nclose(sill.depth!, 54 * 0.0254) &&
-    sill.width! >= 0.32 &&
-    nclose(sill.frame.translation.x + sill.width! / 2, bodyHalfWidth),
+  TestValidator.predicate(
+    "door is 54 inches wide and sill ends at the car side",
+    () =>
+      doorway.kind === "aperture" &&
+      nclose(doorway.width!, 54 * 0.0254) &&
+      nclose(sill.depth!, 54 * 0.0254) &&
+      sill.width! >= 0.32 &&
+      nclose(sill.frame.translation.x + sill.width! / 2, bodyHalfWidth),
   );
-  TestValidator.predicate("platform aligns with the sill and leaves a level boarding gap", () =>
-    gap > 0 && gap <= 3 * 0.0254 &&
-    nclose(sill.frame.translation.y, floorHeight) &&
-    nclose(top.frame.translation.y, floorHeight) &&
-    nclose(top.frame.translation.x - top.width! / 2, edge.frame.translation.x) &&
-    nclose(top.frame.translation.z, 0),
+  TestValidator.predicate(
+    "platform aligns with the sill and leaves a level boarding gap",
+    () =>
+      gap > 0 &&
+      gap <= 3 * 0.0254 &&
+      nclose(sill.frame.translation.y, floorHeight) &&
+      nclose(top.frame.translation.y, floorHeight) &&
+      nclose(
+        top.frame.translation.x - top.width! / 2,
+        edge.frame.translation.x,
+      ) &&
+      nclose(top.frame.translation.z, 0),
   );
-  TestValidator.predicate("clear aisle between transverse seats and usable vertical grab rail", () =>
-    aisle.kind === "surface" && aisle.width! >= 32 * 0.0254 &&
-    vclose(aisle.frame.translation, { x: 0, y: floorHeight, z: 0 }) &&
-    seat.kind === "seat" && nclose(seat.width!, 22 * 0.0254) &&
-    seat.frame.translation.x + seat.width! / 2 <= -aisle.width! / 2 + 1e-6 &&
-    vclose(ArchetypeFrame.axis(seat.frame, "z"), { x: 0, y: 0, z: 1 }) &&
-    rail.kind === "bar" && rail.aperture! >= 1.25 * 0.0254 &&
-    rail.aperture! <= 1.5 * 0.0254 &&
-    rail.frame.translation.z - rail.aperture! / 2 > leafWidth &&
-    rail.frame.translation.x - rail.aperture! / 2 > aisle.width! / 2 &&
-    vclose(ArchetypeFrame.axis(rail.frame, "x"), { x: 0, y: 1, z: 0 }),
+  TestValidator.predicate(
+    "clear aisle between transverse seats and usable vertical grab rail",
+    () =>
+      aisle.kind === "surface" &&
+      aisle.width! >= 32 * 0.0254 &&
+      vclose(aisle.frame.translation, { x: 0, y: floorHeight, z: 0 }) &&
+      seat.kind === "seat" &&
+      nclose(seat.width!, 22 * 0.0254) &&
+      seat.frame.translation.x + seat.width! / 2 <= -aisle.width! / 2 + 1e-6 &&
+      vclose(ArchetypeFrame.axis(seat.frame, "z"), { x: 0, y: 0, z: 1 }) &&
+      rail.kind === "bar" &&
+      rail.aperture! >= 1.25 * 0.0254 &&
+      rail.aperture! <= 1.5 * 0.0254 &&
+      rail.frame.translation.z - rail.aperture! / 2 > leafWidth &&
+      rail.frame.translation.x - rail.aperture! / 2 > aisle.width! / 2 &&
+      vclose(ArchetypeFrame.axis(rail.frame, "x"), { x: 0, y: 1, z: 0 }),
   );
 
   const ride: ArchetypeRide.IRide<createRailCarriage.Affordance, never> =
@@ -110,9 +146,15 @@ export function test_archetype_rail_carriage(): void {
     });
   for (const contact of ["seat", "aisle", "threshold"] as const) {
     const from: IAutoMovieAffordance["frame"] = ride.frame(contact, 0);
-    const to: IAutoMovieAffordance["frame"] = ride.frame(contact, ride.duration);
+    const to: IAutoMovieAffordance["frame"] = ride.frame(
+      contact,
+      ride.duration,
+    );
     TestValidator.predicate("rigid contact travels with the car", () =>
-      vclose(to.translation, { ...from.translation, z: from.translation.z + 8 }),
+      vclose(to.translation, {
+        ...from.translation,
+        z: from.translation.z + 8,
+      }),
     );
   }
   TestValidator.predicate("standalone platform stays at the parked bay", () =>
@@ -130,9 +172,13 @@ function leafEdge(
     (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
   );
   if (
-    part?.transform === undefined || part.transform === null ||
-    part.geometry.type !== "primitive" || part.geometry.shape.type !== "box"
+    part?.transform === undefined ||
+    part.transform === null ||
+    part.geometry.type !== "primitive" ||
+    part.geometry.shape.type !== "box"
   )
     throw new Error("Missing leaf panel " + id);
-  return part.transform.translation.z + direction * part.geometry.shape.depth / 2;
+  return (
+    part.transform.translation.z + (direction * part.geometry.shape.depth) / 2
+  );
 }

@@ -1,8 +1,4 @@
-import {
-  type Archetype,
-  type ArchetypeCourse,
-  ArchetypeRide,
-} from "../core";
+import { type Archetype, type ArchetypeCourse, ArchetypeRide } from "../core";
 import type { createWheelchair } from "./createWheelchair";
 
 /**
@@ -26,7 +22,10 @@ import type { createWheelchair } from "./createWheelchair";
 export function rideWheelchair(
   chair: Archetype<createWheelchair.Affordance, createWheelchair.Dimension>,
   course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-): ArchetypeRide.IRide<createWheelchair.Affordance, createWheelchair.Dimension> {
+): ArchetypeRide.IRide<
+  createWheelchair.Affordance,
+  createWheelchair.Dimension
+> {
   const circumference: number = Math.PI * chair.dimensions.wheelDiameter!;
   return ArchetypeRide.along(
     chair,

@@ -70,7 +70,9 @@ export function test_film_cut_sequence_required_events(): void {
   if (removed.success === false)
     TestValidator.equals(
       "trimmed event path",
-      removed.violations.map((item: IAutoMovieConstraintViolation): string => item.path),
+      removed.violations.map(
+        (item: IAutoMovieConstraintViolation): string => item.path,
+      ),
       ["$input.requiredEvents[0].event"],
     );
 
@@ -104,7 +106,9 @@ export function test_film_cut_sequence_required_events(): void {
   if (ambiguous.success === false)
     TestValidator.equals(
       "ambiguous event path",
-      ambiguous.violations.map((item: IAutoMovieConstraintViolation): string => item.path),
+      ambiguous.violations.map(
+        (item: IAutoMovieConstraintViolation): string => item.path,
+      ),
       ["$input.requiredEvents[0].event"],
     );
 
@@ -118,7 +122,9 @@ export function test_film_cut_sequence_required_events(): void {
   if (invalid.success === false)
     TestValidator.equals(
       "address violation paths",
-      invalid.violations.map((item: IAutoMovieConstraintViolation): string => item.path),
+      invalid.violations.map(
+        (item: IAutoMovieConstraintViolation): string => item.path,
+      ),
       [
         "$input.requiredEvents[0].entry",
         "$input.requiredEvents[0].event",

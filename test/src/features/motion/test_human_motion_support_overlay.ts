@@ -51,10 +51,9 @@ export function test_human_motion_support_overlay(): void {
       },
     ],
   };
-  const braced: IAutoMovieMotionHumanChain = HumanChain.subject("person").support(
-    bracedContacts,
-    "braced",
-  );
+  const braced: IAutoMovieMotionHumanChain = HumanChain.subject(
+    "person",
+  ).support(bracedContacts, "braced");
   const onBrace = (side: "left" | "right"): IAutoMovieMotionHumanChain =>
     braced.over(
       (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
@@ -89,7 +88,9 @@ export function test_human_motion_support_overlay(): void {
     );
     all.equals(
       "the signal takes the arm opposite the planted hand",
-      [...signal.channels].sort((a: string, b: string): number => a.localeCompare(b)),
+      [...signal.channels].sort((a: string, b: string): number =>
+        a.localeCompare(b),
+      ),
       ["leftArm", "leftHand"],
     );
     const posed: IAutoMovieResolvedBone = supported
@@ -136,8 +137,9 @@ export function test_human_motion_support_overlay(): void {
         body,
         HumanChain.subject("person")
           .stand({ seconds: standSeconds }, "before")
-          .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
+          .over(
+            (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
           )
           .support(bracedContacts, "after")
           .sync({ of: "before", event: "start", offset: 0.25 }),

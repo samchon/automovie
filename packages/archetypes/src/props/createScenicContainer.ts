@@ -62,7 +62,10 @@ const v: typeof Vector3.create = Vector3.create;
 export function createScenicContainer(
   params: createScenicContainer.IParams,
   seed?: number | string,
-): Archetype<createScenicContainer.Affordance, createScenicContainer.Dimension> {
+): Archetype<
+  createScenicContainer.Affordance,
+  createScenicContainer.Dimension
+> {
   const draw: ArchetypeDrawSession<createScenicContainer.Dimension> =
     new ArchetypeDrawSession(
       "scenicContainer",
@@ -110,8 +113,9 @@ export function createScenicContainer(
 
 /** Points on one horizontal polygon at the given height and full diameters. */
 function outline(width: number, depth: number, y: number): IAutoMovieVector3[] {
-  return OCTAGON.map(([x, z]: readonly [number, number]): IAutoMovieVector3 =>
-    v((x * width) / 2, y, (z * depth) / 2),
+  return OCTAGON.map(
+    ([x, z]: readonly [number, number]): IAutoMovieVector3 =>
+      v((x * width) / 2, y, (z * depth) / 2),
   );
 }
 
@@ -137,66 +141,136 @@ function surface(
 }
 
 /** Fixed stacked sections suggest a coiled body and fitted lid in the guide render. */
-function coilBasket(builder: Builder, width: number, depth: number, height: number): void {
+function coilBasket(
+  builder: Builder,
+  width: number,
+  depth: number,
+  height: number,
+): void {
   const shoulder: number = height * 0.22;
   const seam: number = height * 0.86;
-  builder.convex("foot", [
-    ...outline(width * 0.82, depth * 0.82, 0),
-    ...outline(width, depth, shoulder),
-  ], undefined, { color: "#a87947" });
-  builder.convex("body", [
-    ...outline(width, depth, shoulder),
-    ...outline(width, depth, seam),
-  ], undefined, { color: "#c49a61" });
-  builder.convex("lid", [
-    ...outline(width, depth, seam),
-    ...outline(width * 0.88, depth * 0.88, height),
-  ], undefined, { color: "#b58a50" });
-  surface(builder, "top", height, width * 0.88 * Math.SQRT1_2, depth * 0.88 * Math.SQRT1_2);
+  builder.convex(
+    "foot",
+    [
+      ...outline(width * 0.82, depth * 0.82, 0),
+      ...outline(width, depth, shoulder),
+    ],
+    undefined,
+    { color: "#a87947" },
+  );
+  builder.convex(
+    "body",
+    [...outline(width, depth, shoulder), ...outline(width, depth, seam)],
+    undefined,
+    { color: "#c49a61" },
+  );
+  builder.convex(
+    "lid",
+    [
+      ...outline(width, depth, seam),
+      ...outline(width * 0.88, depth * 0.88, height),
+    ],
+    undefined,
+    { color: "#b58a50" },
+  );
+  surface(
+    builder,
+    "top",
+    height,
+    width * 0.88 * Math.SQRT1_2,
+    depth * 0.88 * Math.SQRT1_2,
+  );
 }
 
 /** Willow-colored panels widen toward the rim while leaving the open interior clear. */
-function fishBasket(builder: Builder, width: number, depth: number, height: number): void {
+function fishBasket(
+  builder: Builder,
+  width: number,
+  depth: number,
+  height: number,
+): void {
   const floor: number = height * 0.1;
   const baseScale: number = 0.62;
   const insideScale: number = 0.88;
-  const bottom: IAutoMovieVector3[] = outline(width * baseScale, depth * baseScale, floor);
+  const bottom: IAutoMovieVector3[] = outline(
+    width * baseScale,
+    depth * baseScale,
+    floor,
+  );
   const innerBottom: IAutoMovieVector3[] = outline(
-    width * baseScale * insideScale, depth * baseScale * insideScale, floor,
+    width * baseScale * insideScale,
+    depth * baseScale * insideScale,
+    floor,
   );
   const rim: IAutoMovieVector3[] = outline(width, depth, height);
-  const innerRim: IAutoMovieVector3[] = outline(width * insideScale, depth * insideScale, height);
+  const innerRim: IAutoMovieVector3[] = outline(
+    width * insideScale,
+    depth * insideScale,
+    height,
+  );
 
-  builder.convex("floor", [
-    ...outline(width * baseScale, depth * baseScale, 0),
-    ...bottom,
-  ], undefined, { color: "#806342" });
+  builder.convex(
+    "floor",
+    [...outline(width * baseScale, depth * baseScale, 0), ...bottom],
+    undefined,
+    { color: "#806342" },
+  );
   for (let index: number = 0; index < OCTAGON.length; index++) {
     const next: number = (index + 1) % OCTAGON.length;
-    builder.convex(`willow-panel-${index}`, [
-      bottom[index]!, bottom[next]!, innerBottom[index]!, innerBottom[next]!,
-      rim[index]!, rim[next]!, innerRim[index]!, innerRim[next]!,
-    ], undefined, { color: index % 2 === 0 ? "#a68752" : "#967744" });
+    builder.convex(
+      `willow-panel-${index}`,
+      [
+        bottom[index]!,
+        bottom[next]!,
+        innerBottom[index]!,
+        innerBottom[next]!,
+        rim[index]!,
+        rim[next]!,
+        innerRim[index]!,
+        innerRim[next]!,
+      ],
+      undefined,
+      { color: index % 2 === 0 ? "#a68752" : "#967744" },
+    );
   }
   surface(
-    builder, "inside", floor,
+    builder,
+    "inside",
+    floor,
     width * baseScale * insideScale * Math.SQRT1_2,
     depth * baseScale * insideScale * Math.SQRT1_2,
   );
 }
 
 /** An overhanging plank lid and three differently toned planks define the closed wooden chest. */
-function coffer(builder: Builder, width: number, depth: number, height: number): void {
+function coffer(
+  builder: Builder,
+  width: number,
+  depth: number,
+  height: number,
+): void {
   const lid: number = height * 0.15;
   const plank: number = (height - lid) / 3;
   for (const [index, color] of ["#72543b", "#927051", "#816043"].entries())
-    builder.box(`plank-${index}`, v(width * 0.94, plank, depth * 0.9), v(0, plank * (index + 0.5), 0), { color });
-  builder.box("lid", v(width, lid, depth), v(0, height - lid / 2, 0), { color: "#614834" });
+    builder.box(
+      `plank-${index}`,
+      v(width * 0.94, plank, depth * 0.9),
+      v(0, plank * (index + 0.5), 0),
+      { color },
+    );
+  builder.box("lid", v(width, lid, depth), v(0, height - lid / 2, 0), {
+    color: "#614834",
+  });
   surface(builder, "top", height, width, depth);
 }
 
 /** An uninterrupted floor and ribbed open walls represent a molded dairy crate. */
-function crate(builder: Builder, width: number, depth: number, height: number): void {
+function crate(
+  builder: Builder,
+  width: number,
+  depth: number,
+  height: number,
+): void {
   const floor: number = height * 0.12;
   const rail: number = height * 0.1;
   const wall: number = Math.min(width, depth) * 0.06;
@@ -209,37 +283,77 @@ function crate(builder: Builder, width: number, depth: number, height: number): 
   for (const sign of [-1, 1]) {
     const x: number = (sign * (width - wall)) / 2;
     const z: number = (sign * (depth - wall)) / 2;
-    builder.box(`rim-x-${sign}`, v(width, rail, wall), v(0, height - rail / 2, z), { color });
-    builder.box(`rim-z-${sign}`, v(wall, rail, insideDepth), v(x, height - rail / 2, 0), { color });
+    builder.box(
+      `rim-x-${sign}`,
+      v(width, rail, wall),
+      v(0, height - rail / 2, z),
+      { color },
+    );
+    builder.box(
+      `rim-z-${sign}`,
+      v(wall, rail, insideDepth),
+      v(x, height - rail / 2, 0),
+      { color },
+    );
     for (let step: number = 0; step <= stride; step++) {
       const across: number = step / stride - 0.5;
       const y: number = floor + insideHeight / 2;
-      builder.box(`rib-x-${sign}-${step}`, v(wall, insideHeight, wall), v(across * (width - wall), y, z), { color });
+      builder.box(
+        `rib-x-${sign}-${step}`,
+        v(wall, insideHeight, wall),
+        v(across * (width - wall), y, z),
+        { color },
+      );
       if (step !== 0 && step !== stride)
-        builder.box(`rib-z-${sign}-${step}`, v(wall, insideHeight, wall), v(x, y, across * (depth - wall)), { color });
+        builder.box(
+          `rib-z-${sign}-${step}`,
+          v(wall, insideHeight, wall),
+          v(x, y, across * (depth - wall)),
+          { color },
+        );
     }
   }
   surface(builder, "inside", floor, width - 2 * wall, insideDepth);
 }
 
 /** A fictional faceted pod with a contrasting center shell and flat cap. */
-function pod(builder: Builder, width: number, depth: number, height: number): void {
+function pod(
+  builder: Builder,
+  width: number,
+  depth: number,
+  height: number,
+): void {
   const foot: number = height * 0.24;
   const shoulder: number = height * 0.72;
   const capScale: number = 0.7;
-  builder.convex("base", [
-    ...outline(width * 0.76, depth * 0.76, 0),
-    ...outline(width, depth, foot),
-  ], undefined, { color: "#313c49" });
-  builder.convex("shell", [
-    ...outline(width, depth, foot),
-    ...outline(width, depth, shoulder),
-  ], undefined, { color: "#518287" });
-  builder.convex("cap", [
-    ...outline(width, depth, shoulder),
-    ...outline(width * capScale, depth * capScale, height),
-  ], undefined, { color: "#d4dbd8" });
-  surface(builder, "top", height, width * capScale * Math.SQRT1_2, depth * capScale * Math.SQRT1_2);
+  builder.convex(
+    "base",
+    [...outline(width * 0.76, depth * 0.76, 0), ...outline(width, depth, foot)],
+    undefined,
+    { color: "#313c49" },
+  );
+  builder.convex(
+    "shell",
+    [...outline(width, depth, foot), ...outline(width, depth, shoulder)],
+    undefined,
+    { color: "#518287" },
+  );
+  builder.convex(
+    "cap",
+    [
+      ...outline(width, depth, shoulder),
+      ...outline(width * capScale, depth * capScale, height),
+    ],
+    undefined,
+    { color: "#d4dbd8" },
+  );
+  surface(
+    builder,
+    "top",
+    height,
+    width * capScale * Math.SQRT1_2,
+    depth * capScale * Math.SQRT1_2,
+  );
 }
 
 /**
@@ -256,14 +370,25 @@ export namespace createScenicContainer {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Declares the alternatives selected by scene period.
    */
-  export type Kind = "coilBasket" | "woodenFishBasket" | "plankCoffer" | "moldedCrate" | "cargoPod";
+  export type Kind =
+    | "coilBasket"
+    | "woodenFishBasket"
+    | "plankCoffer"
+    | "moldedCrate"
+    | "cargoPod";
 
   /**
    * The kinds in order from ancient through fictional future.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies the stable historical ordering.
    */
-  export const KINDS: readonly Kind[] = ["coilBasket", "woodenFishBasket", "plankCoffer", "moldedCrate", "cargoPod"];
+  export const KINDS: readonly Kind[] = [
+    "coilBasket",
+    "woodenFishBasket",
+    "plankCoffer",
+    "moldedCrate",
+    "cargoPod",
+  ];
 
   /**
    * The closed lid or the floor of an open container, respectively.
@@ -309,6 +434,7 @@ export namespace createScenicContainer {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Exposes the same provenance used by generation.
    */
-  export const BANDS: Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> =
-    SCENIC_CONTAINER_BANDS;
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > = SCENIC_CONTAINER_BANDS;
 }

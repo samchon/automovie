@@ -76,7 +76,8 @@ function plan(
       axis: "onto",
       value: onto?.prop ?? "absent",
       feasible: { kind: "alternatives", values: ["a separate receptacle"] },
-      reason: "aperture placement needs an opening and a seat on a separate prop",
+      reason:
+        "aperture placement needs an opening and a seat on a separate prop",
       fix: "name a receptacle and both of its affordances",
     });
 
@@ -102,8 +103,12 @@ function plan(
       kind: "affordance",
       axis: "onto.aperture",
       value: onto.aperture,
-      feasible: { kind: "alternatives", values: ["a distinct aligned opening"] },
-      reason: "the opening and seat must share an attitude at distinct positions",
+      feasible: {
+        kind: "alternatives",
+        values: ["a distinct aligned opening"],
+      },
+      reason:
+        "the opening and seat must share an attitude at distinct positions",
       fix: "author the opening and seat along a straight insertion corridor",
     });
 

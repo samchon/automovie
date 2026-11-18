@@ -129,7 +129,8 @@ export function test_human_motion_blade_exchange_composition(): void {
   const film: IAutoMovieSchedule = performance.schedule;
   const placed = (anchor: string): IAutoMovieScheduleEntry => {
     const action: IAutoMovieScheduleEntry | undefined = film.entries.find(
-      (entry: IAutoMovieScheduleEntry): boolean => entry.intent.anchor === anchor,
+      (entry: IAutoMovieScheduleEntry): boolean =>
+        entry.intent.anchor === anchor,
     );
     if (action === undefined) throw new Error(`Missing action ${anchor}`);
     return action;
@@ -208,10 +209,26 @@ export function test_human_motion_blade_exchange_composition(): void {
   );
 
   for (const [cue, expected] of [
-    ["first", [["opening", 3.25], ["block", 3.25], ["reply", 4]]],
-    ["second", [["opening", 8.25], ["block", 8.25]]],
+    [
+      "first",
+      [
+        ["opening", 3.25],
+        ["block", 3.25],
+        ["reply", 4],
+      ],
+    ],
+    [
+      "second",
+      [
+        ["opening", 8.25],
+        ["block", 8.25],
+      ],
+    ],
   ] as const) {
-    const track: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(film, cue);
+    const track: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
+      film,
+      cue,
+    );
     TestValidator.equals(
       `${cue} editing cue names in film order`,
       track.map((event: IAutoMovieScheduleCue): string => event.name),

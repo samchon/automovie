@@ -50,7 +50,8 @@ export function buildSceneSoftProps(
           mounted.get(subject);
         if (previous !== undefined) previous.update(frame);
         else {
-          const projection: IAutoMovieSoftBodyObject = buildSoftBodyObject(frame);
+          const projection: IAutoMovieSoftBodyObject =
+            buildSoftBodyObject(frame);
           projection.object.name = `soft:${subject}`;
           mounted.set(subject, projection);
           applyAutoMovieShadowParticipation(projection.object);
@@ -62,12 +63,9 @@ export function buildSceneSoftProps(
       for (const [subject, projection] of mounted)
         if (!incoming.has(subject)) {
           mounted.delete(subject);
-          removals.push(
-            (): void => {
-              scene.remove(projection.object);
-            },
-            projection.dispose,
-          );
+          removals.push((): void => {
+            scene.remove(projection.object);
+          }, projection.dispose);
         }
       restoreAutoMovieRenderModeState(removals);
     },
@@ -75,12 +73,9 @@ export function buildSceneSoftProps(
       closed = true;
       const removals: (() => void)[] = [];
       for (const projection of mounted.values())
-        removals.push(
-          (): void => {
-            scene.remove(projection.object);
-          },
-          projection.dispose,
-        );
+        removals.push((): void => {
+          scene.remove(projection.object);
+        }, projection.dispose);
       mounted.clear();
       restoreAutoMovieRenderModeState(removals);
     }),

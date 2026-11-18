@@ -102,7 +102,8 @@ export function test_human_motion_button(): void {
           fixed: true,
         }),
       ],
-      composition: HumanChain.subject("actor").registered("button", params).node,
+      composition: HumanChain.subject("actor").registered("button", params)
+        .node,
     });
 
   const model: Archetype<Site, never> = garment(side, 0);
@@ -110,7 +111,10 @@ export function test_human_motion_button(): void {
   const scene: IAutoMovieMotionHumanSegment = performance.segments("actor")[0]!;
   const event = (name: string): number =>
     scene.start +
-    scene.plan.duration * scene.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)!.share;
+    scene.plan.duration *
+      scene.plan.events.find(
+        (e: IAutoMovieMotionEvent): boolean => e.name === name,
+      )!.share;
   const start: number = event("strokeStart");
   const end: number = event("strokeEnd");
   const after: number = scene.start + scene.plan.duration;
@@ -138,17 +142,21 @@ export function test_human_motion_button(): void {
     );
     TestValidator.predicate(
       `the thumb follows the upper face at ${share}`,
-      Vector3.length(Vector3.subtract(
-        tip(body, bones, "thumbTipRight"),
-        Vector3.add(at, { ...moved, y: moved.y + TALL / 2 }),
-      )) <= 0.002,
+      Vector3.length(
+        Vector3.subtract(
+          tip(body, bones, "thumbTipRight"),
+          Vector3.add(at, { ...moved, y: moved.y + TALL / 2 }),
+        ),
+      ) <= 0.002,
     );
     TestValidator.predicate(
       `the opposite index braces the rim at ${share}`,
-      Vector3.length(Vector3.subtract(
-        tip(body, bones, "indexTipLeft"),
-        Vector3.add(at, Vector3.create(-side * 0.025, PANEL / 2, 0)),
-      )) <= 0.002,
+      Vector3.length(
+        Vector3.subtract(
+          tip(body, bones, "indexTipLeft"),
+          Vector3.add(at, Vector3.create(-side * 0.025, PANEL / 2, 0)),
+        ),
+      ) <= 0.002,
     );
   }
 
@@ -158,17 +166,21 @@ export function test_human_motion_button(): void {
   } catch (error: unknown) {
     refused = error instanceof HumanRefusal && error.message.includes("clear");
   }
-  TestValidator.predicate("a button crossing at the wrong lateral offset is refused", refused);
+  TestValidator.predicate(
+    "a button crossing at the wrong lateral offset is refused",
+    refused,
+  );
 }
 
 /** Four fixed strips bound actual open space, with one separately articulated button. */
 function garment(side: number, offset: number): Archetype<Site, never> {
   const x: number = side * 0.025;
   const v: typeof Vector3.create = Vector3.create;
-  const aperture: IAutoMovieQuaternion =
-    Quaternion.fromAxisAngle(v(1, 0, 0), 90);
-  const slide: IAutoMovieQuaternion =
-    Quaternion.fromAxisAngle(v(0, 0, 1), -90);
+  const aperture: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    v(1, 0, 0),
+    90,
+  );
+  const slide: IAutoMovieQuaternion = Quaternion.fromAxisAngle(v(0, 0, 1), -90);
   return new ArchetypeBuilder<Site, never>({
     material: "fabric",
     name: "button crossing fixture",
@@ -180,26 +192,47 @@ function garment(side: number, offset: number): Archetype<Site, never> {
     .box("far-panel", v(2 * HALF, PANEL, 0.032), v(x, 0, HALF + 0.016))
     .box("button-disc", v(WIDE, TALL, WIDE), v(x + offset, ABOVE, 0))
     .affordance({
-      id: "opening", kind: "aperture", extent: null,
-      width: 2 * HALF, height: 2 * HALF,
-      frame: { ...Transform.identity(), translation: v(x, 0, -HALF), rotation: aperture },
+      id: "opening",
+      kind: "aperture",
+      extent: null,
+      width: 2 * HALF,
+      height: 2 * HALF,
+      frame: {
+        ...Transform.identity(),
+        translation: v(x, 0, -HALF),
+        rotation: aperture,
+      },
     })
     .affordance({
-      id: "rim", kind: "surface", extent: null,
+      id: "rim",
+      kind: "surface",
+      extent: null,
       frame: { ...Transform.identity(), translation: v(-x, PANEL / 2, 0) },
     })
     .affordance({
-      id: "slide", kind: "slider", extent: null,
-      parts: ["button-disc"], travel: TRAVEL,
+      id: "slide",
+      kind: "slider",
+      extent: null,
+      parts: ["button-disc"],
+      travel: TRAVEL,
       frame: { ...Transform.identity(), rotation: slide },
     })
     .affordance({
-      id: "center", kind: "surface", extent: null, rides: "slide",
+      id: "center",
+      kind: "surface",
+      extent: null,
+      rides: "slide",
       frame: { ...Transform.identity(), translation: v(x + offset, ABOVE, 0) },
     })
     .affordance({
-      id: "push", kind: "surface", extent: null, rides: "slide",
-      frame: { ...Transform.identity(), translation: v(x + offset, ABOVE + TALL / 2, 0) },
+      id: "push",
+      kind: "surface",
+      extent: null,
+      rides: "slide",
+      frame: {
+        ...Transform.identity(),
+        translation: v(x + offset, ABOVE + TALL / 2, 0),
+      },
     })
     .build(0.1);
 }
@@ -210,9 +243,11 @@ function center(
   performance: HumanPerformance,
   seconds: number,
 ): IAutoMovieVector3 {
-  return model.articulate(performance.state("garment", seconds)).parts.find(
-    (part: IAutoMovieModelPart): boolean => part.id === "button-disc",
-  )!.transform!.translation;
+  return model
+    .articulate(performance.state("garment", seconds))
+    .parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === "button-disc",
+    )!.transform!.translation;
 }
 
 /** Resolve one actual fingertip on the displayed bones. */
@@ -221,6 +256,10 @@ function tip(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   region: "thumbTipRight" | "indexTipLeft",
 ): IAutoMovieVector3 {
-  const surface: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-  return resolveAutoMovieHumanoidSurfaces.place(surface, bones.get(surface.bone)!).point;
+  const surface: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions[region];
+  return resolveAutoMovieHumanoidSurfaces.place(
+    surface,
+    bones.get(surface.bone)!,
+  ).point;
 }

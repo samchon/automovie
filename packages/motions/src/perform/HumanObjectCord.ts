@@ -32,11 +32,12 @@ export function HumanObjectCord(
   id: string,
   props: IAutoMovieMotionHumanObject.ICord,
 ): IAutoMovieMotionHumanProp {
-  const declaration: IAutoMovieMotionHumanObject.ISpanModel["spans"][number] | undefined =
-    model.spans.find(
-      (span: IAutoMovieMotionHumanObject.ISpanModel["spans"][number]): boolean =>
-        span.id === id,
-    );
+  const declaration:
+    | IAutoMovieMotionHumanObject.ISpanModel["spans"][number]
+    | undefined = model.spans.find(
+    (span: IAutoMovieMotionHumanObject.ISpanModel["spans"][number]): boolean =>
+      span.id === id,
+  );
   if (
     declaration === undefined ||
     declaration.length === null ||
@@ -74,7 +75,8 @@ export function HumanObjectCord(
       kind: "parameter",
       axis: "subject",
       value: props.subject,
-      reason: "the cord and the prop that carries its endpoints need distinct subjects",
+      reason:
+        "the cord and the prop that carries its endpoints need distinct subjects",
       fix: "give the cord its own subject id",
     });
 
@@ -106,7 +108,11 @@ export function HumanObjectCord(
     const preceding: number =
       particle === 0 ? 0 : particle <= leftLinks ? leftMass : rightMass;
     const following: number =
-      particle === props.links ? 0 : particle < leftLinks ? leftMass : rightMass;
+      particle === props.links
+        ? 0
+        : particle < leftLinks
+          ? leftMass
+          : rightMass;
     mass.push(preceding / 2 + following / 2);
   }
 
@@ -217,7 +223,8 @@ export namespace HumanObjectCord {
       });
 
     const fraction: number = Math.min(1, distance / length);
-    const sag: number = (length / 2) * Math.sqrt((1 - fraction) * (1 + fraction));
+    const sag: number =
+      (length / 2) * Math.sqrt((1 - fraction) * (1 + fraction));
     const axis: IAutoMovieVector3 = {
       x: chord.x / distance,
       y: chord.y / distance,

@@ -38,7 +38,11 @@ export function test_archetype_scenic_ship(): void {
     ["wheelhouse", 19, 5.4, 1.1, 1],
   ] as const) {
     const ship: ReturnType<typeof createScenicShip> = createScenicShip({
-      kind, length, beam, draft, freeboard,
+      kind,
+      length,
+      beam,
+      draft,
+      freeboard,
     });
     const hull: IAutoMovieVector3[] = [];
     for (const part of ship.parts)
@@ -53,11 +57,26 @@ export function test_archetype_scenic_ship(): void {
           });
       }
     if (
-      !nclose(Math.max(...hull.map((p: IAutoMovieVector3): number => Math.abs(p.x))), beam / 2) ||
-      !nclose(Math.min(...hull.map((p: IAutoMovieVector3): number => p.z)), -length / 2) ||
-      !nclose(Math.max(...hull.map((p: IAutoMovieVector3): number => p.z)), length / 2) ||
-      !nclose(Math.min(...hull.map((p: IAutoMovieVector3): number => p.y)), -draft) ||
-      !nclose(Math.max(...hull.map((p: IAutoMovieVector3): number => p.y)), freeboard)
+      !nclose(
+        Math.max(...hull.map((p: IAutoMovieVector3): number => Math.abs(p.x))),
+        beam / 2,
+      ) ||
+      !nclose(
+        Math.min(...hull.map((p: IAutoMovieVector3): number => p.z)),
+        -length / 2,
+      ) ||
+      !nclose(
+        Math.max(...hull.map((p: IAutoMovieVector3): number => p.z)),
+        length / 2,
+      ) ||
+      !nclose(
+        Math.min(...hull.map((p: IAutoMovieVector3): number => p.y)),
+        -draft,
+      ) ||
+      !nclose(
+        Math.max(...hull.map((p: IAutoMovieVector3): number => p.y)),
+        freeboard,
+      )
     )
       findings.push(`${kind}: hull envelope differs from authored dimensions`);
 
@@ -66,10 +85,14 @@ export function test_archetype_scenic_ship(): void {
     const aft: IAutoMovieAffordance = ship.affordance("aftDeck");
     const helm: IAutoMovieAffordance = ship.affordance("helm");
     if (
-      boarding.kind !== "surface" || deck.kind !== "surface" ||
-      aft.kind !== "surface" || helm.kind !== "surface" ||
-      boarding.width === undefined || boarding.depth === undefined ||
-      aft.depth === undefined || helm.depth === undefined
+      boarding.kind !== "surface" ||
+      deck.kind !== "surface" ||
+      aft.kind !== "surface" ||
+      helm.kind !== "surface" ||
+      boarding.width === undefined ||
+      boarding.depth === undefined ||
+      aft.depth === undefined ||
+      helm.depth === undefined
     ) {
       findings.push(`${kind}: a standing contact lacks its surface dimensions`);
       continue;
@@ -77,23 +100,33 @@ export function test_archetype_scenic_ship(): void {
     if (
       boarding.width < 1 ||
       !nclose(boarding.frame.translation.x + boarding.depth / 2, beam / 2) ||
-      !vclose(ArchetypeFrame.axis(boarding.frame, "z"), { x: -1, y: 0, z: 0 }) ||
-      ![boarding, deck, aft, helm].every(
-        (contact: typeof boarding): boolean => nclose(contact.frame.translation.y, freeboard),
+      !vclose(ArchetypeFrame.axis(boarding.frame, "z"), {
+        x: -1,
+        y: 0,
+        z: 0,
+      }) ||
+      ![boarding, deck, aft, helm].every((contact: typeof boarding): boolean =>
+        nclose(contact.frame.translation.y, freeboard),
       )
     )
-      findings.push(`${kind}: standing contacts do not meet the deck and entry`);
+      findings.push(
+        `${kind}: standing contacts do not meet the deck and entry`,
+      );
 
     let oppositeClosed: boolean = false;
     for (const part of ship.parts)
       if (
         /^(rail|post)-/.test(part.id) &&
-        part.transform !== null && part.geometry.type === "primitive" &&
+        part.transform !== null &&
+        part.geometry.type === "primitive" &&
         part.geometry.shape.type === "cylinder"
       ) {
-        const axis: IAutoMovieVector3 = ArchetypeFrame.axis(part.transform, "y");
+        const axis: IAutoMovieVector3 = ArchetypeFrame.axis(
+          part.transform,
+          "y",
+        );
         const along: number =
-          Math.abs(axis.z) * part.geometry.shape.height / 2 +
+          (Math.abs(axis.z) * part.geometry.shape.height) / 2 +
           Math.sqrt(Math.max(0, 1 - axis.z ** 2)) * part.geometry.shape.radius;
         const at: IAutoMovieVector3 = part.transform.translation;
         if (at.x < 0 && part.id.startsWith("rail-") && Math.abs(at.z) < along)
@@ -101,13 +134,16 @@ export function test_archetype_scenic_ship(): void {
         if (at.x > 0 && Math.abs(at.z) - along + 1e-6 < boarding.width / 2)
           findings.push(`${kind}: ${part.id} obstructs the boarding gap`);
       }
-    if (!oppositeClosed) findings.push(`${kind}: opposite rail missing at entry`);
+    if (!oppositeClosed)
+      findings.push(`${kind}: opposite rail missing at entry`);
 
     const seats: IAutoMovieModelPart[] = ship.parts.filter(
-      (part: IAutoMovieModelPart): boolean => part.id.startsWith("bench-rower-"),
+      (part: IAutoMovieModelPart): boolean =>
+        part.id.startsWith("bench-rower-"),
     );
     if (kind === "oared") {
-      if (seats.length !== 8) findings.push("oared: missing complete rowing banks");
+      if (seats.length !== 8)
+        findings.push("oared: missing complete rowing banks");
       for (const row of [0, 1, 2, 3] as const)
         for (const bank of ["port", "starboard"] as const) {
           const id: createScenicShip.Affordance = `rower-${bank}-${row}`;
@@ -116,19 +152,30 @@ export function test_archetype_scenic_ship(): void {
             (part: IAutoMovieModelPart): boolean => part.id === `bench-${id}`,
           );
           if (
-            seat.kind !== "seat" || bench?.geometry.type !== "primitive" ||
+            seat.kind !== "seat" ||
+            bench?.geometry.type !== "primitive" ||
             bench.geometry.shape.type !== "box" ||
             bench.transform === null ||
-            !nclose(seat.frame.translation.y, bench.transform.translation.y + bench.geometry.shape.height / 2) ||
-            !nclose(seat.frame.translation.z, bench.transform.translation.z - bench.geometry.shape.depth / 2) ||
+            !nclose(
+              seat.frame.translation.y,
+              bench.transform.translation.y + bench.geometry.shape.height / 2,
+            ) ||
+            !nclose(
+              seat.frame.translation.z,
+              bench.transform.translation.z - bench.geometry.shape.depth / 2,
+            ) ||
             !nclose(seat.frame.translation.x, bench.transform.translation.x) ||
             !vclose(ArchetypeFrame.axis(seat.frame, "x"), { x: 0, y: 0, z: -1 })
           )
             findings.push(`oared: ${id} does not meet its aft bench edge`);
         }
-    } else if (seats.length !== 0 || ship.affordances.some(
-      (contact: (typeof ship.affordances)[number]): boolean => contact.kind === "seat",
-    ))
+    } else if (
+      seats.length !== 0 ||
+      ship.affordances.some(
+        (contact: (typeof ship.affordances)[number]): boolean =>
+          contact.kind === "seat",
+      )
+    )
       findings.push(`${kind}: exposes oared seats`);
 
     if (kind === "squareSail") {
@@ -137,8 +184,11 @@ export function test_archetype_scenic_ship(): void {
       );
       if (
         masts.length !== 3 ||
-        !masts.every((part: IAutoMovieModelPart): boolean =>
-          (part.transform?.translation.z ?? -Infinity) > helm.frame.translation.z)
+        !masts.every(
+          (part: IAutoMovieModelPart): boolean =>
+            (part.transform?.translation.z ?? -Infinity) >
+            helm.frame.translation.z,
+        )
       )
         findings.push("square sail: helm is not astern of three masts");
     }
@@ -148,12 +198,19 @@ export function test_archetype_scenic_ship(): void {
       );
       if (
         roof?.geometry.type !== "primitive" ||
-        roof.geometry.shape.type !== "box" || roof.transform === null ||
-        Math.abs(helm.frame.translation.z - roof.transform.translation.z) + helm.depth / 2 > roof.geometry.shape.depth / 2 ||
-        aft.frame.translation.z + aft.depth / 2 >= roof.transform.translation.z - roof.geometry.shape.depth / 2 ||
-        roof.transform.translation.y - roof.geometry.shape.height / 2 < freeboard + 2
+        roof.geometry.shape.type !== "box" ||
+        roof.transform === null ||
+        Math.abs(helm.frame.translation.z - roof.transform.translation.z) +
+          helm.depth / 2 >
+          roof.geometry.shape.depth / 2 ||
+        aft.frame.translation.z + aft.depth / 2 >=
+          roof.transform.translation.z - roof.geometry.shape.depth / 2 ||
+        roof.transform.translation.y - roof.geometry.shape.height / 2 <
+          freeboard + 2
       )
-        findings.push("wheelhouse: helm lacks standing room or overlaps aft deck");
+        findings.push(
+          "wheelhouse: helm lacks standing room or overlaps aft deck",
+        );
     }
 
     const course: ArchetypeCourse.ICourse = {
@@ -163,35 +220,64 @@ export function test_archetype_scenic_ship(): void {
       startSpeed: 2,
       endSpeed: 2,
     };
-    const ride: ArchetypeRide.IRide<createScenicShip.Affordance, createScenicShip.Dimension> =
-      ArchetypeRide.along(ship, course);
-    const calm: typeof ride = ArchetypeSea.float(ride, ArchetypeSea.of({ height: 0, seed: 31 }));
+    const ride: ArchetypeRide.IRide<
+      createScenicShip.Affordance,
+      createScenicShip.Dimension
+    > = ArchetypeRide.along(ship, course);
+    const calm: typeof ride = ArchetypeSea.float(
+      ride,
+      ArchetypeSea.of({ height: 0, seed: 31 }),
+    );
     const sea: ArchetypeSea.ISea = ArchetypeSea.of({ height: 0.7, seed: 31 });
     const floating: typeof ride = ArchetypeSea.float(ride, sea);
     const end: IAutoMovieTransform = calm.frame("boarding", calm.duration);
     if (
-      !vclose(end.translation, { x: 25, y: freeboard, z: 25 - boarding.frame.translation.x }) ||
+      !vclose(end.translation, {
+        x: 25,
+        y: freeboard,
+        z: 25 - boarding.frame.translation.x,
+      }) ||
       !vclose(ArchetypeFrame.axis(end, "z"), { x: 0, y: 0, z: 1 })
     )
-      findings.push(`${kind}: calm turn leaves boarding at the wrong heading or position`);
+      findings.push(
+        `${kind}: calm turn leaves boarding at the wrong heading or position`,
+      );
 
     const seconds: number = ride.duration * 0.4;
     const stillRoot: IAutoMovieVector3 = ride.at(seconds).placement.translation;
-    const wetRoot: IAutoMovieVector3 = floating.at(seconds).placement.translation;
-    const wetBoardingFrame: IAutoMovieTransform = floating.frame("boarding", seconds);
+    const wetRoot: IAutoMovieVector3 =
+      floating.at(seconds).placement.translation;
+    const wetBoardingFrame: IAutoMovieTransform = floating.frame(
+      "boarding",
+      seconds,
+    );
     const wetBoarding: IAutoMovieVector3 = wetBoardingFrame.translation;
-    const slope: { x: number; z: number } = sea.slope(stillRoot.x, stillRoot.z, seconds);
+    const slope: { x: number; z: number } = sea.slope(
+      stillRoot.x,
+      stillRoot.z,
+      seconds,
+    );
     const normalLength: number = Math.hypot(slope.x, 1, slope.z);
-    const wetAft: IAutoMovieVector3 = floating.frame("aftDeck", seconds).translation;
+    const wetAft: IAutoMovieVector3 = floating.frame(
+      "aftDeck",
+      seconds,
+    ).translation;
     if (
-      !nclose(wetRoot.y - stillRoot.y, sea.elevation(stillRoot.x, stillRoot.z, seconds)) ||
+      !nclose(
+        wetRoot.y - stillRoot.y,
+        sea.elevation(stillRoot.x, stillRoot.z, seconds),
+      ) ||
       !vclose(ArchetypeFrame.axis(wetBoardingFrame, "y"), {
         x: -slope.x / normalLength,
         y: 1 / normalLength,
         z: -slope.z / normalLength,
       }) ||
       !nclose(
-        Math.hypot(wetBoarding.x - wetAft.x, wetBoarding.y - wetAft.y, wetBoarding.z - wetAft.z),
+        Math.hypot(
+          wetBoarding.x - wetAft.x,
+          wetBoarding.y - wetAft.y,
+          wetBoarding.z - wetAft.z,
+        ),
         Math.hypot(boarding.frame.translation.x, aft.frame.translation.z),
       )
     )

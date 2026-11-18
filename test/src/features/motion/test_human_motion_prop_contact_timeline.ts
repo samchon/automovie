@@ -180,8 +180,9 @@ export function test_human_motion_prop_contact_timeline(): void {
   );
   TestValidator.predicate(
     "pickup suppresses the displaced flight's contacts and unfinished verdict",
-    Math.abs((performance.flights(picked.prop)[0]?.supersededAt ?? Infinity) - pickup) <=
-      timeTolerance &&
+    Math.abs(
+      (performance.flights(picked.prop)[0]?.supersededAt ?? Infinity) - pickup,
+    ) <= timeTolerance &&
       !unended.some((entry: string): boolean =>
         entry.startsWith(`${picked.prop}@`),
       ),

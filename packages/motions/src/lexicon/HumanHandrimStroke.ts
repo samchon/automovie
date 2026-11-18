@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -76,7 +81,13 @@ const carry = (
   );
   return {
     ...grip,
-    point: Vector3.add(to.position, Quaternion.rotateVector(swing, Vector3.subtract(grip.point, from.position))),
+    point: Vector3.add(
+      to.position,
+      Quaternion.rotateVector(
+        swing,
+        Vector3.subtract(grip.point, from.position),
+      ),
+    ),
     normal: Quaternion.rotateVector(swing, grip.normal),
     axis: Quaternion.rotateVector(swing, grip.axis!),
   };
@@ -113,237 +124,305 @@ const refuseRim = (on: string, rim: string, side: "left" | "right"): never => {
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action over the reusable HumanRide base and HumanMountRider hand fit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop reader owns the handrim material trajectory. The law computes stage poses and leaves wheel dynamics to the authored course.
  */
-export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandrimStroke> = {
-  name: "handrimStroke",
-  interrupts: {},
-  yields: ["head"],
-  plan: (
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandrimStroke>,
-  ): IAutoMovieMotionHumanActionPlan => {
-    const { on, rims, approach, push, recovery }: IAutoMovieMotionHumanHandrimStroke = context.params;
-    const release: number = approach + push;
-    const duration: number = release + recovery;
-    for (const [axis, value] of Object.entries({ approach, push, recovery })) {
-      if (!Number.isFinite(value) || value <= 0)
+export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandrimStroke> =
+  {
+    name: "handrimStroke",
+    interrupts: {},
+    yields: ["head"],
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandrimStroke>,
+    ): IAutoMovieMotionHumanActionPlan => {
+      const {
+        on,
+        rims,
+        approach,
+        push,
+        recovery,
+      }: IAutoMovieMotionHumanHandrimStroke = context.params;
+      const release: number = approach + push;
+      const duration: number = release + recovery;
+      for (const [axis, value] of Object.entries({
+        approach,
+        push,
+        recovery,
+      })) {
+        if (!Number.isFinite(value) || value <= 0)
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis,
+            value,
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: null,
+              unit: "s",
+              open: "minimum",
+            },
+            reason: "the phase needs positive, finite seconds",
+            fix: "give a positive duration in seconds for this phase",
+          });
+      }
+      if (
+        !(Number.isFinite(duration) && approach < release && release < duration)
+      )
         throw new HumanRefusal({
           kind: "parameter",
-          axis,
-          value,
-          feasible: {
-            kind: "range",
-            minimum: 0,
-            maximum: null,
-            unit: "s",
-            open: "minimum",
-          },
-          reason: "the phase needs positive, finite seconds",
-          fix: "give a positive duration in seconds for this phase",
+          axis: "duration",
+          value: duration,
+          feasible: null,
+          reason: "the phase durations do not produce distinct finite times",
+          fix: "give positive phase seconds of comparable scale",
         });
-    }
-    if (!(Number.isFinite(duration) && approach < release && release < duration))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "duration",
-        value: duration,
-        feasible: null,
-        reason: "the phase durations do not produce distinct finite times",
-        fix: "give positive phase seconds of comparable scale",
+
+      const chair: IAutoMovieMotionHumanPropReader = context.prop(on);
+      if (chair.prop.motion === undefined)
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "on",
+          value: on,
+          feasible: null,
+          reason: "a handrim stroke follows a chair on a declared course",
+          fix: "bind the chair's course as the prop motion",
+        });
+      const base: IAutoMovieMotionHumanActionPlan = HumanRide.ride.plan({
+        ...context,
+        params: { on, seconds: duration },
       });
-
-    const chair: IAutoMovieMotionHumanPropReader = context.prop(on);
-    if (chair.prop.motion === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "on",
-        value: on,
-        feasible: null,
-        reason: "a handrim stroke follows a chair on a declared course",
-        fix: "bind the chair's course as the prop motion",
-      });
-    const base: IAutoMovieMotionHumanActionPlan = HumanRide.ride.plan({
-      ...context,
-      params: { on, seconds: duration },
-    });
-    if (rims?.left === rims?.right) refuseRim(on, rims?.right ?? "", "right");
-    const wheels: IRim[] = SIDES.map((side: "left" | "right"): IRim => {
-      const rim: string = rims?.[side];
-      const geometry: IAutoMovieAffordance | undefined = chair.prop.affordances?.find(
-        (part: IAutoMovieAffordance): boolean => part.id === rim && part.kind === "wheel",
-      );
-      if (geometry === undefined || !(Number.isFinite(geometry.radius) && geometry.radius! > 0))
-        return refuseRim(on, rim, side);
-      return { side, rim, geometry };
-    });
-
-    const chairSeat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
-      { affordances: chair.prop.affordances ?? [] },
-      chair.frame(context.start),
-    );
-    const support: IAutoMovieMotionHumanContactWindow.Support | undefined =
-      context.entry.supports.find(
-        (entry: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-          entry.part === "seat",
-      )?.support;
-    const seatBone: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["seat"] =
-      context.body.surfaces.sockets.seat;
-    const hips: IAutoMovieResolvedBone = poseBones(
-      context.body,
-      context.entry.pose,
-    ).get(seatBone.bone)!;
-    const socket: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-      seatBone,
-      hips,
-    ).point;
-    const seatGap: number = Vector3.length(
-      Vector3.subtract(socket, seated.point(context.body, chairSeat)),
-    );
-    const yawGap: number = context.entry.posture.yaw - chairSeat.yaw;
-    if (
-      (support?.kind === "prop" && support.subject !== on) ||
-      support?.kind === "person" ||
-      !(seatGap <= CONTACT_GAP) ||
-      !(Math.abs(yawGap - 360 * Math.round(yawGap / 360)) <= SEAT_HEADING_GAP)
-    )
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "seat",
-        value: support?.kind === "prop" ? support.subject : seatGap,
-        feasible: { kind: "alternatives", values: [on] },
-        reason: "the entry seat is not aligned on the named chair",
-        fix: "sit on the named chair before beginning the stroke",
-      });
-
-    const frameAt = (at: number): IAutoMovieRigidTransform => chair.frame(context.start + at);
-    const catchFrame: IAutoMovieRigidTransform = frameAt(approach);
-    const seatCentre: number = chair.prop.affordances!.find(
-      (affordance: IAutoMovieAffordance): boolean => affordance.kind === "seat",
-    )!.frame.translation.x;
-    const releaseFrame: IAutoMovieRigidTransform = frameAt(release);
-    const hands: IHand[] = wheels.map(({ side, rim, geometry }: IRim): IHand => {
-      const sideOffset: number = (side === "left" ? 1 : -1) *
-        (geometry.frame.translation.x - seatCentre);
-      if (!(sideOffset > 0)) return refuseRim(on, rim, side);
-      const radius: number = geometry.radius!;
-
-      /** Read the point supplied by the rotating part and its tangent in world metres. */
-      const gripAt = (at: number, frame: IAutoMovieRigidTransform): Grip => {
-        const hit: ReturnType<NonNullable<typeof chair.prop.point>> =
-          chair.prop.point?.(rim, context.start + at);
-        if (hit === undefined) return refuseRim(on, rim, side);
-        const centre: IAutoMovieVector3 = Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(frame.rotation, geometry.frame.translation),
-        );
-        const axle: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.multiply(frame.rotation, geometry.frame.rotation),
-          { x: 0, y: 1, z: 0 },
-        );
-        const spoke: IAutoMovieVector3 = Vector3.subtract(hit.point, centre);
-        const normal: IAutoMovieVector3 = Vector3.scale(spoke, 1 / radius);
-        const tolerance: number = radius * Math.sqrt(Number.EPSILON);
-        if (!(Math.abs(Vector3.length(spoke) - radius) <= tolerance &&
-              Math.abs(Vector3.dot(axle, spoke)) <= tolerance))
+      if (rims?.left === rims?.right) refuseRim(on, rims?.right ?? "", "right");
+      const wheels: IRim[] = SIDES.map((side: "left" | "right"): IRim => {
+        const rim: string = rims?.[side];
+        const geometry: IAutoMovieAffordance | undefined =
+          chair.prop.affordances?.find(
+            (part: IAutoMovieAffordance): boolean =>
+              part.id === rim && part.kind === "wheel",
+          );
+        if (
+          geometry === undefined ||
+          !(Number.isFinite(geometry.radius) && geometry.radius! > 0)
+        )
           return refuseRim(on, rim, side);
-        return {
-          point: hit.point,
-          normal,
-          axis: Vector3.cross(axle, normal),
-          across: -1,
-        };
-      };
-      const caught: Grip = gripAt(approach, catchFrame);
-      const released: Grip = gripAt(release, releaseFrame);
-      const closed: IAutoMovieMotionHumanPosture["joints"] = HumanMountRider.closed(
-        context.body, side, base.posture(approach), caught, chair.prop.shapes ?? [], catchFrame,
+        return { side, rim, geometry };
+      });
+
+      const chairSeat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
+        { affordances: chair.prop.affordances ?? [] },
+        chair.frame(context.start),
       );
-      return { side, gripAt, caught, released, closed };
-    });
-
-    const windows: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
-        part: `${side}Hand`,
-        kind: "grip",
-        from: approach / duration,
-        to: release / duration,
-        support: { kind: "prop", subject: on },
-      }),
-    );
-    /** Compose the carried seated posture and the paired wrist targets. */
-    const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
-      const at: number = Math.max(0, Math.min(duration, seconds));
-      const seated: IAutoMovieMotionHumanPosture = base.posture(at);
-      if (at === 0 || at === duration) return seated;
-      const chairFrame: IAutoMovieRigidTransform = frameAt(at);
-      const recovering: number = Math.max(0, (at - release) / recovery);
-      const share: number = at < approach
-        ? minimumJerk(at / approach).s
-        : 1 - minimumJerk(recovering).s;
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...seated.limbs };
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...seated.joints };
-      for (const hand of hands) {
-        const grip: Grip = at < approach
-          ? carry(hand.caught, catchFrame, chairFrame)
-          : at <= release
-            ? hand.gripAt(at, chairFrame)
-            : carry(hand.released, releaseFrame, chairFrame);
-        if (recovering > 0) {
-          // Disengage outboard before returning to the rest arm pose.
-          const outward: IAutoMovieVector3 = Quaternion.rotateVector(chairFrame.rotation, {
-            x: hand.side === "left" ? 1 : -1, y: 0, z: 0,
-          });
-          grip.point = Vector3.add(grip.point, Vector3.scale(
-            outward,
-            context.body.measure.hand * Math.sin(Math.PI * recovering) ** 2,
-          ));
-        }
-        const held: ReturnType<typeof HumanMountRider.hold> = HumanMountRider.hold(
-          context.body, hand.side, seated, grip, share, hand.closed,
-        );
-        limbs[`${hand.side}Arm`] = {
-          ...held.arm,
-          planted: at >= approach && at <= release,
-        };
-        Object.assign(joints, held.fingers);
-      }
-      return { ...seated, limbs, joints };
-    };
-
-    // The existing fit can clamp a goal. Verify the resulting wrists before
-    // publishing grip ownership at any point in this staged push.
-    for (let sample: number = 0; sample <= PUSH_INTERVALS; ++sample) {
-      const at: number = sample === PUSH_INTERVALS
-        ? release
-        : approach + (push * sample) / PUSH_INTERVALS;
-      const posed: IAutoMovieMotionHumanPosture = posture(at);
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      const support: IAutoMovieMotionHumanContactWindow.Support | undefined =
+        context.entry.supports.find(
+          (entry: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+            entry.part === "seat",
+        )?.support;
+      const seatBone: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["seat"] =
+        context.body.surfaces.sockets.seat;
+      const hips: IAutoMovieResolvedBone = poseBones(
         context.body,
-        resolveHumanPosture(context.body, posed),
+        context.entry.pose,
+      ).get(seatBone.bone)!;
+      const socket: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        seatBone,
+        hips,
+      ).point;
+      const seatGap: number = Vector3.length(
+        Vector3.subtract(socket, seated.point(context.body, chairSeat)),
       );
-      for (const side of SIDES) {
-        const wrist: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
-        const goal: IAutoMovieVector3 = posed.limbs[`${side}Arm`]!.point;
-        const gap: number = Vector3.length(Vector3.subtract(wrist, goal));
-        if (!(gap <= CONTACT_GAP))
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: `rims.${side}`,
-            value: gap,
-            feasible: { kind: "range", minimum: 0, maximum: CONTACT_GAP, unit: "m" },
-            reason: `the ${side} wrist misses the rim grip at ${at.toFixed(3)} s`,
-            fix: "choose a reachable contact arc or a chair that fits the performer",
-          });
+      const yawGap: number = context.entry.posture.yaw - chairSeat.yaw;
+      if (
+        (support?.kind === "prop" && support.subject !== on) ||
+        support?.kind === "person" ||
+        !(seatGap <= CONTACT_GAP) ||
+        !(Math.abs(yawGap - 360 * Math.round(yawGap / 360)) <= SEAT_HEADING_GAP)
+      )
+        throw new HumanRefusal({
+          kind: "base",
+          axis: "seat",
+          value: support?.kind === "prop" ? support.subject : seatGap,
+          feasible: { kind: "alternatives", values: [on] },
+          reason: "the entry seat is not aligned on the named chair",
+          fix: "sit on the named chair before beginning the stroke",
+        });
+
+      const frameAt = (at: number): IAutoMovieRigidTransform =>
+        chair.frame(context.start + at);
+      const catchFrame: IAutoMovieRigidTransform = frameAt(approach);
+      const seatCentre: number = chair.prop.affordances!.find(
+        (affordance: IAutoMovieAffordance): boolean =>
+          affordance.kind === "seat",
+      )!.frame.translation.x;
+      const releaseFrame: IAutoMovieRigidTransform = frameAt(release);
+      const hands: IHand[] = wheels.map(
+        ({ side, rim, geometry }: IRim): IHand => {
+          const sideOffset: number =
+            (side === "left" ? 1 : -1) *
+            (geometry.frame.translation.x - seatCentre);
+          if (!(sideOffset > 0)) return refuseRim(on, rim, side);
+          const radius: number = geometry.radius!;
+
+          /** Read the point supplied by the rotating part and its tangent in world metres. */
+          const gripAt = (
+            at: number,
+            frame: IAutoMovieRigidTransform,
+          ): Grip => {
+            const hit: ReturnType<NonNullable<typeof chair.prop.point>> =
+              chair.prop.point?.(rim, context.start + at);
+            if (hit === undefined) return refuseRim(on, rim, side);
+            const centre: IAutoMovieVector3 = Vector3.add(
+              frame.position,
+              Quaternion.rotateVector(
+                frame.rotation,
+                geometry.frame.translation,
+              ),
+            );
+            const axle: IAutoMovieVector3 = Quaternion.rotateVector(
+              Quaternion.multiply(frame.rotation, geometry.frame.rotation),
+              { x: 0, y: 1, z: 0 },
+            );
+            const spoke: IAutoMovieVector3 = Vector3.subtract(
+              hit.point,
+              centre,
+            );
+            const normal: IAutoMovieVector3 = Vector3.scale(spoke, 1 / radius);
+            const tolerance: number = radius * Math.sqrt(Number.EPSILON);
+            if (
+              !(
+                Math.abs(Vector3.length(spoke) - radius) <= tolerance &&
+                Math.abs(Vector3.dot(axle, spoke)) <= tolerance
+              )
+            )
+              return refuseRim(on, rim, side);
+            return {
+              point: hit.point,
+              normal,
+              axis: Vector3.cross(axle, normal),
+              across: -1,
+            };
+          };
+          const caught: Grip = gripAt(approach, catchFrame);
+          const released: Grip = gripAt(release, releaseFrame);
+          const closed: IAutoMovieMotionHumanPosture["joints"] =
+            HumanMountRider.closed(
+              context.body,
+              side,
+              base.posture(approach),
+              caught,
+              chair.prop.shapes ?? [],
+              catchFrame,
+            );
+          return { side, gripAt, caught, released, closed };
+        },
+      );
+
+      const windows: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
+        (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+          part: `${side}Hand`,
+          kind: "grip",
+          from: approach / duration,
+          to: release / duration,
+          support: { kind: "prop", subject: on },
+        }),
+      );
+      /** Compose the carried seated posture and the paired wrist targets. */
+      const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
+        const at: number = Math.max(0, Math.min(duration, seconds));
+        const seated: IAutoMovieMotionHumanPosture = base.posture(at);
+        if (at === 0 || at === duration) return seated;
+        const chairFrame: IAutoMovieRigidTransform = frameAt(at);
+        const recovering: number = Math.max(0, (at - release) / recovery);
+        const share: number =
+          at < approach
+            ? minimumJerk(at / approach).s
+            : 1 - minimumJerk(recovering).s;
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...seated.limbs,
+        };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...seated.joints,
+        };
+        for (const hand of hands) {
+          const grip: Grip =
+            at < approach
+              ? carry(hand.caught, catchFrame, chairFrame)
+              : at <= release
+                ? hand.gripAt(at, chairFrame)
+                : carry(hand.released, releaseFrame, chairFrame);
+          if (recovering > 0) {
+            // Disengage outboard before returning to the rest arm pose.
+            const outward: IAutoMovieVector3 = Quaternion.rotateVector(
+              chairFrame.rotation,
+              {
+                x: hand.side === "left" ? 1 : -1,
+                y: 0,
+                z: 0,
+              },
+            );
+            grip.point = Vector3.add(
+              grip.point,
+              Vector3.scale(
+                outward,
+                context.body.measure.hand * Math.sin(Math.PI * recovering) ** 2,
+              ),
+            );
+          }
+          const held: ReturnType<typeof HumanMountRider.hold> =
+            HumanMountRider.hold(
+              context.body,
+              hand.side,
+              seated,
+              grip,
+              share,
+              hand.closed,
+            );
+          limbs[`${hand.side}Arm`] = {
+            ...held.arm,
+            planted: at >= approach && at <= release,
+          };
+          Object.assign(joints, held.fingers);
+        }
+        return { ...seated, limbs, joints };
+      };
+
+      // The existing fit can clamp a goal. Verify the resulting wrists before
+      // publishing grip ownership at any point in this staged push.
+      for (let sample: number = 0; sample <= PUSH_INTERVALS; ++sample) {
+        const at: number =
+          sample === PUSH_INTERVALS
+            ? release
+            : approach + (push * sample) / PUSH_INTERVALS;
+        const posed: IAutoMovieMotionHumanPosture = posture(at);
+        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          poseBones(context.body, resolveHumanPosture(context.body, posed));
+        for (const side of SIDES) {
+          const wrist: IAutoMovieVector3 = bones.get(
+            `${side}Hand`,
+          )!.worldPosition;
+          const goal: IAutoMovieVector3 = posed.limbs[`${side}Arm`]!.point;
+          const gap: number = Vector3.length(Vector3.subtract(wrist, goal));
+          if (!(gap <= CONTACT_GAP))
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: `rims.${side}`,
+              value: gap,
+              feasible: {
+                kind: "range",
+                minimum: 0,
+                maximum: CONTACT_GAP,
+                unit: "m",
+              },
+              reason: `the ${side} wrist misses the rim grip at ${at.toFixed(3)} s`,
+              fix: "choose a reachable contact arc or a chair that fits the performer",
+            });
+        }
       }
-    }
-    return {
-      ...base,
-      hands: SIDES,
-      contact: approach,
-      events: [
-        { name: "catch", share: approach / duration },
-        { name: "release", share: release / duration },
-      ],
-      contacts: [...base.contacts, ...windows],
-      posture,
-    };
-  },
-};
+      return {
+        ...base,
+        hands: SIDES,
+        contact: approach,
+        events: [
+          { name: "catch", share: approach / duration },
+          { name: "release", share: release / duration },
+        ],
+        contacts: [...base.contacts, ...windows],
+        posture,
+      };
+    },
+  };

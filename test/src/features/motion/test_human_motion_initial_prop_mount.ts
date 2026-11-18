@@ -153,7 +153,10 @@ export function test_human_motion_initial_prop_mount(): void {
     points: {},
     affordances: [socket],
   };
-  const refuses = (props: IAutoMovieMotionHumanProp[], axis: string): boolean => {
+  const refuses = (
+    props: IAutoMovieMotionHumanProp[],
+    axis: string,
+  ): boolean => {
     try {
       create(props);
       return false;

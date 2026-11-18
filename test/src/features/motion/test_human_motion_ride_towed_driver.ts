@@ -169,8 +169,10 @@ export function test_human_motion_ride_towed_driver(): void {
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(frame.rotation),
         Vector3.subtract(
-          resolveAutoMovieHumanoidSurfaces.place(socket, bones.get(socket.bone)!)
-            .point,
+          resolveAutoMovieHumanoidSurfaces.place(
+            socket,
+            bones.get(socket.bone)!,
+          ).point,
           frame.translation,
         ),
       );
@@ -183,23 +185,42 @@ export function test_human_motion_ride_towed_driver(): void {
         ),
       );
 
-      const board: IAutoMovieAffordance = sample.archetype.affordance("footboard");
-      const boardFrame: IAutoMovieTransform = ArchetypeFrame.compose(sample.placement, board.frame);
-      const boardInverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(boardFrame.rotation);
+      const board: IAutoMovieAffordance =
+        sample.archetype.affordance("footboard");
+      const boardFrame: IAutoMovieTransform = ArchetypeFrame.compose(
+        sample.placement,
+        board.frame,
+      );
+      const boardInverse: ReturnType<typeof Quaternion.inverse> =
+        Quaternion.inverse(boardFrame.rotation);
       for (const side of ["left", "right"] as const) {
-        const sole: IAutoMovieVector3[] = HumanFoot.sockets(body, bones, side).map(
+        const sole: IAutoMovieVector3[] = HumanFoot.sockets(
+          body,
+          bones,
+          side,
+        ).map(
           ({ point }: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieVector3 =>
-            Quaternion.rotateVector(boardInverse, Vector3.subtract(point, boardFrame.translation)),
+            Quaternion.rotateVector(
+              boardInverse,
+              Vector3.subtract(point, boardFrame.translation),
+            ),
         );
         check(
           `${label}, ${side} sole`,
-          Math.min(...sole.map((p: IAutoMovieVector3): number => Math.hypot(
-            Math.max(0, Math.abs(p.x) - board.width! / 2),
-            p.y,
-            Math.max(0, Math.abs(p.z) - board.depth! / 2),
-          ))),
+          Math.min(
+            ...sole.map((p: IAutoMovieVector3): number =>
+              Math.hypot(
+                Math.max(0, Math.abs(p.x) - board.width! / 2),
+                p.y,
+                Math.max(0, Math.abs(p.z) - board.depth! / 2),
+              ),
+            ),
+          ),
         );
-        check(`${label}, ${side} sole penetration`, -Math.min(...sole.map((p: IAutoMovieVector3): number => p.y)));
+        check(
+          `${label}, ${side} sole penetration`,
+          -Math.min(...sole.map((p: IAutoMovieVector3): number => p.y)),
+        );
 
         const line: ArchetypeRide.ILineState | undefined = sample.lines?.find(
           (entry: ArchetypeRide.ILineState): boolean =>

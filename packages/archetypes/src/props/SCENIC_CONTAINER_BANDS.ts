@@ -35,13 +35,13 @@ export const SCENIC_CONTAINER_BANDS: Readonly<
   >
 > = {
   coilBasket: {
-    width: ArchetypeBand.metres(0.24, 0.40, COIL, true),
-    depth: ArchetypeBand.metres(0.24, 0.40, COIL, true),
+    width: ArchetypeBand.metres(0.24, 0.4, COIL, true),
+    depth: ArchetypeBand.metres(0.24, 0.4, COIL, true),
     height: ArchetypeBand.metres(0.15, 0.27, COIL, true),
     mass: ArchetypeBand.of("kg", 0.25, 0.7, MASS, true),
   },
   woodenFishBasket: {
-    width: ArchetypeBand.metres(0.40, 0.62, WILLOW, true),
+    width: ArchetypeBand.metres(0.4, 0.62, WILLOW, true),
     depth: ArchetypeBand.metres(0.31, 0.48, WILLOW, true),
     height: ArchetypeBand.metres(0.35, 0.56, WILLOW, true),
     mass: ArchetypeBand.of("kg", 0.7, 2.3, MASS, true),
@@ -61,7 +61,7 @@ export const SCENIC_CONTAINER_BANDS: Readonly<
   cargoPod: {
     width: ArchetypeBand.metres(0.68, 1.14, POD, true),
     depth: ArchetypeBand.metres(0.44, 0.76, POD, true),
-    height: ArchetypeBand.metres(0.42, 0.70, POD, true),
+    height: ArchetypeBand.metres(0.42, 0.7, POD, true),
     mass: ArchetypeBand.of("kg", 8, 20, MASS, true),
   },
 };

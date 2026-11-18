@@ -86,7 +86,8 @@ export function humanQueueAdvance(
       performer: head.subject,
       axis: "exit",
       value: request.exit,
-      reason: "the queue head needs a distinct clearance mark at its floor level",
+      reason:
+        "the queue head needs a distinct clearance mark at its floor level",
       fix: "place the exit ahead of the head on the queue line",
     });
 
@@ -108,7 +109,8 @@ export function humanQueueAdvance(
           performer: member.subject,
           axis: "queue",
           value: { at, detail: member.detail },
-          reason: "every rank needs a full performer standing on the same level queue line",
+          reason:
+            "every rank needs a full performer standing on the same level queue line",
           fix: "place this performer on the queue line and set its detail to full",
         });
       return offsetX * x + offsetZ * z;
@@ -129,7 +131,8 @@ export function humanQueueAdvance(
         performer: member.subject,
         axis: "queue",
         value: { ahead: ahead.subject, before, after, minimum },
-        reason: "queue ranks must keep head-first order and clear the summed shoulder radii at both marks",
+        reason:
+          "queue ranks must keep head-first order and clear the summed shoulder radii at both marks",
         fix: "order the queue head-first and separate the marks, including the exit",
       });
   }

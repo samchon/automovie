@@ -40,8 +40,15 @@ const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 export function compilePracticalLightMotion(
   input: IAutoMovieCompilePracticalLightMotion,
 ): IAutoMovieClip {
-  const { id, duration, light, prop, emitter, objectMotions, on }: typeof input =
-    input;
+  const {
+    id,
+    duration,
+    light,
+    prop,
+    emitter,
+    objectMotions,
+    on,
+  }: typeof input = input;
   if (id.length === 0 || light.id.length === 0)
     throw new Error("practical light and clip ids must be nonempty");
   if (light.type !== "point" && light.type !== "spot")
@@ -65,7 +72,9 @@ export function compilePracticalLightMotion(
       ),
   );
   if (propClips.length > 0 && !input.sampleTimes?.length)
-    throw new Error("practical light sample times are required for a moving prop");
+    throw new Error(
+      "practical light sample times are required for a moving prop",
+    );
 
   const times: number[] = [
     ...new Set([0, duration, ...(input.sampleTimes ?? []), ...(on ?? [])]),
@@ -166,7 +175,12 @@ function practicalPropWorld(
     rotation:
       rotation === undefined
         ? prop.transform.rotation
-        : { x: rotation[0]!, y: rotation[1]!, z: rotation[2]!, w: rotation[3]! },
+        : {
+            x: rotation[0]!,
+            y: rotation[1]!,
+            z: rotation[2]!,
+            w: rotation[3]!,
+          },
     scale:
       scale === undefined
         ? prop.transform.scale

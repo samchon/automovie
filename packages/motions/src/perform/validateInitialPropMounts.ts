@@ -57,7 +57,9 @@ export function validateInitialPropMounts(
           fix: "use either the socket mount or the conflicting prop declaration",
         });
 
-      const parent: IAutoMovieMotionHumanProp | undefined = props.get(mount.prop);
+      const parent: IAutoMovieMotionHumanProp | undefined = props.get(
+        mount.prop,
+      );
       if (parent === undefined)
         throw new HumanRefusal({
           kind: "participant",
@@ -86,7 +88,8 @@ export function validateInitialPropMounts(
         frame.position,
         "position",
       );
-      const { x, y, z, w }: IAutoMovieRigidTransform["rotation"] = frame.rotation;
+      const { x, y, z, w }: IAutoMovieRigidTransform["rotation"] =
+        frame.rotation;
       if ([x, y, z, w].every(Number.isFinite))
         admission.unitQuaternion(
           `${axis}.offset.rotation`,

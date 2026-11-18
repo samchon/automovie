@@ -126,10 +126,8 @@ export namespace jump {
 
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
   export const PUSH: number = 0.3;
-
   /** Landing absorption duration, seconds (provisional). */
   export const ABSORB: number = 0.3;
-
   /** Rise to standing after the absorption, seconds (provisional). */
   export const RISE: number = 0.45;
 
@@ -162,7 +160,6 @@ export namespace jump {
       y: 0,
       z: context.params.to.z,
     };
-
     // The landing surface's height: the floor's, a box's top or a step's.
     const rise: number = context.params.to.y;
     const heading: number = jumpPath.unwrap(
@@ -274,18 +271,19 @@ export namespace jump {
       left: takeoff === "left" ? local(rootT, pushed.ankle) : tuck,
       right: takeoff === "right" ? local(rootT, pushed.ankle) : tuck,
     };
-    const endFrame: IAutoMovieMotionHumanFrame = { origin: rootL, yaw: landingHeading };
+    const endFrame: IAutoMovieMotionHumanFrame = {
+      origin: rootL,
+      yaw: landingHeading,
+    };
     const endLocal: Record<"left" | "right", IAutoMovieVector3> = {
       left: HumanFrame.local(endFrame, landing.left.ankle),
       right: HumanFrame.local(endFrame, landing.right.ankle),
     };
-
     const knee = (
       root: IAutoMovieVector3,
       side: "left" | "right",
       yaw: number,
     ): IAutoMovieVector3 => jumpAirborne.knee(body, heading, root, side, yaw);
-
     // The flight's shape, and the turns the flight pass hands back.
     const shape: jumpAirborne.IShape = {
       body,
@@ -295,7 +293,6 @@ export namespace jump {
       end: endLocal,
       heading,
     };
-
     // The ballistic flight of the centre of mass, from its take-off to its touchdown place.
     const flightPosture = (
       root: IAutoMovieVector3,
@@ -430,7 +427,13 @@ export namespace jump {
       touchdown,
       duration,
       headingChange !== 0
-        ? jumpTouchdownRotation(body, landed, comL, headingChange, context.subject)
+        ? jumpTouchdownRotation(
+            body,
+            landed,
+            comL,
+            headingChange,
+            context.subject,
+          )
         : undefined,
     );
 

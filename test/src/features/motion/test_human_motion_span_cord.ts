@@ -56,7 +56,9 @@ const START_TRAVEL: number = 1 / 16;
  */
 export function test_human_motion_span_cord(): void {
   const model: Archetype<"slide", never> = fixture();
-  const placement = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
+  const placement = (
+    seconds: number,
+  ): IAutoMovieMotionHumanObject.Placement => ({
     at: { x: 2, y: 3, z: 1 + seconds },
     yaw: 90,
   });
@@ -91,12 +93,19 @@ export function test_human_motion_span_cord(): void {
       maxSteps: 4,
     },
   };
-  const cord: IAutoMovieMotionHumanProp = HumanObject.cord(model, "line", options);
+  const cord: IAutoMovieMotionHumanProp = HumanObject.cord(
+    model,
+    "line",
+    options,
+  );
   const domain: IAutoMovieSoftBodyDomain = cord.soft!;
   let actualLength: number = 0;
   for (let index: number = 1; index < domain.lattice.rows; ++index)
     actualLength += Vector3.length(
-      Vector3.subtract(point(domain.rest, index), point(domain.rest, index - 1)),
+      Vector3.subtract(
+        point(domain.rest, index),
+        point(domain.rest, index - 1),
+      ),
     );
   TestValidator.predicate(
     "the cord takes its physical dimensions from the span",
@@ -117,19 +126,22 @@ export function test_human_motion_span_cord(): void {
 
   const performance: IAutoMovieMotionHumanPerformance = place(owner, cord, END);
   const first: number[] = performance.soft("cord", 0);
-  TestValidator.predicate("the initial seed uses the actual slider pose", () => {
-    const restLeg: number = LENGTH / 2;
-    const halfChord: number = (SPAN + START_TRAVEL) / 2;
-    return vclose(
-      point(first, 1),
-      {
-        x: 2,
-        y: 3 - Math.sqrt(restLeg * restLeg - halfChord * halfChord),
-        z: (1 - START_TRAVEL) / 2,
-      },
-      1e-9,
-    );
-  });
+  TestValidator.predicate(
+    "the initial seed uses the actual slider pose",
+    () => {
+      const restLeg: number = LENGTH / 2;
+      const halfChord: number = (SPAN + START_TRAVEL) / 2;
+      return vclose(
+        point(first, 1),
+        {
+          x: 2,
+          y: 3 - Math.sqrt(restLeg * restLeg - halfChord * halfChord),
+          z: (1 - START_TRAVEL) / 2,
+        },
+        1e-9,
+      );
+    },
+  );
 
   const scene: THREE.Scene = new THREE.Scene();
   const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
@@ -142,9 +154,11 @@ export function test_human_motion_span_cord(): void {
         y: 3,
         z: seconds / 2 - START_TRAVEL,
       };
-      TestValidator.predicate("both hard anchors follow the placed model", () =>
-        vclose(point(positions, 0), from, 1e-9) &&
-        vclose(point(positions, 3), to, 1e-9),
+      TestValidator.predicate(
+        "both hard anchors follow the placed model",
+        () =>
+          vclose(point(positions, 0), from, 1e-9) &&
+          vclose(point(positions, 3), to, 1e-9),
       );
 
       // The film producer supplies the performance's particles at this native step.
@@ -171,10 +185,13 @@ export function test_human_motion_span_cord(): void {
           surface,
         },
       ]);
-      const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
+      const mesh: THREE.Object3D | undefined =
+        scene.getObjectByName("soft:cord");
       TestValidator.predicate("the scene tube follows the sampled cord", () => {
         if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
-        const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
+        const vertices:
+          | THREE.BufferAttribute
+          | THREE.InterleavedBufferAttribute =
           mesh.geometry.getAttribute("position");
         const ringSize: number = vertices.count / domain.lattice.rows;
         const last: number = vertices.count - ringSize;
@@ -183,7 +200,11 @@ export function test_human_motion_span_cord(): void {
           mesh.userData.step === step &&
           Number.isInteger(opposite) &&
           opposite > 0 &&
-          nclose((vertices.getZ(0) + vertices.getZ(opposite)) / 2, from.z, 1e-6) &&
+          nclose(
+            (vertices.getZ(0) + vertices.getZ(opposite)) / 2,
+            from.z,
+            1e-6,
+          ) &&
           nclose(
             (vertices.getZ(last) + vertices.getZ(last + opposite)) / 2,
             to.z,
@@ -199,7 +220,11 @@ export function test_human_motion_span_cord(): void {
     ...owner,
     tracks: [{ articulation: "slide", start: 0, travel: (): number => 3 / 8 }],
   };
-  const overextended: IAutoMovieMotionHumanPerformance = place(extended, cord, 0);
+  const overextended: IAutoMovieMotionHumanPerformance = place(
+    extended,
+    cord,
+    0,
+  );
   TestValidator.error(
     "the placed start cannot be longer than its declared cord",
     (): number[] => overextended.soft("cord", 0),
@@ -215,14 +240,17 @@ export function test_human_motion_span_cord(): void {
     cord,
     0,
   );
-  TestValidator.error("a nonfinite initial position refuses before integration", () =>
-    unplaced.soft("cord", 0),
+  TestValidator.error(
+    "a nonfinite initial position refuses before integration",
+    () => unplaced.soft("cord", 0),
   );
   TestValidator.error("over-budget films refuse at construction", () =>
     place(owner, cord, END + domain.solver.fixedStepSeconds),
   );
-  TestValidator.error("span must be declared", (): IAutoMovieMotionHumanProp =>
-    HumanObject.cord(model, "missing", options),
+  TestValidator.error(
+    "span must be declared",
+    (): IAutoMovieMotionHumanProp =>
+      HumanObject.cord(model, "missing", options),
   );
   TestValidator.error("slack cord needs two or more links", () =>
     HumanObject.cord(model, "line", { ...options, links: 1 }),

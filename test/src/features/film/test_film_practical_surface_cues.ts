@@ -8,8 +8,8 @@ import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMaterial,
   IAutoMovieModel,
-  IAutoMoviePerformedShot,
   IAutoMoviePerformShotProps,
+  IAutoMoviePerformedShot,
   IAutoMoviePracticalSurfaceTrack,
   IAutoMovieScript,
   IAutoMovieSkeleton,
@@ -63,7 +63,11 @@ export function test_film_practical_surface_cues(): void {
     makeStagingWrite({
       set: [
         { node: "held-phone", model: model.id, position: { x: 1, y: 1, z: 0 } },
-        { node: "spare-phone", model: model.id, position: { x: 2, y: 1, z: 0 } },
+        {
+          node: "spare-phone",
+          model: model.id,
+          position: { x: 2, y: 1, z: 0 },
+        },
       ],
     }),
   );
@@ -135,14 +139,17 @@ export function test_film_practical_surface_cues(): void {
       { ...track, keys: [opening, { time: 1, material: "unknown-material" }] },
     ],
   });
-  if (invalid.success) throw new Error("malformed practical tracks were admitted");
+  if (invalid.success)
+    throw new Error("malformed practical tracks were admitted");
   TestValidator.equals(
     "all broken cue fields have source paths",
-    invalid.violations.map((finding: IAutoMovieConstraintViolation): string => finding.path),
+    invalid.violations.map(
+      (finding: IAutoMovieConstraintViolation): string => finding.path,
+    ),
     [
-    "$input.practicalSurfaces[1].part",
-    "$input.practicalSurfaces[1].keys[1].time",
-    "$input.practicalSurfaces[1].keys[1].material",
+      "$input.practicalSurfaces[1].part",
+      "$input.practicalSurfaces[1].keys[1].time",
+      "$input.practicalSurfaces[1].keys[1].material",
     ],
   );
 

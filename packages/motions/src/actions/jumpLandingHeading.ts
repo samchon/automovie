@@ -39,7 +39,8 @@ export function jumpLandingHeading(
       kind: "parameter",
       axis: "turns",
       value: params.rotation,
-      reason: "a two-foot jump landing needs a finite twist and an upright terminal axis",
+      reason:
+        "a two-foot jump landing needs a finite twist and an upright terminal axis",
       fix: "give complete somersault revolutions and a finite twist for a two-foot landing",
     });
   const remainder: number = twist % 1;
@@ -49,7 +50,8 @@ export function jumpLandingHeading(
       kind: "affordance",
       axis: params.on === undefined ? "to" : "on",
       value: params.on ?? params.to.y,
-      reason: "a fractional twist needs room for both rotated footprints on the level floor",
+      reason:
+        "a fractional twist needs room for both rotated footprints on the level floor",
       fix: "author a floor landing at zero height or use a complete twist on this support",
     });
   return heading + 360 * remainder;

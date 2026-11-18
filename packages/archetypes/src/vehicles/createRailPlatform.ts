@@ -48,12 +48,22 @@ export function createRailPlatform(
   const length: number = 75 * ArchetypeUnits.FOOT;
   const height: number = createRailCarriage.REFERENCE.floor;
   const edge: number = createRailCarriage.REFERENCE.width / 2 + 0.075;
-  builder.box("platform-edge-strip", v(strip, height, length), v(edge + strip / 2, height / 2, 0), {
-    color: "#e4b63a",
-  });
-  builder.box("platform-deck", v(depth - strip, height, length), v(edge + (depth + strip) / 2, height / 2, 0), {
-    color: "#a6a29b",
-  });
+  builder.box(
+    "platform-edge-strip",
+    v(strip, height, length),
+    v(edge + strip / 2, height / 2, 0),
+    {
+      color: "#e4b63a",
+    },
+  );
+  builder.box(
+    "platform-deck",
+    v(depth - strip, height, length),
+    v(edge + (depth + strip) / 2, height / 2, 0),
+    {
+      color: "#a6a29b",
+    },
+  );
   builder.affordance({
     id: "platform",
     kind: "surface",

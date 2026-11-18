@@ -60,7 +60,8 @@ export function test_render_soft_route(): void {
     undefined,
     [first],
   );
-  const soft: NonNullable<IAutoMovieSceneObject["softProps"]> = built.softProps!;
+  const soft: NonNullable<IAutoMovieSceneObject["softProps"]> =
+    built.softProps!;
   try {
     const mesh: THREE.Object3D | undefined =
       built.scene.getObjectByName("soft:cloth");

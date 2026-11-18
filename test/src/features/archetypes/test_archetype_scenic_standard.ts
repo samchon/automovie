@@ -33,13 +33,15 @@ export function test_archetype_scenic_standard(): void {
   const close = (actual: number, expected: number): boolean =>
     nclose(actual, expected, MILLIMETRE);
   for (const kind of ["banner", "roundel"] as const) {
-    const model: ReturnType<typeof createScenicStandard> = createScenicStandard({
-      kind,
-      length: 1.7,
-      shaftDiameter: 0.036,
-      headSpan: 0.53,
-      faceDepth: 0.016,
-    });
+    const model: ReturnType<typeof createScenicStandard> = createScenicStandard(
+      {
+        kind,
+        length: 1.7,
+        shaftDiameter: 0.036,
+        headSpan: 0.53,
+        faceDepth: 0.016,
+      },
+    );
     const shaft: ReturnType<typeof archetypeExtent> = archetypeExtent(
       model,
       "y",
@@ -69,10 +71,14 @@ export function test_archetype_scenic_standard(): void {
         close(grip.frame.translation.y - grip.length! / 2, shaft.low) &&
         close(grip.frame.translation.y + grip.length! / 2, panel.low),
     );
-    const prop: IAutoMovieMotionHumanProp = HumanObject.prop("standard", model, {
-      at: { x: 2, y: 0, z: 3 },
-      yaw: 90,
-    });
+    const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+      "standard",
+      model,
+      {
+        at: { x: 2, y: 0, z: 3 },
+        yaw: 90,
+      },
+    );
     TestValidator.predicate(
       `${kind} exposes the grip and a physical front to motion`,
       (): boolean =>
@@ -89,8 +95,12 @@ export function test_archetype_scenic_standard(): void {
   }
   TestValidator.equals(
     "the same seed returns the same visible geometry",
-    JSON.stringify(createScenicStandard({ kind: "banner" }, "village").shapes()),
-    JSON.stringify(createScenicStandard({ kind: "banner" }, "village").shapes()),
+    JSON.stringify(
+      createScenicStandard({ kind: "banner" }, "village").shapes(),
+    ),
+    JSON.stringify(
+      createScenicStandard({ kind: "banner" }, "village").shapes(),
+    ),
   );
   TestValidator.error("head size must be positive", () =>
     createScenicStandard({ kind: "roundel", headSpan: 0 }),

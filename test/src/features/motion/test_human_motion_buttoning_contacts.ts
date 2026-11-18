@@ -82,9 +82,9 @@ export function test_human_motion_buttoning_contacts(): void {
     frame: { position: at, rotation: Quaternion.identity() },
     points: {},
     affordances: sites.map(
-      (site: (typeof sites)[number]): NonNullable<
-        IAutoMovieMotionHumanProp["affordances"]
-      >[number] => ({
+      (
+        site: (typeof sites)[number],
+      ): NonNullable<IAutoMovieMotionHumanProp["affordances"]>[number] => ({
         id: site.contact.site,
         kind: "surface",
         frame: { ...Transform.identity(), translation: site.offset },
@@ -108,8 +108,9 @@ export function test_human_motion_buttoning_contacts(): void {
     composition: HumanChain.subject("actor").registered("manipulate", {
       prop: garment.subject,
       contacts: sites.map(
-        (site: (typeof sites)[number]): IAutoMovieMotionHumanManipulate.IContact =>
-          site.contact,
+        (
+          site: (typeof sites)[number],
+        ): IAutoMovieMotionHumanManipulate.IContact => site.contact,
       ),
     }).node,
   });

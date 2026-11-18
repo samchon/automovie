@@ -62,7 +62,8 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           kind: "affordance",
           axis: "ball",
           value: ball,
-          reason: "stageCatch plans the interception of a portable drag-free prop",
+          reason:
+            "stageCatch plans the interception of a portable drag-free prop",
           fix: "use a prop whose motion is driven by its launch",
         });
 
@@ -80,7 +81,8 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           kind: "reach",
           axis: "from",
           value: from,
-          reason: "the source action must stay placed from release through interception",
+          reason:
+            "the source action must stay placed from release through interception",
           fix: "extend the anchored launch action through the proposed catch",
         });
 
@@ -107,7 +109,8 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           kind: "reach",
           axis: "ball",
           value: ball,
-          reason: "the recorded flight misses the catch plan's interception point",
+          reason:
+            "the recorded flight misses the catch plan's interception point",
           fix: "align the published launch and the catch on the same unobstructed path",
         });
 

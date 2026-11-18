@@ -36,7 +36,10 @@ export function softPropCordSurface(
 
   const points: THREE.Vector3[] = [];
   for (let offset: number = 0; offset < positions.length; offset += 3) {
-    const point: THREE.Vector3 = new THREE.Vector3().fromArray(positions, offset);
+    const point: THREE.Vector3 = new THREE.Vector3().fromArray(
+      positions,
+      offset,
+    );
     if (
       !Number.isFinite(Math.fround(point.x)) ||
       !Number.isFinite(Math.fround(point.y)) ||
@@ -109,10 +112,7 @@ class ParticlePath extends THREE.Curve<THREE.Vector3> {
   }
 
   /** Tube rings use the authored particle spacing in place of arc-length spacing. */
-  public override getPointAt(
-    u: number,
-    target?: THREE.Vector3,
-  ): THREE.Vector3 {
+  public override getPointAt(u: number, target?: THREE.Vector3): THREE.Vector3 {
     return this.getPoint(u, target);
   }
 

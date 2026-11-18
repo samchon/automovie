@@ -83,9 +83,12 @@ export function test_human_motion_service_queue(): void {
   let previousEnd: number = release;
 
   for (const [rank, member] of ensemble.members.entries()) {
-    const walk: IAutoMovieMotionHumanSegment = film.segments(member.subject)[0]!;
-    const laterWalk: IAutoMovieMotionHumanSegment =
-      delayed.segments(member.subject)[0]!;
+    const walk: IAutoMovieMotionHumanSegment = film.segments(
+      member.subject,
+    )[0]!;
+    const laterWalk: IAutoMovieMotionHumanSegment = delayed.segments(
+      member.subject,
+    )[0]!;
     TestValidator.predicate(
       `rank ${rank} starts on its release or after the preceding walk ends`,
       Math.abs(walk.entryTime - (rank === 0 ? release : previousEnd + wait)) <=
@@ -119,7 +122,8 @@ export function test_human_motion_service_queue(): void {
       const again: IAutoMovieVector3 = replay.posture(member.subject, t).root;
       closest = Math.min(closest, predecessor - root.z);
       predecessor = root.z;
-      replays &&= root.x === again.x && root.y === again.y && root.z === again.z;
+      replays &&=
+        root.x === again.x && root.y === again.y && root.z === again.z;
     }
   }
   TestValidator.predicate(

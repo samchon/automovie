@@ -7,6 +7,7 @@ import {
   ArchetypeFrame,
   ArchetypeUnits,
 } from "../core";
+import { addTransitBusSeating } from "./addTransitBusSeating";
 
 /**
  * Builds a rigid, two-door low-floor city bus for boarding, standing and seated
@@ -45,20 +46,55 @@ export function createTransitBus(
     draw: new ArchetypeDrawSession<never>("transitBus", {}, undefined),
   });
 
-  builder.box("deck", v(2 * (HALF_WIDTH - WELL_WIDTH), DECK_DEPTH, 2 * END), v(0, FLOOR - DECK_DEPTH / 2, 0), DARK);
+  builder.box(
+    "deck",
+    v(2 * (HALF_WIDTH - WELL_WIDTH), DECK_DEPTH, 2 * END),
+    v(0, FLOOR - DECK_DEPTH / 2, 0),
+    DARK,
+  );
   // The center deck stays continuous while the outer strips clear each tyre.
   addDeck(builder, -END, AXLES.rear - ARCH_HALF, "aft");
   addDeck(builder, AXLES.rear + ARCH_HALF, AXLES.front - ARCH_HALF, "mid");
   addDeck(builder, AXLES.front + ARCH_HALF, END, "fore");
-  builder.box("roof", v(2 * HALF_WIDTH, 0.27, 2 * END), v(0, CEILING + 0.135, 0), BODY);
-  builder.box("air-conditioning", v(1.65, ROOF - CEILING - 0.27, 2.6), v(0, (ROOF + CEILING + 0.27) / 2, -1.65), BODY);
+  builder.box(
+    "roof",
+    v(2 * HALF_WIDTH, 0.27, 2 * END),
+    v(0, CEILING + 0.135, 0),
+    BODY,
+  );
+  builder.box(
+    "air-conditioning",
+    v(1.65, ROOF - CEILING - 0.27, 2.6),
+    v(0, (ROOF + CEILING + 0.27) / 2, -1.65),
+    BODY,
+  );
   for (const end of [-1, 1] as const) {
     const z: number = end * (END - 0.035);
-    builder.box("end-lower-" + end, v(2 * HALF_WIDTH, 1.02, 0.07), v(0, FLOOR + 0.51, z), BODY);
-    builder.box("end-window-" + end, v(2 * HALF_WIDTH, CEILING - FLOOR - 1.02, 0.07), v(0, (CEILING + FLOOR + 1.02) / 2, z), GLASS);
-    builder.box("bumper-" + end, v(2 * HALF_WIDTH, 0.25, BUMPER), v(0, FLOOR + 0.1, end * (END + BUMPER / 2)), DARK);
+    builder.box(
+      "end-lower-" + end,
+      v(2 * HALF_WIDTH, 1.02, 0.07),
+      v(0, FLOOR + 0.51, z),
+      BODY,
+    );
+    builder.box(
+      "end-window-" + end,
+      v(2 * HALF_WIDTH, CEILING - FLOOR - 1.02, 0.07),
+      v(0, (CEILING + FLOOR + 1.02) / 2, z),
+      GLASS,
+    );
+    builder.box(
+      "bumper-" + end,
+      v(2 * HALF_WIDTH, 0.25, BUMPER),
+      v(0, FLOOR + 0.1, end * (END + BUMPER / 2)),
+      DARK,
+    );
     for (const side of [-1, 1] as const)
-      builder.box("lamp-" + end + "-" + side, v(0.32, 0.15, 0.035), v(side * (HALF_WIDTH - 0.33), FLOOR + 0.37, end * END), end === 1 ? HEADLAMP : TAILLAMP);
+      builder.box(
+        "lamp-" + end + "-" + side,
+        v(0.32, 0.15, 0.035),
+        v(side * (HALF_WIDTH - 0.33), FLOOR + 0.37, end * END),
+        end === 1 ? HEADLAMP : TAILLAMP,
+      );
   }
 
   // Mullions, wheel openings and door pockets are fixed to the shell.
@@ -66,33 +102,36 @@ export function createTransitBus(
   addWall(builder, -1, -END, EXIT.z - LEAF, "curb-rear");
   addWall(builder, -1, EXIT.z + LEAF, ENTRY.z - LEAF, "curb-middle");
   addWall(builder, -1, ENTRY.z + LEAF, END, "curb-front");
-  builder.box("curb-header", v(WALL, CEILING - FLOOR - DOOR_HEIGHT, 2 * END), v(-HALF_WIDTH + WALL / 2, (CEILING + FLOOR + DOOR_HEIGHT) / 2, 0), BODY);
+  builder.box(
+    "curb-header",
+    v(WALL, CEILING - FLOOR - DOOR_HEIGHT, 2 * END),
+    v(-HALF_WIDTH + WALL / 2, (CEILING + FLOOR + DOOR_HEIGHT) / 2, 0),
+    BODY,
+  );
   for (const axle of ["front", "rear"] as const)
     for (const side of [-1, 1] as const) {
       const z: number = AXLES[axle];
-      builder.rod("tyre-" + axle + "-" + side, RADIUS, v(side * (HALF_WIDTH - TYRE_WIDTH - 0.03), RADIUS, z), v(side * (HALF_WIDTH - 0.03), RADIUS, z), DARK);
-      builder.rod("hub-" + axle + "-" + side, 0.21, v(side * (HALF_WIDTH - 0.04), RADIUS, z), v(side * (HALF_WIDTH - 0.012), RADIUS, z), BODY);
+      builder.rod(
+        "tyre-" + axle + "-" + side,
+        RADIUS,
+        v(side * (HALF_WIDTH - TYRE_WIDTH - 0.03), RADIUS, z),
+        v(side * (HALF_WIDTH - 0.03), RADIUS, z),
+        DARK,
+      );
+      builder.rod(
+        "hub-" + axle + "-" + side,
+        0.21,
+        v(side * (HALF_WIDTH - 0.04), RADIUS, z),
+        v(side * (HALF_WIDTH - 0.012), RADIUS, z),
+        BODY,
+      );
       addWheelHousing(builder, side, z, "wheel-housing-" + axle + "-" + side);
     }
 
   addDoor(builder, ENTRY);
   addDoor(builder, EXIT);
 
-  // Seat fronts face forward. Their aisle-side edges leave a constant passage.
-  for (const z of [-2.42, -1.57, -0.72, 0.13, 0.98, 1.83, 2.68])
-    addSeatRow(builder, 1, z);
-  for (const z of [-2.42, 0.98, 1.83, 2.68])
-    addSeatRow(builder, -1, z);
-
-  builder.affordance({
-    id: "seat",
-    kind: "seat",
-    frame: ArchetypeFrame.upright(v(AISLE / 2 + SEAT_WIDTH / 2, FLOOR + SEAT_HEIGHT, 0.98)),
-    extent: null,
-    width: SEAT_WIDTH,
-    depth: SEAT_DEPTH,
-    back: BACK_HEIGHT,
-  });
+  addTransitBusSeating(builder, FLOOR, AISLE, DARK);
   builder.affordance({
     id: "aisle",
     kind: "surface",
@@ -124,9 +163,18 @@ export namespace createTransitBus {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A finite id union excludes arbitrary model part names.
    */
   export type Affordance =
-    | "frontDoor" | "frontDoorFollower" | "frontDoorway" | "frontThreshold" | "frontGrabRail"
-    | "rearDoor" | "rearDoorFollower" | "rearDoorway" | "rearThreshold" | "rearGrabRail"
-    | "aisle" | "seat";
+    | "frontDoor"
+    | "frontDoorFollower"
+    | "frontDoorway"
+    | "frontThreshold"
+    | "frontGrabRail"
+    | "rearDoor"
+    | "rearDoorFollower"
+    | "rearDoorway"
+    | "rearThreshold"
+    | "rearGrabRail"
+    | "aisle"
+    | "seat";
 }
 
 /** Archetype construction with the bus's contact ids and no randomized fit. */
@@ -144,23 +192,61 @@ type DoorBay = Readonly<{
 }>;
 
 /** Extends the deck to both side walls where no tyre crosses floor height. */
-function addDeck(builder: BusBuilder, start: number, end: number, id: string): void {
+function addDeck(
+  builder: BusBuilder,
+  start: number,
+  end: number,
+  id: string,
+): void {
   for (const side of [-1, 1] as const)
-    builder.box("deck-edge-" + id + "-" + side, v(WELL_WIDTH, DECK_DEPTH, end - start), v(side * (HALF_WIDTH - WELL_WIDTH / 2), FLOOR - DECK_DEPTH / 2, (start + end) / 2), DARK);
+    builder.box(
+      "deck-edge-" + id + "-" + side,
+      v(WELL_WIDTH, DECK_DEPTH, end - start),
+      v(
+        side * (HALF_WIDTH - WELL_WIDTH / 2),
+        FLOOR - DECK_DEPTH / 2,
+        (start + end) / 2,
+      ),
+      DARK,
+    );
 }
 
 /** Closes the two inboard edges of each wheel arch above the deck. */
-function addWheelHousing(builder: BusBuilder, side: -1 | 1, z: number, id: string): void {
+function addWheelHousing(
+  builder: BusBuilder,
+  side: -1 | 1,
+  z: number,
+  id: string,
+): void {
   const inset: number = HALF_WIDTH - WELL_WIDTH;
   const span: number = WELL_WIDTH - WALL;
   const y: number = (FLOOR + ARCH_TOP) / 2;
   const height: number = ARCH_TOP - FLOOR;
   const sheet: number = 0.04;
   const x: number = side * (inset + span / 2);
-  builder.box(id + "-cover", v(span, sheet, 2 * ARCH_HALF), v(x, ARCH_TOP - sheet / 2, z), DARK);
-  builder.box(id + "-inner", v(sheet, height - sheet, 2 * ARCH_HALF), v(side * (inset + sheet / 2), y - sheet / 2, z), DARK);
+  builder.box(
+    id + "-cover",
+    v(span, sheet, 2 * ARCH_HALF),
+    v(x, ARCH_TOP - sheet / 2, z),
+    DARK,
+  );
+  builder.box(
+    id + "-inner",
+    v(sheet, height - sheet, 2 * ARCH_HALF),
+    v(side * (inset + sheet / 2), y - sheet / 2, z),
+    DARK,
+  );
   for (const end of [-1, 1] as const)
-    builder.box(id + "-end-" + end, v(span - sheet, height - sheet, sheet), v(x + side * sheet / 2, y - sheet / 2, z + end * (ARCH_HALF - sheet / 2)), DARK);
+    builder.box(
+      id + "-end-" + end,
+      v(span - sheet, height - sheet, sheet),
+      v(
+        x + (side * sheet) / 2,
+        y - sheet / 2,
+        z + end * (ARCH_HALF - sheet / 2),
+      ),
+      DARK,
+    );
 }
 
 /** Adds the coupled pair, its geometric clear opening and passenger contacts. */
@@ -168,14 +254,25 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   const x: number = -HALF_WIDTH + WALL + 0.035;
   const paneHeight: number = DOOR_HEIGHT - 1.1;
   for (const dir of [-1, 1] as const) {
-    const slider: DoorBay["leader" | "follower"] = dir === 1 ? bay.leader : bay.follower;
-    const z: number = bay.z + dir * LEAF / 2;
+    const slider: DoorBay["leader" | "follower"] =
+      dir === 1 ? bay.leader : bay.follower;
+    const z: number = bay.z + (dir * LEAF) / 2;
     const panel: string = slider + "-panel";
     const pane: string = slider + "-window";
     const cap: string = slider + "-cap";
     builder.box(panel, v(0.035, 0.98, LEAF), v(x, FLOOR + 0.49, z), BODY);
-    builder.box(pane, v(0.035, paneHeight, LEAF), v(x, FLOOR + 0.98 + paneHeight / 2, z), GLASS);
-    builder.box(cap, v(0.035, 0.12, LEAF), v(x, FLOOR + DOOR_HEIGHT - 0.06, z), BODY);
+    builder.box(
+      pane,
+      v(0.035, paneHeight, LEAF),
+      v(x, FLOOR + 0.98 + paneHeight / 2, z),
+      GLASS,
+    );
+    builder.box(
+      cap,
+      v(0.035, 0.12, LEAF),
+      v(x, FLOOR + DOOR_HEIGHT - 0.06, z),
+      BODY,
+    );
     builder.affordance({
       id: slider,
       kind: "slider",
@@ -191,7 +288,11 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   builder.affordance({
     id: bay.aperture,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(v(-HALF_WIDTH, FLOOR, bay.z), v(0, 1, 0), v(0, 0, 1)),
+    frame: ArchetypeFrame.facing(
+      v(-HALF_WIDTH, FLOOR, bay.z),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     width: 2 * LEAF,
     height: DOOR_HEIGHT,
@@ -209,12 +310,22 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   const railX: number = -0.63;
   const railZ: number = bay.z + bay.railDirection * (LEAF + 0.18);
   const diameter: number = 1.375 * ArchetypeUnits.INCH;
-  builder.rod(bay.rail + "-pole", diameter / 2, v(railX, FLOOR, railZ), v(railX, CEILING, railZ), RAIL);
+  builder.rod(
+    bay.rail + "-pole",
+    diameter / 2,
+    v(railX, FLOOR, railZ),
+    v(railX, CEILING, railZ),
+    RAIL,
+  );
   builder.affordance({
     id: bay.rail,
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(railX, (CEILING + FLOOR) / 2, railZ), v(1, 0, 0), v(0, 1, 0)),
+    frame: ArchetypeFrame.facing(
+      v(railX, (CEILING + FLOOR) / 2, railZ),
+      v(1, 0, 0),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: diameter,
@@ -223,7 +334,13 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
 }
 
 /** Builds a bounded side-wall run; only the sill needs wheel cutouts. */
-function addWall(builder: BusBuilder, side: -1 | 1, start: number, end: number, id: string): void {
+function addWall(
+  builder: BusBuilder,
+  side: -1 | 1,
+  start: number,
+  end: number,
+  id: string,
+): void {
   const skin: number = side * (HALF_WIDTH - WALL / 2);
   const sill: number = FLOOR + 0.93;
   const glassTop: number = FLOOR + DOOR_HEIGHT;
@@ -231,11 +348,26 @@ function addWall(builder: BusBuilder, side: -1 | 1, start: number, end: number, 
   const pitch: number = (end - start) / panels;
   for (let i: number = 0; i < panels; ++i) {
     const z: number = start + i * pitch;
-    builder.box(id + "-post-" + i, v(WALL, glassTop - sill, 0.07), v(skin, (sill + glassTop) / 2, z + 0.035), BODY);
-    builder.box(id + "-window-" + i, v(WALL, glassTop - sill, pitch - 0.07), v(skin, (sill + glassTop) / 2, z + (pitch + 0.07) / 2), GLASS);
+    builder.box(
+      id + "-post-" + i,
+      v(WALL, glassTop - sill, 0.07),
+      v(skin, (sill + glassTop) / 2, z + 0.035),
+      BODY,
+    );
+    builder.box(
+      id + "-window-" + i,
+      v(WALL, glassTop - sill, pitch - 0.07),
+      v(skin, (sill + glassTop) / 2, z + (pitch + 0.07) / 2),
+      GLASS,
+    );
   }
   if (side === 1)
-    builder.box(id + "-header", v(WALL, CEILING - glassTop, end - start), v(skin, (CEILING + glassTop) / 2, (end + start) / 2), BODY);
+    builder.box(
+      id + "-header",
+      v(WALL, CEILING - glassTop, end - start),
+      v(skin, (CEILING + glassTop) / 2, (end + start) / 2),
+      BODY,
+    );
 
   let cursor: number = start;
   for (const axle of ["rear", "front"] as const) {
@@ -243,26 +375,27 @@ function addWall(builder: BusBuilder, side: -1 | 1, start: number, end: number, 
     const right: number = Math.min(end, AXLES[axle] + ARCH_HALF);
     if (left >= right) continue;
     if (cursor < left)
-      builder.box(id + "-sill-before-" + axle, v(WALL, sill - SKIRT, left - cursor), v(skin, (sill + SKIRT) / 2, (cursor + left) / 2), BODY);
-    builder.box(id + "-arch-" + axle, v(WALL, sill - ARCH_TOP, right - left), v(skin, (sill + ARCH_TOP) / 2, (left + right) / 2), BODY);
+      builder.box(
+        id + "-sill-before-" + axle,
+        v(WALL, sill - SKIRT, left - cursor),
+        v(skin, (sill + SKIRT) / 2, (cursor + left) / 2),
+        BODY,
+      );
+    builder.box(
+      id + "-arch-" + axle,
+      v(WALL, sill - ARCH_TOP, right - left),
+      v(skin, (sill + ARCH_TOP) / 2, (left + right) / 2),
+      BODY,
+    );
     cursor = right;
   }
   if (cursor < end)
-    builder.box(id + "-sill-end", v(WALL, sill - SKIRT, end - cursor), v(skin, (sill + SKIRT) / 2, (cursor + end) / 2), BODY);
-}
-
-/** Adds a forward-facing pair with its front edge at frontZ. */
-function addSeatRow(builder: BusBuilder, side: -1 | 1, frontZ: number): void {
-  const key: string = (side === -1 ? "curb-" : "street-") + frontZ;
-  const backZ: number = frontZ - SEAT_DEPTH;
-  const x: number = side * (AISLE / 2 + SEAT_WIDTH);
-  const y: number = FLOOR + SEAT_HEIGHT;
-  builder.box(key + "-support", v(0.1, SEAT_HEIGHT - 0.06, 0.26), v(x, (FLOOR + y - 0.06) / 2, (frontZ + backZ) / 2), DARK);
-  for (const seat of [-1, 1] as const) {
-    const centre: number = x + seat * SEAT_WIDTH / 2;
-    builder.box(key + "-cushion-" + seat, v(SEAT_WIDTH - 0.012, 0.06, SEAT_DEPTH), v(centre, y - 0.03, (frontZ + backZ) / 2), SEAT);
-    builder.box(key + "-back-" + seat, v(SEAT_WIDTH - 0.012, BACK_HEIGHT, 0.07), v(centre, y + BACK_HEIGHT / 2, backZ - 0.035), SEAT);
-  }
+    builder.box(
+      id + "-sill-end",
+      v(WALL, sill - SKIRT, end - cursor),
+      v(skin, (sill + SKIRT) / 2, (cursor + end) / 2),
+      BODY,
+    );
 }
 
 /** Vector constructor for metric bus-local dimensions. */
@@ -294,7 +427,7 @@ const DOOR_HEIGHT: number = 2.06;
 /** Tyre width in the 305/70R22.5 nominal size. */
 const TYRE_WIDTH: number = 0.305;
 /** Lateral depth of the floor cutout around each exterior tyre. */
-const WELL_WIDTH: number = TYRE_WIDTH + 0.20;
+const WELL_WIDTH: number = TYRE_WIDTH + 0.2;
 /** Nominal unloaded tyre radius, from rim diameter and sidewall height. */
 const RADIUS: number = 11.25 * ArchetypeUnits.INCH + TYRE_WIDTH * 0.7;
 /** Clearance envelope around a tyre in the side fascia. */
@@ -326,14 +459,6 @@ const EXIT: DoorBay = {
   rail: "rearGrabRail",
   railDirection: 1,
 };
-/** Nominal seat width including the gap between pads. */
-const SEAT_WIDTH: number = 0.41;
-/** Seat pad depth measured back from its front edge. */
-const SEAT_DEPTH: number = 0.43;
-/** Surface height of a seat pad above the deck. */
-const SEAT_HEIGHT: number = 0.46;
-/** Passenger backrest height above the pad. */
-const BACK_HEIGHT: number = 0.46;
 /** Painted bus body without operator graphics. */
 const BODY: ArchetypeBuilder.IOptions = { color: "#bfcccf" };
 /** Tinted window marker. */
@@ -342,8 +467,6 @@ const GLASS: ArchetypeBuilder.IOptions = { color: "#48616d", density: 0.4 };
 const DARK: ArchetypeBuilder.IOptions = { color: "#2d343a" };
 /** Yellow supports visible against the passenger interior. */
 const RAIL: ArchetypeBuilder.IOptions = { color: "#e5b229" };
-/** Upholstery marking the seat contact surfaces. */
-const SEAT: ArchetypeBuilder.IOptions = { color: "#306f80" };
 /** Headlamp lens marker. */
 const HEADLAMP: ArchetypeBuilder.IOptions = { color: "#e4e4df" };
 /** Rear lamp lens marker. */

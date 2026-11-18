@@ -48,7 +48,9 @@ export function composeHumanBladeExchange(
     !Number.isFinite(exchange.blockLeadSeconds) ||
     exchange.blockLeadSeconds < 0
   )
-    throw new Error("Give the staged block a finite nonnegative lead in seconds");
+    throw new Error(
+      "Give the staged block a finite nonnegative lead in seconds",
+    );
 
   const openingCue: string = `${exchange.cue}.opening`;
   const cue: IAutoMovieMotionHumanLexiconBladeParams["cut"] = {

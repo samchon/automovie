@@ -41,9 +41,11 @@ export function test_render_soft_cord(): void {
       step: 2,
       bounds: null,
       mesh: {
-        positions: centres.flatMap(
-          (point: THREE.Vector3): number[] => [point.x, point.y, point.z],
-        ),
+        positions: centres.flatMap((point: THREE.Vector3): number[] => [
+          point.x,
+          point.y,
+          point.z,
+        ]),
         normals: null,
         uvs: null,
         indices: [],
@@ -55,38 +57,39 @@ export function test_render_soft_cord(): void {
   const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
   try {
     layer.update([frame]);
-    const mesh: THREE.Object3D | undefined =
-      scene.getObjectByName("soft:cord");
-    TestValidator.predicate("a visible indexed tube follows the particles", () => {
-      if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
-      const geometry: THREE.BufferGeometry = mesh.geometry;
-      const vertex:
-        | THREE.BufferAttribute
-        | THREE.InterleavedBufferAttribute = geometry.getAttribute("position");
-      const ringSize: number = vertex.count / centres.length;
-      const opposite: number = (ringSize - 1) / 2;
-      if (
-        !Number.isInteger(opposite) ||
-        opposite < 2 ||
-        (geometry.getIndex()?.count ?? 0) === 0
-      )
-        return false;
-      const first: THREE.Vector3 = new THREE.Vector3();
-      const other: THREE.Vector3 = new THREE.Vector3();
-      for (let ring: number = 0; ring < centres.length; ++ring) {
-        const start: number = ringSize * ring;
-        const center: THREE.Vector3 = centres[ring]!;
-        first.fromBufferAttribute(vertex, start);
-        other.fromBufferAttribute(vertex, start + opposite);
-        if (first.add(other).multiplyScalar(0.5).distanceTo(center) > 1e-9)
+    const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
+    TestValidator.predicate(
+      "a visible indexed tube follows the particles",
+      () => {
+        if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
+        const geometry: THREE.BufferGeometry = mesh.geometry;
+        const vertex: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
+          geometry.getAttribute("position");
+        const ringSize: number = vertex.count / centres.length;
+        const opposite: number = (ringSize - 1) / 2;
+        if (
+          !Number.isInteger(opposite) ||
+          opposite < 2 ||
+          (geometry.getIndex()?.count ?? 0) === 0
+        )
           return false;
-        for (let side: number = 0; side < ringSize; ++side) {
-          other.fromBufferAttribute(vertex, start + side);
-          if (!nclose(other.distanceTo(center), radius, 1e-9)) return false;
+        const first: THREE.Vector3 = new THREE.Vector3();
+        const other: THREE.Vector3 = new THREE.Vector3();
+        for (let ring: number = 0; ring < centres.length; ++ring) {
+          const start: number = ringSize * ring;
+          const center: THREE.Vector3 = centres[ring]!;
+          first.fromBufferAttribute(vertex, start);
+          other.fromBufferAttribute(vertex, start + opposite);
+          if (first.add(other).multiplyScalar(0.5).distanceTo(center) > 1e-9)
+            return false;
+          for (let side: number = 0; side < ringSize; ++side) {
+            other.fromBufferAttribute(vertex, start + side);
+            if (!nclose(other.distanceTo(center), radius, 1e-9)) return false;
+          }
         }
-      }
-      return true;
-    });
+        return true;
+      },
+    );
     layer.update([
       {
         ...frame,
@@ -100,19 +103,23 @@ export function test_render_soft_cord(): void {
         },
       },
     ]);
-    TestValidator.predicate("collapse hides the mounted cord", () =>
-      mesh instanceof THREE.Mesh &&
-      !mesh.visible &&
-      mesh.userData.step === 3 &&
-      scene.getObjectByName("soft:cord") === mesh,
+    TestValidator.predicate(
+      "collapse hides the mounted cord",
+      () =>
+        mesh instanceof THREE.Mesh &&
+        !mesh.visible &&
+        mesh.userData.step === 3 &&
+        scene.getObjectByName("soft:cord") === mesh,
     );
     layer.update([frame]);
-    TestValidator.predicate("seeking back restores the original cord", () =>
-      mesh instanceof THREE.Mesh &&
-      mesh.visible &&
-      mesh.userData.step === 2 &&
-      (mesh.geometry.getIndex()?.count ?? 0) > 0 &&
-      scene.getObjectByName("soft:cord") === mesh,
+    TestValidator.predicate(
+      "seeking back restores the original cord",
+      () =>
+        mesh instanceof THREE.Mesh &&
+        mesh.visible &&
+        mesh.userData.step === 2 &&
+        (mesh.geometry.getIndex()?.count ?? 0) > 0 &&
+        scene.getObjectByName("soft:cord") === mesh,
     );
     const sparse: number[] = Array.from(
       frame.surface.mesh.positions.slice(0, 4),
@@ -122,16 +129,18 @@ export function test_render_soft_cord(): void {
     const overflow: number[] = [...frame.surface.mesh.positions];
     overflow[4] = Number.MAX_VALUE;
     for (const positions of [sparse, overflow])
-      TestValidator.error("invalid cord particles refuse before replacing the mesh", (): void =>
-        layer.update([
-          {
-            ...frame,
-            surface: {
-              ...frame.surface,
-              mesh: { ...frame.surface.mesh, positions },
+      TestValidator.error(
+        "invalid cord particles refuse before replacing the mesh",
+        (): void =>
+          layer.update([
+            {
+              ...frame,
+              surface: {
+                ...frame.surface,
+                mesh: { ...frame.surface.mesh, positions },
+              },
             },
-          },
-        ]),
+          ]),
       );
     TestValidator.error("a cord radius must be positive", (): void =>
       layer.update([{ ...frame, cordRadius: 0 }]),

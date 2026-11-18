@@ -1,18 +1,28 @@
 import { createZipperPouch } from "@automovie/archetypes";
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieModelPart,
   IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanZip,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, zip } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  zip,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,33 +52,57 @@ export function test_human_motion_zip(): void {
   const model: ReturnType<typeof createZipperPouch> = createZipperPouch();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(Vector3.create(0, 1, 0), 180);
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    Vector3.create(0, 1, 0),
+    180,
+  );
   const position: IAutoMovieVector3 = Vector3.create(
     0,
     body.measure.shoulderHeight - 0.75 * body.measure.upperArm - 0.129,
     shoulder.z + 0.82 * body.measure.forearm,
   );
   const params: IAutoMovieMotionHumanZip = {
-    pouch: "pouch", thumb: "thumb", index: "index", brace: "brace",
-    travel: STROKE, seconds: 0.65,
+    pouch: "pouch",
+    thumb: "thumb",
+    index: "index",
+    brace: "brace",
+    travel: STROKE,
+    seconds: 0.65,
   };
 
   /** Run one action or the round trip with the same staged model. */
-  const run = (first: IAutoMovieMotionHumanZip, close: boolean = false): HumanPerformance => {
-    const open: IAutoMovieMotionHumanChain = HumanChain.subject("actor").registered("zip", first);
+  const run = (
+    first: IAutoMovieMotionHumanZip,
+    close: boolean = false,
+  ): HumanPerformance => {
+    const open: IAutoMovieMotionHumanChain = HumanChain.subject(
+      "actor",
+    ).registered("zip", first);
     return new HumanPerformance({
       seed: "zipper-stops",
       laws: [zip],
       performers: [
-        { subject: "actor", body, at: Vector3.create(0, 0, 0), yaw: 0, proficiency: { level: "elite" } },
+        {
+          subject: "actor",
+          body,
+          at: Vector3.create(0, 0, 0),
+          yaw: 0,
+          proficiency: { level: "elite" },
+        },
       ],
-      props: [HumanObject.prop("pouch", model, { position, rotation, fixed: true })],
-      composition: (close ? open.registered("zip", { ...params, travel: -STROKE }) : open).node,
+      props: [
+        HumanObject.prop("pouch", model, { position, rotation, fixed: true }),
+      ],
+      composition: (close
+        ? open.registered("zip", { ...params, travel: -STROKE })
+        : open
+      ).node,
     });
   };
 
   const performance: HumanPerformance = run(params, true);
-  const [open, close]: readonly IAutoMovieMotionHumanSegment[] = performance.segments("actor");
+  const [open, close]: readonly IAutoMovieMotionHumanSegment[] =
+    performance.segments("actor");
   const sample = (seconds: number): ReturnType<typeof model.articulate> =>
     model.articulate(performance.state("pouch", seconds));
   const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -78,49 +112,81 @@ export function test_human_motion_zip(): void {
   const openEnd: number = event(open!, "strokeEnd");
   const closeStart: number = event(close!, "strokeStart");
   const closeEnd: number = event(close!, "strokeEnd");
-  for (const [begin, end, direction] of [[openStart, openEnd, 1], [closeStart, closeEnd, -1]] as const) {
-    const initial: number = part(sample(begin).parts, "tab").transform!.translation.x;
-    const final: number = part(sample(end).parts, "tab").transform!.translation.x;
-    TestValidator.predicate("the physical tab travels between the two stops", Math.abs(final - initial - direction * STROKE) < 1e-9);
+  for (const [begin, end, direction] of [
+    [openStart, openEnd, 1],
+    [closeStart, closeEnd, -1],
+  ] as const) {
+    const initial: number = part(sample(begin).parts, "tab").transform!
+      .translation.x;
+    const final: number = part(sample(end).parts, "tab").transform!.translation
+      .x;
+    TestValidator.predicate(
+      "the physical tab travels between the two stops",
+      Math.abs(final - initial - direction * STROKE) < 1e-9,
+    );
     // Locate an interior threshold from the closed lip and moving stem boxes.
     // The two targets are 50 µm to either side, where a wrong pivot exposes
     // the overlap from lip thickness before the gap visibly widens.
     const lipNames: readonly [string, string] = ["lip-1--1", "lip-1-1"];
-    const seamEdge: number = bound(part(sample(openStart).parts, lipNames[0]), "x", 1);
+    const seamEdge: number = bound(
+      part(sample(openStart).parts, lipNames[0]),
+      "x",
+      1,
+    );
     for (const offset of [-0.00005, 0.00005]) {
       let early: number = begin;
       let late: number = end;
       for (let iteration: number = 0; iteration < 30; ++iteration) {
         const middle: number = (early + late) / 2;
-        const stem: IAutoMovieModelPart = part(sample(middle).parts, "slider-stem");
+        const stem: IAutoMovieModelPart = part(
+          sample(middle).parts,
+          "slider-stem",
+        );
         if (direction * (bound(stem, "x", -1) - seamEdge - offset) < 0)
           early = middle;
         else late = middle;
       }
-      const boxes: readonly IAutoMovieModelPart[] = sample((early + late) / 2).parts;
+      const boxes: readonly IAutoMovieModelPart[] = sample(
+        (early + late) / 2,
+      ).parts;
       const left: number = bound(part(boxes, lipNames[0]), "z", 1);
       const right: number = bound(part(boxes, lipNames[1]), "z", -1);
       TestValidator.predicate(
         `neither lip crosses the seam near offset ${offset}, direction ${direction}`,
-        offset > 0 ? left < -1e-9 && right > 1e-9 : Math.abs(left) < 1e-9 && Math.abs(right) < 1e-9,
+        offset > 0
+          ? left < -1e-9 && right > 1e-9
+          : Math.abs(left) < 1e-9 && Math.abs(right) < 1e-9,
       );
     }
 
     let prior: number = initial;
-    const gaps: number[] = direction === 1 ? [0, 0, 0, 0] : [Infinity, Infinity, Infinity, Infinity];
+    const gaps: number[] =
+      direction === 1 ? [0, 0, 0, 0] : [Infinity, Infinity, Infinity, Infinity];
     for (const share of [0.12, 0.25, 0.5, 0.75, 0.9]) {
       const seconds: number = begin + share * (end - begin);
       const posed: ReturnType<typeof model.articulate> = sample(seconds);
       const tab: IAutoMovieModelPart = part(posed.parts, "tab");
       const stem: IAutoMovieModelPart = part(posed.parts, "slider-stem");
       const x: number = tab.transform!.translation.x;
-      TestValidator.predicate("the tab follows the directed stroke", direction * (x - prior) > 0);
+      TestValidator.predicate(
+        "the tab follows the directed stroke",
+        direction * (x - prior) > 0,
+      );
       prior = x;
       for (const section of [0, 1, 2, 3]) {
-        const left: IAutoMovieModelPart = part(posed.parts, `lip-${section}--1`);
-        const right: IAutoMovieModelPart = part(posed.parts, `lip-${section}-1`);
+        const left: IAutoMovieModelPart = part(
+          posed.parts,
+          `lip-${section}--1`,
+        );
+        const right: IAutoMovieModelPart = part(
+          posed.parts,
+          `lip-${section}-1`,
+        );
         const gap: number = bound(right, "z", -1) - bound(left, "z", 1);
-        TestValidator.predicate("each lip follows the stroke direction", direction * (gap - gaps[section]!) >= -1e-9);
+        TestValidator.predicate(
+          "each lip follows the stroke direction",
+          direction * (gap - gaps[section]!) >= -1e-9,
+        );
         gaps[section] = gap;
         TestValidator.predicate(
           `any access at section ${section} is behind the stem at ${share}`,
@@ -128,30 +194,52 @@ export function test_human_motion_zip(): void {
         );
       }
       for (const [name, local] of [
-        ["thumbTipRight", { ...tab.transform!.translation, y: bound(tab, "y", 1), z: -0.012 }],
-        ["indexTipRight", { ...tab.transform!.translation, y: bound(tab, "y", -1), z: -0.012 }],
+        [
+          "thumbTipRight",
+          { ...tab.transform!.translation, y: bound(tab, "y", 1), z: -0.012 },
+        ],
+        [
+          "indexTipRight",
+          { ...tab.transform!.translation, y: bound(tab, "y", -1), z: -0.012 },
+        ],
         ["indexTipLeft", Vector3.create(-0.098, 0.12, -0.032)],
       ] as const) {
         if (name !== "indexTipLeft")
-          TestValidator.predicate("the opposed targets lie on the actual tab faces", local.z >= bound(tab, "z", -1) && local.z <= bound(tab, "z", 1));
-        const surface: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[name];
+          TestValidator.predicate(
+            "the opposed targets lie on the actual tab faces",
+            local.z >= bound(tab, "z", -1) && local.z <= bound(tab, "z", 1),
+          );
+        const surface: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions[name];
         const shown: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-          surface, performance.bones("actor", seconds).get(surface.bone)!,
+          surface,
+          performance.bones("actor", seconds).get(surface.bone)!,
         ).point;
-        TestValidator.predicate(`${name} stays on its contact at ${share}`, Vector3.length(Vector3.subtract(shown, world(local))) <= 0.002);
+        TestValidator.predicate(
+          `${name} stays on its contact at ${share}`,
+          Vector3.length(Vector3.subtract(shown, world(local))) <= 0.002,
+        );
       }
     }
   }
 
   const released: number = open!.start + open!.plan.duration;
-  for (const seconds of [openStart, released, closeStart, close!.start + close!.plan.duration]) {
+  for (const seconds of [
+    openStart,
+    released,
+    closeStart,
+    close!.start + close!.plan.duration,
+  ]) {
     const parts: readonly IAutoMovieModelPart[] = sample(seconds).parts;
     const opening: boolean = seconds === released || seconds === closeStart;
     for (const section of [0, 1, 2, 3]) {
       const gap: number =
         bound(part(parts, `lip-${section}-1`), "z", -1) -
         bound(part(parts, `lip-${section}--1`), "z", 1);
-      TestValidator.predicate(`a settled seam section has the expected clearance at ${seconds}`, opening ? gap > 0.05 : Math.abs(gap) < 1e-9);
+      TestValidator.predicate(
+        `a settled seam section has the expected clearance at ${seconds}`,
+        opening ? gap > 0.05 : Math.abs(gap) < 1e-9,
+      );
     }
   }
 
@@ -168,18 +256,32 @@ export function test_human_motion_zip(): void {
     } catch (error: unknown) {
       refused = error instanceof HumanRefusal && error.message.includes(why);
     }
-    TestValidator.predicate(`refuses invalid zipper action requiring ${why}`, refused);
+    TestValidator.predicate(
+      `refuses invalid zipper action requiring ${why}`,
+      refused,
+    );
   }
 }
 
 /** Locate a named box on the displayed pouch. */
-function part(parts: readonly IAutoMovieModelPart[], id: string): IAutoMovieModelPart {
+function part(
+  parts: readonly IAutoMovieModelPart[],
+  id: string,
+): IAutoMovieModelPart {
   return parts.find((item: IAutoMovieModelPart): boolean => item.id === id)!;
 }
 
 /** Project box corners to obtain an actual posed model extent along one axis. */
-function bound(part: IAutoMovieModelPart, axis: "x" | "y" | "z", side: -1 | 1): number {
-  if (part.geometry.type !== "primitive" || part.geometry.shape.type !== "box" || part.transform === null)
+function bound(
+  part: IAutoMovieModelPart,
+  axis: "x" | "y" | "z",
+  side: -1 | 1,
+): number {
+  if (
+    part.geometry.type !== "primitive" ||
+    part.geometry.shape.type !== "box" ||
+    part.transform === null
+  )
     throw new Error("Expected a posed pouch box");
   const frame: IAutoMovieTransform = part.transform;
   const box: typeof part.geometry.shape = part.geometry.shape;
@@ -188,7 +290,12 @@ function bound(part: IAutoMovieModelPart, axis: "x" | "y" | "z", side: -1 | 1): 
     for (const y of [-1, 1])
       for (const z of [-1, 1]) {
         const corner: IAutoMovieVector3 = Quaternion.rotateVector(
-          frame.rotation, Vector3.create(x * box.width / 2, y * box.height / 2, z * box.depth / 2),
+          frame.rotation,
+          Vector3.create(
+            (x * box.width) / 2,
+            (y * box.height) / 2,
+            (z * box.depth) / 2,
+          ),
         );
         edge = Math.max(edge, side * (corner[axis] + frame.translation[axis]));
       }
@@ -197,6 +304,11 @@ function bound(part: IAutoMovieModelPart, axis: "x" | "y" | "z", side: -1 | 1): 
 
 /** Read a named event from the public plan rather than assuming a clock share. */
 function event(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  return segment.start + segment.plan.duration *
-    segment.plan.events.find((item: IAutoMovieMotionEvent): boolean => item.name === name)!.share;
+  return (
+    segment.start +
+    segment.plan.duration *
+      segment.plan.events.find(
+        (item: IAutoMovieMotionEvent): boolean => item.name === name,
+      )!.share
+  );
 }

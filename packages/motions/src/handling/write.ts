@@ -1,4 +1,9 @@
-import { AffordanceArticulation, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AffordanceArticulation,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -61,13 +66,14 @@ interface IVertex {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture reads the planned arm trajectory through the carried-arm primitive. The world surface path is formed once for that plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the path and trajectory samples. It starts no process and acquires no external handle.
  */
-export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> = {
-  name: "write",
-  interrupts: {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
-  },
-  plan: planWrite,
-};
+export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
+  {
+    name: "write",
+    interrupts: {
+      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planWrite,
+  };
 
 /** Plan once against the surface and the existing grip, then sample the arm trajectory. */
 function planWrite(
@@ -164,7 +170,8 @@ function planWrite(
         kind: "reach",
         axis: "stroke",
         value: [x, z],
-        reason: "a stroke vertex falls outside the surface's declared rectangle",
+        reason:
+          "a stroke vertex falls outside the surface's declared rectangle",
         fix: "place the entire stroke inside the surface's width and depth",
       });
     const point: IAutoMovieVector3 = Vector3.add(
@@ -195,9 +202,7 @@ function planWrite(
 
   // A rigid hold composes the wrist rotation before the stored prop turn.
   // The working point is the carried tip, measured from the wrist joint.
-  const toolFrame: IAutoMovieRigidTransform = tool.frame(
-    context.entry.seconds,
-  );
+  const toolFrame: IAutoMovieRigidTransform = tool.frame(context.entry.seconds);
   const rotation: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(
       toolFrame.rotation,
@@ -283,23 +288,26 @@ function planWrite(
     context,
     held,
   );
-  const base: IAutoMovieMotionHumanActionPlan =
-    AutoMovieMotionHumanBase.under(context, clock.duration);
-  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-    base: {
-      ...base,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
-        return {
-          ...posture,
-          joints: { ...posture.joints, ...kept.fingers },
-        };
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+    context,
+    clock.duration,
+  );
+  const plan: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base: {
+        ...base,
+        posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+          const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
+          return {
+            ...posture,
+            joints: { ...posture.joints, ...kept.fingers },
+          };
+        },
       },
-    },
-    clock,
-    primitives: [arm],
-    contact: "strokeStart",
-  });
+      clock,
+      primitives: [arm],
+      contact: "strokeStart",
+    });
   return {
     ...plan,
     contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],

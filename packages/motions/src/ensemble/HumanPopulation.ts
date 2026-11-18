@@ -271,9 +271,10 @@ export namespace HumanPopulation {
       (s: IAutoMovieMotionHumanSegment): boolean =>
         s.entryTime <= from && from < s.end,
     );
-    const settled: IAutoMovieMotionEvent | undefined = segment?.plan.events.find(
-      (event: IAutoMovieMotionEvent): boolean => event.name === "settled",
-    );
+    const settled: IAutoMovieMotionEvent | undefined =
+      segment?.plan.events.find(
+        (event: IAutoMovieMotionEvent): boolean => event.name === "settled",
+      );
     const at: number =
       segment === undefined || settled === undefined
         ? Number.NaN

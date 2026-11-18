@@ -54,9 +54,15 @@ export function jumpTouchdownRotation(
 
   return (actual: IAutoMovieHumanPostureRotation): void => {
     const angle: number = Quaternion.angle(actual.turn, turn);
-    const pivotDelta: IAutoMovieVector3 = Vector3.subtract(actual.about, centre);
+    const pivotDelta: IAutoMovieVector3 = Vector3.subtract(
+      actual.about,
+      centre,
+    );
     const pivotDrift: number = Vector3.length(
-      Vector3.subtract(pivotDelta, Quaternion.rotateVector(actual.turn, pivotDelta)),
+      Vector3.subtract(
+        pivotDelta,
+        Quaternion.rotateVector(actual.turn, pivotDelta),
+      ),
     );
     const displacement: number = pivotDrift + 2 * radius * Math.sin(angle / 2);
     if (!(displacement <= AutoMovieMotionHumanAudit.LIMITS.jump))
@@ -64,7 +70,8 @@ export function jumpTouchdownRotation(
         kind: "reach",
         axis: "turns",
         value: displacement,
-        reason: "the flight's terminal rotation cannot meet its turned landing within the continuity limit",
+        reason:
+          "the flight's terminal rotation cannot meet its turned landing within the continuity limit",
         fix: "choose a compatible flight and landing outcome",
         performer: subject,
         act: "jump",

@@ -138,20 +138,30 @@ export function test_human_motion_write(): void {
     ],
     seconds: 0.6,
   };
-  const run = (tool: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanPerformance => new HumanPerformance({
-    seed: "held-stroke",
-    laws: [held, write],
-    performers: [
-      { subject: "scribe", body, at, yaw: 0, proficiency: { level: "trained" } },
-    ],
-    props: [tool, paper],
-    composition: HumanChain.subject("scribe")
-      .registered("poisePen")
-      .registered("write", params).node,
-  });
+  const run = (
+    tool: IAutoMovieMotionHumanProp,
+  ): IAutoMovieMotionHumanPerformance =>
+    new HumanPerformance({
+      seed: "held-stroke",
+      laws: [held, write],
+      performers: [
+        {
+          subject: "scribe",
+          body,
+          at,
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      props: [tool, paper],
+      composition: HumanChain.subject("scribe")
+        .registered("poisePen")
+        .registered("write", params).node,
+    });
   const performance: IAutoMovieMotionHumanPerformance = run(pen);
-  const scene: IAutoMovieMotionHumanSegment =
-    performance.segments("scribe").at(-1)!;
+  const scene: IAutoMovieMotionHumanSegment = performance
+    .segments("scribe")
+    .at(-1)!;
   const strokeStart: number =
     scene.start +
     scene.plan.duration *
@@ -179,26 +189,24 @@ export function test_human_motion_write(): void {
   ];
 
   // A +90 degree turn about +Y takes local -Z to world -X and local -X to +Z.
-  offsets.forEach(
-    ([x, z]: readonly [number, number], index: number): void => {
-      const seconds: number =
-        strokeStart + (index * strokeSeconds) / (offsets.length - 1);
-      const actual: IAutoMovieRigidTransform = performance.prop("pen", seconds);
-      const point: IAutoMovieVector3 = Vector3.add(
-        actual.position,
-        Quaternion.rotateVector(actual.rotation, tip),
-      );
-      const expected: IAutoMovieVector3 = Vector3.add(start, {
-        x: translation.x + x,
-        y: 0,
-        z,
-      });
-      TestValidator.predicate(
-        `working point is within 1 mm at stroke sample ${index}`,
-        nclose(Vector3.length(Vector3.subtract(point, expected)), 0, BOUND),
-      );
-    },
-  );
+  offsets.forEach(([x, z]: readonly [number, number], index: number): void => {
+    const seconds: number =
+      strokeStart + (index * strokeSeconds) / (offsets.length - 1);
+    const actual: IAutoMovieRigidTransform = performance.prop("pen", seconds);
+    const point: IAutoMovieVector3 = Vector3.add(
+      actual.position,
+      Quaternion.rotateVector(actual.rotation, tip),
+    );
+    const expected: IAutoMovieVector3 = Vector3.add(start, {
+      x: translation.x + x,
+      y: 0,
+      z,
+    });
+    TestValidator.predicate(
+      `working point is within 1 mm at stroke sample ${index}`,
+      nclose(Vector3.length(Vector3.subtract(point, expected)), 0, BOUND),
+    );
+  });
   for (const seconds of [
     strokeStart + strokeSeconds / 2,
     scene.start + scene.plan.duration,
@@ -215,7 +223,10 @@ export function test_human_motion_write(): void {
       "the pen keeps the same grip through the trace and return",
       nclose(Vector3.length(Vector3.subtract(carried, seat)), 0, BOUND) &&
         qclose(
-          Quaternion.multiply(Quaternion.inverse(hand.worldRotation), prop.rotation),
+          Quaternion.multiply(
+            Quaternion.inverse(hand.worldRotation),
+            prop.rotation,
+          ),
           inverse,
         ),
     );
@@ -236,7 +247,9 @@ export function test_human_motion_write(): void {
     run({
       ...pen,
       affordances: riding,
-      articulate: (): IAutoMovieMotionHumanProp.IPosed => ({ affordances: riding }),
+      articulate: (): IAutoMovieMotionHumanProp.IPosed => ({
+        affordances: riding,
+      }),
     }).segments("scribe");
   } catch (error: unknown) {
     refusal = error;

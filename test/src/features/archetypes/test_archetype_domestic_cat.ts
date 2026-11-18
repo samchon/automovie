@@ -5,7 +5,10 @@ import {
   rideQuadruped,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { AnimalNeutralObservation } from "../internal/AnimalNeutralObservation";
@@ -39,11 +42,27 @@ export function test_archetype_domestic_cat(): void {
   for (const animal of [cat, general]) {
     if (animal.archetype !== "cat")
       findings.push(`unexpected producer ${animal.archetype}`);
-    fixture.near(findings, "adult withers", animal.dimensions.withersHeight!, 0.2709, 1e-12);
-    fixture.near(findings, "adult girth", animal.dimensions.girth!, 0.3254, 1e-12);
+    fixture.near(
+      findings,
+      "adult withers",
+      animal.dimensions.withersHeight!,
+      0.2709,
+      1e-12,
+    );
+    fixture.near(
+      findings,
+      "adult girth",
+      animal.dimensions.girth!,
+      0.3254,
+      1e-12,
+    );
     fixture.near(findings, "bare mass", animal.dimensions.mass!, 4.5, 1e-12);
     for (const id of ["leftEar", "rightEar", "tail"])
-      if (!animal.parts.some((part: IAutoMovieModelPart): boolean => part.id === id))
+      if (
+        !animal.parts.some(
+          (part: IAutoMovieModelPart): boolean => part.id === id,
+        )
+      )
         findings.push(`missing physical part ${id}`);
     for (const [suffix, length] of [
       ["ForeHumerus", 0.1039],
@@ -98,7 +117,9 @@ export function test_archetype_domestic_cat(): void {
 
   const ride: fixture.Ride = rideQuadruped(cat, fixture.course(0.63));
   const origin: number = 0.8;
-  const timing: Readonly<Record<QuadrupedBody.Limb, readonly [number, number]>> = {
+  const timing: Readonly<
+    Record<QuadrupedBody.Limb, readonly [number, number]>
+  > = {
     leftFore: [0, 0.47608],
     rightFore: [0.4, 0.47608],
     leftHind: [0.6352, 0.43896],
@@ -141,10 +162,8 @@ export function test_archetype_domestic_cat(): void {
     );
   }
 
-  fixture.refused(
-    findings,
-    "an uncited positive speed refuses",
-    (): unknown => rideQuadruped(cat, fixture.course(0.68)),
+  fixture.refused(findings, "an uncited positive speed refuses", (): unknown =>
+    rideQuadruped(cat, fixture.course(0.68)),
   );
   fixture.refused(
     findings,

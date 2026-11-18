@@ -9,8 +9,9 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointPose,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -19,7 +20,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -116,8 +116,10 @@ export function test_human_motion_manipulate_held(): void {
       const distal: IAutoMovieResolvedBone = forward(flexion).find(
         (bone: IAutoMovieResolvedBone): boolean => bone.bone === surface.bone,
       )!;
-      const tip: IAutoMovieVector3 =
-        resolveAutoMovieHumanoidSurfaces.place(surface, distal).point;
+      const tip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        surface,
+        distal,
+      ).point;
       return Quaternion.rotateVector(
         Quaternion.inverse(hand.worldRotation),
         Vector3.subtract(tip, hand.worldPosition),
@@ -164,7 +166,13 @@ export function test_human_motion_manipulate_held(): void {
     laws: [carried, HumanManipulate.thumbText],
     props: [prop],
     performers: [
-      { subject: "a", body, at: origin, yaw: 0, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body,
+        at: origin,
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
     ],
     composition: HumanChain.subject("a")
       .registered("carryPad")
@@ -203,7 +211,10 @@ export function test_human_motion_manipulate_held(): void {
       performance.bones("a", seconds);
     const world: IAutoMovieRigidTransform = performance.prop("pad", seconds);
     const wrist: IAutoMovieResolvedBone = bones.get("rightHand")!;
-    const offset: IAutoMovieVector3 = Vector3.subtract(world.position, wrist.worldPosition);
+    const offset: IAutoMovieVector3 = Vector3.subtract(
+      world.position,
+      wrist.worldPosition,
+    );
     const relative: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.inverse(wrist.worldRotation),
       world.rotation,
@@ -213,11 +224,19 @@ export function test_human_motion_manipulate_held(): void {
       nclose(Vector3.length(offset), 0, SLIP) && qclose(relative, identity),
     );
 
-    const pose: readonly IAutoMovieJointPose[] = performance.pose("a", seconds).joints;
+    const pose: readonly IAutoMovieJointPose[] = performance.pose(
+      "a",
+      seconds,
+    ).joints;
     TestValidator.predicate(
       `all four fingers keep their grip at ${t}`,
       HOLDERS.every((bone: AutoMovieHumanoidBone): boolean =>
-        nclose(pose.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone)?.flexion ?? NaN, 45),
+        nclose(
+          pose.find(
+            (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
+          )?.flexion ?? NaN,
+          45,
+        ),
       ),
     );
 
@@ -226,7 +245,8 @@ export function test_human_motion_manipulate_held(): void {
     const event: IAutoMovieMotionEvent = overlay.plan.events[pressed]!;
     TestValidator.predicate(
       `key ${pressed + 1} has the authored time`,
-      event.name === `press${pressed + 1}` && nclose(event.share * overlay.plan.duration, t),
+      event.name === `press${pressed + 1}` &&
+        nclose(event.share * overlay.plan.duration, t),
     );
     const measured: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
       surface,

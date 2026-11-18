@@ -1,5 +1,8 @@
 import { sceneFogTransmittance, stageScene } from "@automovie/engine";
-import type { IAutoMovieStagedSet, IAutoMovieStage } from "@automovie/interface";
+import type {
+  IAutoMovieStage,
+  IAutoMovieStagedSet,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
@@ -29,10 +32,10 @@ export function test_film_stage_scene_fog_visibility(): void {
     transmittance: 0.5,
     color: { r: 0.7, g: 0.74, b: 0.8, a: null, hex: null },
   };
-  const staged: IAutoMovieStagedSet = stageScene(
-    makeScriptWrite(),
-    { ...makeStagingWrite(), fogVisibility: reference },
-  );
+  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+    ...makeStagingWrite(),
+    fogVisibility: reference,
+  });
   TestValidator.predicate(
     "the canonical fog preserves the target and squared-depth falloff",
     staged.success &&
@@ -41,13 +44,10 @@ export function test_film_stage_scene_fog_visibility(): void {
       nclose(sceneFogTransmittance(staged.scene.fog, 80), 1 / 16),
   );
 
-  const clear: IAutoMovieStagedSet = stageScene(
-    makeScriptWrite(),
-    {
-      ...makeStagingWrite(),
-      fogVisibility: { ...reference, transmittance: 1 },
-    },
-  );
+  const clear: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+    ...makeStagingWrite(),
+    fogVisibility: { ...reference, transmittance: 1 },
+  });
   TestValidator.predicate(
     "unit reference transmission lowers to zero density",
     clear.success &&
@@ -94,27 +94,21 @@ export function test_film_stage_scene_fog_visibility(): void {
     ],
   ];
   for (const [value, kind, path] of invalid) {
-    const rejected: IAutoMovieStagedSet = stageScene(
-      makeScriptWrite(),
-      {
-        ...makeStagingWrite(),
-        fogVisibility: value as IAutoMovieStage["fogVisibility"],
-      },
-    );
+    const rejected: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+      ...makeStagingWrite(),
+      fogVisibility: value as IAutoMovieStage["fogVisibility"],
+    });
     TestValidator.predicate(
       `malformed fog reference reports ${kind} at ${path}`,
       rejected.success === false && hasViolation(rejected, kind, path),
     );
   }
 
-  const ambiguous: IAutoMovieStagedSet = stageScene(
-    makeScriptWrite(),
-    {
-      ...makeStagingWrite(),
-      fog: { density: 0.1, color: reference.color },
-      fogVisibility: reference,
-    },
-  );
+  const ambiguous: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+    ...makeStagingWrite(),
+    fog: { density: 0.1, color: reference.color },
+    fogVisibility: reference,
+  });
   TestValidator.predicate(
     "stage refuses both authored fog forms",
     ambiguous.success === false &&

@@ -136,9 +136,7 @@ function flight(
   };
   return (seconds: number): IAutoMovieRigidTransform => ({
     position:
-      seconds < stop
-        ? projectileAt(projectile, seconds).position
-        : { ...rest },
+      seconds < stop ? projectileAt(projectile, seconds).position : { ...rest },
     rotation: { ...frame.rotation },
   });
 }

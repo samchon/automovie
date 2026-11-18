@@ -323,7 +323,9 @@ export namespace HumanPerformanceSoftBoundary {
         throw new Error(
           `Prop "${binding.owner}" does not supply posed endpoints for span "${binding.id}".`,
         );
-      const ends: IAutoMovieMotionHumanObject.ISpanEnds = posed.span(binding.id);
+      const ends: IAutoMovieMotionHumanObject.ISpanEnds = posed.span(
+        binding.id,
+      );
       return { from: place(frame, ends.from), to: place(frame, ends.to) };
     }
     const from: IAutoMovieSoftAnchorBinding | undefined =
@@ -336,7 +338,9 @@ export namespace HumanPerformanceSoftBoundary {
       from.node !== binding.owner ||
       to.node !== binding.owner
     )
-      throw new Error(`Cord "${domain.id}" needs both of its model span anchors.`);
+      throw new Error(
+        `Cord "${domain.id}" needs both of its model span anchors.`,
+      );
     return { from: place(frame, from.offset), to: place(frame, to.offset) };
   }
 
@@ -358,7 +362,9 @@ export namespace HumanPerformanceSoftBoundary {
       out[a.particle * 3 + 2] = a.position.z;
     }
     if (!out.every(Number.isFinite))
-      throw new Error(`Soft prop "${domain.id}" has nonfinite initial positions.`);
+      throw new Error(
+        `Soft prop "${domain.id}" has nonfinite initial positions.`,
+      );
     return out;
   };
 }

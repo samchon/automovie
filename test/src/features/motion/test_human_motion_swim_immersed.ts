@@ -110,9 +110,10 @@ export function test_human_motion_swim_immersed(): void {
     "displayed float displaces its own mass",
     nclose(displaced * density, body.profile.mass, 0.02 * body.profile.mass),
   );
-  const start: IAutoMovieVector3 = floating.pose("swimmer", 0).root!.translation;
-  const end: IAutoMovieVector3 =
-    floating.pose("swimmer", seconds).root!.translation;
+  const start: IAutoMovieVector3 = floating.pose("swimmer", 0).root!
+    .translation;
+  const end: IAutoMovieVector3 = floating.pose("swimmer", seconds).root!
+    .translation;
   TestValidator.predicate(
     "still water holds the float in place",
     vclose(start, end),
@@ -208,14 +209,21 @@ export function test_human_motion_swim_immersed(): void {
   TestValidator.predicate(
     "the stroke preserves its authored duration and named cycle",
     stroke.segments("swimmer")[0]!.plan.duration === strokeSeconds &&
-      stroke.segments("swimmer")[0]!.plan.events.some(
-        (event: { name: string }): boolean => event.name === "stroke1",
-      ),
+      stroke
+        .segments("swimmer")[0]!
+        .plan.events.some(
+          (event: { name: string }): boolean => event.name === "stroke1",
+        ),
   );
 
   let movingStroke: unknown;
   try {
-    stage({ water: { surface, density }, seconds, speed, stroke: "breaststroke" });
+    stage({
+      water: { surface, density },
+      seconds,
+      speed,
+      stroke: "breaststroke",
+    });
   } catch (error) {
     movingStroke = error;
   }

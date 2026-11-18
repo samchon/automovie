@@ -56,7 +56,9 @@ import { manipulateShape } from "./manipulateShape";
 export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton> =
   {
     name: "button",
-    interrupts: { any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }] },
+    interrupts: {
+      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    },
     plan,
   };
 
@@ -76,7 +78,8 @@ function plan(
       kind: "parameter",
       axis: "travel",
       value: p.travel,
-      reason: "buttoning needs a finite nonzero travel and positive finite dimensions and duration",
+      reason:
+        "buttoning needs a finite nonzero travel and positive finite dimensions and duration",
       fix: "give the measured slider travel, sphere radius, panel thickness and push duration",
     });
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.garment);
@@ -87,7 +90,11 @@ function plan(
     model.motion !== undefined ||
     model.articulate === undefined
   )
-    throw garmentRefusal(p.garment, "buttoning needs a stationary articulated garment", "stage a fixed garment model with a button slider");
+    throw garmentRefusal(
+      p.garment,
+      "buttoning needs a stationary articulated garment",
+      "stage a fixed garment model with a button slider",
+    );
 
   const opening: IAutoMovieAffordance = site(model.affordances, p.opening);
   const rim: IAutoMovieAffordance = site(model.affordances, p.rim);
@@ -109,10 +116,20 @@ function plan(
     !positive(opening.width) ||
     !positive(opening.height)
   )
-    throw garmentRefusal(p.garment, "the opening and rim must be stationary and both button sites must ride one straight, independent geometry slider", "bind the button geometry and both button sites to that slider and declare the aperture's clear width and height");
+    throw garmentRefusal(
+      p.garment,
+      "the opening and rim must be stationary and both button sites must ride one straight, independent geometry slider",
+      "bind the button geometry and both button sites to that slider and declare the aperture's clear width and height",
+    );
 
-  const moving: IAutoMovieMotionHumanOperateDrive.IPart = part(context, center.id);
-  const working: IAutoMovieMotionHumanOperateDrive.IPart = part(context, push.id);
+  const moving: IAutoMovieMotionHumanOperateDrive.IPart = part(
+    context,
+    center.id,
+  );
+  const working: IAutoMovieMotionHumanOperateDrive.IPart = part(
+    context,
+    push.id,
+  );
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
   const mouth: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, opening);
   const support: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, rim);
@@ -127,7 +144,11 @@ function plan(
     start = local(moving.place(0).point);
     end = local(moving.place(1).point);
   } catch (error: unknown) {
-    throw garmentRefusal(p.garment, `the button slider refuses its travel: ${(error as Error).message}`, "set the requested end inside the authored slider range");
+    throw garmentRefusal(
+      p.garment,
+      `the button slider refuses its travel: ${(error as Error).message}`,
+      "set the requested end inside the authored slider range",
+    );
   }
 
   // In the aperture frame the sphere meets the panel only within this
@@ -140,7 +161,9 @@ function plan(
     !(front.z > clearance && back.z < -clearance) ||
     ![clearance, -clearance].every((z: number): boolean => {
       const point: IAutoMovieVector3 = Vector3.lerp(
-        front, back, (front.z - z) / (front.z - back.z),
+        front,
+        back,
+        (front.z - z) / (front.z - back.z),
       );
       return (
         Math.abs(point.x) + p.radius < opening.width! / 2 &&
@@ -149,7 +172,11 @@ function plan(
       );
     })
   )
-    throw garmentRefusal(p.garment, "the whole button does not clear both faces through the aperture", "align the slider with the opening, give it enough travel, or enlarge the clear opening");
+    throw garmentRefusal(
+      p.garment,
+      "the whole button does not clear both faces through the aperture",
+      "align the slider with the opening, give it enough travel, or enlarge the clear opening",
+    );
 
   const face: IAutoMovieMotionHumanOperateDrive.IPlace = working.place(0);
   const advance: IAutoMovieVector3 = Vector3.subtract(end, start);
@@ -157,11 +184,13 @@ function plan(
   if (
     !(Vector3.length(offset) <= p.radius + 1e-9) ||
     !(Vector3.dot(offset, advance) < 0) ||
-    !(Vector3.dot(
-      Quaternion.rotateVector(inverse, face.normal), advance,
-    ) < 0)
+    !(Vector3.dot(Quaternion.rotateVector(inverse, face.normal), advance) < 0)
   )
-    throw garmentRefusal(p.garment, "the working contact does not face the approaching hand on the trailing button surface", "place and orient the thumb site on the back of the button relative to its travel");
+    throw garmentRefusal(
+      p.garment,
+      "the working contact does not face the approaching hand on the trailing button surface",
+      "place and orient the thumb site on the back of the button relative to its travel",
+    );
 
   const side: AutoMovieHumanSide = p.side ?? "right";
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
@@ -170,10 +199,15 @@ function plan(
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
   const motion: number = Math.max(
-    Vector3.length(Vector3.subtract(face.point, bones.get(`${side}Hand`)!.worldPosition)),
-    Vector3.length(Vector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition)),
+    Vector3.length(
+      Vector3.subtract(face.point, bones.get(`${side}Hand`)!.worldPosition),
+    ),
+    Vector3.length(
+      Vector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition),
+    ),
   );
-  const transport: number = tempo * AutoMovieMotionHumanTiming.transport(motion);
+  const transport: number =
+    tempo * AutoMovieMotionHumanTiming.transport(motion);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: transport,
     attack: stroke,
@@ -184,19 +218,21 @@ function plan(
   const target = (seconds: number): IAutoMovieMotionHumanOperateDrive.IPlace =>
     working.place(clock.progress("strokeStart", "strokeEnd", seconds));
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-    context, clock.duration,
+    context,
+    clock.duration,
   );
   const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
     AutoMovieMotionHumanArm.together();
-  const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-    base,
-    clock,
-    primitives: [
-      ...fingers(context, clock, side, "thumb", target, arms),
-      ...fingers(context, clock, other, "index", () => support, arms),
-    ],
-    contact: "strokeEnd",
-  });
+  const composed: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock,
+      primitives: [
+        ...fingers(context, clock, side, "thumb", target, arms),
+        ...fingers(context, clock, other, "index", () => support, arms),
+      ],
+      contact: "strokeEnd",
+    });
   return {
     ...composed,
     hands: [side, other],
@@ -223,10 +259,17 @@ function part(
   const p: IAutoMovieMotionHumanButton = context.params;
   const result: IAutoMovieMotionHumanOperateDrive.IPart | undefined =
     operateDrive.part(
-      context, { kind: "prop", subject: p.garment, point }, p.travel, "slider",
+      context,
+      { kind: "prop", subject: p.garment, point },
+      p.travel,
+      "slider",
     );
   if (result === undefined)
-    throw garmentRefusal(p.garment, `${point} does not ride a button slider`, "bind the button center and its thumb site to the slider");
+    throw garmentRefusal(
+      p.garment,
+      `${point} does not ride a button slider`,
+      "bind the button center and its thumb site to the slider",
+    );
   return result;
 }
 
@@ -242,19 +285,30 @@ function fingers(
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   const first: IAutoMovieMotionHumanOperateDrive.IPlace = target(0);
   const rotation: IAutoMovieQuaternion = manipulateFacing(
-    context.entry.posture, [{ site: first.point, normal: first.normal, side }], side,
+    context.entry.posture,
+    [{ site: first.point, normal: first.normal, side }],
+    side,
   );
   const offset: IAutoMovieVector3 = HumanHand.offset(
-    body, side, `${digit}Tip`, "flat",
+    body,
+    side,
+    `${digit}Tip`,
+    "flat",
   ).point;
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-    body, context.entry.posture, side, 0.1,
+    body,
+    context.entry.posture,
+    side,
+    0.1,
   );
   const ready: number = clock.at("strokeStart");
   const relax: number = clock.at("strokeEnd");
   const key: AutoMovieHumanDigit = `${side}${digit === "thumb" ? "Thumb" : "Index"}`;
-  const shape: ReturnType<typeof manipulateShape> = manipulateShape(side, digit);
+  const shape: ReturnType<typeof manipulateShape> = manipulateShape(
+    side,
+    digit,
+  );
   const weight = (seconds: number): number =>
     clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   return [
@@ -268,7 +322,10 @@ function fingers(
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
       disc: 0,
       weight,
-      goal: (_posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieHumanLimbGoal => ({
+      goal: (
+        _posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieHumanLimbGoal => ({
         point: Vector3.subtract(target(seconds).point, lever),
         rotation,
         contact: offset,
@@ -279,11 +336,22 @@ function fingers(
       from: 0,
       to: clock.duration,
       channels: [`${side}Hand`],
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         const share: number = weight(seconds);
         for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[])
-          joints[bone] = blendHumanJoint(body, bone, joints[bone] ?? [0, 0, 0], shape[bone]!, share);
+          joints[bone] = blendHumanJoint(
+            body,
+            bone,
+            joints[bone] ?? [0, 0, 0],
+            shape[bone]!,
+            share,
+          );
         if (seconds < ready || seconds > relax) return { ...posture, joints };
         const now: IAutoMovieMotionHumanOperateDrive.IPlace = target(seconds);
         return {
@@ -308,7 +376,11 @@ function site(
     (candidate: IAutoMovieAffordance): boolean => candidate.id === id,
   );
   if (found === undefined)
-    throw garmentRefusal(id, "the garment has no site with this id", "name one of its authored affordances");
+    throw garmentRefusal(
+      id,
+      "the garment has no site with this id",
+      "name one of its authored affordances",
+    );
   return found;
 }
 
@@ -335,6 +407,16 @@ function positive(value: number | undefined): value is number {
 }
 
 /** A garment model or closure the law cannot stage. */
-function garmentRefusal(value: string, reason: string, fix: string): HumanRefusal {
-  return new HumanRefusal({ kind: "affordance", axis: "garment", value, reason, fix });
+function garmentRefusal(
+  value: string,
+  reason: string,
+  fix: string,
+): HumanRefusal {
+  return new HumanRefusal({
+    kind: "affordance",
+    axis: "garment",
+    value,
+    reason,
+    fix,
+  });
 }

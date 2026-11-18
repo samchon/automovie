@@ -52,9 +52,17 @@ export function test_motion_group_conversation_gaze(): void {
   );
   const eyes: number = 1.6;
   const requests = (id: string): IAutoMovieMotionHumanGaze.ILayer[] =>
-    HumanConversation.groupGaze(id, participants, turns, random.stream(id), eyes);
+    HumanConversation.groupGaze(
+      id,
+      participants,
+      turns,
+      random.stream(id),
+      eyes,
+    );
 
-  const faces = (track: readonly IAutoMovieMotionHumanGaze.ILayer[]): string[] =>
+  const faces = (
+    track: readonly IAutoMovieMotionHumanGaze.ILayer[],
+  ): string[] =>
     turns.map((turn: IAutoMovieMotionHumanConversation.IGroupTurn): string => {
       const target: IAutoMovieMotionTarget | undefined = track.find(
         (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
@@ -65,11 +73,11 @@ export function test_motion_group_conversation_gaze(): void {
         : "";
     });
 
-  TestValidator.equals("A redirects to C and then listens", faces(requests("a")), [
-    "b",
-    "c",
-    "b",
-  ]);
+  TestValidator.equals(
+    "A redirects to C and then listens",
+    faces(requests("a")),
+    ["b", "c", "b"],
+  );
   TestValidator.equals("B listens and then addresses A", faces(requests("b")), [
     "a",
     "a",
@@ -83,24 +91,31 @@ export function test_motion_group_conversation_gaze(): void {
   ]);
   TestValidator.predicate(
     "the last request in each span releases at the end",
-    turns.every((turn: IAutoMovieMotionHumanConversation.IGroupTurn): boolean => {
-      const active: IAutoMovieMotionHumanGaze.ILayer[] = listener.filter(
-        (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
-          request.from >= turn.from && request.from < turn.to,
-      );
-      return nclose(active.at(-1)?.to ?? NaN, turn.to) &&
-        active.slice(0, -1).every(
+    turns.every(
+      (turn: IAutoMovieMotionHumanConversation.IGroupTurn): boolean => {
+        const active: IAutoMovieMotionHumanGaze.ILayer[] = listener.filter(
           (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
-            request.to === undefined,
+            request.from >= turn.from && request.from < turn.to,
         );
-    }),
+        return (
+          nclose(active.at(-1)?.to ?? NaN, turn.to) &&
+          active
+            .slice(0, -1)
+            .every(
+              (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
+                request.to === undefined,
+            )
+        );
+      },
+    ),
   );
 
   // Draws in [0.4, 1) sustain a full one-second glimpse at either role's
   // documented mean. Pick a real stream with three such initial draws.
   const held: IAutoMovieRandom | undefined = Array.from(
     { length: 32 },
-    (_: unknown, index: number): IAutoMovieRandom => random.stream(String(index)),
+    (_: unknown, index: number): IAutoMovieRandom =>
+      random.stream(String(index)),
   ).find((stream: IAutoMovieRandom): boolean =>
     [0, 1, 2].every((index: number): boolean => stream.float(index) >= 0.4),
   );
@@ -123,7 +138,9 @@ export function test_motion_group_conversation_gaze(): void {
     subject: "c",
     body,
     skill: HumanSkill.resolve({ p: 0.5 }, "group-conversation"),
-    aim: (target: IAutoMovieMotionTarget): {
+    aim: (
+      target: IAutoMovieMotionTarget,
+    ): {
       point: IAutoMovieVector3;
       normal: IAutoMovieVector3;
     } => {

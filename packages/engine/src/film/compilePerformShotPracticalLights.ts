@@ -46,10 +46,12 @@ export function compilePerformShotPracticalLights(
     ]),
   );
   const nodes: Map<string, IAutoMovieSceneNode> = new Map(
-    scene.nodes.map((node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
-      node.id,
-      node,
-    ]),
+    scene.nodes.map(
+      (node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
+        node.id,
+        node,
+      ],
+    ),
   );
   const models: Map<string, IAutoMovieModel> = new Map(
     (props.models ?? []).map(

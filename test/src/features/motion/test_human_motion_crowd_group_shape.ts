@@ -72,7 +72,11 @@ export function test_human_motion_crowd_group_shape(): void {
   TestValidator.equals("a slot for each member", sparse.length, 3);
   for (const point of sparse) near("a sparse group is abreast", point.z, 0);
   near("first sparse measured spacing", distance(sparse[0]!, sparse[1]!), 0.79);
-  near("second sparse measured spacing", distance(sparse[1]!, sparse[2]!), 0.81);
+  near(
+    "second sparse measured spacing",
+    distance(sparse[1]!, sparse[2]!),
+    0.81,
+  );
 
   const bent: IAutoMovieMotionHumanFormation = humanCrowdGroupFormation(
     frame,

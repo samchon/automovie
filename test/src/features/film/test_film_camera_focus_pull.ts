@@ -1,4 +1,8 @@
-import { performShot, stageScene, validateShotArtifact } from "@automovie/engine";
+import {
+  performShot,
+  stageScene,
+  validateShotArtifact,
+} from "@automovie/engine";
 import type {
   IAutoMovieCameraAction,
   IAutoMovieCameraIntent,
@@ -102,7 +106,9 @@ export function test_film_camera_focus_pull(): void {
     });
   }
 
-  const result: IAutoMoviePerformedShot = perform([{ ...frame, focusPull: pull }]);
+  const result: IAutoMoviePerformedShot = perform([
+    { ...frame, focusPull: pull },
+  ]);
   const legacy: IAutoMoviePerformedShot = perform([frame]);
   if (result.success !== true || legacy.success !== true)
     throw new Error("both frame schedules must compile");
@@ -158,7 +164,10 @@ export function test_film_camera_focus_pull(): void {
       kind: "range",
     },
     {
-      frames: [{ ...frame, focusPull: pull }, { ...frame, start: 0.375 }],
+      frames: [
+        { ...frame, focusPull: pull },
+        { ...frame, start: 0.375 },
+      ],
       path: "focusPull.duration",
       kind: "range",
     },
@@ -185,8 +194,7 @@ export function test_film_camera_focus_pull(): void {
     },
     { ...frame, start: nextStart },
   ]);
-  if (adjacent.success !== true)
-    throw new Error("the decimal seam must admit");
+  if (adjacent.success !== true) throw new Error("the decimal seam must admit");
   const restored: IAutoMovieShot = JSON.parse(JSON.stringify(adjacent.shot));
   const first: IAutoMovieCameraIntent = restored.cameraIntent![0]!;
   const second: IAutoMovieCameraIntent = restored.cameraIntent![1]!;

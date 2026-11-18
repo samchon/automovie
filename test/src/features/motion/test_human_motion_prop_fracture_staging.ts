@@ -15,7 +15,12 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanChain, HumanObject, HumanPerformance, stand } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -113,9 +118,14 @@ export function test_human_motion_prop_fracture_staging(): void {
       },
     ],
   });
-  const hit: IAutoMovieInteractionEvent | undefined = performance.hits("scenery")[0];
-  if (hit === undefined) throw new Error("The foam token did not reach the panel.");
-  TestValidator.predicate("the token reaches the panel at 0.5 s", nclose(hit.time, 0.5));
+  const hit: IAutoMovieInteractionEvent | undefined =
+    performance.hits("scenery")[0];
+  if (hit === undefined)
+    throw new Error("The foam token did not reach the panel.");
+  TestValidator.predicate(
+    "the token reaches the panel at 0.5 s",
+    nclose(hit.time, 0.5),
+  );
   const request: IAutoMovieMotionHumanPropFracture.IRequest<Piece> = {
     subject: "scenery",
     hit: hit.id,

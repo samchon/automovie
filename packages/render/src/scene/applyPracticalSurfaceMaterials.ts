@@ -47,9 +47,9 @@ export function applyPracticalSurfaceMaterials(
 
   const assignments: Map<THREE.Mesh, THREE.Material> = new Map();
   for (const track of shot.practicalSurfaces) {
-    const target: THREE.Object3D | undefined = resolveNode(track.node)?.parts.get(
-      track.part,
-    );
+    const target: THREE.Object3D | undefined = resolveNode(
+      track.node,
+    )?.parts.get(track.part);
     if (
       !(target instanceof THREE.Mesh) ||
       Array.isArray(target.material) ||
@@ -59,7 +59,10 @@ export function applyPracticalSurfaceMaterials(
         `Practical surface "${track.node}" part "${track.part}" has no distinct single-material mesh`,
       );
 
-    const selected: string = samplePracticalSurfaceTrackMaterial(track, seconds);
+    const selected: string = samplePracticalSurfaceTrackMaterial(
+      track,
+      seconds,
+    );
     const material: THREE.Material | undefined = resolveMaterial(
       track.node,
       track.part,

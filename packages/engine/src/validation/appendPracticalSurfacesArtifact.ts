@@ -35,7 +35,12 @@ export function appendPracticalSurfacesArtifact(
   const root: string = "$input.practicalSurfaces";
   if (
     tracks === undefined ||
-    !validateArrayArtifact(tracks, root, "practical surface tracks", violations) ||
+    !validateArrayArtifact(
+      tracks,
+      root,
+      "practical surface tracks",
+      violations,
+    ) ||
     tracks.length === 0
   )
     return;
@@ -52,24 +57,37 @@ export function appendPracticalSurfacesArtifact(
     models === undefined
       ? undefined
       : new Map(
-          models.map(
-            (model: IAutoMovieModel): [string, IAutoMovieModel] => [
-              model.id,
-              model,
-            ],
-          ),
+          models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
+            model.id,
+            model,
+          ]),
         );
   const targets: Set<string> = new Set();
 
   for (const [index, track] of tracks.entries()) {
     const path: string = `${root}[${index}]`;
     if (
-      !validateObjectArtifact(track, path, "practical surface track", violations)
+      !validateObjectArtifact(
+        track,
+        path,
+        "practical surface track",
+        violations,
+      )
     )
       continue;
 
-    const validNode: boolean = appendId(track.node, `${path}.node`, "practical surface node", violations);
-    const validPart: boolean = appendId(track.part, `${path}.part`, "practical surface part", violations);
+    const validNode: boolean = appendId(
+      track.node,
+      `${path}.node`,
+      "practical surface node",
+      violations,
+    );
+    const validPart: boolean = appendId(
+      track.part,
+      `${path}.part`,
+      "practical surface part",
+      violations,
+    );
     const modelId: string | undefined =
       typeof track.node === "string" ? nodes.get(track.node) : undefined;
     if (validNode && modelId === undefined)
@@ -129,7 +147,14 @@ export function appendPracticalSurfacesArtifact(
 
     const keysPath: string = `${path}.keys`;
     const keys: unknown = track.keys;
-    if (!validateArrayArtifact(keys, keysPath, "practical surface keys", violations))
+    if (
+      !validateArrayArtifact(
+        keys,
+        keysPath,
+        "practical surface keys",
+        violations,
+      )
+    )
       continue;
     if (keys.length === 0)
       pushViolation(
@@ -143,7 +168,14 @@ export function appendPracticalSurfacesArtifact(
     let previous: number = -Infinity;
     for (const [keyIndex, key] of keys.entries()) {
       const keyPath: string = `${keysPath}[${keyIndex}]`;
-      if (!validateObjectArtifact(key, keyPath, "practical surface key", violations))
+      if (
+        !validateObjectArtifact(
+          key,
+          keyPath,
+          "practical surface key",
+          violations,
+        )
+      )
         continue;
 
       const time: unknown = key.time;
@@ -165,7 +197,12 @@ export function appendPracticalSurfacesArtifact(
       else previous = time;
 
       if (
-        appendId(key.material, `${keyPath}.material`, "practical surface material", violations) &&
+        appendId(
+          key.material,
+          `${keyPath}.material`,
+          "practical surface material",
+          violations,
+        ) &&
         materials !== undefined &&
         !materials.has(key.material)
       )

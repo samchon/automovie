@@ -154,8 +154,10 @@ export namespace HumanPropFlight {
     seconds: number,
     since: number = -Infinity,
   ): IAutoMovieMotionHumanPropFlight.IFlight | undefined {
-    const list: readonly IAutoMovieMotionHumanPropFlight.IFlight[] =
-      flights(self, subject);
+    const list: readonly IAutoMovieMotionHumanPropFlight.IFlight[] = flights(
+      self,
+      subject,
+    );
     for (let index: number = list.length - 1; index >= 0; --index) {
       const flight: IAutoMovieMotionHumanPropFlight.IFlight = list[index]!;
       if (
@@ -193,8 +195,12 @@ export namespace HumanPropFlight {
     seconds: number,
     since: number,
   ): IAutoMovieRigidTransform | undefined {
-    const latest: IAutoMovieMotionHumanPropFlight.IFlight | undefined =
-      active(self, subject, seconds, since);
+    const latest: IAutoMovieMotionHumanPropFlight.IFlight | undefined = active(
+      self,
+      subject,
+      seconds,
+      since,
+    );
     if (latest === undefined) return undefined;
     if (seconds < latest.end) {
       const state: IAutoMovieProjectileState = projectileAt(
@@ -278,7 +284,9 @@ export namespace HumanPropFlight {
             : { ...launch.attitude, rotation },
     };
     const supersededAt: number | undefined =
-      superseded !== undefined && superseded <= filmEnd ? superseded : undefined;
+      superseded !== undefined && superseded <= filmEnd
+        ? superseded
+        : undefined;
     const capturedAt: number | undefined =
       supersededAt === capture ? capture : undefined;
     const through: number = (supersededAt ?? filmEnd) - seconds;

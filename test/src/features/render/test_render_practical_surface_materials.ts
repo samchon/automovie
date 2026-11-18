@@ -1,4 +1,8 @@
-import type { IAutoMovieModel, IAutoMovieScene, IAutoMovieShot } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieScene,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import {
   applyPracticalSurfaceMaterials,
   buildMaterial,
@@ -8,9 +12,9 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { boxModel, material } from "../internal/renderFixtures";
 import { renderFixtureIdentity } from "../internal/renderFixtureIdentity";
 import { renderFixtureNode } from "../internal/renderFixtureNode";
+import { boxModel, material } from "../internal/renderFixtures";
 import { throwsError } from "../internal/throwsError";
 
 /**
@@ -112,14 +116,19 @@ export function test_render_practical_surface_materials(): void {
         },
       ],
     };
-    const instances: ReadonlyMap<string, ReturnType<typeof buildModel>> = new Map([
+    const instances: ReadonlyMap<
+      string,
+      ReturnType<typeof buildModel>
+    > = new Map([
       ["near-board", near],
       ["far-board", far],
     ]);
     const resolveNode: Parameters<typeof applyPracticalSurfaceMaterials>[2] = (
       id: string,
     ): ReturnType<typeof buildModel> | undefined => instances.get(id);
-    const resolveMaterial: Parameters<typeof applyPracticalSurfaceMaterials>[3] = (
+    const resolveMaterial: Parameters<
+      typeof applyPracticalSurfaceMaterials
+    >[3] = (
       node: string,
       partId: string,
       id: string,
@@ -138,7 +147,8 @@ export function test_render_practical_surface_materials(): void {
     applyPracticalSurfaceMaterials(shot, 0.1, resolveNode, resolveMaterial);
     TestValidator.predicate(
       "reverse seek restores the exact staged material reference",
-      Object.is(nearMesh.material, nearIdle) && Object.is(farMesh.material, farIdle),
+      Object.is(nearMesh.material, nearIdle) &&
+        Object.is(farMesh.material, farIdle),
     );
 
     const both: IAutoMovieShot = {
@@ -152,7 +162,12 @@ export function test_render_practical_surface_materials(): void {
       "missing second prepared material refuses without updating the first mesh",
       throwsError(
         (): void =>
-          applyPracticalSurfaceMaterials(both, 0.5, resolveNode, resolveMaterial),
+          applyPracticalSurfaceMaterials(
+            both,
+            0.5,
+            resolveNode,
+            resolveMaterial,
+          ),
         'has no prepared material "ready"',
       ) && Object.is(nearMesh.material, nearIdle),
     );

@@ -59,27 +59,30 @@ export function test_human_motion_lowered_gesture(): void {
       const signalled: IAutoMovieMotionHumanPerformance = perform(
         body,
         carrier
-          .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            upper
-              .gesture({ kind: "stopPalm", side: "right", count: 1 })
-              .sync({ of: "low", event }),
+          .over(
+            (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              upper
+                .gesture({ kind: "stopPalm", side: "right", count: 1 })
+                .sync({ of: "low", event }),
           )
-          .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            upper
-              .look({
-                target: {
-                  kind: "point",
-                  at: { x: 1, y: 0.5, z: 1 },
-                  frame: "world",
-                },
-                with: "head",
-                seconds: 2,
-              })
-              .sync({ of: "low", event }),
+          .over(
+            (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              upper
+                .look({
+                  target: {
+                    kind: "point",
+                    at: { x: 1, y: 0.5, z: 1 },
+                    frame: "world",
+                  },
+                  with: "head",
+                  seconds: 2,
+                })
+                .sync({ of: "low", event }),
           ),
       );
-      const lowered: IAutoMovieMotionHumanSegment =
-        signalled.segments("counter").at(-1)!;
+      const lowered: IAutoMovieMotionHumanSegment = signalled
+        .segments("counter")
+        .at(-1)!;
       const [signal, gaze] = signalled.overlays("counter");
       if (signal === undefined || gaze === undefined) {
         all.check(`${name} ${kind}: both overlays were placed`, false);
@@ -91,10 +94,14 @@ export function test_human_motion_lowered_gesture(): void {
       );
       all.equals(
         `${name} ${kind}: the gesture claims its own arm and hand`,
-        [...signal.channels].sort((a: string, b: string): number => a.localeCompare(b)),
+        [...signal.channels].sort((a: string, b: string): number =>
+          a.localeCompare(b),
+        ),
         ["rightArm", "rightHand"],
       );
-      all.equals(`${name} ${kind}: gaze claims the head`, gaze.channels, ["head"]);
+      all.equals(`${name} ${kind}: gaze claims the head`, gaze.channels, [
+        "head",
+      ]);
       all.equals(
         `${name} ${kind}: the carrier's support windows are preserved`,
         lowered.plan.contacts,
@@ -108,7 +115,12 @@ export function test_human_motion_lowered_gesture(): void {
         signalled.bones("counter", stroke);
       const alone: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
         plain.bones("counter", stroke);
-      for (const bone of ["hips", "leftFoot", "rightFoot", "leftHand"] as const) {
+      for (const bone of [
+        "hips",
+        "leftFoot",
+        "rightFoot",
+        "leftHand",
+      ] as const) {
         const actual: IAutoMovieResolvedBone = posed.get(bone)!;
         const original: IAutoMovieResolvedBone = alone.get(bone)!;
         all.check(
@@ -147,8 +159,9 @@ export function test_human_motion_lowered_gesture(): void {
     [
       start
         .crouch({ hold: 3 })
-        .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          upper.gesture({ kind: "bow" }),
+        .over(
+          (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            upper.gesture({ kind: "bow" }),
         ),
       "trunk",
     ],
@@ -170,10 +183,11 @@ export function test_human_motion_lowered_gesture(): void {
           },
           "braced",
         )
-        .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          upper
-            .gesture({ kind: "stopPalm", side: "right" })
-            .sync({ of: "braced", event: "stance1" }),
+        .over(
+          (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            upper
+              .gesture({ kind: "stopPalm", side: "right" })
+              .sync({ of: "braced", event: "stance1" }),
         ),
       "rightArm",
     ],

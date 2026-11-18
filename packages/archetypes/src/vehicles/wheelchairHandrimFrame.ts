@@ -1,5 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
 import type { createWheelchair } from "./createWheelchair";
@@ -35,34 +39,59 @@ export function wheelchairHandrimFrame(
   catchAt: number,
   degrees: number,
 ): (id: createWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
-  if (!Number.isFinite(catchAt) || catchAt < 0 || catchAt > ride.duration ||
-      !Number.isFinite(degrees) || Math.abs(degrees) > 180)
-    throw new RangeError("handrim catch needs a ride second and an angle in [-180, 180] degrees");
+  if (
+    !Number.isFinite(catchAt) ||
+    catchAt < 0 ||
+    catchAt > ride.duration ||
+    !Number.isFinite(degrees) ||
+    Math.abs(degrees) > 180
+  )
+    throw new RangeError(
+      "handrim catch needs a ride second and an angle in [-180, 180] degrees",
+    );
 
   const at: ReturnType<typeof ride.at> = ride.at(catchAt);
   const angle: number = (degrees * Math.PI) / 180;
-  const radial: IAutoMovieVector3 = Quaternion.rotateVector(at.placement.rotation, {
-    x: 0,
-    y: Math.cos(angle),
-    z: Math.sin(angle),
-  });
-  const selections: Map<createWheelchair.Affordance, IAutoMovieVector3> = new Map();
+  const radial: IAutoMovieVector3 = Quaternion.rotateVector(
+    at.placement.rotation,
+    {
+      x: 0,
+      y: Math.cos(angle),
+      z: Math.sin(angle),
+    },
+  );
+  const selections: Map<createWheelchair.Affordance, IAutoMovieVector3> =
+    new Map();
   for (const rim of ["leftRim", "rightRim"] as const) {
     const radius: number | undefined = at.archetype.affordances.find(
-      (part: IAutoMovieAffordance): boolean => part.id === rim && part.kind === "wheel",
+      (part: IAutoMovieAffordance): boolean =>
+        part.id === rim && part.kind === "wheel",
     )?.radius;
     if (radius === undefined) continue;
-    selections.set(rim, Quaternion.rotateVector(
-      Quaternion.inverse(ride.frame(rim, catchAt).rotation),
-      Vector3.scale(radial, radius),
-    ));
+    selections.set(
+      rim,
+      Quaternion.rotateVector(
+        Quaternion.inverse(ride.frame(rim, catchAt).rotation),
+        Vector3.scale(radial, radius),
+      ),
+    );
   }
-  return (id: createWheelchair.Affordance, seconds: number): IAutoMovieTransform => {
+  return (
+    id: createWheelchair.Affordance,
+    seconds: number,
+  ): IAutoMovieTransform => {
     const frame: IAutoMovieTransform = ride.frame(id, seconds);
     const selected: IAutoMovieVector3 | undefined = selections.get(id);
     if (selected === undefined) return frame;
-    const spoke: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, selected);
-    const axle: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 });
+    const spoke: IAutoMovieVector3 = Quaternion.rotateVector(
+      frame.rotation,
+      selected,
+    );
+    const axle: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     return ArchetypeFrame.facing(
       Vector3.add(frame.translation, spoke),
       spoke,

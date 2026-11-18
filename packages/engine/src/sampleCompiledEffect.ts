@@ -171,11 +171,7 @@ export const sampleCompiledEffect: (
     const size: number =
       recipe.particle.size.end === undefined
         ? initialSize
-        : interpolate(
-            initialSize,
-            recipe.particle.size.end,
-            travel / lifetime,
-          );
+        : interpolate(initialSize, recipe.particle.size.end, travel / lifetime);
     const opacity: number =
       interpolate(
         recipe.particle.opacity.min,

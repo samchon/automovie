@@ -1,7 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Archetype, ArchetypeBuilder, ArchetypeDrawSession, ArchetypeFrame } from "../core";
+import {
+  Archetype,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+} from "../core";
 
 /**
  * A stationary accessory pouch whose straight zipper opens a hollow interior.
@@ -46,36 +51,64 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
   builder.box("bottom", v(width, skin, depth), v(0, skin / 2, 0));
   for (const sign of [-1, 1]) {
     builder.box(
-      `wall-${sign}`, v(width, height - skin, skin),
-      v(0, (height - skin) / 2, sign * (depth - skin) / 2),
+      `wall-${sign}`,
+      v(width, height - skin, skin),
+      v(0, (height - skin) / 2, (sign * (depth - skin)) / 2),
     );
     builder.box(
-      `end-${sign}`, v(skin, height, depth - 2 * skin),
-      v(sign * (width - skin) / 2, height / 2, 0),
+      `end-${sign}`,
+      v(skin, height, depth - 2 * skin),
+      v((sign * (width - skin)) / 2, height / 2, 0),
     );
     builder.box(
-      `seam-end-${sign}`, v(0.027, skin, depth),
-      v(sign * (width - 0.027) / 2, height - skin / 2, 0),
+      `seam-end-${sign}`,
+      v(0.027, skin, depth),
+      v((sign * (width - 0.027)) / 2, height - skin / 2, 0),
     );
     builder.box(
-      `stop-${sign}`, v(skin, 0.003, 0.012),
-      v(sign * (Math.abs(start) + tabLength / 2 + skin / 2), height + 0.0015, 0),
+      `stop-${sign}`,
+      v(skin, 0.003, 0.012),
+      v(
+        sign * (Math.abs(start) + tabLength / 2 + skin / 2),
+        height + 0.0015,
+        0,
+      ),
       { color: "#363638" },
     );
   }
 
   // The stem is behind the grasp point so the underside remains accessible.
-  builder.box("slider-stem", v(tabLength, tabY - height, 0.004), v(start, (height + tabY) / 2, 0), { color: "#363638" });
-  builder.box("tab", v(tabLength, tabHeight, 0.016), v(start, tabY, -0.006), { color: "#707075" });
+  builder.box(
+    "slider-stem",
+    v(tabLength, tabY - height, 0.004),
+    v(start, (height + tabY) / 2, 0),
+    { color: "#363638" },
+  );
+  builder.box("tab", v(tabLength, tabHeight, 0.016), v(start, tabY, -0.006), {
+    color: "#707075",
+  });
   builder.affordance({
-    id: "zipper", kind: "slider", extent: null, travel,
+    id: "zipper",
+    kind: "slider",
+    extent: null,
+    travel,
     frame: ArchetypeFrame.upright(v(start, height, 0)),
     parts: ["slider-stem", "tab"],
   });
-  for (const [contact, facing] of [["thumb", 1], ["index", -1]] as const) {
-    const point: IAutoMovieVector3 = v(start, tabY + facing * tabHeight / 2, -0.012);
+  for (const [contact, facing] of [
+    ["thumb", 1],
+    ["index", -1],
+  ] as const) {
+    const point: IAutoMovieVector3 = v(
+      start,
+      tabY + (facing * tabHeight) / 2,
+      -0.012,
+    );
     builder.affordance({
-      id: contact, kind: "surface", extent: null, rides: "zipper",
+      id: contact,
+      kind: "surface",
+      extent: null,
+      rides: "zipper",
       frame: {
         ...ArchetypeFrame.upright(point),
         rotation: Quaternion.fromAxisAngle(v(1, 0, 0), facing > 0 ? 0 : 180),
@@ -83,7 +116,9 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
     });
   }
   builder.affordance({
-    id: "brace", kind: "surface", extent: null,
+    id: "brace",
+    kind: "surface",
+    extent: null,
     frame: ArchetypeFrame.upright(v(start - 0.008, height, -0.032)),
   });
 
@@ -99,22 +134,32 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
     for (const side of [-1, 1]) {
       const lip: string = `lip-${index}-${side}`;
       builder.box(
-        lip, v(section, skin, depth / 2),
-        v(edge - section / 2, height - skin / 2, side * depth / 4),
+        lip,
+        v(section, skin, depth / 2),
+        v(edge - section / 2, height - skin / 2, (side * depth) / 4),
       );
       builder.affordance({
-        id: `hinge-${lip}`, kind: "hinge", extent: null, travel: openAngle,
+        id: `hinge-${lip}`,
+        kind: "hinge",
+        extent: null,
+        travel: openAngle,
         parts: [lip],
         frame: {
           // Raise each lip about its underside so its thickness sweeps away from the seam.
-          ...ArchetypeFrame.upright(v(edge - section / 2, height - skin, side * depth / 2)),
+          ...ArchetypeFrame.upright(
+            v(edge - section / 2, height - skin, (side * depth) / 2),
+          ),
           rotation: Quaternion.fromAxisAngle(v(0, 0, 1), side * 90),
         },
         follows: {
           id: "zipper",
           table: [
-            [0, 0], [cleared, 0], [opened, openAngle],
-            ...(opened < travel ? [[travel, openAngle] as [number, number]] : []),
+            [0, 0],
+            [cleared, 0],
+            [opened, openAngle],
+            ...(opened < travel
+              ? [[travel, openAngle] as [number, number]]
+              : []),
           ],
         },
       });

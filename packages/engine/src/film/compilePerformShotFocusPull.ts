@@ -90,8 +90,7 @@ export function compilePerformShotFocusPull(
 
   // Canonicalize decimal sums at a frame boundary using the overlap tolerance.
   const difference: number = requestedEnd - frameEnd;
-  const end: number =
-    Math.abs(difference) <= 1e-9 ? frameEnd : requestedEnd;
+  const end: number = Math.abs(difference) <= 1e-9 ? frameEnd : requestedEnd;
   if (end <= start || difference > 1e-9) {
     context.out.push(
       "range",

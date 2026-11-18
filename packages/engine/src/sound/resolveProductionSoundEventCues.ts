@@ -33,7 +33,8 @@ export function resolveProductionSoundEventCues(
 
   const usedIds: Set<string> = new Set(
     props.timeline.tracks.audio.map(
-      (cue: IAutoMovieFilmTimeline["tracks"]["audio"][number]): string => cue.id,
+      (cue: IAutoMovieFilmTimeline["tracks"]["audio"][number]): string =>
+        cue.id,
     ),
   );
   const authoredIds: Set<string> = new Set();
@@ -59,8 +60,9 @@ export function resolveProductionSoundEventCues(
     const samples: number | undefined = props.compiled
       .get(shot)
       ?.eventSamples.filter(
-        (sample: IAutoMovieCompiledShotSource["eventSamples"][number]): boolean =>
-          sample.id === event,
+        (
+          sample: IAutoMovieCompiledShotSource["eventSamples"][number],
+        ): boolean => sample.id === event,
       ).length;
     if (declarations !== 1 || samples !== 1)
       throw new Error(

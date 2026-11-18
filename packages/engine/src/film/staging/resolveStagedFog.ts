@@ -42,9 +42,11 @@ export function resolveStagedFog(
   }
 
   const before: number = out.items.length;
-  const { cameraDepthM, transmittance, color }: NonNullable<
-    IAutoMovieStage["fogVisibility"]
-  > = reference;
+  const {
+    cameraDepthM,
+    transmittance,
+    color,
+  }: NonNullable<IAutoMovieStage["fogVisibility"]> = reference;
   out.range(
     `${path}.cameraDepthM`,
     cameraDepthM,
@@ -63,7 +65,9 @@ export function resolveStagedFog(
   if (out.items.length !== before) return undefined;
 
   const density: number =
-    transmittance === 1 ? 0 : Math.sqrt(-Math.log(transmittance)) / cameraDepthM;
+    transmittance === 1
+      ? 0
+      : Math.sqrt(-Math.log(transmittance)) / cameraDepthM;
   if (!Number.isFinite(density)) {
     out.push(
       "range",
