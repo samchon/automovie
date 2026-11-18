@@ -255,6 +255,39 @@ export function test_human_motion_audit_balance(): void {
         .sort((a: number, b: number): number => a - b);
       TestValidator.equals("only ticks 2 and 6 and their neighbours supply bones", ticks, [1, 2, 3, 5, 6, 7]);
 
+      // An off-grid physical phase has no sample even though its endpoints
+      // bracket real seconds. The synthetic inputs count each public read.
+      let contactsRead: number = 0;
+      let modelsRead: number = 0;
+      const unobserved: HumanPhysics.ISpan = {
+        ...span,
+        plan: {
+          duration: 1,
+          physicalWindow: { from: 1 / 32, to: 3 / 32 },
+          balanceWindow: null,
+          get contacts(): readonly IAutoMovieMotionHumanContactWindow[] {
+            contactsRead++;
+            return span.plan.contacts;
+          },
+        },
+      };
+      const counted: IAutoMovieMotionHumanBody = {
+        ...body,
+        get massModel(): IAutoMovieResolveCenterOfMass.IModel {
+          modelsRead++;
+          return model;
+        },
+      };
+      reads.clear();
+      const gap: IAutoMovieMotionHumanAuditMeasure =
+        AutoMovieMotionHumanAuditBalance.measure(
+          { ...sparse, segments: (): readonly HumanPhysics.ISpan[] => [unobserved] },
+          "a", counted, rate,
+        );
+      TestValidator.predicate("a phase wholly between adjacent ticks reads no contact, mass or pose",
+        gap.value === 0 && gap.where === "none" &&
+          contactsRead === 0 && modelsRead === 0 && reads.size === 0,
+      );
       // The central difference of z(t) = t² is exactly 2t at either tick.
       const peak: number = 6 / rate;
       TestValidator.predicate(
