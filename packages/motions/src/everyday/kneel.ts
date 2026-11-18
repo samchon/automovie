@@ -2,9 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanKneel,
@@ -188,14 +190,27 @@ export namespace kneel {
         });
       phases.push({ name: "stood", seconds: 0, from: 0, to: 0 });
     }
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+    const display: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
         phases.map((p: IPhase): { name: string; seconds: number } => ({ name: p.name, seconds: p.seconds })),
       ),
       modifiers,
       { holds: ["settled"] },
     );
-    const duration: number = clock.duration;
+    const settled: number = display.at("settled");
+    const next: IPhase | undefined =
+      phases[phases.findIndex((phase: IPhase): boolean => phase.name === "settled") + 1];
+    const release: number = next === undefined ? display.duration : display.at(next.name);
+    const stationary: number = release - settled;
+    const duration: number = display.duration - stationary;
+    const movingSecond: (seconds: number) => number = (seconds: number): number =>
+      Math.min(settled, seconds) + Math.max(0, seconds - release);
+    // Lay the changing body and arms only on the travel clock. The settled
+    // interval has one geometry regardless of its duration after mannering.
+    const clock: IAutoMovieMotionClock = stationary === 0 ? display : AutoMovieMotionClock.of(
+      duration, phases.map((phase: IPhase): IAutoMovieMotionClockInstant =>
+        ({ name: phase.name, seconds: movingSecond(display.at(phase.name)) })),
+    );
     const at: ReturnType<typeof prepareKneelClock<IPhase>> = prepareKneelClock(
       clock,
       phases,
@@ -438,8 +453,7 @@ export namespace kneel {
 
     // The hands come onto the thighs while the hips lower and leave them as
     // the body starts to rise.
-    const firstUp: IPhase | undefined =
-      phases[phases.findIndex((p: IPhase): boolean => p.name === "settled") + 1];
+    const firstUp: IPhase | undefined = next;
     const handDown: ReturnType<typeof AutoMovieMotionClock.prepare> =
       AutoMovieMotionClock.prepare(clock, "lowering", phases[2]!.name);
     const handUp: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
@@ -449,6 +463,14 @@ export namespace kneel {
     const lowered: (seconds: number) => number = (seconds: number): number =>
       handDown.progress(seconds) *
       (handUp === undefined ? 1 : 1 - handUp.progress(seconds));
+    const armEnd: number = firstUp === undefined ? clock.at("settled") : duration;
+    const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: clock.at("lowering"),
+      ready: clock.at(phases[2]!.name),
+      relax: firstUp === undefined ? armEnd : clock.at(firstUp.name),
+      end: armEnd,
+    };
+    const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
     const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
@@ -458,6 +480,8 @@ export namespace kneel {
         AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         duration,
         lowered,
+        armSpan,
+        arms,
       );
 
     // The hands open onto the thighs as the palms come to them, as the crouch's
@@ -471,7 +495,7 @@ export namespace kneel {
       context,
       keys,
       phases,
-      clock,
+      display,
       k,
     );
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(
@@ -481,13 +505,22 @@ export namespace kneel {
     // A kneel that rises leaves the body standing; one that stays down
     // leaves it kneeling (#3363: a base transition declares the base it
     // ends in).
-    return {
-      ...composeAutoMovieMotionHumanAction({
+    const course: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
         base: { ...base, contacts },
         clock,
         contact: marks[0]!,
         primitives: [kneelBody, hand("left"), hand("right"), open("left"), open("right")],
-      }),
+      });
+    let held: IAutoMovieMotionHumanPosture | undefined;
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (seconds, channels, resolution, projection) =>
+      settled <= seconds && seconds <= release
+        ? (held ??= course.posture(settled))
+        : course.posture(movingSecond(seconds), channels, resolution, projection);
+    return {
+      ...course,
+      duration: display.duration,
+      events: display.events(),
+      posture,
       base: { kind: rise ? "standing" : "kneeling" },
     };
   }

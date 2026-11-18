@@ -57,7 +57,7 @@ export function braceOnThigh(
   ]);
   const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
   const site: ReturnType<typeof braceOnThighPoint> = braceOnThighPoint(body, side);
-  const palm = AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, "palm", "flat");
+  const palm: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal> = AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, "palm", "flat");
   return AutoMovieMotionHumanArm.carried({
     body,
     side,

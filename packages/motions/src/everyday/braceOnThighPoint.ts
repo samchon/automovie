@@ -80,14 +80,20 @@ export function braceOnThighPoint(
       Quaternion.rotateVector(thigh.worldRotation, region.point),
     );
 
-    // Carry the region's offset from the thigh axis down to the knee.
-    const front: IAutoMovieVector3 = Vector3.add(
-      knee,
-      Vector3.subtract(onThigh, Vector3.lerp(thigh.worldPosition, knee, 0.5)),
-    );
     const along: IAutoMovieVector3 = Vector3.subtract(knee, thigh.worldPosition);
     const axis: IAutoMovieVector3 = Vector3.normalize(along);
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, region.normal);
+    const anterior: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, region.normal);
+    const lateral: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(axis, anterior));
+    const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+    const radial: IAutoMovieVector3 = Vector3.subtract(onThigh, Vector3.lerp(thigh.worldPosition, knee, 0.5));
+    // The arm approaches on the shoulder's side of the front surface.
+    // Project its lateral line onto the thigh cross-section so the
+    // forearm can descend alongside the hip on an upright kneeling thigh.
+    const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.addScaled(
+      Vector3.scale(anterior, Math.abs(Vector3.dot(radial, anterior))),
+      lateral, Vector3.dot(Vector3.subtract(shoulder, knee), lateral),
+    ));
+    const front: IAutoMovieVector3 = Vector3.addScaled(knee, normal, Vector3.length(radial));
     const rotation: IAutoMovieQuaternion = HumanHand.align(palm, { normal: Vector3.scale(normal, -1), forward: along });
     const wrist: IAutoMovieVector3 = Vector3.subtract(
       Vector3.addScaled(front, normal, depth), Quaternion.rotateVector(rotation, palm.point),
@@ -95,31 +101,37 @@ export function braceOnThighPoint(
 
     // The nearer intersection with the shoulder-to-palm reach sphere
     // raises the site on an upright kneeling thigh.
-    const d: IAutoMovieVector3 = Vector3.subtract(wrist, bones.get(`${side}UpperArm`)!.worldPosition);
+    const d: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
     const b: number = Vector3.dot(axis, d);
     const disc: number = b * b - Vector3.dot(d, d) + reach * reach;
     const up: number = Math.max(m.hand / 2, disc >= 0 ? b - Math.sqrt(disc) : m.hand / 2);
     const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([[region.bone, thigh]]);
     const span: number = m.thigh + m.hand;
-    const padded = (height: number): IAutoMovieVector3 => {
-      const geometric = Vector3.addScaled(front, axis, -height);
-      const skin = HumanColliders.cast(body, only, Vector3.addScaled(geometric, normal, span), Vector3.scale(normal, -1), 2 * span)?.point ?? geometric;
-      return Vector3.addScaled(skin, normal, depth);
+    const colliders: ReturnType<typeof HumanColliders.reading> = HumanColliders.reading(body, only);
+    const padded: (height: number) => IBrace = (height: number): IBrace => {
+      const geometric: IAutoMovieVector3 = Vector3.addScaled(front, axis, -height);
+      const hit: ReturnType<typeof HumanColliders.cast> = colliders.cast(
+        Vector3.addScaled(geometric, normal, span), Vector3.scale(normal, -1), 2 * span,
+      );
+      if (hit === undefined)
+        return { point: Vector3.addScaled(geometric, normal, depth), normal, rotation };
+      const facing: IAutoMovieVector3 = Vector3.dot(hit.normal, normal) > 0 ? hit.normal : normal;
+      return {
+        point: Vector3.addScaled(hit.point, facing, depth),
+        normal: facing,
+        rotation: HumanHand.align(palm, { normal: Vector3.scale(facing, -1), forward: along }),
+      };
     };
-    const shoulder = bones.get(`${side}UpperArm`)!.worldPosition;
-    const offset = Quaternion.rotateVector(rotation, palm.point);
-    const missed = (point: IAutoMovieVector3): boolean =>
-      Vector3.distance(Vector3.subtract(point, offset), shoulder) > reach;
-    let point = padded(up);
-    // Curvature changes the true skin from the plane's predicted position.
-    // Only this near-limit case refines the shoulder's intersection with it.
-    const top = Math.max(up, Vector3.length(along) - m.hand / 2);
-    if (top > up && missed(point) && !missed(padded(top)))
-      point = padded(bracketedBisection(
-        (height: number): boolean => missed(padded(height)),
-        up, top, SITE_RESOLUTION,
+    const missed: (brace: IBrace) => boolean = (brace: IBrace): boolean =>
+      Vector3.distance(Vector3.subtract(brace.point, Quaternion.rotateVector(brace.rotation, palm.point)), shoulder) > reach;
+    const nearest: IBrace = padded(up);
+    // Curvature changes both the surface point and its tangent plane.
+    const top: number = Math.max(up, Vector3.length(along) - m.hand / 2);
+    if (top > up && missed(nearest) && !missed(padded(top)))
+      return padded(bracketedBisection(
+        (height: number): boolean => missed(padded(height)), up, top, SITE_RESOLUTION,
       ));
-    return { point, normal, rotation };
+    return nearest;
   };
 }
 
