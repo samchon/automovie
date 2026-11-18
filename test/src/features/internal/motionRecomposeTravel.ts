@@ -452,6 +452,14 @@ export function motionRecomposeTravel(
       step: number;
       gait: IAutoMovieMotionHumanSignature.IGait;
     }
+    const readGait = (
+      p: IAutoMovieMotionHumanPerformance,
+    ): IAutoMovieMotionHumanSignature.IGait =>
+      HumanSignature.gait(
+        HumanSignature.of(p, "a", body, 0),
+        0.25 * p.duration,
+        0.85 * p.duration,
+      );
     const steady = (p: IAutoMovieMotionHumanPerformance): ISteady => {
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         p,
@@ -463,13 +471,9 @@ export function motionRecomposeTravel(
       const to: number = 0.85 * p.duration;
       const at = (t: number): IAutoMovieVector3 =>
         HumanSignature.joint(reader, t, "hips");
-      const gait: IAutoMovieMotionHumanSignature.IGait = HumanSignature.gait(
-        reader,
-        from,
-        to,
-      );
+      const gait: IAutoMovieMotionHumanSignature.IGait = readGait(p);
       const strikes: number[] = gait.strikes.map(
-        (s: { seconds: number }): number => at(s.seconds).z,
+        (s): number => at(s.seconds).z,
       );
       const steps: number[] = strikes
         .slice(1)
@@ -530,7 +534,7 @@ export function motionRecomposeTravel(
             false,
           );
           if (p === undefined) continue;
-          const duty: number = steady(p).gait.duty;
+          const duty: number = readGait(p).duty;
           if (!(duty < 0.5))
             findings.push(
               `${name}: a ${pace}'s feet bear ${(duty * 100).toFixed(1)} % of the time, under half expected (a flight phase, Novacheck 1998)`,
@@ -562,7 +566,7 @@ export function motionRecomposeTravel(
               HumanSignature.centre(reader, t - h).z) /
             (2 * h);
           const strikes: number[] = free.gait.strikes.map(
-            (s: { seconds: number }): number => s.seconds,
+            (s): number => s.seconds,
           );
           for (let k: number = 1; k < strikes.length; k++) {
             const strike: number = strikes[k - 1]!;
@@ -574,9 +578,11 @@ export function motionRecomposeTravel(
               findings.push(
                 `${name}: at ${middle.toFixed(2)} s, mid single support, the centre of mass is ${(high * 1000).toFixed(1)} mm above its height at the strike before, higher expected (#3360: highest at mid-stance)`,
               );
-            if (!(forward(middle) < forward(strike)))
+            const midSpeed: number = forward(middle);
+            const strikeSpeed: number = forward(strike);
+            if (!(midSpeed < strikeSpeed))
               findings.push(
-                `${name}: at ${middle.toFixed(2)} s, mid single support, the centre of mass moves forward at ${forward(middle).toFixed(3)} m/s against ${forward(strike).toFixed(3)} at the strike, slower expected (#3360: slowest at mid-stance)`,
+                `${name}: at ${middle.toFixed(2)} s, mid single support, the centre of mass moves forward at ${midSpeed.toFixed(3)} m/s against ${strikeSpeed.toFixed(3)} at the strike, slower expected (#3360: slowest at mid-stance)`,
               );
           }
         }
@@ -713,7 +719,7 @@ export function motionRecomposeTravel(
       const long: IAutoMovieMotionHumanPerformance | undefined = walked(12);
       if (long !== undefined) {
         const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] =
-          steady(long).gait.strikes;
+          readGait(long).strikes;
         for (const side of ["left", "right"] as const) {
           const own: number[] = strikes
             .filter((s): boolean => s.side === side)
@@ -758,16 +764,9 @@ export function motionRecomposeTravel(
           findings.push(
             `${name}: a 0.4 m walk strikes ${strikes} times, at least two steps expected (#3211)`,
           );
-        const left: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          short.duration,
-          "leftFoot",
-        );
-        const right: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          short.duration,
-          "rightFoot",
-        );
+        const bones: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(reader, short.duration);
+        const left: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
+        const right: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
         const off: number = Math.hypot(
           (left.x + right.x) / 2,
           (left.z + right.z) / 2 - 0.4,
