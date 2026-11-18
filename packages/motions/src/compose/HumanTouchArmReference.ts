@@ -76,7 +76,24 @@ export namespace HumanTouchArmReference {
     return boundedReference(body, side, solved);
   }
 
-  /** Apply the laid arm's forearm twist margin to its actual solved joint angles. */
+  /**
+   * Keep the fitted forearm twist inside its anatomical range. All other
+   * angles come directly from the selected arm's actual fit, in degrees.
+   *
+   * @param body Body supplying the chosen side's lower-arm twist constraint.
+   * @param side The fitted arm's side.
+   * @param solved Upper and lower arm joint angles of the actual unreferred fit.
+   * @returns The original angles for a missing or narrow range, or a reference
+   * with only its forearm twist bounded.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the source, units and ownership of the returned joint angles and the missing-range case.
+   * @evidence contracts/development/implementation.md#principled-implementation Intersects the solved twist with the forearm's actual range inset by the laid arm's existing MARGIN at each end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One constraint query and one interval clamp determine the one angular component that can change.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same physical margin applies at both ends. At width twice MARGIN or less the original solved reference is returned, preserving the existing equality boundary.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lower-arm constraint query and constant scalar work suffice. The caller can supply the selected fit's angles without another IK solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ordinary reference fit and an already fitted independent arm both apply this one bound to their actual angles.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No pose, candidate history or reader is retained by the function.
+   */
   export function boundedReference(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
