@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
@@ -29,9 +29,10 @@ import { StrikingTarget } from "./StrikingTarget";
  * second follows in the second, each on a minimum-jerk path lifted clear of
  * the floor, while the root carries the body on its own minimum-jerk profile
  * and the guard rides on the trunk. The step length defaults to half a
- * stance length (the kickboxing research's step share) and the step period to
- * 0.35 s, about three steps a second, inside the 2 to 3.5 steps a second of
- * the ring-movement reading (provisional).
+ * stance length (the kickboxing research's step share) and the step period
+ * scales with the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s
+ * on a 0.93 m hip, about three steps a second, inside the 2 to 3.5 steps a
+ * second of the ring-movement reading (provisional).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
@@ -51,8 +52,27 @@ export namespace step {
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Seconds per step (provisional). */
-  export const PERIOD: number = 0.35;
+  /**
+   * One step's period in pendulum units, `T / sqrt(l / g)` with `l` the hip
+   * height: bodies of different size step alike at equal Froude number
+   * (Alexander 1984), so a step's time is a share of the leg's own pendulum
+   * time, never a fixed second. The value reads the provisional 0.35 s
+   * (about three steps a second, inside the 2 to 3.5 of the ring-movement
+   * reading) on the 0.93 m hip the gait laws' speeds are measured at
+   * (`walk.FROUDE`, Bohannon 1997).
+   */
+  export const PERIOD: number = 0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
+
+  /**
+   * A body's step period, seconds: `PERIOD` pendulum units of its own hip
+   * height.
+   *
+   * @param body The body.
+   * @returns Seconds.
+   */
+  export function period(body: IAutoMovieMotionHumanActionContext["body"]): number {
+    return PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD);
+  }
 
   /** Share of a stance length one step covers (IBA: the following foot restores the stance without crossing). */
   export const STEP_SHARE: number = 0.5;
@@ -88,7 +108,8 @@ export namespace step {
       "m",
       "minimum",
     );
-    const duration: number = count * PERIOD;
+    const stride: number = period(body);
+    const duration: number = count * stride;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
@@ -131,8 +152,8 @@ export namespace step {
       side: "left" | "right",
       t: number,
     ): { travelled: number; swinging: boolean; s: number } => {
-      const k: number = Math.min(count - 1, Math.floor(t / PERIOD));
-      const local: number = (t - k * PERIOD) / PERIOD;
+      const k: number = Math.min(count - 1, Math.floor(t / stride));
+      const local: number = (t - k * stride) / stride;
       const [a, b] = windows[side];
       const s: number = minimumJerk.share((local - a) / (b - a));
       return {
