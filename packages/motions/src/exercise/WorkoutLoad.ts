@@ -17,6 +17,7 @@ import type {
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -33,7 +34,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * The hand that holds keeps its grip: the plan declares the grip and
  * leaves the hold as it found it, so the prop rides that hand. A prop held
  * in one hand asks no more. A prop with a second handle (a bar) is laid
- * level: the holding hand stays where the key's arm puts it and is turned
+ * level: the holding hand swings about its shoulder to centre the bar and turns
  * so the line to the other handle runs to the performer's other side with
  * the knuckles continuing the forearm, and
  * the other hand is laid on that handle by the arm's solve, as a long gun's
@@ -249,9 +250,20 @@ export namespace WorkoutLoad {
         );
         const aside: number =
           Vector3.dot(reach, across) + Vector3.dot(off, across);
-        const radius: number = Math.sqrt(
-          Math.max(0, Vector3.dot(reach, reach) - aside * aside),
-        );
+        const squaredReach: number = Vector3.dot(reach, reach);
+        const remaining: number = squaredReach - aside * aside;
+        if (remaining < 0) {
+          const span: number = Math.sqrt(squaredReach);
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "load",
+            value: Math.abs(aside),
+            feasible: { kind: "range", minimum: 0, maximum: span, unit: "m" },
+            reason: `centring the handles needs ${Math.abs(aside).toFixed(3)} m of lateral reach from the ${side} shoulder, beyond its keyed grip radius of ${span.toFixed(3)} m`,
+            fix: "use handles closer to shoulder width",
+          });
+        }
+        const radius: number = Math.sqrt(remaining);
         const forth: number = Math.max(
           -radius,
           Math.min(
