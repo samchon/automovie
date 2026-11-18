@@ -8,17 +8,19 @@ The earlier proposal retained 40 scenarios in other features. Inspection found 3
 
 | Writer | Additional source ownership | Original scenarios |
 | --- | --- | --- |
-| Catalogue | Animal locomotion, film motion, ingestion, validation and viewer | 28 |
+| Catalogue | Animal locomotion, ingestion and validation | 23 |
+| Website | Film object motion and viewer application | 5 |
 | Dynamics | Engine node tracks, trajectories and timed audio sampling | 7 |
 | Posture | Inspection paths and physics checks | 3 |
 | Contact | Shot event receipt admission | 1 |
 
-Confirm the final scenario identities and package-level coverage against both retirement records before enabling the full motion run. Treat focused assertion results and missing coverage as separate observations.
+The runner selects scenario names by substring. Comparing the old common suite by actual public accessor and assertion revealed 54 further motion scenarios whose names lack the selection term. The inventory lists these as selector-independent retirements. They add 16 source files for Catalogue, 14 for Dynamics, 16 for Posture and eight for Contact. General static geometry, generic range clamping and other independently exercised utility contracts keep their own tests. The website workflow has its own suite.
 
+Confirm the final scenario identities and package-level coverage against all retirement records before enabling the full motion run. Treat focused assertion results and missing coverage as separate observations.
 
 ## Initial decision and accounting
 
-The frozen selection contains 722 unique exported test names. The historical ownership map contains exactly those names. The new selection contains 222 public specifications: 182 newly named motion specifications replace the 682 selected motion-domain exports, and 40 existing specifications remain with their external feature owners. The 182 include 43 separately named primitive-declaration specifications and four common runtime witnesses. Test count means discoverable named exports. A body, a seed, a lexicon row and a sampled frame are inputs. This plan commissions zero films.
+The frozen selection contains 722 unique exported test names. The historical ownership map contains exactly those names. The initial proposal contains 222 public specifications: 182 newly named motion specifications replace the 682 selected motion-domain exports, and 40 existing specifications remain with their external feature owners. The 182 include 43 separately named primitive-declaration specifications and four common runtime witnesses. Test count means discoverable named exports. A body, a seed, a lexicon row and a sampled frame are inputs. This plan commissions zero films.
 
 The histogram of completed historical results is 628 pass and 61 fail. The other 33 names have no individual result in results.jsonl. A stopped process or a requested batch is not an individual assertion result. At the snapshot, 184 historical paths were absent and 28 of these had historical failing assertions. The inventory records all 61 failure anchors against their planned destination, including missing source paths. It makes no current run verdict.
 
