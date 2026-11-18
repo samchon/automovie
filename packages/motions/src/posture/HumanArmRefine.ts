@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
 /**
  * A trajectory's interpolant between its waypoints, and where the waypoints
@@ -105,7 +105,7 @@ export namespace HumanArmRefine {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the existing cubic Hermite basis, zero endpoint tangents and central differences divided by their actual neighboring time spans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint copies precede an interval search, two tangents and the original componentwise four-term polynomial.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps interval ties, exponent and addition grouping, endpoint copies and each actual coordinate calculation; no resampling, angle rounding or interpolation cache is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Searches at most N waypoint times and computes two D-component tangents and D results, costing O(N+D) work and O(D) temporary/output space.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Bisects N knot seconds and computes two D-component tangents and D results, costing O(log N + D) work and O(D) temporary/output space.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the selected interval's time span and four scalar basis values across coordinates; all callers use this same interpolant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh coordinates, with call-local tangent arrays and no retained input or result history.
    */
@@ -117,28 +117,113 @@ export namespace HumanArmRefine {
     const n: number = times.length;
     if (seconds <= times[0]!) return [...x[0]!];
     if (seconds >= times[n - 1]!) return [...x[n - 1]!];
-    let k: number = 0;
-    while (k + 2 < n && times[k + 1]! <= seconds) ++k;
+    const k: number = Math.min(knot(times, seconds), n - 2);
     const h: number = times[k + 1]! - times[k]!;
-    const u: number = (seconds - times[k]!) / h;
-    const tangent: (j: number) => number[] = (j: number): number[] =>
-      j === 0 || j === n - 1
-        ? new Array(x[0]!.length).fill(0)
-        : x[j + 1]!.map(
-            (v: number, d: number): number =>
-              (v - x[j - 1]![d]!) / (times[j + 1]! - times[j - 1]!),
-          );
-    const m0: number[] = tangent(k);
-    const m1: number[] = tangent(k + 1);
-    const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
-    const h10: number = u ** 3 - 2 * u ** 2 + u;
-    const h01: number = -2 * u ** 3 + 3 * u ** 2;
-    const h11: number = u ** 3 - u ** 2;
-    return x[k]!.map(
-      (v: number, d: number): number =>
-        h00 * v + h10 * h * m0[d]! + h01 * x[k + 1]![d]! + h11 * h * m1[d]!,
+    return interpolate(
+      x[k]!,
+      x[k + 1]!,
+      tangent(times, x, k),
+      tangent(times, x, k + 1),
+      h,
+      (seconds - times[k]!) / h,
     );
   }
+
+  /**
+   * Bind a solved course's unchanged waypoint seconds and coordinate rows.
+   * The exact original central differences and interval lengths are computed
+   * once. A sample receives fresh coordinates and the preceding knot index,
+   * which also identifies the shoulder chart used by playback. Endpoint rows
+   * stay held outside the span. Read-only inputs remain unchanged until the
+   * prepared reader is released.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States time units, fixed inputs, held endpoints and fresh coordinate/index ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the exact central differences and spans of the existing Hermite polynomial. The polynomial and interval search are shared with the one-shot interpolant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One index lookup reports the interval and the shoulder chart's preceding knot. The two immutable coefficient arrays serve both actual admission and display reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every queried second is evaluated with the same arithmetic and ties. No samples, poses, physical checks or precision are substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(ND) preparation for N knots and D coordinates, followed by O(log N + D) sampling without tangent arrays or span divisions per coordinate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only times, spans and coordinate differences of the unchanged authored knots are shared. Every sample still evaluates its actual time polynomial.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader borrows the fixed knot arrays and owns O(ND) coefficients for its lifetime. No query history, pose, workspace or handle is retained.
+   */
+  export function prepareHermite(
+    times: readonly number[],
+    x: readonly (readonly number[])[],
+  ): (seconds: number) => {
+    readonly knot: number;
+    readonly coordinates: number[];
+  } {
+    const n: number = times.length;
+    const slopes: number[][] = times.map((_t: number, i: number): number[] =>
+      tangent(times, x, i),
+    );
+    const spans: number[] = times
+      .slice(1)
+      .map((t: number, i: number): number => t - times[i]!);
+    return (
+      seconds: number,
+    ): { readonly knot: number; readonly coordinates: number[] } => {
+      if (seconds <= times[0]!) return { knot: 0, coordinates: [...x[0]!] };
+      if (seconds >= times[n - 1]!)
+        return { knot: n - 1, coordinates: [...x[n - 1]!] };
+      const i: number = knot(times, seconds);
+      const h: number = spans[i]!;
+      return {
+        knot: i,
+        coordinates: interpolate(
+          x[i]!,
+          x[i + 1]!,
+          slopes[i]!,
+          slopes[i + 1]!,
+          h,
+          (seconds - times[i]!) / h,
+        ),
+      };
+    };
+  }
+}
+
+/** The last knot at or before this second, starting at zero before the span. */
+function knot(times: readonly number[], seconds: number): number {
+  let low: number = 0;
+  let high: number = times.length - 1;
+  while (low < high) {
+    const middle: number = (low + high + 1) >> 1;
+    if (times[middle]! <= seconds) low = middle;
+    else high = middle - 1;
+  }
+  return low;
+}
+
+/** Central differences over actual waypoint seconds, at rest at both ends. */
+function tangent(
+  times: readonly number[],
+  x: readonly (readonly number[])[],
+  i: number,
+): number[] {
+  if (i === 0 || i === times.length - 1) return new Array(x[0]!.length).fill(0);
+  const span: number = times[i + 1]! - times[i - 1]!;
+  return x[i + 1]!.map(
+    (v: number, d: number): number => (v - x[i - 1]![d]!) / span,
+  );
+}
+
+/** Evaluate the original four terms in their original arithmetic grouping. */
+function interpolate(
+  left: readonly number[],
+  right: readonly number[],
+  m0: readonly number[],
+  m1: readonly number[],
+  h: number,
+  u: number,
+): number[] {
+  const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
+  const h10: number = u ** 3 - 2 * u ** 2 + u;
+  const h01: number = -2 * u ** 3 + 3 * u ** 2;
+  const h11: number = u ** 3 - u ** 2;
+  return left.map(
+    (v: number, d: number): number =>
+      h00 * v + h10 * h * m0[d]! + h01 * right[d]! + h11 * h * m1[d]!,
+  );
 }
 
 /** Private storage reused only while one unbounded call reads held intervals. */

@@ -10,8 +10,8 @@ import { hipJoints } from "./hipJoints";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/** The lowering law always observes its two legs in this original order. */
-const SIDES: readonly ["left", "right"] = Object.freeze(["left", "right"] as const);
+/** An absent plant, distinct from an invalid point on a present plant. */
+const NO_PLANT: unique symbol = Symbol();
 
 /**
  * A posture with its root lowered along gravity to the highest height at
@@ -34,9 +34,9 @@ const SIDES: readonly ["left", "right"] = Object.freeze(["left", "right"] as con
  * @evidence contracts/development/implementation.md#principled-implementation Actual pelvis-to-hip FK supplies origins. The common reachLimit applies a*a+b*b+2*a*b*cos(knee) and its square root to actual thigh/shank lengths; reachDrop removes horizontal span through the original Pythagoras/comparison/subtraction grouping. Raw short reads live dimensions each time; prepareShort genuinely computes that fixed-body/knee prerequisite once. Taking the greatest required drop keeps the original cleanup rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Raw lowering and prepare share one current-goal/hip/drop owner. Its scalar source is either the original live short or prepare's privately created lazy fixed-reach reader. Both use reachLimit/reachDrop, separating fixed segment geometry from every current hip/ankle query without duplicating lowering or allocating per-query callbacks.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Attached goals stay outside the world-root solve. short retains -Infinity at or beyond horizontal reach and negative slack when the leg reaches; no target, knee threshold, tolerance or replacement contact is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two goals and one two-hip demand FK precede constant scalar work per leg; fixed side order allocates no per-query side array. No FK reader is allocated/invoked without a world plant, and an actual supplied loan dispatches directly without a discarded lazy wrapper. prepare pays fixed-body/knee cosine/reach square root once after the first actual hip read; prepareShort exposes the same prerequisite. Each query retains horizontal hypot, reach comparison and vertical square root. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two goal reads and one two-hip demand FK precede constant scalar work per leg, without an intermediate per-query goal list. No FK reader is allocated/invoked without a world plant, and an actual supplied loan dispatches directly without a discarded lazy wrapper. prepare pays fixed-body/knee cosine and reach construction once. Each query retains horizontal hypot, reach comparison and vertical square root. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied same-person reader shares exact FK prerequisites; changed root/pelvis remain visible. Raw lowering/short reread body dimensions; explicit prepare/prepareShort own only the computed fixed-knee reach and require new preparation on dimension/knee changes. Every world-plant selection, hip and ankle is read anew and no lowering answer is memoized.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lowering's local goals/hip frames/getter end on return or throw. prepare retains its unchanged body/knee and at most one private scalar reader until its plan owner releases it; no posture, borrowed operation or result enters that closure. A prepareShort reader retains one reach number without body/points. Neither path stores query history, handles or tasks.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lowering's local goals, hip frames and getter end on return or throw. prepare retains its unchanged body/knee and at most one private scalar reader until its plan owner releases it. A prepareShort reader retains only the fixed reach constants without body or points. Neither path stores query history, handles or tasks.
  */
 export function lowerHumanPosture(
   body: IAutoMovieMotionHumanBody,
@@ -59,31 +59,49 @@ function lower(
 ): IAutoMovieMotionHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
-  const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
-  for (const side of SIDES) {
-    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[`${side}Leg`];
-    if (goal?.planted === true && goal.on === undefined)
-      legs.push({ side, goal: goal.point });
-  }
-  if (legs.length === 0) return posture;
+  const left: IAutoMovieVector3 | typeof NO_PLANT = worldPlant(
+    posture.limbs.leftLeg,
+  );
+  const right: IAutoMovieVector3 | typeof NO_PLANT = worldPlant(
+    posture.limbs.rightLeg,
+  );
+  if (left === NO_PLANT && right === NO_PLANT) return posture;
   const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
     body,
     posture.root,
     resolveHumanPosture.heading(posture),
     posture.joints.hips,
-    resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution),
+    resolution === undefined
+      ? undefined
+      : prepareHumanPoseResolution.read(resolution),
   );
   let drop: number = 0;
-  for (const { side, goal } of legs)
+  if (left !== NO_PLANT)
     drop = Math.max(
       drop,
       readShort === undefined
-        ? lowerHumanPosture.short(body, hips[side], goal, knee, step)
-        : readShort(hips[side], goal),
+        ? lowerHumanPosture.short(body, hips.left, left, knee, step)
+        : readShort(hips.left, left),
+    );
+  if (right !== NO_PLANT)
+    drop = Math.max(
+      drop,
+      readShort === undefined
+        ? lowerHumanPosture.short(body, hips.right, right, knee, step)
+        : readShort(hips.right, right),
     );
   return drop === 0
     ? posture
     : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
+}
+
+/** Read an actual world-anchored plant before hip FK. */
+function worldPlant(
+  goal: IAutoMovieHumanLimbGoal | undefined,
+): IAutoMovieVector3 | typeof NO_PLANT {
+  return goal?.planted === true && goal.on === undefined
+    ? goal.point
+    : NO_PLANT;
 }
 
 /**
@@ -113,13 +131,22 @@ export namespace lowerHumanPosture {
     body: IAutoMovieMotionHumanBody,
     knee: number = resolveHumanPosture.KNEE,
     step?: number,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieMotionHumanPosture {
     let short: ReturnType<typeof prepareShort> | undefined;
-    const read: ReturnType<typeof prepareShort> = (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
+    const read: ReturnType<typeof prepareShort> = (
+      hip: IAutoMovieVector3,
+      ankle: IAutoMovieVector3,
+    ): number => {
       short ??= prepareShort(body, knee, step);
       return short(hip, ankle);
     };
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture =>
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieMotionHumanPosture =>
       lower(body, posture, knee, resolution, read);
   }
 
@@ -131,7 +158,7 @@ export namespace lowerHumanPosture {
    * root in the original order, including negative slack and -Infinity.
    * Keep dimensions and knee unchanged or prepare again; no input validation,
    * threshold, clamp or target substitution is added. Preparation and reads
-   * are constant-time; only one reach scalar survives until caller release,
+   * are constant-time; only the reach constants survive until caller release,
    * without retaining the body, points or any query-result history.
    */
   export function prepareShort(
@@ -178,22 +205,35 @@ export namespace lowerHumanPosture {
 
 /**
  * A leg's fixed reach: the two-segment cosine-law length at the least knee
- * flexion, metres, and the width of its soft band (`soft`).
+ * flexion, metres, its squared rounded value and the width of its soft band (`soft`).
  */
 interface IReach {
   /** The hip-to-ankle length at `knee` degrees of flexion, metres. */
   limit: number;
+
+  /** The square of the rounded length, used by the original vertical formula. */
+  limitSquared: number;
 
   /** The soft band's width below that length, metres; 0 for the hard reach. */
   width: number;
 }
 
 /** The leg's reach at `knee` degrees, with the soft band a hip moving `step` metres a frame asks (`soft`). */
-function reachLimit(body: IAutoMovieMotionHumanBody, knee: number, step?: number): IReach {
+function reachLimit(
+  body: IAutoMovieMotionHumanBody,
+  knee: number,
+  step?: number,
+): IReach {
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
-  const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180));
-  return { limit, width: step === undefined ? 0 : soft(a, b, limit, step) };
+  const limit: number = Math.sqrt(
+    a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180),
+  );
+  return {
+    limit,
+    limitSquared: limit * limit,
+    width: step === undefined ? 0 : soft(a, b, limit, step),
+  };
 }
 
 /**
@@ -229,13 +269,19 @@ function soft(a: number, b: number, limit: number, step: number): number {
  * the band's start, so a hip rising through full extension straightens the
  * knee continuously, and measures slack to the band's start below it.
  */
-function reachDrop(reach: IReach, hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number {
+function reachDrop(
+  reach: IReach,
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+): number {
   const dh: number = Math.hypot(hip.x - ankle.x, hip.z - ankle.z);
   if (!(dh < reach.limit)) return -Infinity;
-  const vertical: number = Math.sqrt(reach.limit * reach.limit - dh * dh);
+  const vertical: number = Math.sqrt(reach.limitSquared - dh * dh);
   const v: number = hip.y - ankle.y;
   if (!(reach.width > 0)) return v - vertical;
   const w: number = Math.min(reach.width, vertical);
   const start: number = vertical - w;
-  return v <= start ? v - start : v - (start + w * (1 - Math.exp(-(v - start) / w)));
+  return v <= start
+    ? v - start
+    : v - (start + w * (1 - Math.exp(-(v - start) / w)));
 }

@@ -50,8 +50,8 @@ export namespace HumanArmTrajectoryAdmission {
    * @evidence contracts/development/implementation.md#principled-implementation The played interpolant is evaluated by the one model the optimiser's iterates are, on the grid's own context, so the reading is the admission the optimiser itself applies.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation an arm and grid instant, then one evaluation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every term the model refuses by is read at every grid instant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One model evaluation over the grid.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading; the optimiser's own last evaluation serves where it exists.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One model evaluation over the grid. Each arm prepares its knot-only differences and spans once for all grid instants.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each arm's unchanged knot seconds and coordinates supply the same tangent and span values to any grid instant. The optimiser's own last evaluation serves where it exists.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays and the model's evaluation; retains nothing.
    */
   export function read(
@@ -60,10 +60,11 @@ export namespace HumanArmTrajectoryAdmission {
     x: readonly (readonly (readonly number[])[])[],
   ): IReading {
     const at: number[][][] = x.map(
-      (arm: readonly (readonly number[])[]): number[][] =>
-        fine.times.map((t: number): number[] =>
-          HumanArmRefine.hermite(c.times, arm, t),
-        ),
+      (arm: readonly (readonly number[])[]): number[][] => {
+        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+          HumanArmRefine.prepareHermite(c.times, arm);
+        return fine.times.map((t: number): number[] => curve(t).coordinates);
+      },
     );
     return { x: at, evaluation: M.evaluate(fine, at) };
   }
