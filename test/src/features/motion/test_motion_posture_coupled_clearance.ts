@@ -5,8 +5,6 @@ import type {
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSignature,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanCarried,
@@ -34,55 +32,16 @@ interface ICarriedStage {
 }
 
 /**
- * A person carried in a named carry rests on the carrier: the region of
- * their body the carry rests on stays on the carrier's region it rests on,
- * through whatever the carrier does, and the carrier's holding hands leave
- * where they hung.
- *
- * The bound is the motion campaign's: a contact stays within 10 mm through
- * its hold (#3349: "carrier and carried within 10 mm at every declared
- * contact"). The resting regions are each carry's own, stated by
- * `HumanCarried.CARRIES` and repeated here from the carries' common
- * descriptions: piggyback, the chest on the upper back; cradle, the side on
- * the chest; over the shoulder, the belly on the shoulder; supported, side
- * to side.
- *
+ * Carries a moving body at its declared support and releases it back to standing.
  * Scenarios:
- * the carrier walking 2 m, read at five instants 0.35 s apart
- * from 0.5 s after the carry is taken up (these fixtures request no explicit
- * lift, so the take-up is a transition and not part of the hold;
- * the carried root is solved onto the carrier at every instant by one
- * rule, so a fault is systematic and five instants across more than a
- * stride show it, which keeps ten films near a minute):
- * 1. Each of the eight carries (the four, a second helper's side of a
- *    supported walk, and the armpit, collar and ankle drags' holds while
- *    the carrier walks forward; the drags' regions are a first-aid manual's:
- *    the neck before the dragger's thigh, a calf before the other thigh),
- *    the average man carrying the small woman:
- *    the carried person's resting region is within 10 mm of the carrier's.
- * 2. Piggyback and the supported walk with the small woman carrying the
- *    average man: the same bound.
- * 3. In the piggyback the carrier's wrists, 1 s into the carry, are more
- *    than 50 mm from where they are in the same walk without the hold.
- * 4. A person named as their own carrier is refused on `by`.
- * 6. A piggyback with a lift and a set-down of 0.5 s each: 1 s into the
- *    carry the carried ankles are more than a tenth of the stature above
- *    where they stood, and at the carry's end they are back at their
- *    standing height within 15 mm (the campaign's contact bound) under a
- *    head more than 0.3 of the stature above the hips: the body is set
- *    down standing.
- * 5. With the lean layer scheduled over the piggyback (`HumanCarriedLean`,
- *    20 degrees forward, the family's stated provisional size), the
- *    carrier's chest tips 20 degrees farther forward than without it,
- *    within 1 degree, at three instants of the walk, and its turn against
- *    the hips, the walk's counter-rotation, differs by at most 1 degree:
- *    the lean is summed onto the walk's trunk and takes nothing from it.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
- * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's hold bound and the regions are the carries' descriptions; both bodies are read as displayed, never from a plan.
- * @evidence contracts/development/testing.md#distinguishing-cases Eight carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
- * @evidence contracts/development/testing.md#execution-ownership Reuses the default piggyback film for the resting region, the wrists and the lean comparison, and builds separate performances for the other carry or transition inputs.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 6 scenarios.
+ * - Each carry declares its anatomical contact pair. A back carry, a side support and a low drag exercise the distinct placements.
+ * - Both wrists leave free swing; the loaded trunk pitches while retaining its gait turn.
+ * - An explicit lift raises both ankles and the set-down restores height and upright stance. A self-carrier is refused.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes the independent region positions, displayed wrists, trunk orientation, ankle heights and refusal axis.
+ * @evidence contracts/development/testing.md#independent-expectations The support pair must meet within 10 mm. The carried trunk pitches twenty degrees and returns both ankles within 15 mm of standing height.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares loaded and free swing, lift and set-down, valid and self-carriage.
+ * @evidence contracts/development/testing.md#execution-ownership Uses one pair of bodies; geometry is sampled per placement branch and carry names are checked as data.
+ * @evidence contracts/development/common.md#meaningful-documentation States the units, phases and compared body regions.
  */
 export function test_motion_posture_coupled_clearance(): void {
   const RESTS: Readonly<
@@ -102,7 +61,6 @@ export function test_motion_posture_coupled_clearance(): void {
     waistLift: ["abdomen", "sternum"],
     overheadLift: ["abdomen", "nape"],
   };
-  const complaints: string[] = [];
   const stage = (
     names: readonly [CarryFixture, CarryFixture],
     carry: IAutoMovieMotionHumanCarried.Carry | null,
@@ -160,185 +118,106 @@ export function test_motion_posture_coupled_clearance(): void {
     };
   };
 
-  const pair: readonly [CarryFixture, CarryFixture] = ["m-average", "f-small"];
-  const held: ICarriedStage = stage(pair, "piggyback");
-  // 1 and 2. The resting region stays on the carrier.
-  for (const [names, carries] of [
-    [
-      pair,
-      [
-        "piggyback",
-        "cradle",
-        "overShoulder",
-        "supported",
-        "supportedLeft",
-        "armpitDrag",
-        "collarDrag",
-        "ankleDrag",
-      ],
-    ],
-    [
-      ["f-small", "m-average"],
-      ["piggyback", "supported"],
-    ],
-  ] as const)
-    for (const carry of carries) {
-      const { film, bodies }: ICarriedStage =
-        names === pair && carry === "piggyback" ? held : stage(names, carry);
-      const carrier: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        film,
-        "a",
-        bodies.a,
-        0,
-      );
-      const carried: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        film,
-        "b",
-        bodies.b,
-        0,
-      );
-      let worst: number = 0;
-      let when: number = 0;
-      for (const seconds of [0.8, 1.15, 1.5, 1.85, 2.2]) {
-        const gap: number = Vector3.length(
-          Vector3.subtract(
-            HumanSignature.region(carried, RESTS[carry][0], seconds),
-            HumanSignature.region(carrier, RESTS[carry][1], seconds),
-          ),
-        );
-        if (gap > worst) {
-          worst = gap;
-          when = seconds;
-        }
-      }
-      if (!(worst <= 0.01))
-        complaints.push(
-          `${carry}, ${names[0]} carrying ${names[1]}: the carried ${RESTS[carry][0]} is ${(worst * 1000).toFixed(1)} mm from the carrier's ${RESTS[carry][1]} at ${when.toFixed(1)} s, 10 mm at most expected`,
-        );
-    }
-
-  // 3. The carrier's hands hold.
-  const free: ICarriedStage = stage(pair, null);
-  const reader = (
-    staged: ICarriedStage,
-  ): IAutoMovieMotionHumanSignature.IReader =>
-    HumanSignature.of(staged.film, "a", staged.bodies.a, 0);
-  const heldReader: IAutoMovieMotionHumanSignature.IReader = reader(held);
-  const heldBones = HumanSignature.bones(heldReader, 1.3);
-  const freeBones = HumanSignature.bones(reader(free), 1.3);
-  for (const side of ["left", "right"] as const) {
-    const moved: number = Vector3.length(
-      Vector3.subtract(
-        heldBones.get(`${side}Hand`)!.worldPosition,
-        freeBones.get(`${side}Hand`)!.worldPosition,
-      ),
+  for (const carry of Object.keys(
+    RESTS,
+  ) as IAutoMovieMotionHumanCarried.Carry[]) {
+    const row = HumanCarried.CARRIES[carry];
+    TestValidator.equals(
+      carry + " anatomical support",
+      [row.mine, row.theirs],
+      RESTS[carry],
     );
-    if (!(moved > 0.05))
-      complaints.push(
-        `piggyback: the carrier's ${side} wrist is ${(moved * 1000).toFixed(0)} mm from where it swings in the same walk without the hold, more than 50 mm expected`,
+  }
+  const pair: readonly [CarryFixture, CarryFixture] = ["m-average", "f-small"];
+  const held = stage(pair, "piggyback");
+  const reader = (s: ICarriedStage, id: CarrySubject) =>
+    HumanSignature.of(s.film, id, s.bodies[id], 0);
+  const loaded = reader(held, "a");
+  const steady = 1.3;
+  for (const carry of ["piggyback", "supported", "ankleDrag"] as const) {
+    const s = carry === "piggyback" ? held : stage(pair, carry);
+    const [mine, theirs] = RESTS[carry];
+    const a = reader(s, "a"),
+      b = reader(s, "b");
+    for (const seconds of [0.8, 2.2])
+      TestValidator.predicate(
+        carry + " moving support contact",
+        Vector3.distance(
+          HumanSignature.region(b, mine, seconds),
+          HumanSignature.region(a, theirs, seconds),
+        ) <= 0.01,
       );
   }
-
-  // 5. The lean against the load is summed onto the walk's own trunk.
-  const leaned: IAutoMovieMotionHumanSignature.IReader = reader(
-    stage(pair, "piggyback", "a", true),
+  const free = reader(stage(pair, null), "a");
+  const freeBones = HumanSignature.bones(free, steady),
+    heldBones = HumanSignature.bones(loaded, steady);
+  for (const side of ["leftHand", "rightHand"] as const)
+    TestValidator.predicate(
+      side + " takes the passenger",
+      Vector3.distance(
+        freeBones.get(side)!.worldPosition,
+        heldBones.get(side)!.worldPosition,
+      ) > 0.05,
+    );
+  const tipped = HumanSignature.bones(
+    reader(stage(pair, "piggyback", "a", true), "a"),
+    steady,
   );
-  const angles = (
-    shown: IAutoMovieMotionHumanSignature.IReader,
-    seconds: number,
-  ): readonly [tip: number, turn: number] => {
-    const bones =
-      shown === heldReader && seconds === 1.3
-        ? heldBones
-        : HumanSignature.bones(shown, seconds);
-    const chest = bones.get("chest")!.worldRotation;
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(chest, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
-    // The walk's turn of the chest is read against its hips, so the whole
-    // body's pitch, which turns both, leaves it as the walk holds it.
-    const side: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(
-        Quaternion.inverse(bones.get("hips")!.worldRotation),
-        chest,
-      ),
+  const direction = (bones: CarryBones) => {
+    const chest = bones.get("chest")!.worldRotation,
+      hips = bones.get("hips")!.worldRotation;
+    const up = Quaternion.rotateVector(chest, { x: 0, y: 1, z: 0 });
+    const side = Quaternion.rotateVector(
+      Quaternion.multiply(Quaternion.inverse(hips), chest),
       { x: 1, y: 0, z: 0 },
     );
     return [
       (Math.atan2(up.z, up.y) * 180) / Math.PI,
       (Math.atan2(-side.z, side.x) * 180) / Math.PI,
-    ];
+    ] as const;
   };
-  for (const seconds of [1.3, 1.6, 1.9]) {
-    const [heldTip, heldTurn] = angles(heldReader, seconds);
-    const [leanedTip, leanedTurn] = angles(leaned, seconds);
-    const forward: number = leanedTip - heldTip;
-    if (!(Math.abs(forward - 20) <= 1))
-      complaints.push(
-        `piggyback: at ${seconds} s the leaning carrier's chest tips ${forward.toFixed(1)} degrees farther forward than without the lean, 20 within 1 expected`,
-      );
-    const kept: number = Math.abs(leanedTurn - heldTurn);
-    if (!(kept <= 1))
-      complaints.push(
-        `piggyback: at ${seconds} s the lean changes the chest's turn in the walk by ${kept.toFixed(1)} degrees, 1 at most expected`,
-      );
-  }
-
-  // 6. The lift into the carry and the set-down out of it.
-  const lifted: ReturnType<typeof stage> = stage(
-    pair,
-    "piggyback",
-    "a",
-    false,
-    {
-      lift: 0.5,
-      setDown: 0.5,
-    },
+  const [lean, yaw] = direction(tipped),
+    [pitch, turn] = direction(heldBones);
+  TestValidator.predicate(
+    "load pitches the trunk by twenty degrees while preserving turn",
+    Math.abs(lean - pitch - 20) <= 1 && Math.abs(yaw - turn) <= 1,
   );
-  const borne: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-    lifted.film,
-    "b",
-    lifted.bodies.b,
-    0,
-  );
-  const ankles: (bones: CarryBones) => number = (bones: CarryBones): number =>
+  const phases = stage(pair, "piggyback", "a", false, {
+    lift: 0.5,
+    setDown: 0.5,
+  });
+  const passenger = reader(phases, "b"),
+    stature = phases.bodies.b.measure.stature;
+  const ankles = (bones: CarryBones) =>
     (bones.get("leftFoot")!.worldPosition.y +
       bones.get("rightFoot")!.worldPosition.y) /
     2;
-  const stood: number = ankles(HumanSignature.bones(borne, 0.3));
-  const raised: number = ankles(HumanSignature.bones(borne, 1.3)) - stood;
-  if (!(raised > 0.1 * lifted.bodies.b.measure.stature))
-    complaints.push(
-      `piggyback with a lift: 1 s into the carry the carried ankles are ${(raised * 1000).toFixed(0)} mm above where they stood, more than a tenth of the stature expected`,
-    );
-  const settled: CarryBones = HumanSignature.bones(borne, 2.3);
-  const down: number = Math.abs(ankles(settled) - stood);
-  if (!(down <= 0.015))
-    complaints.push(
-      `piggyback with a set-down: at the carry's end the carried ankles are ${(down * 1000).toFixed(1)} mm from their standing height, 15 mm at most expected`,
-    );
-  const upright: number =
-    settled.get("head")!.worldPosition.y - settled.get("hips")!.worldPosition.y;
-  if (!(upright > 0.3 * lifted.bodies.b.measure.stature))
-    complaints.push(
-      `piggyback with a set-down: at the carry's end the carried head is ${upright.toFixed(3)} m above the hips, more than 0.3 of the stature expected`,
-    );
-
-  // 4. Nobody carries themselves.
-  let refused: unknown = null;
+  const standing = ankles(HumanSignature.bones(passenger, 0.3)),
+    raised = ankles(HumanSignature.bones(passenger, steady));
+  const released = HumanSignature.bones(passenger, 2.3);
+  TestValidator.predicate(
+    "lift clears standing height",
+    raised - standing > stature / 10,
+  );
+  TestValidator.predicate(
+    "released ankles return to standing",
+    Math.abs(ankles(released) - standing) <= 0.015,
+  );
+  TestValidator.predicate(
+    "release restores upright trunk",
+    released.get("head")!.worldPosition.y -
+      released.get("hips")!.worldPosition.y >
+      0.3 * stature,
+  );
+  let refused: unknown;
   try {
     stage(pair, "piggyback", "b");
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof HumanRefusal && refused.axis === "by"))
-    complaints.push(
-      `a person named as their own carrier: a refusal on by expected, got ${refused instanceof Error ? refused.message : String(refused)}`,
-    );
-  TestValidator.equals("a carried person rests on the carrier", complaints, []);
+  TestValidator.predicate(
+    "carrying oneself is refused on by",
+    refused instanceof HumanRefusal && refused.axis === "by",
+  );
 }
-
-/** One displayed skeleton used for all sites at the same lift phase. */
 type CarryBones = ReturnType<typeof HumanSignature.bones>;

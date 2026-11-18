@@ -304,7 +304,9 @@ export function test_motion_grounded_cut_handoff(): void {
     const transform = next.source.scene.nodes.find(
       (n) => n.id === "knightA",
     )!.transform;
-    const motion = next.source.motions.find((m) => m.gaitCycle != null)!;
+    const motion = next.source.motions.find(
+      (m) => (m.gaitCycle ?? null) !== null,
+    )!;
     for (const m of next.source.motions)
       TestValidator.predicate(
         "continuous non-looping gait track",
@@ -312,7 +314,7 @@ export function test_motion_grounded_cut_handoff(): void {
           m.skeleton === rig.id &&
           nclose(m.duration, 1, 0) &&
           !m.loop &&
-          m.gaitCycle != null,
+          (m.gaitCycle ?? null) !== null,
       );
     const local = resolvePose(sampleMotion(motion, 0).pose, rig).find(
       (b) => b.bone === "leftFoot",

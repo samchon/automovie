@@ -56,7 +56,9 @@ const walk: (
 const gaitBones: (gait: IAutoMovieGait) => AutoMovieHumanoidBone[] = (
   gait: IAutoMovieGait,
 ): AutoMovieHumanoidBone[] =>
-  gait.limbs.map((limb: IAutoMovieGait["limbs"][number]): AutoMovieHumanoidBone => limb.bone);
+  gait.limbs.map(
+    (limb: IAutoMovieGait["limbs"][number]): AutoMovieHumanoidBone => limb.bone,
+  );
 
 /**
  * A custom gait that genuinely authors legs only.
