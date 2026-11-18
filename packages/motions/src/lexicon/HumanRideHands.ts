@@ -36,7 +36,7 @@ import { HumanMountRider } from "./HumanMountRider";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point, radius and axis is the support's own.
  */
 export namespace HumanRideHands {
-  /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, ¡×4.1), degrees. */
+  /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, Â§4.1), degrees. */
   const ROWING: readonly [number, number] = [-28, 49];
 
   /** A moving round handle carries its measured skin distance from the wrist. */
@@ -151,7 +151,7 @@ export namespace HumanRideHands {
     const base = context.entry.base;
     const fixedSeat: boolean = base.kind === "seated" && base.seat?.workingSeat === true;
     // In fixed-seat rowing most thorax inclination comes from the pelvic
-    // swing (Agius et al. 2023, ¡×4.1), about the seat that stays planted.
+    // swing (Agius et al. 2023, Â§4.1), about the seat that stays planted.
     let bearing: IAutoMovieVector3 | undefined;
     const bow = (degrees: number): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return seated;
