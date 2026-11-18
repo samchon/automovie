@@ -96,8 +96,7 @@ export function staggerAdmission(
   // whose capsules meet are posed by the posture's own fit and read as the
   // tangle audit reads them. The premise is the fit's knee lying in the
   // plane of its hint, which the fit's own hint asks of it.
-  const clearance: walkLegCapsules.IPrepared = walkLegClearance.prepare(body);
-  const capsules: walkLegCapsules.IPrepared["capsules"] = clearance.capsules;
+  let clearance: walkLegCapsules.IPrepared | undefined;
   const segment: (p: IAutoMovieVector3, q: IAutoMovieVector3, r: IAutoMovieVector3, s: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
     q: IAutoMovieVector3,
@@ -125,7 +124,7 @@ export function staggerAdmission(
     }
     return Vector3.distance(Vector3.add(p, Vector3.scale(d1, u)), Vector3.add(r, Vector3.scale(d2, v)));
   };
-  const apart: (ground: walkReach.IGround) => boolean = (ground: walkReach.IGround): boolean => {
+  function apart(ground: walkReach.IGround, capsules: walkLegCapsules.IPrepared["capsules"]): boolean {
     const parts: Record<"left" | "right", { from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number }[]> = { left: [], right: [] };
     for (const side of ["left", "right"] as const) {
       const hip: IAutoMovieVector3 = ground.hips[side];
@@ -161,7 +160,7 @@ export function staggerAdmission(
       for (const other of parts.right)
         if (segment(one.from, one.to, other.from, other.to) < one.radius + other.radius) return false;
     return true;
-  };
+  }
 
   for (const t of instants) {
     // The feet as the steps schedule them, a swinging foot read where it
@@ -231,7 +230,10 @@ export function staggerAdmission(
 
     // Crossed feet: the two planted legs as the posture's fit poses them,
     // their knees toward the hints the posture gives them.
-    if (crossing && planted.length === 2 && !apart(ground)) {
+    if (crossing && planted.length === 2) {
+      // Only a crossed double support needs the leg collision geometry.
+      clearance ??= walkLegClearance.prepare(body);
+      if (apart(ground, clearance.capsules)) continue;
       const pelvis: IAutoMovieQuaternion =
         ground.pelvis ?? resolveHumanPosture.heading({ yaw: ground.yaw, pitch: 0, roll: 0 });
       const legs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] = [];
