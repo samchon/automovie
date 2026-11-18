@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockPhase,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanPosture,
@@ -23,11 +25,13 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { StrikingBody } from "../striking/StrikingBody";
 import { floorEntry } from "./floorEntry";
 import { floorSeat } from "./floorSeat";
 
@@ -45,8 +49,13 @@ import { floorSeat } from "./floorSeat";
  * Each posture is a set of joint angles and a whole-body tilt (`POSES`,
  * provisional), passed through in joint space on minimum-jerk progress. At
  * every second the body rests on the floor: the root's height puts the
- * lowest point of the body's collision shapes on it (`knockdown.rest`), and
- * the pelvis stays over the place it stood on, so the body pivots about it.
+ * lowest point of the body's collision shapes on it (`knockdown.rest`).
+ * Entered standing, the feet keep their place while the body goes down to
+ * the route's first posture (the root moves so the mean of the sole sockets
+ * the feet bear on at that posture, the lowest there, stays where it stood,
+ * as `knockdown` keeps the feet until the seat lands), and the pelvis then
+ * stays where that first phase set it down, so the body pivots about it;
+ * entered on the floor, the pelvis stays over its place throughout.
  * Each phase takes `PHASE` seconds (provisional), scaled by the manner's
  * tempo; the position is then held `hold` seconds. Events: `getDown` at
  * the start, the arrival at each posture on the route (`seatContact`,
@@ -55,7 +64,9 @@ import { floorSeat } from "./floorSeat";
  * Not yet: lying on a bed or a sofa (A2 support frames, A8 `surface`), the
  * recovery position, sleep with seeded position changes (Skarpsno et al.
  * 2017; De Koninck et al. 1992), rolling over and rising from a bed; the
- * feet are not planted while the body goes down, so they slide.
+ * feet are held by one sole socket each, not planted by the legs, so a foot
+ * still turns about it on the way down, and past the first phase they move
+ * with the pelvis-pivoted route.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the routes with their source, the floor rule, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of one whole-body row over key postures on one clock.
@@ -188,10 +199,10 @@ export namespace lieDown {
    * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the floor route, action seconds, hold refusal and existing position/base/contact behavior; current floor/folded-seat observations borrow synchronous FK/ROM sources without retaining them.
-   * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the pelvis's horizontal place and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
+   * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the mean of the feet's bearing sole sockets in place through a standing entry's first phase and the pelvis's horizontal place after it, and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed route keys and joint pairs feed one time-only posture reader; canonical floor and folded-seat owners retain their separate geometric responsibilities.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored routes, phase durations, clinical interpolation, floor minimum, folded targets and endpoint hold remain unchanged; no samples, contact tolerance or joint/goal admission is relaxed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations. A standing entry's first phase adds one demanded feet FK per query, and the first phase's two ends are read once each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed route pairs and unchanged body/profile/sitting metadata prepare once. The primitive reads no earlier channel and lends one synchronous parent FK/ROM source through actual floor/folded-seat observations; only the original fully arrived posture is held, with no current map or query history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite route/clock/joint readers, at most one body-fixed floor reader, one folded-seat reader and one arrived posture until release. Current FK/ROM and actual maps/placements end on return or throw and never enter those readers, the endpoint or the plan.
    */
@@ -275,6 +286,88 @@ export namespace lieDown {
     let held: IAutoMovieMotionHumanPosture | undefined;
     let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
     let folded: ReturnType<typeof floorSeat.prepare> | undefined;
+
+    // Entered standing, the feet stay where they stood while the body goes
+    // down to the route's first posture, as knockdown keeps them until the
+    // seat lands: the root moves so the bearing sockets keep their place, and
+    // the pelvis then stays where that first phase set it down.
+    const feetBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
+      (["heel", "ball", "toe"] as const).flatMap((socket: IAutoMovieMotionHumanFoot.Socket): AutoMovieHumanoidBone[] => [
+        body.surfaces.sockets[`${socket}Left`].bone,
+        body.surfaces.sockets[`${socket}Right`].bone,
+      ]),
+    );
+    let readFeet: ReturnType<typeof StrikingBody.prepareTrunk> | undefined;
+    let bearing: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> | undefined;
+    const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => ({
+      root: { x: 0, y: 0, z: 0 },
+      yaw: standing.yaw,
+      pitch: keys[index]!.pitch + (keys[index + 1]!.pitch - keys[index]!.pitch) * u,
+      roll: keys[index]!.roll + (keys[index + 1]!.roll - keys[index]!.roll) * u,
+      joints: blend[index]!(u),
+      limbs: {},
+    });
+    const pelvisOf: (
+      posed: IAutoMovieMotionHumanPosture,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ) => IAutoMovieVector3 = (
+      posed: IAutoMovieMotionHumanPosture,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieVector3 => {
+      readFeet ??= StrikingBody.prepareTrunk(body, feetBones);
+      // The sole socket each foot bears on at the first phase's end, the
+      // lowest there (the heels sitting down, the toes kneeling), chosen once
+      // so the held point never switches.
+      if (bearing === undefined) {
+        const end: ReturnType<ReturnType<typeof StrikingBody.prepareTrunk>> = readFeet(posedAt(0, 1), read, project);
+        const lowest: (side: "left" | "right") => IAutoMovieMotionHumanFoot.Socket = (
+          side: "left" | "right",
+        ): IAutoMovieMotionHumanFoot.Socket =>
+          HumanFoot.sockets(body, end, side).reduce(
+            (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket =>
+              b.point.y < a.point.y ? b : a,
+          ).socket;
+        bearing = { left: lowest("left"), right: lowest("right") };
+      }
+      const bearer: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> = bearing;
+      const bones: ReturnType<ReturnType<typeof StrikingBody.prepareTrunk>> = readFeet(posed, read, project);
+      const contact: IAutoMovieVector3 = Vector3.scale(
+        Vector3.add(
+          ...((["left", "right"] as const).map((side: "left" | "right"): IAutoMovieVector3 =>
+            HumanFoot.sockets(body, bones, side).find(
+              (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === bearer[side],
+            )!.point,
+          ) as [IAutoMovieVector3, IAutoMovieVector3]),
+        ),
+        0.5,
+      );
+      // The bearing sockets' mean less the pelvis's offset, both at root zero.
+      return Vector3.subtract(
+        contact,
+        Quaternion.rotateVector(resolveHumanPosture.heading(posed), body.rest.get("hips")!),
+      );
+    };
+    let stood: IAutoMovieVector3 | undefined;
+    let landed: IAutoMovieVector3 | undefined;
+    const shift: (
+      index: number,
+      posed: IAutoMovieMotionHumanPosture,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ) => IAutoMovieVector3 = (
+      index: number,
+      posed: IAutoMovieMotionHumanPosture,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieVector3 => {
+      if (entered !== null) return { x: 0, y: 0, z: 0 };
+      stood ??= pelvisOf(posedAt(0, 0), read, project);
+      const now: IAutoMovieVector3 =
+        index === 0 ? pelvisOf(posed, read, project) : (landed ??= pelvisOf(posedAt(0, 1), read, project));
+      return { x: stood.x - now.x, y: 0, z: stood.z - now.z };
+    };
     const at: (
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -312,12 +405,13 @@ export namespace lieDown {
         body.rest.get("hips")!,
       );
       floor ??= knockdown.prepareRest(body);
+      const moved: IAutoMovieVector3 = shift(index, posed, read, project);
       const rested: IAutoMovieMotionHumanPosture = {
         ...posed,
         root: {
-          x: hips.x - offset.x,
+          x: hips.x - offset.x + moved.x,
           y: floor(posed, read, project),
-          z: hips.z - offset.z,
+          z: hips.z - offset.z + moved.z,
         },
       };
 
