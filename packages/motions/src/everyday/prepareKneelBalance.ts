@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -68,7 +69,7 @@ export function prepareKneelBalance(props: IInputs): Solver {
   const stood: number = centre(standing);
   const middle: number =
     (["left", "right"] as const)
-      .map((side: "left" | "right"): number => {
+      .map((side: AutoMovieHumanSide): number => {
         const foot: kneelKeys.IFoot = feet[side];
         return Vector3.dot(
           HumanFoot.point(

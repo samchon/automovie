@@ -49,6 +49,7 @@ export namespace AutoMovieMotionHumanCourse {
    * Solve a course.
    *
    * @param props The posture builder, the target and the span.
+   * @param through Last observable second on the same clock; defaults to the original span end. The solve retains all predecessor knots and both neighbours required by the last cubic. Reads after this instant return its value.
    * @returns The hips' place along the heading at a second, clamped to the span; a span of no length holds its one solved place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result, its clamping and the span of no length; the namespace gives the law.
