@@ -105,6 +105,7 @@ export type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMot
 export type { IAutoMovieFormationSlotPlacement } from "./IAutoMovieFormationSlotPlacement";
 export type { IAutoMovieFormationSlotRecord } from "./IAutoMovieFormationSlotRecord";
 export type { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
+export type { IAutoMovieFormationStageMarkSet } from "./IAutoMovieFormationStageMarkSet";
 export type { IAutoMovieFormationSubjectBox } from "./IAutoMovieFormationSubjectBox";
 export type { IAutoMovieFormationSubjectReviewDescription } from "./IAutoMovieFormationSubjectReviewDescription";
 export type { IAutoMovieGeneratedCollisionProxy } from "./IAutoMovieGeneratedCollisionProxy";
