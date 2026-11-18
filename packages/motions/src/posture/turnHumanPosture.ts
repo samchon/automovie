@@ -18,7 +18,7 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * point and bend go round the same point and its rotation is composed after
  * the turn. A goal attached to a bone (`on`) is kept, since its bone moves
  * with the turned body already. A planted goal refuses the turn unless the
- * rotation keeps it (`planted: "kept"`): then it stays in the world and its
+ * rotation keeps it (`planted: true`): then it stays in the world and its
  * limb is re-solved onto it. Without a rotation the root is the
  * posture's own and the goals are returned unchanged.
  *
@@ -61,7 +61,7 @@ export function turnHumanPosture(
       limbs[limb] = goal;
       continue;
     }
-    if (goal.planted === true && rotation.planted === "kept") {
+    if (goal.planted === true && rotation.planted === true) {
       limbs[limb] = goal;
       continue;
     }

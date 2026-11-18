@@ -309,15 +309,19 @@ export namespace jumpAirborne {
           };
     // The touchdown offset: the handed-back turn there as an axis and an
     // angle, and its rate by the backward difference over the plan-time step.
-    let offset: { about: IAutoMovieVector3; axis: IAutoMovieVector3; angle: number; rate: number } | null | undefined;
-    const touched = (): typeof offset => {
-      if (offset !== undefined || rotated === null) return offset;
+    // None (a zero turn, which decays to nothing) until read, and where the
+    // turn has no axis.
+    let known: boolean = false;
+    let offset: ITouchdown = STILL;
+    const touched = (): ITouchdown => {
+      if (known || rotated === null) return offset;
+      known = true;
       const h: number = Math.min(integrateMotionTrajectory.STEP, touchdown - takeoff);
       const at: IAutoMovieHumanPostureRotation = rotated(touchdown);
       const turn: IAutoMovieQuaternion = at.turn.w < 0
         ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w } : at.turn;
       const sine: number = Math.hypot(turn.x, turn.y, turn.z);
-      if (!(sine > 0) || !(h > 0)) return (offset = null);
+      if (!(sine > 0) || !(h > 0)) return offset;
       const axis: IAutoMovieVector3 = { x: turn.x / sine, y: turn.y / sine, z: turn.z / sine };
       const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
       const step: IAutoMovieQuaternion = Quaternion.multiply(at.turn, Quaternion.inverse(rotated(touchdown - h).turn));
@@ -337,16 +341,33 @@ export namespace jumpAirborne {
           : HumanPosturePreparation.turned(posture, rotated(t)),
       landed: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture => {
         if (rotated === null || !(t > touchdown) || !(t < settled) || !(settled > touchdown)) return posture;
-        const touch: typeof offset = touched();
-        if (touch === null || touch === undefined) return posture;
+        const touch: ITouchdown = touched();
         const decayed: number = inertializeOffset(touch.angle, touch.rate, settled - touchdown, t - touchdown).value;
         return decayed === 0
           ? posture
-          : { ...posture, rotation: { ...createHumanPostureRotation(touch.about, Quaternion.fromAxisAngle(touch.axis, decayed)), planted: "kept" } };
+          : { ...posture, rotation: { ...createHumanPostureRotation(touch.about, Quaternion.fromAxisAngle(touch.axis, decayed)), planted: true } };
       },
     };
   }
 }
+
+/** A flight's turn at touchdown as the landing carries it away: about the touchdown centre, an axis, an angle (degrees) and its rate there (degrees a second). */
+interface ITouchdown {
+  /** The touchdown centre the turn is about, world metres. */
+  about: IAutoMovieVector3;
+
+  /** The turn's unit axis, world. */
+  axis: IAutoMovieVector3;
+
+  /** The turn's angle, degrees. */
+  angle: number;
+
+  /** The angle's rate at touchdown, degrees a second. */
+  rate: number;
+}
+
+/** No turn to carry away: a zero angle and rate decay to nothing. */
+const STILL: ITouchdown = { about: { x: 0, y: 0, z: 0 }, axis: { x: 0, y: 1, z: 0 }, angle: 0, rate: 0 };
 
 /** One fixed endpoint joint and its clinical difference, prepared once per flight. */
 interface IJointTrack {

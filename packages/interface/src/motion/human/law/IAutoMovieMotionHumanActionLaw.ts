@@ -105,7 +105,7 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * audit judges its balance. Absent, the action is kinematic unless its
    * params turn the option on.
    */
-  physical?: true;
+  physical?: boolean;
 
   /**
    * Plan one instance of the action.

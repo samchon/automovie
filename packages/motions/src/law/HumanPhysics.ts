@@ -13,14 +13,35 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two questions, the default and what each reads.
  * @evidence contracts/development/design.md#principled-representation One owner of the option's reading, so every law and the audit read it alike.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `balanced` for the laws' balance sites, `judged` for the audit.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `balanced` for the laws' balance sites, `judged` for the audit, and the two records they read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent is off; no law infers physical work from anything else.
  */
 export namespace HumanPhysics {
+  /** An action's params as the option reads them: the option, when given. */
+  export interface IOptioned {
+    /** The physical terms the action computes; none when absent. */
+    physics?: IAutoMovieMotionHumanPhysics;
+  }
+
+  /** An action's law as the option reads it. */
+  export interface ILaw {
+    /** Whether the law's content is a staged physical outcome (`IAutoMovieMotionHumanActionLaw.physical`). */
+    physical?: boolean;
+  }
+
+  /** An action as the audit reads it, a placed action also carrying its law and params. */
+  export interface ISpan extends IAutoMovieMotionHumanAuditMotion.ISpan {
+    /** The placed action's law, when the span is one. */
+    law?: ILaw;
+
+    /** The placed action's params, when the span is one. */
+    params?: IOptioned;
+  }
+
   /**
    * Whether an action's params ask for balance.
    *
-   * @param params The action's params.
+   * @param params The action's params; none when absent.
    * @returns Whether `physics.balance` is true.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the one field read.
@@ -31,8 +52,8 @@ export namespace HumanPhysics {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function balanced(params: { physics?: IAutoMovieMotionHumanPhysics } | object | undefined): boolean {
-    return (params as { physics?: IAutoMovieMotionHumanPhysics } | undefined)?.physics?.balance === true;
+  export function balanced(params?: IOptioned): boolean {
+    return params?.physics?.balance === true;
   }
 
   /**
@@ -52,9 +73,7 @@ export namespace HumanPhysics {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function judged(
-    span: IAutoMovieMotionHumanAuditMotion.ISpan & { law?: { physical?: true }; params?: object },
-  ): boolean {
+  export function judged(span: ISpan): boolean {
     if (span.physical !== undefined) return span.physical;
     return span.law?.physical === true || balanced(span.params);
   }

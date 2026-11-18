@@ -43,7 +43,7 @@ export function prepareJumpPosture(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
-  phase: prepareJumpPosture.IPhase & { centre: IAutoMovieVector3; launch: IAutoMovieVector3; settled: number },
+  phase: prepareJumpPosture.IFlight,
   rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
   before: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
   after: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
@@ -94,6 +94,18 @@ export namespace prepareJumpPosture {
     duration: number;
     /** Physical flight seconds dividing the local elapsed time into share. */
     flightSeconds: number;
+  }
+
+  /** The phase with the flight's ballistic start and the landing's end, as the jump hands them over. */
+  export interface IFlight extends IPhase {
+    /** The centre of mass at take-off, world metres. */
+    centre: IAutoMovieVector3;
+
+    /** The centre's take-off velocity, metres a second. */
+    launch: IAutoMovieVector3;
+
+    /** Where the landing's absorption ends, action-local seconds. */
+    settled: number;
   }
 
   /** Existing plan members produced by the actual dispatcher constructor. */

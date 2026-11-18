@@ -31,7 +31,7 @@ export interface IAutoMovieHumanLimbGoal {
    * sweeps only where that is not legal, so the place is searched once.
    * Absent, `bend` decides; a leg ignores it.
    */
-  elbow?: "strain" | "placed";
+  elbow?: IAutoMovieHumanLimbGoal.Elbow;
 
   /** The hand's or foot's world rotation from its rest, when the law sets it. */
   rotation?: IAutoMovieQuaternion;
@@ -101,4 +101,21 @@ export interface IAutoMovieHumanLimbGoal {
    * (`HumanArmClearance`). Ignored on a leg.
    */
   rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+}
+
+/**
+ * Companion types of {@link IAutoMovieHumanLimbGoal}.
+ *
+ */
+export namespace IAutoMovieHumanLimbGoal {
+  /**
+   * How an arm's elbow is decided (`IAutoMovieHumanLimbGoal.elbow`): by its
+   * own sweep's least strain, or at the place the law's elbow search chose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two decisions and where each comes from.
+   * @evidence contracts/development/design.md#principled-representation A closed set of named decisions the fit reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two decisions a goal states today; absence leaves the bend hint to decide.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No decision is inferred from anything but this field.
+   */
+  export type Elbow = "strain" | "placed";
 }
