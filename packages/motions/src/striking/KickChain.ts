@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -387,21 +387,28 @@ export namespace KickChain {
             Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2]),
           );
     const residual: number = Vector3.distance(reached, props.planned);
+    const flexion: number =
+      pose.joints.find((j): boolean => j.bone === `${side}LowerLeg`)
+        ?.flexion ?? 0;
+
+    // The fitted knee, not the solve's, decides a jam: the fit moves the
+    // ankle's goal until the weapon is on the point, and where the foot's
+    // own range turns the ball off the solve's assumed rotation that folds
+    // the knee past the band the solve held (the staged push kick reached
+    // its point with the knee at 45 to 50 degrees, its band ending at 35).
     return {
       pose,
       knee,
       ankle: foot.worldPosition,
       rotation: foot.worldRotation,
-      flexion:
-        pose.joints.find((j): boolean => j.bone === `${side}LowerLeg`)
-          ?.flexion ?? 0,
+      flexion,
       reached,
       slip: slip(body, support, base, bones),
       residual,
       status:
         residual > KickForm.RESIDUAL
           ? "short"
-          : solved.status === "jammed"
+          : flexion > KickForm.FLEXION[props.technique][1] + ROM_TOLERANCE
             ? "jammed"
             : "reached",
     };

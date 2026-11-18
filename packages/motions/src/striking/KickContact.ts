@@ -38,7 +38,10 @@ import { StrikingStance } from "./StrikingStance";
  * ({@link KickForm.STEP_BACK_SHARE}).
  * A fitted weapon that the hip's range of motion leaves beyond the point (a
  * high point too near for the thigh to rise to) steps the support foot back
- * by the excess in the same rounds.
+ * by the excess in the same rounds, and so does a fitted knee folded past
+ * the band (a `jammed` fit), by what its ankle lacks of the band's reach;
+ * only a fit inside the band lands exactly, and one inside it ranks before
+ * a jammed one.
  */
 export namespace KickContact {
   /** A carriage with the leg fitted under it. */
@@ -122,6 +125,7 @@ export namespace KickContact {
     let best: IContact | undefined;
     let least: number = Number.POSITIVE_INFINITY;
     let landed: boolean = false;
+    let kept: boolean = false;
     for (const lean of leans) {
       let carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = {
         turn: set.turn,
@@ -204,26 +208,30 @@ export namespace KickContact {
         );
         const fit: KickChain.IFit = candidate.fit;
         if (
-          fit.status !== "short" &&
+          fit.status === "reached" &&
           fit.slip <= KickForm.TOLERANCE &&
           fit.residual <= KickForm.TOLERANCE
         )
           return candidate;
 
         // No candidate was exact so far: one whose weapon is on the point
-        // (not `short`) comes before any that misses it, and among equals the
-        // nearer fit does. Ranking by the cost alone let a miss with a clean
-        // plant displace a landed leg whose support ball slipped a few
+        // (not `short`) comes before any that misses it, one whose knee keeps
+        // its band before one jammed past it, and among equals the nearer fit
+        // does. Ranking by the cost alone let a miss with a clean plant
+        // displace a landed leg whose support ball slipped a few
         // millimetres, and the kick then recorded a miss it had not made.
         const cost: number = fit.slip + fit.residual;
         const lands: boolean = fit.status !== "short";
+        const clean: boolean = fit.status === "reached";
         if (
           best === undefined ||
           (lands && !landed) ||
-          (lands === landed && cost < least)
+          (lands === landed && clean && !kept) ||
+          (lands === landed && clean === kept && cost < least)
         ) {
           least = cost;
           landed = lands;
+          kept = clean;
           best = candidate;
         }
 
@@ -244,10 +252,28 @@ export namespace KickContact {
           Vector3.subtract(chain.planned, fit.reached),
           toward,
         );
+
+        // A fitted knee jammed past its band stands the ankle nearer the hip
+        // than the band's most flexion leaves it: the support foot steps back
+        // by that difference, as the solve's own jam does before the rounds.
+        const jam: number =
+          fit.status === "jammed"
+            ? Math.max(
+                0,
+                StrikingReach.reach(
+                  m.thigh,
+                  m.shank,
+                  KickForm.FLEXION[chain.technique][1],
+                ) - Vector3.distance(hip, fit.ankle),
+              )
+            : 0;
         if (!(ahead > 1e-3)) break;
         const next: number = Math.max(
           -back,
-          Math.min(forward - carriage.drive, carriage.step + lack / ahead),
+          Math.min(
+            forward - carriage.drive,
+            carriage.step + (lack - jam) / ahead,
+          ),
         );
         if (Math.abs(next - carriage.step) < 1e-6) break;
         carriage = { ...carriage, step: next };
