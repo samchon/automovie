@@ -6,7 +6,7 @@ Give each action isolated cases. Each case tests the action's own goal as bounde
 - penetration;
 - slip of every planted or held contact;
 - range-of-motion overshoot;
-- balance, as the extrapolated center of mass against the support (Hof 2005);
+- balance, as the extrapolated center of mass against the support (Hof 2005), where the action stages a physical outcome or asks for balance;
 - continuity of every displayed channel and of its velocity at every cut and at each end of a simulated window.
 
 ## Checks that can fail

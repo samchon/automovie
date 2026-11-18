@@ -32,7 +32,7 @@ Document the rule and make the code follow it exactly, because a silent clamp mo
 
 ## The root
 
-Place the root once, from the contacts, the reaches and balance together, then fit every limb from it, because separate corrections per limb disagree. If a contact still cannot be reached, lower, lean or step the root and refit every limb, leaving the contact in place.
+Place the root once, from the contacts and the reaches together, then fit every limb from it, because separate corrections per limb disagree. Compute balance only where the scene stages a physical outcome or the caller asks for it; a planted posture takes its studied compensation, such as the hips drawn back in a stoop, from its key poses. If a contact still cannot be reached, lower, lean or step the root and refit every limb, leaving the contact in place.
 
 Rest a body that bears on the floor with each bearing joint at its bearing height, such as a wrist at a laid palm's height. Resting it on its lowest collision shape lifts it, and the real supports float.
 
