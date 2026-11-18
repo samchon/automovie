@@ -65,10 +65,9 @@ export namespace HumanArmSeed {
   ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
-    const holds: number[] = [];
-    for (let k: number = 1; k < n; ++k)
-      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined)
-        holds.push(k);
+    const holds: number[] = holdWindow(problem, context);
+    if (holds.length === 0)
+      throw new Error("An arm seed needs a hold: no waypoint inside the action has a site for every arm");
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
     const held: number[][][] = goal(problem, context, first, last, hold);
@@ -215,8 +214,7 @@ export namespace HumanArmSeed {
     context: M.IContext,
     from: readonly (readonly (readonly number[])[])[],
   ): number[][] | undefined {
-    for (let k: number = 1; k < context.n; ++k)
-      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined)
+    for (const k of holdWindow(problem, context))
         return instant(problem, context, k, from.map((arm: readonly (readonly number[])[]): number[] => [...arm[k]!]));
     return undefined;
   }
@@ -466,3 +464,12 @@ const RESTARTS: number = 8;
 
 /** The restarts' generator's seed. */
 const SEED: number = 2;
+
+/** The waypoints inside the action at which every arm has a site, in order: the hold the seed reaches, read for all arms together as the laid course reads it. */
+function holdWindow(problem: HumanArmSeed.IProblem, context: M.IContext): number[] {
+  const out: number[] = [];
+  for (let k: number = 1; k < context.n; ++k)
+    if (M.inner(context, k) && problem.arms.every((arm: HumanArmSeed.IProblem["arms"][number]): boolean => arm.sites[k] !== undefined))
+      out.push(k);
+  return out;
+}

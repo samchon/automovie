@@ -195,6 +195,7 @@ export namespace HumanArmTrajectoryJacobians {
     );
     const offsets: IAutoMovieVector3[] = [];
     let contact: IAutoMovieVector3 | undefined;
+    let target: IAutoMovieQuaternion | undefined;
     for (const column of HumanArmJacobian.columns(
       c.setups[a]!,
       frame,
@@ -237,9 +238,17 @@ export namespace HumanArmTrajectoryJacobians {
       if (site !== undefined) {
         contact ??= Vector3.subtract(P.pad(here, site.contact), here.wrist);
         entry.pad.push(pointMotion(frames.hand, contact));
+        // The hand's rotation residual is taken about the site's rotation
+        // where it stands at this evaluation (`HumanArmTrajectoryPairs.located`:
+        // a site riding the other arm turns with it), so its slope is taken
+        // about the same reference.
         if (site.rotation !== undefined)
           entry.hand.push(
-            turned(site.rotation, here.hand, column.hand.angular),
+            turned(
+              (target ??= P.located(c, at.placed, a, k, site).rotation ?? site.rotation),
+              here.hand,
+              column.hand.angular,
+            ),
           );
       }
     }
