@@ -14,9 +14,7 @@ Cite instruction sections from the settings and treatments that adopt or realize
 
 ## Asking the user
 
-When the agent writes, ask the user for undelegated decisions about events, people, ending, tone, form, runtime and frame. Make delegated choices under [direction](direction.md).
-
-Before direction, ask in rounds about each unfixed, undelegated element. Record answers at their owners. Stop when none remains or the user delegates the rest as one recorded choice.
+Before assigning the writer, ask about unresolved creative choices such as events, characters, ending, tone, form, runtime and frame. Record the user's answers. The user may delegate the remaining choices together for the director to settle under [direction](direction.md).
 
 Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. Record a question the user leaves unanswered as unresolved under [project context](../../production/project-context.md#what-to-record).
 

@@ -2,6 +2,14 @@
 
 The production's `PROJECT.md` is its one current account of what is made and how, written for the user and the next agent. It states only the current choices; Git keeps the superseded ones.
 
+## Intake
+
+Read the request, `PROJECT.md`, the instructions and existing work. Establish what the user wants to make and receive. Where the answer is open, ask which outputs they want and where the work should stop.
+
+Present the choices those outputs require. For a screenplay, confirm the [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an image or motion, establish its use and the views, movement or controls to deliver.
+
+Use decisions already given. Ask the user to choose or delegate unresolved matters when the work first depends on them, including a method or model.
+
 ## What to record
 
 Record only topics the commission needs.
@@ -49,7 +57,7 @@ Record what the work runs on and within:
 
 ### Authority and open choices
 
-Record what the user fixed, what the agent decided within delegation and why, and what remains open.
+Record what the user fixed, what the director decided within delegation and why, and what remains open. Record the scope of an authorized exception.
 
 ### The delivery profile
 
@@ -70,8 +78,6 @@ This file owns the profile. The film implements it, and long-form settings state
 ## When to read and update it
 
 Read project context when starting or resuming. Record adopted changes before consumers use them. Update affected owners together and follow [repair](../story/correction/repair.md) for closed narrative work.
-
-Ask for operating choices the user has not delegated when a task first needs them. Record the answer here. For story choices including runtime and frame, follow the story skill's creative requirements.
 
 ## How it controls the work
 

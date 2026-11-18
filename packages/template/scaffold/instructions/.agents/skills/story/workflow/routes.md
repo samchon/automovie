@@ -12,12 +12,12 @@ Asset-only work has no narrative: choose its form and scale through [direction](
 
 ### Who writes the screenplay
 
-The user chooses, whatever the route, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
+At intake, use the user's explicit choice or ask which approach they want. Record their answer in `PROJECT.md`. Follow the chosen route in order. Changing or skipping a required stage needs the user's explicit direction. Creative delegation covers only the choices delegated.
 
 | Choice | Narrative passes | Screenplay |
 | --- | --- | --- |
-| This workflow, the default | The route's | The agent writes it through them |
-| Without this workflow | None | The agent [writes it directly](#direct-writing) |
+| This workflow, recommended | The route's | The writer develops the screenplay through them |
+| Without this workflow | None | The writer [writes it directly](#direct-writing) |
 | The user's, refined | The route's | Material, through [intake](../document-layout.md#intake-of-existing-work) |
 | The user's, fixed | None | [Used exactly as given](#fixed-screenplay) |
 

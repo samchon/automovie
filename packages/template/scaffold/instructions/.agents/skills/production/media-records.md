@@ -22,7 +22,7 @@ Commit images and generation requests where redistribution is allowed. Keep audi
 
 Keep requests, their shared descriptions and generation receipts together.
 
-A generated image sits at the domain path of its settings or brief record, with the canon references those records embed.
+Save generated references in `media/diffusion/images/<domain>/`. Take the domain from the settings or brief record. When [instructions own the appearance](../story/document-layout.md#canon-records), name the domain there before generation. Use `cast` for portraits.
 
 ### Acquired media
 

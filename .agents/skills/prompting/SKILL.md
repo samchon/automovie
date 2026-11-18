@@ -61,7 +61,7 @@ Group judgments that share the task, respondent, proof and repair owner. Give th
 
 ### Entry files
 
-Keep `AGENTS.md` under 200 lines. Include only session-wide rules and a trigger for each top-level skill.
+Keep `AGENTS.md` under 200 lines. Include session-wide rules and a trigger for each top-level skill. Briefly summarize a skill's core instruction when a reader needs it to start work, and link to the section that owns it.
 
 Start each trigger with the task's verb. Keep only `@AGENTS.md` in `CLAUDE.md`.
 
