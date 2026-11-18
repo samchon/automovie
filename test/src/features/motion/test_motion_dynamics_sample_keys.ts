@@ -37,6 +37,8 @@ export function test_motion_dynamics_sample_keys(): void {
     [2, false, 40],
     [5, false, 0],
     [5, true, 60],
+    [1, false, 60],
+    [-1, true, 20],
   ] as const) {
     const sample = sampleMotion({ ...clip, loop }, seconds).pose;
     TestValidator.equals("target skeleton", sample.skeleton, clip.skeleton);
@@ -45,6 +47,11 @@ export function test_motion_dynamics_sample_keys(): void {
       nclose(sample.joints[0]?.flexion ?? NaN, expected, 1e-9),
     );
   }
+  const zero = sampleMotion({ ...clip, duration: 0, loop: true }, 5);
+  TestValidator.predicate(
+    "a zero-duration clip holds its entry",
+    nclose(zero.pose.joints[0]?.flexion ?? NaN, 0, 0),
+  );
   nativeReplacements();
 }
 /** A prepared interval forwards later replacements on its own native clock. */
