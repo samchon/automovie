@@ -15,4 +15,4 @@ Generate audio for the sound work the audio skill admits. This route includes di
 
 ## Model documentation
 
-Before planning a request, check the exact checkpoint and endpoint's languages, input roles, performance controls and prompting guide. Verify normalization, pronunciation, speaker binding, length limits, output format, duration controls and seed support; related checkpoints and endpoints can use different syntax.
+Read the exact checkpoint and endpoint guide for languages, inputs, controls, normalization, pronunciation, speaker binding, limits, formats, duration and seeds.

@@ -25,10 +25,10 @@ Every declaration you change answers its [development contracts](../contracts/de
 
 Write READMEs, evidence prose and doc comments with [documentation](../documentation/SKILL.md), and instructions with [prompting](../prompting/SKILL.md).
 
-A production module's doc comment is the next agent's manual. Beyond the [meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, it shows one short composition example, states the invariants it keeps, and cites what it realizes.
+Document invariants and the material the module realizes. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).
 
 ## Finishing a change
 
-While editing, keep the README's compile checker running as the single compile check, and read errors from its output instead of rerunning a build.
+Read compile errors from the README's single running checker.
 
 Finish with the README's lint, evidence and test commands, then verify the affected consumer through [review](../review/SKILL.md): a visual change on captured stills of the affected interval, and what stills cannot show by asking the user.

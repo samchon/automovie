@@ -5,7 +5,7 @@ description: Holds the rules for designing and checking an action law.
 
 # Laws
 
-A law is a function that, given a body and its inputs, produces the same motion every time. Each page below covers one part of designing or checking one. Those pages ship to productions unchanged, so they name roles rather than this repository's packages and paths; this router stays in the repository.
+An action law deterministically maps a body and its inputs to motion. These resources ship unchanged to productions.
 
 | Read | For |
 | --- | --- |
@@ -16,4 +16,4 @@ A law is a function that, given a body and its inputs, produces the same motion 
 | [Contacts](contacts.md) | Support frames, feet, held objects and contact between performers |
 | [Verification](verification.md) | Bounded checks, body sweeps and frame review |
 
-Effector goals covers reach, balance, the path in time and the order of the fits, and every other rule depends on it. Time, transitions and layers also covers inertialization and redirection, and its layers, such as gaze and breathing, run over every action.
+Read Effector goals before designing a law. Time, transitions and layers covers inertialization, redirection and layers that run over any action.

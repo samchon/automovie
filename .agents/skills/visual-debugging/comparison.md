@@ -1,6 +1,6 @@
 # Comparison
 
-A comparison joins two captures cell by cell, so that only the compared thing differs between the two stills of a pair. This page owns which pairs to make, how their cells match and how the difference is read.
+Compare matching cells so only the factor under study differs.
 
 ## What a pair separates
 
@@ -17,9 +17,9 @@ A comparison joins two captures cell by cell, so that only the compared thing di
 
 ## Matched cells
 
-Pair two cells only when everything but the compared thing agrees: subject, time or pose, resolved camera, light, pass, raster size and renderer. A view's name does not establish the same camera, so the later capture reuses the camera the earlier capture's record kept. Measure pixels only between stills one renderer backend drew, because bit identity across backends is not established; across backends, set the pair side by side.
+Match subject, time or pose, resolved camera, light, pass and raster size. Reuse the earlier camera from its record. Measure pixel differences within one renderer backend. Compare different backends side by side.
 
-Report a cell that one capture holds and the other lacks as unmatched, with its cause, because a comparison over the cells that happened to match says nothing about the rest.
+Report each unmatched cell and its cause.
 
 ## Reading the difference
 
@@ -30,4 +30,4 @@ Report a cell that one capture holds and the other lacks as unmatched, with its 
 | A difference image | Where the pixels changed, including where no change was meant |
 | A measured difference per cell | Which pairs to open first |
 
-A measured difference ranks where to look and never replaces looking. Identical bytes establish that nothing changed, not that the picture is right. A difference outside the region the change was meant to affect is a regression until it is explained.
+Use measured differences to prioritize inspection. Inspect even identical output. Treat unexplained differences outside the target region as regressions.

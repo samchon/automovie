@@ -8,11 +8,11 @@ Open with the subject, the image's use, its composition and its aspect, then giv
 
 Describe the intended subject, material, color, scale and light. Use exclusions in the wording or negative-prompt field the chosen guide supports.
 
-Camera and lens words are cues for the look, not a simulated camera, so an exact camera comes from a render under [conditioning](conditioning.md).
+Render exact camera placement through [conditioning](conditioning.md).
 
 ## Input images
 
-Number each input image and give it one role in the prompt, such as "Image 1: identity of Mara; Image 2: the kitchen plate", never as text in the image. Say how the inputs combine and what not to take from each, such as a reference's background, and name each image in the same words every time.
+Number the input images and assign each a role in the prompt. Reuse its label and specify which features to take or exclude.
 
 Order inputs by the chosen endpoint's documented roles, never by another model's order: the first may set the base image, the mask target, identity fidelity or the output aspect.
 
@@ -24,4 +24,4 @@ Quote the exact text with its placement and typeface, and specify which text may
 
 ## Rewriting and grounding
 
-Turn off optional rewriting and web grounding, which can alter a shared description or replace an invented subject. When expansion is required, inspect and retain the expanded text if exposed. Otherwise record that it is unobservable, keeping the authored prompt and references.
+Disable optional rewriting and web grounding. Inspect and retain required expansions when exposed. Otherwise record the observation limit and keep the authored prompt and references.

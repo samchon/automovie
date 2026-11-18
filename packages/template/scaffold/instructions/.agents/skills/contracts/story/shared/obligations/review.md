@@ -6,8 +6,8 @@ Statements: [statements/obligations/review.md](../statements/obligations/review.
 
 ## Complete current round
 
-Did the round read everything the review skill's narrative rounds require of its kind, and collect every member of each finding class? Local passes, earlier clean snapshots or an exhausted review budget cannot establish the current state.
+Did the round cover the scope its review requires and locate every member of each finding class in this revision?
 
 ## Round accountability
 
-Does the verdict record what was read, found, repaired and left open, so the next round or the delivery can rely on it? An earlier protection cannot excuse a current failure, and a partial pilot is no evidence for unmade episodes.
+Does the verdict record the inspected scope, findings, repairs and open items for the next round or delivery?

@@ -6,4 +6,4 @@ Statements: [statements/principles/realized.md](../statements/principles/realize
 
 ## Speaker plausibility
 
-Does each consequential line fit who says it, to whom and in what situation, do the speakers differ from one another, and does adjacency show whether an action prepares, interrupts, contradicts, completes or follows a line? A speaker label cannot make an implausible line plausible, and written order alone must not imply a decision the scene did not make.
+Does each consequential line fit the speaker, listener and situation? Can the audience distinguish the speakers and tell how each action relates to the line?

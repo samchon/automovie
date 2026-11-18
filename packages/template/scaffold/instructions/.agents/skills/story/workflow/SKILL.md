@@ -5,8 +5,6 @@ description: Chooses the story route and runs it to completion.
 
 # Workflow
 
-Choose the route and who writes the screenplay, then run that route to completion.
-
 | Read | For |
 | --- | --- |
 | [Routes and completion](routes.md) | Choosing route and writer, one chain, separate contexts, completion |

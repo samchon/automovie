@@ -1,12 +1,10 @@
 # Document layout
 
-Where each creative document, its evidence and its review lives, and how supplied work enters.
-
 ## Documents
 
-Each location is a default, created only when used. The evidence and review locations are the installed evidence package's, whose documentation owns the supported layouts and selectors; the skills show them only here, and [evidence configuration](../evidence/configuration.md) owns their use.
+Create a listed location only when used. The installed evidence package defines supported selectors and layouts. See [configuration](../evidence/configuration.md) for selection.
 
-Commit instructions, creative bodies and evidence answers, and keep review records local. Keep one current record per purpose, identified by its actual inputs. Raw logs, classification tables, performance plans, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
+Commit instructions, bodies and Evidence answers. Keep review records local. Identify each current record by its actual inputs. Keep logs, classifications, performance plans and working comparisons in ignored `.cache/` and copy material conclusions into the current record.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -43,4 +41,4 @@ A part can be an act, a release block or another division suited to the format, 
 
 ## Intake of existing work
 
-Identify supplied settings, scripts or completed works by their original source revision or retained reference, and record their identity, adopted requirements, fixed quotations and reinterpretation boundaries as [instructions](planning/requirements.md#requirements). Existing finished work supplies material and choices to assess; it approves none of this production's layers. A user's fixed screenplay is the exception: it is the screenplay, kept unchanged in the screenplay location.
+Identify supplied work by revision or retained reference. Record requirements, fixed quotations and reinterpretation limits in [instructions](planning/requirements.md#requirements). Apply the chosen route to any work adapted from it. Store a fixed screenplay verbatim in its designated location.

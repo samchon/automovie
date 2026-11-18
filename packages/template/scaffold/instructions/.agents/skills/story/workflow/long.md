@@ -17,8 +17,6 @@ Each layer inherits through its actual parents and repairs a missing handoff at 
 
 ## Each layer's pass
 
-A pass runs four steps in order, then closes.
-
 ### 1. Construction
 
 The author finishes the whole body while its stage is disabled, inspects it under [inspection](../correction/inspection.md), independent classification included, and repairs by [cause](../correction/repair.md#cause-rounds).
@@ -37,7 +35,7 @@ The author decides each finding and repairs the accepted ones at their owners, a
 
 ### Closing
 
-A pass has at most two review rounds, because reviewers keep finding matters of their own style and a review that waited for no findings would never close.
+Run at most two review rounds.
 
 A round in which the author accepts no finding closes the pass. Otherwise a fresh reviewer reads the repaired body in a second and last round, and the pass closes once that round's accepted findings are repaired.
 

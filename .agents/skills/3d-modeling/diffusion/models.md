@@ -1,6 +1,6 @@
 # 3D models
 
-This page names current examples: the generators by the inputs they take and what they deliver beyond the mesh, and the models behind each shape hint technique. Take every value from the chosen model's documentation, and read its terms for whether its output may be used.
+Check the chosen model's documentation for input limits, available outputs and usage terms.
 
 ## Generators
 
@@ -8,15 +8,15 @@ Meshy, Tripo and Rodin are hosted services; Hunyuan3D and TRELLIS.2 are open wei
 
 ### Meshy
 
-Meshy takes text, or up to four views with the front first, and an uploaded mesh to remesh or retexture. Beyond the mesh it delivers a rest pose, remeshing to a face count and topology when enabled, an estimated size, and rigging of a biped onto a standard skeleton. Its documentation covers [image to 3D](https://docs.meshy.ai/api/image-to-3d) and [rigging](https://docs.meshy.ai/api/rigging).
+Meshy takes text, up to four front-first views or a mesh for retexturing or remeshing. It offers rest pose, triangle and topology controls, size estimates and standard biped [rigging](https://docs.meshy.ai/api/rigging). See [image to 3D](https://docs.meshy.ai/api/image-to-3d).
 
 ### Tripo
 
-Tripo takes text with a negative prompt, one image, or keyed views with the front required, and an uploaded mesh to texture. Beyond the mesh it delivers parts, retopology, model and texture seeds, an estimated size, a rig check and rigging onto standard skeletons. Its documentation starts at the [quick start](https://developers.tripo3d.com/en/docs/quick-start).
+Tripo accepts text and a negative prompt, one image, keyed views with the front required, or a mesh to texture. It offers parts, retopology, seeds, size estimates and standard rigging checks. See [quick start](https://developers.tripo3d.com/en/docs/quick-start).
 
 ### Rodin
 
-Rodin takes text, or up to five images, the first setting the materials. Beyond the mesh it delivers a rest pose, symmetry, quality tiers, and rigging onto a custom skeleton. Its documentation covers [Gen-2.5](https://docs.hyper3d.ai/en/api-specification/rodin-gen2-5) and [rigging](https://docs.hyper3d.ai/en/api-specification/rigging.md).
+Rodin takes text or up to five images, with materials from the first. It offers rest pose, symmetry, quality tiers and custom [rigging](https://docs.hyper3d.ai/en/api-specification/rigging.md). See [Gen-2.5](https://docs.hyper3d.ai/en/api-specification/rodin-gen2-5).
 
 ### Hunyuan3D
 
@@ -24,7 +24,7 @@ Hunyuan3D takes one image, or front, left, back and right views in 2mv. Omni add
 
 ### TRELLIS.2
 
-TRELLIS.2 takes one image, or a given mesh to texture. Beyond the mesh it delivers material channels with opacity, exported opaque until the alpha is switched on. Its documentation is its [repository](https://github.com/microsoft/TRELLIS.2).
+[TRELLIS.2](https://github.com/microsoft/TRELLIS.2) accepts an image or a mesh to texture. Its material output includes opacity, which must be enabled after export.
 
 ## Shape techniques
 
@@ -40,4 +40,4 @@ Bodies use the pose condition of [Hunyuan3D-Omni](https://github.com/Tencent-Hun
 
 ## Terms
 
-A hosted service's output license depends on the plan, such as a free plan's attribution or public gallery, and its download links and stored outputs expire. Open weights may exclude regions or large services, as the Hunyuan3D license excludes the European Union, the United Kingdom and South Korea.
+Check hosted plan terms and save outputs before they expire. Open weights may restrict regions or large services. The Hunyuan3D license excludes the EU, UK and South Korea.

@@ -30,6 +30,6 @@ Record each finding with the cells that show it, the requirement it fails and it
 
 ## Before widening
 
-Accept one representative exchange on full-size stills before composing the rest of the film from it, because a flaw in a body, a glove or a camera repeats in every later scene.
+Accept one representative exchange on full-size stills before composing the rest of the film.
 
-Measure what resolving and capturing that exchange cost, and plan the whole-film work from it under [stage caches](../production/stage-caches.md), because a cost small for one exchange can take hours for a film.
+Measure that exchange's evaluation and capture cost. Plan the whole film under [stage caches](../production/stage-caches.md).

@@ -1,15 +1,15 @@
 # Captions
 
-Captions put a film's speech and sound into text for a viewer who reads rather than hears. They are separate from the screen text the screenplay decides, such as a sign or a subtitle that translates a line, which the film draws into the picture where the screenplay places it.
+Caption speech and sound for the reader. Keep caption tracks separate from the screen text the screenplay places in the picture.
 
 ## Text and timing
 
-Take each caption's text from the screenplay's speech, and its times from the accepted audio by forced alignment of the text to the decoded speech, never from the screenplay's provisional timing. A generated take can say something other than its line, so compare a speech recognizer's transcript of each take with the screenplay and hand every difference to the user.
+Align screenplay lines to the accepted decoded audio. Compare generated speech transcripts with the script and report discrepancies to the user.
 
-Start and end a caption on a cut when it falls near one, and leave a short gap between consecutive captions, because viewers reread a caption that crosses a cut, and one ending a few frames past a cut flashes.
+Align nearby caption boundaries to cuts and leave the required gap between captions.
 
 ## Style and format
 
-Follow the style guide the [delivery profile](project-context.md#the-delivery-profile) records, such as [Netflix's timed text style guides](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977), for line length, lines per caption, reading speed and duration, and for captions for viewers who cannot hear: speaker identification, sound described in brackets and sung lyrics marked. The screenplay's [notation](../story/layers/notation.md) already marks the off-screen speech, overlap and music these need.
+Follow the [delivery profile](project-context.md#the-delivery-profile)'s style guide for line length and count, reading speed, duration, speaker identification, bracketed sounds and lyric markers. Take off-screen speech, overlap and music from screenplay [notation](../story/layers/notation.md).
 
 Deliver the format the release takes, such as [WebVTT](https://www.w3.org/TR/webvtt1/), [IMSC](https://www.w3.org/TR/ttml-imsc1.2/) or SRT, as a sidecar file, and burn captions into the picture only where the release asks for that. Check the file by reading it back against the film's frames at matched seconds.

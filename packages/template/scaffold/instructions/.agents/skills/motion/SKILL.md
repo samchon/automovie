@@ -36,4 +36,4 @@ Use [frame evaluation](frame-evaluation.md) for clocks, seeking and split render
 
 Vocabulary extension first checks whether composing again stages the beat, and leads to [motion laws](laws/SKILL.md) only for a new law.
 
-A stiff or faulty installed action, composed as its README shows, is none of these needs. No offset, law, simulation or generated motion in the production covers it, because the flaw stays in the package and returns in every other use. Tell the user and continue with the work that does not depend on it.
+When an installed action fails under its documented use, report the package defect and continue independent work. Keep production offsets, laws, simulation and generated clips out of that repair.

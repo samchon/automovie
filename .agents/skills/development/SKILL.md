@@ -5,7 +5,7 @@ description: Repairs, implements, tests and validates automovie source.
 
 # Development
 
-These rules hold for every change to source, tests, workflows and package wiring. Each task adds its guide:
+Apply these rules to source, tests, workflows and package wiring.
 
 | Read | For |
 | --- | --- |
@@ -21,25 +21,25 @@ Every maintained declaration answers the checklists its package selects, as [con
 
 ### Types and files
 
-Annotate the type of every variable and parameter and the return type of every function, except where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
+Annotate variables, parameters and return types wherever TypeScript allows it.
 
 A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
-Canonical interface object contracts and object unions use `IAutoMovie*`; scalar, literal, tuple and utility aliases use `AutoMovie*`. Qualify a name by meaning, not by the package it came from. Related members may keep concise names inside a canonical type-only namespace. Reuse an existing concept after comparing units, frames, invariants and ownership. Interface enums must be `const enum`; verify their actual consumer and emit behavior, since the keyword alone does not establish an empty runtime artifact.
+Name canonical object contracts and unions `IAutoMovie*` and scalar, literal, tuple and utility aliases `AutoMovie*`. Name them by meaning. Keep type-only namespace members short. Check units, frames, invariants and ownership before reusing types. Use `const enum` for interface enums and verify their behavior in emit and at consumers.
 
 ### Comments and layout
 
 Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, including in a package that selects no checklist.
 
-Inside a body, separate the logical steps with blank lines, and open each step whose purpose the code does not make obvious with a comment saying what it does and why.
+Separate logical steps with blank lines. Explain each non-obvious step's intent or premise.
 
-A comment gives the intent, premise or reason the code cannot show, never a paraphrase of the code. Precede every comment inside a block with a blank line unless it opens the block.
+Within a block, precede each comment with a blank line unless it opens the block.
 
 ## Packages
 
-Respect the [package boundaries](../project/SKILL.md#packages); review reads every new import and dependency against them. A public producer lands with its consumer, because test-only reach is not wiring.
+Check all new imports and dependencies against the [package boundaries](../project/SKILL.md#packages). Ship a public producer with its consumer.
 
-`interface` has no runtime dependency and owns the public contracts described by the project skill. Use plain `string` and `number`, with units, frames, ranges and the actual runtime admission owner in JSDoc; validator metadata such as `typia` tags stays with that implementation. Export types explicitly. Importing implementation packages, copying dependency types or adding opaque generics does not make a contract pure.
+In `interface`, use plain `string` and `number` and explicitly export types. Document units, frames, ranges and the runtime admission owner. Leave validator metadata and implementation dependencies with that owner.
 
 ## Specification
 
@@ -49,16 +49,16 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ### Tracked code
 
-Write every helper script in TypeScript as a tracked file. Use `ttsx` when its checking is part of the authorized validation. A build configuration or syntax-only helper that must run without another compiler is a tracked `.mts` file run by Node itself; this does not establish type correctness.
+Use tracked TypeScript for helper scripts. Use `ttsx` for authorized checks. A syntax-only helper or build config that cannot depend on a compiler uses `.mts` and runs on Node.
 
-Keep all program code, tests and tools in tracked paths, and use gitignored paths only for captured evidence and data, because an ignored file escapes review and cannot be recovered. Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check.
+Keep experiments in tracked tests or debug tools, or use a type check. Use ignored paths only for captured evidence and data.
 
 ### Processes
 
-End every process you start for one result once that result is read. A shared server or type-check watch keeps running for every agent.
+Stop one-off processes after reading their results. Preserve shared servers and checkers.
 
-A package's viewer runs as one server that every agent shares. Request one frame at a time, and restart the server only when its status shows an empty queue, because a restart drops every frame in flight and a second server competes for the same memory and CPU.
+Share one viewer per package. Request one frame at a time. Restart only with an empty queue.
 
 ### Several agents in one checkout
 
-Give each agent its own scratch directory, delete only inside it, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
+Give each worker a separate scratch directory. Delete only within your own. Stage and commit only your paths with `git add` and `git commit --only <paths>`.

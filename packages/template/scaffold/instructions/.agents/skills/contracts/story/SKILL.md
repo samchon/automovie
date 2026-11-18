@@ -7,7 +7,7 @@ description: Maps the story checklists onto the documents that answer them.
 
 The [writing workflow](../../story/workflow/SKILL.md) sets the layers and passes each route runs; standalone asset work has no narrative population. A stage the user waived is recorded with its scope and never claimed as passed.
 
-Principles ask each authored H2, obligations ask one document for a complete declared population, discovery asks the inspected scope's discovery result, and review questions ask review records. Do not make every scene testify for an entire film or attach a conditional requirement to unrelated respondents. The evidence configuration owns the selected populations and relationships; the installed evidence package owns its mechanics.
+Assign principles to authored H2s, obligations to whole populations, discovery to inspected scopes and review questions to review records. Follow the production's Evidence configuration for selection and the installed package for mechanics.
 
 ## The short route
 
@@ -31,10 +31,6 @@ A short has no settings, settings index, treatments or scripts, and its studies 
 | [Screenplay discovery](shared/discovery/screenplay.md) | Requirements the screenplay owns |
 | [Narrative discovery](shared/discovery/narratives.md) | Requirements the narrative layers own |
 | [Screenplay upstream](shared/upstream/screenplay.md) | The parents, tested while writing it |
-
-A short's event design and scene execution are asked of the screenplay: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization), [beat decisions](shared/principles/screenplay.md#beat-decisions), [unit progression](shared/principles/narratives.md#unit-progression) and [speaker plausibility](shared/principles/realized.md#speaker-plausibility) for each section.
-
-For the whole, [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) cover setup and payoff, the ending and the established space.
 
 ## Long work
 
@@ -67,8 +63,8 @@ Research and realized speech have no obligations. Only scripts construction answ
 
 ## Every route
 
-The story skill's discovery page writes the discovery result for the selected populations, starting from common discovery.
+Start with common discovery when the story skill writes the selected populations' discovery result.
 
 A defect an upstream question finds is repaired at the earliest semantic owner, with its affected descendants.
 
-Each contract's statements sit at the same path under `shared/statements`, such as `shared/statements/principles/screenplay.md` for the screenplay principles, with one section per item anchor. Check them before answering, as the contracts skill's items and statements section describes.
+Read each item's statements before answering. Find them at the contract's path under `shared/statements` and under the same item anchor.

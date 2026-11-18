@@ -4,7 +4,7 @@ Review each finished short segment with its adopted scene, view and clock before
 
 ## What to look at
 
-A review segment is one capture of a stretch of the film. Read the whole segment on the contact sheets of the review segments that cover it, sampled as [times](../visual-debugging/capture.md#times) sets. Then capture its exchanges, contacts, cuts and joins on the film's own consecutive frames, as that section requires, using the README's capture options for an exact frame grid or exact seconds.
+Capture and read each full review segment at the [specified times](../visual-debugging/capture.md#times). Use the README's exact frame or time options for consecutive frames at exchanges, contacts, cuts and joins.
 
 Open the full-size stills as [stills and sheets](../visual-debugging/capture.md#stills-and-sheets) sets, add a second named view as [views](../visual-debugging/capture.md#views) sets, and use `joint` marks where the capture offers them.
 
@@ -12,6 +12,6 @@ Judge the segment's staging, camera and timing and how its accepted cases join, 
 
 ## Review rounds
 
-Each review segment, taken in film order, is one round: capture its stills, review them all, repair every finding at its owning module, then recapture only the interval the repair touches and the seam to the next segment. Move on only when that interval is clean. Rechecking an interval costs a capture, not a render, so no fix waits for the whole film.
+Review segments in film order. Inspect all stills, fix findings at their owners and recapture the affected interval and its seam to the next segment. Close the segment before proceeding.
 
 Accepted segments do not establish the whole film; [delivery review](../review/delivery-review.md) reviews the assembled one.

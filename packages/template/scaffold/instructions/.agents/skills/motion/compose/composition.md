@@ -1,6 +1,6 @@
 # Composing a performance
 
-A screenplay beat becomes each person's composition in the installed motion vocabulary: actions with their parameters, joined by operators. The vocabulary's README and public types own every call and value this page names by role, so read them under [reading a package](../../automovie/SKILL.md#reading-a-package) before writing a composition.
+Compose each screenplay beat with installed actions, parameters and operators. Read the [package API](../../automovie/SKILL.md#reading-a-package) first.
 
 ## Actions
 
@@ -22,17 +22,17 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-An action's named entry is a kind of gesture, touch or task. The target is a region of another person or of the performer's own body, a place on an object, a point in the world, or none. The body relates to its object by holding, using, operating, resting on, carrying, riding, throwing or launching it. Partner roles come in sets such as giver and receiver or lifter and lifted.
+Choose the action and its target, if any, on a body, object or world point. Set the object's use and each partner's role.
 
 Write those decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, which is the studied value. A decision the beat left vague is made in the screenplay, under [concretization](../../story/correction/repair.md#concretization).
 
-Layers are how everyone present keeps performing, as [blocking](../staging.md#blocking) requires: everyone breathes, and a listener's gaze follows the conversation unless the beat departs from it. Time a reaction by a sync on the hit, sight, sound or command that causes it; the vocabulary adds the studied reaction time.
+Use layers for ongoing breathing and listener gaze unless the beat changes them, as [blocking](../staging.md#blocking) requires. Sync reactions to their cause. The vocabulary adds studied reaction time.
 
 ### Forces and outcomes
 
 The vocabulary moves a body by the forces on it, so give it the force and write no reaction by hand. A strike's hit carries its own force; a force the beat does not size, such as a shove, takes its size from the study.
 
-State the outcome the screenplay decided, such as whether the shoved man sways, steps or falls, because an outcome left to the vocabulary changes with the body or the mass. An outcome the force cannot produce is refused and repaired under [refusals](refusals.md).
+Pass the scripted outcome to the vocabulary. Handle infeasible outcomes under [refusals](refusals.md).
 
 ## Operators
 
@@ -49,9 +49,9 @@ The vocabulary joins actions with a few operators:
 | Attaching the action to the object's [affordance](../../development/entities.md#objects) | An action on an object |
 | A sync between the named instants | An action timed to something else |
 
-A cut ends its action at a moment or when something comes near, inside a window the action declares. In an overlay, such as reading while walking, the action that moves the body carries, and the other takes the parts the carrier yields. A layer adds to every action and takes no part away from one.
+A cut ends its action at a time or proximity within a declared window. An overlay uses parts yielded by the action that moves the body. A layer is additive.
 
-A mutual join plans every role from one meeting, as in a handshake or a throw. Attaching serves an action such as sitting on the object or opening it. A sync times an action to another's instant or hit, a partner, a line of dialogue, a command or a beat.
+A mutual join plans roles from a shared meeting. An attach action uses an object connection. A sync aligns action to an event, partner, line, command or beat.
 
 Start a following action inside the window where the previous one lets the next interrupt it, rather than letting each return to rest, because a person begins the next thing before finishing the last.
 
@@ -59,11 +59,11 @@ Start a following action inside the window where the previous one lets the next 
 
 ### Groups
 
-People who act as one, such as a marching unit or a fleeing crowd, are composed through the vocabulary's group capability, and each member still performs through the axes above. What the group does is the screenplay's, and how many members an outcome takes is given as a count or a studied rate. The seed and each member's traits vary only how and when, under [independent draws](../laws/variation.md#independent-draws).
+Use the vocabulary's group capability. The screenplay gives the group action and the affected count or studied rate. Seed and performer traits vary how and when each member acts under [independent draws](../laws/variation.md#independent-draws).
 
 ### Seed
 
-Every performance takes the film's [one seed](../../development/modules.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no hand-set offsets. Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/modules.md#one-module).
+Derive variation from the film's [seed](../../development/modules.md#how-the-parts-work-together), person and action. Use a different seed or parameter for another take under [one module](../../development/modules.md#one-module).
 
 ## Handoff
 

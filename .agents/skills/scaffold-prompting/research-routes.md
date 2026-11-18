@@ -1,16 +1,6 @@
 # Research routes
 
-The primary sources behind shipped instructions, with what each supports and where it stops. Read the original before adopting an instruction from it: a source's existence, or another medium's success, does not establish an improvement here. Observations come from the production's own source, motion, audio and delivery records, and a tool's failure stays with the package that owns the tool.
-
-## Prompting
-
-[Anthropic: Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) supports clear instructions with their reasons, saying what to do, examples and calm wording. It is general and gives no film-quality acceptance.
-
-[Anthropic: Prompting Claude Opus 5.5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5) supports effort, unattended runs and progress updates for the current model. It changes with each model, so verify on the actual task.
-
-[Anthropic: Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) supports concise pages, a `SKILL.md` that routes, references one level deep, tables of contents and evaluation before writing. It is written for Claude's skill loader, while productions find skills through `AGENTS.md`.
-
-[SkillsBench](https://arxiv.org/html/2602.12670) and [IFScale](https://arxiv.org/abs/2507.11538) support that few compact skills outperform many detailed ones, and that instructions are dropped as their number grows. They are benchmarks, not this product's tasks.
+Read the primary source behind a proposed rule. Verify its effect on the production's own work.
 
 ## Story and editing
 
@@ -32,7 +22,7 @@ Walter Murch, *In the Blink of an Eye*, supports emotion, story and rhythm befor
 
 ## Images and forms
 
-[Runway: Gen-4 references](https://help.runwayml.com/hc/en-us/articles/40042718905875-Gen-4-Image-References-Guide) supports even light and a neutral expression in a character reference. It is one vendor.
+[Runway: Gen-4 references](https://help.runwayml.com/hc/en-us/articles/40042718905875-Gen-4-Image-References-Guide) recommends even light and a neutral expression for character references.
 
 [FreqEdit](https://arxiv.org/abs/2512.01755) supports detail lost across repeated image edits. It covers editing benchmarks, not canon sets.
 
@@ -52,9 +42,9 @@ Walter Murch, *In the Blink of an Eye*, supports emotion, story and rhythm befor
 
 [Google Cloud: Veo best practices](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice) supports an unchanged character description in every prompt, motion only beside a source image, and one event per shot. Its speech marking is Veo's own.
 
-[BytePlus: Seedance 2.5 prompt guide](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) supports reference images per subject, and a clay render as a reference video. It is one model.
+[BytePlus: Seedance 2.5 prompt guide](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) covers subject references and clay-render video inputs for that model.
 
-[Luma: Ray 3.2 video to video](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) supports separate motion and structure adherence, shaded rather than flat sources, and prompt enhancement off. Its scales are one vendor's.
+[Luma: Ray 3.2 video to video](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) covers separate motion and structure adherence, shaded inputs and disabling prompt enhancement.
 
 [fal: From clay render to action short](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) supports takes per shot, key elements in the first frame, and framing repaired in the 3D camera. It is one production with a person selecting.
 
@@ -76,7 +66,7 @@ The [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) and [Au
 
 [MMAudio](https://github.com/hkchengrex/MMAudio) supports video-to-audio effects generated on clips of a few seconds. It is trained on short clips, and its weights are non-commercial.
 
-[OpenTimelineIO time ranges](https://opentimelineio.readthedocs.io/en/latest/tutorials/time-ranges.html) supports a clip's used range against its available media, and handles for transitions. It is a format, not a required file.
+[OpenTimelineIO time ranges](https://opentimelineio.readthedocs.io/en/latest/tutorials/time-ranges.html) distinguishes used ranges, available media and transition handles.
 
 [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) supports tagged color, progressive scan and audio sample rate in a delivered file. Its values are one platform's.
 
@@ -104,6 +94,4 @@ The [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) and [Au
 
 ### Audio observation
 
-[OpenAI's model modalities](https://developers.openai.com/api/docs/models/gpt-6.1-sol) and [Codex's audio input protocol](https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/protocol/src/user_input.rs) distinguish model input support from attachment transport. Check the actual model and tools before claiming auditory access.
-
-[Claude's model inputs](https://platform.claude.com/docs/en/models/opus-5-5) and [Claude Code's dictation](https://code.claude.com/docs/en/voice-dictation) likewise separate coding-model modalities from speech-to-text. Neither decoded measurements nor transcription approves the listening experience.
+The [Astra](https://developers.openai.com/api/docs/models/gpt-6.2-astra) and [Sol](https://developers.openai.com/api/docs/models/gpt-6.2-sol) model pages list text and image input. The [Codex audio input protocol](https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/protocol/src/user_input.rs) describes attachment transport. Check the selected model and tools before claiming auditory access.

@@ -4,17 +4,17 @@ How a subject stays the same person, place or prop across every image made of it
 
 ## Words
 
-Define each subject once in its record's words and repeat its defining details in every prompt: face, build, each garment and its color. A phrase such as "same as before" drifts, because the model does not hold the earlier image's details.
+Repeat each subject's defining appearance from its record in every prompt.
 
 ## References
 
-Give the canon references as separate input images, each with its role, as [prompting](prompting.md#input-images) sets. For an angle the canon references lack, give earlier accepted views beside them, never alone. Where two subjects share an image, give each its own references and say which figure each belongs to.
+Supply separate canon images with [roles](prompting.md#input-images). Supplement missing angles with accepted views alongside canon. Bind each figure to its own references.
 
-Where the model returns a related set of images from one request, make a subject's views together in it, because one generation shares its details across the set.
+Generate related views together when the model supports it.
 
 ## Adapters
 
-A compatible image-prompt adapter trades the reference's appearance against the text through its strength. Use the adapter's documented defaults, masks and style or identity controls for the intended role. Where supported, bind each subject to its own region so references do not blend; check component terms under [models](models.md#structure-and-identity-adapters).
+Match the adapter's strength, masks and identity or style controls to their roles. Bind each subject to its own region where supported. Check component terms under [models](models.md#structure-and-identity-adapters).
 
 ## Character LoRA
 

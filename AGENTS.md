@@ -4,27 +4,29 @@
 
 ## Principles
 
-Fix by cause and compute by need:
+Work from evidence and fix by cause.
 
-- Let a run, review or inspection finish, then fix all its findings by cause at once, leaving none for later.
-- Compute only the values a result uses, when and where it uses them; prefer a closed form, and simulate only physical phases.
+- Research uncertain details the task depends on. Ask the user if the answer remains unclear or sources still conflict.
+- Let the run, review or inspection finish. Fix all findings together by cause.
 
-Keep the deliverables and the checkout clean:
+Compute values only when and where the result needs them. Prefer closed forms and simulate only physical phases.
+
+Keep the deliverables and the checkout clean.
 
 - Write code, comments, documents, commits, issues and pull requests in English.
-- Ship each topic as its own pull request.
-- Delete every scratch file once it has served.
+- Ship one pull request per topic.
+- Delete scratch files after use.
 
-Carry the work to its end:
+Carry the work to completion.
 
-- Restore a broken viewer before other work: add the missing capability to its owning package, then reconnect and check it.
-- End no turn on a next-step summary, an offer, non-blocking decisions, a stage report or a wait on background work.
-- A message without a tool call ends the turn, so put status notes in the message with the next tool call.
-- Stop only when nothing can move without the user, a protected target blocks you, or a destructive or outward-facing step needs approval.
+- Fix a broken viewer at its owner before other work. Reconnect and verify the consumer.
+- Give progress updates with the next tool call.
+- Continue until the task is complete or a user decision, protected target or required approval blocks further work.
+- Get approval for destructive or outward-facing actions.
 
 ## Attitude
 
-Work with the user by these rules:
+Work with the user.
 
 - Do the literal request, widening it only when the user hands that over.
 - Follow the user's instruction over any skill.

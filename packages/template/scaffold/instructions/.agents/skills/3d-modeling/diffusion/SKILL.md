@@ -5,7 +5,7 @@ description: Generates a commissioned detail option's form with a text- or image
 
 # Diffusion
 
-A generated form serves only a commissioned [detail option](../../development/entities.md#detail). Steer the model with what the production has already decided, because the coarse form holds the subject's size and parts and the canon references hold its look:
+Generate only a commissioned [detail option](../../development/entities.md#detail). Use the coarse form for dimensions and parts and canon references for appearance:
 
 | Read | When the subject has |
 | --- | --- |
@@ -15,7 +15,7 @@ A generated form serves only a commissioned [detail option](../../development/en
 | [Rendered views](shape-hints.md#views-rendered-from-the-shape) | Canon references, and no model that takes a shape |
 | [Text prompts](prompts.md) | Only its record |
 
-The geometry condition is the [coarse form](../coarse-forms.md) itself, with one canon reference beside it for the look, and a final crafted form takes its texture from the canon references. Bodies takes a pose condition from the polygon man's joints, then a bind onto the same skeleton, so the motion planned for the polygon man still fits.
+Condition geometry on the [coarse form](../coarse-forms.md) and appearance on canon references. Texture a final crafted form from those references. For bodies, condition on the polygon man's joints and bind to the same skeleton.
 
 The views are rendered from the coarse form and restyled under [turnaround views](../../image/turnaround-views.md), and [image hints](image-hints.md) covers those images. A text prompt keeps the record's wording.
 

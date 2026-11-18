@@ -1,18 +1,18 @@
 # Screenplay
 
-The screenplay composes the audience's complete viewing and listening experience, understandable without its parents, under the screenplay questions of the [story contracts](../../contracts/story/SKILL.md). It is the last place a decision can be made: motion, sound, generation and assembly realize it, and a film [only composes](../../contracts/development/composition.md#composition-only) what it decides.
+Write a complete audiovisual experience the audience can follow without parent documents. Apply the [story contracts](../../contracts/story/SKILL.md). Motion, sound, generation and assembly [realize](../../contracts/development/composition.md#composition-only) the screenplay's decisions.
 
-Choose what is seen and heard, how attention moves, and when the audience recognizes, waits and connects, through speech, action, reactions, sound, detail, duration and transitions. Write it in [notation](notation.md), with the view and the edit chosen under [shots and cuts](shots.md). A fixed view, silence, caption or narration serves the form when its contribution earns the attention.
+Decide what is seen and heard, how attention moves and when the audience learns or connects events. Use [notation](notation.md) and [shots and cuts](shots.md). Make silence, fixed views, captions and narration serve the chosen form.
 
 ## Scenes
 
-Each film's screenplay is a folder with one file per scene, the unit code composes. A scene is one continuous place and time: a cut to another place or time starts the next scene, and no continuous stretch is split across files. On the long route each script scene becomes one scene file in its episode's folder. The [document layout](../document-layout.md#documents) gives the folders and [notation](notation.md#identities) the headings.
+Use one file per continuous place and time. On the long route, map each script scene to one file in its episode folder. Follow [document layout](../document-layout.md#documents) and [heading identities](notation.md#identities).
 
 ## Realization
 
-On the long route, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from the completed treatments and scripts. Draft in a [separate context](../workflow/routes.md#separate-contexts) from those notes, the requirements and fixed quotations, then compare the draft against the actual parents. The decided event order holds while the realization is composed afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
+For long work, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Check the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
 
-On the short route, decide the events and their realization here from the instructions: from the first encounter with the promised experience through consequences, setup and payoff to the ending, and whether the audience learns each danger or secret before, with or after the people it concerns. Cite the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
+For a short, decide events, consequences, setups, payoffs and the ending from the instructions. Set when the audience learns dangers and secrets relative to the characters. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).
 
 On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that.
 
@@ -22,15 +22,15 @@ A fact the representation cannot carry reaches a generated film through canon re
 
 ## Beats
 
-A beat is one exchange, ending when an intent or the initiative changes. Its action lines name every action it chains, in order, and its record decides the exchange once, because a record per single action buries the performance under bookkeeping and splits a combination into turns.
+Use one beat per exchange. End it when intent or initiative changes. List its chained actions in order and write one record for the exchange.
 
-Plan the whole film's performance before writing beats, because beats written first and counted afterward come out as sparse turns of one shape. The plan sets how densely each section's action comes against its study's density and distribution targets, where the practice has them, where pressure rises, and where a recurring motif returns and what varies around it.
+Plan the whole performance before writing beats. Set each section's action density, pressure and motif variations. Apply the study's density and distribution targets where available.
 
-Keep the plan as working notes in ignored `.cache/`, never as a section or file of the screenplay, because every screenplay heading owes realization, answers and review.
+Keep performance plans only in ignored `.cache/`.
 
 Decide each beat completely in its [beat record](notation.md#records). An action the installed motion vocabulary does not perform, alone or joined with others, is named by the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
 
-In an exchange of speech, a speaker's intent is what they want from the listener, pursued openly or through another subject or an action, and information comes out when a speaker needs it for that aim. A reaction names the sight or sound that causes it, so the composition can time it from that cause, and the record states only departures from the listening and breathing everyone present keeps.
+Give each speaker an aim and disclose information when it serves that aim. Time each reaction from its visible or audible cause. Record departures from default listening and breathing.
 
 A beat that no composition of installed actions or cited law can produce is repaired here, or at the parent that owns the decision under [upstream defects](../correction/repair.md#upstream-defects), before code is written from it.
 
