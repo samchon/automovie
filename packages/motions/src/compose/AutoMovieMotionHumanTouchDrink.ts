@@ -361,21 +361,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
         undefined,
         lean,
       );
-    const bends: Map<IAutoMovieVector3, IAutoMovieVector3> = new Map();
-    const bend = (facing: IAutoMovieVector3): IAutoMovieVector3 => {
-      let found: IAutoMovieVector3 | undefined = bends.get(facing);
-      if (found === undefined) {
-        found = bound(laid(facing, posture, place, hint).point, hint);
-        bends.set(facing, found);
-      }
-      return found;
-    };
-    const goal = (
-      facing: IAutoMovieVector3,
-      on: IAutoMovieMotionHumanPosture = posture,
-      at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place,
-    ): IAutoMovieHumanLimbGoal => laid(facing, on, at, bend(facing));
     let best: IAutoMovieVector3 | undefined;
+    let selected: IAutoMovieHumanLimbGoal | undefined;
     let tilt: number = Infinity;
     for (const facing of AutoMovieMotionHumanTouchUpright.facings(
       place.normal,
@@ -385,11 +372,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
     )) {
       // A wrist no reaching elbow in the drinking range can place is
       // refused before any fit (`AutoMovieMotionHumanSwivelBound.admits`).
-      if (admits !== undefined && !admits(goal(facing).point)) continue;
+      const wrist: IAutoMovieHumanLimbGoal = laid(facing, posture, place, hint);
+      if (admits !== undefined && !admits(wrist.point)) continue;
+      const candidate: IAutoMovieHumanLimbGoal = { ...wrist, bend: bound(wrist.point, hint) };
       const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
         read(
           posture,
-          goal(facing),
+          candidate,
           false,
           axis,
         );
@@ -403,6 +392,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       if (holds(arm) && arm.tilt < tilt - ROM_TOLERANCE) {
         tilt = arm.tilt;
         best = facing;
+        selected = candidate;
       }
 
       // A tilt is an angle, never below 0, and a later facing replaces the
@@ -410,11 +400,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
       // within it of 0.
       if (tilt <= ROM_TOLERANCE) break;
     }
-    if (best === undefined) return undefined;
+    if (best === undefined || selected === undefined) return undefined;
     const shown: IAutoMovieMotionHumanDrinkingArm.IArm =
       read(
         posture,
-        goal(best),
+        selected,
         true,
         axis,
       );
@@ -424,11 +414,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
       (after === undefined ||
         read(
           after.posture,
-          goal(best, after.posture, after.place),
+          laid(best, after.posture, after.place, selected.bend),
           true,
           axis,
         ).tilt <= LEAN_STEP)
-      ? { facing: best, lean, tilt: shown.tilt, bend: bend(best) }
+      ? { facing: best, lean, tilt: shown.tilt, bend: selected.bend }
       : undefined;
   }
 
