@@ -22,10 +22,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * sweeps forward, away from the face (#3345), `blownKiss` followed by
  * `blownKissSend`.
  *
- * Scenarios, on the small woman and the average man, at the middle of the
+ * For either hand on the same body, at the middle of the
  * send's hold:
  * 1. The two rows plan one after the other.
- * 2. The right palm lies at least 0.25 m ahead of the mouth (provisional: an
+ * 2. The requested palm lies at least 0.25 m ahead of the mouth (provisional: an
  *    arm's half reach, far enough to read as sent and not as a hand at the
  *    chin).
  * 3. The palm lies no higher than the mouth and no lower than the chest's
@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the two rows, performs them through the public chain and reads the displayed palm and mouth; a send that stays at the lips, drops to the waist or is refused fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the test's own, stated provisional, and name what the gesture must read as; none is read from the row.
- * @evidence contracts/development/testing.md#distinguishing-cases The send on two statures; the fingertips at the lips are `test_human_motion_hand_verdicts_kiss`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases The send must use the requested hand on either side.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two short performances, each read at one instant; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds.
  */
@@ -46,8 +46,8 @@ export function test_motion_contact_emblem_surface(): void {
     HumanEmblem.blownKissSend,
   ];
   const complaints: string[] = [];
-  for (const name of ["f-small", "m-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  for (const side of ["left", "right"] as const) {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     try {
       // 1. The kiss, then its send.
       const performance: IAutoMovieMotionHumanPerformance =
@@ -64,8 +64,8 @@ export function test_motion_contact_emblem_surface(): void {
             },
           ],
           composition: HumanChain.subject("a")
-            .registered("blownKiss", {})
-            .registered("blownKissSend", {}).node,
+            .registered("blownKiss", { side })
+            .registered("blownKissSend", { side }).node,
         });
       const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
@@ -78,7 +78,7 @@ export function test_motion_contact_emblem_surface(): void {
       const palm: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(
         body,
         performance.bones("a", held),
-        "right",
+        side,
         touch.EFFECTORS.palm,
       );
       const mouth: IAutoMovieVector3 = HumanSignature.region(
@@ -90,17 +90,17 @@ export function test_motion_contact_emblem_surface(): void {
       // 2. Sent forward.
       if (!(palm.z - mouth.z >= 0.25))
         complaints.push(
-          `${name}: the palm lies ${((palm.z - mouth.z) * 1000).toFixed(0)} mm ahead of the mouth, at least 250 mm expected`,
+          `${side}: the palm lies ${((palm.z - mouth.z) * 1000).toFixed(0)} mm ahead of the mouth, at least 250 mm expected`,
         );
 
       // 3. Offered, not dropped.
       if (!(palm.y <= mouth.y && palm.y >= body.measure.chestHeight))
         complaints.push(
-          `${name}: the palm lies ${palm.y.toFixed(3)} m above the floor, between the chest at ${body.measure.chestHeight.toFixed(3)} and the mouth at ${mouth.y.toFixed(3)} m expected`,
+          `${side}: the palm lies ${palm.y.toFixed(3)} m above the floor, between the chest at ${body.measure.chestHeight.toFixed(3)} and the mouth at ${mouth.y.toFixed(3)} m expected`,
         );
     } catch (error) {
       complaints.push(
-        `${name}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+        `${side}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
