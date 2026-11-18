@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -223,7 +224,7 @@ export namespace stepOverPath {
     });
     const duration: number =
       2.4 *
-      Math.sqrt(m.hipHeight / 0.93) *
+      Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const leading: [number, number] = [WINDOWS[0] * duration, WINDOWS[1] * duration];
     const trailing: [number, number] = [WINDOWS[2] * duration, WINDOWS[3] * duration];

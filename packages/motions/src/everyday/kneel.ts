@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
@@ -91,7 +92,7 @@ export namespace kneel {
   /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
   export const REACH: number = 0.98;
 
-  /** Seconds of each phase for a 0.93 m hip height (provisional). */
+  /** Seconds of each phase for the reference hip height (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own hip height (dynamic similarity); the phases themselves have no located measurement. */
   export const PHASES: Readonly<
     Record<"step" | "lower" | "second" | "sit", number>
   > = { step: 0.7, lower: 1.0, second: 0.9, sit: 0.8 };
@@ -141,7 +142,7 @@ export namespace kneel {
     );
 
     // Phases: down through the keys, a hold, and back up when rising.
-    const scale: number = Math.sqrt(m.hipHeight / 0.93);
+    const scale: number = Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP);
     const downNames: readonly [string, number][] = [
       ["stepBack", PHASES.step],
       ["lowering", PHASES.lower],

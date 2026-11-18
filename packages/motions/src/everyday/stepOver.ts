@@ -67,7 +67,7 @@ import { stepOverPath } from "./stepOverPath";
  * of dropping at the contact.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
- * whole action takes `2.4 sqrt(l / 0.93)` seconds for a hip height `l`
+ * whole action takes `2.4 sqrt(l / walkRoot.REFERENCE_HIP)` seconds for a hip height `l`
  * (provisional: a deliberate two-step crossing near 1 s a step for an adult)
  * times the manner's tempo,
  * the lead swinging over 8 to 42 % and the trail over 50 to 82 %, the

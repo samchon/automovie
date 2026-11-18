@@ -79,7 +79,7 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * thighs (Kingma, Faber and van Dieen 2016, J Biomech 49:881). The descent
  * takes 1.0 s for a partial squat (half a self-paced repetition, Hannan and
  * King 2022) and that times the square root of the full squat's greater knee
- * travel, about 1.22 s, for a full one (`DESCENT`) at a 0.93 m hip
+ * travel, about 1.22 s, for a full one (`DESCENT`) at the reference hip
  * (`REFERENCE_HIP`) height, scaled by the square root of the hip height
  * (dynamic similarity, Alexander 1984) and by the manner's tempo, the hold `hold`
  * seconds and the rise as long as the descent. Events: `descend` at the
