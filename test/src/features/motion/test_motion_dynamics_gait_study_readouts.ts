@@ -3,12 +3,12 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
-import { walk } from "@automovie/motions";
 import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
   HumanSignature,
+  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

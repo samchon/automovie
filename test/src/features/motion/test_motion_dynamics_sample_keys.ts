@@ -1,6 +1,5 @@
 import { sampleMotion } from "@automovie/engine";
-import type { IAutoMovieMotionClock } from "@automovie/interface";
-import type { IAutoMovieMotion } from "@automovie/interface";
+import type { IAutoMovieMotion, IAutoMovieMotionClock } from "@automovie/interface";
 import { AutoMovieMotionClock as C } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

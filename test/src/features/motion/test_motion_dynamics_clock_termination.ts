@@ -1,5 +1,4 @@
-import { sampleTimes, windowSampleTimes } from "@automovie/engine";
-import { followPathMotion } from "@automovie/engine";
+import { followPathMotion, sampleTimes, windowSampleTimes } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
