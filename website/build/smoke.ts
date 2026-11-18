@@ -230,7 +230,7 @@ const CASES: readonly ICase[] = [
     path: "objects/?subject=createStageWeaponProp&variant=mace",
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
-      'aside[aria-label="Details"] tr:has(td:text-is("height")) td:text-is("Single value")',
+      'aside[aria-label="Details"] tr:has(td:text-is("height")) .am-band-text:text-is("Single value")',
     ],
     lacks: [".am-viewport-error"],
     contexts: 1,
