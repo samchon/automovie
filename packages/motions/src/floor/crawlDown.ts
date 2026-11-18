@@ -369,10 +369,13 @@ export namespace crawlDown {
         props.sit,
       );
       return {
-        satBalance: (): number => sat ??= Math.min(satBack, HumanBalance.shift(
-          body, (back: number): IAutoMovieMotionHumanPosture => armed(heldKneeling(base, back, 0), null, 0),
-          satBack / m.hipHeight,
-        )),
+        satBalance: (): number => {
+          sat ??= Math.min(satBack, HumanBalance.shift(
+            body, (back: number): IAutoMovieMotionHumanPosture => armed(heldKneeling(base, back, 0), null, 0),
+            satBack / m.hipHeight,
+          ));
+          return sat;
+        },
         handBalance: (): IHandKey => {
           if (hand !== undefined) return hand;
           const support: IAutoMovieVector3 = props.hover ? pair((side) => tucked[side].at) : knee;
@@ -382,7 +385,8 @@ export namespace crawlDown {
             Vector3.dot(Vector3.subtract(centre(at(back, leanAt(back))), support), forward);
           const back: number = error(0) <= 0 ? 0 : error(leantBack) > 0 ? leantBack
             : bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
-          return hand = { back, lean: leanAt(back) };
+          hand = { back, lean: leanAt(back) };
+          return hand;
         },
         back: { sat: satBack, leant: leantBack },
         lean,

@@ -241,7 +241,10 @@ export namespace HumanPhysics {
     let events: readonly IAutoMovieMotionEvent[] | undefined;
     return prepare(params, law, start, {
       duration: clock.duration,
-      get events(): readonly IAutoMovieMotionEvent[] { return events ??= clock.events(); },
+      get events(): readonly IAutoMovieMotionEvent[] {
+        events ??= clock.events();
+        return events;
+      },
     }, resolve);
   }
 
