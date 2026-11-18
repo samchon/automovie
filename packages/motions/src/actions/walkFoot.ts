@@ -210,7 +210,7 @@ export namespace walkFoot {
     /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
     stiff?: boolean;
 
-    /** Whether the foot sets down at rest over its landing in terminal swing (a walking foot; a running one strikes moving); true when absent. */
+    /** Whether horizontal travel ends before touchdown. An explicitly settling heel-first swing retains a downward impact speed. */
     settles?: boolean;
   }
 
@@ -263,7 +263,15 @@ export namespace walkFoot {
     const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
     const toe: ReturnType<typeof HumanFoot.prepareHeight.articulated> = HumanFoot.prepareHeight.articulated(body, side, "toe");
     const delta: IAutoMovieVector3 = Vector3.subtract(props.to.ankle, props.from.ankle);
-    const carriedSeconds: number = (1 - settle) * props.seconds;
+    // A heel-first walking touchdown accepts a finite normal impact velocity
+    // (Baines, Schwab and van Soest 2018, doi:10.1371/journal.pone.0197428). From the swing apex the
+    // lowest-degree descent matching its height and zero rate is quadratic.
+    // Its inverse gives the terminal share below the contact height.
+    const heelImpact: boolean = props.settles === true && toAngles.pitch > 0 && !stiff;
+    const landing: number = heelImpact && settle > 0
+      ? (1 - Math.sqrt(1 - AutoMovieMotionHumanAuditContact.HEIGHT / height)) / 2
+      : settle;
+    const carriedSeconds: number = (1 - landing) * props.seconds;
     const turnSeconds: number = (stiff ? LEVEL : 0.5) * props.seconds;
     const levelSeconds: number = LEVEL * props.seconds;
     const departure: IDeparture | undefined = settle > 0
@@ -271,13 +279,15 @@ export namespace walkFoot {
       : undefined;
     return (share: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
-      const travel: number = Math.min(1, u / (1 - settle));
+      const travel: number = Math.min(1, u / (1 - landing));
       const s: number = minimumJerk.share(travel);
       const carried: number = carriedRate(
         carriedSeconds,
-        travel * (1 - settle) * props.seconds,
+        travel * carriedSeconds,
       );
-      const bump: number = Math.sin(Math.PI * u) ** 2;
+      const bump: number = heelImpact && u > 0.5
+        ? 1 - (2 * u - 1) ** 2
+        : Math.sin(Math.PI * u) ** 2;
 
       // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
       const level: number = stiff ? minimumJerk.share(Math.min(1, u / LEVEL)) : s;

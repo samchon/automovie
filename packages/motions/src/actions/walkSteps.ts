@@ -438,6 +438,10 @@ export namespace walkSteps {
     } : walkRoot({
       body, start: input.entry.posture.root, period: T, lag, first, last,
       front, swing, stop: steps.at(-2)!.heelStrike, firstLeft, bob: gaitBob,
+      step: pace.stride,
+      ...(gaitBob !== undefined || input.travel !== undefined || swing >= T
+        ? {}
+        : { walkingSpeed: pace.stride / T }),
       progress, yaw: yawAt, at: (s: number): IAutoMovieVector3 => path.at(s),
       heading: (s: number, point: IAutoMovieVector3): number => facing === undefined ? along$(s) : faced$(point),
     });

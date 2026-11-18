@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkFoot,
@@ -8,6 +9,21 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { walkFoot } from "./walkFoot";
+
+/** Swing endpoints in action seconds. */
+type Swing = Pick<NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>, "off" | "on">;
+
+/** A swing evaluated at its normalized time from toe-off to heel strike. */
+type ReadSwing = (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
+
+/** Reader prepared for the recorded arrival of this toe-off. */
+interface IArrival {
+  /** Heel-strike time in action seconds. */
+  on: number;
+
+  /** The owner's prepared swing. */
+  read: ReadSwing;
+}
 
 /**
  * Prepare a swing from the stance reader that owns its endpoints: the
@@ -25,8 +41,8 @@ import { walkFoot } from "./walkFoot";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Each preparation reads departure, its millisecond predecessor and arrival, then prepares the shared swing owner once for them.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every endpoint, rate interval, lift, straight-leg and landing rule is read from its owner; nothing is replayed from another swing.
  * @evidence contracts/development/implementation.md#efficient-algorithms A preparation costs three endpoint reads and the swing's fixed decompositions; each share read then costs only the interpolation and clearance.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A swing's endpoints are fixed by its side, toe-off and heel strike, so the caller may keep one prepared reader per swing for every share of it; the FK loan only lends a workspace and changes no endpoint.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The preparer holds body/gait/callback references only; a prepared reader holds one swing's fixed terms until its caller releases it, with no FK loan or query history.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuse the reader only for the same side, toe-off and heel strike; the FK loan changes no endpoint.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one reader per requested foot and toe-off. Each retains fixed swing terms, with no FK loan or arbitrary-time history.
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
@@ -35,17 +51,20 @@ export function walkSwing(
   closing: (side: "left" | "right", on: number) => boolean = (): boolean => false,
 ): (
   side: "left" | "right",
-  swing: { off: number; on: number },
+  swing: Swing,
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
+) => ReadSwing {
+  const readers: Record<AutoMovieHumanSide, Map<number, IArrival>> = { left: new Map(), right: new Map() };
   return (
     side: "left" | "right",
-    swing: { off: number; on: number },
+    swing: Swing,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-  ): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
+  ): ReadSwing => {
+    const retained: IArrival | undefined = readers[side].get(swing.off);
+    if (retained?.on === swing.on) return retained.read;
     const from: walkFoot.IEnd = at(side, swing.off, resolution);
     const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
-    return walkFoot.prepareSwing(body, side, {
+    const read: ReadSwing = walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
         Vector3.subtract(from.ankle, before.ankle),
@@ -66,6 +85,8 @@ export function walkSwing(
       // to stand (`walkFoot.prepareStance`).
       settles: gait.swing <= 1 || closing(side, swing.on),
     });
+    readers[side].set(swing.off, { on: swing.on, read });
+    return read;
   };
 }
 

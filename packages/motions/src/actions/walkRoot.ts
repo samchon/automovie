@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, minimumJerk, Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkSteps,
@@ -19,6 +19,12 @@ interface IProps {
 
   /** Step period, seconds. */
   period: number;
+
+  /** Mean cruising speed for a self-paced walking path in metres per second. */
+  walkingSpeed?: number;
+
+  /** Cruising distance between consecutive footprints, metres. */
+  step: number;
 
   /** Opening-turn delay, seconds. */
   lag: number;
@@ -107,6 +113,25 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
   const sheds: number = props.last - props.stop + 2 * walkRoot.LOADING * T;
   const over: number = props.firstLeft + props.front * T;
   const middle: number = props.firstLeft + (T - props.swing / 2);
+  // Inverted-pendulum exchange (Cavagna et al., J Physiol 1976, PMID
+  // 1011078; Griffin et al. 1999, doi:10.1152/jappl.1999.86.1.383): the difference in
+  // squared speeds between the bottom and top is 2 g times their height
+  // difference. Use the ratio of these speeds to set the modulation, so
+  // its spatial derivative is positive even at a very slow mean pace.
+  let contrast: number = 0;
+  if (props.walkingSpeed !== undefined && props.walkingSpeed > 0) {
+    const speed: number = props.walkingSpeed;
+    const fast: number = Math.hypot(speed, Math.sqrt(4 * AutoMovieGravity.STANDARD * similar * walkRoot.BOB));
+
+    // The swing advances two steps in its swing time. Differentiate its
+    // minimum-jerk path at mid-swing to account for distal mass momentum.
+    const footSpeed: number = minimumJerk.rate(0.5) * 2 * props.step / props.swing;
+    const residual: number = speed - walkRoot.distalShare(props.body) * footSpeed;
+
+    // The same carried mass factor divides both speeds and cancels in
+    // their contrast. A nonpositive residual is outside this approximation.
+    if (residual > 0 && fast > residual) contrast = (fast - residual) / (fast + residual);
+  }
   const amount: (t: number) => number = (t: number): number => {
     const up: number = minimumJerk.share((t - props.lag) / gathers);
     const down: number = 1 - minimumJerk.share((t - props.stop) / sheds);
@@ -123,7 +148,20 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
     const bob: number = props.bob === undefined
       ? a * similar * (walkRoot.BOB_MEAN + walkRoot.BOB * Math.cos(phase / T))
       : a * l * (props.bob.mean - props.bob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
-    const s: number = props.progress(t);
+    const distance: number = props.progress(t);
+    // Each heel-strike interval advances exactly its planned distance.
+    // The spatial derivative 1 + contrast*cos is positive, including on
+    // the shortened departure and arrival steps, and agrees across strikes.
+    let s: number = distance;
+    if (contrast > 0 && t > props.lag && t < props.last) {
+      const strike: number = props.firstLeft + T * Math.floor((t - props.firstLeft) / T);
+      const start: number = props.progress(Math.max(props.lag, strike));
+      const end: number = props.progress(Math.min(props.last, strike + T));
+      if (end > start) {
+        const wave: number = 2 * Math.PI / (end - start);
+        s += contrast / wave * Math.sin(wave * (distance - start));
+      }
+    }
     const along: IAutoMovieVector3 = props.at(s);
     const point: IAutoMovieVector3 = HumanFrame.point(
       { origin: along, yaw: props.heading(s, along) }, { x: sway, y: 0, z: 0 },
@@ -153,6 +191,32 @@ export function walkRoot(props: IProps): Pick<IAutoMovieMotionHumanWalkSteps.IPl
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkRoot {
+  /**
+   * Ankle-equivalent mass of one leg as a fraction of total body mass.
+   * The segmental first moment about the hip determines how much moving an
+   * ankle translates the whole centre in the straight-leg approximation.
+   *
+   * @param body The actor's neutral segment frames, masses and hip-to-ankle span.
+   * @returns The mean of the two legs' equivalent mass fractions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the neutral-frame first moment, the length normalization and the bilateral average.
+   * @evidence contracts/development/implementation.md#principled-implementation A rigid leg's small ankle displacement moves each carried mass in proportion to its distance below the hip. Normalize the sum by span and total mass.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Accumulate each leg segment's neutral-frame first moment, then normalize once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the supplied physical profile and the actual measured leg span.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One traversal of the profile and one vector rotation per leg segment at preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The horizontal and vertical planners share the same segmental model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar with no retained references.
+   */
+  export function distalShare(body: IAutoMovieMotionHumanBody): number {
+    let moment: number = 0;
+    for (const segment of body.profile.segments) {
+      if (!/^(left|right)(UpperLeg|LowerLeg|Foot|Toes)$/.test(segment.bone)) continue;
+      const centre: number = segment.neutral.position.y +
+        Quaternion.rotateVector(segment.neutral.rotation, segment.centerOfMass).y;
+      moment += segment.mass * (body.measure.hipHeight - centre);
+    }
+    return moment / (2 * body.profile.mass * (body.measure.hipHeight - body.measure.ankleHeight));
+  }
   /** The hip height of an average adult, metres, at which gait measurements of ordinary adults are stated and scaled to a body by dynamic similarity: Winter's greater-trochanter height, 0.530 of stature (Winter, Biomechanics and Motor Control of Human Movement, segment table after Drillis and Contini 1966), of the mean stature of United States men aged 20 and over, 175.3 cm (Fryar et al. 2021, Vital Health Stat 3(46), Table 11, NHANES 2015-2018), about 0.93 m. The walk's Froude paces give Bohannon's adult speeds at it (`walk.FROUDE`). */
   export const REFERENCE_HIP: number = 0.53 * 1.753;
 

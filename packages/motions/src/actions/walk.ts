@@ -36,6 +36,7 @@ import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
 import { walkSteps } from "./walkSteps";
+import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
@@ -50,9 +51,9 @@ interface IReachAt {
  *
  * Speed comes from dynamic similarity (Alexander 1984): people of different
  * leg length walk alike at equal Froude number `v^2 / (g l)`, so each pace is
- * a Froude number on the hip height `l`: slow 0.12, normal 0.20 and fast
- * 0.32, which give 1.05, 1.35 and 1.71 m/s at the reference hip (`walkRoot.REFERENCE_HIP`, 0.93 m), inside the
- * comfortable and fast adult ranges (Bohannon 1997). Step length grows with
+ * a Froude number on the hip height `l`: slow 0.12, normal 0.25 and fast
+ * 0.32, which give 1.05, 1.51 and 1.71 m/s at the reference hip (`walkRoot.REFERENCE_HIP`, 0.93 m).
+ * Step length grows with
  * the square root of speed (Grieve and Gear 1966): `1.2 l sqrt(sqrt(Fr))`,
  * 0.8 hip heights at the normal pace (about 0.4 stature, Perry and Burnfield);
  * the step count is rounded up so every step is at most that long, at the
@@ -62,16 +63,15 @@ interface IReachAt {
  * on the floor, and swings between footprints on a minimum-jerk path lifted
  * clear of the floor ({@link walkSteps}): 60 % stance and 40 % swing of each
  * stride, so each double support lasts a tenth of a stride (Perry and
- * Burnfield). The pelvis progresses at the walking speed with smooth start
- * and stop, rises and falls 2.5 cm about its mean twice a stride (the 4 to 5
- * cm vertical excursion of the centre of mass), sways 2 cm toward the stance
- * foot, and is lowered wherever a planted leg could not otherwise reach its
+ * Burnfield). The pelvis advances fastest near double support and slowest
+ * near midstance. Its height follows the two contact heights and accounts
+ * for the raised leg's share of the 4–5 cm whole-body excursion. It sways
+ * 2 cm toward the stance foot and lowers wherever a planted leg cannot reach its
  * foot, so no plant is ever stretched off its point ({@link walkReach}). A
  * swing joins the stance its foot left, as the leg reached it at toe-off, to
  * the stance it lands in, as the leg reaches it at heel strike
  * ({@link walkFoot}), and the pelvis reads a swinging foot only through those
- * two stances, so a plant is never moved and every displayed channel is
- * continuous through every contact event by construction. The pelvis turns 4° and
+ * two stances. The pelvis turns 4° and
  * tilts 4° with the stride, the chest counter-rotates, and the arms swing
  * opposite the legs about 15° with the elbows bent 15 to 30° (Perry and
  * Burnfield, normal gait kinematics).
@@ -96,9 +96,9 @@ export namespace walk {
     "rightArm",
   ];
 
-  /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at `walkRoot.REFERENCE_HIP`). */
+  /** Froude number of each pace. Normal uses the metabolic minimum reported for ordinary limbs in Optimal walking speed following changes in limb geometry (2011, PMID 21653821). */
   export const FROUDE: Readonly<Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>> =
-    { slow: 0.12, normal: 0.2, fast: 0.32 };
+    { slow: 0.12, normal: 0.25, fast: 0.32 };
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -256,7 +256,9 @@ export namespace walk {
     const stride: number = authored.stride * manner.step;
     const arms: number = authored.arms * manner.swing;
     walkClear(context);
-    const forward: number = stride * l * gait.step(froude);
+    // Step length follows the speed actually requested by the manner.
+    const effectiveFroude: number = froude / (manner.tempo * manner.tempo);
+    const forward: number = stride * l * gait.step(effectiveFroude);
     // A walk that does not face its way keeps the share of its speed and
     // step its direction allows, at the same cadence.
     const share: number =
@@ -310,17 +312,11 @@ export namespace walk {
     // The foot schedule and the swing both carry the original heel-strike time.
     const closing: NonNullable<Parameters<typeof walkSwing>[3]> = (side: AutoMovieHumanSide, on: number): boolean =>
       on === steps.lastLanding[side];
-    const scheduledSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled, closing);
-    const scheduledSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
-    const scheduledAt: (side: "left" | "right", swing: { off: number; on: number }) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
-      const key: string = `${side}:${swing.off}`;
-      let read: ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) | undefined = scheduledSwings.get(key);
-      if (read === undefined) {
-        read = scheduledSwing(side, swing);
-        scheduledSwings.set(key, read);
-      }
-      return read;
-    };
+    const scheduledAt: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled, closing);
+
+    const walking: boolean = gait.swing < 1 && gait.bob === undefined && steps.inPlace !== true;
+    const support: ReturnType<typeof walkSupportHeight> | undefined = walking ? walkSupportHeight(steps, body, gait.lift, pelvis, claim) : undefined;
+    const rootAt: typeof steps.root = support?.root ?? steps.root;
 
     // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
     function reaching(
@@ -333,7 +329,7 @@ export namespace walk {
       const t: number = swing.off + u * (swing.on - swing.off);
       const frame: walkReach.IPelvis = current?.seconds === t
         ? current.pelvis
-        : walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
+        : walkReach.pelvis(body, rootAt(t), steps.yaw(t), pelvis(t), {
             left: steps.foot("left", t), right: steps.foot("right", t),
           }, resolution);
       return claim(
@@ -353,7 +349,7 @@ export namespace walk {
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
       const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution);
-      const root: IAutoMovieVector3 = steps.root(t);
+      const root: IAutoMovieVector3 = rootAt(t);
       const frame: walkReach.IPelvis = walkReach.pelvis(body, root, steps.yaw(t), hips, feet, read);
       const current: IReachAt = { seconds: t, pelvis: frame };
       const claims: Partial<Record<"left" | "right", number>> = {};
@@ -375,6 +371,14 @@ export namespace walk {
           continue;
         }
         if (swing.u < walkDescent.START) continue;
+        // The airborne ankle does not lower its support. Transfer only the
+        // lowering the landing foot actually needs at the instant of strike.
+        if (support !== undefined) {
+          const weight: number = walkReach.weight(feet[side]);
+          const landing: number = weight === 0 ? 0 : support.landing(side, swing.on, read);
+          claims[side] = -walkReach.CLAIM + weight * (landing + walkReach.CLAIM);
+          continue;
+        }
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {
@@ -422,17 +426,7 @@ export namespace walk {
       }
       return known;
     };
-    const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end, closing);
-    const reachedSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
-    const reachedAt: (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
-      const key: string = `${side}:${swing.off}`;
-      let read: ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) | undefined = reachedSwings.get(key);
-      if (read === undefined) {
-        read = reachedSwing(side, swing, resolution);
-        reachedSwings.set(key, read);
-      }
-      return read;
-    };
+    const reachedAt: ReturnType<typeof walkSwing> = walkSwing(body, gait, end, closing);
     const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};
     function solve(
       t: number,

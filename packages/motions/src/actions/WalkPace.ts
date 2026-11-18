@@ -4,14 +4,9 @@ import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
  *
- * The step period is the pace's own, the time its longest step takes at the
- * asked speed, whatever the distance: a distance that is not a whole number
- * of longest steps is walked in shorter steps at the same cadence, and so a
- * little slower, as a walker regulates the last steps to a target by their
- * length (Lee, Lishman and Thomson 1982, J Exp Psychol Hum Percept Perform
- * 8:448). A period shrunk with the step instead would quicken the cadence
- * by a fifth on a 3 m walk of five steps where four fall just short, and
- * without bound on a short one.
+ * With a cruising walking step between departure and arrival, the first
+ * accelerating steps absorb the part of the distance left by the whole
+ * cruising steps. The cruise can retain both its step and its cadence.
  *
  * The pelvis gathers its speed over a ramp, cruises one step per period and
  * sheds the speed over a second ramp, each ramp a smooth step of the speed
@@ -112,9 +107,7 @@ export class WalkPace {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
     const floor: number = WalkPace.FLOOR;
-    const base: number = props.period(
-      Math.max(props.longest, floor) / props.speed,
-    );
+    const base: number = props.period(Math.max(props.longest, floor) / props.speed);
     const front: number =
       props.share > 1
         ? Math.max(
@@ -184,6 +177,11 @@ export class WalkPace {
     this.last = first + this.swing + n * T;
 
     const decel: number = 2 * (1 - front) * T;
+    // Both speed ramps integrate to half their duration. Solve the
+    // remaining departure duration from D = v (last - (accel + decel)/2)
+    // with v = step/T, respecting the opening leg's existing reach bound.
+    if (!fixedCadence && props.share < 1 && props.distance > floor && n > 2)
+      accel = Math.max(accel, 2 * (this.last - props.distance * T / props.longest) - decel);
     const ramps: number = Math.min(1, this.last / (accel + decel));
     this.accel = ramps * accel;
     this.decel = ramps * decel;
