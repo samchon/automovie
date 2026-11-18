@@ -59,10 +59,10 @@ export function test_motion_posture_floor_travel(): void {
     const down: number =
       crawl!.start +
       (crawl!.plan.events.find(
-        (e: { name: string }): boolean => e.name === "down",
+        (e): boolean => e.name === "down",
       )?.share ?? 0) *
         crawl!.plan.duration;
-    let worst: { distance: number; seconds: number; bone: string } = {
+    let worst: IWorstBone = {
       distance: 0,
       seconds: 0,
       bone: "none",
@@ -95,3 +95,6 @@ export function test_motion_posture_floor_travel(): void {
     [],
   );
 }
+
+/** Bone with the greatest discrepancy at a sampled second. */
+interface IWorstBone { distance: number; seconds: number; bone: string }

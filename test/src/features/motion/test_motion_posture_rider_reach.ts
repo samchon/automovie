@@ -1,3 +1,4 @@
+import type {AutoMovieHumanSide} from "@automovie/interface";
 import { createBicycle, rideBicycle } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
@@ -168,7 +169,7 @@ export function test_motion_posture_rider_reach(): void {
         y: world.y - from.y,
         z: world.z - from.z,
       });
-    const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
+    const ball = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 =>
       local(
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
           (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
@@ -179,9 +180,9 @@ export function test_motion_posture_rider_reach(): void {
       );
     const tops: number[] = cycling.instants
       .filter(
-        (i: { label: string }): boolean => i.label === "leftTopDeadCentre",
+        (i): boolean => i.label === "leftTopDeadCentre",
       )
-      .map((i: { seconds: number }): number => WAIT + i.seconds)
+      .map((i): number => WAIT + i.seconds)
       .filter(
         (s: number): boolean =>
           s >= ride.entryTime + 0.3 && s <= ride.end - 0.3,
@@ -198,7 +199,7 @@ export function test_motion_posture_rider_reach(): void {
         placed(from).position,
         from,
       );
-      const stood: Record<"left" | "right", IAutoMovieVector3> = {
+      const stood: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
         left: ball("left", from),
         right: ball("right", from),
       };

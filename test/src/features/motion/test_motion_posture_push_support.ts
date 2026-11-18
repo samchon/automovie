@@ -1,3 +1,4 @@
+import type {AutoMovieHumanSide} from "@automovie/interface";
 import {
   Quaternion,
   ROM_TOLERANCE,
@@ -81,16 +82,11 @@ export function test_motion_posture_push_support(): void {
   for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const arm: number = body.measure.upperArm + body.measure.forearm;
-    const heights: Record<"hip" | "elbow", number> = {
+    const heights: Record<Height, number> = {
       hip: body.measure.hipHeight,
       elbow: body.measure.shoulderHeight - body.measure.upperArm,
     };
-    const stagings: {
-      way: IAutoMovieMotionHumanPushPull.Way;
-      label: string;
-      height: number;
-      ahead: number;
-    }[] = [
+    const stagings: IStaging[] = [
       ...(["push", "pull"] as const).flatMap(
         (way: IAutoMovieMotionHumanPushPull.Way) =>
           Object.entries(heights).map(([label, height]) => ({
@@ -352,7 +348,7 @@ function readHaul(
     body,
     0,
   );
-  const fist = (seconds: number, side: "left" | "right"): IAutoMovieVector3 => {
+  const fist = (seconds: number, side: AutoMovieHumanSide): IAutoMovieVector3 => {
     const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
       body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
     return resolveAutoMovieHumanoidSurfaces.place(
@@ -362,7 +358,7 @@ function readHaul(
   };
   const handle = (
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 => {
     const frame: IAutoMovieRigidTransform = performance.prop("crate", seconds);
     return Vector3.add(
@@ -378,7 +374,7 @@ function readHaul(
   let lowest: number = Infinity;
   let lean: number = 0;
   let count: number = 0;
-  const first: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
+  const first: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
   const start: number = gripped + 0.05;
   for (let seconds: number = start; seconds <= placed.end; seconds += 0.25) {
     const frame: IAutoMovieRigidTransform = performance.prop("crate", seconds);
@@ -431,7 +427,7 @@ function readHaul(
   );
   // Each handle's displacement less its fist's, over the same span.
   const apart: number = Math.max(
-    ...(["left", "right"] as const).map((side: "left" | "right"): number =>
+    ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number =>
       Vector3.length(
         Vector3.subtract(
           Vector3.subtract(handle(placed.end, side), handle(start, side)),
@@ -482,3 +478,13 @@ function freeSpeed(
   const placed = performance.segments("a")[0]!;
   return Math.hypot(to.x, to.z) / (placed.end - placed.start);
 }
+
+/** Inputs for the measured stagings. */
+interface IStaging {
+      way: IAutoMovieMotionHumanPushPull.Way;
+      label: string;
+      height: number;
+      ahead: number;
+    }
+/** Handle-height landmarks for the support fixture. */
+type Height = 'hip' | 'elbow';

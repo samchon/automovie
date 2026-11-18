@@ -58,7 +58,7 @@ export function test_motion_posture_posture_geometry(): void {
   ];
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   rows.forEach((row: string, r: number): void => {
-    const name: "m-average" | "f-small" = names[r % 2]!;
+    const name: motionHumanBody.Name = names[r % 2]!;
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const label: string = `${name} ${row}`;

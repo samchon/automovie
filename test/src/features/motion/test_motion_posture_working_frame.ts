@@ -193,7 +193,7 @@ export function test_motion_posture_working_frame(): void {
     const socket: (typeof body.surfaces.sockets)["gripRight"] =
       body.surfaces.sockets.gripRight;
     const local: IAutoMovieVector3 = glass.points.lip!.point;
-    let worst: { off: number; seconds: number } = { off: 0, seconds: 0 };
+    let worst: IGap = { off: 0, seconds: 0 };
     for (
       let t: number = film.segments("a")[1]!.entryTime;
       t <= film.duration + 1e-9;
@@ -283,3 +283,6 @@ export function test_motion_posture_working_frame(): void {
     [],
   );
 }
+
+/** Largest sampled gap and its film second. */
+interface IGap { off: number; seconds: number }

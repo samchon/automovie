@@ -1,3 +1,4 @@
+import type {AutoMovieHumanSide} from "@automovie/interface";
 import { HumanFoot } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -53,11 +54,11 @@ export function test_motion_posture_obstacle_step(): void {
     const trailOff: number = M.event(s, "trailToeOff")!;
     const trailOn: number = M.event(s, "trailContact")!;
     const mid: number = (leadOff + leadOn) / 2;
-    const lead: "left" | "right" =
+    const lead: AutoMovieHumanSide =
       M.sole(s, mid, "left").y > M.sole(s, mid, "right").y ? "left" : "right";
-    const trail: "left" | "right" = lead === "left" ? "right" : "left";
+    const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const clearance = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       from: number,
       to: number,
     ): number => {

@@ -134,7 +134,7 @@ export function test_motion_posture_staged_limb(): void {
       result.converged,
     );
     result.residuals.forEach(
-      (r: { point: number; turn: number }, k: number): void => {
+      (r: (typeof result.residuals)[number], k: number): void => {
         all.check(
           `${name}: target ${k} misses ${r.point.toFixed(1)} mm, within ${SKIN}`,
           r.point <= SKIN,
